@@ -10,8 +10,8 @@
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/vendor/font-awesome.min.css")">
 
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-        <!-- todo: uncomment in production and comment previous line -->
-        <!--link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.min.css")"-->
+            <!-- todo: uncomment in production and comment previous line -->
+            <!--link rel="stylesheet" media="screen" href="     @routes.Assets.at("stylesheets/main.min.css")"-->
 
         <script src="@routes.Assets.at("javascript/vendor/jquery.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/vendor/angular.js")" type="text/javascript"></script>
@@ -21,7 +21,6 @@
         <script src="@routes.Assets.at("javascript/routes.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/controllers.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/sitnet.js")" type="text/javascript"></script>
-
 
     </head>
     <body ng-app="sitnet">
@@ -46,12 +45,82 @@
                 </div>
             </div>
         </div>
-
         <div class="container">
-            <div class="starter-template">
-                <h1>SITNET</h1>
-                <i class="fa fa-cog fa-spin"></i>
-                <p class="lead">Sähköiset tenttipalvelut</p>
+
+            <aside id="vmenu" class="col-md-2" ng-controller="vmenuController">
+                <div class="user">
+                    <span>
+                        <img src="http://placehold.it/70x70" alt="me">
+                        <a href="javascript:void(0);" id="current_user"> Oili Opettaja <i class="fa fa-caret-down"></i></a>
+                    </span>
+                </div>
+                <nav>
+                    <ul>
+                        <li>
+                            <a href="#home" title="Dashboard"><i class="fa fa-2x fa-fw fa-home"></i> <span class="menu-item">Työpöytä</span></a>
+                        </li>
+                        <li>
+                            <a href="#questions"><i class="fa fa-2x fa-fw fa-question-circle"></i> <span class="menu-item">Kysymykset</span></a>
+                        </li>
+                        <li>
+                            <a href="#reports"><i class="fa fa-2x fa-fw fa-bar-chart-o"></i> <span class="menu-item">Tilastot ja Raportit</span></a>
+                        </li>
+                        <li class="selected">
+                            <a href="#exams"><i class="fa fa-2x fa-fw fa-pencil-square-o"></i> <span class="menu-item">Tentit</span></a>
+                        </li>
+                        <li>
+                            <a href="#calendar"><i class="fa fa-2x fa-fw fa-calendar"></i> <span class="menu-item">Kalenteri</span></a>
+                        </li>
+                        <li>
+                            <a href="#notifications"><i class="fa fa-2x fa-fw fa-bullhorn"></i> <span class="menu-item">Ilmoitukset</span></a>
+                        </li>
+                        <li>
+                            <a href="#messages"><i class="fa fa-2x fa-fw fa-comment-o"></i> <span class="menu-item">Viestit</span></a>
+                        </li>
+                        <li>
+                            <a href="#tools"><i class="fa fa-2x fa-fw fa-map-marker"></i> <span class="menu-item">Työkalut</span></a>
+                        </li>
+                    </ul>
+                </nav>
+                <span class="minify"> <i class="fa fa-arrow-circle-left hit"></i></span>
+
+            </aside>
+
+            <div ng-view></div>
+            <div class="mains col-md-offset-2">
+
+                <div class="starter-template">
+                    <h1>SITNET</h1>
+                    <i class="fa fa-cog fa-spin"></i>
+                    <p class="lead">Sähköiset tenttipalvelut</p>
+                </div>
+
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dolor tortor, dictum a ipsum vel, interdum condimentum sem. Nullam tempor interdum nisl, eu dignissim augue. In hac habitasse platea dictumst. Vivamus erat diam, vehicula at iaculis eu, auctor ut lectus. Sed sit amet orci at nisl consectetur pulvinar et at elit. Proin in nisl velit. Nulla facilisi. Donec vehicula lobortis gravida. Quisque imperdiet scelerisque hendrerit. Nam at leo et mauris cursus ultrices.</p>
+
+                <p>Nulla facilisi. Aliquam feugiat urna sapien, in malesuada purus eleifend quis. Etiam accumsan non odio at pretium. Pellentesque lectus ante, laoreet vel bibendum eget, tincidunt id leo. Donec ut libero varius, pretium nunc ut, luctus justo. Duis nulla massa, dapibus eu ipsum sed, rhoncus commodo nibh. Donec vel risus vestibulum, vehicula ligula luctus, lacinia neque. Aenean cursus sodales dolor, ut tempor nisi imperdiet et. Aliquam erat volutpat. Nunc nec consectetur mi. Mauris lobortis metus et orci ultrices feugiat. Sed erat nunc, feugiat consequat commodo et, sagittis ac augue. Ut viverra lectus quis orci elementum, in aliquam erat egestas.</p>
+
+                <p>Fusce at cursus arcu. Proin bibendum vulputate scelerisque. In hac habitasse platea dictumst. Curabitur ornare hendrerit massa a porttitor. Vivamus pellentesque mauris ac venenatis dictum. Vestibulum mattis erat nec pellentesque consectetur. Suspendisse vel nulla a quam feugiat accumsan. Aliquam non facilisis nunc, a tincidunt purus. Maecenas placerat risus in lorem porttitor mollis.</p>
+
+                <p>Maecenas sed imperdiet tellus. Praesent in varius lorem. Pellentesque vitae odio ultrices, suscipit eros eu, cursus lacus. Maecenas cursus tortor at pulvinar tempus. Fusce ante dolor, gravida eu ornare quis, facilisis in nulla. Nullam facilisis faucibus aliquet. Vivamus vulputate massa vitae arcu eleifend feugiat.</p>
+
+                <p>Vestibulum congue rhoncus eleifend. Ut sed ante consectetur, congue ante at, hendrerit tellus. Sed ac turpis interdum, hendrerit nisl eu, fringilla odio. Aliquam luctus quis augue vitae consequat. Curabitur a lectus elit. Fusce et condimentum justo. Nam eleifend nisi eu quam ornare iaculis. Nullam tincidunt mollis orci eget congue. Duis dolor augue, consectetur id sapien nec, fermentum lobortis sem. Nunc massa enim, posuere quis sollicitudin tincidunt, viverra vitae nunc. In ac rhoncus dolor. Proin et lobortis massa.</p>
+
+                <p>Maecenas sapien purus, condimentum vitae fermentum quis, venenatis eu diam. Sed ut sollicitudin lorem, sit amet elementum lacus. Integer consequat nibh ut magna varius, vel sollicitudin sem euismod. Sed rhoncus massa nisi, et pretium velit venenatis sit amet. Donec non imperdiet neque. Pellentesque ut tellus ante. Vivamus lacinia ut enim sit amet sollicitudin. Pellentesque pharetra tempus tempor. Sed venenatis enim interdum magna dignissim, vel tempus enim volutpat. Nam tortor nibh, tempus nec magna sit amet, ullamcorper commodo sem. Sed pellentesque purus non urna vulputate, in accumsan nunc tempus. Praesent quis velit eu nisl blandit eleifend. Fusce tristique hendrerit tellus, a interdum orci venenatis ut. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+
+                <p>Pellentesque justo augue, mattis vel mauris et, vulputate ornare magna. Aliquam vulputate ligula semper leo tristique adipiscing. Maecenas velit est, lacinia non nisi eget, ullamcorper dictum felis. Suspendisse iaculis urna in laoreet dignissim. Mauris dignissim orci sit amet lectus dictum, eu tempus nisl mollis. Fusce at porta justo, nec tristique nulla. Proin imperdiet pretium tortor vitae ultricies. Donec pulvinar et elit vulputate blandit. Nullam posuere tempor leo, eget ultrices velit varius a. Cras turpis mauris, congue eu semper in, cursus at leo. Donec mattis lorem porttitor tortor accumsan, sed sodales ante sagittis. Aenean pharetra lacinia magna, sit amet faucibus risus sodales sit amet. Sed tincidunt pretium elit sit amet mattis. Donec volutpat, sapien eu ullamcorper pharetra, nisl erat dignissim sem, vel blandit lacus eros at mi. Sed laoreet augue ante, a malesuada sapien aliquet eget. Curabitur sagittis adipiscing ante eget tempus.</p>
+
+                <p>Sed quis iaculis velit, fringilla tristique dui. Donec imperdiet, orci a congue vestibulum, arcu magna pellentesque risus, vel ullamcorper eros sapien laoreet ante. Ut eget lacus in lorem sodales interdum. Praesent nisl nulla, tincidunt vel tortor congue, fringilla posuere purus. Vivamus at ullamcorper diam. Nam pharetra ligula eu quam blandit, ac hendrerit orci molestie. Praesent a massa non urna convallis rhoncus in eget velit.</p>
+
+                <p>Maecenas accumsan lorem sit amet diam vehicula lacinia. Sed interdum rhoncus nisi, vestibulum dapibus urna pulvinar facilisis. Etiam quis sagittis nunc, quis porta diam. Donec quis metus vitae ipsum feugiat pellentesque quis non lacus. Vestibulum quis enim volutpat, volutpat tortor et, ullamcorper nibh. Vestibulum sagittis sagittis turpis eget eleifend. Integer fringilla tincidunt sodales. Proin sodales ac velit quis convallis. Curabitur sed magna consectetur, accumsan elit non, auctor dui. Nullam vehicula quam sit amet eros suscipit, id fringilla neque viverra. Vestibulum sed quam pellentesque, scelerisque magna ac, auctor ante. Fusce vel iaculis lacus, nec varius sapien. Ut tincidunt justo vitae laoreet egestas.</p>
+
+                <p>Maecenas sapien purus, condimentum vitae fermentum quis, venenatis eu diam. Sed ut sollicitudin lorem, sit amet elementum lacus. Integer consequat nibh ut magna varius, vel sollicitudin sem euismod. Sed rhoncus massa nisi, et pretium velit venenatis sit amet. Donec non imperdiet neque. Pellentesque ut tellus ante. Vivamus lacinia ut enim sit amet sollicitudin. Pellentesque pharetra tempus tempor. Sed venenatis enim interdum magna dignissim, vel tempus enim volutpat. Nam tortor nibh, tempus nec magna sit amet, ullamcorper commodo sem. Sed pellentesque purus non urna vulputate, in accumsan nunc tempus. Praesent quis velit eu nisl blandit eleifend. Fusce tristique hendrerit tellus, a interdum orci venenatis ut. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+
+                <p>Pellentesque justo augue, mattis vel mauris et, vulputate ornare magna. Aliquam vulputate ligula semper leo tristique adipiscing. Maecenas velit est, lacinia non nisi eget, ullamcorper dictum felis. Suspendisse iaculis urna in laoreet dignissim. Mauris dignissim orci sit amet lectus dictum, eu tempus nisl mollis. Fusce at porta justo, nec tristique nulla. Proin imperdiet pretium tortor vitae ultricies. Donec pulvinar et elit vulputate blandit. Nullam posuere tempor leo, eget ultrices velit varius a. Cras turpis mauris, congue eu semper in, cursus at leo. Donec mattis lorem porttitor tortor accumsan, sed sodales ante sagittis. Aenean pharetra lacinia magna, sit amet faucibus risus sodales sit amet. Sed tincidunt pretium elit sit amet mattis. Donec volutpat, sapien eu ullamcorper pharetra, nisl erat dignissim sem, vel blandit lacus eros at mi. Sed laoreet augue ante, a malesuada sapien aliquet eget. Curabitur sagittis adipiscing ante eget tempus.</p>
+
+                <p>Sed quis iaculis velit, fringilla tristique dui. Donec imperdiet, orci a congue vestibulum, arcu magna pellentesque risus, vel ullamcorper eros sapien laoreet ante. Ut eget lacus in lorem sodales interdum. Praesent nisl nulla, tincidunt vel tortor congue, fringilla posuere purus. Vivamus at ullamcorper diam. Nam pharetra ligula eu quam blandit, ac hendrerit orci molestie. Praesent a massa non urna convallis rhoncus in eget velit.</p>
+
+                <p>Maecenas accumsan lorem sit amet diam vehicula lacinia. Sed interdum rhoncus nisi, vestibulum dapibus urna pulvinar facilisis. Etiam quis sagittis nunc, quis porta diam. Donec quis metus vitae ipsum feugiat pellentesque quis non lacus. Vestibulum quis enim volutpat, volutpat tortor et, ullamcorper nibh. Vestibulum sagittis sagittis turpis eget eleifend. Integer fringilla tincidunt sodales. Proin sodales ac velit quis convallis. Curabitur sed magna consectetur, accumsan elit non, auctor dui. Nullam vehicula quam sit amet eros suscipit, id fringilla neque viverra. Vestibulum sed quam pellentesque, scelerisque magna ac, auctor ante. Fusce vel iaculis lacus, nec varius sapien. Ut tincidunt justo vitae laoreet egestas.</p>
+
             </div>
         </div>
     </body>

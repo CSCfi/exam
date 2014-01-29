@@ -1,0 +1,58 @@
+#vmenu {
+
+  background-color: $sitnet-dark;
+  position: absolute;
+  top: 49px;
+  left: 0;
+  bottom: 0;
+  z-index: 331;
+  padding: 0;
+  height: 100%;
+  position: fixed;
+
+  i {
+    vertical-align: middle;
+  }
+
+  a {
+    color: $sitnet-grey;
+  }
+
+  nav a {
+    display: block;
+    padding: 0.5em;
+  }
+
+  a:hover {
+    text-decoration: none;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  ul {
+    padding: 0;
+  }
+
+  .menu-item {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+  }
+
+  .selected a {
+    background-color: $sitnet-grey;
+    color: $sitnet-dark !important;
+  }
+
+  .user {
+    margin: 1em;
+  }
+
+  .minify {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+}
