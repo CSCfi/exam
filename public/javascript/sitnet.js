@@ -13,30 +13,30 @@ var sitnet = angular.module('sitnet', ['ngRoute', 'ngResource'])
 	$routeProvider.when('/login', 
 		{
 	    	templateUrl: 'assets/templates/login.html',
-	    	controller: 'LoginCtrl',
+	    	controller: 'LoginCtrl'
 //	    	access: access.anon
 		});
 	$routeProvider.when('/register',
         {
             templateUrl: 'register',
-            controller: 'RegisterCtrl',
+            controller: 'RegisterCtrl'
 //            access: access.anon
         });
 	$routeProvider.when('/about',
         {
-            templateUrl: 'assets/templates/about.html',
+            templateUrl: 'assets/templates/about.html'
 //            controller: 'PrivateCtrl',
 //            access:         access.user
         });
 	$routeProvider.when('/admin',
         {
             templateUrl: 'admin',
-            controller: 'AdminCtrl',
+            controller: 'AdminCtrl'
 //            access:         access.admin
         });
 	$routeProvider.when('/404',
         {
-            templateUrl: '404',
+            templateUrl: '404'
 //            access:         access.public
         });
 	$routeProvider.otherwise({redirectTo: '/'});
@@ -86,7 +86,7 @@ sitnet.controller('LoginCtrl', ['$rootScope', '$scope', '$location', '$http', fu
 	  $scope.login = function(){
 	    $http.post('/login', {
 	      username: $scope.user.username,
-	      password: $scope.user.password,
+	      password: $scope.user.password
 	    })
 	    .success(function(token){
 	    	$http.defaults.headers.common = { 'X-Sitnet-Authentication' : token };
