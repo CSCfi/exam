@@ -1,0 +1,19 @@
+#sitnet-header {
+
+  background-color: $sitnet-grey;
+
+  position: fixed;
+  min-height: $sitnet-header-height;
+
+  .logo {
+    display: block;
+    min-height: $sitnet-header-height;
+    display: block;
+    background-color: $sitnet-green;
+    img {
+      display: block;
+      margin: auto;
+      margin-top: 0.5em;
+    }
+  }
+}

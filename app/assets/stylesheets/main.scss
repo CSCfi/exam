@@ -1,11 +1,9 @@
-@import "partial/featurex";
+@import "partial/defines";
+@import "partial/vmenu";
+@import "partial/header";
+@import "partial/exam";
 
 
 body {
-  padding-top: 50px;
-}
-
-.starter-template {
-  padding: 40px 15px;
-  text-align: center;
+  padding-top: $sitnet-header-height;
 }
