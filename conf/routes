@@ -6,11 +6,11 @@
 
 GET           /                    controllers.Index.index()
 
-GET           /login               controllers.Login.login(username: String, password: String)
-GET           /logout              controllers.Login.logout(token: String)
+POST          /login               controllers.Login.login()
+POST          /logout              controllers.Login.logout(token: String)
+GET           /loggedin            controllers.Login.loggedin()  
 
-
-GET           /users               controllers.UserController.getUsers
+GET           /users               controllers.UserController.getUsers()
 GET           /users/:id           controllers.UserController.getUser(id: Long)
 PUT           /users/:id           controllers.UserController.updateUser(id: Long)
 POST          /users/:id           controllers.UserController.addUser(id: Long)

@@ -14,3 +14,5 @@ dist
 /RUNNING_PID
 /.settings
 .sass-cache
+/.target
+.DS_Store
