@@ -16,3 +16,4 @@ dist
 .sass-cache
 /.target
 .DS_Store
+*.zip
