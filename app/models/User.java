@@ -1,6 +1,12 @@
 package models;
 
-public class User {
+import play.db.ebean.Model;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class User extends Model {
 
     //todo: check play framework's way to do this!
     public static enum Role {
@@ -9,6 +15,9 @@ public class User {
         TEACHER
     }
 
+    @Id
+    private Long id;
+
     //todo: check proper fields for User
     private String username;
     private String oid;
@@ -16,6 +25,15 @@ public class User {
     private String lastName;
     private String email;
     private Enum Role;
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getEmail() {
         return email;

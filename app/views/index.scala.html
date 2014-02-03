@@ -34,6 +34,8 @@
 
             <!-- controllers -->
         <script src="@routes.Assets.at("javascript/controllers/loginController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascript/controllers/userController.js")" type="text/javascript"></script>
+
     </head>
 
     <body ng-app="sitnet">
@@ -48,7 +50,7 @@
             <aside id="vmenu" class="col-md-2"> <!--ng-controller="vmenuController"-->
                 <div class="user">
                     <span>
-                        <img src="http://placehold.it/70x70" alt="me">
+                        <img src="data:image/gif;base64,R0lGODdhRgBGAOMAAMzMzJaWlqqqqpycnLGxscXFxaOjo7e3t76+vgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAARgBGAAAEqRDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodFoUDAIDAGIwKGCsWC3XuyMUDAfAAEEwYMxoNdvNK2QLAbHEeshL7AB4ejwEAoF5ghJcCBOFh488a49bjVkTkoKUPAFka21/A3ESnIpzdX5iXRIGAggBjImpZFS0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMLBEAOw==" alt="me">
                         <a href="javascript:void(0);" id="current_user"> Oili Opettaja <i class="fa fa-caret-down"></i></a>
                     </span>
                 </div>
@@ -90,9 +92,15 @@
 
             </aside>
 
-            <div ng-view></div>
+            <div class="col-md-offset-2 row">
+                <div  ng-view></div>
+            </div>
+
 
             <div id="createExam" class="col-md-offset-2 row">
+
+
+
                 <div class="col-md-2">
                     <div class="widget-icon">
                         <p>monivalinta</p>

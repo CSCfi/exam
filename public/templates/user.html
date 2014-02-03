@@ -1,0 +1,17 @@
+<h4>Käyttäjät</h4>
+<form ng-submit="createUser()">
+    <p>
+        <label class="control-label">nimi</label>
+        <input type="text" ng-model="user.firstName"/>
+    </p>
+    <p>todo: add other fields and the rest of the crud functionality?</p>
+    <p>
+        <button type="submit" class="btn btn-primary">luo käyttäjä</button>
+    </p>
+</form>
+<ul>
+    <li ng-repeat="user in users">
+        {{user.firstName}}
+        <button ng-click="{{delete(user.id)}}">poista</button>
+    </li>
+</ul>
