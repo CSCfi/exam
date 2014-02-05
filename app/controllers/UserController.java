@@ -27,7 +27,9 @@ public class UserController extends Controller {
 	 * Authenticate a User.
 	 */
 	public static User authenticate(String email, String password) {
-		return find.where().eq("email", email).eq("password", password).findUnique();
+        Logger.debug("Authenticate email:" +email);
+        Logger.debug("Authenticate password:" +password);
+        return find.where().eq("email", email).eq("password", password).findUnique();
 	}
 	
 	/**

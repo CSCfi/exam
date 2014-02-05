@@ -2,11 +2,12 @@ package models;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.OneToMany;
 
 import play.data.format.Formats;
 import play.data.validation.Constraints;
@@ -16,32 +17,32 @@ import play.db.ebean.Model;
  * User entity managed by Ebean
  */
 @Entity
-@Table(name = "account")
+//@Table(name = "account")
 public class User extends Model {
 
 	private static final long serialVersionUID = 1L;
+	
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	public Long id;	
+	private Long id;	
 	
 	@Constraints.Required
 	@Formats.NonEmpty
-	public String email;
+	private String email;
 
 	@Constraints.Required
-	public String lastName;
+	private String lastName;
 
 	@Constraints.Required
-	public String firstName;
+	private String firstName;
 	
 	@Constraints.Required
-	public String password;
-
-
-	public static Model.Finder<String, User> find = new Model.Finder<String, User>(String.class, User.class);
-
+	private String password;
 	
+	@OneToMany(cascade=CascadeType.ALL)
+	private List<UserRole> userRoles;
+
 	public Long getId() {
 		return id;
 	}
@@ -80,6 +81,14 @@ public class User extends Model {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public List<UserRole> getUserRoles() {
+		return userRoles;
+	}
+
+	public void setUserRoles(List<UserRole> userRoles) {
+		this.userRoles = userRoles;
 	}
 
 	@Override
