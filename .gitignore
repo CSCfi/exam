@@ -17,3 +17,4 @@ dist
 /.target
 .DS_Store
 *.zip
+.tern-project
