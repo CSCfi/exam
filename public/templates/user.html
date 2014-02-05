@@ -1,17 +1,28 @@
-<h4>Käyttäjät</h4>
+<h4>Käyttäjät - Users</h4>
 <form ng-submit="createUser()">
     <p>
-        <label class="control-label">nimi</label>
-        <input type="text" ng-model="user.firstName"/>
+        <label class="control-label">etunimi</label>
+        <input type="text" ng-model="user.firstName"/> 
+        <br />
+        <label class="control-label">sukunimi</label>
+        <input type="text" ng-model="user.lastName"/>
+        <br />
+        <label class="control-label">email</label>
+        <input type="text" ng-model="user.email"/>
+        <br />
+        <label class="control-label">salasana</label>
+        <input type="password" ng-model="user.password"/>
     </p>
     <p>todo: add other fields and the rest of the crud functionality?</p>
     <p>
         <button type="submit" class="btn btn-primary">luo käyttäjä</button>
     </p>
 </form>
+<hr>
+<h2>Kaikki käyttäjät</h2>
 <ul>
     <li ng-repeat="user in users">
-        {{user.firstName}}
-        <button ng-click="{{delete(user.id)}}">poista</button>
+        {{user.firstName}} {{user.lastName}} - {{user.email}} - id:{{user.id}}
+        <button ng-click="delete(user.id)">poista</button>
     </li>
 </ul>

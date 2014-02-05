@@ -1,85 +1,118 @@
 package models;
 
-import play.db.ebean.Model;
+import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
+import play.data.format.Formats;
+import play.data.validation.Constraints;
+import play.db.ebean.Model;
+
+/**
+ * User entity managed by Ebean
+ */
 @Entity
+@Table(name = "account")
 public class User extends Model {
 
-    //todo: check play framework's way to do this!
-    public static enum Role {
-        ADMIN,
-        STUDENT,
-        TEACHER
-    }
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    private Long id;
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	public Long id;	
+	
+	@Constraints.Required
+	@Formats.NonEmpty
+	public String email;
 
-    //todo: check proper fields for User
-    private String username;
-    private String oid;
-    private String firstName;
-    private String lastName;
-    private String email;
-    private Enum Role;
+	@Constraints.Required
+	public String lastName;
+
+	@Constraints.Required
+	public String firstName;
+	
+	@Constraints.Required
+	public String password;
 
 
-    public Long getId() {
-        return id;
-    }
+	
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public static Model.Finder<String, User> find = new Model.Finder<String, User>(String.class, User.class);
 
-    public String getEmail() {
-        return email;
-    }
+	/**
+	 * Retrieve all users.
+	 */
+	public static List<User> findAll() {
+		return find.all();
+	}
+	
+	/**
+	 * Retrieve a User from email.
+	 */
+	public static User findByEmail(String email) {
+		return find.where().eq("email", email).findUnique();
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	
+	/**
+	 * Authenticate a User.
+	 */
+	public static User authenticate(String email, String password) {
+		return find.where().eq("email", email).eq("password", password).findUnique();
+	}
 
-    public Enum getRole() {
-        return Role;
-    }
 
-    public void setRole(Enum role) {
-        Role = role;
-    }
 
-    public String getUsername() {
-        return username;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getOid() {
-        return oid;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setOid(String oid) {
-        this.oid = oid;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public String getFirstName() {
-        return firstName;
-    }
+	public String getLastName() {
+		return lastName;
+	}
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
-    public String getLastName() {
-        return lastName;
-    }
+	public String getFirstName() {
+		return firstName;
+	}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", email=" + email + ", name=" + lastName +" "+
+				firstName + ", password=" + password + "]";
+	}
+
+
+
 }

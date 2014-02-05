@@ -1,16 +1,18 @@
 'use strict';
 
 angular.module("sitnet.controllers")
-    .controller('UserCtrl', ['$scope', 'UserRes', function ($scope, userRes) {
+    .controller('UserCtrl', ['$scope', 'UserRes', function ($scope, UserRes) {
         //todo: update list on action(save, delete update etc..)
-        $scope.users = userRes.query();
+        $scope.users = UserRes.query();
 
         $scope.createUser = function () {
-            userRes.save($scope.user, function (user) {
+            UserRes.save($scope.user, function (user) {
                 toastr.info("Käyttäjä luotu onnistuneesti kanta id:llä: " + user.id, "Käyttäjä luotu.");
             });
         }
+        
         $scope.delete = function (id) {
-            userRes.delete(id);
+        	alert(id);
+            UserRes.delete({'id':id});
         }
     }]);

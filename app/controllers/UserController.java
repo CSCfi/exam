@@ -1,13 +1,15 @@
 package controllers;
 
-import com.avaje.ebean.Ebean;
+import java.util.List;
+
 import models.User;
+import play.Logger;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import java.util.List;
+import com.avaje.ebean.Ebean;
 
 
 public class UserController extends Controller {
@@ -45,13 +47,19 @@ public class UserController extends Controller {
 
     }
 
-    public static Result deleteUser(long id) {
+    public static Result deleteUser(Long id) {
         //todo: tarkasta oikeudet
         //todo: validoi syöte
         //todo: hae kannasta
-        return ok("ok");
+    	
+    	Logger.debug("Deleting user, id: "+ id);
+    	
+    	
+    	Ebean.delete(User.class, id);
+    	
+        return ok(Json.toJson(id));
     }
-
+    
     //todo: fetch by group, organization, role, ..?
 
 }
