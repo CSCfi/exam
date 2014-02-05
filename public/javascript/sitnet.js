@@ -29,9 +29,9 @@ sitnet.config(['$httpProvider', function ($httpProvider) {
                 console.log(config);
                 return config || $q.when(config);
             },
-            'responseError': function (response) {
-                // do something on success
-                return response || $q.when(response);
+            'responseError': function (rejection) {
+                // do something on error
+                return $q.reject(rejection);
             }
         };
     };

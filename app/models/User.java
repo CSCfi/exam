@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import play.Logger;
 import play.data.format.Formats;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
@@ -62,7 +63,9 @@ public class User extends Model {
 	 * Authenticate a User.
 	 */
 	public static User authenticate(String email, String password) {
-		return find.where().eq("email", email).eq("password", password).findUnique();
+        Logger.debug("Authenticate email:" +email);
+        Logger.debug("Authenticate password:" +password);
+        return find.where().eq("email", email).eq("password", password).findUnique();
 	}
 
 
