@@ -1,17 +1,31 @@
-import play.*;
-import play.libs.*;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
 
-import java.util.*;
+import models.User;
+import play.Application;
+import play.GlobalSettings;
+import play.Logger;
+import play.libs.Yaml;
+import play.mvc.Action;
+import play.mvc.Http.Request;
 
-import com.avaje.ebean.*;
-
-import models.*;
+import com.avaje.ebean.Ebean;
 
 public class Global extends GlobalSettings {
     
     public void onStart(Application app) {
         InitialData.insert(app);
     }
+
+    @Override
+    public Action onRequest(Request request, Method actionMethod) {
+
+    	Logger.debug(request.path());
+    	
+    	return super.onRequest(request, actionMethod);
+    }
+    
     
     static class InitialData {
         

@@ -4,26 +4,41 @@
 users:
 
     - !!models.User
-        email:      guillaume@sample.com
-        firstName:  Guillaume
-        lastName:   Bort
-        password:   secret
+      email:      guillaume@sample.com
+      firstName:  Guillaume
+      lastName:   Bort
+      password:   secret
     
     - !!models.User
-        email:      maxime@sample.com
-        firstName:  Maxime 
-        lastName:   Dantec
-        password:   secret
+      email:      maxime@sample.com
+      firstName:  Maxime 
+      lastName:   Dantec
+      password:   secret
     
     - !!models.User
-        email:      sadek@sample.com
-        firstName:  Sadek 
-        lastName:   Drobi
-        password:   secret
+      email:      sadek@sample.com
+      firstName:  Sadek 
+      lastName:   Drobi
+      password:   secret
     
     - !!models.User
-        email:      erwan@sample.com
-        firstName:  Erwan   
-        lastName:   Loisant
-        password:   secret
+      email:      erwan@sample.com
+      firstName:  Erwan   
+      lastName:   Loisant
+      password:   secret
+
+    - !!models.User
+      email:      test@sitnet.com
+      firstName:  Test
+      lastName:   Teacher
+      password:   test
+      
+      
+    
+users_session:
+
+    - !!models.UserSession
+      uid: 5
+      timestamp: 
+      token: 
     
