@@ -17,5 +17,18 @@
                     dialog.close();
                 }
             });
+
+            //todo: find better place for this? only business logic should be in angular controllers
+            $scope.links = [
+                {href: "#/home", class: "fa-home", name: "Työpöytä"},
+                {href: "#/questions", class: "fa-question-circle", name: "Kysymykset"},
+                {href: "#/reports", class: "fa-bar-chart-o", name: "Tilastot ja Raportit"},
+                {href: "#/exams", class: "fa-pencil-square-o", name: "Tentit"},
+                {href: "#/calendar", class: "fa-calendar", name: "Kalenteri"},
+                {href: "#/notifications", class: "fa-bullhorn", name: "Ilmoitukset"},
+                {href: "#/messages", class: "fa-comment-o", name: "Viestit"},
+                {href: "#/tools", class: "fa-map-marker", name: "Työkalut"}
+                /*{href: "#/about", class: "fa-info-circle", name: "Tietoja"}*/
+            ];
         }]);
 })();

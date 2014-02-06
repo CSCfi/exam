@@ -1,13 +1,11 @@
 #vmenu {
 
   background-color: $sitnet-dark;
-  position: absolute;
   top: $sitnet-header-height;
   left: 0;
   bottom: 0;
   z-index: 331;
   padding: 0;
-  height: 100%;
   position: fixed;
 
   i {
@@ -47,12 +45,13 @@
   }
 
   .user {
-    margin: 1em;
+    margin: 1em 0;
   }
 
   .minify {
     position: absolute;
     right: 0;
     bottom: 0;
+    color: $sitnet-blue;
   }
 }

@@ -23,8 +23,7 @@
             <!--  style -->
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
             <!-- todo: uncomment in production and comment previous line
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.min.css")
-            ">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.min.css")">
             -->
 
         <script src="@routes.Assets.at("javascript/sitnet.js")" type="text/javascript"></script>
@@ -60,40 +59,15 @@
                 </div>
                 <nav>
                     <ul>
-                        <li>
-                            <a href="#/home" title="Dashboard"><i class="fa fa-2x fa-fw fa-home"></i> <span class="menu-item">Työpöytä</span></a>
-                        </li>
-                        <li>
-                            <a href="#/questions"><i class="fa fa-2x fa-fw fa-question-circle"></i> <span class="menu-item">Kysymykset</span></a>
-                        </li>
-                        <li>
-                            <a href="#/reports"><i class="fa fa-2x fa-fw fa-bar-chart-o"></i> <span class="menu-item">Tilastot ja Raportit</span></a>
-                        </li>
-                        <li class="selected">
-                            <a href="#/exams"><i class="fa fa-2x fa-fw fa-pencil-square-o"></i> <span class="menu-item">Tentit</span></a>
-                        </li>
-                        <li>
-                            <a href="#/calendar"><i class="fa fa-2x fa-fw fa-calendar"></i> <span class="menu-item">Kalenteri</span></a>
-                        </li>
-                        <li>
-                            <a href="#/notifications"><i class="fa fa-2x fa-fw fa-bullhorn"></i> <span class="menu-item">Ilmoitukset</span></a>
-                        </li>
-                        <li>
-                            <a href="#/messages"><i class="fa fa-2x fa-fw fa-comment-o"></i> <span class="menu-item">Viestit</span></a>
-                        </li>
-                        <li>
-                            <a href="#/tools"><i class="fa fa-2x fa-fw fa-map-marker"></i> <span class="menu-item">Työkalut</span></a>
-                        </li>
-                        <li>
-                            <a href="#/login"><i class="fa fa-2x fa-fw fa-map-marker"></i> <span class="menu-item">Kirjaudu</span></a>
-                        </li>
-                        <li>
-                            <a href="#/about"><i class="fa fa-2x fa-fw fa-map-marker"></i> <span class="menu-item">Tietoja</span></a>
+                        <li ng-class="{active: item == selected}" ng-repeat="link in links">
+                            <a href="{{link.href}}">
+                                <i class="fa fa-2x fa-fw {{link.class}}"></i>
+                                <span class="menu-item">{{link.name}}</span>
+                            </a>
                         </li>
                     </ul>
                 </nav>
-                <span class="minify"> <i class="fa fa-arrow-circle-left hit"></i></span>
-
+                <span class="minify"> <i class="fa fa-2x fa-arrow-circle-left hit"></i></span>
             </aside>
 
             <div class="container vmenu-on">
