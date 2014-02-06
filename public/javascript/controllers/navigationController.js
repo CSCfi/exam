@@ -18,6 +18,11 @@
                 }
             });
 
+            //todo: move this to the view layer
+            $scope.isActive = function (link) {
+                return link.href == "#" + $location.path();
+            };
+
             //todo: find better place for this? only business logic should be in angular controllers
             $scope.links = [
                 {href: "#/home", class: "fa-home", name: "Työpöytä"},

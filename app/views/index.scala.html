@@ -59,7 +59,7 @@
                 </div>
                 <nav>
                     <ul>
-                        <li ng-class="{active: item == selected}" ng-repeat="link in links">
+                        <li ng-class="{selected: isActive(link)}" ng-repeat="link in links">
                             <a href="{{link.href}}">
                                 <i class="fa fa-2x fa-fw {{link.class}}"></i>
                                 <span class="menu-item">{{link.name}}</span>
