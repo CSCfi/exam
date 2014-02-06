@@ -15,7 +15,7 @@
                     ignoreAuthModule: true
                 })
                     .success(function (token, status) {
-                        $http.defaults.headers.common = { 'X-Sitnet-Authentication': token };
+                        $http.defaults.headers.common = { 'x-sitnet-authentication': token };
                         authService.loginConfirmed();
                         toastr.success("Kirjautuminen onnistui!");
                     })

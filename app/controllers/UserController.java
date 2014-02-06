@@ -13,7 +13,7 @@ import play.mvc.Result;
 import com.avaje.ebean.Ebean;
 
 
-public class UserController extends Controller {
+public class UserController extends SitnetController {
 
 	public static Model.Finder<String, User> find = new Model.Finder<String, User>(String.class, User.class);
 
@@ -22,19 +22,13 @@ public class UserController extends Controller {
         List<User> users = Ebean.find(User.class).findList();
         return ok(Json.toJson(users));
     }
-	
-	/**
-	 * Authenticate a User.
-	 */
+
 	public static User authenticate(String email, String password) {
         Logger.debug("Authenticate email:" +email);
         Logger.debug("Authenticate password:" +password);
         return find.where().eq("email", email).eq("password", password).findUnique();
 	}
-	
-	/**
-	 * Find a User by email.
-	 */
+
 	public static User findByEmail(String email) {
 		return find.where().eq("email", email).findUnique();
 	}
@@ -67,6 +61,9 @@ public class UserController extends Controller {
     }
 
     public static Result deleteUser(Long id) {
+        if(!isTokenValid()){
+           unauthorized("invalid token!");
+        }
         //todo: tarkasta oikeudet
         //todo: validoi syöte
         //todo: hae kannasta

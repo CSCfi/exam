@@ -1,7 +1,7 @@
 (function () {
     'use strict'
     angular.module("sitnet.controllers")
-        .controller('vmenuCtrl', ['$scope', '$location', '$http', '$modal', function ($scope, $location, $http, $modal) {
+        .controller('vmenuCtrl', ['$scope', '$location', '$http', '$modal', 'UserRes', function ($scope, $location, $http, $modal, userRes) {
             //todo: move dialog open to loginController.js
             var dialog;
             $scope.$on('event:auth-loginRequired', function () {
@@ -17,6 +17,8 @@
                     dialog.close();
                 }
             });
+
+            $scope.user = userRes.get({userId:123});
 
             //todo: move this to the view layer
             $scope.isActive = function (link) {

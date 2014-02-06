@@ -6,10 +6,9 @@
 
 GET           /                    controllers.Index.index()
 
-POST          /login               controllers.Login.login()
-POST          /logout              controllers.Login.logout(token: String)
-GET           /loggedin            controllers.Login.loggedin()  
-GET           /ping                controllers.Login.ping()
+POST          /login               controllers.SessionController.login()
+POST          /logout              controllers.SessionController.logout()
+GET           /ping                controllers.SessionController.ping()
 
 
 GET           /users               controllers.UserController.getUsers()

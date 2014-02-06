@@ -7,13 +7,14 @@
 
             $scope.createUser = function () {
                 UserRes.save($scope.user, function (user) {
-                    toastr.info("Käyttäjä luotu onnistuneesti kanta id:llä: " + user.id, "Käyttäjä luotu.");
+                    toastr.info("Käyttäjä lisätty.");
                 });
             }
 
             $scope.delete = function (id) {
-                alert(id);
-                UserRes.delete({'id': id});
+                UserRes.delete({'id': id}, function (reply) {
+                    toastr.warning("Käyttäjä poistettu.");
+                });
             }
         }]);
 })();
