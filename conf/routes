@@ -9,6 +9,8 @@ GET           /                    controllers.Index.index()
 POST          /login               controllers.Login.login()
 POST          /logout              controllers.Login.logout(token: String)
 GET           /loggedin            controllers.Login.loggedin()  
+GET           /ping                controllers.Login.ping()
+
 
 GET           /users               controllers.UserController.getUsers()
 GET           /users/:id           controllers.UserController.getUser(id: Long)

@@ -1,16 +1,19 @@
-<h1>Login</h1>
-<form ng-submit="login()">
-    <p>
-        <label class="control-label">Username</label>
-        <input type="text" placeholder="Username" ng-model="user.username"/>
-    </p>
+<div id="login">
+    <h4>Kirjaudu</h4>
 
-    <p>
-        <label class="control-label">Password</label>
-        <input type="password" placeholder="Password" ng-model="user.password"/><br/>
-    </p>
+    <form ng-submit="login()">
+        <p>
+            <label class="control-label">Tunnus</label>
+            <input type="text" placeholder="Tunnus" ng-model="user.username"/>
+        </p>
 
-    <p>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </p>
-</form>
+        <p>
+            <label class="control-label">Salasana</label>
+            <input type="password" placeholder="Salasana" ng-model="user.password"/><br/>
+        </p>
+
+        <p>
+            <button type="submit" class="btn btn-primary">Kirjaudu</button>
+        </p>
+    </form>
+</div>

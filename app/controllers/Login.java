@@ -28,7 +28,7 @@ public class Login extends Controller {
 
         if (user == null) {
             Logger.debug("Forbidden!");
-            return forbidden("fail");
+            return unauthorized("fail");
         } else {
             Logger.debug("Authenticated!");
 
@@ -56,6 +56,9 @@ public class Login extends Controller {
         return ok("0");
     }
 
+    public static Result ping() {
+        return unauthorized("pong");
+    }
     //todo: add method to get token with proper password and username(? should we use oid or some else) combination
 
     //todo: add methods for list user from different groups
