@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LoginCtrl', ['$scope', '$location', '$http', 'authService', function ($scope, $location, $http, authService) {
+        .controller('LoginCtrl', ['$scope', '$location', '$http', 'authService', 'SITNET_CONF', function ($scope, $location, $http, authService, SITNET_CONF) {
             $scope.user = {};
             $scope.login = function () {
                 var credentials = {
@@ -15,7 +15,9 @@
                     ignoreAuthModule: true
                 })
                     .success(function (token, status) {
-                        $http.defaults.headers.common = { 'x-sitnet-authentication': token };
+                        var header = {};
+                        header[SITNET_CONF.AUTH_HEADER] = token;
+                        $http.defaults.headers.common = header;
                         authService.loginConfirmed();
                         toastr.success("Kirjautuminen onnistui!");
                     })

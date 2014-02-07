@@ -9,6 +9,11 @@ var sitnet = angular.module('sitnet', [
     'sitnet.resources'
 ]);
 
+sitnet.constant('SITNET_CONF', {
+    AUTH_HEADER: 'x-sitnet-authentication',
+    CONTEXT_PATH: 'assets/'
+});
+
 sitnet.config(['$httpProvider', function ($httpProvider) {
     var interceptor = function ($q) {
         return {

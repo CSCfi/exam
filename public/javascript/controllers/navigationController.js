@@ -18,7 +18,7 @@
                 }
             });
 
-            $scope.user = userRes.get({userId:123});
+            //$scope.user = userRes.get({userId:123});
 
             //todo: move this to the view layer
             $scope.isActive = function (link) {
