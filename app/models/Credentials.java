@@ -1,8 +1,7 @@
 package models;
 
-import play.db.ebean.Model;
 
-public class Credentials  extends Model {
+public class Credentials {
     private String username;
     private String password;
 

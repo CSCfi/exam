@@ -1,15 +1,21 @@
 package models;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
-import play.data.format.Formats;
+import org.hibernate.validator.constraints.Email;
+
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
@@ -17,18 +23,19 @@ import play.db.ebean.Model;
  * User entity managed by Ebean
  */
 @Entity
-//@Table(name = "account")
+@Table(name = "_user")
 public class User extends Model {
 
 	private static final long serialVersionUID = 1L;
 	
-
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;	
 	
 	@Constraints.Required
-	@Formats.NonEmpty
+	@NotNull
+//    @Email
+	@Column(unique = true, updatable = true)
 	private String email;
 
 	@Constraints.Required
@@ -40,7 +47,7 @@ public class User extends Model {
 	@Constraints.Required
 	private String password;
 	
-	@OneToMany(cascade=CascadeType.ALL)
+	@OneToMany(cascade=CascadeType.ALL, mappedBy="user", fetch=FetchType.EAGER)
 	private List<UserRole> userRoles;
 
 	public Long getId() {
@@ -93,10 +100,9 @@ public class User extends Model {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", email=" + email + ", name=" + lastName +" "+
-				firstName + ", password=" + password + "]";
+		return "User [id=" + id + ", email=" + email + ", lastName=" + lastName
+				+ ", firstName=" + firstName + ", password=" + password
+				+ ", userRoles=" + userRoles + "]";
 	}
-
-
 
 }

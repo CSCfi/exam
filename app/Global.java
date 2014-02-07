@@ -1,12 +1,16 @@
 import java.lang.reflect.Method;
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
+import models.SNComment;
 import models.User;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
-import play.libs.Yaml;
+import play.db.DB;
 import play.mvc.Action;
 import play.mvc.Http.Request;
 
@@ -22,7 +26,7 @@ public class Global extends GlobalSettings {
     public Action onRequest(Request request, Method actionMethod) {
 
     	Logger.debug(request.path());
-    	
+
     	return super.onRequest(request, actionMethod);
     }
     
@@ -32,10 +36,20 @@ public class Global extends GlobalSettings {
         public static void insert(Application app) {
             if(Ebean.find(User.class).findRowCount() == 0) {
                 
-                @SuppressWarnings("unchecked")
-				Map<String,List<Object>> all = (Map<String,List<Object>>)Yaml.load("initial-data.yml");
+            	
 
-                Ebean.save(all.get("users"));
+//            	DataSource ds = DB.getDataSource();
+//            	Connection connection = DB.getConnection();
+            	
+            	SNComment comment = new SNComment(null, "text", "Hello ");
+            	
+            	List<User> all =  Ebean.find(User.class).findList();
+                Ebean.save(all);
+
+//                @SuppressWarnings("unchecked")
+//				Map<String,List<Object>> all = (Map<String,List<Object>>)Yaml.load("initial-data.yml");
+//
+//                Ebean.save(all.get("users"));
 //                Ebean.save(all.get("user_roles"));
 
 //                // Insert projects

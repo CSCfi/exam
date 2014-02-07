@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 
 public class UserSession {
 
-	
 	private Long uid;
 	private String email;
 	private Timestamp timestamp;

@@ -31,46 +31,62 @@ users:
 #      password:   secret
 #      userRoles:       STUDENT
 
+
+
+
     - !!models.User
+      id:
       email:      test
       firstName:  Test
-      lastName:   Teacher
+      lastName:   Student
       password:   test
-      userRoles:
-          - !!models.UserRole {uid: 1, role: STUDENT}       
-
-      
-    - !!models.User
-      email:      admin
-      firstName:  Arcusys
-      lastName:   Admin
-      password:   admin
-      userRoles:
-          - !!models.UserRole {uid: 2, role: ADMIN}  
-          - !!models.UserRole {uid: 2, role: STUDENT}  
-          - !!models.UserRole {uid: 2, role: TEACHER}  
-
-    - !!models.User
-      email:      teacher
-      firstName:  Maika
-      lastName:   Opettaja
-      password:   teacher
-      userRoles:
-          - !!models.UserRole {uid: 3, role: TEACHER}  
-      
-    - !!models.User
-      email:      student
-      firstName:  Opa
-      lastName:   Opiskelija
-      password:   student
-      userRoles:
-          - !!models.UserRole {uid: 4, role: STUDENT}    
-      
-      
+      userRoles:      
+          - !!models.UserRole {user: test, role: STUDENT}
+#              
+#
+#      
+#    - !!models.User
+#      email:      admin
+#      firstName:  Arcusys
+#      lastName:   Admin
+#      password:   admin
+#      userRoles:
+#          - !!models.UserRole {uid: 2, role: ADMIN}  
+#          - !!models.UserRole {uid: 2, role: STUDENT}  
+#          - !!models.UserRole {uid: 2, role: TEACHER}  
+#
+#    - !!models.User
+#      email:      teacher
+#      firstName:  Maika
+#      lastName:   Opettaja
+#      password:   teacher
+#      userRoles:
+#          - !!models.UserRole {uid: 3, role: TEACHER}  
+#      
+#    - !!models.User
+#      email:      student
+#      firstName:  Opa
+#      lastName:   Opiskelija
+#      password:   student
+#      userRoles:
+#          - !!models.UserRole {uid: 4, role: STUDENT}    
+#      
+#      
 user_roles:
-     - !!models.UserRole
-      uid:
-      role: 
+
+
+
+#    - !!models.UserRole
+#    user:
+#    role: ADMIN
+      
+#    - !!models.User
+#    user: test
+#    role: STUDENT
+#
+#    - !!models.UserRole
+#    user: test 
+#    role: TEACHER
 
   
 users_session:

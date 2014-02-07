@@ -1,10 +1,7 @@
 package models;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
@@ -23,33 +20,12 @@ public class UserRole extends Model {
 //		@EnumValue("3")
 		TEACHER
 	};
-
-
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Long id;
 	
-	@ManyToMany()
-	private Long uid;
+	@ManyToOne
+	private User user;
 	
 	@Constraints.Required
 	private String role;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Long getUid() {
-		return uid;
-	}
-
-	public void setUid(Long uid) {
-		this.uid = uid;
-	}
 
 	public String getRole() {
 		return role;
