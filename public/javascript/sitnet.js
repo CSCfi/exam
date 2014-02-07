@@ -3,6 +3,7 @@
     var sitnet = angular.module('sitnet', [
         'ngRoute',
         'ngResource',
+        'ngStorage',
         'http-auth-interceptor',
         'ui.bootstrap',
         'sitnet.controllers',
