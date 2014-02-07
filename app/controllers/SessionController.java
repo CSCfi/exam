@@ -38,11 +38,8 @@ public class SessionController extends SitnetController {
 
             // TODO: Timestamp
             UserSession userSession = new UserSession(user.getId(), user.getEmail(), new Timestamp(System.currentTimeMillis()), uuid);
-            Cache.set(CACHE_KEY + userSession.getUid(), userSession);
-            UserSession another = (UserSession) Cache.get(CACHE_KEY + user.getId());
-            Logger.debug(another.toString());
-
-
+            Cache.set(CACHE_KEY + userSession.getToken(), userSession);
+            UserSession another = (UserSession) Cache.get(CACHE_KEY + userSession.getToken());
             Logger.debug("UUID:" + uuid);
             return ok(uuid);
         }
@@ -67,13 +64,15 @@ public class SessionController extends SitnetController {
     }
 
     public static Result ping() {
+        Logger.debug("ping!");
         if (isTokenValid()) {
-            String token = request().getHeader("SITNET_TOKEN_HEADER_KEY");
+            String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
             UserSession session = (UserSession) Cache.get(CACHE_KEY + token);
             session.setTimestamp(new Timestamp(System.currentTimeMillis()));
             Cache.set(CACHE_KEY + token, session);
-            ok("pong");
+            return ok("pong");
         }
+        Logger.debug("UNAUTHORIZED!");
         return unauthorized("kaboom");
     }
     //todo: add method to get token with proper password and username(? should we use oid or some else) combination

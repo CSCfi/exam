@@ -19,6 +19,7 @@
             $routeProvider.when('/users', { templateUrl: tmpl + 'user.html', controller: 'UserCtrl'});
             $routeProvider.when('/about', { templateUrl: tmpl + 'about.html', controller: 'TestCtrl' });
             $routeProvider.when('/login', { templateUrl: tmpl + 'login.html', controller: 'LoginCtrl' });
+            $routeProvider.when('/logout', { templateUrl: tmpl + 'logout.html', controller: 'LogoutCtrl' });
 
             $routeProvider.otherwise({redirectTo: '/home'});
         }]);

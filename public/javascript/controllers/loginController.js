@@ -4,7 +4,6 @@
         .controller('LoginCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', 'authService', 'SITNET_CONF',
             function ($scope, $localStorage, $sessionStorage, $location, $http, authService, SITNET_CONF) {
             $scope.user = {};
-            $scope.$storage = $localStorage;
             $scope.login = function () {
                 var credentials = {
                     username: $scope.user.username,
@@ -20,7 +19,7 @@
                         var header = {};
                         header[SITNET_CONF.AUTH_HEADER] = token;
                         $http.defaults.headers.common = header;
-                        $localStorage = token;
+                        $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = token;
                         authService.loginConfirmed();
                         toastr.success("Kirjautuminen onnistui!");
                     })

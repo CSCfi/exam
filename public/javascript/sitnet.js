@@ -12,6 +12,7 @@
     sitnet.constant('SITNET_CONF', function () {
         var context_path = '/';
         return {
+            AUTH_STORAGE_KEY: 'SITNET_TOKEN',
             AUTH_HEADER: 'x-sitnet-authentication',
             CONTEXT_PATH: context_path,
             ASSETS_PATH: context_path + 'assets'
@@ -33,4 +34,11 @@
         };
         $httpProvider.interceptors.push(interceptor);
     }]);
+    sitnet.run(['$http', '$localStorage', 'SITNET_CONF',
+        function ($http, $localStorage, SITNET_CONF) {
+            var header = {};
+            header[SITNET_CONF.AUTH_HEADER] = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+            $http.defaults.headers.common = header;
+            $http.get('/ping');
+        }]);
 })();
