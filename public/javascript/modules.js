@@ -1,3 +1,5 @@
-'use strict';
-angular.module('sitnet.resources', []);
-angular.module('sitnet.controllers', []);
+(function () {
+    'use strict';
+    angular.module('sitnet.resources', []);
+    angular.module('sitnet.controllers', []);
+})();
