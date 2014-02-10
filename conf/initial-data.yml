@@ -3,97 +3,59 @@
 
 users:
 
-#    - !!models.User
-#      email:      guillaume@sample.com
-#      firstName:  Guillaume
-#      lastName:   Bort
-#      password:   secret
-#      userRoles:  !!java.lang.String
-#    
-#    - !!models.User
-#      email:      maxime@sample.com
-#      firstName:  Maxime 
-#      lastName:   Dantec
-#      password:   secret
-#      userRoles:       STUDENT
-#    
-#    - !!models.User
-#      email:      sadek@sample.com
-#      firstName:  Sadek 
-#      lastName:   Drobi
-#      password:   secret
-#      userRoles:       STUDENT
-#    
-#    - !!models.User
-#      email:      erwan@sample.com
-#      firstName:  Erwan   
-#      lastName:   Loisant
-#      password:   secret
-#      userRoles:       STUDENT
-
-
-
-
+    - !!models.User
+      email:      guillaume@sample.com
+      firstName:  Guillaume
+      lastName:   Bort
+      password:   secret
+      roles:  
+            - !!models.Role {role: STUDENT}
+    
+    - !!models.User
+      email:      maxime@sample.com
+      firstName:  Maxime 
+      lastName:   Dantec
+      password:   secret
+      roles:  
+            - !!models.Role {role: ADMIN}
+    
+    - !!models.User
+      email:      sadek@sample.com
+      firstName:  Sadek 
+      lastName:   Drobi
+      password:   secret
+      roles:  
+            - !!models.Role {role: TEACHER}
+    
+    - !!models.User
+      email:      erwan@sample.com
+      firstName:  Erwan   
+      lastName:   Loisant
+      password:   secret
+      roles:  
+            - !!models.Role {role: STUDENT}
+            
     - !!models.User
       id:
       email:      test
       firstName:  Test
       lastName:   Student
       password:   test
-      userRoles:      
-          - !!models.UserRole {user: test, role: STUDENT}
-#              
-#
-#      
-#    - !!models.User
-#      email:      admin
-#      firstName:  Arcusys
-#      lastName:   Admin
-#      password:   admin
-#      userRoles:
-#          - !!models.UserRole {uid: 2, role: ADMIN}  
-#          - !!models.UserRole {uid: 2, role: STUDENT}  
-#          - !!models.UserRole {uid: 2, role: TEACHER}  
-#
-#    - !!models.User
-#      email:      teacher
-#      firstName:  Maika
-#      lastName:   Opettaja
-#      password:   teacher
-#      userRoles:
-#          - !!models.UserRole {uid: 3, role: TEACHER}  
-#      
-#    - !!models.User
-#      email:      student
-#      firstName:  Opa
-#      lastName:   Opiskelija
-#      password:   student
-#      userRoles:
-#          - !!models.UserRole {uid: 4, role: STUDENT}    
-#      
-#      
-user_roles:
-
-
-
-#    - !!models.UserRole
-#    user:
-#    role: ADMIN
-      
-#    - !!models.User
-#    user: test
-#    role: STUDENT
-#
-#    - !!models.UserRole
-#    user: test 
-#    role: TEACHER
+      roles:  
+            - !!models.Role {role: STUDENT}
 
   
-users_session:
+user_roles:
 
-    - !!models.UserSession
-      uid:
-      email: 
-      timestamp: 
-      token: 
+    - !!models.Role
+      role: ADMIN
+
+    - !!models.Role
+      role: STUDENT
+    
+    - !!models.Role
+      role: TEACHER
+
+
+ 
     
