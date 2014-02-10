@@ -34,7 +34,8 @@
                 {href: "#/calendar", class: "fa-calendar", name: "Kalenteri"},
                 {href: "#/notifications", class: "fa-bullhorn", name: "Ilmoitukset"},
                 {href: "#/messages", class: "fa-comment-o", name: "Viestit"},
-                {href: "#/tools", class: "fa-map-marker", name: "Työkalut"}
+                {href: "#/tools", class: "fa-map-marker", name: "Työkalut"},
+                {href: "#/logout", class: "fa-sign-out", name: "Kirjaudu ulos"}
                 /*{href: "#/about", class: "fa-info-circle", name: "Tietoja"}*/
             ];
         }]);

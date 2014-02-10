@@ -1,7 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LoginCtrl', ['$scope', '$location', '$http', 'authService', 'SITNET_CONF', function ($scope, $location, $http, authService, SITNET_CONF) {
+        .controller('LoginCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', 'authService', 'SITNET_CONF',
+            function ($scope, $localStorage, $sessionStorage, $location, $http, authService, SITNET_CONF) {
             $scope.user = {};
             $scope.login = function () {
                 var credentials = {
@@ -18,6 +19,7 @@
                         var header = {};
                         header[SITNET_CONF.AUTH_HEADER] = token;
                         $http.defaults.headers.common = header;
+                        $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = token;
                         authService.loginConfirmed();
                         toastr.success("Kirjautuminen onnistui!");
                     })

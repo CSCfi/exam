@@ -1,14 +1,8 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
-import com.avaje.ebean.Ebean;
-import models.Session;
-import models.User;
-import org.joda.time.Period;
-import play.cache.Cache;
 import play.data.Form;
 import play.mvc.Controller;
-import play.mvc.Result;
+import Exceptions.MalformedDataException;
 
 public class SitnetController extends Controller {
 
