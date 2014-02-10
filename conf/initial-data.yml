@@ -2,22 +2,29 @@
 # Users
 
 users:
+    - !!models.User
+      email:      test
+      firstName:  Sauli
+      lastName:   Student
+      password:   test
+      roles:  
+            - !!models.Role {role: STUDENT}  
 
     - !!models.User
-      email:      guillaume@sample.com
-      firstName:  Guillaume
-      lastName:   Bort
-      password:   secret
+      email:      opettaja
+      firstName:  Maika
+      lastName:   Opettaja
+      password:   opettaja
       roles:  
-            - !!models.Role {role: STUDENT}
+            - !!models.Role {role: TEACHER}
     
     - !!models.User
-      email:      maxime@sample.com
-      firstName:  Maxime 
-      lastName:   Dantec
-      password:   secret
+      email:      oppilas
+      firstName:  Omppu 
+      lastName:   Studeeraja
+      password:   oppilas
       roles:  
-            - !!models.Role {role: ADMIN}
+            - !!models.Role {role: STUDENT}
     
     - !!models.User
       email:      sadek@sample.com
@@ -34,15 +41,7 @@ users:
       password:   secret
       roles:  
             - !!models.Role {role: STUDENT}
-            
-    - !!models.User
-      id:
-      email:      test
-      firstName:  Test
-      lastName:   Student
-      password:   test
-      roles:  
-            - !!models.Role {role: STUDENT}
+
 
   
 user_roles:

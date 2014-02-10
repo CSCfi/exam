@@ -17,11 +17,17 @@
                 })
                     .success(function (token, status) {
                         var header = {};
-                        header[SITNET_CONF.AUTH_HEADER] = token;
+                        header[SITNET_CONF.AUTH_HEADER] = token.token;
                         $http.defaults.headers.common = header;
-                        $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = token;
+                        $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = token.token;
                         authService.loginConfirmed();
-                        toastr.success("Kirjautuminen onnistui!");
+                        toastr.success("Tervetuloa "+ token.firstname +" "+ token.lastname);
+                        
+                        $scope.user.firstname = token.firstname;
+                        $scope.user.lastname = token.lastname;
+                        
+                        // redirect to homepage
+                        $location.path( "/home" );
                     })
                     .error(function (message) {
                         toastr.error(message, "Kirjautuminen epäonnistui!");
