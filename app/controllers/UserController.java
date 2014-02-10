@@ -1,81 +1,49 @@
 package controllers;
 
-import java.util.List;
-
+import Exceptions.MalformedDataException;
+import actions.Authenticate;
+import com.avaje.ebean.Ebean;
 import models.User;
 import play.Logger;
-import play.data.Form;
-import play.db.ebean.Model;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Result;
 
-import com.avaje.ebean.Ebean;
+import java.util.List;
 
-
+//todo authorization!
 public class UserController extends SitnetController {
 
-	public static Model.Finder<String, User> find = new Model.Finder<String, User>(String.class, User.class);
-
-	
+    @Authenticate
     public static Result getUsers() {
         List<User> users = Ebean.find(User.class).findList();
         return ok(Json.toJson(users));
     }
 
-	public static User authenticate(String email, String password) {
-        Logger.debug("Authenticate email:" +email);
-        Logger.debug("Authenticate password:" +password);
-        return find.where().eq("email", email).eq("password", password).findUnique();
-	}
-
-	public static User findByEmail(String email) {
-		return find.where().eq("email", email).findUnique();
-	}
-	
+    @Authenticate
     public static Result getUser(long id) {
-        //todo: tarkasta oikeudet
-        //todo: validoi syöte
-        //todo: hae kannasta
-        return ok(Json.toJson(new User()));
+        User user = Ebean.find(User.class, id);
+        return ok(Json.toJson(user));
     }
 
-    public static Result addUser() {
-        //todo: tarkasta oikeudet
-        //todo: validoi syöte
-        //todo: tallenna kantaan
-        Form<User> userForm = Form.form(User.class);
-        User user = userForm.bindFromRequest().get();
+    @Authenticate
+    public static Result addUser() throws MalformedDataException {
+        User user = bindForm(User.class);
         Ebean.save(user);
         return ok(Json.toJson(user.getId()));
     }
 
-    public static Result updateUser(long id) {
-        //todo: tarkasta oikeudet
-        //todo: validoi syöte
-        //todo: tallenna kantaan
-        Form<User> userForm = Form.form(User.class);
-        User user = userForm.bindFromRequest().get();
+    @Authenticate
+    public static Result updateUser(long id) throws MalformedDataException {
+        User user = bindForm(User.class);
+        user.setId(id);
+        Ebean.update(user);
         return ok("ok");
-
     }
 
+    @Authenticate
     public static Result deleteUser(Long id) {
-        if(!isTokenValid()){
-           unauthorized("invalid token!");
-        }
-        //todo: tarkasta oikeudet
-        //todo: validoi syöte
-        //todo: hae kannasta
-    	
-    	Logger.debug("Deleting user, id: "+ id);
-    	
-    	
-    	Ebean.delete(User.class, id);
-    	
-        return ok(Json.toJson(id));
+        Logger.debug("Delete user with id {}.", id);
+        Ebean.delete(User.class, id);
+        return ok("success");
     }
-    
-    //todo: fetch by group, organization, role, ..?
-
 }

@@ -10,7 +10,6 @@ POST          /login               controllers.SessionController.login()
 POST          /logout              controllers.SessionController.logout()
 GET           /ping                controllers.SessionController.ping()
 
-
 GET           /users               controllers.UserController.getUsers()
 GET           /users/:id           controllers.UserController.getUser(id: Long)
 PUT           /users/:id           controllers.UserController.updateUser(id: Long)
