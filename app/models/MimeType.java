@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.Transient;
 
 @Entity
-public class SNMimeType {
+public class MimeType {
 
 	@Transient
 	public static final String COMMENT ="comment";

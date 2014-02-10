@@ -4,17 +4,17 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
 @Entity
-public class SNComment extends SNModel {
+public class Comment extends SitnetModel {
 
 	private static final long serialVersionUID = -2181535922286837961L;
 
 	private String comment;
 
 	@OneToOne
-	private SNComment reply;
+	private Comment reply;
 
 
-	public SNComment(User creator, String mimeType, String comment) {
+	public Comment(User creator, String mimeType, String comment) {
 		super(creator, mimeType);
 		this.comment = comment;
 	}
@@ -30,12 +30,12 @@ public class SNComment extends SNModel {
 	}
 
 
-	public SNComment getReply() {
+	public Comment getReply() {
 		return reply;
 	}
 
 
-	public void setReply(SNComment reply) {
+	public void setReply(Comment reply) {
 		this.reply = reply;
 	}
 

@@ -11,7 +11,7 @@ import javax.persistence.OneToOne;
 import play.db.ebean.Model;
 
 @MappedSuperclass
-public class SNModel extends Model {
+public class SitnetModel extends play.db.ebean.Model {
 
 	// TODO: Tämä luokka tulee olemaan kaikkien muiden model 
 	// luokkien yläluokka.
@@ -41,7 +41,7 @@ public class SNModel extends Model {
 	
 	
 	
-	public SNModel(User creator, String mimeType) {
+	public SitnetModel(User creator, String mimeType) {
 		super();
 		this.creator = creator;
 		this.mimeType = mimeType;
