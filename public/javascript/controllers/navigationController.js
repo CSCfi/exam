@@ -9,7 +9,7 @@
                     templateUrl: 'assets/templates/login.html',
                     backdrop: 'static',
                     keyboard: false,
-                    controller: "LoginCtrl"
+                    controller: "SessionCtrl"
                 });
             });
             $scope.$on('event:auth-loginConfirmed', function () {
