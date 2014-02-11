@@ -50,10 +50,6 @@ public class SessionController extends SitnetController {
 
     @Authenticate
     public static Result ping() {
-        String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
-        Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
-        session.setSince(DateTime.now());
-        Cache.set(SITNET_CACHE_KEY + token, session);
         return ok("pong");
     }
 }

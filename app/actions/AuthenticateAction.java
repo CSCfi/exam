@@ -26,6 +26,8 @@ public class AuthenticateAction extends Action<Authenticate> {
         if (session.getSince().isBefore(lastValidMoment)) {
             throw new AuthenticateException("Invalid token: token expired.");
         }
+        session.setSince(DateTime.now());
+        Cache.set(SITNET_CACHE_KEY + token, session);
         return delegate.call(ctx);
     }
 }
