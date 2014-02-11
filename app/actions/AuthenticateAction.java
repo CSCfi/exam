@@ -13,7 +13,7 @@ public class AuthenticateAction extends Action<Authenticate> {
 
     public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
     public static final String SITNET_CACHE_KEY = "user.session.";
-    public static final int SITNET_TIMEOUT_MINUTES = 1;
+    public static final int SITNET_TIMEOUT_MINUTES = 30;
 
     @Override
     public F.Promise<SimpleResult> call(Http.Context ctx) throws Throwable {

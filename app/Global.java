@@ -33,14 +33,15 @@ public class Global extends GlobalSettings {
     public Promise<SimpleResult> onError(Http.RequestHeader request, final Throwable t) {
         F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
             public SimpleResult apply() {
-                String errorMessage = t.getCause().getMessage();
-                if (t instanceof UnauthorizedAccessException) {
-                    return Results.unauthorized(Json.toJson(errorMessage));
-                }
-                if (t instanceof AuthenticateException) {
+                Throwable cause = t.getCause();
+                String errorMessage = cause.getMessage();
+                if (cause instanceof UnauthorizedAccessException) {
                     return Results.forbidden(Json.toJson(errorMessage));
                 }
-                if (t instanceof MalformedDataException) {
+                if (cause instanceof AuthenticateException) {
+                    return Results.unauthorized(Json.toJson(errorMessage));
+                }
+                if (cause instanceof MalformedDataException) {
                     return Results.badRequest(Json.toJson(errorMessage));
                 }
                 return Results.internalServerError(Json.toJson(errorMessage));
