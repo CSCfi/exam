@@ -1,17 +1,34 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', 'authService', 'SITNET_CONF',
-            function ($scope, $localStorage, $sessionStorage, $location, $http, authService, SITNET_CONF) {
+        .controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', 'authService', 'SITNET_CONF',
+            function ($scope, $localStorage, $sessionStorage, $location, $http, $modal, authService, SITNET_CONF) {
                 $scope.user = {};
+
+                var dialog;
+                $scope.$on('event:auth-loginRequired', function () {
+                    dialog = $modal.open({
+                        templateUrl: 'assets/templates/login.html',
+                        backdrop: 'static',
+                        keyboard: false,
+                        controller: "SessionCtrl"
+                    });
+                });
+
+                $scope.$on('event:auth-loginConfirmed', function () {
+                    if (dialog) {
+                        dialog.close();
+                    }
+                });
 
                 $scope.logout = function () {
                     $http.post('/logout').
                         success(function (message) {
                             delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+                            delete $http.defaults.headers.common;
                             toastr.success("Uloskirjautuminen onnistui.");
                             //todo: go to page where session is not needed
-                            $location.path("/home");
+                            $location.path("/");
                         });
                 };
 
@@ -20,10 +37,7 @@
                         username: $scope.user.username,
                         password: $scope.user.password
                     };
-                    $http({
-                        method: 'POST',
-                        url: '/login',
-                        data: credentials,
+                    $http.post('/login', credentials, {
                         ignoreAuthModule: true
                     })
                         .success(function (token) {

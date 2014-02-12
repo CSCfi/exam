@@ -36,9 +36,12 @@
     }]);
     sitnet.run(['$http', '$localStorage', 'SITNET_CONF',
         function ($http, $localStorage, SITNET_CONF) {
-            var header = {};
-            header[SITNET_CONF.AUTH_HEADER] = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
-            $http.defaults.headers.common = header;
+            var token = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+            if (token) {
+                var header = {};
+                header[SITNET_CONF.AUTH_HEADER] = token;
+                $http.defaults.headers.common = header;
+            }
             $http.get('/ping');
         }]);
 })();

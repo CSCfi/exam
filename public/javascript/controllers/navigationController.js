@@ -1,31 +1,12 @@
 (function () {
     'use strict'
     angular.module("sitnet.controllers")
-        .controller('vmenuCtrl', ['$scope', '$location', '$http', '$modal', 'UserRes', function ($scope, $location, $http, $modal, userRes) {
-            //todo: move dialog open to loginController.js
-            var dialog;
-            $scope.$on('event:auth-loginRequired', function () {
-                dialog = $modal.open({
-                    templateUrl: 'assets/templates/login.html',
-                    backdrop: 'static',
-                    keyboard: false,
-                    controller: "SessionCtrl"
-                });
-            });
-            $scope.$on('event:auth-loginConfirmed', function () {
-                if (dialog !== undefined) {
-                    dialog.close();
-                }
-            });
+        .controller('NavigationCtrl', ['$scope', '$location', '$http', 'UserRes', function ($scope, $location) {
 
-            //$scope.user = userRes.get({userId:123});
-
-            //todo: move this to the view layer
             $scope.isActive = function (link) {
                 return link.href == "#" + $location.path();
             };
 
-            //todo: find better place for this? only business logic should be in angular controllers
             $scope.links = [
                 {href: "#/home", class: "fa-home", name: "Työpöytä"},
                 {href: "#/questions", class: "fa-question-circle", name: "Kysymykset"},
@@ -37,7 +18,6 @@
                 {href: "#/tools", class: "fa-map-marker", name: "Työkalut"},
                 {href: "#/logout", class: "fa-sign-out", name: "Kirjaudu ulos"},
                 {href: "#/login", class: "fa-sign-in", name: "Kirjaudu Sisään"}
-                /*{href: "#/about", class: "fa-info-circle", name: "Tietoja"}*/
             ];
         }]);
 })();
