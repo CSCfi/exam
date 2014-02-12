@@ -41,7 +41,6 @@ public class SessionController extends SitnetController {
         return ok(result);
     }
 
-    @Authenticate
     public static Result logout() {
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
         Cache.remove(SITNET_CACHE_KEY + token);
