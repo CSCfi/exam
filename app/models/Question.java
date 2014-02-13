@@ -22,8 +22,8 @@ public class Question extends SitnetModel {
 	private List<Comment> comments;
 	
 	
-	public Question(User creator, String mimeType) {
-		super(creator, mimeType);
+	public Question(User creator) {
+		super(creator);
 	}
 	
 	

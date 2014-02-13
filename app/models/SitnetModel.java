@@ -35,25 +35,13 @@ public class SitnetModel extends play.db.ebean.Model {
 	@OneToOne
 	private User modifier;
 	
-	private String mimeType;
 	
 	
-	
-	
-	
-	public SitnetModel(User creator, String mimeType) {
+	public SitnetModel(User creator) {
 		super();
 		this.creator = creator;
-		this.mimeType = mimeType;
 	}
 
-	public String getMimeType() {
-		return mimeType;
-	}
-
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
 
 	public Long getId() {
 		return id;

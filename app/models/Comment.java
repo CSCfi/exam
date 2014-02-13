@@ -14,8 +14,8 @@ public class Comment extends SitnetModel {
 	private Comment reply;
 
 
-	public Comment(User creator, String mimeType, String comment) {
-		super(creator, mimeType);
+	public Comment(User creator, String comment) {
+		super(creator);
 		this.comment = comment;
 	}
 

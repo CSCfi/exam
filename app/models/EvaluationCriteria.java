@@ -9,8 +9,8 @@ public class EvaluationCriteria extends SitnetModel {
 	
 	private String criteria;
 
-	public EvaluationCriteria(User creator, String mimeType, String criteria) {
-		super(creator, mimeType);
+	public EvaluationCriteria(User creator, String criteria) {
+		super(creator);
 		this.criteria = criteria;
 	}
 

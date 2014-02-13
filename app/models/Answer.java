@@ -8,8 +8,8 @@ public class Answer extends SitnetModel {
 	private byte[] data;
 	
 	
-	public Answer(User creator, String mimeType) {
-		super(creator, mimeType);
+	public Answer(User creator) {
+		super(creator);
 	}
 
 

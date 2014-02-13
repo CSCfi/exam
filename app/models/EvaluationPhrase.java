@@ -8,8 +8,8 @@ public class EvaluationPhrase extends SitnetModel {
 
     private String phrase;
 
-    public EvaluationPhrase(User creator, String mimeType, String phrase) {
-        super(creator, mimeType);
+    public EvaluationPhrase(User creator, String phrase) {
+        super(creator);
         this.phrase = phrase;
     }
 

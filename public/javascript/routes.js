@@ -14,6 +14,7 @@
             $routeProvider.when('/notifications', { templateUrl: tmpl + 'notifications.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});
             $routeProvider.when('/tools', { templateUrl: tmpl + 'tools.html'});
+            $routeProvider.when('/math', { templateUrl: tmpl + 'math.html'});
 
             /* extra */
             $routeProvider.when('/users', { templateUrl: tmpl + 'user.html', controller: 'UserCtrl'});

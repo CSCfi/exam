@@ -8,8 +8,8 @@ public class Material extends SitnetModel {
 
     private byte[] data;
 
-    public Material(User creator, String mimeType) {
-        super(creator, mimeType);
+    public Material(User creator) {
+        super(creator);
     }
 
     public byte[] getData() {
