@@ -5,12 +5,16 @@ import java.util.List;
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
  * 
+ * Kuvaa Sitnettiin tallennettavan tentin rakenteen
+ * 
  */
 public class Exam extends SitnetModel {
 
 	
 	
 	private String name;
+	
+	private ExamType examType;
 	
 	// Opettajan antama ohje tentin suoittamista varten
 	private String instruction;

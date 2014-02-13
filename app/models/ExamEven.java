@@ -18,9 +18,19 @@ public class ExamEven extends SitnetModel {
 	private Double duration;
 
 	// muut opettajat jotka on lisättty tentin tarkastajiksi
+	// TODO: miten tarkastajat lisätään? per tentti, per kysymys ?
 	private List<User> inspectors;
 	
 	
+	// TODO: öhm tentin ja tenttitapahtuman tila on 2 eri asiaa!
+	
+	/* 
+	 * Tentin tila
+	 *  
+	 * avoin (lähetetty opiskelijalle), peruttu, opiskelija täyttää tenttiä, täytetty, tarkastettavana, tarkastettu jne..}  
+	 * 
+	 */
+	private String state;
 	
 	
 	public ExamEven(User creator) {
