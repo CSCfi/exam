@@ -1,11 +1,6 @@
-'use strict';
-
-angular.module("sitnet.languages")
-    .config([, function() {
-        // register translation table for finnish
-        $translateProvider.translations({
-            'LOGIN':'Kirjaudu',
-            'USERNAME': 'Käyttäjätunnus',
-            'PASSWORD': 'Salasana'
-        });
-    }]);
+{
+    "sitnet_login": "Kirjaudu",
+    "sitnet_username": "Käyttäjätunnus",
+    "sitnet_password": "Salasana",
+    "sitnet_dashboard": "Työpöytä"
+}

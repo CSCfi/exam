@@ -5,9 +5,13 @@
             var translation = $http.get(SITNET_CONF.ASSETS_LANGUAGES + '/' + "en.json");
             $translateProvider.translations(translation);
         });*/
-        sessionController.controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', 'authService', 'SITNET_CONF',
-            function ($scope, $localStorage, $sessionStorage, $location, $http, $modal, authService, SITNET_CONF) {
+        sessionController.controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'SITNET_CONF',
+            function ($scope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, SITNET_CONF) {
                 $scope.user = {};
+
+                $scope.switchLanguage = function (key) {
+                    $translate.uses(key);
+                };
 
                 var dialog;
                 $scope.$on('event:auth-loginRequired', function () {

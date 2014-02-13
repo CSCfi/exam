@@ -1,5 +1,6 @@
 {
     "sitnet_login": "Login",
     "sitnet_username": "Username",
-    "sitnet_password": "Password"
+    "sitnet_password": "Password",
+    "sitnet_dashboard": "Dashboard"
 }

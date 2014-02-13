@@ -24,6 +24,7 @@
 
         var path = SITNET_CONF.ASSETS_LANGUAGES;
 
+        // https://github.com/PascalPrecht/angular-translate/wiki/Asynchronous-loading#registering-asynchronous-loaders
         $translateProvider.useStaticFilesLoader({
             prefix: path+ '/locale-',
             suffix: '.json'

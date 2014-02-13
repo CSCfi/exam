@@ -55,7 +55,10 @@
         </div>
         <div class="row">
             <aside id="vmenu" class="col-md-2" ng-controller="NavigationCtrl">
-                <div ng-controller="SessionCtrl"></div>
+                <div ng-controller="SessionCtrl">
+                    <button ng-click="switchLanguage('fi')" translate>Vaihda Suomeksi</button>
+                    <button ng-click="switchLanguage('en')" translate>Switch to English</button>
+                </div>
                 <div class="user">
                     <span>
                         <img src="data:image/gif;base64,R0lGODdhRgBGAOMAAMzMzJaWlqqqqpycnLGxscXFxaOjo7e3t76+vgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAARgBGAAAEqRDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodFoUDAIDAGIwKGCsWC3XuyMUDAfAAEEwYMxoNdvNK2QLAbHEeshL7AB4ejwEAoF5ghJcCBOFh488a49bjVkTkoKUPAFka21/A3ESnIpzdX5iXRIGAggBjImpZFS0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMLBEAOw==" alt="me">
