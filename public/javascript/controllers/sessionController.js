@@ -1,7 +1,11 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', 'authService', 'SITNET_CONF',
+    var sessionController = angular.module("sitnet.controllers");
+        /*sessionController.config('$translateProvider', function ($translateProvider) {
+            var translation = $http.get(SITNET_CONF.ASSETS_LANGUAGES + '/' + "en.json");
+            $translateProvider.translations(translation);
+        });*/
+        sessionController.controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', 'authService', 'SITNET_CONF',
             function ($scope, $localStorage, $sessionStorage, $location, $http, $modal, authService, SITNET_CONF) {
                 $scope.user = {};
 

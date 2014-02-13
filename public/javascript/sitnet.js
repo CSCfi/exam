@@ -7,7 +7,8 @@
         'http-auth-interceptor',
         'ui.bootstrap',
         'sitnet.controllers',
-        'sitnet.resources'
+        'sitnet.resources',
+        'pascalprecht.translate'
     ]);
     sitnet.constant('SITNET_CONF', function () {
         var context_path = '/';
@@ -15,10 +16,20 @@
             AUTH_STORAGE_KEY: 'SITNET_TOKEN',
             AUTH_HEADER: 'x-sitnet-authentication',
             CONTEXT_PATH: context_path,
-            ASSETS_PATH: context_path + 'assets'
+            ASSETS_PATH: context_path + 'assets',
+            ASSETS_LANGUAGES: context_path + 'assets/languages'
         };
     }());
-    sitnet.config(['$httpProvider', function ($httpProvider) {
+    sitnet.config(['$httpProvider', '$translateProvider', 'SITNET_CONF', function ($httpProvider, $translateProvider, SITNET_CONF) {
+
+        var path = SITNET_CONF.ASSETS_LANGUAGES;
+
+        $translateProvider.useStaticFilesLoader({
+            prefix: path+ '/locale-',
+            suffix: '.json'
+        });
+        $translateProvider.preferredLanguage('en');
+
         var interceptor = function ($q) {
             return {
                 'request': function (config) {

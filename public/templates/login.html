@@ -1,19 +1,19 @@
 <div id="login">
-    <h4>Kirjaudu</h4>
+    <h4>{{'sitnet_login' | translate}}</h4>
 
     <form ng-submit="login()">
         <p>
-            <label class="control-label">Tunnus</label>
+            <label class="control-label">{{'sitnet_username' | translate}}</label>
             <input type="text" placeholder="Tunnus" ng-model="user.username"/>
         </p>
 
         <p>
-            <label class="control-label">Salasana</label>
+            <label class="control-label">{{'sitnet_password' | translate}}</label>
             <input type="password" placeholder="Salasana" ng-model="user.password"/><br/>
         </p>
 
         <p>
-            <button type="submit" class="btn btn-primary">Kirjaudu</button>
+            <button type="submit" class="btn btn-primary">{{'sitnet_login' | translate}}</button>
         </p>
     </form>
 </div>
