@@ -83,24 +83,39 @@ organisations:
       organisations: 
       parent: null
       root: true
-      
-      
 
-#        - !!models.Organisation
-#          name: Luonnontieteellinen tiedekunta
-#          nameAbbreviation:
-#          code:
-#          vatIdNumber:
-#          organisations: 
-#                - !!models.Organisation
-#                  name: Tietojenkäsittelytieteiden laitos
-#                  nameAbbreviation:
-#                  code:
-#                  vatIdNumber:
-#                  organisations: 
-#                  parent: null
-#                  root: true
-#          parent: null
-#          root: true
+
+courses:
+  
+  - &johdatus !!models.Course
+    code: 810136P   
+    name: Johdatus alkeiden perusteisiin
+    type: 
+    credits: 5
       
+  - !!models.Course
+    code: 811380A  
+    name: Tietokantojen perusteet 
+    type: 
+    credits: 7
+    
+
+exams:
+  - !!models.Exam
+    course: *johdatus
+    name: Johdatus alkeiden perusteisiin
+    examType:
+    instruction: Vastaa kolmeen tehtävään neljästä
+    shared: false
+    examSections:
+  
+  - !!models.Exam
+    course:  
+    name: Tietokantojen perusteet 
+    examType:
+    instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
+    shared: true
+    examSections:
+  
+  
     

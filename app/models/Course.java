@@ -1,5 +1,7 @@
 package models;
 
+import javax.persistence.Entity;
+
 
 /*
  * Opintojakso
@@ -7,6 +9,7 @@ package models;
  * 
  * 
  */
+@Entity
 public class Course extends SitnetModel {
 
 	

@@ -2,29 +2,32 @@ package models;
 
 import java.util.List;
 
+import javax.persistence.Entity;
+
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
  * 
  * Kuvaa Sitnettiin tallennettavan tentin rakenteen
  * 
  */
+@Entity
 public class Exam extends SitnetModel {
 
+	// Tentti liittyy Opintojaksoon
+	private Course course;	
 	
-	
+	// onko tentillä joku toinen nimi, Opintojakson nimen lisäksi
 	private String name;
 	
 	private ExamType examType;
 	
-	// Opettajan antama ohje tentin suoittamista varten
+	// Opettajan antama ohje Opiskelijalle tentin suorittamista varten
 	private String instruction;
 	
 	private boolean shared;
 	
 	private List<ExamSection> examSections;
 
-	// Tentti liittyy Opintojaksoon
-	private Course course;
 	
 
 	public Exam(User creator, String name, Course course) {
@@ -39,6 +42,22 @@ public class Exam extends SitnetModel {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public ExamType getExamType() {
+		return examType;
+	}
+
+	public void setExamType(ExamType examType) {
+		this.examType = examType;
+	}
+
+	public List<ExamSection> getExamSections() {
+		return examSections;
+	}
+
+	public void setExamSections(List<ExamSection> examSections) {
+		this.examSections = examSections;
 	}
 
 	public String getInstruction() {
