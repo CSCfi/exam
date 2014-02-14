@@ -30,7 +30,7 @@
             suffix: '.json'
         });
 
-        $translateProvider.preferredLanguage('en');
+        $translateProvider.preferredLanguage('fi');
 
         var interceptor = function ($q) {
             return {
