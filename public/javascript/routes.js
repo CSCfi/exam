@@ -9,7 +9,7 @@
             $routeProvider.when('/home', { templateUrl: tmpl + 'home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
-            $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html'});
+            $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamCtrl'});
             $routeProvider.when('/calendar', { templateUrl: tmpl + 'calendar.html'});
             $routeProvider.when('/notifications', { templateUrl: tmpl + 'notifications.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});

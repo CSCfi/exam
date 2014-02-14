@@ -1,0 +1,19 @@
+<div id="create_exam">
+    <h4>{{'sitnet_create_new_exam' | translate}}</h4>
+
+    <form ng-submit="createExam()">
+        <p>
+            <label class="control-label">{{'sitnet_exam_id' | translate}}</label>
+            <input type="text" placeholder="exam_id" ng-model="exam.id"/>
+        </p>
+
+        <p>
+            <label class="control-label">{{'sitnet_exam_points' | translate}}</label>
+            <input type="text" placeholder="exam_maxpoints" ng-model="exam.maxpoints"/><br/>
+        </p>
+
+        <p>
+            <button type="submit" class="btn btn-primary">{{'sitnet_create_new_exam' | translate}}</button>
+        </p>
+    </form>
+</div>

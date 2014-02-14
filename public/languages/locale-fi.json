@@ -10,5 +10,11 @@
     "sitnet_calendar": "Kalenteri",
     "sitnet_notifications": "Ilmoitukset",
     "sitnet_messages": "Viestit",
-    "sitnet_tools": "Työkalut"
+    "sitnet_tools": "Työkalut",
+    "sitnet_create_new": "Luo uusi",
+    "sitnet_exam_templates": "Tenttipohjat",
+    "sitnet_create_new_exam": "Luo uusi Tentti",
+    "sitnet_exam_id": "Tentin tunnus",
+    "sitnet_exam_points": "Tentin maksimipisteet"
+
 }
