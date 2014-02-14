@@ -2,6 +2,8 @@ package models;
 
 import java.util.List;
 
+import javax.persistence.Entity;
+
 // TODO: tätä täytyy miettiä tarkemmin miten Organisaatiot kannattaa maalintaa
 
 /* 
@@ -15,7 +17,8 @@ import java.util.List;
  * 			/					\					/					\
  * Biologian laitos		Maantieteen laitos		Konetekniikka		Tuotantotalous
  */
-public class Organisation {
+@Entity
+public class Organisation extends SitnetModel {
 
 	private String name;
 	
@@ -36,6 +39,67 @@ public class Organisation {
 	
 	// Ylin organisaatio?
 	private boolean root;
+
+	public Organisation(User creator) {
+		super(creator);
+		// TODO Auto-generated constructor stub
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getNameAbbreviation() {
+		return nameAbbreviation;
+	}
+
+	public void setNameAbbreviation(String nameAbbreviation) {
+		this.nameAbbreviation = nameAbbreviation;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getVatIdNumber() {
+		return vatIdNumber;
+	}
+
+	public void setVatIdNumber(String vatIdNumber) {
+		this.vatIdNumber = vatIdNumber;
+	}
+
+	public List<Organisation> getOrganisations() {
+		return organisations;
+	}
+
+	public void setOrganisations(List<Organisation> organisations) {
+		this.organisations = organisations;
+	}
+
+	public Organisation getParent() {
+		return parent;
+	}
+
+	public void setParent(Organisation parent) {
+		this.parent = parent;
+	}
+
+	public boolean isRoot() {
+		return root;
+	}
+
+	public void setRoot(boolean root) {
+		this.root = root;
+	}
 	
 	
 	

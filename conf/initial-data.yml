@@ -56,5 +56,51 @@ user_roles:
       role: TEACHER
 
 
+organisations:
  
+    - !!models.Organisation
+      name: Oulun Yliopisto
+      nameAbbreviation:
+      code:
+      vatIdNumber:
+      organisations:
+        - !!models.Organisation
+          name: Luonnontieteellinen tiedekunta
+          nameAbbreviation:
+          code:
+          vatIdNumber:
+          organisations: 
+                - !!models.Organisation
+                  name: Tietojenkäsittelytieteiden laitos
+                  nameAbbreviation:
+                  code:
+                  vatIdNumber:
+                  organisations: 
+                  parent: null
+                  root: true
+          parent: null
+          root: true
+      organisations: 
+      parent: null
+      root: true
+      
+      
+
+#        - !!models.Organisation
+#          name: Luonnontieteellinen tiedekunta
+#          nameAbbreviation:
+#          code:
+#          vatIdNumber:
+#          organisations: 
+#                - !!models.Organisation
+#                  name: Tietojenkäsittelytieteiden laitos
+#                  nameAbbreviation:
+#                  code:
+#                  vatIdNumber:
+#                  organisations: 
+#                  parent: null
+#                  root: true
+#          parent: null
+#          root: true
+      
     
