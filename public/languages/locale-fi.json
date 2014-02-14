@@ -1,6 +1,14 @@
 {
-    "sitnet_login": "Kirjaudu",
+    "sitnet_login": "Kirjaudu sisään",
+    "sitnet_logout": "Kirjaudu ulos",
     "sitnet_username": "Käyttäjätunnus",
     "sitnet_password": "Salasana",
-    "sitnet_dashboard": "Työpöytä"
+    "sitnet_dashboard": "Työpöytä",
+    "sitnet_questions": "Kysymykset",
+    "sitnet_reports": "Tilastot ja Raportit",
+    "sitnet_exams": "Tentit",
+    "sitnet_calendar": "Kalenteri",
+    "sitnet_notifications": "Ilmoitukset",
+    "sitnet_messages": "Viestit",
+    "sitnet_tools": "Työkalut"
 }

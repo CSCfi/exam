@@ -1,6 +1,14 @@
 {
     "sitnet_login": "Login",
+    "sitnet_logout": "Logout",
     "sitnet_username": "Username",
     "sitnet_password": "Password",
-    "sitnet_dashboard": "Dashboard"
+    "sitnet_dashboard": "Dashboard",
+    "sitnet_questions": "Questions",
+    "sitnet_reports": "Reports",
+    "sitnet_exams": "Exams",
+    "sitnet_calendar": "Calendar",
+    "sitnet_notifications": "Notifications",
+    "sitnet_messages": "Messages",
+    "sitnet_tools": "Tools"
 }

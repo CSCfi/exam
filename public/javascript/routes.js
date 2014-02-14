@@ -6,7 +6,7 @@
             var tmpl = SITNET_CONF.ASSETS_PATH + '/templates/';
 
             /* main navigation */
-            $routeProvider.when('/home', { templateUrl: tmpl + 'home.html'});
+            $routeProvider.when('/home', { templateUrl: tmpl + 'home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html'});

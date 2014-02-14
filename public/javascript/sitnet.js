@@ -29,6 +29,7 @@
             prefix: path+ '/locale-',
             suffix: '.json'
         });
+
         $translateProvider.preferredLanguage('en');
 
         var interceptor = function ($q) {
