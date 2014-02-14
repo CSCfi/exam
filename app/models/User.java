@@ -35,8 +35,20 @@ public class User extends Model {
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Role> roles;
+    
+    private UserLanguage userLanguage;
+    
+    
 
-    public Long getId() {
+    public UserLanguage getUserLanguage() {
+		return userLanguage;
+	}
+
+	public void setUserLanguage(UserLanguage userLanguage) {
+		this.userLanguage = userLanguage;
+	}
+
+	public Long getId() {
         return id;
     }
 
