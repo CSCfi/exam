@@ -2,7 +2,11 @@ package controllers;
 
 import java.util.List;
 
+import models.Course;
 import models.Exam;
+import play.Logger;
+import play.data.DynamicForm;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 import actions.Authenticate;
@@ -22,5 +26,27 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(exams));
     }
     
-    
+    public static Result createExam() {
+    	Logger.debug("createExam() called!");
+    	
+    	DynamicForm df = Form.form().bindFromRequest();
+    			
+    	Logger.debug("course Code: " +df.get("courseCode"));
+    	Logger.debug("course Name: " +df.get("courseName"));
+    	Logger.debug("course Scope: " +df.get("courseScope"));
+    	Logger.debug("Faculty Name: " +df.get("facultyName"));
+    	Logger.debug("Exam Instructor Name: " +df.get("instructorName"));
+    	
+    	//Todo: implement the missing variables User, CourseType and Double
+    	Course course = new Course(null, df.get("facultyName"), df.get("courseCode"), df.get("courseName"), null, null);
+    	
+    	Logger.debug("Course created with following code: " +course.getCode());
+    	
+    	//Todo: what is the exam name? is it the same as course name? 
+    	Exam exam = new Exam(null, df.get("courseName"), course);
+    	
+    	Logger.debug("Exam created with following name: " +exam.getName());
+    	
+    	return ok("Successfully created the exam!");
+    }
 }

@@ -28,8 +28,6 @@ public class Exam extends SitnetModel {
 	
 	private List<ExamSection> examSections;
 
-	
-
 	public Exam(User creator, String name, Course course) {
 		super(creator);
 		this.name = name;
@@ -83,6 +81,5 @@ public class Exam extends SitnetModel {
 	public void setCourse(Course course) {
 		this.course = course;
 	}
-	
 	
 }

@@ -14,7 +14,9 @@
     "sitnet_create_new": "Luo uusi",
     "sitnet_exam_templates": "Tenttipohjat",
     "sitnet_create_new_exam": "Luo uusi Tentti",
-    "sitnet_exam_id": "Tentin tunnus",
-    "sitnet_exam_points": "Tentin maksimipisteet"
-
+    "sitnet_course_code": "Opintojakson koodi",
+    "sitnet_course_scope": "Opintojakson laajuus",
+	"sitnet_course_name": "Opintojakson nimi",
+	"sitnet_faculty_name": "Tiedekunta/Organisaatio",
+	"sitnet_exam_instructor": "Tentin tarkastaja"
 }

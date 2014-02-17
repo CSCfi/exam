@@ -1,17 +1,47 @@
-<div id="create_exam">
+<div ng-controller="ExamCtrl" id="create_exam">
     <h4>{{'sitnet_create_new_exam' | translate}}</h4>
 
     <form ng-submit="createExam()">
-        <p>
-            <label class="control-label">{{'sitnet_exam_id' | translate}}</label>
-            <input type="text" placeholder="exam_id" ng-model="exam.id"/>
-        </p>
-
-        <p>
-            <label class="control-label">{{'sitnet_exam_points' | translate}}</label>
-            <input type="text" placeholder="exam_maxpoints" ng-model="exam.maxpoints"/><br/>
-        </p>
-
+    	
+    	<div class="row">
+	    	<div class="col-md-6">
+		        <p>
+		            <label class="control-label">{{'sitnet_course_code' | translate}}</label>
+		            <input type="text" placeholder="course_code" ng-model="course.code"/>
+		        </p>
+			</div>
+			<div class="col-md-6">
+				<p>
+		            <label class="control-label">{{'sitnet_course_name' | translate}}</label>
+		            <input type="text" placeholder="course_name" ng-model="course.name"/>
+		        </p>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-md-6">
+		        <p>
+		            <label class="control-label">{{'sitnet_course_scope' | translate}}</label>
+		            <input type="number" placeholder="course_scope" ng-model="course.scope"/><br/>
+		        </p>
+	        </div>
+	        <div class="col-md-6">
+		        <p>
+		            <label class="control-label">{{'sitnet_faculty_name' | translate}}</label>
+		            <input type="text" placeholder="faculty_name" ng-model="faculty.name"/><br/>
+		        </p>
+	        </div>
+		</div>
+		
+		<div class="row">
+			<div class="col-md-6">
+		        <p>
+		            <label class="control-label">{{'sitnet_exam_instructors' | translate}}</label>
+		            <input type="text" placeholder="exam_instructor" ng-model="exam.instructor"/><br/>
+		        </p>
+	        </div>
+		</div>
+		
         <p>
             <button type="submit" class="btn btn-primary">{{'sitnet_create_new_exam' | translate}}</button>
         </p>

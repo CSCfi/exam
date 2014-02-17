@@ -22,7 +22,7 @@ DELETE        /users/:id           controllers.UserController.deleteUser(id: Lon
 
 
 GET           /exams               controllers.ExamController.getExams()
-
+POST		  /exam				   controllers.ExamController.createExam()
 
 GET           /courses             controllers.CourseController.getCourses()
 

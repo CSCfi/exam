@@ -13,8 +13,10 @@
     "sitnet_tools": "Tools",
     "sitnet_create_new": "Create new",
     "sitnet_exam_templates": "Exam templates",
-    "sitnet_create__new_exam": "Luo uusi Tentti",
-    "sitnet_exam_id": "Tentin tunnus",
-    "sitnet_exam_points": "Tentin maksimipisteet"
-
+    "sitnet_create_new_exam": "Create new Exam",
+    "sitnet_course_code": "Course code",
+    "sitnet_course_scope": "Course scope",
+	"sitnet_course_name": "Course name",
+	"sitnet_faculty_name": "Faculty/Organization",
+	"sitnet_exam_instructor": "Exam instructor"
 }

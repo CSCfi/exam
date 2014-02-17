@@ -13,12 +13,25 @@
             };
 
             $scope.createExam = function () {
+            	var formData = {
+                        courseCode: $scope.course.code,
+                        courseName: $scope.course.name,
+                        courseScope: $scope.course.scope,
+                        facultyName: $scope.faculty.name,
+                        instructorName: $scope.exam.instructor
+                    };
+            	
+            	$http.post('/exam', formData)
+            		.success(function (token) {
+                    	toastr.success("Great success!");
+                    })
+                    .error(function (message) {
+                    	toastr.error(message, "You failed!");
+                    });
+            	
                 if($scope.dialog) {
                     $scope.dialog.close();
                 }
-                //todo tee datalla jotain
             }
-
-
         }]);
 })();
