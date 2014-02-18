@@ -14,6 +14,7 @@ public class CourseController extends SitnetController {
 //  @Authenticate
   public static Result getCourses() {
   	
+	  // TODO: tänne tehään Interface ja stub joka matkii oodi interfacea
   	
       List<Course> courses = Ebean.find(Course.class).findList();
       return ok(Json.toJson(courses));
