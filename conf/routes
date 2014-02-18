@@ -18,7 +18,6 @@ PUT           /users/:id           controllers.UserController.updateUser(id: Lon
 POST          /users               controllers.UserController.addUser()
 DELETE        /users/:id           controllers.UserController.deleteUser(id: Long)
 
-############################################################
 
 
 ############### Exam interface ###############
@@ -26,14 +25,15 @@ DELETE        /users/:id           controllers.UserController.deleteUser(id: Lon
 GET           /exams               controllers.ExamController.getExams()
 POST		  /exam				   controllers.ExamController.createExam()
 
-############################################################
 
 ############### Exam interface ###############
 GET           /courses             controllers.CourseController.getCourses()
 
 
-############################################################
 
+############### Question interface ###############
+
+GET			/mc-questions			controllers.QuestionController.getMultipleChoiceQuestions()
 
 
 

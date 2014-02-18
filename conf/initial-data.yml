@@ -76,6 +76,7 @@ user_roles:
     - !!models.Role
       role: TEACHER
 
+######################################################################
 
 organisations:
  
@@ -104,6 +105,7 @@ organisations:
       organisations: 
       parent: null
       root: true
+######################################################################
 
 
 courses:
@@ -157,4 +159,47 @@ exams:
     instruction: Tentissä saa käyttää apuna lähdemateriaalia
     shared: true
     examSections:  
+    
+######################################################################
+    
+mc-questions:
+
+  - !!models.MultipleChoiseQuestion
+#    id:
+    type:
+    question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
+    options:
+        - !!models.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: 99, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
+    shared: false
+    totalScore:    
+  
+  - !!models.MultipleChoiseQuestion
+#    id:
+    type:
+    question: Mikä on ikuisen elämän salaisuus?
+    options:
+        - !!models.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: IDCLIP, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
+    shared: false
+    totalScore:    
+    
+    
+#            - !!models.MultipleChoiseOption
+##          id: 
+#          option: 3
+#          correctOption: false
+#          score: 1
+#          
+#        - !!models.MultipleChoiseOption
+##          id: 
+#          option: 3
+#          correctOption: false
+#          score: 1  
+#          
+#          
     

@@ -1,33 +1,9 @@
 package models;
 
-import java.util.List;
+public interface Question {
 
-import javax.persistence.Entity;
-
-@Entity
-public class Question extends SitnetModel {
-
+	public QuestionType getType();
+	public String getQuestion();
 	
 	
-	private boolean shared;
-	
-	private List<Material> materials;
-	
-	private List<Answer> answers;
-
-	private List<EvaluationPhrase> evaluationPhrases;
-
-	private List<EvaluationCriteria> evaluationCriterias;
-	
-	private List<Comment> comments;
-	
-	
-	public Question(User creator) {
-		super(creator);
-	}
-	
-	
-	
-	
-
 }
