@@ -35,7 +35,7 @@
         <h2>{{'sitnet_exams_created_by' | translate}} (Käyttäjänimi){{username}}</h2>
         <div class="list-group">
             <a ng-repeat="exam in exams" href="#" class="list-group-item">
-                <h4 class="list-group-item-heading">KURSSIN NIMI TULEE TÄHÄN{{exam.course}}</h4>
+                <h4 class="list-group-item-heading">{{exam.course.code}}</h4>
                 <p class="list-group-item-text">{{exam.name}}</p>
             </a>
         </div>
