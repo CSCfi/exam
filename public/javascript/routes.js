@@ -10,6 +10,7 @@
             $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamCtrl'});
+            $routeProvider.when('/exam', { templateUrl: tmpl + 'create_exam_form.html', controller: 'ExamCtrl'});
             $routeProvider.when('/calendar', { templateUrl: tmpl + 'calendar.html'});
             $routeProvider.when('/notifications', { templateUrl: tmpl + 'notifications.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});

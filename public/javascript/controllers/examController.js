@@ -4,16 +4,15 @@
         .controller('ExamCtrl', ['$scope', '$http', '$modal', 'ExamRes', function ($scope, $http, $modal, ExamRes) {
             
             $scope.exams = ExamRes.query();
-            
 
-        	$scope.dialog;
             $scope.openCreateExamDialog = function () {
-                $scope.dialog = $modal.open({
-                    templateUrl: 'assets/templates/create_exam_form.html',
-                    backdrop: 'static',
-                    controller: "ExamCtrl",
-                    resolve : $scope.dialog
-                });
+                $http.post('/exam')
+                    .success(function () {
+                        toastr.success("Great success!");
+                    })
+                    .error(function (message) {
+                        toastr.error(message, "You failed!");
+                    });
             };
 
             $scope.createExam = function () {
@@ -26,17 +25,16 @@
                     };
             	
             	$http.post('/exam', formData)
-            		.success(function (token) {
+            		.success(function () {
                     	toastr.success("Great success!");
                     })
                     .error(function (message) {
                     	toastr.error(message, "You failed!");
                     });
             	
-                if($scope.dialog) {
+                /*if($scope.dialog) {
                     $scope.dialog.close();
-                }
+                }*/
             }
-                        
         }]);
 })();
