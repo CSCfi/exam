@@ -28,10 +28,14 @@ public class Exam extends SitnetModel {
 	
 	private List<ExamSection> examSections;
 
+<<<<<<< HEAD
 	public Exam(User creator, String name, Course course) {
+=======
+
+
+	public Exam(User creator) {
+>>>>>>> Modify initial-data
 		super(creator);
-		this.name = name;
-		this.course = course;
 	}
 
 	public String getName() {

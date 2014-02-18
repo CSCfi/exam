@@ -1,6 +1,10 @@
 package models;
 
+import java.util.List;
+
 import javax.persistence.Entity;
+
+import play.db.ebean.Model;
 
 
 /*
@@ -10,7 +14,8 @@ import javax.persistence.Entity;
  * 
  */
 @Entity
-public class Course extends SitnetModel {
+public class Course extends Model {
+
 
 	// Tiedekunta/Organisaatio
 	private String facultyOrOrganizationName;
@@ -20,19 +25,15 @@ public class Course extends SitnetModel {
 	
 	private String name;
 	
+	
+	// TODO: tänne tietoa
+	private List<User> responsibleTeacher;
+	
 	private CourseType type;
 	
 	// Laajuus, opintopisteet
 	private Double credits;
 
-	public Course(User creator, String facultyOrOrganizationName, String code, String name, CourseType type, Double credits) {
-		super(creator);
-		this.setFacultyOrOrganizationName(facultyOrOrganizationName);
-		this.code = code;
-		this.name = name;
-		this.type = type;
-		this.credits = credits;
-	}
 
 	public String getCode() {
 		return code;
@@ -72,6 +73,14 @@ public class Course extends SitnetModel {
 
 	public void setFacultyOrOrganizationName(String facultyOrOrganizationName) {
 		this.facultyOrOrganizationName = facultyOrOrganizationName;
+	}
+
+	public List<User> getResponsibleTeacher() {
+		return responsibleTeacher;
+	}
+
+	public void setResponsibleTeacher(List<User> responsibleTeacher) {
+		this.responsibleTeacher = responsibleTeacher;
 	}
 	
 }

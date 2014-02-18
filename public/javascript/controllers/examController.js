@@ -1,8 +1,12 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamCtrl', ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
-            $scope.dialog;
+        .controller('ExamCtrl', ['$scope', '$http', '$modal', 'ExamRes', function ($scope, $http, $modal, ExamRes) {
+            
+            $scope.exams = ExamRes.query();
+            
+
+        	$scope.dialog;
             $scope.openCreateExamDialog = function () {
                 $scope.dialog = $modal.open({
                     templateUrl: 'assets/templates/create_exam_form.html',
@@ -16,7 +20,7 @@
             	var formData = {
                         courseCode: $scope.course.code,
                         courseName: $scope.course.name,
-                        courseScope: $scope.course.scope,
+                        courseScope: $scope.course.credits,
                         facultyName: $scope.faculty.name,
                         instructorName: $scope.exam.instructor
                     };
@@ -33,5 +37,6 @@
                     $scope.dialog.close();
                 }
             }
+                        
         }]);
 })();

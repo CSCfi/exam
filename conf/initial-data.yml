@@ -87,7 +87,7 @@ organisations:
 
 courses:
   
-  - &johdatus !!models.Course
+  - !!models.Course
     code: 810136P   
     name: Johdatus alkeiden perusteisiin
     type: 
@@ -102,7 +102,8 @@ courses:
 
 exams:
   - !!models.Exam
-    course: *johdatus
+    course: 
+#       - !!models.Course {code: 810136P, name: Johdatus alkeiden perusteisiin, type: , credits: 5}
     name: Johdatus alkeiden perusteisiin
     examType:
     instruction: Vastaa kolmeen tehtävään neljästä
