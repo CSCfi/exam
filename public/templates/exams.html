@@ -3,3 +3,21 @@
         <button ng-click="openCreateExamDialog()" type="button" class="btn btn-primary btn-lg active">{{'sitnet_create_new' | translate}}</button>
     </div>
 </div>
+<hr>
+<h2>Kaikki tentit</h2>
+<hr>
+<ul>
+    <li ng-repeat="exam in exams">
+	id: {{exam.id}}
+	created: {{exam.created}}
+	creator: {{exam.creator}}
+	modified: {{exam.modified}}
+	modifier: {{exam.modifier}}
+	course: {{exam.course}}
+	name: {{exam.name}}
+	examType: {{exam.examType}}
+	instruction: {{exam.instruction}}
+	shared: {{exam.shared}}
+	examections: {{exam.examections}}
+    </li>
+</ul>

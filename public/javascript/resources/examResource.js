@@ -3,7 +3,7 @@
 angular.module("sitnet.resources")
     .factory("ExamRes", ['$resource', function ($resource) {
         return $resource(
-            "/exam/:id",
+            "/exams/:id",
             {
                 id: "@id"
             },
