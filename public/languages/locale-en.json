@@ -18,5 +18,7 @@
     "sitnet_course_scope": "Course scope",
 	"sitnet_course_name": "Course name",
 	"sitnet_faculty_name": "Faculty/Organization",
-	"sitnet_exam_instructor": "Exam instructor"
+	"sitnet_exam_instructor": "Exam instructor",
+    "sitnet_exams_created_by": "Exams created by",
+    "sitnet_exams_needing_attention": "Exams needing attention"
 }

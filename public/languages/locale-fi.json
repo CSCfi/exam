@@ -18,5 +18,7 @@
     "sitnet_course_scope": "Opintojakson laajuus",
 	"sitnet_course_name": "Opintojakson nimi",
 	"sitnet_faculty_name": "Tiedekunta/Organisaatio",
-	"sitnet_exam_instructor": "Tentin tarkastaja"
+	"sitnet_exam_instructor": "Tentin tarkastaja",
+    "sitnet_exams_created_by": "Luodut tentit käyttäjältä",
+    "sitnet_exams_needing_attention": "Huomiota vaativat tentit"
 }
