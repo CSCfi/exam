@@ -1,3 +1,24 @@
+######################################################################
+#
+#
+#
+# - !!models.Exam  // - !! stands for List
+#   !!models.Exam  // without '-' stand for one object
+#
+#
+# To reference an Object you must have right annotaions 
+# for example: Exam has reference to a Course (without @ManyToOne it wont work)
+#
+#
+#@Entity
+#public class Exam extends SitnetModel {
+#
+#  // Tentti liittyy Opintojaksoon
+#  @Constraints.Required
+#  @ManyToOne
+#  private Course course;  
+#
+######################################################################
 
 # Users
 
@@ -88,13 +109,13 @@ organisations:
 courses:
   
   - !!models.Course
-    code: 810136P   
+    code: 810136P
     name: Johdatus alkeiden perusteisiin
     type: 
     credits: 5
       
   - !!models.Course
-    code: 811380A  
+    code: 811380A
     name: Tietokantojen perusteet 
     type: 
     credits: 7
@@ -102,8 +123,8 @@ courses:
 
 exams:
   - !!models.Exam
-    course: 
-#       - !!models.Course {code: 810136P, name: Johdatus alkeiden perusteisiin, type: , credits: 5}
+    course: !!models.Course 
+                id: 1
     name: Johdatus alkeiden perusteisiin
     examType:
     instruction: Vastaa kolmeen tehtävään neljästä
@@ -111,12 +132,29 @@ exams:
     examSections:
   
   - !!models.Exam
-    course:  
-    name: Tietokantojen perusteet 
+    course:  !!models.Course
+                id: 2
+    name: Tietokantojen perusteet, syksy 2013
     examType:
     instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
     shared: true
     examSections:
   
-  
+  - !!models.Exam
+    course: !!models.Course
+                id: 2
+    name: Tietokantojen perusteet, kevät 2014
+    examType:
+    instruction: Vastaa kaikkiin tenttikysymyksiin
+    shared: true
+    examSections:
+    
+  - !!models.Exam
+    course: !!models.Course
+                id: 2
+    name: Tietokantojen perusteet, 2009
+    examType:
+    instruction: Tentissä saa käyttää apuna lähdemateriaalia
+    shared: true
+    examSections:  
     

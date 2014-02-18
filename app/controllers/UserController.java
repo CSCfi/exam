@@ -2,9 +2,13 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import actions.Authenticate;
+
 import com.avaje.ebean.Ebean;
+
+import models.Session;
 import models.User;
 import play.Logger;
+import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -45,5 +49,13 @@ public class UserController extends SitnetController {
         Logger.debug("Delete user with id {}.", id);
         Ebean.delete(User.class, id);
         return ok("success");
+    }
+    
+    public static User getLoggedUser()
+    {
+        String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
+        Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
+        User user = Ebean.find(User.class, session.getUserId());
+        return user;
     }
 }

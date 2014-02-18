@@ -35,13 +35,14 @@ public class SitnetModel extends play.db.ebean.Model {
 	@OneToOne
 	private User modifier;
 	
-	
+	public SitnetModel() {
+		super();
+	}
 	
 	public SitnetModel(User creator) {
 		super();
 		this.creator = creator;
 	}
-
 
 	public Long getId() {
 		return id;

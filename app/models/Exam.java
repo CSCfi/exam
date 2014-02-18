@@ -3,6 +3,9 @@ package models;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+
+import play.data.validation.Constraints;
 
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
@@ -14,6 +17,8 @@ import javax.persistence.Entity;
 public class Exam extends SitnetModel {
 
 	// Tentti liittyy Opintojaksoon
+	@Constraints.Required
+	@ManyToOne
 	private Course course;	
 	
 	// onko tentillä joku toinen nimi, Opintojakson nimen lisäksi
@@ -28,9 +33,16 @@ public class Exam extends SitnetModel {
 	
 	private List<ExamSection> examSections;
 
-	public Exam(User creator, String name) {
+
+
+	public Exam(Course course) {
+		super();
+		this.course = course;
+	}
+
+	public Exam(User creator, Course course) {
 		super(creator);
-		this.name = name;
+		this.course = course;
 	}
 
 	public String getName() {
