@@ -10,13 +10,12 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
 @Entity
-public class MultipleChoiseQuestion extends SitnetModel implements Question {
+public class MultipleChoiseQuestion extends SitnetModel implements QuestionInterface {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 	
-    private QuestionType type;
     
     private String question;
     
@@ -35,13 +34,6 @@ public class MultipleChoiseQuestion extends SitnetModel implements Question {
 		this.id = id;
 	}
 
-	public QuestionType getType() {
-		return type;
-	}
-
-	public void setType(QuestionType type) {
-		this.type = type;
-	}
 
 	public String getQuestion() {
 		return question;
@@ -74,5 +66,6 @@ public class MultipleChoiseQuestion extends SitnetModel implements Question {
 	public void setTotalScore(Double totalScore) {
 		this.totalScore = totalScore;
 	}
+
     
 }

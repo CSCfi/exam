@@ -2,6 +2,10 @@ package models;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+
 
 /*
  * Tenttiosio, joka voi sisältää useita kysymyksiä (Kysymystyyppejä)
@@ -10,9 +14,11 @@ import java.util.List;
  *  Tentti sisältää ainakin yhden osion. 
  * 
  */
+//@Entity
 public class ExamSection extends SitnetModel {
 
 	
+//	@OneToMany(cascade = CascadeType.ALL)
 	private List<Question> questions;
 
 	// osion kokonaispisteet

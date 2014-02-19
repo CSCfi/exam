@@ -3,7 +3,7 @@
 angular.module("sitnet.resources")
     .factory("QuestionRes", ['$resource', function ($resource) {
         return $resource(
-            "/mc-questions/:id",
+            "/questions/:id",
             {
                 id: "@id"
             },

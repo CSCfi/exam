@@ -2,7 +2,7 @@ package controllers;
 
 import java.util.List;
 
-import models.MultipleChoiseQuestion;
+import models.Question;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -12,9 +12,9 @@ public class QuestionController extends SitnetController {
 
 	
 //  @Authenticate
-  public static Result getMultipleChoiceQuestions() {
+  public static Result getQuestions() {
   	
-      List<MultipleChoiseQuestion> questions = Ebean.find(MultipleChoiseQuestion.class).findList();
+      List<Question> questions = Ebean.find(Question.class).findList();
       return ok(Json.toJson(questions));
   }
 }

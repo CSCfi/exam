@@ -33,7 +33,7 @@ GET           /courses             controllers.CourseController.getCourses()
 
 ############### Question interface ###############
 
-GET			/mc-questions			controllers.QuestionController.getMultipleChoiceQuestions()
+GET			/questions			controllers.QuestionController.getQuestions()
 
 
 
