@@ -1,7 +1,10 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamCtrl', ['$scope', '$http', 'ExamRes', function ($scope, $http, ExamRes) {
+        .controller('ExamCtrl', ['$scope', '$routeParams', '$http', 'ExamRes', function ($scope, $routeParams, $http, ExamRes) {
+
+            console.log($routeParams.examId);
+
 
             $scope.exams = ExamRes.query();
 
