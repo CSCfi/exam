@@ -10,7 +10,7 @@ import javax.persistence.OneToMany;
 @Entity
 public class Question extends SitnetModel {
 
-	public enum QuestionType {
+	public static enum QuestionType {
 
 		MULTIPLE_CHOISE_ONE_CORRECT, 
 		MULTIPLE_CHOISE_SEVERAL_CORRECT, 

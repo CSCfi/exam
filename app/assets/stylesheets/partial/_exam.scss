@@ -1,46 +1,59 @@
-
-//todo: split!
 #exam {
   margin-top: 1em;
 
-  > div {
-    border-right: solid 1px $sitnet-grey;
-
-  }
-  > div:last-child {
-    border: none;
-  }
-
-  .exam {
+  .base {
+    background-color: #fff;
     border: solid 1px $sitnet-grey;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
     padding: 1em;
+  }
 
-    .widget {
+  .create-new {
+    display: block;
+    color: $sitnet-dark-grey;
+    border: dashed 2px $sitnet-grey;
+    background-color: $sitnet-beige;
+    padding: 1em;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    margin: 1em;
+  }
 
-      border: solid 1px $sitnet-grey;
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      border-radius: 5px;
+  .library-header, .exam-header {
+    background-color: $sitnet-dark-grey;
+    color: white;
+    padding: 0.5em;
+    a {
+      color: $sitnet-green;
+    }
+  }
 
-      padding: 0.5em;
-      margin-bottom: 1em;
+  .library {
+    padding: 5px;
+    min-height: 100%;
+    border: solid 1px $sitnet-grey;
+    background-color: white;
+    .results {
+      margin-top: 1em;
 
     }
   }
 
-  .widget-icon {
+  .section {
+    min-height: 150px;
+    margin-bottom: 1em;
+    background-color: $sitnet-light-grey;
+  }
 
-    border: solid 1px $sitnet-grey;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+  li {
+    list-style: none;
+  }
 
-    margin: 1em;
-    padding: 0.5em;
-
+  ul {
+    padding: 0;
   }
 
 }

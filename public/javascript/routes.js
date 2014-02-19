@@ -3,14 +3,15 @@
     angular.module('sitnet')
         .config(['$routeProvider', 'SITNET_CONF', function ($routeProvider, SITNET_CONF) {
 
-            var tmpl = SITNET_CONF.ASSETS_PATH + '/templates/';
+            var tmpl = SITNET_CONF.TEMPLATES_PATH;
+
 
             /* main navigation */
             $routeProvider.when('/home', { templateUrl: tmpl + 'home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamCtrl'});
-            $routeProvider.when('/exams/:examId', { templateUrl: tmpl + 'create_exam.html', controller: 'ExamCtrl'});
+            $routeProvider.when('/exams/:examId', { templateUrl: tmpl + 'exam.html', controller: 'ExamCtrl'});
             $routeProvider.when('/calendar', { templateUrl: tmpl + 'calendar.html'});
             $routeProvider.when('/notifications', { templateUrl: tmpl + 'notifications.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});

@@ -8,7 +8,8 @@
         'ui.bootstrap',
         'sitnet.controllers',
         'sitnet.resources',
-        'pascalprecht.translate'
+        'pascalprecht.translate',
+        'ngDragDrop'
     ]);
     sitnet.constant('SITNET_CONF', function () {
         var context_path = '/';
@@ -16,17 +17,15 @@
             AUTH_STORAGE_KEY: 'SITNET_TOKEN',
             AUTH_HEADER: 'x-sitnet-authentication',
             CONTEXT_PATH: context_path,
-            ASSETS_PATH: context_path + 'assets',
-            ASSETS_LANGUAGES: context_path + 'assets/languages'
+            LANGUAGES_PATH: context_path + 'assets/languages/',
+            TEMPLATES_PATH: context_path + 'assets/templates/'
         };
     }());
     sitnet.config(['$httpProvider', '$translateProvider', 'SITNET_CONF', function ($httpProvider, $translateProvider, SITNET_CONF) {
 
-        var path = SITNET_CONF.ASSETS_LANGUAGES;
-
-        // https://github.com/PascalPrecht/angular-translate/wiki/Asynchronous-loading#registering-asynchronous-loaders
+        var path = SITNET_CONF.LANGUAGES_PATH;
         $translateProvider.useStaticFilesLoader({
-            prefix: path+ '/locale-',
+            prefix: path + '/locale-',
             suffix: '.json'
         });
 

@@ -16,9 +16,16 @@
     "sitnet_create_new_exam": "Luo uusi Tentti",
     "sitnet_course_code": "Opintojakson koodi",
     "sitnet_course_scope": "Opintojakson laajuus",
-	"sitnet_course_name": "Opintojakson nimi",
-	"sitnet_faculty_name": "Tiedekunta/Organisaatio",
-	"sitnet_exam_instructor": "Tentin tarkastaja",
+    "sitnet_course_name": "Opintojakson nimi",
+    "sitnet_faculty_name": "Tiedekunta/Organisaatio",
+    "sitnet_exam_instructor": "Tentin tarkastaja",
     "sitnet_exams_created_by": "Luodut tentit käyttäjältä",
-    "sitnet_exams_needing_attention": "Huomiota vaativat tentit"
+    "sitnet_exams_needing_attention": "Huomiota vaativat tentit",
+    "sitnet_new_exam": "Uuden tentin luominen",
+    "sitnet_exam_name": "Kokeen nimi",
+    "sitnet_add_content": "Lisää uusi aineisto osioon raahaamalla kirjastota tai painamalla tästä.",
+    "sitnet_add_section": "Lisää uusi ostio tentiin painamalla tästä.",
+    "sitnet_save": "Tallenna",
+    "sitnet_library": "Kirjasto",
+    "sitnet_search": "Haku"
 }

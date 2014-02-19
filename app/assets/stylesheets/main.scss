@@ -4,6 +4,10 @@
 @import "partial/exam";
 @import "partial/login";
 
+body {
+  background-color: $sitnet-light-grey;
+}
+
 .vmenu-on {
   margin-left: 16.66667%
 }
@@ -13,15 +17,50 @@
 }
 
 .locale-icon {
-    margin-left: 2px;
-    margin-right: 2px;
- 
- }
- 
- .locale-bar {
-    float:right;
-    margin-left: 2px;
-    margin-right: 2px;
-    margin-top: 5px;
-    margin-bottom: 5px;
- }
+  margin-left: 2px;
+  margin-right: 2px;
+
+}
+
+.locale-bar {
+  float: right;
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.sitnet-dark-green {
+  color: $sitnet-dark-green;
+}
+
+.sitnet-green {
+  color: $sitnet-green;
+}
+
+.sitnet-blue {
+  color: $sitnet-blue;
+}
+
+.sitnet-grey {
+  color: $sitnet-grey;
+}
+
+.sitnet-light-grey {
+  color: $sitnet-light-grey;
+}
+
+.sitnet-dark-grey {
+  color: $sitnet-dark-grey;
+}
+
+.sitnet-dark {
+  color: $sitnet-dark;
+}
+
+.sitnet-beige {
+  color: $sitnet-beige;
+}
+.sitnet-white {
+  color: $sitnet-white;
+}
