@@ -2,7 +2,7 @@
     <div ng-controller="ExamCtrl">
         <div class="row">
             <div class="col-md-2 col-md-offset-10">
-                <a href="#/exam" class="btn btn-primary btn-lg active">
+                <a href="#/exams/0" class="btn btn-primary btn-lg active header-button">
                     {{'sitnet_create_new' | translate}}
                 </a>
             </div>
@@ -10,28 +10,7 @@
     </div>
 </div>
 
-<!--
-<hr>
-<h2>Kaikki tentit</h2>
-<hr>
-
-    <ul>
-    <li ng-repeat="exam in exams">
-	id: {{exam.id}}
-	created: {{exam.created}}
-	creator: {{exam.creator}}
-	modified: {{exam.modified}}
-	modifier: {{exam.modifier}}
-	course: {{exam.course}}
-	name: {{exam.name}}
-	examType: {{exam.examType}}
-	instruction: {{exam.instruction}}
-	shared: {{exam.shared}}
-	examections: {{exam.examections}}
-    </li>
-</ul>-->
-
-<div class="row" style="padding-top: 45px">
+<div class="row">
     <div class="col-md-6">
         <h2>{{'sitnet_exams_created_by' | translate}} (Käyttäjänimi){{username}}</h2>
         <div class="list-group">

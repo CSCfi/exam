@@ -1,11 +1,9 @@
 #sitnet-header {
 
-  background-color: $sitnet-grey;
+  background-color: $sitnet-dark;
   min-height: $sitnet-header-height;
 
-
   .header {
-    background-color: #B5C2C4;
     position: fixed;
     z-index: 330;
     padding-left: 0;
@@ -13,5 +11,9 @@
     border-radius: 0;
     right: 0;
     left: 0;
+  }
+
+  .header-button {
+    margin-top: 11px;
   }
 }
