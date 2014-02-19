@@ -4,6 +4,7 @@ import java.util.List;
 
 import models.Course;
 import models.Exam;
+import models.ExamSection;
 import models.User;
 import play.Logger;
 import play.data.DynamicForm;
@@ -50,5 +51,15 @@ public class ExamController extends SitnetController {
     	Logger.debug("Exam created with following name: " +exam.getName());
     	
     	return ok("Successfully created the exam!");
+    }
+    
+    //  @Authenticate
+    public static Result getExamSections(Long examid) {
+
+    	List<ExamSection> sections = Ebean.find(ExamSection.class).where()  
+    		      .eq("id", examid)
+    		      .findList();
+    	
+    	return ok(Json.toJson(sections));
     }
 }

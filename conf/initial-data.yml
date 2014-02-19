@@ -108,73 +108,20 @@ organisations:
 ######################################################################
 
 
-courses:
-  
-  - !!models.Course
-    code: 810136P
-    name: Johdatus alkeiden perusteisiin
-    type: 
-    credits: 5
-      
-  - !!models.Course
-    code: 811380A
-    name: Tietokantojen perusteet 
-    type: 
-    credits: 7
-    
-
-exams:
-  - !!models.Exam
-    course: !!models.Course 
-                id: 1
-    name: Johdatus alkeiden perusteisiin
-    examType:
-    instruction: Vastaa kolmeen tehtävään neljästä
-    shared: false
-    examSections:
-  
-  - !!models.Exam
-    course:  !!models.Course
-                id: 2
-    name: Tietokantojen perusteet, syksy 2013
-    examType:
-    instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
-    shared: true
-    examSections:
-  
-  - !!models.Exam
-    course: !!models.Course
-                id: 2
-    name: Tietokantojen perusteet, kevät 2014
-    examType:
-    instruction: Vastaa kaikkiin tenttikysymyksiin
-    shared: true
-    examSections:
-    
-  - !!models.Exam
-    course: !!models.Course
-                id: 2
-    name: Tietokantojen perusteet, 2009
-    examType:
-    instruction: Tentissä saa käyttää apuna lähdemateriaalia
-    shared: true
-    examSections:  
-
-#exam-sections:
-#
-#  - !!models.ExamSection
-#    questions:
-#              - !!models.
-#    totalScore:
-  
-######################################################################
 questions:
 
 
-  - !!models.Question
-#    id:
+
+# Multiple choise questions
+ 
+  - &multi1 !!models.Question
     type:
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias: 
+    comments: 
     options:
         - !!models.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
         - !!models.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
@@ -182,56 +129,87 @@ questions:
         - !!models.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
     shared: false
   
-  - !!models.Question
-#    id:
+  - &multi2 !!models.Question
     type:
     question: Mikä on ikuisen elämän salaisuus?
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias: 
+    comments: 
     options:
         - !!models.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
         - !!models.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
         - !!models.MultipleChoiseOption {option: IDCLIP, correctOption: false, score: 1}
         - !!models.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
     shared: false
+  
+######################################################################
 
-#
-#mc-questions:
-#
-#  - !!models.MultipleChoiseQuestion
-##    id:
-#    type:
-#    question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-#    options:
-#        - !!models.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
-#        - !!models.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
-#        - !!models.MultipleChoiseOption {option: 99, correctOption: false, score: 1}
-#        - !!models.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
-#    shared: false
-#    totalScore:    
-#  
-#  - !!models.MultipleChoiseQuestion
-##    id:
-#    type:
-#    question: Mikä on ikuisen elämän salaisuus?
-#    options:
-#        - !!models.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
-#        - !!models.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
-#        - !!models.MultipleChoiseOption {option: IDCLIP, correctOption: false, score: 1}
-#        - !!models.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
-#    shared: false
-#    totalScore:    
-#    
-#    
-#            - !!models.MultipleChoiseOption
-##          id: 
-#          option: 3
-#          correctOption: false
-#          score: 1
-#          
-#        - !!models.MultipleChoiseOption
-##          id: 
-#          option: 3
-#          correctOption: false
-#          score: 1  
-#          
-#          
+courses:
+  
+  - &alkeet !!models.Course
+    code: 810136P
+    name: Johdatus alkeiden perusteisiin
+    type: 
+    credits: 5
+      
+  - &tietokannat !!models.Course
+    code: 811380A
+    name: Tietokantojen perusteet 
+    type: 
+    credits: 7
+
+
+examsections:
+
+  - &osio1 !!models.ExamSection
+    questions:
+              - *multi1
+    totalScore:
+  
+  - &osio2 !!models.ExamSection
+    questions:
+              - *multi2
+    totalScore:
+  
+      
+
+exams:
+  - !!models.Exam
+    course: *alkeet
+    name: Johdatus alkeiden perusteisiin
+    examType:
+    instruction: Vastaa kolmeen tehtävään neljästä
+    shared: false
+    examSections:
+              - *osio2
+    
+  
+  - !!models.Exam
+    course: *tietokannat
+    name: Tietokantojen perusteet, syksy 2013
+    examType:
+    instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
+    shared: true
+    examSections:
+  
+  - !!models.Exam
+    course: *tietokannat
+    name: Tietokantojen perusteet, kevät 2014
+    examType:
+    instruction: Vastaa kaikkiin tenttikysymyksiin
+    shared: true
+    examSections:
+    
+  - !!models.Exam
+    course: *tietokannat
+    name: Tietokantojen perusteet, 2009
+    examType:
+    instruction: Tentissä saa käyttää apuna lähdemateriaalia
+    shared: true
+    examSections:
+                - *osio1
+                
+                
     

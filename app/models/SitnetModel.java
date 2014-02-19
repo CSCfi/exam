@@ -22,8 +22,8 @@ public class SitnetModel extends play.db.ebean.Model {
 	private static final long serialVersionUID = 5201571045491048480L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Long id;	
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	private Long id;
 	
 	private Timestamp created;
 	

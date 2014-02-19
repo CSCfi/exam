@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 
 /*
  * Tenttiosio, joka voi sisältää useita kysymyksiä (Kysymystyyppejä)
@@ -14,35 +14,41 @@ import javax.persistence.OneToMany;
  *  Tentti sisältää ainakin yhden osion. 
  * 
  */
-//@Entity
+@Entity
 public class ExamSection extends SitnetModel {
 
-	
-//	@OneToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.REMOVE)
 	private List<Question> questions;
+
+//	@ManyToOne
+	@ManyToMany
+	private Exam exam;
 
 	// osion kokonaispisteet
 	private Long totalScore;
-	
-	
-	
-	
-	
-	public ExamSection(User creator) {
-		super(creator);
+
+	public List<Question> getQuestions() {
+		return questions;
 	}
 
-
-
-
+	public void setQuestions(List<Question> questions) {
+		this.questions = questions;
+	}
 
 	public Long getTotalScore() {
-		
-		// TODO: laske tässä montako pistettä kaikista kysymyksistä muodostuu
-		
 		return totalScore;
 	}
-	
-	
-	
+
+	public void setTotalScore(Long totalScore) {
+		this.totalScore = totalScore;
+	}
+
+	public Exam getExam() {
+		return exam;
+	}
+
+	public void setExam(Exam exam) {
+		this.exam = exam;
+	}
+
 }

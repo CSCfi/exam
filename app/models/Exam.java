@@ -2,7 +2,9 @@ package models;
 
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 import play.data.validation.Constraints;
@@ -31,6 +33,13 @@ public class Exam extends SitnetModel {
 	
 	private boolean shared;
 	
+	
+	// TODO: This should be actually @OneToMany relationship, but there's problems with Ebean
+	// XXX: Help
+	
+//	@OneToMany(cascade = CascadeType.REMOVE, mappedBy="exam")
+//	@OneToMany(cascade = CascadeType.ALL, mappedBy="exam")
+	@ManyToMany(cascade = CascadeType.ALL)
 	private List<ExamSection> examSections;
 
 

@@ -61,11 +61,14 @@ public class Global extends GlobalSettings {
             if (Ebean.find(User.class).findRowCount() == 0) {
                 @SuppressWarnings("unchecked")
                 Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
+                
+                // HUOM, järjestyksellä on väliä 
                 Ebean.save(all.get("users"));
                 Ebean.save(all.get("courses"));
+                Ebean.save(all.get("questions"));         
+                Ebean.save(all.get("examsections"));
                 Ebean.save(all.get("exams"));
-                Ebean.save(all.get("questions"));
-                
+
             }
         }
     }
