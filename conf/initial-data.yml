@@ -343,6 +343,13 @@ courses:
     type: 
     credits: 7
 
+  - &765104P !!models.Course
+    code: 765104P
+    name: Astronomian perusteet 
+    type: 
+    credits: 8
+
+
 
 examsections:
 
@@ -356,9 +363,34 @@ examsections:
               - *multi2
     totalScore:
   
+  - &astro1 !!models.ExamSection
+    questions:
+              - *avaruus1
+              - *avaruus2
+              - *avaruus3
+              - *avaruus4
+              - *avaruus5
+              - *avaruus6
+              - *avaruus7
+              - *avaruus8
+              - *avaruus9
+              - *avaruus10
+              - *avaruus11
+    totalScore:
+  
       
 
 exams:
+
+  - !!models.Exam
+    course: *765104P
+    name: Astronomian perusteet
+    examType:
+    instruction: 
+    shared: false
+    examSections:
+              - *astro1
+    
   - !!models.Exam
     course: *alkeet
     name: Johdatus alkeiden perusteisiin
@@ -367,8 +399,7 @@ exams:
     shared: false
     examSections:
               - *osio2
-    
-  
+
   - !!models.Exam
     course: *tietokannat
     name: Tietokantojen perusteet, syksy 2013
