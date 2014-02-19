@@ -4,7 +4,7 @@
     <head>
         <title>Sitnet</title>
 
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        @*<meta name="viewport" content="width=device-width, initial-scale=1">*@
 
         <link rel="shortcut icon" type="img/png" href="@routes.Assets.at("images/sitnet.png")">
 
@@ -29,7 +29,7 @@
             <!--  style -->
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
             <!-- todo: uncomment in production and comment previous line
-        <link rel="stylesheet" media="screen" href=" @routes.Assets.at("stylesheets/main.min.css")
+        <link rel="stylesheet" media="screen" href="  @routes.Assets.at("stylesheets/main.min.css")
             ">
             -->
 
@@ -56,41 +56,36 @@
     </head>
 
     <body ng-controller="SessionCtrl">
-        <div id="sitnet-header" class="navbar navbar-fixed-top" role="navigation">
-
-            <div class="col-md-2 logo">
+        <aside id="vmenu" class="col-md-2" ng-controller="NavigationCtrl">
+            <div class="logo">
                 <img src="@routes.Assets.at("images/sitnet.png")" alt="sitnet" />
             </div>
             <div class="locale-bar">
                 <a href="" ng-click="switchLanguage('fi')"><img class="locale-icon" src="@routes.Assets.at("images/locale-icon-fi.png")"></a>
                 <a href="" ng-click="switchLanguage('en')"><img class="locale-icon" src="@routes.Assets.at("images/locale-icon-en.png")"></a>
             </div>
-        </div>
-        <div class="row">
-            <aside id="vmenu" class="col-md-2" ng-controller="NavigationCtrl">
-                <div class="user">
-                    <span>
-                        <img src="data:image/gif;base64,R0lGODdhRgBGAOMAAMzMzJaWlqqqqpycnLGxscXFxaOjo7e3t76+vgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAARgBGAAAEqRDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodFoUDAIDAGIwKGCsWC3XuyMUDAfAAEEwYMxoNdvNK2QLAbHEeshL7AB4ejwEAoF5ghJcCBOFh488a49bjVkTkoKUPAFka21/A3ESnIpzdX5iXRIGAggBjImpZFS0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMLBEAOw==" alt="me">
-                        <a href="javascript:void(0);" id="current_user"> Oili Opettaja <i class="fa fa-caret-down"></i></a>
-                    </span>
-                </div>
-                <nav>
-                    <ul>
-                        <li ng-class="{selected: isActive(link)}" ng-repeat="link in links">
-                            <a href="{{link.href}}">
-                                <i class="fa fa-2x fa-fw {{link.class}}"></i>
-                                <span class="menu-item">{{link.name}}</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <span class="minify"> <i class="fa fa-3x fa-arrow-circle-left hit"></i></span>
-            </aside>
+            <div class="user">
+                <span>
+                    <img src="data:image/gif;base64,R0lGODdhRgBGAOMAAMzMzJaWlqqqqpycnLGxscXFxaOjo7e3t76+vgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAARgBGAAAEqRDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodFoUDAIDAGIwKGCsWC3XuyMUDAfAAEEwYMxoNdvNK2QLAbHEeshL7AB4ejwEAoF5ghJcCBOFh488a49bjVkTkoKUPAFka21/A3ESnIpzdX5iXRIGAggBjImpZFS0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMLBEAOw==" alt="me">
+                    <a href="javascript:void(0);" id="current_user"> Oili Opettaja <i class="fa fa-caret-down"></i></a>
+                </span>
+            </div>
+            <nav>
+                <ul>
+                    <li ng-class="{selected: isActive(link)}" ng-repeat="link in links">
+                        <a href="{{link.href}}">
+                            <i class="fa fa-2x fa-fw {{link.class}}"></i>
+                            <span class="menu-item">{{link.name}}</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <span class="minify"> <i class="fa fa-3x fa-arrow-circle-left hit"></i></span>
+        </aside>
 
-            <div class="container vmenu-on">
-                <div>
-                    <div ng-view></div>
-                </div>
+        <div class="container-fluid vmenu-on">
+            <div>
+                <div ng-view></div>
             </div>
         </div>
     </body>

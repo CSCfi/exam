@@ -1,13 +1,14 @@
-<div ng-controller="ExamCtrl">
-    <div class="row">
-        <div class="col-md-2 col-md-offset-12">
-            <a href="#/exam" class="btn btn-primary btn-lg active">
-                {{'sitnet_create_new' | translate}}
-            </a>
+<div style="background-color: #B5C2C4; position: fixed; z-index: 4; padding-left: 0; padding-right: 0; border-radius: 0; right: 0; left: 0">
+    <div ng-controller="ExamCtrl">
+        <div class="row">
+            <div class="col-md-2 col-md-offset-10">
+                <a href="#/exam" class="btn btn-primary btn-lg active">
+                    {{'sitnet_create_new' | translate}}
+                </a>
+            </div>
         </div>
     </div>
 </div>
-
 
 <!--
 <hr>
@@ -30,7 +31,7 @@
     </li>
 </ul>-->
 
-<div class="row">
+<div class="row" style="padding-top: 45px">
     <div class="col-md-6">
         <h2>{{'sitnet_exams_created_by' | translate}} (Käyttäjänimi){{username}}</h2>
         <div class="list-group">
@@ -54,3 +55,4 @@
         </div>
     </div>
 </div>
+
