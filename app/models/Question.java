@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 @Entity
@@ -32,7 +33,7 @@ public class Question extends SitnetModel {
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<EvaluationPhrase> evaluationPhrases;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL)
 	private List<EvaluationCriteria> evaluationCriterias;
 
 	@OneToMany(cascade = CascadeType.ALL)

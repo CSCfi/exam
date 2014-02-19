@@ -145,6 +145,189 @@ questions:
     shared: false
   
 ######################################################################
+  - &avaruus1 !!models.Question
+    type:
+    question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias: 
+                  - !!models.EvaluationCriteria 
+                      criteria: Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: kosmonautti, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: kosmetologi, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: kosmologi, correctOption: true, score: 1}
+    shared: false
+  
+  - &avaruus2 !!models.Question
+    type:
+    question:  Auringon fuusioreaktiot tapahtuvat
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria 
+                      criteria: Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Ytimessä, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Säteilyvyöhykkeessä, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Konvektiovyöhykkeessä, correctOption: false, score: 1}
+    shared: false
+  
+  - &avaruus3 !!models.Question
+    type:
+    question:   AU mittaa
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria 
+                      criteria: Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Aikaa, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Etäisyyttä, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Painoa, correctOption: false, score: 1}
+    shared: false
+  
+  - &avaruus4 !!models.Question
+    type:
+    question:   Ekliptika on
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria 
+                      criteria: Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Kuun sirppi, correctOption: false, score: 1}
+    shared: false
+  
+  - &avaruus5 !!models.Question
+    type:
+    question:   Tähdenlento eli
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria 
+                      criteria: Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Meteoriitti, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Meteorologi, correctOption: false, score: 1}
+    shared: false
+  
+  - &avaruus6 !!models.Question
+    type:
+    question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria 
+                      criteria: Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Aineen palamisesta ilmakehässä, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Kaasujen hehkumisesta, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false, score: 1}
+    shared: false
+  
+  - &avaruus7 !!models.Question
+    type:
+    question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria 
+                      criteria: Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Maa, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Jupiter, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Venus, correctOption: false, score: 1}
+    shared: false
+  
+  
+  - &avaruus8 !!models.Question
+    type:
+    question:   The Great Red Spot tarkoittaa
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria 
+                      criteria: Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Jupiterin korkeapaineen aluetta, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Mars-planeettaa, correctOption: false, score: 1}
+    shared: false
+  
+  
+  - &avaruus9 !!models.Question
+    type:
+    question:   Vuodenajat aiheutuvat
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria 
+                      criteria: Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Auringon ja Maan etäisyys muuttuu vuoden aikana, correctOption: false, score: 1}
+    shared: false
+  
+ 
+  - &avaruus10 !!models.Question
+    type:
+    question:   Uudenkuun aikaan
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria
+                       criteria: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan. 
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Kuu on Auringon ja Maan välissä, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Kuu tulee uudelleen näkyviin, correctOption: false, score: 1}
+    shared: false
+  
+
+  - &avaruus11 !!models.Question
+    type:
+    question:   Vuoksen ja luoteen aiheuttavat pääasiassa
+    materials: 
+    answers:
+    evaluationPhrases: 
+    evaluationCriterias:  
+                  - !!models.EvaluationCriteria 
+                      criteria: Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
+    comments: 
+    options:
+        - !!models.MultipleChoiseOption {option: Kuun vetovoima, correctOption: false, score: 1}
+        - !!models.MultipleChoiseOption {option: Auringon vetovoima, correctOption: true, score: 1}
+        - !!models.MultipleChoiseOption {option: Maapallon pinnanmuodot, correctOption: false, score: 1}
+    shared: false
+  
+
+######################################################################
 
 courses:
   
