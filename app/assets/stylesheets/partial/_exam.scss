@@ -21,6 +21,10 @@
     border-radius: 2px;
     margin: 1em;
   }
+  
+    .create-new:hover {
+    background-color: #e1eafe;
+    }
 
   .library-header, .exam-header {
     background-color: $sitnet-dark-grey;

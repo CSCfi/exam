@@ -20,5 +20,14 @@
 	"sitnet_faculty_name": "Faculty/Organization",
 	"sitnet_exam_instructor": "Exam instructor",
     "sitnet_exams_created_by": "Exams created by",
-    "sitnet_exams_needing_attention": "Exams needing attention"
+    "sitnet_exams_needing_attention": "Exams needing attention",
+        
+    "sitnet_section_add": "Add new section by clicking here",
+        
+        
+    "sitnet_question": "Question",
+    "sitnet_questions_new": "New questions",
+    "sitnet_questions_all": "All questions",
+    "sitnet_questions_ows": "My questions",
+    "sitnet_questions_bank": "Question banks"
 }
