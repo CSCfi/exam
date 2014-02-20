@@ -146,7 +146,7 @@ questions:
   
 ######################################################################
   - &avaruus1 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
     materials: 
     answers:
@@ -162,7 +162,7 @@ questions:
     shared: false
   
   - &avaruus2 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:  Auringon fuusioreaktiot tapahtuvat
     materials: 
     answers:
@@ -178,7 +178,7 @@ questions:
     shared: false
   
   - &avaruus3 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   AU mittaa
     materials: 
     answers:
@@ -194,7 +194,7 @@ questions:
     shared: false
   
   - &avaruus4 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Ekliptika on
     materials: 
     answers:
@@ -210,7 +210,7 @@ questions:
     shared: false
   
   - &avaruus5 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Tähdenlento eli
     materials: 
     answers:
@@ -227,7 +227,7 @@ questions:
     shared: false
   
   - &avaruus6 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
     materials: 
     answers:
@@ -243,7 +243,7 @@ questions:
     shared: false
   
   - &avaruus7 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
     materials: 
     answers:
@@ -260,7 +260,7 @@ questions:
   
   
   - &avaruus8 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   The Great Red Spot tarkoittaa
     materials: 
     answers:
@@ -277,7 +277,7 @@ questions:
   
   
   - &avaruus9 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Vuodenajat aiheutuvat
     materials: 
     answers:
@@ -294,7 +294,7 @@ questions:
   
  
   - &avaruus10 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Uudenkuun aikaan
     materials: 
     answers:
@@ -311,7 +311,7 @@ questions:
   
 
   - &avaruus11 !!models.Question
-    type:
+    type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
     materials: 
     answers:

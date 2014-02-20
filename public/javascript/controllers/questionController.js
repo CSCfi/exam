@@ -4,7 +4,5 @@
         .controller('QuestionCtrl', ['$scope', 'QuestionRes', function ($scope, QuestionRes) {
 
             $scope.questions = QuestionRes.query();
-
-
         }]);
 })();

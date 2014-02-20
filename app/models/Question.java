@@ -12,8 +12,8 @@ public class Question extends SitnetModel {
 
 	public static enum QuestionType {
 
-		MULTIPLE_CHOISE_ONE_CORRECT, 
-		MULTIPLE_CHOISE_SEVERAL_CORRECT, 
+		MULTIPLE_CHOICE_ONE_CORRECT,
+		MULTIPLE_CHOICE_SEVERAL_CORRECT,
 		ESSAY,
 
 	}
