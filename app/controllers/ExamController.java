@@ -11,6 +11,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import actions.Authenticate;
 
 import com.avaje.ebean.Ebean;
 
@@ -26,7 +27,8 @@ public class ExamController extends SitnetController {
         List<Exam> exams = Ebean.find(Exam.class).findList();
         return ok(Json.toJson(exams));
     }
-    
+
+    //  @Authenticate
     public static Result createExam() {
     	Logger.debug("createExam() called!");
     	
@@ -56,10 +58,26 @@ public class ExamController extends SitnetController {
     //  @Authenticate
     public static Result getExamSections(Long examid) {
 
-    	List<ExamSection> sections = Ebean.find(ExamSection.class).where()  
+    	List<ExamSection> sections = Ebean.find(ExamSection.class).where()
     		      .eq("id", examid)
     		      .findList();
     	
     	return ok(Json.toJson(sections));
+    }
+    
+//    @Authenticate
+    public static Result addSection() {
+
+    	DynamicForm df = Form.form().bindFromRequest();
+		
+    	Logger.debug("course Code: " +df.get("courseCode"));
+    	Logger.debug("course Name: " +df.get("courseName"));
+    	Logger.debug("course Scope: " +df.get("courseScope"));
+    	Logger.debug("Faculty Name: " +df.get("facultyName"));
+    	Logger.debug("Exam Instructor Name: " +df.get("instructorName"));
+    	
+        User user = UserController.getLoggedUser();
+
+        return ok("section created");
     }
 }

@@ -29,6 +29,13 @@
     "sitnet_library": "Kirjasto",
     "sitnet_search": "Haku",
     
+    "sitnet_name": "Nimi",
+    "sitnet_button_ok": "Ok",
+    "sitnet_button_save": "Tallenna",
+    "sitnet_button_cancel": "Peruuta",
+    
+    
+    
     "sitnet_question": "Kysymys",
     "sitnet_questions_new": "Uusi kysymys",
     "sitnet_questions_all": "Kaikki kysymykset",

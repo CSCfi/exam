@@ -23,7 +23,12 @@
     "sitnet_exams_needing_attention": "Exams needing attention",
         
     "sitnet_section_add": "Add new section by clicking here",
-        
+    
+    "sitnet_name": "Name",
+    "sitnet_button_ok": "Ok",
+    "sitnet_button_save": "Save",
+    "sitnet_button_cancel": "Cancel",
+    
         
     "sitnet_question": "Question",
     "sitnet_questions_new": "New questions",
