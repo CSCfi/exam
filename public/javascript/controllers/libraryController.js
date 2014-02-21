@@ -27,5 +27,6 @@
             $scope.libraryFilter = "";
 
             $scope.selected = undefined;
+
         }]);
 })();
