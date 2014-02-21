@@ -1,27 +1,31 @@
 <div class="exam-header">
-    <h4>
-        <span class="fa-stack">
-            <i class="fa fa-square-o fa-stack-2x"></i>
-            <i class="fa-stack-1x">{{section.id}}</i>
-        </span>
-        {{section.name}}
-        <span ng-click="editSection(section)" class="pull-right fa-stack fa-lg">
-          <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
-          <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-        </span>
-        <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
-          <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-          <i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'" class="sitnet-white fa fa-stack-1x"></i>
-        </span>
-    </h4>
+	<h4>
+		<span class="fa-stack"> <i class="fa fa-square-o fa-stack-2x"></i> <i class="fa-stack-1x">{{section.id}}</i>
+		</span>
+
+		<!-- contenteditable="true" tälläkin voisi toimia-->
+		<span ng-hide="showDetails" ng-click="showDetails = !showDetails"> {{section.name}} <i class="fa fa-pencil"></i>
+		</span>
+		<div ng-show="showDetails">
+			<form class="form-inline" role="form">
+				<div class="form-group">
+					<input type="text" class="form-control" ng-model="section.name" value="{{section.name}}">
+					<button ng-click="showDetails = ! showDetails">
+						<i class="fa fa-check"></i>
+					</button>
+				</div>
+			</form>
+		</div>
+		<span ng-click="editSection(section)" class="pull-right fa-stack fa-lg"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
+			class="sitnet-white fa fa-cog fa-stack-1x"></i>
+		</span> <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg"> <i class="sitnet-grey fa fa-square fa-stack-2x"></i> <i
+			class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+		</span>
+	</h4>
 </div>
 
 <div class="exam-question-container" ng-hide="section.hide">
-    <div class="question" ng-include="questionPath" ng-repeat="question in section.questions">
-
-    </div>
-
-    <span class="create-new">
-        <i class="fa fa-plus-circle"></i> {{'sitnet_add_content'|translate}}
-    </span>
+	<div class="question" ng-include="questionPath" ng-repeat="question in section.questions"></div>
+	<span class="create-new"> <i class="fa fa-plus-circle"></i> {{'sitnet_add_content'|translate}}
+	</span>
 </div>
