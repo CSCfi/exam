@@ -73,7 +73,7 @@
                     $scope.sections.push({
                         id: $scope.sections.length + 1,
                         hide: false,
-                        name: "nimi",
+                        name: "Osio",
                         questions: []
                     });
 
