@@ -20,7 +20,8 @@
                 };
 
                 $scope.toggleSection = function (section) {
-                    console.log(section);
+                   section.icon = "";
+                   section.hide ^= true;
                 };
 
                 $scope.editSection = function (section) {
@@ -38,7 +39,7 @@
                 $scope.addNewSection = function () {
                     $scope.sections.push({
                         id: $scope.sections.length + 1,
-                        visible: true,
+                        hide: false,
                         name: "nimi",
                         questions: []
                     });

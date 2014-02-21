@@ -7,7 +7,7 @@
             <div class="base">
                 <div class="form-group">
                     <div class="row">
-                        <div class="col-xs-8">
+                        <div class="col-md-8">
                             <input type="text" class="form-control" id="examName" placeholder="{{'sitnet_exam_name' | translate }}">
                         </div>
                         <span ng-click="editExam(section)" class="col-xs-1 col-xs-offset-3 fa-stack fa-lg">
@@ -18,7 +18,6 @@
                     </div>
                 </div>
                 <div class="section" ui-on-Drop="onDrop($event, $data, section.questions)" ng-include="sectionPath" ng-repeat="section in sections">
-
                 </div>
             </div>
                  <span ng-click="addNewSection()" class="create-new">
@@ -42,7 +41,7 @@
             </select>-->
             <ul class="list-group results">
                 <!--ng-class="{selected: isActive(question)}-->
-                <li ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
+                <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
                     <i class="fa fa-2x fa-fw {{question.icon}}"></i> <span class="menu-item" ng-model="question.question">{{question.question}}</span>
                 </li>
             </ul>

@@ -1,5 +1,5 @@
 (function () {
-    'use strict'
+    'use strict';
     angular.module("sitnet.controllers")
         .controller('LibraryCtrl', ['$scope', 'QuestionRes', '$translate', '$location', function ($scope, QuestionRes, $translate, $location) {
 
@@ -13,9 +13,10 @@
                             break;
                         case "ESSAY":
                             icon = "fa-edit";
-                        default:
-                            ""
+                            break;
+                        default: "";
                             icon = "fa-edit";
+                            break;
                     }
                     item.icon = icon;
                 });

@@ -21,10 +21,10 @@
     border-radius: 2px;
     margin: 1em;
   }
-  
-    .create-new:hover {
+
+  .create-new:hover {
     background-color: $sitnet-beige-active;
-    }
+  }
 
   .library-header, .exam-header {
     background-color: $sitnet-dark-grey;
@@ -42,14 +42,32 @@
     background-color: white;
     .results {
       margin-top: 1em;
+    }
+
+  }
+  .exam-question-container {
+    padding: 0.5em;
+  }
+  .single-question {
+    background-color: $sitnet-green;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 5px;
+    min-height: 3em;
+
+    i {
+      float: left;
+      padding-right: 1.5em;
+    }
+    span {
 
     }
-  }
 
+  }
   .section {
-    min-height: 150px;
-    margin-bottom: 3em;
-    padding-bottom: 0.5em;
+    margin-bottom: 2em;
     background-color: $sitnet-light-grey;
   }
 
@@ -61,4 +79,11 @@
     padding: 0;
   }
 
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  outline-style:none;
 }

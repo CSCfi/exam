@@ -9,18 +9,19 @@
           <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
           <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
         </span>
-        <span ng-click="toggleSection(section)"class="pull-right fa-stack fa-lg">
+        <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
           <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-          <i class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+          <i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'" class="sitnet-white fa fa-stack-1x"></i>
         </span>
     </h4>
 </div>
 
+<div class="exam-question-container" ng-hide="section.hide">
+    <div class="question" ng-include="questionPath" ng-repeat="question in section.questions">
 
-<div class="question" ng-include="questionPath" ng-repeat="question in section.questions">
+    </div>
 
+    <span class="create-new">
+        <i class="fa fa-plus-circle"></i> {{'sitnet_add_content'|translate}}
+    </span>
 </div>
-
-<span class="create-new">
-    <i class="fa fa-plus-circle"></i> {{'sitnet_add_content'|translate}}
-</span>
