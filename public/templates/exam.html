@@ -3,7 +3,6 @@
 <div id="exam">
     <h2 class="table-heading">{{'sitnet_new_exam' | translate}} </h2>
     <div class="col-md-8">
-        <form ng-submit="createExam()">
             <div class="base">
                 <div class="form-group">
                     <div class="row">
@@ -23,8 +22,7 @@
                  <span ng-click="addNewSection()" class="create-new">
                     <i class="fa fa-plus-circle"></i> {{'sitnet_section_add'|translate}}
                 </span>
-            <button type="submit" class="btn btn-default">{{'sitnet_save' | translate}}</button>
-        </form>
+            <button ng-click="save()" class="btn btn-default">{{'sitnet_save' | translate}}</button>
     </div>
     <div class="col-md-4">
         <div class="library-header">

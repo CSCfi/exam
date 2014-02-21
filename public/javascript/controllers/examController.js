@@ -34,21 +34,16 @@
                 $scope.libraryFilter = "";
                 $scope.selected = undefined;
 
-                $scope.openCreateExamDialog = function () {
-                    $http.post('/exam')
-                        .success(function () {
-                            toastr.success("Great success!");
-                        })
-                        .error(function (message) {
-                            toastr.error(message, "You failed!");
-                        });
-                };
-
+ 
                 $scope.toggleSection = function (section) {
                    section.icon = "";
                    section.hide ^= true;
                 };
 
+                $scope.save = function() {
+                	alert("save");
+                }
+                
                 $scope.editSection = function (section) {
                     console.log(section);
                 };

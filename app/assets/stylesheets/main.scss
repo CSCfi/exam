@@ -31,6 +31,12 @@ body {
   margin-bottom: 5px;
 }
 
+.inline {
+    display: inline;
+}
+.editable {
+    cursor: pointer;
+}
 .sitnet-dark-green {
   color: $sitnet-dark-green;
 }
