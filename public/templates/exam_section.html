@@ -10,7 +10,7 @@
 				<i class="sitnet-white fa fa-cog fa-stack-1x"></i>
 			</span> <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
                 <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-				<i class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+				<i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'" class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
 			</span>
         </div>
         <div ng-show="showDetails">

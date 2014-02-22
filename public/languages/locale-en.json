@@ -21,8 +21,13 @@
 	"sitnet_exam_instructor": "Exam instructor",
     "sitnet_exams_created_by": "Exams created by",
     "sitnet_exams_needing_attention": "Exams needing attention",
-        
+    "sitnet_new_exam": "Creating new exam",
+    "sitnet_exam_name": "Name of the exam",
+    "sitnet_add_content": "Add new content here by dragging question from library or clicking this area.",
     "sitnet_section_add": "Add new section by clicking here",
+    "sitnet_save": "Save",
+    "sitnet_library": "Library",
+    "sitnet_search": "Search",
     
     "sitnet_name": "Name",
     "sitnet_button_ok": "Ok",
@@ -31,8 +36,13 @@
     
         
     "sitnet_question": "Question",
-    "sitnet_questions_new": "New questions",
+    "sitnet_questions_new": "New question",
     "sitnet_questions_all": "All questions",
     "sitnet_questions_ows": "My questions",
-    "sitnet_questions_bank": "Question banks"
+    "sitnet_questions_bank": "Question bank",
+    
+    "sitnet_user_preferences": "User preferences",
+    "sitnet_user_language_change" : "User language selection",
+
+    "sitnet_welcome" : "Welcome"
 }
