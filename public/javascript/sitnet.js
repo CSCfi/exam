@@ -12,7 +12,7 @@
         'pascalprecht.translate',
         'ngDragDrop'
     ]);
-    sitnet.constant('SITNET_CONF', function () {
+    sitnet.constant('SITNET_CONF', (function () {
         var context_path = '/';
         return {
             AUTH_STORAGE_KEY: 'SITNET_TOKEN',
@@ -21,7 +21,7 @@
             LANGUAGES_PATH: context_path + 'assets/languages/',
             TEMPLATES_PATH: context_path + 'assets/templates/'
         };
-    }());
+    }()));
     sitnet.config(['$httpProvider', '$translateProvider', 'SITNET_CONF', function ($httpProvider, $translateProvider, SITNET_CONF) {
 
         var path = SITNET_CONF.LANGUAGES_PATH;
@@ -58,4 +58,4 @@
             }
             $http.get('/ping');
         }]);
-})();
+}());

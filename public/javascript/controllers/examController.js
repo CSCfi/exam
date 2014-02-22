@@ -13,51 +13,50 @@
                     questions.map(function (item) {
                         var icon = "";
                         switch (item.type) {
-                            case "MULTIPLE_CHOICE_ONE_CORRECT":
-                            case "MULTIPLE_CHOICE_SEVERAL_CORRECT":
-                                icon = "fa-list-ol";
-                                break;
-                            case "ESSAY":
-                                icon = "fa-edit";
-                                break;
-                            default: "";
-                                icon = "fa-edit";
-                                break;
+                        case "MULTIPLE_CHOICE_ONE_CORRECT":
+                        case "MULTIPLE_CHOICE_SEVERAL_CORRECT":
+                            icon = "fa-list-ol";
+                            break;
+                        case "ESSAY":
+                            icon = "fa-edit";
+                            break;
+                        default:
+                            icon = "fa-edit";
+                            break;
                         }
                         item.icon = icon;
                     });
                     $scope.questions = questions;
                 });
 
-                $scope.options;
                 $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
                 $scope.libraryFilter = "";
                 $scope.selected = undefined;
 
- 
+
                 $scope.toggleSection = function (section) {
-                   section.icon = "";
-                   section.hide ^= true;
+                    section.icon = "";
+                    section.hide = !section.hide;
                 };
 
-                $scope.save = function() {
-                	alert("save");
-                }
-                
+                $scope.save = function () {
+
+                };
+
                 $scope.editSection = function (section) {
                     console.log(section);
                 };
 
                 $scope.toggleQuestion = function (question) {
-                    question.hide ^= true;
+                    question.hide = !question.hide;
                 };
 
                 $scope.editQuestion = function (question) {
-                    console.log(question);
+
                 };
 
                 $scope.editExam = function () {
-                    console.log("adassadsad");
+
                 };
 
                 $scope.onDrop = function ($event, $data, questions) {
@@ -76,4 +75,4 @@
 
                 $scope.addNewSection();
             }]);
-})();
+}());

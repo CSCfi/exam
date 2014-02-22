@@ -4,4 +4,4 @@
         .controller('DashboardCtrl', ['$scope', '$http', '$translate', function ($scope, $http, $translate) {
 
         }]);
-})();
+}());

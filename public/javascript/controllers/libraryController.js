@@ -7,16 +7,16 @@
                 questions.map(function (item) {
                     var icon = "";
                     switch (item.type) {
-                        case "MULTIPLE_CHOICE_ONE_CORRECT":
-                        case "MULTIPLE_CHOICE_SEVERAL_CORRECT":
-                            icon = "fa-list-ol";
-                            break;
-                        case "ESSAY":
-                            icon = "fa-edit";
-                            break;
-                        default: "";
-                            icon = "fa-edit";
-                            break;
+                    case "MULTIPLE_CHOICE_ONE_CORRECT":
+                    case "MULTIPLE_CHOICE_SEVERAL_CORRECT":
+                        icon = "fa-list-ol";
+                        break;
+                    case "ESSAY":
+                        icon = "fa-edit";
+                        break;
+                    default:
+                        icon = "fa-edit";
+                        break;
                     }
                     item.icon = icon;
                 });
@@ -29,4 +29,4 @@
             $scope.selected = undefined;
 
         }]);
-})();
+}());

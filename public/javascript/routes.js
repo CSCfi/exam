@@ -31,4 +31,4 @@
 
             $routeProvider.otherwise({redirectTo: '/home'});
         }]);
-})();
+}());

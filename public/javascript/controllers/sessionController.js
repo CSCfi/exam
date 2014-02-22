@@ -10,7 +10,7 @@
                     $translate.uses(key);
                 };
 
-                var dialog = undefined;
+                var dialog;
 
                 $scope.$on('event:auth-loginRequired', function () {
                     dialog = $modal.open({
@@ -44,7 +44,7 @@
                     };
                     var xhr = $http.post('/login', credentials, {
                         ignoreAuthModule: true
-                    })
+                    });
                     xhr.success(function (token) {
                         var header = {};
                         header[SITNET_CONF.AUTH_HEADER] = token.token;
@@ -57,10 +57,10 @@
                             firstname: token.firstname,
                             lastname: token.lastname
                         };
-                    })
+                    });
                     xhr.error(function (message) {
                         toastr.error(message, "Kirjautuminen epäonnistui!");
                     });
                 };
             }]);
-})();
+}());

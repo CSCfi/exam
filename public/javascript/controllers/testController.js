@@ -2,12 +2,12 @@
     'use strict';
     angular.module("sitnet.controllers")
         .controller('TestCtrl', ['$scope', '$http', function ($scope, $http) {
-            $http.get('ping')
-                .success(function (reply) {
-                    $scope.reply = reply;
-                })
-                .error(function (reply) {
-                    $scope.reply = reply;
-                });
+            var xhr = $http.get('ping');
+            xhr.success(function (reply) {
+                $scope.reply = reply;
+            });
+            xhr.error(function (reply) {
+                $scope.reply = reply;
+            });
         }]);
-})();
+}());
