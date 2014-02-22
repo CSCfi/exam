@@ -4,16 +4,14 @@
         .controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'SITNET_CONF',
             function ($scope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, SITNET_CONF) {
 
-                $scope.session = function () {
-                    return sessionService;
-                }
+                $scope.session = sessionService;
 
                 $scope.switchLanguage = function (key) {
                     $translate.uses(key);
-                    console.log($scope.user);
                 };
 
-                var dialog;
+                var dialog = undefined;
+
                 $scope.$on('event:auth-loginRequired', function () {
                     dialog = $modal.open({
                         templateUrl: 'assets/templates/login.html',
@@ -44,11 +42,9 @@
                         username: $scope.login.username,
                         password: $scope.login.password
                     };
-
                     var xhr = $http.post('/login', credentials, {
                         ignoreAuthModule: true
                     })
-
                     xhr.success(function (token) {
                         var header = {};
                         header[SITNET_CONF.AUTH_HEADER] = token.token;
@@ -57,12 +53,11 @@
                         authService.loginConfirmed();
                         toastr.success($translate("sitnet_welcome") + " " + token.firstname + " " + token.lastname);
 
-                        sessionService.user = {
+                        $scope.session.user = {
                             firstname: token.firstname,
                             lastname: token.lastname
                         };
                     })
-
                     xhr.error(function (message) {
                         toastr.error(message, "Kirjautuminen epäonnistui!");
                     });
