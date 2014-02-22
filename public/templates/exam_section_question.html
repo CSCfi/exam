@@ -1,25 +1,20 @@
-    <li class="single-question">
-        <div class="col-md-8">
-            <i class="fa fa-2x fa-fw {{question.icon}}"></i><span class="menu-item">{{question.question}}</span>
-        </div>
-
-        <div>
+<li class="single-question">
+    <div class="col-md-8">
+        <i class="fa fa-2x fa-fw {{question.icon}}"></i><span class="menu-item">{{question.question}}</span>
+    </div>
+    <div>
             <span ng-click="editQuestion(question)" class="pull-right fa-stack fa-lg">
                 <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
             </span>
             <span ng-click="toggleQuestion(question)" class="pull-right fa-stack fa-lg">
               <i ng-class="question.hide ? 'fa-chevron-left' : 'fa-chevron-down'" class="sitnet-white fa fa-stack-1x"></i>
             </span>
-        </div>
-
-        <!--<div class="col-md-8 col-md-offset-1">
-            <i class="fa fa-2x fa-fw {{question.options.id}}"></i><span class="menu-item">{{question.options.option}}</span>
-        </div>-->
+    </div>
+</li>
+<ol ng-hide="question.hide">
+    <li class="exam-question-option" ng-repeat="option in question.options">
+        <input type="radio" name="option.id" ng-value="option" class="list-group-item-text"/>
+        {{option.option}}
+        <span class="badge" ng-show="option.correctOption" class="ng-hide">TOSI</span>
     </li>
-    <ol ng-hide="question.hide">
-        <li class="exam-question-option" ng-repeat="option in question.options">
-            <input type="radio" name="option.id" ng-value="option" class="list-group-item-text"/> {{option.option}}
-            <span class="badge" ng-show="option.correctOption" class="ng-hide">TOSI</span>
-
-        </li>
-    </ol>
+</ol>

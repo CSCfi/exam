@@ -13,7 +13,6 @@
                           <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
                           <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
                         </span>
-
                     </div>
                 </div>
                 <div class="section" ui-on-Drop="onDrop($event, $data, section.questions)" ng-include="sectionPath" ng-repeat="section in sections">
@@ -34,11 +33,7 @@
                        placeholder="{{'sitnet_search' | translate }}">
                 <span class="input-group-addon"><i class="fa fa-search fa-fw"></i></span>
             </div>
-            <!--<select class="form-control">
-                <option ng-repeat="type in contentTypes">{{type}}</option>
-            </select>-->
             <ul class="list-group results">
-                <!--ng-class="{selected: isActive(question)}-->
                 <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
                     <i class="fa fa-2x fa-fw {{question.icon}}"></i> <span class="menu-item" ng-model="question.question">{{question.question}}</span>
                 </li>

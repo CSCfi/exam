@@ -61,17 +61,17 @@
     </head>
 
     <body ng-controller="SessionCtrl">
-        <aside id="vmenu" class="col-md-2">
-            <div class="logo">
+        <aside id="vmenu" class="col-md-2" ng-controller="NavigationCtrl">
+            <div ng-hide="minimizeNavigation" class="logo">
                 <img src="@routes.Assets.at("images/sitnet.png")" alt="sitnet" />
             </div>
-            <div class="user">
+            <div ng-hide="minimizeNavigation" class="user">
                 <span>
                     <img src="data:image/gif;base64,R0lGODdhRgBGAOMAAMzMzJaWlqqqqpycnLGxscXFxaOjo7e3t76+vgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAARgBGAAAEqRDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodFoUDAIDAGIwKGCsWC3XuyMUDAfAAEEwYMxoNdvNK2QLAbHEeshL7AB4ejwEAoF5ghJcCBOFh488a49bjVkTkoKUPAFka21/A3ESnIpzdX5iXRIGAggBjImpZFS0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMLBEAOw==" alt="me">
                     <a href="#/user">{{session.user.firstname}} {{session.user.lastname}}&nbsp;<i class="fa fa-caret-down"></i></a>
                 </span>
             </div>
-            <nav>
+            <nav ng-class="minimizeNavigation ? 'minimize' : ''">
 
                     <!--                 <accordion close-others="oneAtATime"> -->
                     <!--                 <div ng-repeat="link in links"> -->
@@ -108,7 +108,7 @@
                     <!-- 			</accordion> -->
 
 
-                <ul ng-controller="NavigationCtrl">
+                <ul>
                     <li ng-class="{selected: isActive(link)}" ng-repeat="link in links">
                         <a href="{{link.href}}">
                             <i class="fa fa-2x fa-fw {{link.class}}"></i>
@@ -122,8 +122,8 @@
                         </div>
                     </li>
                 </ul>
+                <span ng-click="minimizeNavigation = !minimizeNavigation" class="minify"> <i class="fa fa-3x fa-arrow-circle-left hit"></i></span>
             </nav>
-            <span class="minify"> <i class="fa fa-3x fa-arrow-circle-left hit"></i></span>
         </aside>
 
         <div class="container-fluid vmenu-on">

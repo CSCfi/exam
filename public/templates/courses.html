@@ -1,14 +1,13 @@
 <div ng-controller="CourseCtrl">
-<h2>Kaikki kurssit</h2>
-<hr>
-<ul>
-    <li ng-repeat="course in courses">
-	facultyOrOrganizationName: {{course.facultyOrOrganizationName}}
-	code: {{course.code}}
-	name: {{course.name}}
-	responsibleTeacher: {{course.responsibleTeacher}}
-	type: {{course.type}}
-	credits: {{course.credits}}
-    </li>
-</ul>
+    <h2>Kaikki kurssit</h2>
+    <ul>
+        <li ng-repeat="course in courses">
+            facultyOrOrganizationName: {{course.facultyOrOrganizationName}}
+            code: {{course.code}}
+            name: {{course.name}}
+            responsibleTeacher: {{course.responsibleTeacher}}
+            type: {{course.type}}
+            credits: {{course.credits}}
+        </li>
+    </ul>
 </div>

@@ -31,5 +31,9 @@
                 $scope.links = links();
             });
 
+            $scope.toggleNavigation = function () {
+
+            };
+
         }]);
 })();

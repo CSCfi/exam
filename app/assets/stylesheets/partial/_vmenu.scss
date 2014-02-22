@@ -24,6 +24,7 @@
       margin: auto;
     }
   }
+
   nav a {
     display: block;
     padding: 0.5em;
@@ -62,9 +63,12 @@
     bottom: 0;
     color: $sitnet-blue;
   }
-  
+
+  .minimize .menu-item {
+    display: none;
+  }
+
   .submenu {
-   margin-left: 30px;
-   
-   }
+    margin-left: 30px;
+  }
 }
