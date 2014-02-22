@@ -43,6 +43,27 @@
 
                 };
 
+                $scope.removeSection = function(section) {
+                    if (confirm('Poistetaanko osio?')) {
+                    	
+                        // TODO: poistaa väärän osion ?!?
+                    	$scope.sections.splice(section, 1);
+                    }
+                }
+                
+                $scope.clearAllQuestions = function(section) {
+                  if (confirm('Poistetaanko kaikki kysymykset?')) {
+                	  section.questions.splice(0, questions.length);
+                  }
+               }
+                
+                $scope.removeQuestion = function(section, question) {
+                    if (confirm('Poistetaanko kysymys?')) {
+                    	section.questions.splice(question, 1);
+                    }
+                }
+                
+                
                 $scope.editSection = function (section) {
                     console.log(section);
                 };

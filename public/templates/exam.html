@@ -9,11 +9,17 @@
                         <div class="col-md-8">
                             <input type="text" class="form-control" id="examName" placeholder="{{'sitnet_exam_name' | translate }}">
                         </div>
-                        <span ng-click="editExam(section)" class="col-xs-1 col-xs-offset-3 fa-stack fa-lg">
-                          <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
-                          <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-                        </span>
-                    </div>
+						<span class="pull-right fa-stack fa-lg dropdown " ng-click="editExam(section)">
+							<a class="dropdown-toggle"> <i
+										class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
+										class="sitnet-white fa fa-cog fa-stack-1x"></i>
+							</a>
+								<ul class="dropdown-menu">
+									<li><a>Asetukset</a></li>
+									<li><a>Poista</a></li>
+								</ul>
+						</span>
+				</div>
                 </div>
                 <div class="section" ui-on-Drop="onDrop($event, $data, section.questions)" ng-include="sectionPath" ng-repeat="section in sections">
                 </div>

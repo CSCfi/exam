@@ -5,14 +5,24 @@
 			</span>
 			<span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i class="fa fa-pencil"></i>
 			</span>
-			<span ng-click="editSection(section)" class="pull-right fa-stack fa-lg">
-                <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
+			<span class="pull-right fa-stack fa-lg dropdown" ng-click="editSection(section)">
+				<a	class="dropdown-toggle">  
+				<i class="sitnet-blue fa fa-square fa-stack-2x"></i>
 				<i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-			</span> <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
+				 </a>
+					<ul class="dropdown-menu">
+						<li><a class="pointer-hand">Asetukset</a></li>
+						<li><a class="pointer-hand">Arvo kysymyksiä</a></li>
+						<li><a ng-click="clearAllQuestions(section)" class="pointer-hand">Tyhjennä</a></li>
+						<li><a ng-click="removeSection(section)" class="pointer-hand">Poista</a></li>
+					</ul>
+			</span>
+			<span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
                 <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
 				<i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'" class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
 			</span>
-        </div>
+
+		</div>
         <div ng-show="showDetails">
             <form class="form-inline" role="form">
 				<span class="fa-stack">
@@ -21,7 +31,7 @@
 				</span>
 
                 <div class="form-group">
-                    <input type="text" class="form-control input-lg" ng-model="section.name">
+                    <input type="text" class="form-control input-lg" ng-model="section.name" autofocus>
                 </div>
                 <button class="btn-primary" ng-click="showDetails = !showDetails">
                     <i class="fa fa-check"></i>

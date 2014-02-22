@@ -2,11 +2,17 @@
     <div class="col-md-8">
         <i class="fa fa-2x fa-fw {{question.icon}}"></i><span class="menu-item">{{question.question}}</span>
     </div>
-    <div>
-            <span ng-click="editQuestion(question)" class="pull-right fa-stack fa-lg">
-                <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-            </span>
-            <span ng-click="toggleQuestion(question)" class="pull-right fa-stack fa-lg">
+        <span ng-click="editQuestion(question)" class=" dropdown pull-right fa-stack fa-lg">
+			<a class="dropdown-toggle"> 
+			<i class="sitnet-white fa fa-cog fa-stack-1x"></i>
+			</a>
+				<ul class="dropdown-menu">
+					<li><a>Asetukset</a></li>
+					<li><a ng-click="removeQuestion(section, question)">Poista</a></li>
+				</ul>	
+		</span>
+
+		<span ng-click="toggleQuestion(question)" class="pull-right fa-stack fa-lg">
               <i ng-class="question.hide ? 'fa-chevron-left' : 'fa-chevron-down'" class="sitnet-white fa fa-stack-1x"></i>
             </span>
     </div>
