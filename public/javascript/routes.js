@@ -14,13 +14,14 @@
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamCtrl'});
             $routeProvider.when('/exams/:examId', { templateUrl: tmpl + 'exam.html', controller: 'ExamCtrl'});
             $routeProvider.when('/calendar', { templateUrl: tmpl + 'calendar.html'});
-            $routeProvider.when('/notifications', { templateUrl: tmpl + 'questions_library.html'});
+            $routeProvider.when('/notifications', { templateUrl: tmpl + 'notifications.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});
             $routeProvider.when('/tools', { templateUrl: tmpl + 'tools.html'});
             $routeProvider.when('/math', { templateUrl: tmpl + 'math.html'});
 
             /* extra */
-            $routeProvider.when('/users', { templateUrl: tmpl + 'user.html', controller: 'UserCtrl'});
+            $routeProvider.when('/user', { templateUrl: tmpl + 'user.html', controller: 'UserCtrl'});
+            $routeProvider.when('/users', { templateUrl: tmpl + 'users.html', controller: 'UserCtrl'});
             $routeProvider.when('/about', { templateUrl: tmpl + 'about.html', controller: 'TestCtrl' });
             $routeProvider.when('/login', { templateUrl: tmpl + 'login.html', controller: 'SessionCtrl' });
             $routeProvider.when('/logout', { templateUrl: tmpl + 'logout.html', controller: 'SessionCtrl' });

@@ -1,16 +1,16 @@
 (function () {
     'use strict';
-    var sessionController = angular.module("sitnet.controllers");
-        /*sessionController.config('$translateProvider', function ($translateProvider) {
-            var translation = $http.get(SITNET_CONF.ASSETS_LANGUAGES + '/' + "en.json");
-            $translateProvider.translations(translation);
-        });*/
-        sessionController.controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'SITNET_CONF',
-            function ($scope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, SITNET_CONF) {
-                $scope.user = {};
+    angular.module("sitnet.controllers")
+        .controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'SITNET_CONF',
+            function ($scope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, SITNET_CONF) {
+
+                $scope.session = function () {
+                    return sessionService;
+                }
 
                 $scope.switchLanguage = function (key) {
                     $translate.uses(key);
+                    console.log($scope.user);
                 };
 
                 var dialog;
@@ -30,38 +30,42 @@
                 });
 
                 $scope.logout = function () {
-                    $http.post('/logout').
-                        success(function (message) {
-                            delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
-                            delete $http.defaults.headers.common;
-                            toastr.success("Uloskirjautuminen onnistui.");
-                            //todo: go to page where session is not needed
-                            $location.path("/");
-                        });
+                    var xhr = $http.post('/logout');
+                    xhr.success(function (message) {
+                        delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+                        delete $http.defaults.headers.common;
+                        toastr.success("Uloskirjautuminen onnistui.");
+                        $location.path("/");
+                    });
                 };
 
                 $scope.login = function () {
                     var credentials = {
-                        username: $scope.user.username,
-                        password: $scope.user.password
+                        username: $scope.login.username,
+                        password: $scope.login.password
                     };
-                    $http.post('/login', credentials, {
+
+                    var xhr = $http.post('/login', credentials, {
                         ignoreAuthModule: true
                     })
-                        .success(function (token) {
-                            var header = {};
-                            header[SITNET_CONF.AUTH_HEADER] = token.token;
-                            $http.defaults.headers.common = header;
-                            $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = token.token;
-                            authService.loginConfirmed();
-                            toastr.success("Tervetuloa " + token.firstname + " " + token.lastname);
 
-                            $scope.user.firstname = token.firstname;
-                            $scope.user.lastname = token.lastname;
-                        })
-                        .error(function (message) {
-                            toastr.error(message, "Kirjautuminen epäonnistui!");
-                        });
+                    xhr.success(function (token) {
+                        var header = {};
+                        header[SITNET_CONF.AUTH_HEADER] = token.token;
+                        $http.defaults.headers.common = header;
+                        $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = token.token;
+                        authService.loginConfirmed();
+                        toastr.success($translate("sitnet_welcome") + " " + token.firstname + " " + token.lastname);
+
+                        sessionService.user = {
+                            firstname: token.firstname,
+                            lastname: token.lastname
+                        };
+                    })
+
+                    xhr.error(function (message) {
+                        toastr.error(message, "Kirjautuminen epäonnistui!");
+                    });
                 };
             }]);
 })();

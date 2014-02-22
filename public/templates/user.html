@@ -1,28 +1,12 @@
-<h4>Käyttäjät - Users</h4>
-<form ng-submit="createUser()">
-    <p>
-        <label class="control-label">etunimi</label>
-        <input type="text" ng-model="user.firstName"/> 
-        <br />
-        <label class="control-label">sukunimi</label>
-        <input type="text" ng-model="user.lastName"/>
-        <br />
-        <label class="control-label">email</label>
-        <input type="text" ng-model="user.email"/>
-        <br />
-        <label class="control-label">salasana</label>
-        <input type="password" ng-model="user.password"/>
-    </p>
-    <p>todo: add other fields and the rest of the crud functionality?</p>
-    <p>
-        <button type="submit" class="btn btn-primary">luo käyttäjä</button>
-    </p>
-</form>
-<hr>
-<h2>Kaikki käyttäjät</h2>
-<ul>
-    <li ng-repeat="user in users">
-        {{user.firstName}} {{user.lastName}} - {{user.email}} - id:{{user.id}}
-        <button ng-click="delete(user.id)">poista</button>
-    </li>
-</ul>
+<h2>{{'sitnet_user_preferences' | translate}}</h2>
+
+
+<h4>{{'sitnet_user_language_change' | translate}}</h4>
+<div class="locale-bar">
+    <a ng-click="switchLanguage('fi')">
+        <img class="locale-icon" src="../assets/images/locale-icon-fi.png">
+    </a>
+    <a ng-click="switchLanguage('en')">
+        <img class="locale-icon" src="../assets/images/locale-icon-en.png">
+    </a>
+</div>

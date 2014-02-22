@@ -30,13 +30,16 @@
             <!--  style -->
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
             <!-- todo: uncomment in production and comment previous line
-        <link rel="stylesheet" media="screen" href="  @routes.Assets.at("stylesheets/main.min.css")
-            ">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.min.css")">
             -->
 
         <script src="@routes.Assets.at("javascript/sitnet.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/routes.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/modules.js")" type="text/javascript"></script>
+
+            <!-- services -->
+        <script src="@routes.Assets.at("javascript/services/sessionService.js")" type="text/javascript"></script>
+
 
             <!-- resources -->
         <script src="@routes.Assets.at("javascript/resources/userResource.js")" type="text/javascript"></script>
@@ -58,69 +61,65 @@
     </head>
 
     <body ng-controller="SessionCtrl">
-        <aside id="vmenu" class="col-md-2" ng-controller="NavigationCtrl">
+        <aside id="vmenu" class="col-md-2">
             <div class="logo">
                 <img src="@routes.Assets.at("images/sitnet.png")" alt="sitnet" />
-            </div>
-            <div class="locale-bar">
-                <a href="" ng-click="switchLanguage('fi')"><img class="locale-icon" src="@routes.Assets.at("images/locale-icon-fi.png")"></a>
-                <a href="" ng-click="switchLanguage('en')"><img class="locale-icon" src="@routes.Assets.at("images/locale-icon-en.png")"></a>
             </div>
             <div class="user">
                 <span>
                     <img src="data:image/gif;base64,R0lGODdhRgBGAOMAAMzMzJaWlqqqqpycnLGxscXFxaOjo7e3t76+vgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAARgBGAAAEqRDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodFoUDAIDAGIwKGCsWC3XuyMUDAfAAEEwYMxoNdvNK2QLAbHEeshL7AB4ejwEAoF5ghJcCBOFh488a49bjVkTkoKUPAFka21/A3ESnIpzdX5iXRIGAggBjImpZFS0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMLBEAOw==" alt="me">
-                    <a href="javascript:void(0);" id="current_user"> Oili Opettaja <i class="fa fa-caret-down"></i></a>
+                    <a ng-model="user" href="#/user">{{session.user.firstname}} {{session.user.lastname}}<i class="fa fa-caret-down"></i></a>
                 </span>
             </div>
             <nav>
-                
-<!--                 <accordion close-others="oneAtATime"> -->
-<!--                 <div ng-repeat="link in links"> -->
-<!--                 <a href="{{link.href}}" class="accordion-group accordion-heading"> -->
-<!--                        <i class="fa fa-2x fa-fw {{link.class}}"></i> -->
-<!--                        <span class="menu-item">{{link.name}}</span> -->
-<!--                     </a> -->
-<!--                 </div> -->
-<!--                 </accordion> -->
-                
-<!-- 			    <div id="myAccordion" class="accordion"> -->
-<!-- 			        <div class="accordion-group" ng-repeat="link in links"> -->
-<!-- 			            <div class="accordion-heading"> -->
-<!-- 			                <a href="{{link.href}}" data-parent="#myAccordion" data-toggle="collapse" class="accordion-toggle"> -->
-<!-- 			                <i class="fa fa-2x fa-fw {{link.class}}"></i> -->
-<!-- 			                {{link.name}}</a> -->
-<!-- 			            </div> -->
-<!-- 			            <div class="accordion-body collapse" id="collapseOne"> -->
-<!-- 			                <div class="accordion-inner"> -->
-<!-- 			                    <p>HTML stands for HyperText Markup Language. HTML is the main markup language for describing the structure of Web pages. <a href="http://www.tutorialrepublic.com/html-tutorial/" target="_blank">Learn more.</a></p> -->
-<!-- 			                </div> -->
-<!-- 			            </div> -->
-<!-- 			        </div> -->
-<!-- 			    </div> -->
-            
 
-<!-- 			<accordion close-others="oneAtATime"> -->
-<!-- 				<accordion-group is-open="true" ng-repeat="link in links"> -->
-<!-- 					<a href="{{link.href}}" class="accordion-heading"> -->
-<!-- 		               <i class="fa fa-2x fa-fw {{link.class}}"></i> -->
-<!-- 		               <span class="menu-item">{{link.name}}</span> -->
-<!-- 		            </a> -->
-<!-- 	            </accordion-group> -->
-<!-- 			</accordion> -->
+                    <!--                 <accordion close-others="oneAtATime"> -->
+                    <!--                 <div ng-repeat="link in links"> -->
+                    <!--                 <a href="{{link.href}}" class="accordion-group accordion-heading"> -->
+                    <!--                        <i class="fa fa-2x fa-fw {{link.class}}"></i> -->
+                    <!--                        <span class="menu-item">{{link.name}}</span> -->
+                    <!--                     </a> -->
+                    <!--                 </div> -->
+                    <!--                 </accordion> -->
+
+                    <!-- 			    <div id="myAccordion" class="accordion"> -->
+                    <!-- 			        <div class="accordion-group" ng-repeat="link in links"> -->
+                    <!-- 			            <div class="accordion-heading"> -->
+                    <!-- 			                <a href="{{link.href}}" data-parent="#myAccordion" data-toggle="collapse" class="accordion-toggle"> -->
+                    <!-- 			                <i class="fa fa-2x fa-fw {{link.class}}"></i> -->
+                    <!-- 			                {{link.name}}</a> -->
+                    <!-- 			            </div> -->
+                    <!-- 			            <div class="accordion-body collapse" id="collapseOne"> -->
+                    <!-- 			                <div class="accordion-inner"> -->
+                    <!-- 			                    <p>HTML stands for HyperText Markup Language. HTML is the main markup language for describing the structure of Web pages. <a href="http://www.tutorialrepublic.com/html-tutorial/" target="_blank">Learn more.</a></p> -->
+                    <!-- 			                </div> -->
+                    <!-- 			            </div> -->
+                    <!-- 			        </div> -->
+                    <!-- 			    </div> -->
 
 
-			<ul>
+                    <!-- 			<accordion close-others="oneAtATime"> -->
+                    <!-- 				<accordion-group is-open="true" ng-repeat="link in links"> -->
+                    <!-- 					<a href="{{link.href}}" class="accordion-heading"> -->
+                    <!-- 		               <i class="fa fa-2x fa-fw {{link.class}}"></i> -->
+                    <!-- 		               <span class="menu-item">{{link.name}}</span> -->
+                    <!-- 		            </a> -->
+                    <!-- 	            </accordion-group> -->
+                    <!-- 			</accordion> -->
+
+
+                <ul ng-controller="NavigationCtrl">
                     <li ng-class="{selected: isActive(link)}" ng-repeat="link in links">
-                        <a href="{{link.href}}" ng-click="showSubmenu = true" >
+                        <a href="{{link.href}}">
                             <i class="fa fa-2x fa-fw {{link.class}}"></i>
                             <span class="menu-item">{{link.name}}</span>
                         </a>
-	                        <div class="submenu" ng-repeat="subItem in link.sub" ng-show="showSubmenu" >
-		                        <a href="{{subItem.href}}">
-		                            <i class="fa fa-2x fa-fw {{subItem.class}}"></i>
-		                            <span class="menu-item">{{subItem.name}}</span>
-		                        </a>
-	                        </div>
+                        <div class="submenu" ng-repeat="subItem in link.sub" ng-show="isActive(link)" >
+                            <a href="{{subItem.href}}">
+                                <i class="fa fa-2x fa-fw {{subItem.class}}"></i>
+                                <span class="menu-item">{{subItem.name}}</span>
+                            </a>
+                        </div>
                     </li>
                 </ul>
             </nav>

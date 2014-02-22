@@ -4,6 +4,7 @@
 @import "partial/exam";
 @import "partial/login";
 @import "partial/tables";
+@import "partial/user";
 
 body {
   background-color: $sitnet-light-grey;
@@ -15,20 +16,6 @@ body {
 
 .vmenu-off {
   margin-left: 0;
-}
-
-.locale-icon {
-  margin-left: 2px;
-  margin-right: 2px;
-
-}
-
-.locale-bar {
-  float: right;
-  margin-left: 2px;
-  margin-right: 2px;
-  margin-top: 5px;
-  margin-bottom: 5px;
 }
 
 .inline {

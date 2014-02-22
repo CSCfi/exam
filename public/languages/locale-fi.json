@@ -40,5 +40,12 @@
     "sitnet_questions_new": "Uusi kysymys",
     "sitnet_questions_all": "Kaikki kysymykset",
     "sitnet_questions_ows": "Omat kysymykset",
-    "sitnet_questions_bank": "Kysymyspankki"
+    "sitnet_questions_bank": "Kysymyspankki",
+
+    "sitnet_user_preferences": "Käyttäjäasetukset",
+    "sitnet_user_language_change" : "Käyttäjän kielen valinta",
+
+    "sitnet_welcome" : "Tervetuloa"
+
+
 }

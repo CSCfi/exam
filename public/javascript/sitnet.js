@@ -8,6 +8,7 @@
         'ui.bootstrap',
         'sitnet.controllers',
         'sitnet.resources',
+        'sitnet.services',
         'pascalprecht.translate',
         'ngDragDrop'
     ]);
@@ -45,6 +46,7 @@
             };
         };
         $httpProvider.interceptors.push(interceptor);
+
     }]);
     sitnet.run(['$http', '$localStorage', 'SITNET_CONF',
         function ($http, $localStorage, SITNET_CONF) {
