@@ -67,7 +67,7 @@
                     $scope.sections.push({
                         id: $scope.sections.length + 1,
                         hide: false,
-                        name: "Osio",
+                        name: $translate("section_default_name"),
                         questions: []
                     });
 
