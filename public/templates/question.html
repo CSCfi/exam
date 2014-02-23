@@ -77,17 +77,14 @@
 		</div>
 		<div class="library" ng-controller="LibraryCtrl">
 			<div class="input-group">
-				<input ng-model="libraryFilter" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+				<input ng-model="selected" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
 				<span class="input-group-addon">
 					<i class="fa fa-search fa-fw"></i>
 				</span>
 			</div>
-			<select class="form-control">
-				<option ng-repeat="type in contentTypes">{{type}}</option>
-			</select>
-			<ul class="results">
-				<li ui-draggable="true" drag="link" ng-class="{selected: isActive(link)}" ng-repeat="link in links | filter:libraryFilter"><i
-						class="fa fa-2x fa-fw {{link.icon}}"></i> <span class="menu-item">{{link.name}}</span></li>
+			<ul class="list-group results">
+				<li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question"><i
+						class="fa fa-2x fa-fw {{question.icon}}"></i> <span class="menu-item" ndel="question.question">{{question.question}}</span></li>
 			</ul>
 		</div>
 	</div>
