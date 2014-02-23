@@ -1,0 +1,27 @@
+#library {
+
+  .library-header {
+    background-color: $sitnet-dark-grey;
+    color: white;
+    padding: 0.5em;
+    a {
+      color: $sitnet-green;
+    }
+  }
+
+  .library {
+    padding: 5px;
+    min-height: 100%;
+    border: solid 1px $sitnet-grey;
+    background-color: white;
+    .results {
+      margin-top: 1em;
+    }
+  }
+  
+	
+.test-library {
+	margin-bottom: 2em;
+}
+
+}

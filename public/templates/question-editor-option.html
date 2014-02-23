@@ -1,0 +1,17 @@
+<div class="question-editor-option">
+
+	<input type="radio" id={{option.id}} name={{newQuestion.question}} class="list-group-item-text" ng-click="radioChecked(option)" />
+	<span class="editable" ng-show="showDetails" ng-click="showDetails = !showDetails">
+		{{option.option}}
+		<i class="fa fa-pencil"></i>
+		<span class="badge pull-right" ng-show="option.correctOption" class="ng-hide">TOSI</span>
+	</span>
+
+	<div ng-hide="showDetails">
+
+		<input type="text" class="form-control input-lg inline" ng-model="option.option" autofocus>
+		<button class="btn-primary" ng-click="showDetails = !showDetails">
+			<i class="fa fa-check"></i>
+		</button>
+	</div>
+</div>

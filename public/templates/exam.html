@@ -29,7 +29,7 @@
                 </span>
             <button ng-click="save()" class="btn btn-default">{{'sitnet_save' | translate}}</button>
     </div>
-    <div class="col-md-4">
+    <div id="library" class="col-md-4">
         <div class="library-header">
             <h4><i class="fa fa-briefcase"></i> {{'sitnet_library' | translate}}</h4>
         </div>
@@ -41,7 +41,7 @@
             </div>
             <ul class="list-group results">
                 <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
-                    <i class="fa fa-2x fa-fw {{question.icon}}"></i> <span class="menu-item" ng-model="question.question">{{question.question}}</span>
+                    <i class="fa fa-2x fa-fw {{question.icon}}"></i> <span class="menu-item" ndel="question.question">{{question.question}}</span>
                 </li>
             </ul>
         </div>

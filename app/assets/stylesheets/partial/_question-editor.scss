@@ -1,4 +1,4 @@
-#exam {
+#question-editor {
   margin-top: 1em;
 
   .base {
@@ -26,10 +26,11 @@
     background-color: $sitnet-beige-active;
   }
 
-   .exam-header {
+   .question-header {
     background-color: $sitnet-dark-grey;
     color: white;
     padding: 0.5em;
+    margin-left: 20px;
     a {
       color: $sitnet-green;
     }
@@ -49,7 +50,19 @@
     min-height: 3em;
   }
 
-  .single-question {
+.question-editor-option {
+	background-color: $sitnet-beige;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	margin-left: 25px;
+	margin-right: 25px;
+	margin-bottom: 5px;
+/* 	padding: 15px; */
+/* 	min-height: 3em; */
+}
+
+.single-question {
     background-color: $sitnet-green;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
@@ -90,5 +103,5 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  outline-style:none;
+  outline-style: none;
 }

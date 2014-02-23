@@ -40,6 +40,13 @@
     "sitnet_questions_all": "All questions",
     "sitnet_questions_ows": "My questions",
     "sitnet_questions_bank": "Question bank",
+    "sitnet_question_write_name": "Write question here, please",
+    "sitnet_question_new_option": "New option",
+    "sitnet_question_add_new_option": "Add new option by clicking here",
+    "sitnet_correct_option": "Correct option",
+    "sitnet_option": "Option",
+    
+    
     
     "sitnet_user_preferences": "User preferences",
     "sitnet_user_language_change" : "User language selection",

@@ -117,4 +117,14 @@ public class Question extends SitnetModel {
 		this.options = options;
 	}
 
+	@Override
+	public String toString() {
+		return "Question [type=" + type + ", question=" + question
+				+ ", shared=" + shared + ", materials=" + materials
+				+ ", answers=" + answers + ", evaluationPhrases="
+				+ evaluationPhrases + ", evaluationCriterias="
+				+ evaluationCriterias + ", comments=" + comments + ", options="
+				+ options + "]";
+	}
+
 }

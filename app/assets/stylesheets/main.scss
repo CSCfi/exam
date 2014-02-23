@@ -5,6 +5,8 @@
 @import "partial/login";
 @import "partial/tables";
 @import "partial/user";
+@import "partial/library";
+@import "partial/question-editor";
 
 body {
   background-color: $sitnet-light-grey;

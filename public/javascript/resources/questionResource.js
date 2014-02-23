@@ -2,8 +2,7 @@
     'use strict';
     angular.module("sitnet.resources")
         .factory("QuestionRes", ['$resource', function ($resource) {
-            return $resource(
-                "/questions/:id",
+            return $resource("/questions/",
                 {
                     id: "@id"
                 },

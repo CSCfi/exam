@@ -41,6 +41,15 @@
     "sitnet_questions_all": "Kaikki kysymykset",
     "sitnet_questions_ows": "Omat kysymykset",
     "sitnet_questions_bank": "Kysymyspankki",
+    "sitnet_question_write_name": "Kirjoita kysymys tähän",
+    "sitnet_question_new_option": "Uusi vaihtoehto",
+    "sitnet_question_add_new_option": "Lisää uusi vaihtoehto painamalla tästä",
+    "sitnet_correct_option": "Correct option",
+    "sitnet_option": "Vaihtoehto",
+    
+    
+
+
 
     "sitnet_user_preferences": "Käyttäjäasetukset",
     "sitnet_user_language_change" : "Käyttäjän kielen valinta",
