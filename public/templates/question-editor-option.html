@@ -1,17 +1,25 @@
 <div class="question-editor-option">
-	<input type="radio" id={{option.id}} name={{newQuestion.question}} class="list-group-item-text" ng-click="radioChecked(option)" />
-	<span class="editable" ng-hide="showOption" ng-click="showOption = !showOption">
-		{{option.option}}
-		<i class="fa fa-pencil"></i>
-		<span class="badge pull-right" ng-show="option.correctOption" class="ng-hide">TOSI</span>
-	</span>
-    <span ng-click="removeOption(option)">
+
+    <div class="form-group">
+        <input type="radio" id={{option.id}} name={{newQuestion.question}} class="list-group-item-text" ng-click="radioChecked(option)"/>
+    </div>
+    <div class="form-group editable" ng-hide="showOption" ng-click="showOption = !showOption">
+
+        {{option.option}}
+        <i class="fa fa-pencil"></i>
+        <span class="badge" ng-show="option.correctOption" class="ng-hide">TOSI</span>
+
+    </div>
+    <div class="form-group" ng-show="showOption">
+        <input type="text" class="input-sm form-control" ng-model="option.option" autofocus>
+    </div>
+    <div class="form-group" ng-show="showOption">
+        <button class="btn btn-primary" ng-click="showOption = !showOption">
+            <i class="fa fa-check"></i>
+        </button>
+    </div>
+
+    <span ng-click="removeOption(option)" class="pull-right">
         <i class="fa fa-times fa-2x pull-right pointer" title="Poista"></i>
     </span>
-    <div ng-show="showOption">
-		<input type="text" class="form-control input-lg inline" ng-model="option.option" autofocus>
-		<button class="btn-primary" ng-click="showOption = !showOption">
-			<i class="fa fa-check"></i>
-		</button>
-	</div>
 </div>

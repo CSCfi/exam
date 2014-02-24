@@ -29,7 +29,7 @@
 									<div class="form-group">
 										<input type="text" class="form-control input-lg" ng-model="newQuestion.question" autofocus>
 									</div>
-									<button class="btn-primary" ng-click="showDetails = !showDetails">
+									<button class="btn btn-primary" ng-click="showDetails = !showDetails">
 										<i class="fa fa-check"></i>
 									</button>
 								</form>
@@ -47,17 +47,20 @@
                         </span>
                         <div ng-show="showAputeksti">
                             <form class="form-inline" role="form">
-                                <div class="form-group">
+                                <div class="row">
+                                <div class="form-group  col-md-6">
                                     <input type="text" class="form-control input-lg" ng-model="newQuestion.instruction" autofocus>
                                 </div>
-                                <button class="btn-primary" ng-click="showAputeksti = !showAputeksti">
+                                <button class="btn btn-primary" ng-click="showAputeksti = !showAputeksti">
                                     <i class="fa fa-check"></i>
                                 </button>
+                                </div>
+
                             </form>
                         </div>
 						<hr>
-						<form>
-							<div class="ng-scope" ng-repeat="option in newQuestion.options">
+						<form class="form-inline" role="form">
+							<div class="" ng-repeat="option in newQuestion.options">
 								<div class="" ng-include="newOptionTemplate"></div>
 							</div>
 						</form>
