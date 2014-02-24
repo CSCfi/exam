@@ -48,9 +48,21 @@
     padding: 0;
   }
 
-  .selected a {
-    background-color: $sitnet-grey;
-    color: $sitnet-dark !important;
+  .selected {
+    a {
+      background-color: $sitnet-grey;
+      color: $sitnet-dark;
+    }
+
+    .submenu {
+      margin-left: 30px;
+      font-size: 0.8em;
+
+      a {
+        background-color: $sitnet-dark;
+        color: $sitnet-grey;
+      }
+    }
   }
 
   .user {
@@ -66,9 +78,5 @@
 
   .minimize .menu-item {
     display: none;
-  }
-
-  .submenu {
-    margin-left: 30px;
   }
 }
