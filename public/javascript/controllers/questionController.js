@@ -16,10 +16,10 @@
                 evaluationCriterias: [],
                 comments: [],
                 options: [{
-                                    "id": 1,
-                                    "option": "Esimerkki vaihtoehto",
-                                    "correctOption": false,
-                                    "score": 1
+                    "id": 1,
+                    "option": "Esimerkki vaihtoehto",
+                    "correctOption": false,
+                    "score": 1
                                 }]
             	};
             
@@ -64,7 +64,7 @@
             };
 
             $scope.removeOption = function (option) {
-                $scope.newQuestion.options.splice(option, 1);
+                $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
 
             }
             

@@ -45,9 +45,7 @@
 
                 $scope.removeSection = function(section) {
                     if (confirm('Poistetaanko osio?')) {
-                    	
-                        // TODO: poistaa väärän osion ?!?
-                    	$scope.sections.splice(section, 1);
+                    	$scope.sections.splice($scope.sections.indexOf(section), 1);
                     }
                 }
                 
@@ -59,7 +57,7 @@
                 
                 $scope.removeQuestion = function(section, question) {
                     if (confirm('Poistetaanko kysymys?')) {
-                    	section.questions.splice(question, 1);
+                    	section.questions.splice(section.questions.indexOf(question), 1);
                     }
                 }
                 
