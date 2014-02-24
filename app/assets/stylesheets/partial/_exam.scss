@@ -40,6 +40,7 @@
     background-color: $sitnet-dark-grey;
     color: white;
     padding: 0.5em;
+    margin-top: 1em;
     a {
       color: $sitnet-green;
     }
@@ -77,12 +78,22 @@
     }
 
   }
+  .exam-info {
+  	padding: 5px;
+  }
   .section {
-    margin-bottom: 2em;
+/*     margin-bottom: 2em; */
     background-color: $sitnet-light-grey;
   }
 
-  li {
+.exam-name-section {
+	background-color: $sitnet-white;
+	color: black;
+	padding: 0.5em;
+	margin-bottom: 2em;
+}
+
+li {
     list-style: none;
   }
 

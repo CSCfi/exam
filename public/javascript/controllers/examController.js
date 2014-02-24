@@ -9,6 +9,27 @@
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_general.html";
                 $scope.sections = [];
                 $scope.exams = ExamRes.query();
+                
+                $scope.newExam = {
+                        "created": null,
+                        "creator": null,
+                        "modified": null,
+                        "modifier": null,
+                        "course": {
+                            "organisation": null,
+                            "code": "811380A",
+                            "name": "Tietokantojen perusteet",
+                            "responsibleTeacher": null,
+                            "type": null,
+                            "credits": 7
+                        },
+                        "name": "Kirjoita tentin nimi tähän",
+                        "examType": null,
+                        "instruction": "Tentissä saa käyttää apuna lähdemateriaalia",
+                        "shared": true,
+                        "examSections": []                		
+                };
+                
 
                 var questions = QuestionRes.query(function () {
                     questions.map(function (item) {
