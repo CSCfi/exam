@@ -7,7 +7,7 @@
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
-    padding: 1em;
+    padding: 2em;
   }
 
   .create-new {
@@ -30,7 +30,6 @@
     background-color: $sitnet-dark-grey;
     color: white;
     padding: 0.5em;
-    margin-left: 20px;
     a {
       color: $sitnet-green;
     }
@@ -94,7 +93,7 @@
   }
 
 .pointer-hand {
-	cursor:pointer;
+	cursor: pointer;
 }
 
   -webkit-touch-callout: none;

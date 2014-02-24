@@ -9,6 +9,7 @@
             var newQuestion = {
                 type: "MULTIPLE_CHOICE_ONE_CORRECT",
                 question: $translate("sitnet_question_write_name"),
+                instruction: "Kirjoita ohje tähän",
                 materials: [],
                 answers: [],
                 evaluationPhrases: [],
@@ -61,6 +62,11 @@
                 		value.correctOption = false;
                 })
             };
+
+            $scope.removeOption = function (option) {
+                $scope.newQuestion.options.splice(option, 1);
+
+            }
             
         }]);
 }());

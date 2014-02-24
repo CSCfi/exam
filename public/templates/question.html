@@ -1,4 +1,4 @@
-<div id="question-editor" ng-controller="QuestionCtrl">
+<div id="question-editor" ng-controller="QuestionCtrl" xmlns="http://www.w3.org/1999/html">
 	<h2>{{'sitnet_questions_new' | translate}}</h2>
 	<div class="col-md-8">
 		<div class="base">
@@ -34,16 +34,29 @@
 									</button>
 								</form>
 							</div>
-						</h4>
-					</div>
+						</h4> </div>
 					<hr>
 					<!-- Question fields -->
 
 					<div>
-						<i>Kysymykseen liittyvä aputeksti/liitetiedosto</i>
-						<input type="text" class="form-control ng-pristine ng-valid" placeholder="Aputeksti">
+						<span class="sitnet-info-text"> Kysymykseen liittyvä aputeksti/liitetiedosto</span>
+
+                        <span class="editable inline" ng-hide="showAputeksti" ng-click="showAputeksti = !showAputeksti">
+                             <h4>{{newQuestion.instruction}} <i class="fa fa-pencil"></i>
+                             </h4>
+                        </span>
+                        <div ng-show="showAputeksti">
+                            <form class="form-inline" role="form">
+                                <div class="form-group">
+                                    <input type="text" class="form-control input-lg" ng-model="newQuestion.instruction" autofocus>
+                                </div>
+                                <button class="btn-primary" ng-click="showAputeksti = !showAputeksti">
+                                    <i class="fa fa-check"></i>
+                                </button>
+                            </form>
+                        </div>
 						<hr>
-						<form action="">
+						<form>
 							<div class="ng-scope" ng-repeat="option in newQuestion.options">
 								<div class="" ng-include="newOptionTemplate"></div>
 							</div>
@@ -60,8 +73,17 @@
 
 
 			<!-- 			<div class="section" ui-on-Drop="onDrop($event, $data, section.questions)" ng-include="sectionPath" ng-repeat="section in sections"></div> -->
+            <hr>
+            <span class="sitnet-info-text">Pisteet:</span>
+            <!--<div class="">-->
+                <input type="text" class="form-control " placeholder="Oikean vastauksen pisteytys">
+            <!--</div>-->
+            <br>
+            <span class="sitnet-info-text">Arviointikriteerit:</span>
+            <textarea class="form-control" rows="3"></textarea>
 
-
+            <span class="sitnet-info-text">Arviointifraasit:</span>
+            <textarea class="form-control" rows="3"></textarea>
 		</div>
 		<button ng-click="saveQuestion()" type="submit" class="btn btn-default">{{'sitnet_save' | translate}}</button>
 	</div>

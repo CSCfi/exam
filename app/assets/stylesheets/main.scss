@@ -12,6 +12,9 @@ body {
   background-color: $sitnet-light-grey;
 }
 
+.pointer {
+  cursor: pointer;
+}
 .vmenu-on {
   margin-left: 16.66667%
 }
@@ -26,10 +29,16 @@ body {
 .editable {
     cursor: pointer;
 }
+.editable:hover {
+  color: green;
+}
+.sitnet-info-text {
+  color: grey;
+  font-style: italic;
+}
 .sitnet-dark-green {
   color: $sitnet-dark-green;
 }
-
 .sitnet-green {
   color: $sitnet-green;
 }

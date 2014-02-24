@@ -24,7 +24,9 @@ public class Question extends SitnetModel {
 
 	private boolean shared;
 
-	@OneToMany(cascade = CascadeType.ALL)
+    private String instruction;
+
+    @OneToMany(cascade = CascadeType.ALL)
 	private List<Material> materials;
 
 	@OneToMany(cascade = CascadeType.ALL)
