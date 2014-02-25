@@ -101,6 +101,10 @@
                 };
 
                 $scope.onDrop = function ($event, $data, questions) {
+                    if (angular.isArray($data)) {
+                        questions.push.apply(questions, $data);
+                        return;
+                    }
                     questions.push($data);
                 };
 

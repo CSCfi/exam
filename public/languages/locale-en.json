@@ -46,8 +46,11 @@
     "sitnet_question_add_new_option": "Add new option by clicking here",
     "sitnet_correct_option": "Correct option",
     "sitnet_option": "Option",
-    
-    
+
+    "sitnet_answer_amount_too_great": "Too many random questions: ",
+
+
+    "sitnet_add_random_questions": "Add random questions from this library section",
     
     "sitnet_user_preferences": "User preferences",
     "sitnet_user_language_change" : "User language selection",

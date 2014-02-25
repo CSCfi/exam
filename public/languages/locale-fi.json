@@ -47,8 +47,10 @@
     "sitnet_question_add_new_option": "Lisää uusi vaihtoehto painamalla tästä",
     "sitnet_correct_option": "Correct option",
     "sitnet_option": "Vaihtoehto",
-    
-    
+
+    "sitnet_answer_amount_too_great": "Arvottavien kysymysten määrä liian suuri: ",
+
+    "sitnet_add_random_questions": "Lisää sattumanvaraisia kysymyksiä tästä osiosta",
 
 
 
