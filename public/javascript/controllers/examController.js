@@ -61,8 +61,12 @@
                     section.hide = !section.hide;
                 };
 
-                $scope.save = function () {
+                $scope.saveExam = function () {
+                    $scope.newExam.examSections = $scope.sections;
 
+                    ExamRes.save($scope.newExam, function (newExam) {
+                        toastr.info("Tentti tallennettu.");
+                    });
                 };
 
                 $scope.removeSection = function (section) {

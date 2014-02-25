@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import models.Course;
 import models.Exam;
 import models.ExamSection;
@@ -10,6 +11,7 @@ import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
+import play.mvc.BodyParser;
 import play.mvc.Result;
 import actions.Authenticate;
 
@@ -29,30 +31,47 @@ public class ExamController extends SitnetController {
     }
 
     //  @Authenticate
+//    @BodyParser.Of(BodyParser.Json.class)
     public static Result createExam() {
-    	Logger.debug("createExam() called!");
+    	Logger.debug("createExam()");
+
+
+//        JsonNode json = request().body().asJson();
+//        String question = json.findPath("question").toString();
+//
+//        Logger.debug(json.toString());
+//
+//        if(question == null) {
+//            return badRequest("Missing parameter [question]");
+//        } else {
+//            return ok("Hello " + question);
+//        }
     	
     	DynamicForm df = Form.form().bindFromRequest();
-    			
-    	Logger.debug("course Code: " +df.get("courseCode"));
-    	Logger.debug("course Name: " +df.get("courseName"));
-    	Logger.debug("course Scope: " +df.get("courseScope"));
-    	Logger.debug("Faculty Name: " +df.get("facultyName"));
-    	Logger.debug("Exam Instructor Name: " +df.get("instructorName"));
+      	Logger.debug("Exam: " +df.toString());
+    	Logger.debug("name: " +df.get("name"));
+
+
+
+//      Logger.debug("olio: "+ df.toString());
+//    	Logger.debug("course Code: " +df.get("courseCode"));
+//    	Logger.debug("course Name: " +df.get("courseName"));
+//    	Logger.debug("course Scope: " +df.get("courseScope"));
+//    	Logger.debug("Faculty Name: " +df.get("facultyName"));
+//    	Logger.debug("Exam Instructor Name: " +df.get("instructorName"));
     	
         User user = UserController.getLoggedUser();
         
     	//Todo: implement the missing variables User, CourseType and Double
 //    	Course course = new Course(null, df.get("facultyName"), df.get("courseCode"), df.get("courseName"), null, null);
-//    	
 //    	Logger.debug("Course created with following code: " +course.getCode());
     	
     	//Todo: what is the exam name? is it the same as course name? 
-    	Exam exam = new Exam(user, new Course(df.get("courseName")));
+//    	Exam exam = new Exam(user, new Course(df.get("courseName")));
     	
-    	Logger.debug("Exam created with following name: " +exam.getName());
+//    	Logger.debug("Exam created with following name: " +exam.getName());
     	
-    	return ok("Successfully created the exam!");
+    	return ok("");
     }
     
     //  @Authenticate
@@ -80,4 +99,6 @@ public class ExamController extends SitnetController {
 
         return ok("section created");
     }
+
+
 }
