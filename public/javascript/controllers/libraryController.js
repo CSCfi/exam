@@ -22,7 +22,7 @@
                     }
                     result.length = 0;
                     result.push.apply(result, randomQuestions.slice(0, amount));
-                    console.log(result);
+//                    console.log(result);
                     shuffle();
                     return result;
 

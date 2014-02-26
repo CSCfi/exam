@@ -14,7 +14,8 @@ public class ExamType {
 	
 	// kaikille avoin, vain kutsusta, jne
 	private String type;
-	
-	
-	
+
+    public ExamType(String type) {
+        this.type = type;
+    }
 }

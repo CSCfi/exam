@@ -1,15 +1,19 @@
 package controllers;
 
-import java.util.List;
-
+import Exceptions.MalformedDataException;
+import Exceptions.UnauthorizedAccessException;
+import com.avaje.ebean.Ebean;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
+import play.mvc.BodyParser;
 import play.mvc.Result;
-
-import com.avaje.ebean.Ebean;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.List;
 
 public class ExamController extends SitnetController {
 
@@ -25,54 +29,83 @@ public class ExamController extends SitnetController {
     }
 
     //  @Authenticate
-//    @BodyParser.Of(BodyParser.Json.class)
-    public static Result createExam() {
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result createExam() throws MalformedDataException {
     	Logger.debug("createExam()");
 
+        Exam ex = bindForm(Exam.class);
 
+        Logger.debug(ex.toString());
+
+
+
+//
 //        JsonNode json = request().body().asJson();
-//        String question = json.findPath("question").toString();
 //
-//        Logger.debug(json.toString());
+//        if(json != null)
+//        {
+//            Exam exam = new Exam();
+//            Date date = new Date();
+//            User user = UserController.getLoggedUser();
 //
-//        if(question == null) {
-//            return badRequest("Missing parameter [question]");
-//        } else {
-//            return ok("Hello " + question);
+//
+//            exam.setCreated(new Timestamp(date.getTime()));
+//            exam.setCreator(user);
+//            exam.setModified(new Timestamp(date.getTime()));
+//            exam.setModifier(user);
+//            exam.setName(json.findPath("name").asText());
+//            exam.setExamType(new ExamType(json.findPath("examType").asText()));
+//            exam.setInstruction(json.findPath("instruction").asText());
+//            exam.setShared(json.findPath("shared").asBoolean());
+//
+//            // TODO: tässä voi olla jotain häikkää frontedin puolella, jos Opintojaksoa ei ole syötetty
+//            JsonNode jsonCourse = json.findPath("course");
+//            if(jsonCourse != null)
+//            {
+//                Course course = new Course();
+//
+//                course.setId(jsonCourse.findPath("id").asLong());
+//                course.setOrganisation(null);
+//                course.setName(jsonCourse.findPath("name").asText());
+//                course.setResponsibleTeacher(null);
+//                course.setType(null);
+//                course.setCredits(jsonCourse.findPath("credits").asDouble());
+//
+//                course.save();
+//                /*
+//                "course": {
+//                    "id": 2,
+//                    "organisation": null,
+//                    "code": "811380A",
+//                    "name": "Tietokantojen perusteet",
+//                    "responsibleTeacher": null,
+//                    "type": null,
+//                    "credits": 7
+//                },
+//                 */
+//                exam.setCourse(course);
+//            }
+//
+//
+//            // sections
+//            JsonNode jsonSections = json.findPath("examSections");
+//            if(jsonSections != null)
+//            {
+//                ExamSection examSection = new ExamSection();
+//
+//                exam.setExamSections(null);
+//            }
+//
+//            Logger.debug(exam.toString());
+//            exam.save();
+//            return ok("Tentti tallennettu");
+//
 //        }
-    	
-    	DynamicForm df = Form.form().bindFromRequest();
-//      	Logger.debug("Exam: " +df.toString());
-    	Logger.debug("name: " +df.get("name"));
-
-        Logger.debug("Exam room: " +df.get("room"));
-        Logger.debug("Exam duration: " +df.get("duration"));
-        Logger.debug("Exam inspector: " +df.get("inspector"));
-        Logger.debug("Exam grading: " +df.get("grading"));
-        Logger.debug("Exam language: " +df.get("language"));
-        Logger.debug("Exam answer language: " +df.get("answerLanguage"));
-        Logger.debug("Exam guidance: " +df.get("guidance"));
+//        else
+//            return status(-1, "Joku meni pieleen");
 
 
-//      Logger.debug("olio: "+ df.toString());
-
-//    	Logger.debug("course Name: " +df.get("courseName"));
-//    	Logger.debug("course Scope: " +df.get("courseScope"));
-//    	Logger.debug("Faculty Name: " +df.get("facultyName"));
-//    	Logger.debug("Exam Instructor Name: " +df.get("instructorName"));
-    	
-        User user = UserController.getLoggedUser();
-        
-    	//Todo: implement the missing variables User, CourseType and Double
-//    	Course course = new Course(null, df.get("facultyName"), df.get("courseCode"), df.get("courseName"), null, null);
-//    	Logger.debug("Course created with following code: " +course.getCode());
-    	
-    	//Todo: what is the exam name? is it the same as course name? 
-//    	Exam exam = new Exam(user, new Course(df.get("courseName")));
-    	
-//    	Logger.debug("Exam created with following name: " +exam.getName());
-    	
-    	return ok("");
+        return ok();
     }
     
     //  @Authenticate

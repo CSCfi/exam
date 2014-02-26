@@ -1,9 +1,10 @@
 package models;
 
-import play.data.validation.Constraints;
+import java.util.List;
 
 import javax.persistence.*;
-import java.util.List;
+
+import play.data.validation.Constraints;
 
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
@@ -14,90 +15,91 @@ import java.util.List;
 @Entity
 public class Exam extends SitnetModel {
 
-    // Tentti liittyy Opintojaksoon
-    @Constraints.Required
-    @ManyToOne
-    private Course course;
-
-    // onko tentillä joku toinen nimi, Opintojakson nimen lisäksi
-    private String name;
-
-    private ExamType examType;
-
-    // Opettajan antama ohje Opiskelijalle tentin suorittamista varten
-    private String instruction;
-
-    private boolean shared;
-
-
-    // TODO: This should be actually @OneToMany relationship, but there's problems with Ebean
-    // XXX: Help
-
-    //	@OneToMany(cascade = CascadeType.REMOVE, mappedBy="exam")
+	// Tentti liittyy Opintojaksoon
+	@Constraints.Required
+	@ManyToOne
+	private Course course;	
+	
+	// onko tentillä joku toinen nimi, Opintojakson nimen lisäksi
+	private String name;
+	
+	private ExamType examType;
+	
+	// Opettajan antama ohje Opiskelijalle tentin suorittamista varten
+	private String instruction;
+	
+	private boolean shared;
+	
+	
+	// TODO: This should be actually @OneToMany relationship, but there's problems with Ebean
+	// XXX: Help
+	
+//	@OneToMany(cascade = CascadeType.REMOVE, mappedBy="exam")
 //	@OneToMany(cascade = CascadeType.ALL, mappedBy="exam")
-    @ManyToMany(cascade = CascadeType.ALL)
-    private List<ExamSection> examSections;
+	@ManyToMany(cascade = CascadeType.ALL)
+	private List<ExamSection> examSections;
+
 
     @OneToOne
     private ExamEvent examEvent;
 
-    public Exam(Course course) {
+    public Exam( ) {
         super();
-        this.course = course;
     }
 
-    public Exam(User creator, Course course) {
-        super(creator);
-        this.course = course;
-    }
+	public Exam(Course course) {
+		super();
+		this.course = course;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public Exam(User creator, Course course) {
+		super(creator);
+		this.course = course;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public ExamType getExamType() {
-        return examType;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public void setExamType(ExamType examType) {
-        this.examType = examType;
-    }
+	public ExamType getExamType() {
+		return examType;
+	}
 
-    public List<ExamSection> getExamSections() {
-        return examSections;
-    }
+	public void setExamType(ExamType examType) {
+		this.examType = examType;
+	}
 
-    public void setExamSections(List<ExamSection> examSections) {
-        this.examSections = examSections;
-    }
+	public List<ExamSection> getExamSections() {
+		return examSections;
+	}
 
-    public String getInstruction() {
-        return instruction;
-    }
+	public void setExamSections(List<ExamSection> examSections) {
+		this.examSections = examSections;
+	}
 
-    public void setInstruction(String instruction) {
-        this.instruction = instruction;
-    }
+	public String getInstruction() {
+		return instruction;
+	}
 
-    public boolean isShared() {
-        return shared;
-    }
+	public void setInstruction(String instruction) {
+		this.instruction = instruction;
+	}
 
-    public void setShared(boolean shared) {
-        this.shared = shared;
-    }
+	public boolean isShared() {
+		return shared;
+	}
 
-    public Course getCourse() {
-        return course;
-    }
+	public void setShared(boolean shared) {
+		this.shared = shared;
+	}
 
-    public void setCourse(Course course) {
-        this.course = course;
-    }
+	public Course getCourse() {
+		return course;
+	}
 
     public ExamEvent getExamEvent() {
         return examEvent;
@@ -105,5 +107,20 @@ public class Exam extends SitnetModel {
 
     public void setExamEvent(ExamEvent examEvent) {
         this.examEvent = examEvent;
+    }
+	public void setCourse(Course course) {
+		this.course = course;
+	}
+
+    @Override
+    public String toString() {
+        return "Exam{" +
+                "course=" + course +
+                ", name='" + name + '\'' +
+                ", examType=" + examType +
+                ", instruction='" + instruction + '\'' +
+                ", shared=" + shared +
+                ", examSections=" + examSections +
+                '}';
     }
 }

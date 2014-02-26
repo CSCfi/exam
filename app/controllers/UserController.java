@@ -17,7 +17,7 @@ import java.util.List;
 //todo authorization!
 public class UserController extends SitnetController {
 
-    @Authenticate
+//    @Authenticate
     public static Result getUsers() {
         List<User> users = Ebean.find(User.class).findList();
         return ok(Json.toJson(users));

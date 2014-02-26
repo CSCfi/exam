@@ -2,10 +2,7 @@ package models;
 
 import java.util.List;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 import play.db.ebean.Model;
 
@@ -34,7 +31,7 @@ public class Course extends Model {
 	
 	// TODO: tänne tietoa
 	private List<User> responsibleTeacher;
-	
+
 	private CourseType type;
 	
 	// Laajuus, opintopisteet

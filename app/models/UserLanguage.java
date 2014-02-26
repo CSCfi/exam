@@ -1,6 +1,9 @@
 package models;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 import play.db.ebean.Model;
 
@@ -14,7 +17,10 @@ import play.db.ebean.Model;
 @Entity
 public class UserLanguage extends Model {
 
-	
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
 	// käyttäjänä äidinkieli
 	private String nativeLanguageCode;
 
@@ -60,9 +66,12 @@ public class UserLanguage extends Model {
 	public void setUILanguageName(String uILanguageName) {
 		UILanguageName = uILanguageName;
 	}
-	
 
-	
+    public Long getId() {
+        return id;
+    }
 
-	
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

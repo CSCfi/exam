@@ -22,6 +22,13 @@
 
 # Users
 
+user_languages:
+    - &suomi !!models.UserLanguage
+      nativeLanguageCode: fi
+      nativeLanguageName: Suomi
+      UILanguageCode: FI_fi
+      UILanguageName: Suomi
+
 users:
     - !!models.User
       email:      test
@@ -29,7 +36,9 @@ users:
       lastName:   Student
       password:   test
       roles:  
-            - !!models.Role {role: STUDENT}  
+            - !!models.Role {role: STUDENT}
+      userLanguage: *suomi
+
 
     - !!models.User
       email:      opettaja
@@ -38,6 +47,7 @@ users:
       password:   opettaja
       roles:  
             - !!models.Role {role: TEACHER}
+      userLanguage: *suomi
     
     - !!models.User
       email:      oppilas
@@ -46,6 +56,7 @@ users:
       password:   oppilas
       roles:  
             - !!models.Role {role: STUDENT}
+      userLanguage: *suomi
     
     - !!models.User
       email:      sadek@sample.com
@@ -54,6 +65,7 @@ users:
       password:   secret
       roles:  
             - !!models.Role {role: TEACHER}
+      userLanguage: *suomi
     
     - !!models.User
       email:      erwan@sample.com
@@ -62,6 +74,7 @@ users:
       password:   secret
       roles:  
             - !!models.Role {role: STUDENT}
+      userLanguage: *suomi
 
 
   
@@ -387,6 +400,7 @@ examevents:
 
 exams:
 
+
   - &astronomianPerusteet !!models.Exam
     course: *765104P
     name: Astronomian perusteet
@@ -430,3 +444,6 @@ exams:
     shared: true
     examSections:
                 - *osio1
+                
+                
+    

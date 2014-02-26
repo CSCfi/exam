@@ -151,8 +151,10 @@
 
                 $scope.saveExam = function () {
                     $scope.newExam.examSections = $scope.sections;
+                    $scope.newExam.examEvent= $scope.newExamEvent;
 
-                    ExamRes.save($scope.newExam, $scope.newExamEvent, function (newExam, newExamEvent) {
+
+                    ExamRes.save($scope.newExam,  function (newExam) {
                         toastr.info("Tentti tallennettu.");
                     });
                 };

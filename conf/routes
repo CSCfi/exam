@@ -1,9 +1,4 @@
 
-
-
-
-
-
 GET           /                    controllers.Index.index()
 
 POST          /login               controllers.SessionController.login()
