@@ -1,52 +1,48 @@
 <div id="sitnet-header" class="header"></div>
 <div id="exam">
-    <h2 class="table-heading">{{'sitnet_new_exam' | translate}}</h2>
+	<h2 class="table-heading">{{'sitnet_new_exam' | translate}}</h2>
 
-    <div class="col-md-8">
-        <div class="exam-general-information">
-            <div class="section" ng-include="generalInfoPath"></div>
-        </div>
-        <div class="base">
-            <div class="exam-name-section">
-                <div ng-hide="showName">
+	<div class="col-md-8">
+		<div class="exam-general-information">
+			<div class="section" ng-include="generalInfoPath"></div>
+		</div>
+		<div class="base">
+			<div class="exam-name-section">
+				<div ng-hide="showName">
 					<span class="pull-right fa-stack fa-lg dropdown" ng-click="editExam(section)">
-						<a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
-                                class="sitnet-white fa fa-cog fa-stack-1x"></i>
-                        </a>
+						<a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
+						</a>
 						<ul class="dropdown-menu">
-                            <li><a>Asetukset</a></li>
-                        </ul>
+							<li><a>Asetukset</a></li>
+						</ul>
 					</span>
-
-                    <h2>
+					<h2>
 						<span class="editable" ng-click="showName = !showName">
 							{{newExam.name}}
 							<i class="fa fa-pencil"></i>
 						</span>
-                    </h2>
-                </div>
-                <div ng-show="showName">
-                    <form class="form-inline" role="form">
-                        <div class="form-group">
-                            <input type="text" class="form-control input-lg" ng-model="newExam.name" autofocus>
-                        </div>
-                        <button class="btn-primary" ng-click="showName = !showName">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </form>
-                </div>
+				</div>
+				<div ng-show="showName">
+					<form class="form-inline" role="form">
+						<div class="form-group">
+							<input type="text" class="form-control input-lg" ng-model="newExam.name" autofocus>
+						</div>
+						<button class="btn-primary" ng-click="showName = !showName">
+							<i class="fa fa-check"></i>
+						</button>
+					</form>
+				</div>
 
-                </h3>
-            </div>
-            <div class="section" ui-on-Drop="onDrop($event, $data, section.questions)" ng-include="sectionPath"
-                 ng-repeat="section in sections"></div>
-        </div>
+				</h3>
+			</div>
+			<div class="section" ui-on-Drop="onDrop($event, $data, section.questions)" ng-include="sectionPath" ng-repeat="section in sections"></div>
+		</div>
 		<span ng-click="addNewSection()" class="create-new">
 			<i class="fa fa-plus-circle"></i>
 			{{'sitnet_section_add' | translate}}
 		</span>
-        <button ng-click="save()" class="btn btn-default">{{'sitnet_save' | translate}}</button>
-    </div>
+		<button ng-click="saveExam()" class="btn btn-default">{{'sitnet_save' | translate}}</button>
+	</div>
     <div id="library" class="col-md-4">
         <div class="library-header">
             <h4>
