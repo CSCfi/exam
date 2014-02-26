@@ -1,67 +1,75 @@
 <div class="exam-header">
-	<h4>
-		<div>
+    <h4>
+        <div>
 			<span class="fa-stack">
 				<i class="fa fa-square-o fa-stack-2x"></i>
 				<i class="fa fa-bars"></i>
 				<i class="fa fa-stack-1x">{{section.id}}</i>
 			</span>
-			<span class="" ng-click="">Tentin yleistiedot </span>
+            <span ng-click="">Tentin yleistiedot </span>
 			<span class="pull-right fa-stack fa-lg dropdown" ng-click="">
-				<a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-				</a>
+				<a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
+                        class="sitnet-white fa fa-cog fa-stack-1x"></i>
+                </a>
 				<ul class="dropdown-menu">
-					<li><a class="pointer-hand">Asetukset</a></li>
-				</ul>
+                    <li><a class="pointer-hand">Asetukset</a></li>
+                </ul>
 			</span>
 			<span ng-click="" class="pull-right fa-stack fa-lg">
 				<i class="sitnet-grey fa fa-square fa-stack-2x"></i>
 				<i ng-class="showInfo ? 'fa-chevron-left' : 'fa-chevron-down'" ng-click="showInfo = !showInfo"
-					class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+                   class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
 			</span>
-		</div>
+        </div>
 
-	</h4>
+    </h4>
 </div>
 
+<!-- General info section container -->
 <div class="exam-info" ng-hide="showInfo" ng-controller="DatepickerCtrl">
-	<pre>Tentin aikajakso on: <em>{{startDate | date:'fullDate' }} - {{endDate | date:'fullDate' }}</em>
-	</pre>
 
-	<!--<h4>Inline</h4>
-    <div style="display:inline-block; min-height:290px;">
-        <div class="well well-sm" ng-model="dt">
-            <datepicker min="minDate" show-weeks="showWeeks"></datepicker>
-        </div>
-    </div>-->
+    <!-- Start & End time datepickers -->
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Alkuaika</h4>
 
-	<div class="row">
-		<div class="col-md-6">
-			<h4>Alkuaika</h4>
-			<p class="input-group">
-				<input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="startDate" is-open="opened1" min="minDate"
-					max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="startDate"
+                       is-open="opened1" min="minDate"
+                       max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                       ng-required="true" close-text="Close"/>
 				<span class="input-group-btn">
 					<button class="btn btn-default" ng-click="open1($event)">
-						<i class="fa fa-calendar"></i>
-					</button>
+                        <i class="fa fa-calendar"></i>
+                    </button>
 				</span>
-			</p>
-		</div>
+            </p>
+        </div>
 
-		<div class="col-md-6">
-			<h4>Loppuaika</h4>
-			<p class="input-group">
-				<input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="endDate" is-open="opened2" min="startDate"
-					max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+        <div class="col-md-6">
+            <h4>Loppuaika</h4>
+
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="endDate"
+                       is-open="opened2" min="startDate"
+                       max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                       ng-required="true" close-text="Close"/>
 				<span class="input-group-btn">
 					<button class="btn btn-default" ng-click="open2($event)">
-						<i class="fa fa-calendar"></i>
-					</button>
+                        <i class="fa fa-calendar"></i>
+                    </button>
 				</span>
-			</p>
-		</div>
-	</div>
+            </p>
+        </div>
+    </div>
+    <!-- Summary of start and end times -->
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div>Tentin aikajakso on:
+                <em>{{startDate | date:'fullDate' }} - {{endDate | date:'fullDate' }}</em>
+            </div>
+        </div>
+    </div>
 
 
 	<div class="row">
@@ -72,55 +80,188 @@
 				<span class="input-group-addon" ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
-			</div>
-		</div>
+            </div>
+        </div>
 
-		<div class="col-md-6">
-			<span class="sitnet-info-text">Opintojakson nimi:</span>
-			<div class="input-group">
-				<input type="text" class="form-control ng-pristine ng-valid">
-				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
-					<i class="fa fa-question-circle fa-fw"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-md-6">
-			<span class="sitnet-info-text">Opintojakson laajuus:</span>
-			<div class="input-group">
-				<input type="text" class="form-control ng-pristine ng-valid" placeholder="opintopistettä">
-				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
-					<i class="fa fa-question-circle fa-fw"></i>
-				</span>
-			</div>
-		</div>
-
-		<div class="col-md-6">
-			<span class="sitnet-info-text">Organisaatio/tiedekunta:</span>
-			<div class="input-group">
-				<input type="text" class="form-control ng-pristine ng-valid">
-				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
-					<i class="fa fa-question-circle fa-fw"></i>
-				</span>
-			</div>
-		</div>
-	</div>
-
-
-
-
-	<!--<div class="row">
         <div class="col-md-6">
-            <label>Format:</label> <select class="form-control" ng-model="format" ng-options="f for f in formats"><option></option></select>
+            <div class="sitnet-info-text">Opintojakson nimi:</div>
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid">
+				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
+					<i class="fa fa-question-circle fa-fw"></i>
+				</span>
+            </div>
         </div>
     </div>
 
-    <hr />
-    <button class="btn btn-sm btn-info" ng-click="today()">Today</button>
-    <button class="btn btn-sm btn-default" ng-click="dt = '2009-08-24'">2009-08-24</button>
-    <button class="btn btn-sm btn-success" ng-click="toggleWeeks()" tooltip="For inline datepicker">Toggle Weeks</button>
-    <button class="btn btn-sm btn-danger" ng-click="clear()">Clear</button>
-    <button class="btn btn-sm btn-default" ng-click="toggleMin()" tooltip="After today restriction">Min date</button>-->
+    <!-- Course scope and organization name input elements -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Opintojakson laajuus:</div>
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid" placeholder="opintopistettä">
+				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
+					<i class="fa fa-question-circle fa-fw"></i>
+				</span>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Organisaatio/tiedekunta:</div>
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid">
+				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
+					<i class="fa fa-question-circle fa-fw"></i>
+				</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Room name and exam length input elements -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Suorituspaikka:</div>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
+                            class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Huone1</a></li>
+                        <li><a href="#">Huone2</a></li>
+                        <li><a href="#">Huone3</a></li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Tentin kesto:</div>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
+                            class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">0,5h</a></li>
+                        <li><a href="#">1h</a></li>
+                        <li><a href="#">1,5h</a></li>
+                        <li><a href="#">2h</a></li>
+                        <li><a href="#">2,5h</a></li>
+                        <li><a href="#">3h</a></li>
+                        <li><a href="#">3,5h</a></li>
+                        <li><a href="#">4h</a></li>
+                        <li><a href="#">4,5h</a></li>
+                        <li><a href="#">5h</a></li>
+                        <li><a href="#">5,5h</a></li>
+                        <li><a href="#">6h</a></li>
+                        <li><a href="#">6,5h</a></li>
+                        <li><a href="#">7h</a></li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam inspector and exam score scale input elements -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Tarkastaja:</div>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
+                            class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Pentti Hilkuri</a></li>
+                        <li><a href="#">Arvon Penaali</a></li>
+                        <li><a href="#">Pasi Kuikka</a></li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Arvosana-asteikko:</div>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
+                            class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">1-3</a></li>
+                        <li><a href="#">1-5</a></li>
+                        <li><a href="#">Mitä näitä nyt on Virrassa?</a></li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam and answer language input elements -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Kokeen kieli:</div>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
+                            class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Englanti</a></li>
+                        <li><a href="#">Ruotsi</a></li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Vastauskieli:</div>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
+                            class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Englanti</a></li>
+                        <li><a href="#">Ruotsi</a></li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control">
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam material and quidance input elements -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Materiaali:</div>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
+                            class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Englanti</a></li>
+                        <li><a href="#">Ruotsi</a></li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Ohjeistus:</div>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
+                            class="caret"></span></button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Englanti</a></li>
+                        <li><a href="#">Ruotsi</a></li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control">
+            </div>
+        </div>
+    </div>
+
 </div>

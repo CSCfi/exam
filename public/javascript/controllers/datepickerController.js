@@ -3,6 +3,7 @@
     angular.module("sitnet.controllers")
         .controller('DatepickerCtrl', ['$scope',
         function ($scope) {
+
             $scope.today = function () {
                 $scope.startDate = new Date();
                 $scope.endDate = new Date();
