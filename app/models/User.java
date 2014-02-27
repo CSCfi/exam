@@ -15,17 +15,17 @@ public class User extends Model {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Constraints.Required
+//    @Constraints.Required
     @Formats.NonEmpty
     private String email;
 
-    @Constraints.Required
+//    @Constraints.Required
     private String lastName;
 
-    @Constraints.Required
+//    @Constraints.Required
     private String firstName;
 
-    @Constraints.Required
+//    @Constraints.Required
     private String password;
 
     @OneToMany(cascade = CascadeType.ALL)

@@ -51,4 +51,12 @@ public class ExamSection extends SitnetModel {
 		this.exam = exam;
 	}
 
+    @Override
+    public String toString() {
+        return "ExamSection{" +
+                "questions=" + questions +
+                ", exam=" + exam +
+                ", totalScore=" + totalScore +
+                '}';
+    }
 }

@@ -16,7 +16,6 @@ import play.data.validation.Constraints;
 public class Exam extends SitnetModel {
 
 	// Tentti liittyy Opintojaksoon
-	@Constraints.Required
 	@ManyToOne
 	private Course course;	
 	

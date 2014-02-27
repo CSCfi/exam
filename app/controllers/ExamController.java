@@ -3,15 +3,17 @@ package controllers;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
-import com.fasterxml.jackson.databind.JsonNode;
-import models.*;
+import models.Exam;
+import models.ExamEvent;
+import models.ExamSection;
+import models.User;
 import play.Logger;
+import play.api.libs.json.JsPath;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
-import play.mvc.BodyParser;
 import play.mvc.Result;
-import java.sql.Timestamp;
+
 import java.util.Date;
 import java.util.List;
 
@@ -29,15 +31,13 @@ public class ExamController extends SitnetController {
     }
 
     //  @Authenticate
-    @BodyParser.Of(BodyParser.Json.class)
-    public static Result createExam() throws MalformedDataException {
+//    @BodyParser.Of(BodyParser.Json.class)
+    public static Result createExam() throws MalformedDataException, UnauthorizedAccessException {
     	Logger.debug("createExam()");
 
         Exam ex = bindForm(Exam.class);
 
         Logger.debug(ex.toString());
-
-
 
 //
 //        JsonNode json = request().body().asJson();

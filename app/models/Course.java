@@ -103,5 +103,17 @@ public class Course extends Model {
 	public void setType(CourseType type) {
 		this.type = type;
 	}
-	
+
+    @Override
+    public String toString() {
+        return "Course{" +
+                "id=" + id +
+                ", organisation=" + organisation +
+                ", code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", responsibleTeacher=" + responsibleTeacher +
+                ", type=" + type +
+                ", credits=" + credits +
+                '}';
+    }
 }

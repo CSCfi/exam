@@ -12,7 +12,7 @@ public class Role extends Model {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Constraints.Required
+//    @Constraints.Required
     private String role;
 
     public Long getId() {

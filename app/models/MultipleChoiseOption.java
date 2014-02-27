@@ -51,6 +51,14 @@ public class MultipleChoiseOption extends Model {
 	public void setScore(Double score) {
 		this.score = score;
 	}
-    
-    
+
+    @Override
+    public String toString() {
+        return "MultipleChoiseOption{" +
+                "id=" + id +
+                ", option='" + option + '\'' +
+                ", correctOption=" + correctOption +
+                ", score=" + score +
+                '}';
+    }
 }
