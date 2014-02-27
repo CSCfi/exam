@@ -55,5 +55,6 @@
     "sitnet_user_preferences": "User preferences",
     "sitnet_user_language_change" : "User language selection",
 
-    "sitnet_welcome" : "Welcome"
+    "sitnet_welcome" : "Welcome",
+    "sitnet_settings": "Settings"
 }

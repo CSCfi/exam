@@ -57,7 +57,6 @@
     "sitnet_user_preferences": "Käyttäjäasetukset",
     "sitnet_user_language_change" : "Käyttäjän kielen valinta",
 
-    "sitnet_welcome" : "Tervetuloa"
-
-
+    "sitnet_welcome" : "Tervetuloa",
+    "sitnet_settings": "Asetukset"
 }

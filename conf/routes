@@ -29,9 +29,9 @@ GET           /courses             controllers.CourseController.getCourses()
 
 ############### Question interface ###############
 
-GET			/questions			controllers.QuestionController.getQuestions()
-POST		/questions			controllers.QuestionController.addQuestion()
-
+GET			  /questions			controllers.QuestionController.getQuestions()
+POST		  /questions		    controllers.QuestionController.addQuestion()
+DELETE        /questions/:id        controllers.QuestionController.deleteQuestion(id: Long)
 
 
 GET           /assets/*file        controllers.Assets.at(path="/public", file)

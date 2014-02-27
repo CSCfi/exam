@@ -30,18 +30,18 @@
             };
             $scope.toggleMin();
 
-            $scope.open1 = function ($event) {
+            $scope.openStartDate = function ($event) {
                 $event.preventDefault();
                 $event.stopPropagation();
 
-                $scope.opened1 = true;
+                $scope.startDateOpened = true;
             };
 
-            $scope.open2 = function ($event) {
+            $scope.openEndDate = function ($event) {
                 $event.preventDefault();
                 $event.stopPropagation();
 
-                $scope.opened2 = true;
+                $scope.endDateOpened = true;
             };
 
             $scope.dateOptions = {

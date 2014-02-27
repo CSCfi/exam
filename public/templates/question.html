@@ -1,85 +1,89 @@
 <div id="question-editor" ng-controller="QuestionCtrl" xmlns="http://www.w3.org/1999/html">
-	<h2>{{'sitnet_questions_new' | translate}}</h2>
-	<div class="col-md-8">
-		<div class="base">
-			<div class="form-group">
-				<div class="row">
-					<!-- Question header -->
-					<div class="question-header">
-						<h4>
+    <h2>{{'sitnet_questions_new' | translate}}</h2>
+
+    <div class="col-md-8">
+        <div class="base">
+            <div class="form-group">
+                <div class="row">
+
+                    <!-- Question header -->
+                    <div class="question-header">
+                        <h4>
 							<span class="editable" ng-hide="showDetails" ng-click="showDetails = !showDetails">
 								<i class="fa fa-list-ul fa-1x"></i>
-								{{newQuestion.question}}
+								    {{newQuestion.question}}
 								<i class="fa fa-pencil"></i>
 							</span>
-							<span class="pull-right fa-stack fa-lg dropdown" ng-click="editSection(section)">
-								<a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-								</a>
+							<!-- Icon and background for cog -->
+                            <span class="pull-right fa-stack fa-lg dropdown" ng-click="editSection(section)">
+								<a class="dropdown-toggle">
+                                    <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
+                                    <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
+                                </a>
 								<ul class="dropdown-menu">
-									<li><a class="pointer-hand">Asetukset</a></li>
-									<li><a ng-click="removeSection(section)" class="pointer-hand">Poista</a></li>
-								</ul>
+                                    <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
+                                    <li><a ng-click="removeSection(section)" class="pointer-hand">Poista</a></li>
+                                </ul>
 							</span>
+                            <!-- Icon and background for chevron -->
 							<span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
 								<i class="sitnet-grey fa fa-square fa-stack-2x"></i>
 								<i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'" class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
 							</span>
-							<div ng-show="showDetails">
-								<form class="form-inline" role="form">
-									<div class="form-group">
-										<input type="text" class="form-control input-lg" ng-model="newQuestion.question" autofocus>
-									</div>
-									<button class="btn btn-primary" ng-click="showDetails = !showDetails">
-										<i class="fa fa-check"></i>
-									</button>
-								</form>
-							</div>
-						</h4> </div>
-					<hr>
-					<!-- Question fields -->
+                            <div ng-show="showDetails">
+                                <form class="form-inline" role="form">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control input-lg" ng-model="newQuestion.question" autofocus>
+                                    </div>
+                                    <button class="btn btn-primary" ng-click="showDetails = !showDetails">
+                                        <i class="fa fa-check"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </h4>
+                    </div>
+                    <hr>
 
-					<div>
-						<span class="sitnet-info-text"> Kysymykseen liittyvä aputeksti/liitetiedosto</span>
+                    <!-- Question fields -->
+                    <div>
+                        <span class="sitnet-info-text"> Kysymykseen liittyvä aputeksti/liitetiedosto</span>
 
                         <span class="editable inline" ng-hide="showAputeksti" ng-click="showAputeksti = !showAputeksti">
-                             <h4>{{newQuestion.instruction}} <i class="fa fa-pencil"></i>
+                             <h4>{{newQuestion.instruction}}
+                                 <i class="fa fa-pencil"></i>
                              </h4>
                         </span>
+
                         <div ng-show="showAputeksti">
                             <form class="form-inline" role="form">
                                 <div class="row">
-                                <div class="form-group  col-md-6">
-                                    <input type="text" class="form-control input-lg" ng-model="newQuestion.instruction" autofocus>
+                                    <div class="form-group  col-md-6">
+                                        <input type="text" class="form-control input-lg" ng-model="newQuestion.instruction" autofocus>
+                                    </div>
+                                    <button class="btn btn-primary" ng-click="showAputeksti = !showAputeksti">
+                                        <i class="fa fa-check"></i>
+                                    </button>
                                 </div>
-                                <button class="btn btn-primary" ng-click="showAputeksti = !showAputeksti">
-                                    <i class="fa fa-check"></i>
-                                </button>
-                                </div>
-
                             </form>
                         </div>
-						<hr>
-						<form class="form-inline" role="form">
-							<div class="" ng-repeat="option in newQuestion.options">
-								<div class="" ng-include="newOptionTemplate"></div>
-							</div>
-						</form>
+                        <hr>
+                        <form class="form-inline" role="form">
+                            <div class="" ng-repeat="option in newQuestion.options">
+                                <div class="" ng-include="newOptionTemplate"></div>
+                            </div>
+                        </form>
 						<span ng-click="addNewOption(newQuestion)" class="create-new">
 							<i class="fa fa-plus-circle"></i>
 							{{'sitnet_question_add_new_option'|translate}}
 						</span>
-					</div>
-
-
-				</div>
-			</div>
-
-
-			<!-- 			<div class="section" ui-on-Drop="onDrop($event, $data, section.questions)" ng-include="sectionPath" ng-repeat="section in sections"></div> -->
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="section" ui-on-Drop="onDrop($event, $data, section.questions)" ng-include="sectionPath" ng-repeat="section in sections"></div> -->
             <hr>
             <span class="sitnet-info-text">Pisteet:</span>
             <!--<div class="">-->
-                <input type="text" class="form-control " placeholder="Oikean vastauksen pisteytys">
+            <input type="text" class="form-control " placeholder="Oikean vastauksen pisteytys">
             <!--</div>-->
             <br>
             <span class="sitnet-info-text">Arviointikriteerit:</span>
@@ -87,31 +91,36 @@
 
             <span class="sitnet-info-text">Arviointifraasit:</span>
             <textarea class="form-control" rows="3"></textarea>
-		</div>
-		<button ng-click="saveQuestion()" type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
-		<button ng-click="" type="submit" class="btn btn-danger pull-right">{{'sitnet_remove' | translate}}</button>
-	</div>
+        </div>
+        <button ng-click="saveQuestion()" type="submit" class="btn btn-success pull-right">{{'sitnet_save' |
+            translate}}
+        </button>
+        <button ng-click="" type="submit" class="btn btn-danger pull-right">{{'sitnet_remove' | translate}}</button>
+    </div>
 
 
-	<!-- Library  -->
-	<div id="library" class="col-md-4">
-		<div class="library-header">
-			<h4>
-				<i class="fa fa-briefcase"></i>
-				{{'sitnet_library' | translate}}
-			</h4>
-		</div>
-		<div class="library" ng-controller="LibraryCtrl">
-			<div class="input-group">
-				<input ng-model="selected" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+    <!-- Library  -->
+    <div id="library" class="col-md-4">
+        <div class="library-header">
+            <h4>
+                <i class="fa fa-briefcase"></i>
+                {{'sitnet_library' | translate}}
+            </h4>
+        </div>
+        <div class="library" ng-controller="LibraryCtrl">
+            <div class="input-group">
+                <input ng-model="selected" type="text" class="form-control"
+                       placeholder="{{'sitnet_search' | translate }}">
 				<span class="input-group-addon">
 					<i class="fa fa-search fa-fw"></i>
 				</span>
-			</div>
-			<ul class="list-group results">
-				<li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question"><i
-						class="fa fa-2x fa-fw {{question.icon}}"></i> <span class="menu-item" ndel="question.question">{{question.question}}</span></li>
-			</ul>
-		</div>
-	</div>
+            </div>
+            <ul class="list-group results">
+                <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected"
+                    drag="question"><i
+                        class="fa fa-2x fa-fw {{question.icon}}"></i> <span class="menu-item" ndel="question.question">{{question.question}}</span>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>

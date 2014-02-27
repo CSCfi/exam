@@ -10,32 +10,36 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="base">
+<div id="questions">
+    <div class="row">
+        <div class="base">
+            <div class="col-md-6">
+                <h2>{{'sitnet_exams_created_by' | translate}} (Käyttäjänimi){{username}}</h2>
+
+                <div class="list-group">
+                    <a ng-repeat="exam in exams" href="#/exams/{{exam.id}}" class="list-group-item">
+                        <h4 class="list-group-item-heading">{{exam.course.code}}</h4>
+
+                        <p class="list-group-item-text">{{exam.name}}</p>
+                    </a>
+                </div>
+            </div>
+        </div>
         <div class="col-md-6">
-            <h2>{{'sitnet_exams_created_by' | translate}} (Käyttäjänimi){{username}}</h2>
+            <h2>{{'sitnet_exams_needing_attention' | translate}}</h2>
 
             <div class="list-group">
-                <a ng-repeat="exam in exams" href="#/exams/{{exam.id}}" class="list-group-item">
-                    <h4 class="list-group-item-heading">{{exam.course.code}}</h4>
+                <a href="#" class="list-group-item active">
+                    <h4 class="list-group-item-heading">Soveltavan Yrtinviljelyn perusteet</h4>
 
-                    <p class="list-group-item-text">{{exam.name}}</p>
-            </a>
-        </div>
-    </div>
-    </div>
-    <div class="col-md-6">
-        <h2>{{'sitnet_exams_needing_attention' | translate}}</h2>
-        <div class="list-group">
-            <a href="#" class="list-group-item active">
-                <h4 class="list-group-item-heading">Soveltavan Yrtinviljelyn perusteet</h4>
-                <p class="list-group-item-text">Tentti 1</p>
-            </a>
-            <a href="#" class="list-group-item">
-                <h4 class="list-group-item-heading">Jäkälän syventävät opinnot</h4>
-                <p class="list-group-item-text">Tentti 1</p>
-            </a>
+                    <p class="list-group-item-text">Tentti 1</p>
+                </a>
+                <a href="#" class="list-group-item">
+                    <h4 class="list-group-item-heading">Jäkälän syventävät opinnot</h4>
+
+                    <p class="list-group-item-text">Tentti 1</p>
+                </a>
+            </div>
         </div>
     </div>
 </div>
-

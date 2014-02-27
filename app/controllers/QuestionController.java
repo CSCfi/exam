@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.List;
 
+import Exceptions.MalformedDataException;
 import models.Question;
 import play.Logger;
 import play.libs.Json;
@@ -25,16 +26,24 @@ public class QuestionController extends SitnetController {
   @BodyParser.Of(BodyParser.Json.class)
   public static Result addQuestion() {
 
-	  JsonNode json = request().body().asJson();
-	  String question = json.findPath("question").toString();
+      Question question = null;
+      try {
+          question = bindForm(Question.class);
+      } catch (MalformedDataException e) {
+          e.printStackTrace();
+      }
 
-	  Logger.debug(json.toString());
-	  
-	  if(question == null) {
-	    return badRequest("Missing parameter [question]");
-	  } else {
-	    return ok("Hello " + question);
-	  }
-	  
+      Logger.debug(question.toString());
+
+      Ebean.save(question);
+      return ok(Json.toJson(question.getId()));
   }
+
+    @BodyParser.Of(BodyParser.Json.class)
+    public static Result deleteQuestion(Long id) {
+
+    Ebean.delete(Question.class, id);
+
+    return ok("Question deleted from database!");
+    }
 }
