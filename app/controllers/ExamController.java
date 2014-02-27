@@ -2,18 +2,12 @@ package controllers;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import models.Course;
-import models.Exam;
-import models.ExamSection;
-import models.User;
+import models.*;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
-import play.mvc.BodyParser;
 import play.mvc.Result;
-import actions.Authenticate;
 
 import com.avaje.ebean.Ebean;
 
@@ -100,5 +94,11 @@ public class ExamController extends SitnetController {
         return ok("section created");
     }
 
+    //  @Authenticate
+    public static Result getExamEvents() {
+
+        List<ExamEvent> examEvents = Ebean.find(ExamEvent.class).findList();
+        return ok(Json.toJson(examEvents));
+    }
 
 }

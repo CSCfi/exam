@@ -21,7 +21,6 @@
                    class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
 			</span>
         </div>
-
     </h4>
 </div>
 
@@ -71,10 +70,9 @@
         </div>
     </div>
 
-
 	<div class="row">
 		<div class="col-md-6">
-			<span class="sitnet-info-text">Opintojakson koodi:</span>
+			<div class="sitnet-info-text">Opintojakson koodi:</div>
 			<div class="input-group">
 				<input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.code">
 				<span class="input-group-addon" ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
@@ -86,7 +84,7 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">Opintojakson nimi:</div>
             <div class="input-group">
-                <input type="text" class="form-control ng-pristine ng-valid">
+                <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.name">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
@@ -99,7 +97,8 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">Opintojakson laajuus:</div>
             <div class="input-group">
-                <input type="text" class="form-control ng-pristine ng-valid" placeholder="opintopistettä">
+                <!-- placeholder="opintopistettä" -->
+                <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
@@ -109,7 +108,7 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">Organisaatio/tiedekunta:</div>
             <div class="input-group">
-                <input type="text" class="form-control ng-pristine ng-valid">
+                <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.organisation">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
@@ -123,15 +122,13 @@
             <div class="sitnet-info-text">Suorituspaikka:</div>
             <div class="input-group">
                 <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" data-target="">Valitse<span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Huone1</a></li>
-                        <li><a href="#">Huone2</a></li>
-                        <li><a href="#">Huone3</a></li>
+                        <li ng-repeat="room in examRooms" ng-value="{{room}}" ng-click="setExamRoom(room)"><a class="pointer-hand">{{room}}</a></li>
                     </ul>
                 </div>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" ng-model="newExamEvent.room">
             </div>
         </div>
 
@@ -142,23 +139,10 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#">0,5h</a></li>
-                        <li><a href="#">1h</a></li>
-                        <li><a href="#">1,5h</a></li>
-                        <li><a href="#">2h</a></li>
-                        <li><a href="#">2,5h</a></li>
-                        <li><a href="#">3h</a></li>
-                        <li><a href="#">3,5h</a></li>
-                        <li><a href="#">4h</a></li>
-                        <li><a href="#">4,5h</a></li>
-                        <li><a href="#">5h</a></li>
-                        <li><a href="#">5,5h</a></li>
-                        <li><a href="#">6h</a></li>
-                        <li><a href="#">6,5h</a></li>
-                        <li><a href="#">7h</a></li>
+                        <li ng-repeat="duration in examDurations" ng-value="{{duration}}" ng-click="setExamDuration(duration)"><a class="pointer-hand">{{duration}}</a></li>
                     </ul>
                 </div>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" ng-model="newExamEvent.duration">
             </div>
         </div>
     </div>
@@ -172,12 +156,10 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Pentti Hilkuri</a></li>
-                        <li><a href="#">Arvon Penaali</a></li>
-                        <li><a href="#">Pasi Kuikka</a></li>
+                        <li ng-repeat="inspector in examInspectors" ng-value="{{inspector}}" ng-click="setExamInspector(inspector)"><a class="pointer-hand">{{inspector}}</a></li>
                     </ul>
                 </div>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" ng-model="newExamEvent.inspector">
             </div>
         </div>
 
@@ -188,12 +170,10 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#">1-3</a></li>
-                        <li><a href="#">1-5</a></li>
-                        <li><a href="#">Mitä näitä nyt on Virrassa?</a></li>
+                        <li ng-repeat="grading in examGradings" ng-value="{{grading}}" ng-click="setExamGrading(grading)"><a class="pointer-hand">{{grading}}</a></li>
                     </ul>
                 </div>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" ng-model="newExamEvent.grading">
             </div>
         </div>
     </div>
@@ -207,11 +187,10 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Englanti</a></li>
-                        <li><a href="#">Ruotsi</a></li>
+                        <li ng-repeat="language in examLanguages" ng-value="{{language}}" ng-click="setExamLanguage(language)"><a class="pointer-hand">{{language}}</a></li>
                     </ul>
                 </div>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" ng-model="newExamEvent.language">
             </div>
         </div>
 
@@ -222,11 +201,10 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li><a href="#">Englanti</a></li>
-                        <li><a href="#">Ruotsi</a></li>
+                        <li ng-repeat="answerLanguage in examAnswerLanguages" ng-value="{{answerLanguage}}" ng-click="setExamAnswerLanguage(answerLanguage)"><a class="pointer-hand">{{answerLanguage}}</a></li>
                     </ul>
                 </div>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control" ng-model="newExamEvent.answerLanguage">
             </div>
         </div>
     </div>
@@ -237,29 +215,20 @@
             <div class="sitnet-info-text">Materiaali:</div>
             <div class="input-group">
                 <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
-                            class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Englanti</a></li>
-                        <li><a href="#">Ruotsi</a></li>
-                    </ul>
+                    <div file-browser>
+                        <input type="file" class="form-control" name="Selaa">
+                    </div>
                 </div>
-                <input type="text" class="form-control">
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="sitnet-info-text">Ohjeistus:</div>
             <div class="input-group">
-                <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
-                            class="caret"></span></button>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Englanti</a></li>
-                        <li><a href="#">Ruotsi</a></li>
-                    </ul>
-                </div>
-                <input type="text" class="form-control">
+                <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExamEvent.guidance">
+				<span class="input-group-addon" title="Ohjeet ohjeistuksen lisäämiseen.">
+					<i class="fa fa-question-circle fa-fw"></i>
+				</span>
             </div>
         </div>
     </div>

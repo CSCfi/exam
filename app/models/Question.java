@@ -10,123 +10,130 @@ import javax.persistence.OneToMany;
 @Entity
 public class Question extends SitnetModel {
 
-	public static enum QuestionType {
+    public static enum QuestionType {
 
-		MULTIPLE_CHOICE_ONE_CORRECT,
-		MULTIPLE_CHOICE_SEVERAL_CORRECT,
-		ESSAY,
+        MULTIPLE_CHOICE_ONE_CORRECT,
+        MULTIPLE_CHOICE_SEVERAL_CORRECT,
+        ESSAY,
 
-	}
+    }
 
-	private QuestionType type;
+    private QuestionType type;
 
-	private String question;
+    private String question;
 
-	private boolean shared;
+    private boolean shared;
 
     private String instruction;
 
     @OneToMany(cascade = CascadeType.ALL)
-	private List<Material> materials;
+    private List<Material> materials;
 
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<Answer> answers;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Answer> answers;
 
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<EvaluationPhrase> evaluationPhrases;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<EvaluationPhrase> evaluationPhrases;
 
-	@ManyToMany(cascade = CascadeType.ALL)
-	private List<EvaluationCriteria> evaluationCriterias;
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<EvaluationCriteria> evaluationCriterias;
 
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<Comment> comments;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Comment> comments;
 
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<MultipleChoiseOption> options;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<MultipleChoiseOption> options;
 
-	
-	
-	public QuestionType getType() {
-		return type;
-	}
 
-	public void setType(QuestionType type) {
-		this.type = type;
-	}
+    public QuestionType getType() {
+        return type;
+    }
 
-	public String getQuestion() {
-		return question;
-	}
+    public void setType(QuestionType type) {
+        this.type = type;
+    }
 
-	public void setQuestion(String question) {
-		this.question = question;
-	}
+    public String getQuestion() {
+        return question;
+    }
 
-	public boolean isShared() {
-		return shared;
-	}
+    public void setQuestion(String question) {
+        this.question = question;
+    }
 
-	public void setShared(boolean shared) {
-		this.shared = shared;
-	}
+    public boolean isShared() {
+        return shared;
+    }
 
-	public List<Material> getMaterials() {
-		return materials;
-	}
+    public void setShared(boolean shared) {
+        this.shared = shared;
+    }
 
-	public void setMaterials(List<Material> materials) {
-		this.materials = materials;
-	}
+    public String getInstruction() {
+        return instruction;
+    }
 
-	public List<Answer> getAnswers() {
-		return answers;
-	}
+    public void setInstruction(String instruction) {
+        this.instruction = instruction;
+    }
 
-	public void setAnswers(List<Answer> answers) {
-		this.answers = answers;
-	}
+    public List<Material> getMaterials() {
+        return materials;
+    }
 
-	public List<EvaluationPhrase> getEvaluationPhrases() {
-		return evaluationPhrases;
-	}
+    public void setMaterials(List<Material> materials) {
+        this.materials = materials;
+    }
 
-	public void setEvaluationPhrases(List<EvaluationPhrase> evaluationPhrases) {
-		this.evaluationPhrases = evaluationPhrases;
-	}
+    public List<Answer> getAnswers() {
+        return answers;
+    }
 
-	public List<EvaluationCriteria> getEvaluationCriterias() {
-		return evaluationCriterias;
-	}
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
+    }
 
-	public void setEvaluationCriterias(
-			List<EvaluationCriteria> evaluationCriterias) {
-		this.evaluationCriterias = evaluationCriterias;
-	}
+    public List<EvaluationPhrase> getEvaluationPhrases() {
+        return evaluationPhrases;
+    }
 
-	public List<Comment> getComments() {
-		return comments;
-	}
+    public void setEvaluationPhrases(List<EvaluationPhrase> evaluationPhrases) {
+        this.evaluationPhrases = evaluationPhrases;
+    }
 
-	public void setComments(List<Comment> comments) {
-		this.comments = comments;
-	}
+    public List<EvaluationCriteria> getEvaluationCriterias() {
+        return evaluationCriterias;
+    }
 
-	public List<MultipleChoiseOption> getOptions() {
-		return options;
-	}
+    public void setEvaluationCriterias(
+            List<EvaluationCriteria> evaluationCriterias) {
+        this.evaluationCriterias = evaluationCriterias;
+    }
 
-	public void setOptions(List<MultipleChoiseOption> options) {
-		this.options = options;
-	}
+    public List<Comment> getComments() {
+        return comments;
+    }
 
-	@Override
-	public String toString() {
-		return "Question [type=" + type + ", question=" + question
-				+ ", shared=" + shared + ", materials=" + materials
-				+ ", answers=" + answers + ", evaluationPhrases="
-				+ evaluationPhrases + ", evaluationCriterias="
-				+ evaluationCriterias + ", comments=" + comments + ", options="
-				+ options + "]";
-	}
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    public List<MultipleChoiseOption> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<MultipleChoiseOption> options) {
+        this.options = options;
+    }
+
+    @Override
+    public String toString() {
+        return "Question [type=" + type + ", question=" + question
+                + ", shared=" + shared + ", materials=" + materials
+                + ", answers=" + answers + ", evaluationPhrases="
+                + evaluationPhrases + ", evaluationCriterias="
+                + evaluationCriterias + ", comments=" + comments + ", options="
+                + options + "]";
+    }
 
 }

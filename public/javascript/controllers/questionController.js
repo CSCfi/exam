@@ -37,8 +37,7 @@
                 });
             	
             };
-            
-            
+
             $scope.addNewOption = function (newQuestion) {
             	$scope.newQuestion.options.push({
             		id: $scope.newQuestion.options.length + 1,

@@ -377,12 +377,17 @@ examsections:
               - *avaruus10
               - *avaruus11
     totalScore:
-  
-      
+
+examevents:
+
+  - &event1 !!models.ExamEvent
+    duration: 1
+    inspectors:
+    state:
 
 exams:
 
-  - !!models.Exam
+  - &astronomianPerusteet !!models.Exam
     course: *765104P
     name: Astronomian perusteet
     examType:
@@ -390,6 +395,7 @@ exams:
     shared: false
     examSections:
               - *astro1
+    examEvent: !!models.ExamEvent {id: 1}
     
   - !!models.Exam
     course: *alkeet
@@ -424,6 +430,3 @@ exams:
     shared: true
     examSections:
                 - *osio1
-                
-                
-    
