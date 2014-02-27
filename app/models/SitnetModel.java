@@ -2,11 +2,7 @@ package models;
 
 import java.sql.Timestamp;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 
 import play.db.ebean.Model;
 
@@ -23,7 +19,7 @@ public class SitnetModel extends play.db.ebean.Model {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Long id;
+    private Long id;
 	
 	private Timestamp created;
 	

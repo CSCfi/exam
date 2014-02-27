@@ -20,20 +20,20 @@
 
                 // Todo: Fill in durations from database for final version
                 $scope.examDurations = [
-                    "0.5h",
-                    "1.0h",
-                    "1.5h",
-                    "2.0h",
-                    "2.5h",
-                    "3.0h",
-                    "3.5h",
-                    "4.0h",
-                    "4.5h",
-                    "5.0h",
-                    "5.5h",
-                    "6.0h",
-                    "6.5h",
-                    "7.0h"
+                    "0.5",
+                    "1.0",
+                    "1.5",
+                    "2.0",
+                    "2.5",
+                    "3.0",
+                    "3.5",
+                    "4.0",
+                    "4.5",
+                    "5.0",
+                    "5.5",
+                    "6.0",
+                    "6.5",
+                    "7.0"
                 ];
 
                 // Todo: Fill in inspectors from database for final version
@@ -70,7 +70,7 @@
                     "modified": null,
                     "modifier": null,
                     "course": {
-                        "organisation": "Tietojenkäsittelytieteiden Laitos",
+                        "organisation": null,
                         "code": "811380A",
                         "name": "Tietokantojen perusteet",
                         "responsibleTeacher": null,
@@ -152,6 +152,7 @@
                 $scope.saveExam = function () {
                     $scope.newExam.examSections = $scope.sections;
                     $scope.newExam.examEvent= $scope.newExamEvent;
+
 
 
                     ExamRes.save($scope.newExam,  function (newExam) {

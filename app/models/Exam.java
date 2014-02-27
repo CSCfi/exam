@@ -35,26 +35,13 @@ public class Exam extends SitnetModel {
 	
 //	@OneToMany(cascade = CascadeType.REMOVE, mappedBy="exam")
 //	@OneToMany(cascade = CascadeType.ALL, mappedBy="exam")
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.PERSIST)
 	private List<ExamSection> examSections;
 
 
     @OneToOne
     private ExamEvent examEvent;
 
-    public Exam( ) {
-        super();
-    }
-
-	public Exam(Course course) {
-		super();
-		this.course = course;
-	}
-
-	public Exam(User creator, Course course) {
-		super(creator);
-		this.course = course;
-	}
 
 	public String getName() {
 		return name;

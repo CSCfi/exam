@@ -16,7 +16,7 @@ public class Question extends SitnetModel {
 
     }
 
-    private QuestionType type;
+     private QuestionType type;
 
     private String question;
 
@@ -24,19 +24,19 @@ public class Question extends SitnetModel {
 
     private String instruction;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.PERSIST)
     private List<Material> materials;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.PERSIST)
     private List<Answer> answers;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.PERSIST)
     private List<EvaluationPhrase> evaluationPhrases;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.PERSIST)
     private List<EvaluationCriteria> evaluationCriterias;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.PERSIST)
     private List<Comment> comments;
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -136,6 +136,7 @@ public class Question extends SitnetModel {
         this.hash = DigestUtils.md5Hex(attributes);
         return hash;
     }
+
     @Override
     public String toString() {
         return "Question [type=" + type + ", question=" + question

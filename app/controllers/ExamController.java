@@ -1,20 +1,16 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
-import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
-import models.Exam;
-import models.ExamEvent;
-import models.ExamSection;
-import models.User;
+import com.avaje.ebean.EbeanServerFactory;
+import models.*;
 import play.Logger;
-import play.api.libs.json.JsPath;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import views.html.helper.options;
 
-import java.util.Date;
 import java.util.List;
 
 public class ExamController extends SitnetController {
@@ -32,13 +28,40 @@ public class ExamController extends SitnetController {
 
     //  @Authenticate
 //    @BodyParser.Of(BodyParser.Json.class)
-    public static Result createExam() throws MalformedDataException, UnauthorizedAccessException {
+    public static Result createExam() throws MalformedDataException {
     	Logger.debug("createExam()");
 
         Exam ex = bindForm(Exam.class);
+        ex.setId(null);
+
+        List<ExamSection> examSections = ex.getExamSections();
+        for (ExamSection es : examSections) {
+            es.setId(null);
+            es.save();
+
+            List<Question> questions = es.getQuestions();
+            for (Question q : questions) {
+                q.setId(null);
+                q.save();
+
+                Question.QuestionType type = q.getType();
+                switch (type)
+                {
+                    case MULTIPLE_CHOICE_ONE_CORRECT:
+                    {
+                        List<MultipleChoiseOption> options = q.getOptions();
+                        for(MultipleChoiseOption o : options)
+                        {
+                            o.setId(null);
+                        }
+                    } break;
+
+                }
+            }
+        }
 
         Logger.debug(ex.toString());
-
+        ex.save();
 //
 //        JsonNode json = request().body().asJson();
 //
