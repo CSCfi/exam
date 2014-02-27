@@ -1,11 +1,9 @@
 package models;
 
-import java.util.List;
+import org.apache.commons.codec.digest.DigestUtils;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Question extends SitnetModel {
@@ -44,6 +42,8 @@ public class Question extends SitnetModel {
     @OneToMany(cascade = CascadeType.ALL)
     private List<MultipleChoiseOption> options;
 
+    @Column(length=32)
+    private String hash;
 
     public QuestionType getType() {
         return type;
@@ -126,6 +126,16 @@ public class Question extends SitnetModel {
         this.options = options;
     }
 
+    public String getHash() {
+        return hash;
+    }
+
+    public String generateHash() {
+
+        String attributes = question + instruction;
+        this.hash = DigestUtils.md5Hex(attributes);
+        return hash;
+    }
     @Override
     public String toString() {
         return "Question [type=" + type + ", question=" + question

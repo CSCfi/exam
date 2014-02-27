@@ -5,6 +5,7 @@ import java.util.Map;
 import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
+import models.Question;
 import models.User;
 import play.Application;
 import play.GlobalSettings;
@@ -70,6 +71,13 @@ public class Global extends GlobalSettings {
                 Ebean.save(all.get("examsections"));
                 Ebean.save(all.get("examevents"));
                 Ebean.save(all.get("exams"));
+
+                // generate hashes for questions
+                List<Question> questions = (List)all.get("questions");
+                for (Question q : questions){
+                    q.generateHash();
+                }
+                Ebean.save(questions);
             }
         }
     }
