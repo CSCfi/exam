@@ -6,7 +6,7 @@
 				<i class="fa fa-bars"></i>
 				<i class="fa fa-stack-1x">{{section.id}}</i>
 			</span>
-            <span ng-click="">Tentin yleistiedot </span>
+            <span ng-click="">Tentin yleistiedot</span>
 			<span class="pull-right fa-stack fa-lg dropdown" ng-click="">
 				<a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
                         class="sitnet-white fa fa-cog fa-stack-1x"></i>
@@ -38,7 +38,7 @@
                        max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
                        ng-required="true" close-text="Close"/>
 				<span class="input-group-btn">
-					<button class="btn btn-default" ng-click="open1($event)">
+					<button class="btn btn-default" ng-click="openStartDate($event)">
                         <i class="fa fa-calendar"></i>
                     </button>
 				</span>
@@ -125,7 +125,7 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" data-target="">Valitse<span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="room in examRooms" ng-value="{{room}}" ng-click="setExamRoom(room)"><a class="pointer-hand">{{room}}</a></li>
+                        <li ng-repeat="room in examRooms" ng-click="setExamRoom(room)"><a class="pointer-hand">{{room}}</a></li>
                     </ul>
                 </div>
                 <input type="text" class="form-control" ng-model="newExamEvent.room">
@@ -139,7 +139,7 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="duration in examDurations" ng-value="{{duration}}" ng-click="setExamDuration(duration)"><a class="pointer-hand">{{duration}}</a></li>
+                        <li ng-repeat="duration in examDurations" ng-click="setExamDuration(duration)"><a class="pointer-hand">{{duration}}</a></li>
                     </ul>
                 </div>
                 <input type="text" class="form-control" ng-model="newExamEvent.duration">
@@ -156,7 +156,7 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="inspector in examInspectors" ng-value="{{inspector}}" ng-click="setExamInspector(inspector)"><a class="pointer-hand">{{inspector}}</a></li>
+                        <li ng-repeat="inspector in examInspectors" ng-click="setExamInspector(inspector)"><a class="pointer-hand">{{inspector}}</a></li>
                     </ul>
                 </div>
                 <input type="text" class="form-control" ng-model="newExamEvent.inspector">
@@ -170,7 +170,7 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="grading in examGradings" ng-value="{{grading}}" ng-click="setExamGrading(grading)"><a class="pointer-hand">{{grading}}</a></li>
+                        <li ng-repeat="grading in examGradings" ng-click="setExamGrading(grading)"><a class="pointer-hand">{{grading}}</a></li>
                     </ul>
                 </div>
                 <input type="text" class="form-control" ng-model="newExamEvent.grading">
@@ -187,7 +187,7 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="language in examLanguages" ng-value="{{language}}" ng-click="setExamLanguage(language)"><a class="pointer-hand">{{language}}</a></li>
+                        <li ng-repeat="language in examLanguages" ng-click="setExamLanguage(language)"><a class="pointer-hand">{{language}}</a></li>
                     </ul>
                 </div>
                 <input type="text" class="form-control" ng-model="newExamEvent.language">
@@ -201,7 +201,7 @@
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
                             class="caret"></span></button>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="answerLanguage in examAnswerLanguages" ng-value="{{answerLanguage}}" ng-click="setExamAnswerLanguage(answerLanguage)"><a class="pointer-hand">{{answerLanguage}}</a></li>
+                        <li ng-repeat="answerLanguage in examAnswerLanguages" ng-click="setExamAnswerLanguage(answerLanguage)"><a class="pointer-hand">{{answerLanguage}}</a></li>
                     </ul>
                 </div>
                 <input type="text" class="form-control" ng-model="newExamEvent.answerLanguage">

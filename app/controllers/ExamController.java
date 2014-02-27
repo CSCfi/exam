@@ -42,13 +42,20 @@ public class ExamController extends SitnetController {
 //        }
     	
     	DynamicForm df = Form.form().bindFromRequest();
-      	Logger.debug("Exam: " +df.toString());
+//      	Logger.debug("Exam: " +df.toString());
     	Logger.debug("name: " +df.get("name"));
 
+        Logger.debug("Exam room: " +df.get("room"));
+        Logger.debug("Exam duration: " +df.get("duration"));
+        Logger.debug("Exam inspector: " +df.get("inspector"));
+        Logger.debug("Exam grading: " +df.get("grading"));
+        Logger.debug("Exam language: " +df.get("language"));
+        Logger.debug("Exam answer language: " +df.get("answerLanguage"));
+        Logger.debug("Exam guidance: " +df.get("guidance"));
 
 
 //      Logger.debug("olio: "+ df.toString());
-//    	Logger.debug("course Code: " +df.get("courseCode"));
+
 //    	Logger.debug("course Name: " +df.get("courseName"));
 //    	Logger.debug("course Scope: " +df.get("courseScope"));
 //    	Logger.debug("Faculty Name: " +df.get("facultyName"));

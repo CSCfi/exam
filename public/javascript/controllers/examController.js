@@ -65,23 +65,23 @@
                 ];
 
                 $scope.newExam = {
-                        "created": null,
-                        "creator": null,
-                        "modified": null,
-                        "modifier": null,
-                        "course": {
-                            "organisation": "Tietojenkäsittelytieteiden Laitos",
-                            "code": "811380A",
-                            "name": "Tietokantojen perusteet",
-                            "responsibleTeacher": null,
-                            "type": null,
-                            "credits": 7
-                        },
-                        "name": "Kirjoita tentin nimi tähän",
-                        "examType": null,
-                        "instruction": "Tentissä saa käyttää apuna lähdemateriaalia",
-                        "shared": true,
-                        "examSections": []
+                    "created": null,
+                    "creator": null,
+                    "modified": null,
+                    "modifier": null,
+                    "course": {
+                        "organisation": "Tietojenkäsittelytieteiden Laitos",
+                        "code": "811380A",
+                        "name": "Tietokantojen perusteet",
+                        "responsibleTeacher": null,
+                        "type": null,
+                        "credits": 7
+                    },
+                    "name": "Kirjoita tentin nimi tähän",
+                    "examType": null,
+                    "instruction": "Tentissä saa käyttää apuna lähdemateriaalia",
+                    "shared": true,
+                    "examSections": []
                 };
 
                 $scope.newExamEvent = {
@@ -91,6 +91,7 @@
                     "grading": null,
                     "language": null,
                     "answerLanguage": null,
+                    "material": null,
                     "guidance": "Ohjeistus"
                 };
 
@@ -151,14 +152,14 @@
                 $scope.saveExam = function () {
                     $scope.newExam.examSections = $scope.sections;
 
-                    ExamRes.save($scope.newExam, function (newExam) {
+                    ExamRes.save($scope.newExam, $scope.newExamEvent, function (newExam, newExamEvent) {
                         toastr.info("Tentti tallennettu.");
                     });
                 };
 
                 $scope.removeSection = function (section) {
                     if (confirm('Poistetaanko osio?')) {
-                    	$scope.sections.splice($scope.sections.indexOf(section), 1);
+                        $scope.sections.splice($scope.sections.indexOf(section), 1);
                     }
                 }
 
@@ -170,7 +171,7 @@
 
                 $scope.removeQuestion = function (section, question) {
                     if (confirm('Poistetaanko kysymys?')) {
-                    	section.questions.splice(section.questions.indexOf(question), 1);
+                        section.questions.splice(section.questions.indexOf(question), 1);
                     }
                 }
 

@@ -395,7 +395,7 @@ exams:
     shared: false
     examSections:
               - *astro1
-    examEvent: !!models.ExamEvent {id: 1}
+    examEvent: *event1
     
   - !!models.Exam
     course: *alkeet
