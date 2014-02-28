@@ -33,7 +33,7 @@
         <h4>Alkuaika</h4>
 
         <p class="input-group">
-            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="startDate"
+            <input id="startDateField" type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
                    is-open="stardDateOpened" min="minDate"
                    max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
                    ng-required="true" close-text="Close"/>
@@ -49,8 +49,8 @@
         <h4>Loppuaika</h4>
 
         <p class="input-group">
-            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="endDate"
-                   is-open="endDateOpened" min="startDate"
+            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                   is-open="endDateOpened" min="dateService.startDate"
                    max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
                    ng-required="true" close-text="Close"/>
 				<span class="input-group-btn">
@@ -65,7 +65,7 @@
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
         <div>Tentin aikajakso on:
-            <em>{{startDate | date:'fullDate' }} - {{endDate | date:'fullDate' }}</em>
+            <em>{{dateService.startDate | date:'fullDate' }} - {{dateService.endDate | date:'fullDate' }}</em>
         </div>
     </div>
 </div>

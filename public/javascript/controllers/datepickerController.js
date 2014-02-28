@@ -1,12 +1,14 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('DatepickerCtrl', ['$scope',
-        function ($scope) {
+        .controller('DatepickerCtrl', ['$scope', 'dateService',
+        function ($scope, dateService) {
+
+            $scope.dateService = dateService;
 
             $scope.today = function () {
-                $scope.startDate = new Date();
-                $scope.endDate = new Date();
+                $scope.dateService.startDate = new Date();
+                $scope.dateService.endDate = new Date();
             };
             $scope.today();
 
@@ -16,8 +18,8 @@
             };
 
             $scope.clear = function () {
-                $scope.startDate = null;
-                $scope.endDate = null;
+                $scope.dateService.startDate = null;
+                $scope.dateService.endDate = null;
             };
 
             // Disable weekend selection

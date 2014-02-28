@@ -1,8 +1,10 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamCtrl', ['$scope', '$routeParams', '$translate', '$http', 'SITNET_CONF', 'ExamRes', 'QuestionRes',
-            function ($scope, $routeParams, $translate, $http, SITNET_CONF, ExamRes, QuestionRes) {
+        .controller('ExamCtrl', ['$scope', '$routeParams', '$translate', '$http', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'dateService',
+            function ($scope, $routeParams, $translate, $http, SITNET_CONF, ExamRes, QuestionRes, dateService) {
+
+                $scope.dateService = dateService;
 
                 $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section.html";
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_question.html";
@@ -85,6 +87,8 @@
                 };
 
                 $scope.newExamEvent = {
+                    "startDate": null,
+                    "endDate": null,
                     "room": null,
                     "duration": null,
                     "inspector": null,
@@ -151,7 +155,9 @@
 
                 $scope.saveExam = function () {
                     $scope.newExam.examSections = $scope.sections;
-                    $scope.newExam.examEvent= $scope.newExamEvent;
+                    $scope.newExamEvent.startDate = $scope.dateService.startDate;
+                    $scope.newExamEvent.endDate = $scope.dateService.endDate;
+                    $scope.newExam.examEvent = $scope.newExamEvent;
 
 
 
