@@ -42,6 +42,22 @@ public class Question extends SitnetModel {
     @OneToMany(cascade = CascadeType.ALL)
     private List<MultipleChoiseOption> options;
 
+
+    /*
+    A question can be a prototype (in a question bank) and it can be used in an Exam
+    If it is, then we need to create a copy of it.
+    But then we have a duplicate (same content, different id)
+    How to prevent showing same question N times in question bank?
+
+    We create a hash oq question attributes:
+    - question
+    - options
+    - etc
+
+    Now we have a unique key to distinguish questions by content.
+    Each question type should have its own hash generation logic.
+
+     */
     @Column(length=32)
     private String hash;
 

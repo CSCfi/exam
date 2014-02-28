@@ -30,7 +30,7 @@ user_languages:
       UILanguageName: Suomi
 
 users:
-    - !!models.User
+    - &sauli !!models.User
       email:      test
       firstName:  Sauli
       lastName:   Student
@@ -40,7 +40,7 @@ users:
       userLanguage: *suomi
 
 
-    - !!models.User
+    - &maika !!models.User
       email:      opettaja
       firstName:  Maika
       lastName:   Opettaja
@@ -49,10 +49,10 @@ users:
             - !!models.Role {role: TEACHER}
       userLanguage: *suomi
     
-    - !!models.User
+    - &orville !!models.User
       email:      oppilas
-      firstName:  Omppu 
-      lastName:   Studeeraja
+      firstName:  Orville
+      lastName:   Oates
       password:   oppilas
       roles:  
             - !!models.Role {role: STUDENT}
@@ -393,10 +393,17 @@ examsections:
 
 examevents:
 
+# startTime 1393549200   28.02.2014 00:00
+# endTime   1419728400   28.12.2014 00:00
+
   - &event1 !!models.ExamEvent
     duration: 1
     inspectors:
+                    - *maika
     state:
+    enrolledStudents:
+                    - *orville
+                    - *sauli
 
 exams:
 
@@ -419,6 +426,8 @@ exams:
     shared: false
     examSections:
               - *osio2
+    examEvent: *event1
+
 
   - !!models.Exam
     course: *tietokannat
@@ -427,6 +436,8 @@ exams:
     instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
     shared: true
     examSections:
+    examEvent: *event1
+
   
   - !!models.Exam
     course: *tietokannat
@@ -435,6 +446,8 @@ exams:
     instruction: Vastaa kaikkiin tenttikysymyksiin
     shared: true
     examSections:
+    examEvent: *event1
+
     
   - !!models.Exam
     course: *tietokannat
@@ -444,6 +457,8 @@ exams:
     shared: true
     examSections:
                 - *osio1
+    examEvent: *event1
+
                 
                 
     

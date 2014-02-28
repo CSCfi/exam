@@ -1,10 +1,12 @@
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
 import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
+import models.ExamEvent;
 import models.Question;
 import models.User;
 import play.Application;
@@ -78,6 +80,22 @@ public class Global extends GlobalSettings {
                     q.generateHash();
                 }
                 Ebean.save(questions);
+
+                ExamEvent examEvent = Ebean.find(ExamEvent.class, 1);
+                if(examEvent != null)
+                {
+                    // startTime 1393549200   28.02.2014 00:00
+                    // endTime   1419728400   28.12.2014 00:00
+
+                    examEvent.setStartTime(new Timestamp(1393549200));
+                    examEvent.setEndTime(new Timestamp(1419728400));
+                    examEvent.save();
+                    Logger.debug("Exam event initialized");
+                }
+                else
+                    Logger.debug("Exam event: "+ examEvent);
+
+
             }
         }
     }
