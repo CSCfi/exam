@@ -3,7 +3,6 @@ package models;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.List;
 
 
@@ -21,9 +20,9 @@ public class ExamEvent extends Model {
     private Long id;
 
     // tentin voimassaoloaika, tentti on avoin opiskelijoille tästä lähtien
-    Timestamp startTime;
+    Long examActiveStartDate;
     // tentin voimassaoloaika, tentti sulkeutuu
-    Timestamp endTime;
+    Long examActiveEndDate;
 
     // tentin kesto
     private Double duration;
@@ -78,20 +77,20 @@ public class ExamEvent extends Model {
         this.id = id;
     }
 
-    public Timestamp getStartTime() {
-        return startTime;
+    public Long getExamActiveStartDate() {
+        return examActiveStartDate;
     }
 
-    public void setStartTime(Timestamp startTime) {
-        this.startTime = startTime;
+    public void setExamActiveStartDate(Long examActiveStartDate) {
+        this.examActiveStartDate = examActiveStartDate;
     }
 
-    public Timestamp getEndTime() {
-        return endTime;
+    public Long getExamActiveEndDate() {
+        return examActiveEndDate;
     }
 
-    public void setEndTime(Timestamp endTime) {
-        this.endTime = endTime;
+    public void setExamActiveEndDate(Long examActiveEndDate) {
+        this.examActiveEndDate = examActiveEndDate;
     }
 
     public List<User> getEnrolledStudents() {
@@ -106,8 +105,8 @@ public class ExamEvent extends Model {
     public String toString() {
         return "ExamEvent{" +
                 "id=" + id +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
+                ", examActiveStartDate=" + examActiveStartDate +
+                ", examActiveEndDate=" + examActiveEndDate +
                 ", duration=" + duration +
                 ", state='" + state + '\'' +
                 '}';
