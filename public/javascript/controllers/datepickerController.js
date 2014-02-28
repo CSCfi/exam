@@ -45,7 +45,7 @@
 
                 $scope.endDateOpened = true;
             };
-            
+
             $scope.$watch('dateService.startDate', function(v) {
                 var d = new Date(v);
                 var curr_date = d.getDate();
@@ -54,7 +54,7 @@
                 $scope.dateService.modStartDate = curr_date + "/" + curr_month + "/" + curr_year;
                 console.log($scope.dateService.modStartDate)
             });
-            
+
 //            $scope.$watch('dateService.endDate', function(v) s{
 //                var d = new Date(v);
 //                var curr_date = d.getDate();

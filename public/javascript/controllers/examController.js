@@ -162,7 +162,7 @@
                         toastr.info("Tentti tallennettu.");
                     });
                 };
-                
+
                 $scope.removeSection = function (section) {
                     if (confirm('Poistetaanko osio?')) {
                         $scope.sections.splice($scope.sections.indexOf(section), 1);
@@ -180,6 +180,7 @@
                         section.questions.splice(section.questions.indexOf(question), 1);
                     }
                 }
+
 
                 $scope.editSection = function (section) {
                     console.log(section);
