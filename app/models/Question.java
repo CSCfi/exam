@@ -1,6 +1,7 @@
 package models;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import play.Logger;
 
 import javax.persistence.*;
 import java.util.List;
@@ -150,6 +151,7 @@ public class Question extends SitnetModel {
 
         String attributes = question + instruction;
         this.hash = DigestUtils.md5Hex(attributes);
+        Logger.debug("Question hash: "+this.hash);
         return hash;
     }
 

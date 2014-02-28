@@ -6,6 +6,7 @@ import java.util.Map;
 import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
+import models.Exam;
 import models.ExamEvent;
 import models.Question;
 import models.User;
@@ -95,6 +96,12 @@ public class Global extends GlobalSettings {
                 else
                     Logger.debug("Exam event: "+ examEvent);
 
+                // generate hashes for questions
+                List<Exam> exams = (List)all.get("exams");
+                for (Exam e : exams){
+                    e.generateHash();
+                }
+                Ebean.save(exams);
 
             }
         }

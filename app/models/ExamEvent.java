@@ -101,4 +101,15 @@ public class ExamEvent extends Model {
     public void setEnrolledStudents(List<User> enrolledStudents) {
         this.enrolledStudents = enrolledStudents;
     }
+
+    @Override
+    public String toString() {
+        return "ExamEvent{" +
+                "id=" + id +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", duration=" + duration +
+                ", state='" + state + '\'' +
+                '}';
+    }
 }

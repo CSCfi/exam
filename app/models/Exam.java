@@ -1,9 +1,11 @@
 package models;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.persistence.*;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import play.data.validation.Constraints;
 
 /*
@@ -30,11 +32,7 @@ public class Exam extends SitnetModel {
 	private boolean shared;
 	
 	
-	// TODO: This should be actually @OneToMany relationship, but there's problems with Ebean
-	// XXX: Help
-	
-//	@OneToMany(cascade = CascadeType.REMOVE, mappedBy="exam")
-//	@OneToMany(cascade = CascadeType.ALL, mappedBy="exam")
+	// XXX: This should be actually @OneToMany relationship, but there's problems with Ebean
 	@ManyToMany(cascade = CascadeType.PERSIST)
 	private List<ExamSection> examSections;
 
@@ -42,8 +40,10 @@ public class Exam extends SitnetModel {
     @OneToOne
     private ExamEvent examEvent;
 
+    @Column(length=32)
+    private String hash;
 
-	public String getName() {
+    public String getName() {
 		return name;
 	}
 
@@ -94,19 +94,40 @@ public class Exam extends SitnetModel {
     public void setExamEvent(ExamEvent examEvent) {
         this.examEvent = examEvent;
     }
+
 	public void setCourse(Course course) {
 		this.course = course;
 	}
 
+    public String getHash() {
+        return hash;
+    }
+
+    public String generateHash() {
+
+        // TODO: what attributes make examEvent unique?
+        // create unique hash for exam
+        String attributes = name +
+                course.getCode();
+
+//                examEvent.getStartTime().toString() +
+//                examEvent.getEndTime().toString();
+
+        this.hash = DigestUtils.md5Hex(attributes);
+        play.Logger.debug("Exam hash: "+this.hash);
+        return hash;
+    }
+
     @Override
     public String toString() {
         return "Exam{" +
-                "course=" + course +
+                "hash='" + hash + '\'' +
+                ", course=" + course +
                 ", name='" + name + '\'' +
                 ", examType=" + examType +
                 ", instruction='" + instruction + '\'' +
                 ", shared=" + shared +
-                ", examSections=" + examSections +
+                ", examEvent=" + examEvent +
                 '}';
     }
 }
