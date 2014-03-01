@@ -147,7 +147,6 @@
                 $scope.libraryFilter = "";
                 $scope.selected = undefined;
 
-
                 $scope.toggleSection = function (section) {
                     section.icon = "";
                     section.hide = !section.hide;
@@ -155,17 +154,15 @@
 
                 $scope.saveExam = function () {
                     $scope.newExam.examSections = $scope.sections;
-                    $scope.newExamEvent.startDate = $scope.dateService.startDate;
-                    $scope.newExamEvent.endDate = $scope.dateService.endDate;
+                    $scope.newExamEvent.startDate = $scope.dateService.modStartDate;
+                    $scope.newExamEvent.endDate = $scope.dateService.modEndDate;
                     $scope.newExam.examEvent = $scope.newExamEvent;
-
-
 
                     ExamRes.save($scope.newExam,  function (newExam) {
                         toastr.info("Tentti tallennettu.");
                     });
                 };
-
+                
                 $scope.removeSection = function (section) {
                     if (confirm('Poistetaanko osio?')) {
                         $scope.sections.splice($scope.sections.indexOf(section), 1);
@@ -183,7 +180,6 @@
                         section.questions.splice(section.questions.indexOf(question), 1);
                     }
                 }
-
 
                 $scope.editSection = function (section) {
                     console.log(section);
