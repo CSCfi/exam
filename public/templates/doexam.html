@@ -1,0 +1,20 @@
+<div id="sitnet-header" class="header"></div>
+<div id="exam" ng-controller="DoExamController">
+	<h2 class="table-heading">{{doexam.name}}</h2>
+
+<!--  tentti alue -->
+	<div class="col-md-8">
+
+	<div ng-repeat="section in doexam.examSections">
+		<div class="exam-header" >
+		<i>{{section.name}}</i>
+		</div>
+	
+	</div>
+	
+	
+	</div>
+	
+<!-- oikea palsta -->
+	<div id="library" class="col-md-4">Oikea palsta</div>
+</div>

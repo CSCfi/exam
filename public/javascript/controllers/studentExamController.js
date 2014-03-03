@@ -10,8 +10,7 @@
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_question.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_general.html";
 
-
                 $scope.exams = StudentExamRes.query();
-
+                
             }]);
 }());

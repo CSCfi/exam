@@ -362,7 +362,19 @@ courses:
     type: 
     credits: 8
 
-
+  - &811386A !!models.Course
+    code: 811386A
+    name: Algoritmit
+    type: 
+    credits: 5
+    
+  - &812346A !!models.Course
+    code: 812346A
+    name: Oliosuuntautunut analyysi ja suunnittelu
+    type: 
+    credits: 5   
+    
+       
 
 examsections:
 
@@ -401,9 +413,29 @@ examevents:
     inspectors:
                     - *maika
     state:
+    room: Akvaario IT102
+    enrolledStudents:
+                    - *sauli
+                    
+  - &event2 !!models.ExamEvent
+    duration: 1
+    inspectors:
+                    - *maika
+    state:
+    room: Akvaario IT102
     enrolledStudents:
                     - *orville
                     - *sauli
+                    
+  - &event3 !!models.ExamEvent
+    duration: 1
+    inspectors:
+                    - *maika
+    state:
+    room: Akvaario IT102
+    enrolledStudents:
+                    - *orville
+                    - *sauli                                 
 
 exams:
 
@@ -459,6 +491,24 @@ exams:
                 - *osio1
     examEvent: *event1
 
+  - !!models.Exam
+    course: *811386A
+    name: Algoritmit, 2013
+    examType:
+    instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja 
+    shared: true
+    examSections:
+                - *osio1
+    examEvent: *event2               
                 
-                
+  - !!models.Exam
+    course: *812346A
+    name: OOAD, 2013
+    examType:
+    instruction: Tentissä saa käyttää vain tilakoneita.
+    shared: true
+    examSections:
+                - *osio1
+    examEvent: *event3
+    
     

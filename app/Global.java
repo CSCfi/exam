@@ -80,21 +80,21 @@ public class Global extends GlobalSettings {
                 }
                 Ebean.save(questions);
 
-                ExamEvent examEvent = Ebean.find(ExamEvent.class, 1);
-                if(examEvent != null)
-                {
-                    // startTime 1393549200   28.02.2014 00:00
-                    // endTime   1419728400   28.12.2014 00:00
+                
+                List<ExamEvent> examEvents = (List)all.get("examevents");
+                for (ExamEvent event : examEvents) {
+                	// startTime 1393549200   28.02.2014 00:00
+                	// endTime   1419728400   28.12.2014 00:00
 
-                    examEvent.setExamActiveStartDate(new Timestamp(1393549200));
-                    examEvent.setExamActiveEndDate(new Timestamp(1419728400));
-                    examEvent.setDuration(new Double(1.0));
-                    examEvent.save();
-                    Logger.debug("Exam event initialized");
+                	event.setExamActiveStartDate(new Timestamp(1393549200));
+                	event.setExamActiveEndDate(new Timestamp(1419728400));
+                	event.setDuration(new Double(1.0));
+                	event.save();
+                	Logger.debug("Exam event initialized");                
                 }
-                else
-                    Logger.debug("Exam event: "+ examEvent);
+                Ebean.save(examEvents);
 
+                
                 // generate hashes for questions
                 List<Exam> exams = (List)all.get("exams");
                 for (Exam e : exams){

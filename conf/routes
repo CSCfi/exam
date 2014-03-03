@@ -17,11 +17,15 @@ DELETE        /users/:id            controllers.UserController.deleteUser(id: Lo
 
 ############### Exam interface ###############
 
-GET           /exams                controllers.ExamController.getExams()
-POST          /exams                controllers.ExamController.createExam()
-GET           /sections/:id         controllers.ExamController.getExamSections(id: Long)
-GET           /events               controllers.ExamController.getExamEvents()
-GET           /student/exams        controllers.ExamController.listActiveExams()
+GET           /exams                	controllers.ExamController.getExams()
+POST          /exams                	controllers.ExamController.createExam()
+GET           /sections/:id         	controllers.ExamController.getExamSections(id: Long)
+GET           /events               	controllers.ExamController.getExamEvents()
+GET           /student/exams        	controllers.StudentExamController.listActiveExams()
+GET           /student/doexam/:hash     controllers.StudentExamController.getExamByHash(hash: String)
+	
+
+
 
 ############### Courses interface ###############
 GET           /courses              controllers.CourseController.getCourses()
