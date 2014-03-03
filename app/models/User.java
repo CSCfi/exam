@@ -1,15 +1,15 @@
 package models;
 
-import java.util.List;
-
-import javax.persistence.*;
-
+import be.objectify.deadbolt.core.models.*;
+import be.objectify.deadbolt.core.models.Role;
 import play.data.format.Formats;
-import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
+import javax.persistence.*;
+import java.util.List;
+
 @Entity
-public class User extends Model {
+public class User extends Model implements Subject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,8 +28,8 @@ public class User extends Model {
 //    @Constraints.Required
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Role> roles;
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<SitnetRole> roles;
 
     @ManyToOne
     private UserLanguage userLanguage;
@@ -84,12 +84,25 @@ public class User extends Model {
         this.password = password;
     }
 
-    public List<Role> getRoles() {
+    public void setRoles(List<SitnetRole> roles) {
+        this.roles = roles;
+    }
+
+    @Override
+    public List<? extends Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    @Override
+    public List<? extends Permission> getPermissions() {
+
+        // TODO: return null
+        return null;
+    }
+
+    @Override
+    public String getIdentifier() {
+        return email;
     }
 
     @Override

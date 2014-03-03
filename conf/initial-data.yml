@@ -36,7 +36,7 @@ users:
       lastName:   Student
       password:   test
       roles:  
-            - !!models.Role {role: STUDENT}
+            - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
 
 
@@ -46,7 +46,7 @@ users:
       lastName:   Opettaja
       password:   opettaja
       roles:  
-            - !!models.Role {role: TEACHER}
+            - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
     
     - &orville !!models.User
@@ -55,7 +55,7 @@ users:
       lastName:   Oates
       password:   oppilas
       roles:  
-            - !!models.Role {role: STUDENT}
+            - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
     
     - !!models.User
@@ -64,7 +64,7 @@ users:
       lastName:   Drobi
       password:   secret
       roles:  
-            - !!models.Role {role: TEACHER}
+            - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
     
     - !!models.User
@@ -73,21 +73,21 @@ users:
       lastName:   Loisant
       password:   secret
       roles:  
-            - !!models.Role {role: STUDENT}
+            - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
 
 
   
 user_roles:
 
-    - !!models.Role
-      role: ADMIN
+    - !!models.SitnetRole
+      name: ADMIN
 
-    - !!models.Role
-      role: STUDENT
+    - !!models.SitnetRole
+      name: STUDENT
     
-    - !!models.Role
-      role: TEACHER
+    - !!models.SitnetRole
+      name: TEACHER
 
 ######################################################################
 

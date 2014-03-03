@@ -14,4 +14,14 @@ libraryDependencies ++= Seq(
   cache
 )     
 
+resolvers += Resolver.url("Objectify Play Repository", url("http://schaloner.github.com/releases/"))(Resolver.ivyStylePatterns)
+
+resolvers += Resolver.url("Objectify Play Snapshot Repository", url("http://schaloner.github.com/snapshots/"))(Resolver.ivyStylePatterns)
+
+resolvers += Resolver.typesafeRepo("releases")
+
+resolvers += Resolver.sonatypeRepo("releases")
+
+libraryDependencies += "be.objectify" %% "deadbolt-java" % "2.2-RC4"
+
 play.Project.playJavaSettings
