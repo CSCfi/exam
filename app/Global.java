@@ -88,8 +88,8 @@ public class Global extends GlobalSettings {
                     // startTime 1393549200   28.02.2014 00:00
                     // endTime   1419728400   28.12.2014 00:00
 
-                    examEvent.setExamActiveStartDate(new Long(1393549200));
-                    examEvent.setExamActiveEndDate(new Long(1419728400));
+                    examEvent.setExamActiveStartDate(new Timestamp(1393549200));
+                    examEvent.setExamActiveEndDate(new Timestamp(1419728400));
                     examEvent.save();
                     Logger.debug("Exam event initialized");
                 }

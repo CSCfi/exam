@@ -2,15 +2,16 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.EbeanServerFactory;
 import models.*;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
-import views.html.helper.options;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public class ExamController extends SitnetController {
@@ -55,10 +56,18 @@ public class ExamController extends SitnetController {
                             o.setId(null);
                         }
                     } break;
-
                 }
             }
         }
+
+        ExamEvent event = ex.getExamEvent();
+        Logger.debug(event.toString());
+
+        DateTime dtStart = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableStartDate());
+        event.setExamActiveStartDate(new Timestamp(dtStart.getMillis()));
+
+        DateTime dtEnd = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableEndDate());
+        event.setExamActiveEndDate(new Timestamp(dtEnd.getMillis()));
 
         Logger.debug(ex.toString());
         ex.save();

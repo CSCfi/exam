@@ -51,7 +51,7 @@
                 var curr_date = d.getDate();
                 var curr_month = d.getMonth() + 1; //Months are zero based
                 var curr_year = d.getFullYear();
-                $scope.dateService.modStartDate = curr_date + "/" + curr_month + "/" + curr_year;
+                $scope.dateService.modStartDate = curr_date + "-" + curr_month + "-" + curr_year;
                 console.log($scope.dateService.modStartDate)
             });
 
@@ -60,7 +60,7 @@
                 var curr_date = d.getDate();
                 var curr_month = d.getMonth() + 1; //Months are zero based
                 var curr_year = d.getFullYear();
-                $scope.dateService.modEndDate = curr_date + "/" + curr_month + "/" + curr_year;
+                $scope.dateService.modEndDate = curr_date + "-" + curr_month + "-" + curr_year;
                 console.log($scope.dateService.modEndDate)
             });
 
@@ -68,7 +68,7 @@
                 'starting-day': 1
             };
 
-            $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'shortDate'];
+            $scope.formats = ['dd-MM-yyyy', 'yyyy/MM/dd', 'shortDate'];
             $scope.format = $scope.formats[0];
         }])
 }());
