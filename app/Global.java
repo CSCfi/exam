@@ -90,6 +90,7 @@ public class Global extends GlobalSettings {
 
                     examEvent.setExamActiveStartDate(new Timestamp(1393549200));
                     examEvent.setExamActiveEndDate(new Timestamp(1419728400));
+                    examEvent.setDuration(new Double(1.0));
                     examEvent.save();
                     Logger.debug("Exam event initialized");
                 }

@@ -100,7 +100,17 @@ public class Organisation extends SitnetModel {
 	public void setRoot(boolean root) {
 		this.root = root;
 	}
-	
-	
-	
+
+    @Override
+    public String toString() {
+        return "Organisation{" +
+                "name='" + name + '\'' +
+                ", nameAbbreviation='" + nameAbbreviation + '\'' +
+                ", code='" + code + '\'' +
+                ", vatIdNumber='" + vatIdNumber + '\'' +
+                ", organisations=" + organisations +
+                ", parent=" + parent +
+                ", root=" + root +
+                '}';
+    }
 }

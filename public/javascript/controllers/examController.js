@@ -22,20 +22,20 @@
 
                 // Todo: Fill in durations from database for final version
                 $scope.examDurations = [
-                    "0,5",
-                    "1,0",
-                    "1,5",
-                    "2,0",
-                    "2,5",
-                    "3,0",
-                    "3,5",
-                    "4,0",
-                    "4,5",
-                    "5,0",
-                    "5,5",
-                    "6,0",
-                    "6,5",
-                    "7,0"
+                    "0.5",
+                    "1.0",
+                    "1.5",
+                    "2.0",
+                    "2.5",
+                    "3.0",
+                    "3.5",
+                    "4.0",
+                    "4.5",
+                    "5.0",
+                    "5.5",
+                    "6.0",
+                    "6.5",
+                    "7.0"
                 ];
 
                 // Todo: Fill in inspectors from database for final version
@@ -72,7 +72,9 @@
                     "modified": null,
                     "modifier": null,
                     "course": {
-                        "organisation": null,
+                        "organisation": {
+                            "name": null
+                        },
                         "code": "811380A",
                         "name": "Tietokantojen perusteet",
                         "responsibleTeacher": null,
