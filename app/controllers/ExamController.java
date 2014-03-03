@@ -20,7 +20,7 @@ public class ExamController extends SitnetController {
 
 
     //    @Authenticate
-    @Restrict(@Group({"TEACHER"}))
+//    @Restrict(@Group({"TEACHER"}))
     public static Result getExams() {
 
         List<Exam> exams = Ebean.find(Exam.class).findList();
@@ -106,5 +106,30 @@ public class ExamController extends SitnetController {
         List<ExamEvent> examEvents = Ebean.find(ExamEvent.class).findList();
         return ok(Json.toJson(examEvents));
     }
+
+    public static Result listActiveExams() {
+
+        // TODO: bug on this line
+//        User user = UserController.getLoggedUser();
+
+        Timestamp now = new Timestamp(DateTime.now().getMillis());
+
+        List<ExamEvent> examEvents = Ebean.find(ExamEvent.class)
+                .where()
+                .lt("examActiveEndDate", now)
+                .findList();
+
+
+
+//        List<Exam> exams = Ebean.find(Exam.class).where()
+//                .lt("examEvent.examReadableEndDate", now)
+//                .findList();
+
+//        Logger.debug(exams);
+
+        return ok(Json.toJson(examEvents));
+    }
+
+
 
 }

@@ -28,6 +28,9 @@
             $routeProvider.when('/courses', { templateUrl: tmpl + 'courses.html', controller: 'CourseCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html', controller: 'QuestionCtrl'});
 
+            /* Student */
+            $routeProvider.when('/student/exams', { templateUrl: tmpl + 'active.html', controller: 'StudentExamController'});
+
 
             $routeProvider.otherwise({redirectTo: '/home'});
         }]);

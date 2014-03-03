@@ -1,0 +1,19 @@
+<div id="sitnet-header" class="header"></div>
+<div id="exam" ng-controller="StudentExamController">
+    <h2 class="table-heading">Aktiiviset tentit</h2>
+
+    <div class="col-md-8">
+
+        <div class="list-group">
+            <a ng-repeat="exam in exams" href="#/exams/{{exam.id}}" class="list-group-item">
+                <h4 class="list-group-item-heading">{{exam.course.code}}</h4>
+
+                <p class="list-group-item-text">{{exam.name}}</p>
+            </a>
+        </div>
+
+    </div>
+    <div id="library" class="col-md-4">
+        Oikea palsta
+    </div>
+</div>
