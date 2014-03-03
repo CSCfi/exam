@@ -5,12 +5,15 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.*;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public class ExamController extends SitnetController {
@@ -49,12 +52,20 @@ public class ExamController extends SitnetController {
                         for (MultipleChoiseOption o : options) {
                             o.setId(null);
                         }
-                    }
-                    break;
+                    } break;
 
                 }
             }
         }
+
+        ExamEvent event = ex.getExamEvent();
+        Logger.debug(event.toString());
+
+        DateTime dtStart = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableStartDate());
+        event.setExamActiveStartDate(new Timestamp(dtStart.getMillis()));
+
+        DateTime dtEnd = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableEndDate());
+        event.setExamActiveEndDate(new Timestamp(dtEnd.getMillis()));
 
         Logger.debug(ex.toString());
         ex.save();

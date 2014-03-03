@@ -45,30 +45,30 @@
 
                 $scope.endDateOpened = true;
             };
-            
+
             $scope.$watch('dateService.startDate', function(v) {
                 var d = new Date(v);
                 var curr_date = d.getDate();
                 var curr_month = d.getMonth() + 1; //Months are zero based
                 var curr_year = d.getFullYear();
-                $scope.dateService.modStartDate = curr_date + "/" + curr_month + "/" + curr_year;
+                $scope.dateService.modStartDate = curr_date + "-" + curr_month + "-" + curr_year;
                 console.log($scope.dateService.modStartDate)
             });
-            
-//            $scope.$watch('dateService.endDate', function(v) s{
-//                var d = new Date(v);
-//                var curr_date = d.getDate();
-//                var curr_month = d.getMonth() + 1; //Months are zero based
-//                var curr_year = d.getFullYear();
-//                $scope.dateService.modEndDate = curr_date + "/" + curr_month + "/" + curr_year;
-//                console.log($scope.dateService.modEndDate)
-//            });
+
+            $scope.$watch('dateService.endDate', function(v) {
+                var d = new Date(v);
+                var curr_date = d.getDate();
+                var curr_month = d.getMonth() + 1; //Months are zero based
+                var curr_year = d.getFullYear();
+                $scope.dateService.modEndDate = curr_date + "-" + curr_month + "-" + curr_year;
+                console.log($scope.dateService.modEndDate)
+            });
 
             $scope.dateOptions = {
                 'starting-day': 1
             };
 
-            $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'shortDate'];
+            $scope.formats = ['dd-MM-yyyy', 'yyyy/MM/dd', 'shortDate'];
             $scope.format = $scope.formats[0];
         }])
 }());

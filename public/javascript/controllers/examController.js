@@ -22,20 +22,20 @@
 
                 // Todo: Fill in durations from database for final version
                 $scope.examDurations = [
-                    "0.5",
-                    "1.0",
-                    "1.5",
-                    "2.0",
-                    "2.5",
-                    "3.0",
-                    "3.5",
-                    "4.0",
-                    "4.5",
-                    "5.0",
-                    "5.5",
-                    "6.0",
-                    "6.5",
-                    "7.0"
+                    "0,5",
+                    "1,0",
+                    "1,5",
+                    "2,0",
+                    "2,5",
+                    "3,0",
+                    "3,5",
+                    "4,0",
+                    "4,5",
+                    "5,0",
+                    "5,5",
+                    "6,0",
+                    "6,5",
+                    "7,0"
                 ];
 
                 // Todo: Fill in inspectors from database for final version
@@ -83,12 +83,15 @@
                     "examType": null,
                     "instruction": "Tentissä saa käyttää apuna lähdemateriaalia",
                     "shared": true,
-                    "examSections": []
+                    "examSections": [],
+                    "examEvent": null
                 };
 
                 $scope.newExamEvent = {
-                    "startDate": null,
-                    "endDate": null,
+                    "examReadableStartDate": null,
+                    "examReadableEndDate": null,
+                    "examActiveStartDate": null,
+                    "examActiveEndDate": null,
                     "room": null,
                     "duration": null,
                     "inspector": null,
@@ -154,15 +157,15 @@
 
                 $scope.saveExam = function () {
                     $scope.newExam.examSections = $scope.sections;
-                    $scope.newExamEvent.startDate = $scope.dateService.modStartDate;
-                    $scope.newExamEvent.endDate = $scope.dateService.modEndDate;
+                    $scope.newExamEvent.examReadableStartDate = $scope.dateService.modStartDate;
+                    $scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
                     $scope.newExam.examEvent = $scope.newExamEvent;
 
                     ExamRes.save($scope.newExam,  function (newExam) {
                         toastr.info("Tentti tallennettu.");
                     });
                 };
-                
+
                 $scope.removeSection = function (section) {
                     if (confirm('Poistetaanko osio?')) {
                         $scope.sections.splice($scope.sections.indexOf(section), 1);
@@ -180,6 +183,7 @@
                         section.questions.splice(section.questions.indexOf(question), 1);
                     }
                 }
+
 
                 $scope.editSection = function (section) {
                     console.log(section);
