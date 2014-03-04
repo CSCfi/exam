@@ -4,6 +4,32 @@
 
 	<div class="col-md-8">
 
+        <div ng-hide="showDetails">
+			<span class="fa-stack">
+                <i class="fa fa-square-o fa-stack-2x"></i>
+                <i class="fa-stack-1x">{{section.id}}</i>
+            </span>
+			<!--<span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} -->
+                <!--<i class="fa fa-pencil"></i>-->
+			<!--</span>-->
+			<!--<span class="pull-right fa-stack fa-lg dropdown" ng-click="editSection(section)">-->
+				<!--<a class="dropdown-toggle">-->
+                    <!--<i class="sitnet-blue fa fa-square fa-stack-2x"></i>-->
+                    <!--<i class="sitnet-white fa fa-cog fa-stack-1x"></i>-->
+                <!--</a>-->
+					<!--<ul class="dropdown-menu">-->
+                        <!--<li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>-->
+                        <!--<li><a class="pointer-hand">Arvo kysymyksiä</a></li>-->
+                        <!--<li><a ng-click="clearAllQuestions(section)" class="pointer-hand">Tyhjennä</a></li>-->
+                        <!--<li><a ng-click="removeSection(section)" class="pointer-hand">Poista</a></li>-->
+                    <!--</ul>-->
+			<!--</span>-->
+			<!--<span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">-->
+                <!--<i class="sitnet-grey fa fa-square fa-stack-2x"></i>-->
+				<!--<i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'" class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>-->
+			<!--</span>-->
+        </div>
+
 		<div class="list-group">
 			<a ng-repeat="exam in exams" href="#/student/doexam/{{exam.hash}}" class="list-group-item">
 				<h4 class="list-group-item-heading">
