@@ -1,40 +1,20 @@
-<!--<div id="sitnet-header" class="header"></div>-->
+<div id="sitnet-header" class="header"></div>
 <div id="studentexam" ng-controller="StudentExamController">
     <h2 class="table-heading">Aktiiviset tentit</h2>
 
     <div class="col-md-8">
-        <div class="studentexam-header">
-            <h4>
-			<span class="fa-stack">
-                <i class="fa fa-square-o fa-stack-2x"></i>
-                <i class="fa-stack-1x">1</i>
-            </span>
-                Monivalintakysymykset
-            <!--<span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} -->
-            <!--<i class="fa fa-pencil"></i>-->
-            <!--</span>-->
-			<span class="pull-right fa-stack fa-lg">
-                <i class="fa fa-cog fa-stack-1x"></i>
-			</span>
-			<span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
-                <i class="fa fa-clock-o fa-stack-1x"></i>
-			</span>
-            </h4>
+        <div class="list-group">
+            <a ng-repeat="exam in exams" href="#/student/doexam/{{exam.hash}}" class="list-group-item" style="margin-bottom: 10px">
+                <h4 class="list-group-item-heading">
+                    {{exam.name}}
+                    <span class="pull-right">{{exam.examEvent.examReadableStartDate}} - {{exam.examEvent.examReadableEndDate}}</span>
+                </h4>
+                <i>
+                    <span class="list-group-item-text">{{exam.course.name}}</span>
+                    <span class="list-group-item-text">{{exam.course.code}}</span>
+                </i>
+            </a>
         </div>
-            <div class="list-group">
-                <a ng-repeat="exam in exams" href="#/student/doexam/{{exam.hash}}" class="list-group-item">
-                    <h4 class="list-group-item-heading">
-                        {{exam.name}}
-                        <span class="pull-right">{{exam.examEvent.examReadableStartDate}} - {{exam.examEvent.examReadableEndDate}}</span>
-                    </h4>
-                    <i>
-                        <span class="list-group-item-text">{{exam.course.name}}</span>
-                        <span class="list-group-item-text">{{exam.course.code}}</span>
-                    </i>
-                </a>
-            </div>
-
-
     </div>
     <div id="library" class="col-md-4">Oikea palsta</div>
 </div>
