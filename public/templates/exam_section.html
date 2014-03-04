@@ -7,22 +7,23 @@
 			</span>
 			<span class="pull-right fa-stack fa-lg dropdown" ng-click="editSection(section)">
 				<a class="dropdown-toggle">
-				<i class="sitnet-blue fa fa-square fa-stack-2x"></i>
-				<i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-				 </a>
+                    <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
+                    <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
+                </a>
 					<ul class="dropdown-menu">
-						<li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-						<li><a class="pointer-hand">Arvo kysymyksiä</a></li>
-						<li><a ng-click="clearAllQuestions(section)" class="pointer-hand">Tyhjennä</a></li>
-						<li><a ng-click="removeSection(section)" class="pointer-hand">Poista</a></li>
-					</ul>
+                        <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
+                        <li><a class="pointer-hand">Arvo kysymyksiä</a></li>
+                        <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">Tyhjennä</a></li>
+                        <li><a ng-click="removeSection(section)" class="pointer-hand">Poista</a></li>
+                    </ul>
 			</span>
 			<span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
                 <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-				<i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'" class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+				<i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'"
+                   class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
 			</span>
 
-		</div>
+        </div>
         <div ng-show="showDetails">
             <div class="form-inline" role="form">
 				<span class="fa-stack">
