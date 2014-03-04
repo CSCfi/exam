@@ -1,4 +1,4 @@
-#exam {
+#studentexam {
   margin-top: 1em;
 
   .base {
@@ -10,6 +10,11 @@
     padding: 1em;
   }
 
+  .studentexam-header {
+    background-color: $sitnet-green;
+    padding: 0.5em;
+    margin-top: 1em;
+  }
 
   .exam-question-container {
     padding: 0.5em;
