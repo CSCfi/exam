@@ -83,6 +83,10 @@ li {
     padding: 0;
   }
 
+  .selected {
+      background-color: $sitnet-white;
+  }
+
 .pointer-hand {
 	cursor:pointer;
 }

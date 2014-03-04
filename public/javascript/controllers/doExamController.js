@@ -4,11 +4,12 @@
         .controller('DoExamController', ['$scope', '$routeParams', '$translate', '$http', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes', 'dateService',
             function ($scope, $routeParams, $translate, $http, SITNET_CONF, StudentExamRes, QuestionRes, dateService) {
 
-            $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "/student_sections_bar.html";
+                $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "/student_sections_bar.html";
 
-        	var param1 = $routeParams.param1;
-        	console.log(param1);
-                
+                var param1 = $routeParams.param1;
+                console.log(param1);
+
+
                 $scope.doExam = function(hash) {
                     $http.get('/student/doexam/'+$routeParams.hash)
                       .success(function(data, status, headers, config){
