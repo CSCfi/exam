@@ -4,7 +4,11 @@
         .controller('DoExamController', ['$scope', '$routeParams', '$translate', '$http', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes', 'dateService',
             function ($scope, $routeParams, $translate, $http, SITNET_CONF, StudentExamRes, QuestionRes, dateService) {
 
-//                $scope.exams = StudentExamRes.query();
+
+
+            $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "/student_sections_bar.html";
+
+
 
         	var param1 = $routeParams.param1;
         	console.log(param1);

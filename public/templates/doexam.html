@@ -16,5 +16,15 @@
 	</div>
 	
 <!-- oikea palsta -->
-	<div id="library" class="col-md-4">Oikea palsta</div>
+	<div class="col-md-4">
+        <h4>
+            {{doexam.name}}
+        </h4>
+        <i>
+            <span class="list-group-item-text">{{doexam.course.name}}</span>
+            <span class="list-group-item-text">{{doexam.course.code}}</span>
+        </i>
+        <div class="" ng-include="sectionsBar">
+        </div>
+    </div>
 </div>

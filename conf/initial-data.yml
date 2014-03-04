@@ -379,16 +379,19 @@ courses:
 examsections:
 
   - &osio1 !!models.ExamSection
+    name: Monivalinnat 1
     questions:
               - *multi1
     totalScore:
   
   - &osio2 !!models.ExamSection
+    name: Monivalinnat 2
     questions:
               - *multi2
     totalScore:
   
   - &astro1 !!models.ExamSection
+    name: Astronomian Monivalinnat
     questions:
               - *avaruus1
               - *avaruus2
@@ -509,6 +512,8 @@ exams:
     shared: true
     examSections:
                 - *osio1
+                - *osio2
+                - *astro1
     examEvent: *event3
     
     
