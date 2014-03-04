@@ -1,7 +1,16 @@
-<div class="" >
-    <ul >
-        <li ng-repeat="section in doexam.sections">
-            {{section.name}}
+<div class="">
+    <ul>
+        <li ng-class="{selected: isActive()}" ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section)">
+            <span class="fa-stack">
+                <i class="fa fa-square fa-stack-2x sitnet-student-inactive-turquoise"></i>
+                <i class="fa-stack-1x sitnet-white">{{section.id}}</i>
+            </span>
+
+            <span>
+                <i class="fa fa-2x fa-fw "></i>
+                <span class="menu-item sitnet-student-turquoise">{{section.name}}</span>
+            </span>
         </li>
     </ul>
+
 </div>

@@ -24,5 +24,11 @@
                       });
                   }
                 $scope.doExam();
+
+
+                $scope.setActiveSection = function(section) {
+                    $scope.activeSection = section;
+                }
+
             }]);
 }());
