@@ -1,20 +1,41 @@
-<div ng-controller="StudentExamController">
-
-    <div class="modal-header">
-        <h3>Lorem Ipsum</h3>
+<div id="sitnet-dialog" ng-controller="StudentExamController">
+    <div class="terms-dialog-header">
+        <h4><i class="sitnet-white">Käyttöehtojen hyväksyminen</i></h4>
     </div>
     <div class="modal-body">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent at vulputate purus. Sed pretium in enim eu porta.
-        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cras ac nibh eu dui vehicula imperdiet.
-        Vivamus in arcu porta, pretium nulla at, semper neque. Vestibulum et dolor eu metus blandit fermentum.
-        Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Maecenas sagittis fermentum libero, et consequat diam condimentum fermentum.
-        Donec vulputate pulvinar semper. Etiam feugiat justo a dolor imperdiet, ut ultrices justo mattis. Nam eu odio viverra, condimentum est at, porttitor dui.
-        Vestibulum congue venenatis orci id tincidunt. Aenean non enim quis neque pellentesque dictum a ac velit. Fusce luctus auctor velit.
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent at vulputate purus. Sed pretium in enim eu
+            porta.
+            Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Cras ac nibh
+            eu dui vehicula imperdiet.
+            Vivamus in arcu porta, pretium nulla at, semper neque. Vestibulum et dolor eu metus blandit fermentum.
+        </p>
+
+        <p>
+        <ol>
+            <li><a href="http://www.utu.fi/fi/Sivut/home.aspx" target="_blank">Turun yliopiston ohjeita</a>
+                Sed pretium in enim eu porta. Pellentesque habitant morbi tristique senectus et netus et malesuada fames
+                ac turpis egestas.
+            </li>
+            <li>Cras ac nibh eu dui vehicula imperdiet.
+                Vivamus in arcu porta, pretium nulla at, semper neque. Vestibulum et dolor eu metus blandit fermentum.
+            </li>
+        </ol>
+        </p>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="ok()">OK</button>
-        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        <!--<span class="sitnet-student-lightgreen pointer" ng-click="ok()">OK<i class="fa fa-arrow-circle-right fa-stack-2x"></i></span>-->
+        <!--<span class="sitnet-red pointer" ng-click="cancel()">Back<i class="fa fa-arrow-circle-right fa-stack-2x"></i></span>-->
+
+        <div class="col-md-3">
+            <!--{{'sitnet_create_new' | translate}}-->
+            <span ng-click="cancel()" class="sitnet-red pointer"><i class="fa fa-arrow-circle-left fa-stack-2x"></i>Peru</span>
+        </div>
+        <div class="col-md-3 col-md-offset-5">
+            <!--{{'sitnet_create_new' | translate}}-->
+            <span ng-click="ok()" class=" sitnet-student-lightgreen pointer"><span>OK</span><i class="pull-right fa fa-arrow-circle-right fa-stack-2x"></i></span>
+        </div>
+
     </div>
 </div>
 
-<!--{{'sitnet_notifications' | translate}}-->
