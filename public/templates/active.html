@@ -4,7 +4,8 @@
 
     <div class="col-md-8">
         <div class="list-group">
-            <a ng-repeat="exam in exams" href="#/student/doexam/{{exam.hash}}" class="list-group-item" style="margin-bottom: 10px">
+            <!--href="#/student/doexam/{{exam.hash}}"-->
+            <a ng-repeat="exam in exams" ng-click="activateExam(exam)" class="list-group-item" style="margin-bottom: 10px">
                 <h4 class="list-group-item-heading">
                     {{exam.name}}
                     <span class="pull-right">{{exam.examEvent.examReadableStartDate}} - {{exam.examEvent.examReadableEndDate}}</span>
