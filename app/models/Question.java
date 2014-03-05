@@ -17,13 +17,24 @@ public class Question extends SitnetModel {
 
     }
 
-     private QuestionType type;
+    private QuestionType type;
 
     private String question;
 
     private boolean shared;
 
     private String instruction;
+
+    /*
+     * If question is edited (correcting a spelling mistake)
+     * inplace in an active exam (question is used in an exam that has been published)
+     * We create a new instance of a question.
+     * This attribute points to old question, so that we could keep
+     * track of different versions.
+     * This attribute might have use in statistics.
+     */
+    @OneToOne
+    private Question derivedFromQuestion;
 
     @OneToMany(cascade = CascadeType.PERSIST)
     private List<Material> materials;
