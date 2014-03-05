@@ -130,8 +130,7 @@ questions:
   - &multi1 !!models.Question
     type:
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias: 
     comments: 
@@ -145,8 +144,7 @@ questions:
   - &multi2 !!models.Question
     type:
     question: Mikä on ikuisen elämän salaisuus?
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias: 
     comments: 
@@ -161,8 +159,7 @@ questions:
   - &avaruus1 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias: 
                   - !!models.EvaluationCriteria 
@@ -177,8 +174,7 @@ questions:
   - &avaruus2 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:  Auringon fuusioreaktiot tapahtuvat
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria 
@@ -193,8 +189,7 @@ questions:
   - &avaruus3 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   AU mittaa
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria 
@@ -209,8 +204,7 @@ questions:
   - &avaruus4 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Ekliptika on
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria 
@@ -225,8 +219,7 @@ questions:
   - &avaruus5 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Tähdenlento eli
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria 
@@ -242,8 +235,7 @@ questions:
   - &avaruus6 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria 
@@ -258,8 +250,7 @@ questions:
   - &avaruus7 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria 
@@ -275,8 +266,7 @@ questions:
   - &avaruus8 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   The Great Red Spot tarkoittaa
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria 
@@ -292,8 +282,7 @@ questions:
   - &avaruus9 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Vuodenajat aiheutuvat
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria 
@@ -309,8 +298,7 @@ questions:
   - &avaruus10 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Uudenkuun aikaan
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria
@@ -326,8 +314,7 @@ questions:
   - &avaruus11 !!models.Question
     type: MULTIPLE_CHOICE_ONE_CORRECT
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
-    materials: 
-    answers:
+    materials:
     evaluationPhrases: 
     evaluationCriterias:  
                   - !!models.EvaluationCriteria 
