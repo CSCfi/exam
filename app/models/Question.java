@@ -28,8 +28,8 @@ public class Question extends SitnetModel {
     @OneToMany(cascade = CascadeType.PERSIST)
     private List<Material> materials;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    private List<Answer> answers;
+//    @OneToMany(cascade = CascadeType.PERSIST)
+//    private List<Answer> answers;
 
     @OneToMany(cascade = CascadeType.PERSIST)
     private List<EvaluationPhrase> evaluationPhrases;
@@ -102,13 +102,13 @@ public class Question extends SitnetModel {
         this.materials = materials;
     }
 
-    public List<Answer> getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(List<Answer> answers) {
-        this.answers = answers;
-    }
+//    public List<Answer> getAnswers() {
+//        return answers;
+//    }
+//
+//    public void setAnswers(List<Answer> answers) {
+//        this.answers = answers;
+//    }
 
     public List<EvaluationPhrase> getEvaluationPhrases() {
         return evaluationPhrases;
@@ -159,7 +159,7 @@ public class Question extends SitnetModel {
     public String toString() {
         return "Question [type=" + type + ", question=" + question
                 + ", shared=" + shared + ", materials=" + materials
-                + ", answers=" + answers + ", evaluationPhrases="
+//                + ", answers=" + answers + ", evaluationPhrases="
                 + evaluationPhrases + ", evaluationCriterias="
                 + evaluationCriterias + ", comments=" + comments + ", options="
                 + options + "]";

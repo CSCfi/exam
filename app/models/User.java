@@ -34,16 +34,8 @@ public class User extends Model implements Subject {
 
     @ManyToOne
     private UserLanguage userLanguage;
-    
-    
 
-    public UserLanguage getUserLanguage() {
-		return userLanguage;
-	}
-
-	public void setUserLanguage(UserLanguage userLanguage) {
-		this.userLanguage = userLanguage;
-	}
+    private List<EnrolledExam> enrolledExams;
 
 	public Long getId() {
         return id;
@@ -94,6 +86,22 @@ public class User extends Model implements Subject {
         return roles;
     }
 
+    public UserLanguage getUserLanguage() {
+        return userLanguage;
+    }
+
+    public void setUserLanguage(UserLanguage userLanguage) {
+        this.userLanguage = userLanguage;
+    }
+
+    public List<EnrolledExam> getEnrolledExams() {
+        return enrolledExams;
+    }
+
+    public void setEnrolledExams(List<EnrolledExam> enrolledExams) {
+        this.enrolledExams = enrolledExams;
+    }
+
     @Override
     public List<? extends Permission> getPermissions() {
 
@@ -111,6 +119,4 @@ public class User extends Model implements Subject {
         return "User [id=" + id + ", email=" + email + ", name=" + lastName + " " +
                 firstName + ", password=" + password + "]";
     }
-
-
 }
