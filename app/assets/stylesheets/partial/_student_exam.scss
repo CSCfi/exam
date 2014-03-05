@@ -18,11 +18,19 @@
 
   .question-header {
     background-color: $sitnet-student-lightgreen;
-    padding: 0.5em;
+    padding: 1px;
     margin-top: 1em;
   }
+
+  .question-active-header {
+    background-color: $sitnet-student-orange;
+    padding: 1px;
+    margin-top: 1em;
+  }
+
   .exam-question-container {
-    padding: 0.5em;
+    background-color: $sitnet-white;
+    padding: 2em;
   }
 
   .exam-question-option {

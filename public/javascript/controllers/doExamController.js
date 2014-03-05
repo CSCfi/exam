@@ -5,6 +5,8 @@
             function ($scope, $routeParams, $translate, $http, SITNET_CONF, StudentExamRes, QuestionRes, dateService) {
 
                 $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "/student_sections_bar.html";
+                $scope.multipleChoiseQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_question.html";
+                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
 
                 var param1 = $routeParams.param1;
                 console.log(param1);

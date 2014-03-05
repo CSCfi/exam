@@ -32,20 +32,8 @@
                 </label>
             </div>
 
-            <div class="list-group">
-                <a ng-repeat="question in activeSection.questions" class="list-group-item" style="margin-bottom: 10px">
-                    <div class="exam-header" >
-                        <i>
-                            <span class="list-group-item-text">{{question.question}}</span>
-                            <div ng-repeat="option in question.options">
-                                <input type="radio" id={{option.id}} name={{option.option}} class="list-group-item-text" ng-click="radioChecked(option)" />
-                                <span>
-                                    {{option.option}}
-                                </span>
-                            </div>
-                        </i>
-                    </div>
-                </a>
+            <div class="list-group"  ng-include="multipleChoiseQuestionTemplate">
+                {{multipleChoiseQuestionTemplate}}
             </div>
 
             <div class="row">

@@ -1,0 +1,18 @@
+<div ng-class="showQuestion ? 'question-active-header' : 'question-header'"  ng-repeat="question in activeSection.questions" >
+    <h4>
+        <div>
+			<span class="fa-stack sitnet-white"> <i class="fa fa-square fa-stack-2x"></i> <i class="fa-stack-1x sitnet-black">{{question.id}}.</i>
+			</span>
+			<i><span class="sitnet-white"> {{question.question}}</span></i>
+
+			<span ng-click="showQuestion = !showQuestion" class="pull-right fa-stack fa-lg">
+                <i ng-class="showQuestion ? 'sitnet-white' : 'sitnet-student-darkgreen'" class="fa fa-square fa-stack-2x "></i>
+				<i ng-class="showQuestion ? 'fa-chevron-down sitnet-student-orange' : 'fa-chevron-left'" class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+			</span>
+        </div>
+    </h4>
+    <div class="exam-question-container" ng-hide="!showQuestion">
+        <div class="question" ng-include="multipleChoiseOptionTemplate" ng-repeat="option in question.options" >
+        </div>
+    </div>
+</div>
