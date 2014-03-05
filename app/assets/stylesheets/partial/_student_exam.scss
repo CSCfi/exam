@@ -7,7 +7,7 @@
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
-    padding: 1em;
+    padding: 2em;
   }
 
   .studentexam-header {
@@ -35,9 +35,9 @@
 
   .exam-question-option {
     background-color: $sitnet-green;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
     margin: 5px;
     padding: 5px;
     min-height: 3em;
@@ -61,13 +61,20 @@
     }
 
   }
-  .exam-info {
-  	padding: 5px;
+  .exam-info-round {
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	border: 2px solid $sitnet-grey;
+	background-color: $sitnet-beige;
+	padding: 1em;
   }
-  .section {
-/*     margin-bottom: 2em; */
-    background-color: $sitnet-light-grey;
-  }
+  
+.section-container {
+	padding: 1em;
+	padding-bottom: 2em;
+	background-color: $sitnet-white
+}
 
 .exam-name-section {
 	background-color: $sitnet-white;

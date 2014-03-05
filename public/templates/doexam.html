@@ -22,17 +22,17 @@
                 </span>
             </h4>
         </div>
-        <div style="padding: 1em; padding-bottom: 2em; background-color: #ffffff">
-            <div style="background-color: beige; margin-bottom: 1em; border: 1px">
-                <label>
-                    <span class="pull-left fa-stack fa-lg">
-                        <i class="fa fa-info-circle fa-stack-2x"></i>
-                    </span>
-                    Tämä on esimerkki ohjeistustekstistä
-                </label>
-            </div>
-
-            <div class="list-group"  ng-include="multipleChoiseQuestionTemplate">
+        <div class="section-container" >
+			<div class="exam-info-round">
+				<span class="pull-left fa-stack fa-lg ">
+					<i class="fa fa-info-circle fa-stack-2x"></i>
+				</span>
+				<label>Tenttiohje </label>
+				<i class="sitnet-light-gray">Finally, I always go to sea as a sailor because of the wholesome exercise and pure air. The Captain at the
+					wheel of the ship gets his atmosphere secondhand from the sailors on the fore-deck. He thinks he breathes it first, but not so. In much the
+					same way, the common people lead their leaders.</i>
+			</div>
+			<div class="list-group"  ng-include="multipleChoiseQuestionTemplate">
                 {{multipleChoiseQuestionTemplate}}
             </div>
 
