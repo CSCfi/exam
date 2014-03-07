@@ -8,15 +8,19 @@ import javax.persistence.Entity;
 @Entity
 public class MathQuestion extends AbstractQuestion{
 
+    public MathQuestion() {
+        this.type = this.getClass().getSimpleName();
+    }
+
+
 
     @Override
-    public String getName() {
-        return "Essee: "+name +" id: "+ id;
+    public String getType() {
+        return this.type;
     }
 
-    public String toString()
-    {
-        return super.toString() + "alaluokka";
+    @Override
+    public String generateHash() {
+        return "MathQuestion: implement my hash";
     }
-
 }

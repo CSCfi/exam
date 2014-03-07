@@ -14,30 +14,20 @@ public class Comment extends SitnetModel {
 	private Comment reply;
 
 
-	public Comment(User creator, String comment) {
-		super(creator);
-		this.comment = comment;
-	}
-
-
 	public String getComment() {
 		return comment;
 	}
-
 
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
 
-
 	public Comment getReply() {
 		return reply;
 	}
-
 
 	public void setReply(Comment reply) {
 		this.reply = reply;
 	}
 
-	
 }

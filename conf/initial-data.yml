@@ -121,211 +121,222 @@ organisations:
 ######################################################################
 
 
-questions:
+question_mutiple_choice:
 
-
-
-# Multiple choise questions
- 
-  - &multi1 !!models.Question
-    type:
+  - !!models.questions.MultipleChoiseQuestion
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias: 
-    comments: 
     options:
-        - !!models.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: 99, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
-    shared: false
-  
-  - &multi2 !!models.Question
-    type:
-    question: Mikä on ikuisen elämän salaisuus?
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias: 
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: IDCLIP, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
-    shared: false
-  
-######################################################################
-  - &avaruus1 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias: 
-                  - !!models.EvaluationCriteria 
-                      criteria: Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: kosmonautti, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: kosmetologi, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: kosmologi, correctOption: true, score: 1}
-    shared: false
-  
-  - &avaruus2 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:  Auringon fuusioreaktiot tapahtuvat
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria 
-                      criteria: Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Ytimessä, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Säteilyvyöhykkeessä, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Konvektiovyöhykkeessä, correctOption: false, score: 1}
-    shared: false
-  
-  - &avaruus3 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:   AU mittaa
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria 
-                      criteria: Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Aikaa, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Etäisyyttä, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Painoa, correctOption: false, score: 1}
-    shared: false
-  
-  - &avaruus4 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:   Ekliptika on
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria 
-                      criteria: Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Kuun sirppi, correctOption: false, score: 1}
-    shared: false
-  
-  - &avaruus5 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:   Tähdenlento eli
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria 
-                      criteria: Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Meteoriitti, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Meteorologi, correctOption: false, score: 1}
-    shared: false
-  
-  - &avaruus6 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria 
-                      criteria: Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Aineen palamisesta ilmakehässä, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Kaasujen hehkumisesta, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false, score: 1}
-    shared: false
-  
-  - &avaruus7 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria 
-                      criteria: Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Maa, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Jupiter, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Venus, correctOption: false, score: 1}
-    shared: false
-  
-  
-  - &avaruus8 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:   The Great Red Spot tarkoittaa
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria 
-                      criteria: Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Jupiterin korkeapaineen aluetta, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Mars-planeettaa, correctOption: false, score: 1}
-    shared: false
-  
-  
-  - &avaruus9 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:   Vuodenajat aiheutuvat
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria 
-                      criteria: Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Auringon ja Maan etäisyys muuttuu vuoden aikana, correctOption: false, score: 1}
-    shared: false
-  
- 
-  - &avaruus10 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:   Uudenkuun aikaan
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria
-                       criteria: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan. 
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Kuu on Auringon ja Maan välissä, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Kuu tulee uudelleen näkyviin, correctOption: false, score: 1}
-    shared: false
-  
+        - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: 99, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
+    shared: true
 
-  - &avaruus11 !!models.Question
-    type: MULTIPLE_CHOICE_ONE_CORRECT
-    question:   Vuoksen ja luoteen aiheuttavat pääasiassa
-    materials:
-    evaluationPhrases: 
-    evaluationCriterias:  
-                  - !!models.EvaluationCriteria 
-                      criteria: Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
-    comments: 
-    options:
-        - !!models.MultipleChoiseOption {option: Kuun vetovoima, correctOption: false, score: 1}
-        - !!models.MultipleChoiseOption {option: Auringon vetovoima, correctOption: true, score: 1}
-        - !!models.MultipleChoiseOption {option: Maapallon pinnanmuodot, correctOption: false, score: 1}
-    shared: false
-  
+
+
+
+#
+## Multiple choise questions
+#
+#  - &multi1 !!models.Question
+#    type:
+#    question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: 99, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
+#    shared: false
+#
+#  - &multi2 !!models.Question
+#    type:
+#    question: Mikä on ikuisen elämän salaisuus?
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: IDCLIP, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
+#    shared: false
+#
+#######################################################################
+#  - &avaruus1 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: kosmonautti, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: kosmetologi, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: kosmologi, correctOption: true, score: 1}
+#    shared: false
+#
+#  - &avaruus2 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:  Auringon fuusioreaktiot tapahtuvat
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Ytimessä, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Säteilyvyöhykkeessä, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Konvektiovyöhykkeessä, correctOption: false, score: 1}
+#    shared: false
+#
+#  - &avaruus3 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:   AU mittaa
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Aikaa, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Etäisyyttä, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Painoa, correctOption: false, score: 1}
+#    shared: false
+#
+#  - &avaruus4 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:   Ekliptika on
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Kuun sirppi, correctOption: false, score: 1}
+#    shared: false
+#
+#  - &avaruus5 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:   Tähdenlento eli
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Meteoriitti, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Meteorologi, correctOption: false, score: 1}
+#    shared: false
+#
+#  - &avaruus6 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Aineen palamisesta ilmakehässä, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Kaasujen hehkumisesta, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false, score: 1}
+#    shared: false
+#
+#  - &avaruus7 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Maa, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Jupiter, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Venus, correctOption: false, score: 1}
+#    shared: false
+#
+#
+#  - &avaruus8 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:   The Great Red Spot tarkoittaa
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Jupiterin korkeapaineen aluetta, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Mars-planeettaa, correctOption: false, score: 1}
+#    shared: false
+#
+#
+#  - &avaruus9 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:   Vuodenajat aiheutuvat
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Auringon ja Maan etäisyys muuttuu vuoden aikana, correctOption: false, score: 1}
+#    shared: false
+#
+#
+#  - &avaruus10 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:   Uudenkuun aikaan
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                       criteria: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Kuu on Auringon ja Maan välissä, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Kuu tulee uudelleen näkyviin, correctOption: false, score: 1}
+#    shared: false
+#
+#
+#  - &avaruus11 !!models.Question
+#    type: MULTIPLE_CHOICE_ONE_CORRECT
+#    question:   Vuoksen ja luoteen aiheuttavat pääasiassa
+#    materials:
+#    evaluationPhrases:
+#    evaluationCriterias:
+#                  - !!models.EvaluationCriteria
+#                      criteria: Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
+#    comments:
+#    options:
+#        - !!models.questions.MultipleChoiseOption {option: Kuun vetovoima, correctOption: false, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Auringon vetovoima, correctOption: true, score: 1}
+#        - !!models.questions.MultipleChoiseOption {option: Maapallon pinnanmuodot, correctOption: false, score: 1}
+#    shared: false
+#
 
 ######################################################################
 
@@ -365,33 +376,34 @@ courses:
 
 examsections:
 
-  - &osio1 !!models.ExamSection
-    name: Monivalinnat 1
-    questions:
-              - *multi1
-    totalScore:
-  
-  - &osio2 !!models.ExamSection
-    name: Monivalinnat 2
-    questions:
-              - *multi2
-    totalScore:
-  
-  - &astro1 !!models.ExamSection
-    name: Astronomian Monivalinnat
-    questions:
-              - *avaruus1
-              - *avaruus2
-              - *avaruus3
-              - *avaruus4
-              - *avaruus5
-              - *avaruus6
-              - *avaruus7
-              - *avaruus8
-              - *avaruus9
-              - *avaruus10
-              - *avaruus11
-    totalScore:
+#
+#  - &osio1 !!models.ExamSection
+#    name: Monivalinnat 1
+#    questions:
+#              - *multi1
+#    totalScore:
+#
+#  - &osio2 !!models.ExamSection
+#    name: Monivalinnat 2
+#    questions:
+#              - *multi2
+#    totalScore:
+#
+#  - &astro1 !!models.ExamSection
+#    name: Astronomian Monivalinnat
+#    questions:
+#              - *avaruus1
+#              - *avaruus2
+#              - *avaruus3
+#              - *avaruus4
+#              - *avaruus5
+#              - *avaruus6
+#              - *avaruus7
+#              - *avaruus8
+#              - *avaruus9
+#              - *avaruus10
+#              - *avaruus11
+#    totalScore:
 
 examevents:
 
@@ -429,68 +441,6 @@ examevents:
 
 exams:
 
-
-  - &astronomianPerusteet !!models.Exam
-    course: *765104P
-    name: Astronomian perusteet
-    examType:
-    instruction: 
-    shared: false
-    examSections:
-              - *astro1
-    examEvent: *event1
-    
-  - !!models.Exam
-    course: *alkeet
-    name: Johdatus alkeiden perusteisiin
-    examType:
-    instruction: Vastaa kolmeen tehtävään neljästä
-    shared: false
-    examSections:
-              - *osio2
-    examEvent: *event1
-
-
-  - !!models.Exam
-    course: *tietokannat
-    name: Tietokantojen perusteet, syksy 2013
-    examType:
-    instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
-    shared: true
-    examSections:
-    examEvent: *event1
-
-  
-  - !!models.Exam
-    course: *tietokannat
-    name: Tietokantojen perusteet, kevät 2014
-    examType:
-    instruction: Vastaa kaikkiin tenttikysymyksiin
-    shared: true
-    examSections:
-    examEvent: *event1
-
-    
-  - !!models.Exam
-    course: *tietokannat
-    name: Tietokantojen perusteet, 2009
-    examType:
-    instruction: Tentissä saa käyttää apuna lähdemateriaalia
-    shared: true
-    examSections:
-                - *osio1
-    examEvent: *event1
-
-  - !!models.Exam
-    course: *811386A
-    name: Algoritmit, 2013
-    examType:
-    instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja 
-    shared: true
-    examSections:
-                - *osio1
-    examEvent: *event2               
-                
   - !!models.Exam
     course: *812346A
     name: OOAD, 2013
@@ -498,9 +448,81 @@ exams:
     instruction: Tentissä saa käyttää vain tilakoneita.
     shared: true
     examSections:
-                - *osio1
-                - *osio2
-                - *astro1
+
     examEvent: *event3
-    
-    
+
+#
+#  - &astronomianPerusteet !!models.Exam
+#    course: *765104P
+#    name: Astronomian perusteet
+#    examType:
+#    instruction:
+#    shared: false
+#    examSections:
+#              - *astro1
+#    examEvent: *event1
+#
+#  - !!models.Exam
+#    course: *alkeet
+#    name: Johdatus alkeiden perusteisiin
+#    examType:
+#    instruction: Vastaa kolmeen tehtävään neljästä
+#    shared: false
+#    examSections:
+#              - *osio2
+#    examEvent: *event1
+#
+#
+#  - !!models.Exam
+#    course: *tietokannat
+#    name: Tietokantojen perusteet, syksy 2013
+#    examType:
+#    instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
+#    shared: true
+#    examSections:
+#    examEvent: *event1
+#
+#
+#  - !!models.Exam
+#    course: *tietokannat
+#    name: Tietokantojen perusteet, kevät 2014
+#    examType:
+#    instruction: Vastaa kaikkiin tenttikysymyksiin
+#    shared: true
+#    examSections:
+#    examEvent: *event1
+#
+#
+#  - !!models.Exam
+#    course: *tietokannat
+#    name: Tietokantojen perusteet, 2009
+#    examType:
+#    instruction: Tentissä saa käyttää apuna lähdemateriaalia
+#    shared: true
+#    examSections:
+#                - *osio1
+#    examEvent: *event1
+#
+#  - !!models.Exam
+#    course: *811386A
+#    name: Algoritmit, 2013
+#    examType:
+#    instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
+#    shared: true
+#    examSections:
+#                - *osio1
+#    examEvent: *event2
+#
+#  - !!models.Exam
+#    course: *812346A
+#    name: OOAD, 2013
+#    examType:
+#    instruction: Tentissä saa käyttää vain tilakoneita.
+#    shared: true
+#    examSections:
+#                - *osio1
+#                - *osio2
+#                - *astro1
+#    examEvent: *event3
+#
+#

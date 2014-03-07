@@ -1,5 +1,7 @@
 package models;
 
+import models.questions.AbstractQuestion;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
@@ -18,7 +20,7 @@ public class ExamSection extends SitnetModel {
     private String name;
 
 	@ManyToMany(cascade = CascadeType.REMOVE)
-	private List<Question> questions;
+	private List<AbstractQuestion> questions;
 
 //	@ManyToOne
 	@ManyToMany
@@ -27,11 +29,11 @@ public class ExamSection extends SitnetModel {
 	// osion kokonaispisteet
 	private Long totalScore;
 
-	public List<Question> getQuestions() {
+	public List<AbstractQuestion> getQuestions() {
 		return questions;
 	}
 
-	public void setQuestions(List<Question> questions) {
+	public void setQuestions(List<AbstractQuestion> questions) {
 		this.questions = questions;
 	}
 

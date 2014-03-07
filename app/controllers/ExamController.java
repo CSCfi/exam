@@ -1,10 +1,11 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.*;
+import models.Exam;
+import models.ExamEvent;
+import models.ExamSection;
+import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import play.Logger;
@@ -20,7 +21,7 @@ public class ExamController extends SitnetController {
 
 
     //    @Authenticate
-    @Restrict(@Group({"TEACHER"}))
+//    @Restrict(@Group({"TEACHER"}))
     public static Result getExams() {
 
         List<Exam> exams = Ebean.find(Exam.class).findList();
@@ -28,7 +29,7 @@ public class ExamController extends SitnetController {
     }
 
     //  @Authenticate
-    @Restrict(@Group({"TEACHER"}))
+//    @Restrict(@Group({"TEACHER"}))
     public static Result createExam() throws MalformedDataException {
         Logger.debug("createExam()");
 
@@ -40,22 +41,22 @@ public class ExamController extends SitnetController {
             es.setId(null);
             es.save();
 
-            List<Question> questions = es.getQuestions();
-            for (Question q : questions) {
-                q.setId(null);
-                q.save();
-
-                Question.QuestionType type = q.getType();
-                switch (type) {
-                    case MULTIPLE_CHOICE_ONE_CORRECT: {
-                        List<MultipleChoiseOption> options = q.getOptions();
-                        for (MultipleChoiseOption o : options) {
-                            o.setId(null);
-                        }
-                    } break;
-
-                }
-            }
+//            List<Question> questions = es.getQuestions();
+//            for (Question q : questions) {
+//                q.setId(null);
+//                q.save();
+//
+//                Question.QuestionType type = q.getType();
+//                switch (type) {
+//                    case MULTIPLE_CHOICE_ONE_CORRECT: {
+//                        List<MultipleChoiseOption> options = q.getOptions();
+//                        for (MultipleChoiseOption o : options) {
+//                            o.setId(null);
+//                        }
+//                    } break;
+//
+//                }
+//            }
         }
 
         ExamEvent event = ex.getExamEvent();
@@ -84,7 +85,7 @@ public class ExamController extends SitnetController {
     }
 
     //    @Authenticate
-    @Restrict(@Group({"TEACHER"}))
+//    @Restrict(@Group({"TEACHER"}))
     public static Result addSection() {
 
         DynamicForm df = Form.form().bindFromRequest();
