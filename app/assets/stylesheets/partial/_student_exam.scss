@@ -1,6 +1,21 @@
 #studentexam {
   margin-top: 1em;
 
+  li {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  li:hover {
+    background-color: $sitnet-grey;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  ul {
+    padding: 0;
+  }
+
   .base {
     background-color: #fff;
     border: solid 1px $sitnet-grey;
@@ -26,6 +41,24 @@
     background-color: $sitnet-student-orange;
     padding: 1px;
     margin-top: 1em;
+  }
+
+  .question-unanswered-header {
+     background-color: $sitnet-student-inactive-gray;
+     padding: 1px;
+     margin-top: 1em;
+   }
+
+  .question-answered-header {
+    background-color: $sitnet-student-lightgreen;
+    padding: 1px;
+    margin-top: 1em;
+  }
+
+  .question-status {
+    font-style: normal;
+    font-size: 14px;
+    line-height: 2.5em;
   }
 
   .exam-question-container {
@@ -61,50 +94,44 @@
     }
 
   }
+
   .exam-info-round {
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	border: 2px solid $sitnet-grey;
-	background-color: $sitnet-beige;
-	padding: 1em;
-  }
-  
-.section-container {
-	padding: 1em;
-	padding-bottom: 2em;
-	background-color: $sitnet-white
-}
-
-.exam-name-section {
-	background-color: $sitnet-white;
-	color: black;
-	padding: 0.5em;
-	margin-bottom: 2em;
-}
-
-li {
-    list-style: none;
-    cursor:pointer;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 2px solid $sitnet-grey;
+    background-color: $sitnet-beige;
+    padding: 1em;
   }
 
-  li:hover {
-    background-color: $sitnet-grey;
-    list-style: none;
-    cursor:pointer;
+  .section-container {
+    padding: 1em;
+    padding-bottom: 2em;
+    background-color: $sitnet-white
   }
 
-  ul {
-    padding: 0;
+  .exam-name-section {
+    background-color: $sitnet-white;
+    color: black;
+    padding: 0.5em;
+    margin-bottom: 2em;
   }
 
   .selected {
-      background-color: $sitnet-white;
+    background-color: $sitnet-white;
   }
 
-.pointer-hand {
-	cursor:pointer;
-}
+  .pointer-hand {
+    cursor: pointer;
+  }
+
+  .section-header-icon-square {
+    line-height: 0.8em;
+  }
+
+  .section-header-icon-chevron {
+    line-height: 1.6em;
+  }
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -112,5 +139,5 @@ li {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  outline-style:none;
+  outline-style: none;
 }

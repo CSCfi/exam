@@ -1,10 +1,9 @@
 <div id="sitnet-header" class="header"></div>
 <div id="studentexam" ng-controller="StudentExamController">
-    <h2 class="table-heading">Aktiiviset tentit</h2>
+    <h2 class="table-heading">{{"sitnet_active_exams" | translate}}</h2>
 
     <div class="col-md-8">
         <div class="list-group">
-            <!--href="#/student/doexam/{{exam.hash}}"-->
             <a ng-repeat="exam in exams" ng-click="activateExam(exam)" class="list-group-item" style="margin-bottom: 10px">
                 <h4 class="list-group-item-heading">
                     {{exam.name}}

@@ -28,14 +28,11 @@
     "sitnet_remove": "Poista",
     "sitnet_library": "Kirjasto",
     "sitnet_search": "Haku",
-    
     "sitnet_name": "Nimi",
     "sitnet_button_ok": "Ok",
     "sitnet_button_save": "Tallenna",
     "sitnet_button_cancel": "Peruuta",
-
-    "section_default_name" : "Osio",
-    
+    "sitnet_exam_section_default_name" : "Osio",
     "sitnet_question": "Kysymys",
     "sitnet_questions": "Kysymykset",
     "sitnet_questions_new": "Uusi kysymys",
@@ -45,18 +42,16 @@
     "sitnet_question_write_name": "Kirjoita kysymys tähän",
     "sitnet_question_new_option": "Uusi vaihtoehto",
     "sitnet_question_add_new_option": "Lisää uusi vaihtoehto painamalla tästä",
+    "sitnet_question_unanswered": "Ei vastattu",
+    "sitnet_question_answered": "Vastattu",
     "sitnet_correct_option": "Correct option",
     "sitnet_option": "Vaihtoehto",
-
     "sitnet_answer_amount_too_great": "Arvottavien kysymysten määrä liian suuri: ",
-
     "sitnet_add_random_questions": "Lisää sattumanvaraisia kysymyksiä tästä osiosta",
-
-
-
     "sitnet_user_preferences": "Käyttäjäasetukset",
     "sitnet_user_language_change" : "Käyttäjän kielen valinta",
-
     "sitnet_welcome" : "Tervetuloa",
-    "sitnet_settings": "Asetukset"
+    "sitnet_settings": "Asetukset",
+    "sitnet_active_exams": "Aktiiviset tentit",
+    "sitnet_save_and_return_exam": "Tallenna ja palauta tentti"
 }

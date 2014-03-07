@@ -29,13 +29,11 @@
     "sitnet_remove": "Remove",
     "sitnet_library": "Library",
     "sitnet_search": "Search",
-    
     "sitnet_name": "Name",
     "sitnet_button_ok": "Ok",
     "sitnet_button_save": "Save",
     "sitnet_button_cancel": "Cancel",
-    
-        
+    "sitnet_exam_section_default_name" : "Section",
     "sitnet_question": "Question",
     "sitnet_questions_new": "New question",
     "sitnet_questions_all": "All questions",
@@ -44,17 +42,16 @@
     "sitnet_question_write_name": "Write question here, please",
     "sitnet_question_new_option": "New option",
     "sitnet_question_add_new_option": "Add new option by clicking here",
+    "sitnet_question_unanswered": "Unanswered",
+    "sitnet_question_answered": "Answered",
     "sitnet_correct_option": "Correct option",
     "sitnet_option": "Option",
-
     "sitnet_answer_amount_too_great": "Too many random questions: ",
-
-
     "sitnet_add_random_questions": "Add random questions from this library section",
-    
     "sitnet_user_preferences": "User preferences",
     "sitnet_user_language_change" : "User language selection",
-
     "sitnet_welcome" : "Welcome",
-    "sitnet_settings": "Settings"
+    "sitnet_settings": "Settings",
+    "sitnet_active_exams": "Active exams",
+    "sitnet_save_and_return_exam": "Save and close the exam"
 }

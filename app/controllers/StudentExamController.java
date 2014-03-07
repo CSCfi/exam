@@ -50,4 +50,11 @@ public class StudentExamController extends Controller {
         else
         	return notFound("Exam not found, something went horribly wrong.");        
     }
+
+    public static Result saveExam(Long id) {
+
+
+
+        return ok("Tentti tallennettiin");
+    }
 }

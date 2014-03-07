@@ -12,10 +12,10 @@
                 </span>
                 {{activeSection.name}}
                 <span class="pull-right">
-                    <i style="padding-left: 5px">Jäljellä oleva suoritusaika</i>
+                    <i style="padding-left: 5px; line-height: 2.5em">Jäljellä oleva suoritusaika</i>
                 </span>
                 <span class="pull-right">
-                    <i>2:23</i>
+                    <i style="line-height: 2.5em">2:23</i>
                 </span>
                 <span class="pull-right fa-stack fa-lg">
                     <i class="fa fa-clock-o fa-stack-1x"></i>
@@ -65,6 +65,14 @@
             <span class="list-group-item-text">{{doexam.course.code}}</span>
         </i>
         <div class="" ng-include="sectionsBar">
+        </div>
+
+        <div>
+            <div>
+                <a ng-click="saveExam(doexam)">
+                    <i class="btn btn-primary btn-lg active fa fa-sign-out" style="background-color: darkblue; color: #ffffff"><span>{{'sitnet_save_and_return_exam' | translate}}</span></i>
+                </a>
+            </div>
         </div>
     </div>
 </div>

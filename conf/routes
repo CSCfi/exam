@@ -23,7 +23,7 @@ GET           /sections/:id         	controllers.ExamController.getExamSections(
 GET           /events               	controllers.ExamController.getExamEvents()
 GET           /student/exams        	controllers.StudentExamController.listActiveExams()
 GET           /student/doexam/:hash     controllers.StudentExamController.getExamByHash(hash: String)
-	
+POST          /student/saveexam/:id     controllers.StudentExamController.saveExam(id: Long)
 
 
 
