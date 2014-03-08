@@ -1,22 +1,28 @@
 package models.questions;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 /**
  * Created by avainik on 3/6/14.
  */
 @Entity
-public class MathQuestion extends AbstractQuestion{
+@DiscriminatorValue("MathQuestion")
+public class MathQuestion extends AbstractQuestion implements QuestionInterface {
+
+    public MathQuestion() {
+        this.type = this.getClass().getSimpleName();
+    }
+
 
 
     @Override
-    public String getName() {
-        return "Essee: "+name +" id: "+ id;
+    public String getType() {
+        return this.type;
     }
 
-    public String toString()
-    {
-        return super.toString() + "alaluokka";
+    @Override
+    public String generateHash() {
+        return "MathQuestion: implement my hash";
     }
-
 }

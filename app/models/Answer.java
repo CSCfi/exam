@@ -1,5 +1,6 @@
 package models;
 
+import models.questions.MultipleChoiseOption;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -16,8 +17,8 @@ public class Answer extends Model {
     @OneToMany(cascade = CascadeType.ALL)
     private MultipleChoiseOption answeredOptions;
 
-    @OneToOne
-    private Question question;
+//    @OneToOne
+//    private Question question;
 
 //    public byte[] getData() {
 //        return data;
@@ -44,20 +45,19 @@ public class Answer extends Model {
         this.answeredOptions = answeredOptions;
     }
 
-    public Question getQuestion() {
-        return question;
-    }
-
-    public void setQuestion(Question question) {
-        this.question = question;
-    }
+//    public Question getQuestion() {
+//        return question;
+//    }
+//
+//    public void setQuestion(Question question) {
+//        this.question = question;
+//    }
 
     @Override
     public String toString() {
         return "Answer{" +
                 "id=" + id +
                 ", answeredOptions=" + answeredOptions +
-                ", question=" + question +
                 '}';
     }
 }

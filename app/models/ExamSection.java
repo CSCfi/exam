@@ -1,9 +1,12 @@
 package models;
 
+import java.util.List;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
-import java.util.List;
+
+import models.questions.AbstractQuestion;
 
 /*
  * Tenttiosio, joka voi sisältää useita kysymyksiä (Kysymystyyppejä)
@@ -17,21 +20,21 @@ public class ExamSection extends SitnetModel {
 
     private String name;
 
-	@ManyToMany(cascade = CascadeType.REMOVE)
-	private List<Question> questions;
+	@ManyToMany(cascade = CascadeType.PERSIST)
+	private List<AbstractQuestion> questions;
 
 //	@ManyToOne
-	@ManyToMany
-	private Exam exam;
+//	@ManyToMany
+//	private Exam exam;
 
 	// osion kokonaispisteet
 	private Long totalScore;
 
-	public List<Question> getQuestions() {
+	public List<AbstractQuestion> getQuestions() {
 		return questions;
 	}
 
-	public void setQuestions(List<Question> questions) {
+	public void setQuestions(List<AbstractQuestion> questions) {
 		this.questions = questions;
 	}
 
@@ -43,13 +46,7 @@ public class ExamSection extends SitnetModel {
 		this.totalScore = totalScore;
 	}
 
-	public Exam getExam() {
-		return exam;
-	}
 
-	public void setExam(Exam exam) {
-		this.exam = exam;
-	}
 
     public String getName() {
         return name;
@@ -64,7 +61,6 @@ public class ExamSection extends SitnetModel {
         return "ExamSection{" +
                 "name='" + name + '\'' +
                 ", questions=" + questions +
-                ", exam=" + exam +
                 ", totalScore=" + totalScore +
                 '}';
     }

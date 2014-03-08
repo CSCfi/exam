@@ -35,7 +35,7 @@ public class User extends Model implements Subject {
     @ManyToOne
     private UserLanguage userLanguage;
 
-    private List<EnrolledExam> enrolledExams;
+//    private List<EnrolledExam> enrolledExams;
 
 	public Long getId() {
         return id;
@@ -94,13 +94,13 @@ public class User extends Model implements Subject {
         this.userLanguage = userLanguage;
     }
 
-    public List<EnrolledExam> getEnrolledExams() {
-        return enrolledExams;
-    }
-
-    public void setEnrolledExams(List<EnrolledExam> enrolledExams) {
-        this.enrolledExams = enrolledExams;
-    }
+//    public List<EnrolledExam> getEnrolledExams() {
+//        return enrolledExams;
+//    }
+//
+//    public void setEnrolledExams(List<EnrolledExam> enrolledExams) {
+//        this.enrolledExams = enrolledExams;
+//    }
 
     @Override
     public List<? extends Permission> getPermissions() {

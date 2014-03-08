@@ -1,11 +1,12 @@
-import Exceptions.AuthenticateException;
-import Exceptions.MalformedDataException;
-import Exceptions.UnauthorizedAccessException;
-import com.avaje.ebean.Ebean;
+import java.lang.reflect.Method;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
+
 import models.Exam;
 import models.ExamEvent;
-import models.Question;
 import models.User;
+import models.questions.QuestionInterface;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -18,11 +19,11 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Results;
 import play.mvc.SimpleResult;
+import Exceptions.AuthenticateException;
+import Exceptions.MalformedDataException;
+import Exceptions.UnauthorizedAccessException;
 
-import java.lang.reflect.Method;
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
+import com.avaje.ebean.Ebean;
 
 public class Global extends GlobalSettings {
 
@@ -68,19 +69,19 @@ public class Global extends GlobalSettings {
                 Ebean.save(all.get("user_languages"));
                 Ebean.save(all.get("users"));
                 Ebean.save(all.get("courses"));
-                Ebean.save(all.get("questions"));         
+                Ebean.save(all.get("question_mutiple_choice"));
                 Ebean.save(all.get("examsections"));
                 Ebean.save(all.get("examevents"));
                 Ebean.save(all.get("exams"));
 
                 // generate hashes for questions
-                List<Question> questions = (List)all.get("questions");
-                for (Question q : questions){
+                List<QuestionInterface> questions = (List)all.get("question_mutiple_choice");
+                for (QuestionInterface q : questions){
                     q.generateHash();
                 }
                 Ebean.save(questions);
 
-                
+
                 List<ExamEvent> examEvents = (List)all.get("examevents");
                 for (ExamEvent event : examEvents) {
                 	// startTime 1393549200   28.02.2014 00:00
@@ -90,7 +91,7 @@ public class Global extends GlobalSettings {
                 	event.setExamActiveEndDate(new Timestamp(1419728400));
                 	event.setDuration(new Double(1.0));
                 	event.save();
-                	Logger.debug("Exam event initialized");                
+                	Logger.debug("Exam event initialized");
                 }
                 Ebean.save(examEvents);
 

@@ -1,11 +1,17 @@
 package models;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+
+import models.questions.AbstractQuestion;
 
 @Entity
 public class EvaluationCriteria extends SitnetModel {
 
+	@ManyToOne(cascade = CascadeType.PERSIST)
+	private AbstractQuestion question;
 	
 	@Column(length=512)
 	private String criteria;
@@ -17,8 +23,5 @@ public class EvaluationCriteria extends SitnetModel {
 	public void setCriteria(String criteria) {
 		this.criteria = criteria;
 	}
-
-
-
 
 }

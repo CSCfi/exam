@@ -1,13 +1,14 @@
 package models;
 
+import models.questions.MultipleChoiseOption;
 import org.apache.commons.codec.digest.DigestUtils;
 import play.Logger;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Entity
-public class Question extends SitnetModel {
+//@Entity
+public class Question  {
 
     public static enum QuestionType {
 

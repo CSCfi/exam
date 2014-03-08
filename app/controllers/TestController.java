@@ -2,7 +2,7 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
-import models.Exam;
+import models.questions.EssayQuestion;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -31,7 +31,11 @@ public class TestController extends SitnetController {
             Object question = ass.newInstance();
 
             question = bindForm(question.getClass());
-            Exam ex = bindForm(Exam.class);
+
+
+            EssayQuestion es = new EssayQuestion();
+            es.getId();
+
 
             Ebean.save(question);
             return ok(Json.toJson(question.toString()));

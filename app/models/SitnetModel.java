@@ -1,35 +1,28 @@
 package models;
 
-import java.sql.Timestamp;
-
-import javax.persistence.*;
-
 import play.db.ebean.Model;
 
+import javax.persistence.*;
+import java.sql.Timestamp;
+
 @MappedSuperclass
-public class SitnetModel extends play.db.ebean.Model {
+public class SitnetModel extends Model {
 
-	// TODO: Tämä luokka tulee olemaan kaikkien muiden model 
-	// luokkien yläluokka.
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5201571045491048480L;
+	protected static final long serialVersionUID = 5201571045491048480L;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-    private Long id;
+    protected Long id;
 	
-	private Timestamp created;
-	
-	@OneToOne
-	private User creator;
-	
-	private Timestamp modified;
+	protected Timestamp created;
 	
 	@OneToOne
-	private User modifier;
+	protected User creator;
+	
+	protected Timestamp modified;
+	
+	@OneToOne
+	protected User modifier;
 	
 	public SitnetModel() {
 		super();
@@ -44,42 +37,40 @@ public class SitnetModel extends play.db.ebean.Model {
 		return id;
 	}
 
-	public void setId(Long id) {
+    public void setId(Long id) {
 		this.id = id;
 	}
 
-	public Timestamp getCreated() {
+    public Timestamp getCreated() {
 		return created;
 	}
 
-	public void setCreated(Timestamp created) {
+    public void setCreated(Timestamp created) {
 		this.created = created;
 	}
 
-	public User getCreator() {
+    public User getCreator() {
 		return creator;
 	}
 
-	public void setCreator(User creator) {
+    public void setCreator(User creator) {
 		this.creator = creator;
 	}
 
-	public Timestamp getModified() {
+    public Timestamp getModified() {
 		return modified;
 	}
 
-	public void setModified(Timestamp modified) {
+    public void setModified(Timestamp modified) {
 		this.modified = modified;
 	}
 
-	public User getModifier() {
+    public User getModifier() {
 		return modifier;
 	}
 
-	public void setModifier(User modifier) {
+	protected void setModifier(User modifier) {
 		this.modifier = modifier;
 	}
-	
-	
-	
+
 }
