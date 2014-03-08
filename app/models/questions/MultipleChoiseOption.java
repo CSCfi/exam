@@ -1,20 +1,20 @@
 package models.questions;
 
-import play.db.ebean.Model;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+
+import models.SitnetModel;
 
 @Entity
-public class MultipleChoiseOption extends Model {
+public class MultipleChoiseOption extends SitnetModel {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.AUTO)
+//    private Long id;
+	
 
-    private String option;
+	private String option;
     
     private boolean correctOption = false;
     

@@ -1,22 +1,27 @@
 package controllers;
 
-import com.avaje.ebean.Ebean;
+import java.sql.Timestamp;
+import java.util.List;
+
 import models.Exam;
 import models.User;
+
 import org.joda.time.DateTime;
+
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 
-import java.sql.Timestamp;
-import java.util.List;
+import com.avaje.ebean.Ebean;
 
 /**
  * Created by avainik on 3/3/14.
  */
 public class StudentExamController extends Controller {
 
-//    @Restrict(@Group({"STUDENT"}))
+    @Restrict(@Group({"STUDENT"}))
     public static Result listActiveExams() {
 
         // TODO: bug on this line

@@ -1,12 +1,14 @@
 package models.questions;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 /**
  * Created by avainik on 3/6/14.
  */
 @Entity
-public class MathQuestion extends AbstractQuestion{
+@DiscriminatorValue("MathQuestion")
+public class MathQuestion extends AbstractQuestion implements QuestionInterface {
 
     public MathQuestion() {
         this.type = this.getClass().getSimpleName();

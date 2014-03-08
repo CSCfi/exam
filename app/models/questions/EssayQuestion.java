@@ -1,15 +1,18 @@
 package models.questions;
 
 import org.apache.commons.codec.digest.DigestUtils;
+
 import play.Logger;
 
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 /**
  * Created by avainik on 3/6/14.
  */
 @Entity
-public class EssayQuestion extends AbstractQuestion {
+@DiscriminatorValue("EssayQuestion")
+public class EssayQuestion extends AbstractQuestion implements QuestionInterface {
 
     public EssayQuestion() {
         this.type = this.getClass().getSimpleName();

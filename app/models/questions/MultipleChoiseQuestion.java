@@ -1,27 +1,29 @@
 package models.questions;
 
 import org.apache.commons.codec.digest.DigestUtils;
+
 import play.Logger;
 
 import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+
 import java.util.List;
 
 /**
  * Created by avainik on 3/7/14.
  */
 @Entity
-public class MultipleChoiseQuestion extends AbstractQuestion{
+@DiscriminatorValue("MultipleChoiseQuestion")
+public class MultipleChoiseQuestion extends AbstractQuestion  implements QuestionInterface {
 
     public MultipleChoiseQuestion() {
         this.type = this.getClass().getSimpleName();
     }
 
-//    @OneToMany(cascade = CascadeType.PERSIST)
-//    private List<Answer> answers;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.PERSIST)
     private List<MultipleChoiseOption> options;
 
     @Override
