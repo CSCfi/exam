@@ -17,6 +17,13 @@
                 // Initial state for questions is unanswered
                 $scope.selectedAnsweredState = 'question-unanswered-header';
 
+                $scope.answeredExam = {
+                    "name": "Kirjoita tentin nimi tähän",
+                    "instruction": "Tentissä saa käyttää apuna lähdemateriaalia",
+                    "shared": true,
+                    "examSections": []
+                };
+
                 $scope.activateExam = function (exam) {
                     $scope.exam = exam;
                     var modalInstance = $modal.open({
