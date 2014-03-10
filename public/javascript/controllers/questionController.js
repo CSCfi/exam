@@ -7,7 +7,7 @@
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "/question-editor-option.html";
 
                 var newQuestion = {
-                    type: null,
+                    type: "MultipleChoiseQuestion",
                     question: $translate("sitnet_question_write_name"),
                     instruction: "Kirjoita ohje tähän",
                     materials: [],
@@ -17,7 +17,7 @@
                     comments: [],
                     options: [
                         {
-//                            "id": 1,
+//                          "id": 1,
                             "option": "Esimerkki vaihtoehto",
                             "correctOption": false,
                             "score": 1

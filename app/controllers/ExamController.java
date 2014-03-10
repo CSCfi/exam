@@ -6,6 +6,9 @@ import models.Exam;
 import models.ExamEvent;
 import models.ExamSection;
 import models.User;
+import models.questions.AbstractQuestion;
+import models.questions.MultipleChoiseOption;
+import models.questions.MultipleChoiseQuestion;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import play.Logger;
@@ -36,27 +39,53 @@ public class ExamController extends SitnetController {
         Exam ex = bindForm(Exam.class);
         ex.setId(null);
 
+
+/**
+ *
+ * play.api.Application$$anon$1: Execution exception[[PersistenceException: ERROR executing DML bindLog[] error[NULL not allowed for column
+ * "QUESTION_TYPE"; SQL statement:\n insert into question
+ * (id, question_type, created, modified, type, question, shared, instruction, hash, creator_id, modifier_id, derived_from_question_id)
+ * values (?,?,?,?,?,?,?,?,?,?,?,?) [23502-172]]]]
+
+    Ebean fails to insert Discriminator
+    This is a bug
+
+    Discussion:
+ *  http://eclipse.1072660.n5.nabble.com/Value-of-DiscriminatorValue-not-persisted-td162195.html
+ *
+ *  Bug:
+ *  https://bugs.eclipse.org/bugs/show_bug.cgi?id=415526
+ *
+ *  Possible solution:
+ *  Update Ebean to v.2.5.1
+ *
+ *
+ *
+ */
+
+
+
+
         List<ExamSection> examSections = ex.getExamSections();
         for (ExamSection es : examSections) {
             es.setId(null);
             es.save();
 
-//            List<Question> questions = es.getQuestions();
-//            for (Question q : questions) {
-//                q.setId(null);
-//                q.save();
-//
-//                Question.QuestionType type = q.getType();
-//                switch (type) {
-//                    case MULTIPLE_CHOICE_ONE_CORRECT: {
-//                        List<MultipleChoiseOption> options = q.getOptions();
-//                        for (MultipleChoiseOption o : options) {
-//                            o.setId(null);
-//                        }
-//                    } break;
-//
-//                }
-//            }
+            List<AbstractQuestion> questions = es.getQuestions();
+            for (AbstractQuestion q : questions) {
+                q.setId(null);
+                q.save();
+
+                switch ( q.getType()) {
+                    case "MultipleChoiseQuestion": {
+                        List<MultipleChoiseOption> options = ((MultipleChoiseQuestion)q).getOptions();
+                        for (MultipleChoiseOption o : options) {
+                            o.setId(null);
+                        }
+                    } break;
+
+                }
+            }
         }
 
         ExamEvent event = ex.getExamEvent();
