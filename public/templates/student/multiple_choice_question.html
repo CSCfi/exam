@@ -1,4 +1,4 @@
-<div ng-controller="StudentExamController" class="{{selectedAnsweredState}}" ng-repeat="question in activeSection.questions">
+<div class="{{question.selectedAnsweredState}}" ng-repeat="question in activeSection.questions">
     <h4>
         <div>
 			<span class="fa-stack sitnet-white">
@@ -12,14 +12,14 @@
                 <i ng-class="showQuestion ? 'sitnet-white' : 'sitnet-student-darkgreen'"
                    class="fa fa-square fa-stack-2x section-header-icon-square">
                 </i>
-				<i ng-click="chevronClicked()"
+				<i ng-click="chevronClicked(question)"
                    ng-class="showQuestion ? 'fa-chevron-down sitnet-student-darkgreen' : 'fa-chevron-left'"
                    class="sitnet-white fa fa-chevron-left fa-stack-1x section-header-icon-chevron">
                 </i>
 			</span>
 
             <span class="pull-right sitnet-white">
-                <i class="question-status">{{questionStatus}}</i>
+                <i class="question-status">{{question.questionStatus}}</i>
             </span>
         </div>
     </h4>

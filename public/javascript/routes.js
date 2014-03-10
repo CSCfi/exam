@@ -31,7 +31,7 @@
             /* Student */
             $routeProvider.when('/student/exams', { templateUrl: tmpl + 'active.html', controller: 'StudentExamController'});
             $routeProvider.when('/student/startexam', { templateUrl: tmpl + 'startexam.html', controller: 'StudentExamController'});
-            $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'doexam.html', controller: 'DoExamController'});
+            $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'doexam.html', controller: 'StudentExamController'});
 
 
             $routeProvider.otherwise({redirectTo: '/home'});

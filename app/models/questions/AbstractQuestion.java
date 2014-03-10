@@ -1,6 +1,7 @@
 package models.questions;
 
 import models.*;
+import models.answers.AbstractAnswer;
 
 import javax.persistence.*;
 import java.util.List;
@@ -40,6 +41,9 @@ public class AbstractQuestion extends SitnetModel{
      */
     @OneToOne
     protected AbstractQuestion derivedFromQuestion;
+
+    @OneToOne
+    protected AbstractAnswer answer;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
     protected List<EvaluationCriteria> evaluationCriterias;
@@ -112,7 +116,15 @@ public class AbstractQuestion extends SitnetModel{
 		this.derivedFromQuestion = derivedFromQuestion;
 	}
 
-	public List<EvaluationCriteria> getEvaluationCriterias() {
+    public AbstractAnswer getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(AbstractAnswer answer) {
+        this.answer = answer;
+    }
+
+    public List<EvaluationCriteria> getEvaluationCriterias() {
 		return evaluationCriterias;
 	}
 
