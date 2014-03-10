@@ -15,6 +15,9 @@
                 $scope.exam = null;
                 $scope.checkedState = false;
                 $scope.questionsShown = false;
+//                $scope.option = {
+//                		"checked": ""
+//                }
 
                 $scope.doExam = function(hash) {
                     $http.get('/student/doexam/'+$routeParams.hash)
@@ -26,6 +29,7 @@
                             angular.forEach($scope.activeSection.questions, function(value, index) {
                                 if(!value.answer) {
                                     // When question has not been answered it's status color is set to gray
+                                	// When an active exam is opened it cannot have any answers set so no need to check them here
                                     value.selectedAnsweredState = 'question-unanswered-header';
                                     value.questionStatus = $translate("sitnet_question_unanswered");
                                 } else {
@@ -61,9 +65,6 @@
                     });
 
                     modalInstance.result.then(function () {
-                        // Todo: Make it work with angular style
-//                        $http.get('#/student/doexam/'+$scope.exam.hash);
-//                        $window.location = '#/student/doexam/'+$scope.exam.hash;
                         $location.path('/student/doexam/'+$scope.exam.hash);
                     }, function () {
                         $console.log('Modal dismissed at: ' + new Date());
@@ -82,6 +83,23 @@
                         } else {
                             value.selectedAnsweredState = 'question-answered-header';
                             value.questionStatus = $translate("sitnet_question_answered");
+                            
+                            // Tässä mietin että pitäisikö optionit vielä luupata ja etsiä sieltä se vastattu option, mutta eipä sille taida olla omaa kenttää
+//                            angular.forEach(value.options, function(value, index) {
+//                            	if (value.correctAnswer) {
+//                            		$scope.option = value.answer.option;
+//    	                            $scope.option.checked = true;
+//                            	}
+//                            })
+	                            
+                            
+                            //Todo: tässä loppui taito kun ei elementtiin saanut hanskaa, jotta checked statusta olisi voinut säädellä
+//                            var element = document.getElementById($scope.option.id);
+//                            element.prop('checked', true);
+//                            $('input:radio[name="'+$scope.option.option+'"]').prop('checked', true);
+                            //$('input:radio[name="'+option.option+'"]').click();
+                           /* var element = angular.element(document.getElementById('#'+option.id));
+                            element.click();*/
                         }
                     })
                 }
@@ -94,26 +112,8 @@
                 // Called when a radiobutton is selected
                 $scope.radioChecked = function (question, option) {
 
-//                    var index = $scope.activeSection.questions.indexOf(question);
-//
-//                    if($scope.activeSection.questions[index].answer == null)
-//                    {
-//                        $scope.activeSection.questions[index].answer ={
-//                        "created": null,
-//                        "creator": null,
-//                        "modified": null,
-//                        "modifier": null,
-//                        "type": "MultipleChoiseQuestion",
-//                        "comments": [],
-//                        "option": null
-//                        }
-//                    }
-//                    $scope.activeSection.questions[index].answer.option = option;
-
-
-                    if(question.answer == null)
-                    {
-                        question.answer ={
+                    if(question.answer == null) {
+                        question.answer = {
                             "created": null,
                             "creator": null,
                             "modified": null,
@@ -123,12 +123,9 @@
                             "option": null
                         }
                     }
+//                    $scope.option.checked = true;
                     question.answer.option = option;
-
-
-
-
-
+                    
 
 //                    $scope.answer.option = document.getElementById(option.id);
 
