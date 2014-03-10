@@ -2,9 +2,7 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import actions.Authenticate;
-
 import com.avaje.ebean.Ebean;
-
 import models.Session;
 import models.User;
 import play.Logger;

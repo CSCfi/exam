@@ -1,10 +1,8 @@
 package models.questions;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-
 import models.SitnetModel;
+
+import javax.persistence.Entity;
 
 @Entity
 public class MultipleChoiseOption extends SitnetModel {

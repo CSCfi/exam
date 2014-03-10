@@ -1,8 +1,7 @@
 package models;
 
-import java.util.List;
-
 import javax.persistence.Entity;
+import java.util.List;
 
 // TODO: tätä täytyy miettiä tarkemmin miten Organisaatiot kannattaa maalintaa
 

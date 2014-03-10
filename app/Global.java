@@ -1,8 +1,7 @@
-import java.lang.reflect.Method;
-import java.sql.Timestamp;
-import java.util.List;
-import java.util.Map;
-
+import Exceptions.AuthenticateException;
+import Exceptions.MalformedDataException;
+import Exceptions.UnauthorizedAccessException;
+import com.avaje.ebean.Ebean;
 import models.Exam;
 import models.ExamEvent;
 import models.User;
@@ -19,11 +18,11 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Results;
 import play.mvc.SimpleResult;
-import Exceptions.AuthenticateException;
-import Exceptions.MalformedDataException;
-import Exceptions.UnauthorizedAccessException;
 
-import com.avaje.ebean.Ebean;
+import java.lang.reflect.Method;
+import java.sql.Timestamp;
+import java.util.List;
+import java.util.Map;
 
 public class Global extends GlobalSettings {
 

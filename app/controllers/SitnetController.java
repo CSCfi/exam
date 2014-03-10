@@ -1,8 +1,8 @@
 package controllers;
 
+import Exceptions.MalformedDataException;
 import play.data.Form;
 import play.mvc.Controller;
-import Exceptions.MalformedDataException;
 
 public class SitnetController extends Controller {
 

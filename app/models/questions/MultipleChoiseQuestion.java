@@ -1,14 +1,12 @@
 package models.questions;
 
 import org.apache.commons.codec.digest.DigestUtils;
-
 import play.Logger;
 
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
-
 import java.util.List;
 
 /**

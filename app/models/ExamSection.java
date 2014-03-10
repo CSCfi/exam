@@ -1,12 +1,11 @@
 package models;
 
-import java.util.List;
+import models.questions.AbstractQuestion;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
-
-import models.questions.AbstractQuestion;
+import java.util.List;
 
 /*
  * Tenttiosio, joka voi sisältää useita kysymyksiä (Kysymystyyppejä)

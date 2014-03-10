@@ -1,7 +1,8 @@
 package models;
 
-import be.objectify.deadbolt.core.models.*;
+import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Role;
+import be.objectify.deadbolt.core.models.Subject;
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
@@ -34,8 +35,6 @@ public class User extends Model implements Subject {
 
     @ManyToOne
     private UserLanguage userLanguage;
-
-//    private List<EnrolledExam> enrolledExams;
 
 	public Long getId() {
         return id;
@@ -93,14 +92,6 @@ public class User extends Model implements Subject {
     public void setUserLanguage(UserLanguage userLanguage) {
         this.userLanguage = userLanguage;
     }
-
-//    public List<EnrolledExam> getEnrolledExams() {
-//        return enrolledExams;
-//    }
-//
-//    public void setEnrolledExams(List<EnrolledExam> enrolledExams) {
-//        this.enrolledExams = enrolledExams;
-//    }
 
     @Override
     public List<? extends Permission> getPermissions() {

@@ -1,16 +1,14 @@
 package controllers;
 
-import java.util.List;
-
-import models.Question;
+import Exceptions.MalformedDataException;
+import com.avaje.ebean.Ebean;
 import models.questions.AbstractQuestion;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
-import Exceptions.MalformedDataException;
 
-import com.avaje.ebean.Ebean;
+import java.util.List;
 
 public class QuestionController extends SitnetController {
 

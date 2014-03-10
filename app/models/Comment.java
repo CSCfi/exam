@@ -1,11 +1,11 @@
 package models;
 
+import models.questions.AbstractQuestion;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-
-import models.questions.AbstractQuestion;
 
 @Entity
 public class Comment extends SitnetModel {

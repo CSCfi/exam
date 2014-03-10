@@ -1,12 +1,11 @@
 package controllers;
 
-import java.util.List;
-
+import com.avaje.ebean.Ebean;
 import models.Course;
 import play.libs.Json;
 import play.mvc.Result;
 
-import com.avaje.ebean.Ebean;
+import java.util.List;
 
 public class CourseController extends SitnetController {
 

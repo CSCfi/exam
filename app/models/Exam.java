@@ -1,12 +1,9 @@
 package models;
 
-import java.util.List;
-import java.util.logging.Logger;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.*;
-
-import org.apache.commons.codec.digest.DigestUtils;
-import play.data.validation.Constraints;
+import java.util.List;
 
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
