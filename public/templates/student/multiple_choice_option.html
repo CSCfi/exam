@@ -1,7 +1,4 @@
-<!--<div >-->
-<input type="radio" id="option.id" name="option.option" class="list-group-item-text" ng-click="radioChecked(question, option)"/>
-    <span>
-        {{option.option}}
-    </span>
+<input type="radio" name="hou" ng-model="question" value="option.option" class="list-group-item-text"
+       ng-click="radioChecked(question, option)" ng-checked="option.checked" />
+       {{option.option}}
 <hr>
-<!--</div>-->

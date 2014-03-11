@@ -13,15 +13,12 @@
 
                 $scope.exams = StudentExamRes.query();
                 $scope.exam = null;
-                $scope.checkedState = false;
+                $scope.questionAnswered = false;
                 $scope.questionsShown = false;
-//                $scope.option = {
-//                		"checked": ""
-//                }
 
                 $scope.doExam = function(hash) {
                     $http.get('/student/doexam/'+$routeParams.hash)
-                        .success(function(data, status, headers, config){
+                        .success(function(data, status, headers, config) {
                             $scope.doexam = data;
                             $scope.activeSection = $scope.doexam.examSections[0];
 
@@ -29,7 +26,7 @@
                             angular.forEach($scope.activeSection.questions, function(value, index) {
                                 if(!value.answer) {
                                     // When question has not been answered it's status color is set to gray
-                                	// When an active exam is opened it cannot have any answers set so no need to check them here
+                                	// When an active exam is opened it cannot have any answers set
                                     value.selectedAnsweredState = 'question-unanswered-header';
                                     value.questionStatus = $translate("sitnet_question_unanswered");
                                 } else {
@@ -49,10 +46,6 @@
                     "name": "Kirjoita tentin nimi tähän",
                     "instruction": "Tentissä saa käyttää apuna lähdemateriaalia",
                     "examSections": []
-                };
-
-                $scope.answer = {
-                    "option": null
                 };
 
                 $scope.activateExam = function (exam) {
@@ -83,23 +76,6 @@
                         } else {
                             value.selectedAnsweredState = 'question-answered-header';
                             value.questionStatus = $translate("sitnet_question_answered");
-                            
-                            // Tässä mietin että pitäisikö optionit vielä luupata ja etsiä sieltä se vastattu option, mutta eipä sille taida olla omaa kenttää
-//                            angular.forEach(value.options, function(value, index) {
-//                            	if (value.correctAnswer) {
-//                            		$scope.option = value.answer.option;
-//    	                            $scope.option.checked = true;
-//                            	}
-//                            })
-	                            
-                            
-                            //Todo: tässä loppui taito kun ei elementtiin saanut hanskaa, jotta checked statusta olisi voinut säädellä
-//                            var element = document.getElementById($scope.option.id);
-//                            element.prop('checked', true);
-//                            $('input:radio[name="'+$scope.option.option+'"]').prop('checked', true);
-                            //$('input:radio[name="'+option.option+'"]').click();
-                           /* var element = angular.element(document.getElementById('#'+option.id));
-                            element.click();*/
                         }
                     })
                 }
@@ -112,6 +88,12 @@
                 // Called when a radiobutton is selected
                 $scope.radioChecked = function (question, option) {
 
+                    if(option.checked == true) {
+                        option.checked = false;
+                    } else {
+                        option.checked = true;
+                    }
+
                     if(question.answer == null) {
                         question.answer = {
                             "created": null,
@@ -120,36 +102,43 @@
                             "modifier": null,
                             "type": "MultipleChoiseQuestion",
                             "comments": [],
-                            "option": null
+                            "option": null,
+                            "checked": false
                         }
                     }
-//                    $scope.option.checked = true;
                     question.answer.option = option;
-                    
+                    $scope.option = option;
 
-//                    $scope.answer.option = document.getElementById(option.id);
-
-                    // Todo: Clear this state if/when radiobuttons can be cleared
-                    $scope.checkedState = true;
                     question.questionStatus = $translate("sitnet_question_answered");
                 };
 
+                // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
 
-                    if($scope.questionsShown) {
-                        $scope.questionsShown = false;
+                    // Flag for indicating are the questions shown or hidden
+                    if(question.questionsShown) {
+                        question.questionsShown = false;
                     } else {
-                        $scope.questionsShown = true;
+                        question.questionsShown = true;
                     }
 
-                    if($scope.checkedState) {
-                        if($scope.questionsShown) {
+                    // Loop through the options in question
+                    angular.forEach(question.options, function(value, index) {
+                        // If any option is checked, then the question is considered answered
+                        if(value.checked) {
+                             $scope.questionAnswered = true;
+                        }
+                    });
+
+                    // State machine for resolving how the question header is drawn
+                    if($scope.questionAnswered) {
+                        if(question.questionsShown) {
                             question.selectedAnsweredState = 'question-active-header';
                         } else {
                             question.selectedAnsweredState = 'question-answered-header';
                         }
                     } else {
-                        if($scope.questionsShown) {
+                        if(question.questionsShown) {
                             question.selectedAnsweredState = 'question-active-header';
                         } else {
                             question.selectedAnsweredState = 'question-unanswered-header';

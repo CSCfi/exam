@@ -1,9 +1,8 @@
 <div id="sitnet-header" class="header"></div>
-<div id="studentexam">
+<div id="studentexam" ng-controller="StudentExamController">
 
 <!--  tentti alue -->
 	<div class="col-md-8">
-
         <div class="studentexam-header">
             <h4>
                 <span class="fa-stack">
@@ -64,8 +63,7 @@
             <span class="list-group-item-text">{{doexam.course.name}}</span>
             <span class="list-group-item-text">{{doexam.course.code}}</span>
         </i>
-        <div class="" ng-include="sectionsBar">
-        </div>
+        <div ng-include="sectionsBar"></div>
 
         <div>
             <div>
