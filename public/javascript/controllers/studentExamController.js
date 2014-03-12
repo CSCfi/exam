@@ -13,8 +13,7 @@
 
                 $scope.exams = StudentExamRes.query();
                 $scope.exam = null;
-                $scope.questionAnswered = false;
-                $scope.questionsShown = false;
+                $scope.tempQuestion = null;
 
                 $scope.doExam = function(hash) {
                     $http.get('/student/doexam/'+$routeParams.hash)
@@ -69,7 +68,9 @@
 
                     // Loop through all questions in the active section
                     angular.forEach($scope.activeSection.questions, function(value, index) {
-                        if(!value.answer) {
+                        // Need to reset the flag because questions left open before switching section will be shown closed by default
+                        value.questionsShown = false;
+                        if(!value.answered) {
                             // When question has not been answered it's status color is set to gray
                             value.selectedAnsweredState = 'question-unanswered-header';
                             value.questionStatus = $translate("sitnet_question_unanswered");
@@ -88,11 +89,9 @@
                 // Called when a radiobutton is selected
                 $scope.radioChecked = function (question, option) {
 
-                    if(option.checked == true) {
-                        option.checked = false;
-                    } else {
-                        option.checked = true;
-                    }
+                    question.answered = true;
+                    question.selectedAnswer = option;
+                    question.questionStatus = $translate("sitnet_question_answered");
 
                     if(question.answer == null) {
                         question.answer = {
@@ -105,43 +104,35 @@
                             "option": null,
                             "checked": false
                         }
-                    }
-                    question.answer.option = option;
-                    $scope.option = option;
 
-                    question.questionStatus = $translate("sitnet_question_answered");
+                    question.answer.option = option;
+                    }
                 };
 
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
 
                     // Flag for indicating are the questions shown or hidden
-                    if(question.questionsShown) {
+                    if(question.questionsShown == null) {
                         question.questionsShown = false;
-                    } else {
-                        question.questionsShown = true;
                     }
 
-                    // Loop through the options in question
-                    angular.forEach(question.options, function(value, index) {
-                        // If any option is checked, then the question is considered answered
-                        if(value.checked) {
-                             $scope.questionAnswered = true;
-                        }
-                    });
-
                     // State machine for resolving how the question header is drawn
-                    if($scope.questionAnswered) {
+                    if(question.answered) {
                         if(question.questionsShown) {
-                            question.selectedAnsweredState = 'question-active-header';
-                        } else {
+                            question.questionsShown = false;
                             question.selectedAnsweredState = 'question-answered-header';
+                        } else {
+                            question.questionsShown = true;
+                            question.selectedAnsweredState = 'question-active-header';
                         }
                     } else {
                         if(question.questionsShown) {
-                            question.selectedAnsweredState = 'question-active-header';
-                        } else {
+                            question.questionsShown = false;
                             question.selectedAnsweredState = 'question-unanswered-header';
+                        } else {
+                            question.questionsShown = true;
+                            question.selectedAnsweredState = 'question-active-header';
                         }
                     }
                 };

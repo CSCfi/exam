@@ -19,11 +19,11 @@
 			</span>
 
             <span class="pull-right sitnet-white">
-                <i class="question-status">{{question.questionStatus}}</i>
+                <i class="question-status" ng-model="question">{{question.questionStatus}}</i>
             </span>
         </div>
     </h4>
     <div class="exam-question-container" ng-hide="!showQuestion">
-        <div class="question" ng-include="multipleChoiseOptionTemplate" ng-repeat="option in question.options"></div>
+            <div class="question" ng-include="multipleChoiseOptionTemplate"></div>
     </div>
 </div>

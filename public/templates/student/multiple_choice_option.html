@@ -1,4 +1,4 @@
-<input type="radio" name="hou" ng-model="question" value="option.option" class="list-group-item-text"
-       ng-click="radioChecked(question, option)" ng-checked="option.checked" />
-       {{option.option}}
-<hr>
+<input type="radio" name="answer_{{question.id}}" ng-repeat-start="option in question.options" ng-checked="{{option === question.selectedAnswer}}"
+       value="option.option" class="exam-answer-options" ng-click="radioChecked(question, option)" />
+   {{option.option}}
+<br ng-repeat-end />
