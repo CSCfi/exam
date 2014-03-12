@@ -63,9 +63,6 @@ public class ExamController extends SitnetController {
  *
  */
 
-
-
-
         List<ExamSection> examSections = ex.getExamSections();
         for (ExamSection es : examSections) {
             es.setId(null);

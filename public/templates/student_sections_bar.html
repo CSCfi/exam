@@ -1,6 +1,6 @@
 <div>
     <ul>
-        <li ng-class="selected" ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section)">
+        <li ng-class="showQuestion ? 'selected' : 'inactive' " ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section);  showQuestion = ! showQuestion">
             <span class="fa-stack">
                 <i class="fa fa-square fa-stack-2x sitnet-student-inactive-turquoise"></i>
                 <i class="fa-stack-1x sitnet-white">{{section.id}}</i>

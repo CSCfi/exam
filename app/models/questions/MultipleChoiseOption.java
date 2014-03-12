@@ -68,7 +68,6 @@ public class MultipleChoiseOption extends SitnetModel {
 		this.score = score;
 	}
 
-    @Override
     public String toString() {
         return "MultipleChoiseOption{" +
                 "id=" + id +

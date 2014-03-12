@@ -10,10 +10,10 @@ import java.util.List;
  * Created by avainik on 3/6/14.
  */
 @Entity
+@Table(name="question")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="question_type",  discriminatorType=DiscriminatorType.STRING)
-@Table(name="question")
-
+@DiscriminatorValue("AbstractQuestion")
 /*
  * For some weird reason this class cannot be abstract (Ebean issue) even tough it should
  * Abstract class cannot have Lists
@@ -164,7 +164,7 @@ public class AbstractQuestion extends SitnetModel{
 		this.hash = hash;
 	}
 
-	@Override
+//	@Override
 	public String toString() {
 		return "AbstractQuestion [type=" + type + ", question=" + question
 				+ ", shared=" + shared + ", instruction=" + instruction
@@ -172,6 +172,5 @@ public class AbstractQuestion extends SitnetModel{
 				+ ", evaluationCriterias=" + evaluationCriterias + ", hash="
 				+ hash + "]";
 	}
-
 
 }

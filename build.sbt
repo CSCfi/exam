@@ -12,7 +12,9 @@ libraryDependencies ++= Seq(
   javaJdbc,
   javaEbean,
   cache
-)     
+)
+
+
 
 resolvers += Resolver.url("Objectify Play Repository", url("http://schaloner.github.com/releases/"))(Resolver.ivyStylePatterns)
 
