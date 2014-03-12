@@ -3,6 +3,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.sun.media.jfxmedia.logging.Logger;
 import models.Exam;
 import models.User;
 import org.joda.time.DateTime;
@@ -51,6 +52,8 @@ public class StudentExamController extends Controller {
     public static Result saveExam(Long id) {
 
 
+
+//        Logger.debug();
 
         return ok("Tentti tallennettiin");
     }

@@ -101,8 +101,7 @@
                             "modifier": null,
                             "type": "MultipleChoiseQuestion",
                             "comments": [],
-                            "option": null,
-                            "checked": false
+                            "option": null
                         }
 
                     question.answer.option = option;

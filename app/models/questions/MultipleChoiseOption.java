@@ -15,9 +15,7 @@ public class MultipleChoiseOption extends SitnetModel {
 	private String option;
     
     private boolean correctOption = false;
-    
-    private boolean checked = false;
-    
+
     private Double score;
 
 	public Long getId() {
@@ -42,22 +40,6 @@ public class MultipleChoiseOption extends SitnetModel {
 
 	public void setCorrectOption(boolean correctOption) {
 		this.correctOption = correctOption;
-	}
-
-	
-	
-	/**
-	 * @return the checked
-	 */
-	public boolean isChecked() {
-		return checked;
-	}
-
-	/**
-	 * @param checked the checked to set
-	 */
-	public void setChecked(boolean checked) {
-		this.checked = checked;
 	}
 
 	public Double getScore() {
