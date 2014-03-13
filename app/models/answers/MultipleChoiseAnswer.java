@@ -18,17 +18,8 @@ public class MultipleChoiseAnswer extends AbstractAnswer implements AnswerInterf
         this.type = this.getClass().getSimpleName();
     }
 
-
-
     @OneToMany(cascade = CascadeType.PERSIST)
     private MultipleChoiseOption option;
-
-
-
-
-
-
-
 
 //    @Override
     public String generateHash() {
@@ -48,8 +39,18 @@ public class MultipleChoiseAnswer extends AbstractAnswer implements AnswerInterf
         return this.type;
     }
 
+    public MultipleChoiseOption getOption() {
+        return option;
+    }
+
+    public void setOption(MultipleChoiseOption option) {
+        this.option = option;
+    }
+
     @Override
     public String toString() {
-        return super.toString();
+        return "MultipleChoiseAnswer{" +
+                "option=" + option +
+                '}';
     }
 }

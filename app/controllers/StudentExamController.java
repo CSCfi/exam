@@ -1,12 +1,18 @@
 package controllers;
 
+import Exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.sun.media.jfxmedia.logging.Logger;
 import models.Exam;
 import models.User;
+import models.answers.AbstractAnswer;
+import models.answers.MultipleChoiseAnswer;
+import models.questions.AbstractQuestion;
 import org.joda.time.DateTime;
+import play.Logger;
+import play.data.DynamicForm;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -17,7 +23,7 @@ import java.util.List;
 /**
  * Created by avainik on 3/3/14.
  */
-public class StudentExamController extends Controller {
+public class StudentExamController extends SitnetController {
 
     @Restrict(@Group({"STUDENT"}))
     public static Result listActiveExams() {
@@ -49,11 +55,19 @@ public class StudentExamController extends Controller {
         	return notFound("Exam not found, something went horribly wrong.");        
     }
 
-    public static Result saveExam(Long id) {
+    public static Result saveAndExit() {
 
 
+//        DynamicForm df = Form.form().bindFromRequest();
 
-//        Logger.debug();
+        MultipleChoiseAnswer answer = null;
+        try {
+            answer = bindForm(MultipleChoiseAnswer.class);
+        } catch (MalformedDataException e) {
+            e.printStackTrace();
+        }
+
+        Logger.debug(answer.toString());
 
         return ok("Tentti tallennettiin");
     }

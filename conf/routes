@@ -23,7 +23,7 @@ GET           /sections/:id         	controllers.ExamController.getExamSections(
 GET           /events               	controllers.ExamController.getExamEvents()
 GET           /student/exams        	controllers.StudentExamController.listActiveExams()
 GET           /student/doexam/:hash     controllers.StudentExamController.getExamByHash(hash: String)
-POST          /student/saveexam/:id     controllers.StudentExamController.saveExam(id: Long)
+POST          /student/saveandexit/     controllers.StudentExamController.saveAndExit()
 
 
 
@@ -34,7 +34,7 @@ GET           /courses              controllers.CourseController.getCourses()
 
 ############### Question interface ###############
 
-GET            /questions            controllers.QuestionController.getQuestions()
+GET           /questions            controllers.QuestionController.getQuestions()
 POST          /questions            controllers.QuestionController.addQuestion()
 DELETE        /questions/:id        controllers.QuestionController.deleteQuestion(id: Long)
 

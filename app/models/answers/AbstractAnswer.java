@@ -19,11 +19,30 @@ public class AbstractAnswer extends SitnetModel{
 
     protected String type;
 
-
-
     @OneToMany(cascade = CascadeType.PERSIST)
     protected List<Comment> comments;
 
+    public String getType() {
+        return type;
+    }
 
+    public void setType(String type) {
+        this.type = type;
+    }
 
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
+    @Override
+    public String toString() {
+        return "AbstractAnswer{" +
+                "type='" + type + '\'' +
+                ", comments=" + comments +
+                '}';
+    }
 }

@@ -83,7 +83,7 @@
 
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
-                    $http.get('/student/saveexam/'+doexam.id);
+                    $http.post('/student/saveandexit/');
                 }
 
                 // Called when a radiobutton is selected
