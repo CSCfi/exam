@@ -66,12 +66,12 @@ public class ExamController extends SitnetController {
         List<ExamSection> examSections = ex.getExamSections();
         for (ExamSection es : examSections) {
             es.setId(null);
-            es.save();
+//            es.save();
 
             List<AbstractQuestion> questions = es.getQuestions();
             for (AbstractQuestion q : questions) {
                 q.setId(null);
-                q.save();
+//                q.save();
 
                 switch ( q.getType()) {
                     case "MultipleChoiseQuestion": {

@@ -45,8 +45,6 @@ public class ExamSection extends SitnetModel {
 		this.totalScore = totalScore;
 	}
 
-
-
     public String getName() {
         return name;
     }

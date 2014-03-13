@@ -1,17 +1,15 @@
 package models;
 
-import models.questions.AbstractQuestion;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
 
 @Entity
 public class EvaluationCriteria extends SitnetModel {
 
-	@ManyToOne(cascade = CascadeType.PERSIST)
-	private AbstractQuestion question;
+//	@ManyToOne(cascade = CascadeType.PERSIST)
+//	@ManyToOne
+//    @JoinColumn(name="question", referencedColumnName="id")
+//	private AbstractQuestion question;
 	
 	@Column(length=512)
 	private String criteria;

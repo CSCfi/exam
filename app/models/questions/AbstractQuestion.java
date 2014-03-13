@@ -4,15 +4,14 @@ import models.*;
 import models.answers.AbstractAnswer;
 
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * Created by avainik on 3/6/14.
  */
 @Entity
-@Table(name="question")
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="question_type",  discriminatorType=DiscriminatorType.STRING)
+@Table(name = "question")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "question_type", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("AbstractQuestion")
 /*
  * For some weird reason this class cannot be abstract (Ebean issue) even tough it should
@@ -21,7 +20,7 @@ import java.util.List;
  * See:
  * https://groups.google.com/forum/#!topic/play-framework/YOSLdmv_oSc
  */
-public class AbstractQuestion extends SitnetModel{
+abstract public class AbstractQuestion extends SitnetModel {
 
     protected String type;
 
@@ -45,18 +44,27 @@ public class AbstractQuestion extends SitnetModel{
     @OneToOne
     protected AbstractAnswer answer;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
-    protected List<EvaluationCriteria> evaluationCriterias;
-    
+    //    @OneToMany(cascade = CascadeType.ALL, mappedBy="question")
+//    @ManyToMany(cascade = CascadeType.PERSIST)
+    @OneToOne
+    protected EvaluationCriteria evaluationCriterias;
+//    protected List<EvaluationCriteria> evaluationCriterias;
+
     //    attachments, images, Videos, documents
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
-    protected List<Material> materials;
+//    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
+    @OneToOne
+//    protected List<Material> materials;
+    protected Material materials;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
-    protected List<EvaluationPhrase> evaluationPhrases;
+    //    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
+    @OneToOne
+//    protected List<EvaluationPhrase> evaluationPhrases;
+    protected EvaluationPhrase evaluationPhrases;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
-    protected List<Comment> comments;
+    //    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
+    @OneToOne
+//    protected List<Comment> comments;
+    protected Comment comments;
 
     /*
     A question can be a prototype (in a question bank) and it can be used in an Exam
@@ -73,48 +81,48 @@ public class AbstractQuestion extends SitnetModel{
     Each question type should have its own hash generation logic.
 
      */
-    @Column(length=32)
+    @Column(length = 32)
     protected String hash;
 
-	public String getType() {
-		return type;
-	}
+    public String getType() {
+        return type;
+    }
 
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	public String getQuestion() {
-		return question;
-	}
+    public String getQuestion() {
+        return question;
+    }
 
-	public void setQuestion(String question) {
-		this.question = question;
-	}
+    public void setQuestion(String question) {
+        this.question = question;
+    }
 
-	public boolean isShared() {
-		return shared;
-	}
+    public boolean isShared() {
+        return shared;
+    }
 
-	public void setShared(boolean shared) {
-		this.shared = shared;
-	}
+    public void setShared(boolean shared) {
+        this.shared = shared;
+    }
 
-	public String getInstruction() {
-		return instruction;
-	}
+    public String getInstruction() {
+        return instruction;
+    }
 
-	public void setInstruction(String instruction) {
-		this.instruction = instruction;
-	}
+    public void setInstruction(String instruction) {
+        this.instruction = instruction;
+    }
 
-	public AbstractQuestion getDerivedFromQuestion() {
-		return derivedFromQuestion;
-	}
+    public AbstractQuestion getDerivedFromQuestion() {
+        return derivedFromQuestion;
+    }
 
-	public void setDerivedFromQuestion(AbstractQuestion derivedFromQuestion) {
-		this.derivedFromQuestion = derivedFromQuestion;
-	}
+    public void setDerivedFromQuestion(AbstractQuestion derivedFromQuestion) {
+        this.derivedFromQuestion = derivedFromQuestion;
+    }
 
     public AbstractAnswer getAnswer() {
         return answer;
@@ -124,53 +132,53 @@ public class AbstractQuestion extends SitnetModel{
         this.answer = answer;
     }
 
-    public List<EvaluationCriteria> getEvaluationCriterias() {
-		return evaluationCriterias;
-	}
+    public EvaluationCriteria getEvaluationCriterias() {
+        return evaluationCriterias;
+    }
 
-	public void setEvaluationCriterias(List<EvaluationCriteria> evaluationCriterias) {
-		this.evaluationCriterias = evaluationCriterias;
-	}
+    public void setEvaluationCriterias(EvaluationCriteria evaluationCriterias) {
+        this.evaluationCriterias = evaluationCriterias;
+    }
 
-	public List<Material> getMaterials() {
-		return materials;
-	}
+    public Material getMaterials() {
+        return materials;
+    }
 
-	public void setMaterials(List<Material> materials) {
-		this.materials = materials;
-	}
+    public void setMaterials(Material materials) {
+        this.materials = materials;
+    }
 
-	public List<EvaluationPhrase> getEvaluationPhrases() {
-		return evaluationPhrases;
-	}
+    public EvaluationPhrase getEvaluationPhrases() {
+        return evaluationPhrases;
+    }
 
-	public void setEvaluationPhrases(List<EvaluationPhrase> evaluationPhrases) {
-		this.evaluationPhrases = evaluationPhrases;
-	}
+    public void setEvaluationPhrases(EvaluationPhrase evaluationPhrases) {
+        this.evaluationPhrases = evaluationPhrases;
+    }
 
-	public List<Comment> getComments() {
-		return comments;
-	}
+    public Comment getComments() {
+        return comments;
+    }
 
-	public void setComments(List<Comment> comments) {
-		this.comments = comments;
-	}
+    public void setComments(Comment comments) {
+        this.comments = comments;
+    }
 
-	public String getHash() {
-		return hash;
-	}
+    public String getHash() {
+        return hash;
+    }
 
-	public void setHash(String hash) {
-		this.hash = hash;
-	}
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 
-//	@Override
-	public String toString() {
-		return "AbstractQuestion [type=" + type + ", question=" + question
-				+ ", shared=" + shared + ", instruction=" + instruction
-				+ ", derivedFromQuestion=" + derivedFromQuestion
-				+ ", evaluationCriterias=" + evaluationCriterias + ", hash="
-				+ hash + "]";
-	}
+    //	@Override
+    public String toString() {
+        return "AbstractQuestion [type=" + type + ", question=" + question
+                + ", shared=" + shared + ", instruction=" + instruction
+                + ", derivedFromQuestion=" + derivedFromQuestion
+                + ", evaluationCriterias=" + evaluationCriterias + ", hash="
+                + hash + "]";
+    }
 
 }

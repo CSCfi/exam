@@ -123,20 +123,6 @@ organisations:
 
 question_mutiple_choice:
 
-  - !!models.questions.MultipleChoiseQuestion
-    question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-    options:
-        - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: 99, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
-    shared: true
-    evaluationCriterias:
-                  - !!models.EvaluationCriteria
-                      criteria: Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
-                      
-
-
 # Multiple choise questions
 
   - &multi1 !!models.questions.MultipleChoiseQuestion
@@ -207,7 +193,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
     comments:
     options:
@@ -221,7 +207,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
     comments:
     options:
@@ -235,7 +221,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
     comments:
     options:
@@ -249,7 +235,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
     comments:
     options:
@@ -263,7 +249,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
     comments:
     options:
@@ -278,7 +264,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
     comments:
     options:
@@ -292,7 +278,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
     comments:
     options:
@@ -307,7 +293,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
     comments:
     options:
@@ -322,7 +308,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
     comments:
     options:
@@ -337,7 +323,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                        criteria: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
     comments:
     options:
@@ -352,7 +338,7 @@ question_mutiple_choice:
     materials:
     evaluationPhrases:
     evaluationCriterias:
-                  - !!models.EvaluationCriteria
+                   !!models.EvaluationCriteria
                       criteria: Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
     comments:
     options:

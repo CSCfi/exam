@@ -3,7 +3,10 @@ package controllers;
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
 import models.questions.AbstractQuestion;
+import models.questions.EssayQuestion;
 import play.Logger;
+import play.data.DynamicForm;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
@@ -17,7 +20,9 @@ public class QuestionController extends SitnetController {
   public static Result getQuestions() {
   	
       List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class).findList();
-//      List<MultipleChoiseQuestion> questions = Ebean.find(MultipleChoiseQuestion.class).findList();
+
+//      Model.Finder<Long, AbstractQuestion> find = new Model.Finder<Long, AbstractQuestion>(Long.class, AbstractQuestion.class);
+//      List<AbstractQuestion> questions = find.all();
 
       if(questions != null)
           Logger.debug(questions.toString());
@@ -27,19 +32,31 @@ public class QuestionController extends SitnetController {
 
 //  @Authenticate
 //  @BodyParser.Of(BodyParser.Json.class)
-  public static Result addQuestion() {
+  public static Result addQuestion() throws MalformedDataException {
 
-	  AbstractQuestion question = null;
+      DynamicForm df = Form.form().bindFromRequest();
+
       try {
-          question = bindForm(AbstractQuestion.class);
-      } catch (MalformedDataException e) {
+          Class<?> ass = Class.forName("models.questions."+df.get("type"));
+          Object question = ass.newInstance();
+
+          question = bindForm(question.getClass());
+
+          EssayQuestion es = new EssayQuestion();
+          es.getId();
+
+          Ebean.save(question);
+          return ok(Json.toJson(question.toString()));
+
+      } catch (ClassNotFoundException e) {
+          e.printStackTrace();
+      } catch (InstantiationException e) {
+          e.printStackTrace();
+      } catch (IllegalAccessException e) {
           e.printStackTrace();
       }
 
-      Logger.debug(question.toString());
-
-      Ebean.save(question);
-      return ok(Json.toJson(question.getId()));
+      return ok("fail");
   }
 
     @BodyParser.Of(BodyParser.Json.class)

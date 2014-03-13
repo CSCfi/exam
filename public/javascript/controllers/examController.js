@@ -132,11 +132,11 @@
                     questions.map(function (item) {
                         var icon = "";
                         switch (item.type) {
-                            case "MULTIPLE_CHOICE_ONE_CORRECT":
-                            case "MULTIPLE_CHOICE_SEVERAL_CORRECT":
+                            case "MathQuestion":
+                            case "MultipleChoiseQuestion":
                                 icon = "fa-list-ol";
                                 break;
-                            case "ESSAY":
+                            case "EssayQuestion":
                                 icon = "fa-edit";
                                 break;
                             default:
@@ -163,8 +163,10 @@
                     $scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
                     $scope.newExam.examEvent = $scope.newExamEvent;
 
-                    ExamRes.save($scope.newExam,  function (newExam) {
+                    ExamRes.save($scope.newExam,  function (newExam){
                         toastr.info("Tentti tallennettu.");
+                    }, function(error) {
+                        toastr.error("Jokin meni pieleen");
                     });
                 };
 
