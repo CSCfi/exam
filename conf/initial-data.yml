@@ -165,6 +165,42 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
     shared: false
 
+  - &multi3 !!models.questions.MultipleChoiseQuestion
+    question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
+    materials:
+    evaluationPhrases:
+    evaluationCriterias:
+    comments:
+    options:
+        - !!models.questions.MultipleChoiseOption {option: Antiteflon, correctOption: true, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Adheesio, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Hakman, correctOption: false, score: 1}
+    shared: false
+
+  - &multi4 !!models.questions.MultipleChoiseQuestion
+    question: Mitä lampaat laskevat jotta ne nukahtaisivat?
+    materials:
+    evaluationPhrases:
+    evaluationCriterias:
+    comments:
+    options:
+        - !!models.questions.MultipleChoiseOption {option: Lampaita, correctOption: true, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Ihmisiä, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Paimenkoiria, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Jokin muu, correctOption: false, score: 1}
+    shared: false
+
+  - &multi5 !!models.questions.MultipleChoiseQuestion
+    question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
+    materials:
+    evaluationPhrases:
+    evaluationCriterias:
+    comments:
+    options:
+        - !!models.questions.MultipleChoiseOption {option: Tulevaisuus valkenee, correctOption: true, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false, score: 1}
+    shared: false
 ######################################################################
   - &avaruus1 !!models.questions.MultipleChoiseQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
@@ -369,12 +405,15 @@ examsections:
     name: Monivalinnat 1
     questions:
               - *multi1
+              - *multi2
     totalScore:
 
   - &osio2 !!models.ExamSection
     name: Monivalinnat 2
     questions:
-              - *multi2
+              - *multi3
+              - *multi4
+              - *multi5
     totalScore:
 
   - &astro1 !!models.ExamSection
