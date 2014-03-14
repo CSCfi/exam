@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.*;
@@ -30,7 +31,8 @@ public class Exam extends SitnetModel {
 
 
     // XXX: This should be actually @OneToMany relationship, but there's problems with Ebean
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "exam")
+    @JsonManagedReference
     private List<ExamSection> examSections;
 
 
@@ -103,8 +105,6 @@ public class Exam extends SitnetModel {
     }
 
     public String generateHash() {
-
-
 
         // TODO: what attributes make examEvent unique?
         // create unique hash for exam

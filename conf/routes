@@ -19,6 +19,8 @@ DELETE        /users/:id                   controllers.UserController.deleteUser
 
 GET           /exams                       controllers.ExamController.getExams()
 POST          /exams                       controllers.ExamController.createExam()
+POST          /exams/:id/section           controllers.ExamController.insertSection(id: Long)
+POST          /exams/:eid/section/:sid     controllers.ExamController.insertQuestion(eid: Long, sid: Long)
 POST          /exams/draft                 controllers.ExamController.createExamDraft()
 GET           /sections/:id                controllers.ExamController.getExamSections(id: Long)
 GET           /events                      controllers.ExamController.getExamEvents()

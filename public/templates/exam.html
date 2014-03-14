@@ -36,7 +36,7 @@
                     </form>
                 </div>
             </div>
-            <div class="section" ui-on-Drop="onDrop($event, $data, section.questions)" ng-include="sectionPath"
+            <div class="section" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath"
                  ng-repeat="section in sections"></div>
         </div>
 		<span ng-click="addNewSection()" class="create-new">

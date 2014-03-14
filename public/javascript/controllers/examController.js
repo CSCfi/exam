@@ -11,7 +11,14 @@
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_general.html";
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "/exam.html";
                 $scope.sections = [];
-                $scope.exams = ExamRes.query();
+
+                $scope.newSection = {
+                    hide: false,
+                    name: $translate("section_default_name"),
+                    questions: []
+                };
+
+                $scope.exams = ExamRes.exams.query();
 
                 // Todo: Fill in rooms from database for final version
                 $scope.examRooms = [
@@ -107,55 +114,34 @@
                 };
 
                 $scope.addNewSection = function () {
-                    $scope.sections.push({
-                        id: $scope.sections.length + 1,
-                        hide: false,
-                        name: $translate("section_default_name"),
-                        questions: []
-                    });
+
+                    $scope.sections.push($scope.newSection);
 
                 };
                 $scope.addNewSection();
 
                 // Called when create exam button is clicked
                 $scope.createExam = function () {
-                    // Clear all section id's at this point to make a draft exam
-                    angular.forEach($scope.sections, function (value, index) {
-                        value.id = null;
-                    })
 
-                    $scope.newExam.examSections = $scope.sections;
                     $scope.newExam.examEvent = $scope.newExamEvent;
 
-//                    $http.post('/exams/draft/')
-//                        .success(function(data, status, headers, config) {
-//                            $scope.doexam = data;
-//                            $scope.activeSection = $scope.doexam.examSections[0];
-//
-//                            // Loop through all questions in the active section
-//                            angular.forEach($scope.activeSection.questions, function(value, index) {
-//                                if(!value.answer) {
-//                                    // When question has not been answered it's status color is set to gray
-//                                    // When an active exam is opened it cannot have any answers set
-//                                    value.selectedAnsweredState = 'question-unanswered-header';
-//                                    value.questionStatus = $translate("sitnet_question_unanswered");
-//                                } else {
-//                                    value.selectedAnsweredState = 'question-answered-header';
-//                                    value.questionStatus = $translate("sitnet_question_answered");
-//                                }
-//                            })
-//                        }).
-//                        error(function(data, status, headers, config) {
-//                            // called asynchronously if an error occurs
-//                            // or server returns response with an error status.
-//                        });
-
-                    ExamRes.save($scope.newExam,  function (draftExam){
-                        $location.path("/exams/"+draftExam.id);
+                    // first create an empty exam
+                    ExamRes.exams.save($scope.newExam, function (draftExam) {
+                        $location.path("/exams/" + draftExam.id);
+                        $scope.newExam = draftExam;
                         toastr.info("Tenttiluonnos tehty.");
-                    }, function(error) {
+
+                        // now insert empty section into exam
+                        ExamRes.sections.insertSection({eid: draftExam.id}, $scope.newSection, function (section) {
+                            toastr.info("Osio lisätty.");
+                        }, function (error) {
+                            toastr.error("Jokin meni pieleen");
+                        });
+
+                    }, function (error) {
                         toastr.error("Jokin meni pieleen");
                     });
+
                 }
 
 
@@ -249,25 +235,26 @@
 
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
+                    $scope.newExam.state = "PUBLISHED"
                     $scope.newExam.examSections = $scope.sections;
                     $scope.newExamEvent.examReadableStartDate = $scope.dateService.modStartDate;
                     $scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
                     $scope.newExam.examEvent = $scope.newExamEvent;
 
-                    ExamRes.save($scope.newExam,  function (newExam){
+                    ExamRes.save($scope.newExam, function (newExam) {
                         toastr.info("Tentti tallennettu.");
-                    }, function(error) {
+                    }, function (error) {
                         toastr.error("Jokin meni pieleen");
                     });
                 };
 
                 // Called when a question is drag and dropped to a exam section
-                $scope.onDrop = function ($event, $data, questions) {
+                $scope.onDrop = function ($event, $data, section) {
                     if (angular.isArray($data)) {
-                        questions.push.apply(questions, $data);
+                        section.questions.push.apply(questions, $data);
                         return;
                     }
-                    questions.push($data);
+                    section.questions.push($data);
 
                     var newQuestion = $data;
                     newQuestion.id = null;
@@ -276,12 +263,20 @@
                         value.id = null;
                     })
 
-                    QuestionRes.save(newQuestion, function (returnQuestion) {
-                        newQuestion = returnQuestion;
-                        toastr.info("Kysymys lisätty.");
-                    }, function(error) {
-                        toastr.error("Jokin meni pieleen: "+ error);
+
+                    ExamRes.sections.insertSection({eid: $scope.newExam.id, sid: section.id}, newQuestion, function (section) {
+                        toastr.info("Kysymys lisätty osioon.");
+                    }, function (error) {
+                        toastr.error("Jokin meni pieleen");
                     });
+
+
+//                    QuestionRes.save(newQuestion, function (returnQuestion) {
+//                        newQuestion = returnQuestion;
+//                        toastr.info("Kysymys lisätty.");
+//                    }, function (error) {
+//                        toastr.error("Jokin meni pieleen: " + error);
+//                    });
                 };
             }]);
 }());

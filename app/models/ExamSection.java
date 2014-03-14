@@ -1,10 +1,13 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import java.util.List;
 
 /*
@@ -19,12 +22,13 @@ public class ExamSection extends SitnetModel {
 
     private String name;
 
-	@ManyToMany(cascade = CascadeType.PERSIST)
+	@OneToMany(cascade = CascadeType.DETACH, mappedBy = "examSection")
+    @JsonManagedReference
 	private List<AbstractQuestion> questions;
 
-//	@ManyToOne
-//	@ManyToMany
-//	private Exam exam;
+	@ManyToOne
+    @JsonBackReference
+	private Exam exam;
 
 	// osion kokonaispisteet
 	private Long totalScore;
@@ -51,6 +55,14 @@ public class ExamSection extends SitnetModel {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Exam getExam() {
+        return exam;
+    }
+
+    public void setExam(Exam exam) {
+        this.exam = exam;
     }
 
     @Override

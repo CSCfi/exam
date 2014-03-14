@@ -43,6 +43,27 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(ex));
     }
 
+    public static Result insertSection(Long id) throws MalformedDataException {
+        Logger.debug("insertSection()");
+
+
+        ExamSection section = bindForm(ExamSection.class);
+        section.setExam(Ebean.find(Exam.class, id));
+
+
+        section.save();
+
+        return ok(Json.toJson(section));
+    }
+
+    public static Result insertQuestion(Long eid, Long sid) throws MalformedDataException {
+        Logger.debug("insertQuestion()");
+
+
+        return ok();
+    }
+
+
     //  @Authenticate
 //    @Restrict(@Group({"TEACHER"}))
     public static Result createExam() throws MalformedDataException {
@@ -50,30 +71,6 @@ public class ExamController extends SitnetController {
 
         Exam ex = bindForm(Exam.class);
 //        ex.setId(null);
-
-
-/**
- *
- * play.api.Application$$anon$1: Execution exception[[PersistenceException: ERROR executing DML bindLog[] error[NULL not allowed for column
- * "QUESTION_TYPE"; SQL statement:\n insert into question
- * (id, question_type, created, modified, type, question, shared, instruction, hash, creator_id, modifier_id, derived_from_question_id)
- * values (?,?,?,?,?,?,?,?,?,?,?,?) [23502-172]]]]
-
- Ebean fails to insert Discriminator
- This is a bug
-
- Discussion:
- *  http://eclipse.1072660.n5.nabble.com/Value-of-DiscriminatorValue-not-persisted-td162195.html
- *
- *  Bug:
- *  https://bugs.eclipse.org/bugs/show_bug.cgi?id=415526
- *
- *  Possible solution:
- *  Update Ebean to v.2.5.1
- *
- *
- *
- */
 
         switch (ex.getState()) {
             case "DRAFT":
@@ -128,6 +125,32 @@ public class ExamController extends SitnetController {
             default:
 
         }
+
+
+
+/**
+ *
+ * play.api.Application$$anon$1: Execution exception[[PersistenceException: ERROR executing DML bindLog[] error[NULL not allowed for column
+ * "QUESTION_TYPE"; SQL statement:\n insert into question
+ * (id, question_type, created, modified, type, question, shared, instruction, hash, creator_id, modifier_id, derived_from_question_id)
+ * values (?,?,?,?,?,?,?,?,?,?,?,?) [23502-172]]]]
+
+ Ebean fails to insert Discriminator
+ This is a bug
+
+ Discussion:
+ *  http://eclipse.1072660.n5.nabble.com/Value-of-DiscriminatorValue-not-persisted-td162195.html
+ *
+ *  Bug:
+ *  https://bugs.eclipse.org/bugs/show_bug.cgi?id=415526
+ *
+ *  Possible solution:
+ *  Update Ebean to v.2.5.1
+ *
+ *
+ *
+ */
+
 
         return badRequest("Jokin meni pieleen");
     }

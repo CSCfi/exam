@@ -1,5 +1,6 @@
 package models.questions;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.*;
 import models.answers.AbstractAnswer;
 
@@ -29,6 +30,11 @@ abstract public class AbstractQuestion extends SitnetModel {
     protected boolean shared;
 
     protected String instruction;
+
+    @ManyToOne
+    @JoinColumn(name="section_fk")
+    @JsonBackReference
+    protected ExamSection examSection;
 
     /*
      * If question is edited (correcting a spelling mistake)
@@ -170,6 +176,14 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public ExamSection getExamSection() {
+        return examSection;
+    }
+
+    public void setExamSection(ExamSection examSection) {
+        this.examSection = examSection;
     }
 
     //	@Override
