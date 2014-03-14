@@ -384,40 +384,6 @@ courses:
     
        
 
-examsections:
-
-
-  - &osio1 !!models.ExamSection
-    name: Monivalinnat 1
-    questions:
-              - *multi1
-              - *multi2
-    totalScore:
-
-  - &osio2 !!models.ExamSection
-    name: Monivalinnat 2
-    questions:
-              - *multi3
-              - *multi4
-              - *multi5
-    totalScore:
-
-  - &astro1 !!models.ExamSection
-    name: Astronomian Monivalinnat
-    questions:
-              - *avaruus1
-              - *avaruus2
-              - *avaruus3
-              - *avaruus4
-              - *avaruus5
-              - *avaruus6
-              - *avaruus7
-              - *avaruus8
-              - *avaruus9
-              - *avaruus10
-              - *avaruus11
-    totalScore:
-
 examevents:
 
 # startTime 1393549200   28.02.2014 00:00
@@ -452,6 +418,9 @@ examevents:
                     - *orville
                     - *sauli                                 
 
+
+
+
 exams:
 
   - &astronomianPerusteet !!models.Exam
@@ -461,22 +430,20 @@ exams:
     instruction:
     shared: false
     examSections:
-              - *astro1
     examEvent: *event1
     state: PUBLISHED
 
-  - !!models.Exam
+  - &alkeidenperusteet !!models.Exam
     course: *alkeet
     name: Johdatus alkeiden perusteisiin
     examType:
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
     examSections:
-              - *osio2
     examEvent: *event1
     state: PUBLISHED
 
-  - !!models.Exam
+  - &tietokannat2013 !!models.Exam
     course: *tietokannat
     name: Tietokantojen perusteet, syksy 2013
     examType:
@@ -486,7 +453,7 @@ exams:
     examEvent: *event1
     state: PUBLISHED
 
-  - !!models.Exam
+  - &tietokannat2014 !!models.Exam
     course: *tietokannat
     name: Tietokantojen perusteet, kevät 2014
     examType:
@@ -496,37 +463,81 @@ exams:
     examEvent: *event1
     state: PUBLISHED
 
-  - !!models.Exam
-    course: *tietokannat
-    name: Tietokantojen perusteet, 2009
-    examType:
-    instruction: Tentissä saa käyttää apuna lähdemateriaalia
-    shared: true
-    examSections:
-                - *osio1
-    examEvent: *event1
-    state: PUBLISHED
-
-  - !!models.Exam
+  - &algoritmit !!models.Exam
     course: *811386A
     name: Algoritmit, 2013
     examType:
     instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
     shared: true
     examSections:
-                - *osio1
     examEvent: *event2
     state: DRAFT
 
-  - !!models.Exam
+  - &ooad !!models.Exam
     course: *812346A
     name: OOAD, 2013
     examType:
     instruction: Tentissä saa käyttää vain tilakoneita.
     shared: true
     examSections:
-                - *osio1
-                - *osio2
-                - *astro1
     examEvent: *event3
     state: PUBLISHED
+    
+    
+examsections:
+
+  - &osio1 !!models.ExamSection
+    name: Monivalinnat 1
+    exam: *alkeidenperusteet
+    questions:
+              - *multi1
+              - *multi2
+    totalScore:
+
+  - &osio2 !!models.ExamSection
+    name: Monivalinnat 2
+    exam: *tietokannat2013
+    questions:
+              - *multi3
+              - *multi4
+              - *multi5
+    totalScore:
+
+  - &osio3 !!models.ExamSection
+    name: Monivalinnat 3
+    exam: *algoritmit
+    questions:
+              - *avaruus4
+              - *multi4
+              - *avaruus5
+    totalScore:
+
+  - &osio4 !!models.ExamSection
+    name: Monivalinnat 4
+    exam: *ooad
+    questions:
+              - *avaruus9
+              - *avaruus8
+              - *avaruus7
+              - *multi1
+              - *multi2
+              - *multi3
+    totalScore:
+
+  - &astro1 !!models.ExamSection
+    name: Astronomian Monivalinnat
+    exam: *astronomianPerusteet
+    questions:
+              - *avaruus1
+              - *avaruus2
+              - *avaruus3
+              - *avaruus4
+              - *avaruus5
+              - *avaruus6
+              - *avaruus7
+              - *avaruus8
+              - *avaruus9
+              - *avaruus10
+              - *avaruus11
+    totalScore:
+    

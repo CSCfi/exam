@@ -23,12 +23,15 @@ import java.util.List;
 public class ExamController extends SitnetController {
 
 
-    //    @Authenticate
-//    @Restrict(@Group({"TEACHER"}))
+	//    @Authenticate
+	//    @Restrict(@Group({"TEACHER"}))
     public static Result getExams() {
         Logger.debug("getExams()");
 
-        List<Exam> exams = Ebean.find(Exam.class).findList();
+        List<Exam> exams = Ebean.find(Exam.class)
+        		.fetch("examSections")
+        		.findList();
+        
         return ok(Json.toJson(exams));
     }
 

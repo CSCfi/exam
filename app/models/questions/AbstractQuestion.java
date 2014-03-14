@@ -7,7 +7,6 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -19,6 +18,8 @@ import models.ExamSection;
 import models.Material;
 import models.SitnetModel;
 import models.answers.AbstractAnswer;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 /**
  * Created by avainik on 3/6/14.
@@ -45,10 +46,6 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     protected String instruction;
 
-    @ManyToOne
-    @JoinColumn(name="section_fk")
-    protected ExamSection examSection;
-
     /*
      * If question is edited (correcting a spelling mistake)
      * inplace in an active exam (question is used in an exam that has been published)
@@ -64,25 +61,25 @@ abstract public class AbstractQuestion extends SitnetModel {
     protected AbstractAnswer answer;
 
     //    @OneToMany(cascade = CascadeType.ALL, mappedBy="question")
-//    @ManyToMany(cascade = CascadeType.PERSIST)
+    //    @ManyToMany(cascade = CascadeType.PERSIST)
     @OneToOne
     protected EvaluationCriteria evaluationCriterias;
-//    protected List<EvaluationCriteria> evaluationCriterias;
+    //    protected List<EvaluationCriteria> evaluationCriterias;
 
     //    attachments, images, Videos, documents
-//    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
+    //    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
     @OneToOne
-//    protected List<Material> materials;
+    //    protected List<Material> materials;
     protected Material materials;
 
     //    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
     @OneToOne
-//    protected List<EvaluationPhrase> evaluationPhrases;
+    //    protected List<EvaluationPhrase> evaluationPhrases;
     protected EvaluationPhrase evaluationPhrases;
 
     //    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
     @OneToOne
-//    protected List<Comment> comments;
+    //    protected List<Comment> comments;
     protected Comment comments;
 
     /*
@@ -191,15 +188,7 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.hash = hash;
     }
 
-    public ExamSection getExamSection() {
-        return examSection;
-    }
-
-    public void setExamSection(ExamSection examSection) {
-        this.examSection = examSection;
-    }
-
-    //	@Override
+   	@Override
     public String toString() {
         return "AbstractQuestion [type=" + type + ", question=" + question
                 + ", shared=" + shared + ", instruction=" + instruction
