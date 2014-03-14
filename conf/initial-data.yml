@@ -463,6 +463,7 @@ exams:
     examSections:
               - *astro1
     examEvent: *event1
+    state: PUBLISHED
 
   - !!models.Exam
     course: *alkeet
@@ -473,7 +474,7 @@ exams:
     examSections:
               - *osio2
     examEvent: *event1
-
+    state: PUBLISHED
 
   - !!models.Exam
     course: *tietokannat
@@ -483,7 +484,7 @@ exams:
     shared: true
     examSections:
     examEvent: *event1
-
+    state: PUBLISHED
 
   - !!models.Exam
     course: *tietokannat
@@ -493,7 +494,7 @@ exams:
     shared: true
     examSections:
     examEvent: *event1
-
+    state: PUBLISHED
 
   - !!models.Exam
     course: *tietokannat
@@ -504,6 +505,7 @@ exams:
     examSections:
                 - *osio1
     examEvent: *event1
+    state: PUBLISHED
 
   - !!models.Exam
     course: *811386A
@@ -514,6 +516,7 @@ exams:
     examSections:
                 - *osio1
     examEvent: *event2
+    state: DRAFT
 
   - !!models.Exam
     course: *812346A
@@ -526,5 +529,4 @@ exams:
                 - *osio2
                 - *astro1
     examEvent: *event3
-
-
+    state: PUBLISHED

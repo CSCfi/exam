@@ -40,6 +40,8 @@ public class Exam extends SitnetModel {
     @Column(length = 32)
     private String hash;
 
+    private String state;
+
     public String getName() {
         return name;
     }
@@ -102,6 +104,8 @@ public class Exam extends SitnetModel {
 
     public String generateHash() {
 
+
+
         // TODO: what attributes make examEvent unique?
         // create unique hash for exam
         String attributes = name +
@@ -115,16 +119,26 @@ public class Exam extends SitnetModel {
         return hash;
     }
 
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
     @Override
     public String toString() {
         return "Exam{" +
-                "hash='" + hash + '\'' +
-                ", course=" + course +
+                "course=" + course +
                 ", name='" + name + '\'' +
                 ", examType=" + examType +
                 ", instruction='" + instruction + '\'' +
                 ", shared=" + shared +
+                ", examSections=" + examSections +
                 ", examEvent=" + examEvent +
+                ", hash='" + hash + '\'' +
+                ", state='" + state + '\'' +
                 '}';
     }
 }

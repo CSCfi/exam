@@ -26,9 +26,21 @@ public class ExamController extends SitnetController {
     //    @Authenticate
 //    @Restrict(@Group({"TEACHER"}))
     public static Result getExams() {
+        Logger.debug("getExams()");
 
         List<Exam> exams = Ebean.find(Exam.class).findList();
         return ok(Json.toJson(exams));
+    }
+
+    public static Result createExamDraft() throws MalformedDataException {
+        Logger.debug("createExamDraft()");
+
+        Exam ex = bindForm(Exam.class);
+        ex.setId(null);
+
+        ex.save();
+
+        return ok(Json.toJson(ex));
     }
 
     //  @Authenticate
@@ -37,7 +49,7 @@ public class ExamController extends SitnetController {
         Logger.debug("createExam()");
 
         Exam ex = bindForm(Exam.class);
-        ex.setId(null);
+//        ex.setId(null);
 
 
 /**
@@ -47,10 +59,10 @@ public class ExamController extends SitnetController {
  * (id, question_type, created, modified, type, question, shared, instruction, hash, creator_id, modifier_id, derived_from_question_id)
  * values (?,?,?,?,?,?,?,?,?,?,?,?) [23502-172]]]]
 
-    Ebean fails to insert Discriminator
-    This is a bug
+ Ebean fails to insert Discriminator
+ This is a bug
 
-    Discussion:
+ Discussion:
  *  http://eclipse.1072660.n5.nabble.com/Value-of-DiscriminatorValue-not-persisted-td162195.html
  *
  *  Bug:
@@ -63,46 +75,65 @@ public class ExamController extends SitnetController {
  *
  */
 
-        List<ExamSection> examSections = ex.getExamSections();
-        for (ExamSection es : examSections) {
-            es.setId(null);
+        switch (ex.getState()) {
+            case "DRAFT":
+            {
+                ex.setId(null);
+
+                ex.save();
+
+                return ok(Json.toJson(ex));
+            }
+
+            case "PUBLISHED": {
+
+                List<ExamSection> examSections = ex.getExamSections();
+                for (ExamSection es : examSections) {
+                    es.setId(null);
 //            es.save();
 
-            List<AbstractQuestion> questions = es.getQuestions();
-            for (AbstractQuestion q : questions) {
-                q.setId(null);
+                    List<AbstractQuestion> questions = es.getQuestions();
+                    for (AbstractQuestion q : questions) {
+                        q.setId(null);
 //                q.save();
 
-                switch ( q.getType()) {
-                    case "MultipleChoiseQuestion": {
-                        List<MultipleChoiseOption> options = ((MultipleChoiseQuestion)q).getOptions();
-                        for (MultipleChoiseOption o : options) {
-                            o.setId(null);
-                        }
-                    } break;
+                        switch (q.getType()) {
+                            case "MultipleChoiseQuestion": {
+                                List<MultipleChoiseOption> options = ((MultipleChoiseQuestion) q).getOptions();
+                                for (MultipleChoiseOption o : options) {
+                                    o.setId(null);
+                                }
+                            }
+                            break;
 
+                        }
+                    }
                 }
+
+                ExamEvent event = ex.getExamEvent();
+                Logger.debug(event.toString());
+
+                DateTime dtStart = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableStartDate());
+                event.setExamActiveStartDate(new Timestamp(dtStart.getMillis()));
+
+                DateTime dtEnd = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableEndDate());
+                event.setExamActiveEndDate(new Timestamp(dtEnd.getMillis()));
+
+                Logger.debug(ex.toString());
+                ex.save();
+
+                return ok();
             }
+
+            default:
+
         }
 
-        ExamEvent event = ex.getExamEvent();
-        Logger.debug(event.toString());
-
-        DateTime dtStart = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableStartDate());
-        event.setExamActiveStartDate(new Timestamp(dtStart.getMillis()));
-
-        DateTime dtEnd = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableEndDate());
-        event.setExamActiveEndDate(new Timestamp(dtEnd.getMillis()));
-
-        Logger.debug(ex.toString());
-        ex.save();
-
-        return ok();
+        return badRequest("Jokin meni pieleen");
     }
 
     //  @Authenticate
     public static Result getExamSections(Long examid) {
-
         List<ExamSection> sections = Ebean.find(ExamSection.class).where()
                 .eq("id", examid)
                 .findList();

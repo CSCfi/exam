@@ -19,6 +19,7 @@ DELETE        /users/:id                   controllers.UserController.deleteUser
 
 GET           /exams                       controllers.ExamController.getExams()
 POST          /exams                       controllers.ExamController.createExam()
+POST          /exams/draft                 controllers.ExamController.createExamDraft()
 GET           /sections/:id                controllers.ExamController.getExamSections(id: Long)
 GET           /events                      controllers.ExamController.getExamEvents()
 GET           /student/exams               controllers.StudentExamController.listActiveExams()

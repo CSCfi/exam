@@ -2,7 +2,8 @@
     <div ng-controller="ExamCtrl">
         <div class="row">
             <div class="col-md-2 col-md-offset-10">
-                <a href="#/exams/0" class="btn btn-primary btn-lg active header-button">
+                <!--href="#/exams/0"-->
+                <a ng-click="createExam()" class="btn btn-primary btn-lg active header-button">
                     {{'sitnet_create_new' | translate}}
                 </a>
             </div>
