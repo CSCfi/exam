@@ -211,6 +211,20 @@
                         return;
                     }
                     questions.push($data);
+
+                    var newQuestion = $data;
+                    newQuestion.id = null;
+
+                    angular.forEach(newQuestion.options, function (value, index) {
+                        value.id = null;
+                    })
+
+                    QuestionRes.save(newQuestion, function (returnQuestion) {
+                        newQuestion = returnQuestion;
+                        toastr.info("Kysymys lisätty.");
+                    }, function(error) {
+                        toastr.error("Jokin meni pieleen: "+ error);
+                    });
                 };
 
                 $scope.addNewSection = function () {

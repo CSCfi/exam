@@ -3,7 +3,6 @@ package controllers;
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
 import models.questions.AbstractQuestion;
-import models.questions.EssayQuestion;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -35,18 +34,16 @@ public class QuestionController extends SitnetController {
   public static Result addQuestion() throws MalformedDataException {
 
       DynamicForm df = Form.form().bindFromRequest();
+      Logger.debug("Add question");
 
       try {
-          Class<?> ass = Class.forName("models.questions."+df.get("type"));
-          Object question = ass.newInstance();
+          Class<?> clazz = Class.forName("models.questions."+df.get("type"));
+          Object question = clazz.newInstance();
 
           question = bindForm(question.getClass());
 
-          EssayQuestion es = new EssayQuestion();
-          es.getId();
-
           Ebean.save(question);
-          return ok(Json.toJson(question.toString()));
+          return ok(Json.toJson(question));
 
       } catch (ClassNotFoundException e) {
           e.printStackTrace();

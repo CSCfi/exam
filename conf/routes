@@ -1,47 +1,47 @@
 
-GET           /                     controllers.Index.index()
+GET           /                            controllers.Index.index()
 
-POST          /login                controllers.SessionController.login()
-POST          /logout               controllers.SessionController.logout()
-GET           /ping                 controllers.SessionController.ping()
+POST          /login                       controllers.SessionController.login()
+POST          /logout                      controllers.SessionController.logout()
+GET           /ping                        controllers.SessionController.ping()
 
 
 ############### User interface ###############
-GET           /users                controllers.UserController.getUsers()
-GET           /users/:id            controllers.UserController.getUser(id: Long)
-PUT           /users/:id            controllers.UserController.updateUser(id: Long)
-POST          /users                controllers.UserController.addUser()
-DELETE        /users/:id            controllers.UserController.deleteUser(id: Long)
+GET           /users                       controllers.UserController.getUsers()
+GET           /users/:id                   controllers.UserController.getUser(id: Long)
+PUT           /users/:id                   controllers.UserController.updateUser(id: Long)
+POST          /users                       controllers.UserController.addUser()
+DELETE        /users/:id                   controllers.UserController.deleteUser(id: Long)
 
 
 
 ############### Exam interface ###############
 
-GET           /exams                	controllers.ExamController.getExams()
-POST          /exams                	controllers.ExamController.createExam()
-GET           /sections/:id         	controllers.ExamController.getExamSections(id: Long)
-GET           /events               	controllers.ExamController.getExamEvents()
-GET           /student/exams        	controllers.StudentExamController.listActiveExams()
-GET           /student/doexam/:hash     controllers.StudentExamController.getExamByHash(hash: String)
-POST          /student/saveandexit/     controllers.StudentExamController.saveAndExit()
+GET           /exams                       controllers.ExamController.getExams()
+POST          /exams                       controllers.ExamController.createExam()
+GET           /sections/:id                controllers.ExamController.getExamSections(id: Long)
+GET           /events                      controllers.ExamController.getExamEvents()
+GET           /student/exams               controllers.StudentExamController.listActiveExams()
+GET           /student/doexam/:hash        controllers.StudentExamController.getExamByHash(hash: String)
+POST          /student/saveandexit/        controllers.StudentExamController.saveAndExit()
 
 
 
 ############### Courses interface ###############
-GET           /courses              controllers.CourseController.getCourses()
+GET           /courses                     controllers.CourseController.getCourses()
 
 
 
 ############### Question interface ###############
 
-GET           /questions            controllers.QuestionController.getQuestions()
-POST          /questions            controllers.QuestionController.addQuestion()
-DELETE        /questions/:id        controllers.QuestionController.deleteQuestion(id: Long)
+GET           /questions                   controllers.QuestionController.getQuestions()
+POST          /questions                   controllers.QuestionController.addQuestion()
+DELETE        /questions/:id               controllers.QuestionController.deleteQuestion(id: Long)
 
 
 # test test test test test
-POST          /test            controllers.TestController.addQuestion()
+POST          /test                        controllers.TestController.addQuestion()
 
 
 
-GET           /assets/*file         controllers.Assets.at(path="/public", file)
+GET           /assets/*file                controllers.Assets.at(path="/public", file)
