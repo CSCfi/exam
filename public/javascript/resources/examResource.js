@@ -3,15 +3,14 @@
     angular.module("sitnet.resources")
         .factory("ExamRes", ['$resource', function ($resource) {
             return {
-                exams: $resource("/exams/:id",
+                exams: $resource("/exams/:id", 
                 {
-                    id: "@id"
+                	id: "@id"
                 },
                 {
-                    "update": {
-                        method: "PUT"
-                    }
+                    "update": {method: "PUT"}
                 }),
+                
                 sections: $resource("/exams/:eid/section/:sid",
                 {
                     eid: "@eid", sid: "@sid"

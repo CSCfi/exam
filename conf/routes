@@ -18,6 +18,7 @@ DELETE        /users/:id                   controllers.UserController.deleteUser
 ############### Exam interface ###############
 
 GET           /exams                       controllers.ExamController.getExams()
+GET           /exams/:id                   controllers.ExamController.getExam(id: Long)
 POST          /exams                       controllers.ExamController.createExam()
 POST          /exams/:id/section           controllers.ExamController.insertSection(id: Long)
 POST          /exams/:eid/section/:sid     controllers.ExamController.insertQuestion(eid: Long, sid: Long)

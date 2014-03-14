@@ -1,10 +1,15 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.apache.commons.codec.digest.DigestUtils;
-
-import javax.persistence.*;
 import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
@@ -13,6 +18,7 @@ import java.util.List;
  * 
  */
 @Entity
+
 public class Exam extends SitnetModel {
 
     // Tentti liittyy Opintojaksoon
@@ -29,12 +35,9 @@ public class Exam extends SitnetModel {
 
     private boolean shared;
 
-
-    // XXX: This should be actually @OneToMany relationship, but there's problems with Ebean
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "exam")
-    @JsonManagedReference
-    private List<ExamSection> examSections;
 
+    private List<ExamSection> examSections;
 
     @OneToOne
     private ExamEvent examEvent;

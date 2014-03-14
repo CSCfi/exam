@@ -32,6 +32,13 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(exams));
     }
 
+    public static Result getExam(Long id) {
+    	Logger.debug("getExam(:id)");
+    	
+    	Exam exam = Ebean.find(Exam.class, id);
+    	return ok(Json.toJson(exam));
+    }
+
     public static Result createExamDraft() throws MalformedDataException {
         Logger.debug("createExamDraft()");
 

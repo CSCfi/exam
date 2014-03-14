@@ -52,7 +52,7 @@
                 var curr_month = d.getMonth() + 1; //Months are zero based
                 var curr_year = d.getFullYear();
                 $scope.dateService.modStartDate = curr_date + "-" + curr_month + "-" + curr_year;
-                console.log($scope.dateService.modStartDate)
+//                console.log($scope.dateService.modStartDate)
             });
 
             $scope.$watch('dateService.endDate', function(v) {
@@ -61,7 +61,7 @@
                 var curr_month = d.getMonth() + 1; //Months are zero based
                 var curr_year = d.getFullYear();
                 $scope.dateService.modEndDate = curr_date + "-" + curr_month + "-" + curr_year;
-                console.log($scope.dateService.modEndDate)
+//                console.log($scope.dateService.modEndDate)
             });
 
             $scope.dateOptions = {

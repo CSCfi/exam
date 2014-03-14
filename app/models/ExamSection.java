@@ -1,14 +1,13 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import models.questions.AbstractQuestion;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import java.util.List;
+
+import models.questions.AbstractQuestion;
 
 /*
  * Tenttiosio, joka voi sisältää useita kysymyksiä (Kysymystyyppejä)
@@ -18,16 +17,17 @@ import java.util.List;
  * 
  */
 @Entity
+
 public class ExamSection extends SitnetModel {
 
     private String name;
 
-	@OneToMany(cascade = CascadeType.DETACH, mappedBy = "examSection")
-    @JsonManagedReference
+	@OneToMany(cascade = CascadeType.PERSIST, mappedBy = "examSection")
+
 	private List<AbstractQuestion> questions;
 
 	@ManyToOne
-    @JsonBackReference
+
 	private Exam exam;
 
 	// osion kokonaispisteet

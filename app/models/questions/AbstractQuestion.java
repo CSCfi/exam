@@ -1,10 +1,24 @@
 package models.questions;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import models.*;
-import models.answers.AbstractAnswer;
+import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-import javax.persistence.*;
+import models.Comment;
+import models.EvaluationCriteria;
+import models.EvaluationPhrase;
+import models.ExamSection;
+import models.Material;
+import models.SitnetModel;
+import models.answers.AbstractAnswer;
 
 /**
  * Created by avainik on 3/6/14.
@@ -33,7 +47,6 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     @ManyToOne
     @JoinColumn(name="section_fk")
-    @JsonBackReference
     protected ExamSection examSection;
 
     /*

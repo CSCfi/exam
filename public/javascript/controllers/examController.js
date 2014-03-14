@@ -12,14 +12,6 @@
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "/exam.html";
                 $scope.sections = [];
 
-                $scope.newSection = {
-                    hide: false,
-                    name: $translate("section_default_name"),
-                    questions: []
-                };
-
-                $scope.exams = ExamRes.exams.query();
-
                 // Todo: Fill in rooms from database for final version
                 $scope.examRooms = [
                     "Room1",
@@ -113,10 +105,21 @@
                     "guidance": null
                 };
 
+                $scope.newSection = {
+                        hide: false,
+                        name: $translate("sitnet_exam_section_default_name"),
+                        questions: []
+                    };
+
+                if($routeParams.id === undefined)
+                	$scope.exams = ExamRes.exams.query();
+                else
+                	$scope.newExam = ExamRes.exams.get({id: $routeParams.id});
+
+                
                 $scope.addNewSection = function () {
 
                     $scope.sections.push($scope.newSection);
-
                 };
                 $scope.addNewSection();
 
@@ -256,6 +259,7 @@
                     }
                     section.questions.push($data);
 
+                    
                     var newQuestion = $data;
                     newQuestion.id = null;
 
