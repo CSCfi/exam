@@ -17,7 +17,6 @@
                     comments: [],
                     options: [
                         {
-//                          "id": 1,
                             "option": "Esimerkki vaihtoehto",
                             "correctOption": false,
                             "score": 1

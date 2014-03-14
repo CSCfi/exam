@@ -2,7 +2,9 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
+import models.User;
 import models.questions.AbstractQuestion;
+import models.questions.MultipleChoiseQuestion;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -10,6 +12,7 @@ import play.libs.Json;
 import play.mvc.BodyParser;
 import play.mvc.Result;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public class QuestionController extends SitnetController {
@@ -19,9 +22,6 @@ public class QuestionController extends SitnetController {
   public static Result getQuestions() {
   	
       List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class).findList();
-
-//      Model.Finder<Long, AbstractQuestion> find = new Model.Finder<Long, AbstractQuestion>(Long.class, AbstractQuestion.class);
-//      List<AbstractQuestion> questions = find.all();
 
       if(questions != null)
           Logger.debug(questions.toString());
@@ -40,7 +40,42 @@ public class QuestionController extends SitnetController {
           Class<?> clazz = Class.forName("models.questions."+df.get("type"));
           Object question = clazz.newInstance();
 
+          User user = UserController.getLoggedUser();
+          Timestamp currentTime = new Timestamp(System.currentTimeMillis() * 1000);
+
           question = bindForm(question.getClass());
+
+          switch(df.get("type"))
+          {
+              case "MultipleChoiseQuestion":
+              {
+
+                  if( ((MultipleChoiseQuestion)question).getCreator() == null)
+                  {
+                      ((MultipleChoiseQuestion)question).setCreator(user);
+                      ((MultipleChoiseQuestion)question).setCreated(currentTime);
+                  }
+                  else
+                  {
+                      ((MultipleChoiseQuestion)question).setModifier(user);
+                      ((MultipleChoiseQuestion)question).setModified(new Timestamp(System.currentTimeMillis() * 1000));
+                  }
+              } break;
+
+              case "EssayQuestion":
+              {
+
+
+              } break;
+
+              case "MathQuestion":
+              {
+
+
+              } break;
+              default:
+
+          }
 
           Ebean.save(question);
           return ok(Json.toJson(question));

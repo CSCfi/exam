@@ -69,7 +69,7 @@ public class SitnetModel extends Model {
 		return modifier;
 	}
 
-	protected void setModifier(User modifier) {
+    public void setModifier(User modifier) {
 		this.modifier = modifier;
 	}
 
