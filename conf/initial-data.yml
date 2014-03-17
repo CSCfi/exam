@@ -126,6 +126,7 @@ question_mutiple_choice:
 # Multiple choise questions
 
   - &multi1 !!models.questions.MultipleChoiseQuestion
+    creator: *maika
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     materials:
     evaluationPhrases:
@@ -140,6 +141,7 @@ question_mutiple_choice:
 
   - &multi2 !!models.questions.MultipleChoiseQuestion
     question: Mikä on ikuisen elämän salaisuus?
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -153,6 +155,7 @@ question_mutiple_choice:
 
   - &multi3 !!models.questions.MultipleChoiseQuestion
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -165,6 +168,7 @@ question_mutiple_choice:
 
   - &multi4 !!models.questions.MultipleChoiseQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -178,6 +182,7 @@ question_mutiple_choice:
 
   - &multi5 !!models.questions.MultipleChoiseQuestion
     question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -190,6 +195,7 @@ question_mutiple_choice:
 ######################################################################
   - &avaruus1 !!models.questions.MultipleChoiseQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -204,6 +210,7 @@ question_mutiple_choice:
 
   - &avaruus2 !!models.questions.MultipleChoiseQuestion
     question:  Auringon fuusioreaktiot tapahtuvat
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -218,6 +225,7 @@ question_mutiple_choice:
 
   - &avaruus3 !!models.questions.MultipleChoiseQuestion
     question:   AU mittaa
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -232,6 +240,7 @@ question_mutiple_choice:
 
   - &avaruus4 !!models.questions.MultipleChoiseQuestion
     question:   Ekliptika on
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -246,6 +255,7 @@ question_mutiple_choice:
 
   - &avaruus5 !!models.questions.MultipleChoiseQuestion
     question:   Tähdenlento eli
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -261,6 +271,7 @@ question_mutiple_choice:
 
   - &avaruus6 !!models.questions.MultipleChoiseQuestion
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -275,6 +286,7 @@ question_mutiple_choice:
 
   - &avaruus7 !!models.questions.MultipleChoiseQuestion
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -290,6 +302,7 @@ question_mutiple_choice:
 
   - &avaruus8 !!models.questions.MultipleChoiseQuestion
     question:   The Great Red Spot tarkoittaa
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -305,6 +318,7 @@ question_mutiple_choice:
 
   - &avaruus9 !!models.questions.MultipleChoiseQuestion
     question:   Vuodenajat aiheutuvat
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -320,6 +334,7 @@ question_mutiple_choice:
 
   - &avaruus10 !!models.questions.MultipleChoiseQuestion
     question:   Uudenkuun aikaan
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -335,6 +350,7 @@ question_mutiple_choice:
 
   - &avaruus11 !!models.questions.MultipleChoiseQuestion
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
+    creator: *maika
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -522,6 +538,15 @@ examsections:
               - *multi1
               - *multi2
               - *multi3
+    totalScore:
+
+  - &osio5 !!models.ExamSection
+    name: Monivalinnat 5
+    exam: *ooad
+    questions:
+              - *avaruus9
+              - *avaruus8
+              - *avaruus7
     totalScore:
 
   - &astro1 !!models.ExamSection

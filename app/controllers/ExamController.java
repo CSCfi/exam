@@ -1,7 +1,8 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
-import com.avaje.ebean.Ebean;
+import java.sql.Timestamp;
+import java.util.List;
+
 import models.Exam;
 import models.ExamEvent;
 import models.ExamSection;
@@ -9,16 +10,19 @@ import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiseOption;
 import models.questions.MultipleChoiseQuestion;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import Exceptions.MalformedDataException;
 
-import java.sql.Timestamp;
-import java.util.List;
+import com.avaje.ebean.Ebean;
+import com.google.common.collect.ImmutableSet;
 
 public class ExamController extends SitnetController {
 
@@ -39,9 +43,54 @@ public class ExamController extends SitnetController {
     	Logger.debug("getExam(:id)");
     	
     	Exam exam = Ebean.find(Exam.class, id);
+    	List<ExamSection> es = Ebean.find(ExamSection.class)
+    			.where()
+    			.eq("exam.id", exam.getId())
+    			.findList();
+    	exam.setExamSections(es);
+   	
     	return ok(Json.toJson(exam));
     }
 
+    public static Result updateExam(Long id) throws MalformedDataException {
+    	Logger.debug("updateExam(:id)");
+    	Exam ex = Form.form(Exam.class).bindFromRequest(
+    	"id",
+    	"course",
+    	"created",
+    	"creator",
+    	"examEvent",
+//    	"examSections",
+    	"examType",
+    	"hash",
+    	"instruction",
+    	"modified",
+    	"modifier",
+    	"name",
+    	"shared",
+    	"state").get();
+    	
+    	
+    	Logger.debug("Exam: "+ ex.toString());
+    	ex.update();
+
+//
+//        Logger.debug("course Code: " + df.get("courseCode"));
+//        Logger.debug("course Name: " + df.get("courseName"));
+//        Logger.debug("course Scope: " + df.get("courseScope"));
+//        Logger.debug("Faculty Name: " + df.get("facultyName"));
+//        Logger.debug("Exam Instructor Name: " + df.get("instructorName"));
+//        
+//        Exam ex = bindForm(Exam.class);
+//        Ebean.update(ex, ImmutableSet.of("course", "examType", "instruction", "shared", "examEvent", "hash", "state"));
+
+        
+//        Ebean.update(ex, ImmutableSet.of("course", "examType", "instruction", "shared", "examEvent", "hash", "state"));
+        
+        
+    	return ok(Json.toJson(ex));
+    }
+    
     public static Result createExamDraft() throws MalformedDataException {
         Logger.debug("createExamDraft()");
 

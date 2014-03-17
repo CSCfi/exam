@@ -239,18 +239,30 @@
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
                     $scope.newExam.state = "PUBLISHED"
-                    $scope.newExam.examSections = $scope.sections;
                     $scope.newExamEvent.examReadableStartDate = $scope.dateService.modStartDate;
                     $scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
-                    $scope.newExam.examEvent = $scope.newExamEvent;
 
-                    ExamRes.save($scope.newExam, function (newExam) {
+                    ExamRes.exams.update($scope.newExam, function (newExam) {
                         toastr.info("Tentti tallennettu.");
                     }, function (error) {
                         toastr.error("Jokin meni pieleen");
                     });
                 };
 
+//                $scope.saveExam = function () {
+//                	$scope.newExam.state = "PUBLISHED"
+//                		$scope.newExam.examSections = $scope.sections;
+//                	$scope.newExamEvent.examReadableStartDate = $scope.dateService.modStartDate;
+//                	$scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
+//                	$scope.newExam.examEvent = $scope.newExamEvent;
+//                	
+//                	ExamRes.save($scope.newExam, function (newExam) {
+//                		toastr.info("Tentti tallennettu.");
+//                	}, function (error) {
+//                		toastr.error("Jokin meni pieleen");
+//                	});
+//                };
+//                
                 // Called when a question is drag and dropped to a exam section
                 $scope.onDrop = function ($event, $data, section) {
                     if (angular.isArray($data)) {

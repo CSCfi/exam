@@ -37,7 +37,7 @@
                 </div>
             </div>
             <div class="section" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath"
-                 ng-repeat="section in sections"></div>
+                 ng-repeat="section in newExam.examSections"></div>
         </div>
 		<span ng-click="addNewSection()" class="create-new">
 			<i class="fa fa-plus-circle"></i>

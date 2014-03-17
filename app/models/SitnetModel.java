@@ -14,11 +14,13 @@ public class SitnetModel extends Model {
 	@GeneratedValue(strategy=GenerationType.AUTO)
     protected Long id;
 	
+//	@CreatedTimestamp
 	protected Timestamp created;
 	
 	@OneToOne
 	protected User creator;
 	
+//	@UpdatedTimestamp
 	protected Timestamp modified;
 	
 	@OneToOne

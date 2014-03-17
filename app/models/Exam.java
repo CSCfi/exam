@@ -141,7 +141,7 @@ public class Exam extends SitnetModel {
                 ", examType=" + examType +
                 ", instruction='" + instruction + '\'' +
                 ", shared=" + shared +
-                ", examSections=" + examSections +
+//                ", examSections=" + examSections +
                 ", examEvent=" + examEvent +
                 ", hash='" + hash + '\'' +
                 ", state='" + state + '\'' +
