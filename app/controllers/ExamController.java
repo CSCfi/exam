@@ -128,6 +128,9 @@ public class ExamController extends SitnetController {
     public static Result createExam() throws MalformedDataException {
         Logger.debug("createExam()");
 
+        User user = UserController.getLoggedUser();
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis() * 1000);
+
         Exam ex = bindForm(Exam.class);
 //        ex.setId(null);
 
@@ -135,6 +138,14 @@ public class ExamController extends SitnetController {
             case "DRAFT":
             {
                 ex.setId(null);
+
+                if(ex.getCreator() == null) {
+                    ex.setCreator(user);
+                    ex.setCreated(currentTime);
+                } else {
+                    ex.setModifier(user);
+                    ex.setModified(currentTime);
+                }
 
                 ex.save();
 
