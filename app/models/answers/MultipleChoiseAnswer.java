@@ -16,6 +16,7 @@ public class MultipleChoiseAnswer extends AbstractAnswer implements AnswerInterf
         this.type = this.getClass().getSimpleName();
     }
 
+    @OneToOne
     private MultipleChoiseOption option;
 
 //    @Override

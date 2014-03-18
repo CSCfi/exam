@@ -47,42 +47,59 @@ public class StudentExamController extends SitnetController {
 
     public static Result getExamByHash(String hash) {
 
-        Exam exam = Ebean.find(Exam.class).where().eq("hash", hash).findUnique();
-        
+
         // Create a copy from the exam when a student is starting it
-        if(exam != null) {
+        if(!hash.equals("undefined")) {
 
-            Exam exam_copy = (Exam)exam._ebean_createCopy();
+            Exam exam = Ebean.find(Exam.class)
+                    .fetch("examSections")
+                    .where()
+                    .eq("hash", hash).findUnique();
 
-            exam_copy.setId(null);
-//            exam_copy.save();
+            Exam newExam = new Exam();
+            newExam = newExam.clone(exam);
 
-            List<ExamSection> examSections = exam_copy.getExamSections();
-            for (ExamSection es : examSections) {
-                es.setId(null);
-//                es.saveManyToManyAssociations("questions");
+            newExam.save();
 
-                List<AbstractQuestion> questions = es.getQuestions();
-                for (AbstractQuestion q : questions) {
-                    q.setId(null);
+//
+//            Exam exam_copy = (Exam)exam._ebean_createCopy();
+
+
+//            exam_copy.setId(null);
+//            exam.save();
+//            exam.update();
+
+//                List<ExamSection> examSections = exam_copy.getExamSections();
+//                for (ExamSection es : examSections) {
+//
+//                ExamSection examsec = Ebean.find(ExamSection.class)
+//                        .where()
+//                        .eq("exam.id", exam_copy.getId()).findUnique();
+//
+//                examsec.setId(null);
+//                examsec.save();
+
+//                List<AbstractQuestion> questions = es.getQuestions();
+//                for (AbstractQuestion q : questions) {
+//                    q.setId(null);
 //                    q.save();
 
-                    switch (q.getType()) {
-                        case "MultipleChoiseQuestion": {
-                            List<MultipleChoiseOption> options = ((MultipleChoiseQuestion) q).getOptions();
-                            for (MultipleChoiseOption o : options) {
-                                o.setId(null);
+//                    switch (q.getType()) {
+//                        case "MultipleChoiseQuestion": {
+//                            List<MultipleChoiseOption> options = ((MultipleChoiseQuestion) q).getOptions();
+//                            for (MultipleChoiseOption o : options) {
+//                                o.setId(null);
 //                                o.save();
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
+//                            }
+//                        }
+//                        break;
+//                    }
+//                }
+//                es.saveManyToManyAssociations("questions");
+//            }
+//            exam_copy.save();
 
-            exam_copy.save();
-
-            return ok(Json.toJson(exam_copy));
+            return ok(Json.toJson(newExam));
         }
         else
         	return notFound("Exam not found, something went horribly wrong.");        
