@@ -82,12 +82,22 @@
                 }
 
                 // Called when the save and exit button is clicked
-                $scope.saveExam = function (doexam) {
-                    $http.post('/student/saveandexit/');
+                $scope.saveExam = function () {
+//                    $http.post('/student/saveandexit/', );
+// $scope.exam.examSections[0].questions[0]
+                    StudentExamRes.save($scope.answer, function (exam) {
+                        toastr.info("Vastaukset tallennettu.");
+                    }, function (error) {
+                        toastr.error("Jokin meni pieleen");
+                    });
                 }
 
                 // Called when a radiobutton is selected
-                $scope.radioChecked = function (question, option) {
+                $scope.radioChecked = function (doexam, question, option) {
+
+                    $scope.exam = doexam;
+                    $scope.question = question;
+                    $scope.option = option;
 
                     question.answered = true;
                     question.selectedAnswer = option;
@@ -106,6 +116,8 @@
 
                     question.answer.option = option;
                     }
+
+                    $scope.answer = question.answer;
                 };
 
                 // Called when the chevron is clicked

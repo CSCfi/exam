@@ -2,10 +2,8 @@ package models.answers;
 
 import models.questions.MultipleChoiseOption;
 
-import javax.persistence.CascadeType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by avainik on 3/7/14.
@@ -18,7 +16,6 @@ public class MultipleChoiseAnswer extends AbstractAnswer implements AnswerInterf
         this.type = this.getClass().getSimpleName();
     }
 
-    @OneToMany(cascade = CascadeType.PERSIST)
     private MultipleChoiseOption option;
 
 //    @Override

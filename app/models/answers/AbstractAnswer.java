@@ -10,12 +10,13 @@ import java.util.List;
  * Created by avainik on 3/6/14.
  */
 @Entity
+@Table(name="answer")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="answer_type",  discriminatorType=DiscriminatorType.STRING)
-@Table(name="answer")
+@DiscriminatorValue("AbstractAnswer")
 
 
-public class AbstractAnswer extends SitnetModel{
+abstract public class AbstractAnswer extends SitnetModel {
 
     protected String type;
 
