@@ -34,6 +34,7 @@ public class SessionController extends SitnetController {
         result.put("token", token);
         result.put("firstname", user.getFirstName());
         result.put("lastname", user.getLastName());
+        result.put("roles", Json.toJson(user.getRoles()));
         return ok(result);
     }
 

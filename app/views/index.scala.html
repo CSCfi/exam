@@ -116,13 +116,13 @@
 
                 <ul>
                     <li ng-class="{selected: isActive(link)}" ng-repeat="link in links">
-                        <a href="{{link.href}}">
+                        <a ng-show="{{link.visible}}" href="{{link.href}}">
                             <i class="fa fa-2x fa-fw {{link.class}}"></i>
                             <span class="menu-item">{{link.name}}</span>
                         </a>
                         <div class="submenu" ng-repeat="subItem in link.sub" ng-show="isActive(link)">
                             <a href="{{subItem.href}}">
-                                <i class="fa fa-2x fa-fw {{subItem.class}}"></i>
+                                <i ng-show="{{subItem.visible}}" class="fa fa-2x fa-fw {{subItem.class}}"></i>
                                 <span class="menu-item">{{subItem.name}}</span>
                             </a>
                         </div>

@@ -15,7 +15,7 @@
     sitnet.constant('SITNET_CONF', (function () {
         var context_path = '/';
         return {
-            AUTH_STORAGE_KEY: 'SITNET_TOKEN',
+            AUTH_STORAGE_KEY: 'SITNET_USER',
             AUTH_HEADER: 'x-sitnet-authentication',
             CONTEXT_PATH: context_path,
             LANGUAGES_PATH: context_path + 'assets/languages/',
@@ -50,10 +50,10 @@
     }]);
     sitnet.run(['$http', '$localStorage', 'SITNET_CONF',
         function ($http, $localStorage, SITNET_CONF) {
-            var token = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
-            if (token) {
+            var user = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+            if (user) {
                 var header = {};
-                header[SITNET_CONF.AUTH_HEADER] = token;
+                header[SITNET_CONF.AUTH_HEADER] = user.token;
                 $http.defaults.headers.common = header;
             }
             $http.get('/ping');

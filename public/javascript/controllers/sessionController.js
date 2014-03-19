@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'SITNET_CONF',
-            function ($scope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, SITNET_CONF) {
+        .controller('SessionCtrl', ['$scope', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'SITNET_CONF',
+            function ($scope, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, SITNET_CONF) {
 
                 $scope.session = sessionService;
 
@@ -33,7 +33,9 @@
                         delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
                         delete $http.defaults.headers.common;
                         toastr.success("Uloskirjautuminen onnistui.");
-                        $location.path("/");
+                        delete $scope.session.user;
+                        $rootScope.$broadcast('userUpdated');
+                        $location.path("/login");
                     });
                 };
 
@@ -45,18 +47,36 @@
                     var xhr = $http.post('/login', credentials, {
                         ignoreAuthModule: true
                     });
-                    xhr.success(function (token) {
-                        var header = {};
-                        header[SITNET_CONF.AUTH_HEADER] = token.token;
-                        $http.defaults.headers.common = header;
-                        $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = token.token;
-                        authService.loginConfirmed();
-                        toastr.success($translate("sitnet_welcome") + " " + token.firstname + " " + token.lastname);
+                    xhr.success(function (user) {
 
-                        $scope.session.user = {
-                            firstname: token.firstname,
-                            lastname: token.lastname
+                        var hasRole = function (user, role) {
+                                if (!user || !user.roles) {
+                                    return false;
+                                }
+                                var i = user.roles.length;
+                                while (i--) {
+                                    if (user.roles[i].name === role) {
+                                        return true;
+                                    }
+                                }
+                                return false;
+                            },
+                            header = {};
+                        header[SITNET_CONF.AUTH_HEADER] = user.token;
+                        $http.defaults.headers.common = header;
+                        var sessionUser = {
+                            firstname: user.firstname,
+                            lastname: user.lastname,
+                            isAdmin: (hasRole(user, 'ADMIN')),
+                            isStudent: (hasRole(user, 'STUDENT')),
+                            isTeacher: (hasRole(user, 'TEACHER')),
+                            token: user.token
                         };
+                        $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = sessionUser;
+                        $scope.session.user = sessionUser;
+                        authService.loginConfirmed();
+                        $rootScope.$broadcast('userUpdated');
+                        toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
                     });
                     xhr.error(function (message) {
                         toastr.error(message, "Kirjautuminen epäonnistui!");
