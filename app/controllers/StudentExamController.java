@@ -5,19 +5,13 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.Exam;
-import models.ExamSection;
 import models.User;
-import models.answers.AbstractAnswer;
 import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiseOption;
-import models.questions.MultipleChoiseQuestion;
 import org.joda.time.DateTime;
 import play.Logger;
-import play.data.DynamicForm;
-import play.data.Form;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Result;
 
 import java.sql.Timestamp;
@@ -38,11 +32,13 @@ public class StudentExamController extends SitnetController {
         Timestamp now = new Timestamp(DateTime.now().getMillis());
 
         List<Exam> exams = Ebean.find(Exam.class)
+                .fetch("examSections")
                 .where()
+                .eq("state", "PUBLISHED")
                 .lt("examEvent.examActiveEndDate", now)
                 .eq("examEvent.enrolledStudents.id", user.getId())
                 .findList();
-  
+
         return ok(Json.toJson(exams));
     }
 

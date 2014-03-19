@@ -1,8 +1,7 @@
 package controllers;
 
-import java.sql.Timestamp;
-import java.util.List;
-
+import Exceptions.MalformedDataException;
+import com.avaje.ebean.Ebean;
 import models.Exam;
 import models.ExamEvent;
 import models.ExamSection;
@@ -10,19 +9,16 @@ import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiseOption;
 import models.questions.MultipleChoiseQuestion;
-
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
-import Exceptions.MalformedDataException;
 
-import com.avaje.ebean.Ebean;
-import com.google.common.collect.ImmutableSet;
+import java.sql.Timestamp;
+import java.util.List;
 
 public class ExamController extends SitnetController {
 
@@ -33,7 +29,9 @@ public class ExamController extends SitnetController {
         Logger.debug("getExams()");
 
         List<Exam> exams = Ebean.find(Exam.class)
-        		.fetch("examSections")
+                .fetch("examSections")
+                .where()
+                .eq("state", "PUBLISHED")
         		.findList();
         
         return ok(Json.toJson(exams));
