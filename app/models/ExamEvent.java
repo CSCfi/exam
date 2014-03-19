@@ -1,6 +1,8 @@
 package models;
 
+import play.Logger;
 import play.db.ebean.Model;
+import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -14,7 +16,7 @@ import java.util.List;
  * <Opetustapahtuman tyyppi> voi olla esim luento tai tentti.
  */
 @Entity
-public class ExamEvent extends Model {
+public class ExamEvent extends Model implements Cloneable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -184,6 +186,30 @@ public class ExamEvent extends Model {
 
     public void setQuidance(String quidance) {
         this.quidance = quidance;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+
+//        ExamEvent copy = (ExamEvent)super.clone();
+
+//        copy.setId(null);   // huh?
+//        copy.setExamActiveStartDate(examActiveStartDate);
+//        copy.setExamActiveEndDate(examActiveEndDate);
+//        copy.setExamReadableStartDate(examReadableStartDate);
+//        copy.setExamReadableEndDate(examReadableEndDate);
+//        copy.setRoom(room);
+
+        ExamEvent copy = (ExamEvent)SitnetUtil.getClone(this);
+
+        Logger.debug("clone: "+ copy);
+
+
+
+
+
+
+        return copy;
     }
 
     @Override

@@ -39,6 +39,7 @@
                             // or server returns response with an error status.
                         });
                 }
+                if($routeParams.hash != undefined)
                 $scope.doExam();
 
                 $scope.answeredExam = {

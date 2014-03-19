@@ -2,15 +2,16 @@ package models.answers;
 
 import models.questions.MultipleChoiseOption;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 
 /**
  * Created by avainik on 3/7/14.
  */
 @Entity
 @DiscriminatorValue("MultipleChoiseAnswer")
-public class MultipleChoiseAnswer extends AbstractAnswer implements AnswerInterface {
+public class MultipleChoiseAnswer extends AbstractAnswer {
 
     public MultipleChoiseAnswer() {
         this.type = this.getClass().getSimpleName();

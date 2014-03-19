@@ -16,7 +16,7 @@ import java.util.List;
 @DiscriminatorValue("AbstractAnswer")
 
 
-abstract public class AbstractAnswer extends SitnetModel {
+abstract public class AbstractAnswer extends SitnetModel implements AnswerInterface {
 
     protected String type;
 

@@ -1,22 +1,14 @@
 package models;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-
-import com.avaje.ebean.Ebean;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiseOption;
 import models.questions.MultipleChoiseQuestion;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
@@ -50,7 +42,7 @@ public class Exam extends SitnetModel {
     @OneToOne
     private ExamEvent examEvent;
 
-    @Column(length = 32)
+    @Column(length = 32, unique = true)
     private String hash;
 
     private String state;
@@ -139,6 +131,7 @@ public class Exam extends SitnetModel {
         this.state = state;
     }
 
+
     public Exam clone(Exam targetExam) {
         Exam examClone = new Exam();
 
@@ -151,6 +144,13 @@ public class Exam extends SitnetModel {
         examClone.setExamType(targetExam.getExamType());
         examClone.setInstruction(targetExam.getInstruction());
         examClone.setShared(targetExam.isShared());
+
+
+        try {
+            examClone.setExamEvent((ExamEvent) targetExam.examEvent.clone());
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
 
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
