@@ -57,7 +57,16 @@
                     });
 
                     modalInstance.result.then(function () {
-                        $location.path('/student/doexam/'+$scope.exam.hash);
+                        $http.get('/student/doexam/'+$scope.exam.hash)
+                            .success(function(exam) {
+                                $scope.clonedExam = exam;
+                                $location.path('/student/doexam/'+exam.hash);
+                            }).
+                            error(function(error) {
+                                // called asynchronously if an error occurs
+                                // or server returns response with an error status.
+                                $console.log('Error happened: ' + error);
+                            });
                     }, function () {
                         $console.log('Modal dismissed at: ' + new Date());
                     });

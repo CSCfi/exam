@@ -120,7 +120,8 @@ public class Exam extends SitnetModel {
         // TODO: what attributes make examEvent unique?
         // create unique hash for exam
         String attributes = name +
-                course.getCode();
+                course.getCode() +
+                state;
 
 //                examEvent.getStartTime().toString() +
 //                examEvent.getEndTime().toString();
@@ -192,7 +193,7 @@ public class Exam extends SitnetModel {
 
         examClone.setExamEvent(targetExam.getExamEvent());
         examClone.generateHash();
-        examClone.setState(targetExam.getState());
+        examClone.setState("STUDENT_STARTED");
 
         return examClone;
     }

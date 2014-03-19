@@ -28,6 +28,8 @@ import java.util.List;
  */
 public class StudentExamController extends SitnetController {
 
+    public static String clonedHash = null;
+
     @Restrict(@Group({"STUDENT"}))
     public static Result listActiveExams() {
 
@@ -47,62 +49,48 @@ public class StudentExamController extends SitnetController {
 
     public static Result getExamByHash(String hash) {
 
-
         // Create a copy from the exam when a student is starting it
         if(!hash.equals("undefined")) {
+            // If hash hasn't been cloned, then clone the exam
+            if(clonedHash == null) {
+                Exam exam = Ebean.find(Exam.class)
+                        .fetch("examSections")
+                        .where()
+                        .eq("hash", hash).findUnique();
 
-            Exam exam = Ebean.find(Exam.class)
-                    .fetch("examSections")
-                    .where()
-                    .eq("hash", hash).findUnique();
+                Exam newExam = new Exam();
+                newExam = newExam.clone(exam);
+                newExam.save();
 
-            Exam newExam = new Exam();
-            newExam = newExam.clone(exam);
+                clonedHash = newExam.getHash();
 
-            newExam.save();
+                return ok(Json.toJson(newExam));
+            } else {
+                // This is to avoid duplicate cloning of exams
+                if(!clonedHash.equals(hash)) {
+                    Exam exam = Ebean.find(Exam.class)
+                            .fetch("examSections")
+                            .where()
+                            .eq("hash", hash).findUnique();
 
-//
-//            Exam exam_copy = (Exam)exam._ebean_createCopy();
+                    Exam newExam = new Exam();
+                    newExam = newExam.clone(exam);
+                    newExam.save();
 
+                    clonedHash = newExam.getHash();
 
-//            exam_copy.setId(null);
-//            exam.save();
-//            exam.update();
-
-//                List<ExamSection> examSections = exam_copy.getExamSections();
-//                for (ExamSection es : examSections) {
-//
-//                ExamSection examsec = Ebean.find(ExamSection.class)
-//                        .where()
-//                        .eq("exam.id", exam_copy.getId()).findUnique();
-//
-//                examsec.setId(null);
-//                examsec.save();
-
-//                List<AbstractQuestion> questions = es.getQuestions();
-//                for (AbstractQuestion q : questions) {
-//                    q.setId(null);
-//                    q.save();
-
-//                    switch (q.getType()) {
-//                        case "MultipleChoiseQuestion": {
-//                            List<MultipleChoiseOption> options = ((MultipleChoiseQuestion) q).getOptions();
-//                            for (MultipleChoiseOption o : options) {
-//                                o.setId(null);
-//                                o.save();
-//                            }
-//                        }
-//                        break;
-//                    }
-//                }
-//                es.saveManyToManyAssociations("questions");
-//            }
-//            exam_copy.save();
-
-            return ok(Json.toJson(newExam));
+                    return ok(Json.toJson(newExam));
+                } else {
+                    Exam clonedExam = Ebean.find(Exam.class)
+                            .fetch("examSections")
+                            .where()
+                            .eq("hash", clonedHash).findUnique();
+                    return ok(Json.toJson(clonedExam));
+                }
+            }
+        } else {
+            return notFound("Exam hash was undefined, something went horribly wrong.");
         }
-        else
-        	return notFound("Exam not found, something went horribly wrong.");        
     }
 
     public static Result saveAndExit() {
