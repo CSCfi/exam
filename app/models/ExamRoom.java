@@ -11,6 +11,24 @@ import java.util.List;
  */
 public class ExamRoom {
 
-	private List<ExamMachine> examMachine;
-	
+	private String name;
+
+    private List<ExamMachine> examMachine;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<ExamMachine> getExamMachine() {
+        return examMachine;
+    }
+
+    public void setExamMachine(List<ExamMachine> examMachine) {
+        this.examMachine = examMachine;
+    }
 }

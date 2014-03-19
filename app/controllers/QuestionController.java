@@ -21,7 +21,10 @@ public class QuestionController extends SitnetController {
 //  @Authenticate
   public static Result getQuestions() {
   	
-      List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class).findList();
+      List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
+              .where()
+              .eq("parent", null)
+              .findList();
 
       if(questions != null)
           Logger.debug(questions.toString());

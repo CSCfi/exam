@@ -1,25 +1,9 @@
 package models.questions;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
-import models.Comment;
-import models.EvaluationCriteria;
-import models.EvaluationPhrase;
-import models.ExamSection;
-import models.Material;
-import models.SitnetModel;
+import models.*;
 import models.answers.AbstractAnswer;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import javax.persistence.*;
 
 /**
  * Created by avainik on 3/6/14.
@@ -55,7 +39,7 @@ abstract public class AbstractQuestion extends SitnetModel implements QuestionIn
      * This attribute might have use in statistics.
      */
     @OneToOne
-    protected AbstractQuestion derivedFromQuestion;
+    protected AbstractQuestion parent;
 
     @OneToOne
     protected AbstractAnswer answer;
@@ -132,12 +116,12 @@ abstract public class AbstractQuestion extends SitnetModel implements QuestionIn
         this.instruction = instruction;
     }
 
-    public AbstractQuestion getDerivedFromQuestion() {
-        return derivedFromQuestion;
+    public AbstractQuestion getParent() {
+        return parent;
     }
 
-    public void setDerivedFromQuestion(AbstractQuestion derivedFromQuestion) {
-        this.derivedFromQuestion = derivedFromQuestion;
+    public void setParent(AbstractQuestion parent) {
+        this.parent = parent;
     }
 
     public AbstractAnswer getAnswer() {
@@ -188,11 +172,19 @@ abstract public class AbstractQuestion extends SitnetModel implements QuestionIn
         this.hash = hash;
     }
 
+    public AbstractQuestion getAncestor(AbstractQuestion abstractQuestion) {
+        if(abstractQuestion.getParent() == null) {
+            return abstractQuestion;
+        } else {
+            return abstractQuestion.getAncestor(this.getParent());
+        }
+    }
+
    	@Override
     public String toString() {
         return "AbstractQuestion [type=" + type + ", question=" + question
                 + ", shared=" + shared + ", instruction=" + instruction
-                + ", derivedFromQuestion=" + derivedFromQuestion
+                + ", parent=" + parent
                 + ", evaluationCriterias=" + evaluationCriterias + ", hash="
                 + hash + "]";
     }

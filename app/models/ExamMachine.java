@@ -19,5 +19,28 @@ public class ExamMachine {
 	private ExamRoom examRoom;
 	
 	private Reservation reservation;
-	
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ExamRoom getExamRoom() {
+        return examRoom;
+    }
+
+    public void setExamRoom(ExamRoom examRoom) {
+        this.examRoom = examRoom;
+    }
+
+    public Reservation getReservation() {
+        return reservation;
+    }
+
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
+    }
 }

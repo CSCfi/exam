@@ -167,6 +167,7 @@ public class Exam extends SitnetModel {
 
                 AbstractQuestion question_copy = (AbstractQuestion)q._ebean_createCopy();
                 question_copy.setId(null);
+                question_copy.setParent(q);
 
                     switch (q.getType()) {
                         case "MultipleChoiseQuestion": {
