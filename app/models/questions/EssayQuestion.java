@@ -11,7 +11,7 @@ import javax.persistence.Entity;
  */
 @Entity
 @DiscriminatorValue("EssayQuestion")
-public class EssayQuestion extends AbstractQuestion implements QuestionInterface {
+public class EssayQuestion extends AbstractQuestion {
 
     public EssayQuestion() {
         this.type = this.getClass().getSimpleName();

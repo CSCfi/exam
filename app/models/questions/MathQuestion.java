@@ -8,7 +8,7 @@ import javax.persistence.Entity;
  */
 @Entity
 @DiscriminatorValue("MathQuestion")
-public class MathQuestion extends AbstractQuestion implements QuestionInterface {
+public class MathQuestion extends AbstractQuestion {
 
     public MathQuestion() {
         this.type = this.getClass().getSimpleName();

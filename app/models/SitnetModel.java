@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @MappedSuperclass
-public class SitnetModel extends Model {
+abstract public class SitnetModel extends Model implements Cloneable {
 
 	protected static final long serialVersionUID = 5201571045491048480L;
 

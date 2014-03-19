@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
  * See:
  * https://groups.google.com/forum/#!topic/play-framework/YOSLdmv_oSc
  */
-abstract public class AbstractQuestion extends SitnetModel {
+abstract public class AbstractQuestion extends SitnetModel implements QuestionInterface {
 
     protected String type;
 

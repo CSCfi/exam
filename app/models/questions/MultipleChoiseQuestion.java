@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Entity
 @DiscriminatorValue("MultipleChoiseQuestion")
-public class MultipleChoiseQuestion extends AbstractQuestion  implements QuestionInterface {
+public class MultipleChoiseQuestion extends AbstractQuestion {
 
     public MultipleChoiseQuestion() {
         this.type = this.getClass().getSimpleName();
@@ -52,5 +52,10 @@ public class MultipleChoiseQuestion extends AbstractQuestion  implements Questio
         return super.toString() + "MultipleChoiseQuestion{" +
                 "options=" + options +
                 '}';
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

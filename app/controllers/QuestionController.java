@@ -78,6 +78,17 @@ public class QuestionController extends SitnetController {
           }
 
           Ebean.save(question);
+          Logger.debug("id1: "+ ((MultipleChoiseQuestion) question).getId());
+
+          ((MultipleChoiseQuestion) question).save();
+          Logger.debug("id2: "+ ((MultipleChoiseQuestion) question).getId());
+
+          Ebean.save(question);
+          Logger.debug("id3: "+ ((MultipleChoiseQuestion) question).getId());
+
+
+
+
           return ok(Json.toJson(question));
 
       } catch (ClassNotFoundException e) {
