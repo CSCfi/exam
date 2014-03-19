@@ -58,7 +58,7 @@ public class QuestionController extends SitnetController {
                   else
                   {
                       ((MultipleChoiseQuestion)question).setModifier(user);
-                      ((MultipleChoiseQuestion)question).setModified(new Timestamp(System.currentTimeMillis() * 1000));
+                      ((MultipleChoiseQuestion)question).setModified(currentTime);
                   }
               } break;
 

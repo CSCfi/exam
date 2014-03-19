@@ -193,4 +193,44 @@ public class StudentExamController extends SitnetController {
 
         return ok("fail");
     }
+
+    public static Result insertAnswer(String hash, Long qid, Long oid) throws MalformedDataException {
+        Logger.debug("insertAnswer()");
+
+        // Todo: onko käyttäjällä aikaa jäljellä tehdä koetta?
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+
+        User user = UserController.getLoggedUser();
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+
+
+        if(question.getAnswer() == null) {
+            // Insert new answer
+            MultipleChoiseAnswer m_answer = new MultipleChoiseAnswer();
+            m_answer.setOption(option);
+            m_answer.setCreator(user);
+            m_answer.setCreated(currentTime);
+            m_answer.setModifier(user);
+            m_answer.setModified(currentTime);
+            question.setAnswer(m_answer);
+            m_answer.save();
+            question.save();
+
+            return ok("Vastaus tallennettiin");
+        } else {
+            // Update answer
+            MultipleChoiseAnswer answer = (MultipleChoiseAnswer)question.getAnswer();
+            answer.setOption(option);
+            answer.setModified(currentTime);
+            answer.setModifier(user);
+
+            answer.update();
+            question.update();
+        }
+
+
+
+        return ok("Vastaus tallennettiin");
+    }
 }

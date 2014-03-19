@@ -11,7 +11,7 @@
                 $scope.multipleChoiseQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_question.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
 
-                $scope.exams = StudentExamRes.query();
+                $scope.exams = StudentExamRes.exams.query();
                 $scope.exam = null;
                 $scope.tempQuestion = null;
 
@@ -92,13 +92,11 @@
 
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function () {
-//                    $http.post('/student/saveandexit/', );
-// $scope.exam.examSections[0].questions[0]
-                    StudentExamRes.save($scope.answer, function (exam) {
-                        toastr.info("Vastaukset tallennettu.");
-                    }, function (error) {
-                        toastr.error("Jokin meni pieleen");
-                    });
+//                    StudentExamRes.save($scope.answer, function (exam) {
+//                        toastr.info("Vastaukset tallennettu.");
+//                    }, function (error) {
+//                        toastr.error("Jokin meni pieleen");
+//                    });
                 }
 
                 // Called when a radiobutton is selected
@@ -125,6 +123,18 @@
 
                     question.answer.option = option;
                     }
+
+//                    StudentExamRes.save($scope.answer, function (exam) {
+//                        toastr.info("Vastaukset tallennettu.");
+//                    }, function (error) {
+//                        toastr.error("Jokin meni pieleen");
+//                    });
+
+                    StudentExamRes.answer.insertAnswer({hash: doexam.hash, qid: question.id, oid: option.id}, function (answer) {
+                        toastr.info("Vastaus lisätty kysymykseen.");
+                    }, function (error) {
+                        toastr.error("Jokin meni pieleen");
+                    });
 
                     $scope.answer = question.answer;
                 };

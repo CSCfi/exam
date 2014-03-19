@@ -30,9 +30,8 @@ GET           /student/exams                  controllers.StudentExamController.
 POST          /student/exams/:id              controllers.StudentExamController.saveAnswersAndExit(id: Long)
 POST          /student/exams                  controllers.StudentExamController.saveAnswers()
 GET           /student/doexam/:hash           controllers.StudentExamController.getExamByHash(hash: String)
-GET           /student/activate/:hash           controllers.StudentExamController.getExamByHash(hash: String)
 POST          /student/saveandexit/           controllers.StudentExamController.saveAndExit()
-
+POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
 
 
 ############### Courses interface ###############
