@@ -37,11 +37,10 @@
                 data.map(function (item) {
                     var icon = "";
                     switch (item.type) {
-                    case "MULTIPLE_CHOICE_ONE_CORRECT":
-                    case "MULTIPLE_CHOICE_SEVERAL_CORRECT":
+                    case "MultipleChoiseQuestion":
                         icon = "fa-list-ol";
                         break;
-                    case "ESSAY":
+                    case "EssayQuestion":
                         icon = "fa-edit";
                         break;
                     default:

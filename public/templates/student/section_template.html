@@ -1,0 +1,33 @@
+<form class="form-inline" role="form">
+    <div class="{{question.selectedAnsweredState}}" ng-repeat="question in activeSection.questions">
+        <h4>
+            <div>
+			<span class="fa-stack sitnet-white">
+                <i class="fa fa-square fa-stack-2x"></i>
+                <i class="fa-stack-1x sitnet-black">{{question.id}}.</i>
+            </span>
+
+                <i><span class="sitnet-white">{{question.question}}</span></i>
+
+			<span ng-click="showQuestion = !showQuestion" class="pull-right fa-stack fa-lg">
+                <i ng-class="showQuestion ? 'sitnet-white' : 'sitnet-student-darkgreen'"
+                   class="fa fa-square fa-stack-2x section-header-icon-square">
+                </i>
+				<i ng-click="chevronClicked(question)"
+                   ng-class="showQuestion ? 'fa-chevron-down sitnet-student-darkgreen' : 'fa-chevron-left'"
+                   class="sitnet-white fa fa-chevron-left fa-stack-1x section-header-icon-chevron">
+                </i>
+			</span>
+
+            <span class="pull-right sitnet-white">
+                <i class="question-status" ng-model="question">{{question.questionStatus}}</i>
+            </span>
+            </div>
+        </h4>
+
+        <div class="exam-question-container" ng-hide="!showQuestion">
+            <div class="question" ng-include="question.template"></div>
+        </div>
+
+    </div>
+</form>

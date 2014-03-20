@@ -114,7 +114,10 @@
                 if($routeParams.id === undefined)
                 	$scope.exams = ExamRes.exams.query();
                 else
-                	$scope.newExam = ExamRes.exams.get({id: $routeParams.id});
+                {
+                    $scope.newExam = ExamRes.exams.get({id: $routeParams.id});
+
+                }
 
                 
                 $scope.addNewSection = function () {
@@ -176,7 +179,6 @@
                     questions.map(function (item) {
                         var icon = "";
                         switch (item.type) {
-                            case "MathQuestion":
                             case "MultipleChoiseQuestion":
                                 icon = "fa-list-ol";
                                 break;
@@ -184,7 +186,7 @@
                                 icon = "fa-edit";
                                 break;
                             default:
-                                icon = "fa-edit";
+                                icon = "fa-question-circle";
                                 break;
                         }
                         item.icon = icon;

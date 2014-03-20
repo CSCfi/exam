@@ -1,0 +1,14 @@
+<div>
+    <textarea class="form-control" rows="2" disabled>
+        {{'sitnet_essay_example' | translate}}
+    </textarea>
+</div>
+
+<div class="sitnet-info-text">
+    <span class="sitnet-info-text"><i> {{'sitnet_essay_length_recommendation' | translate}}</i></span>
+    <div class="input-group">
+        <input type="text" class="form-control" ng-model="newQuestion.maxCharacters" ng-change="estimateWords()">
+        <span class="input-group-addon" title="Suomen kielessä sanan keskimääräinen pituus on: 7.5 merkkiä">
+            {{'sitnet_approximately' | translate}} {{newQuestion.words}} {{'sitnet_words' | translate}}</span>
+    </div>
+</div>

@@ -1,32 +1,62 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('QuestionCtrl', ['$scope', 'QuestionRes', '$translate', 'SITNET_CONF',
-            function ($scope, QuestionRes, $translate, SITNET_CONF) {
+        .controller('QuestionCtrl', ['$scope', '$routeParams', '$location', 'QuestionRes', '$translate', 'SITNET_CONF',
+            function ($scope, $routeParams, $location, QuestionRes, $translate, SITNET_CONF) {
 
-                $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "/question-editor-option.html";
+                $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
+                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
+                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
 
-                var newQuestion = {
-                    type: "MultipleChoiseQuestion",
-                    question: $translate("sitnet_question_write_name"),
-                    instruction: "Kirjoita ohje tähän",
-                    materials: [],
-                    answers: [],
-                    evaluationPhrases: [],
-                    evaluationCriterias: [],
-                    comments: [],
-                    options: [
-                        {
-                            "option": "Esimerkki vaihtoehto",
-                            "correctOption": false,
-                            "score": 1
-                        }
-                    ]
-                };
+                $scope.questionTemplate = null;
+
 
                 $scope.questions = QuestionRes.query();
 
-                $scope.newQuestion = newQuestion;
+
+                if ($location.path() == '/questions/new') {
+                    var newQuestion = {
+                        type: "",
+                        question: $translate("sitnet_question_write_name"),
+                        instruction: "Kirjoita ohje tähän",
+                        materials: [],
+                        evaluationPhrases: [],
+                        evaluationCriterias: [],
+                        comments: []
+                    };
+
+                    $scope.newQuestion = newQuestion;
+                }
+
+                $scope.newMCQuestion = function () {
+                    $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
+
+                    $scope.newQuestion.type = "MultipleChoiceQuestion";
+
+                    $scope.newQuestion.options =
+                        [{
+                            "option": "Esimerkki vaihtoehto",
+                            "correctOption": false,
+                            "score": 1
+                        }];
+                };
+
+                $scope.newEssayQuestion = function () {
+                    $scope.questionTemplate = $scope.essayQuestionTemplate;
+
+                    $scope.newQuestion.type = "EssayQuestion";
+
+                    // Sanan keskimääräinen pituus = 7.5 merkkiä
+                    // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
+                    $scope.newQuestion.maxCharacters = 500;
+                    $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
+                };
+
+                $scope.estimateWords = function () {
+                    $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
+                };
+
+
 
                 $scope.saveQuestion = function () {
 
@@ -78,6 +108,5 @@
                     $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
 
                 }
-
             }]);
 }());

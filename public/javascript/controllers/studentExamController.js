@@ -8,12 +8,20 @@
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_question.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_general.html";
                 $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "/student_sections_bar.html";
-                $scope.multipleChoiseQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_question.html";
+//                $scope.multipleChoiseQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_question.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
+                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/essay_question.html";
+                $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/section_template.html";
 
                 $scope.exams = StudentExamRes.exams.query();
                 $scope.exam = null;
                 $scope.tempQuestion = null;
+
+                $scope.countCharacters = function(question) {
+                    question.answer.answerLength = question.answer.answer.length;
+                    question.words = question.answer.answer.split(" ").length;
+                }
+
 
                 $scope.doExam = function(hash) {
                     $http.get('/student/doexam/'+$routeParams.hash)
@@ -21,8 +29,23 @@
                             $scope.doexam = data;
                             $scope.activeSection = $scope.doexam.examSections[0];
 
-                            // Loop through all questions in the active section
+                                // Loop through all questions in the active section
                             angular.forEach($scope.activeSection.questions, function(value, index) {
+
+                                var template = "";
+                                switch (value.type) {
+                                    case "MultipleChoiseQuestion":
+                                        template = $scope.multipleChoiseOptionTemplate;
+                                        break;
+                                    case "EssayQuestion":
+                                        template = $scope.essayQuestionTemplate;
+                                        break;
+                                    default:
+                                        template = "fa-question-circle";
+                                        break;
+                                }
+                                value.template = template;
+
                                 if(!value.answer) {
                                     // When question has not been answered it's status color is set to gray
                                 	// When an active exam is opened it cannot have any answers set
@@ -78,6 +101,21 @@
 
                     // Loop through all questions in the active section
                     angular.forEach($scope.activeSection.questions, function(value, index) {
+
+                        var template = "";
+                        switch (value.type) {
+                            case "MultipleChoiseQuestion":
+                                template = $scope.multipleChoiseOptionTemplate;
+                                break;
+                            case "EssayQuestion":
+                                template = $scope.essayQuestionTemplate;
+                                break;
+                            default:
+                                template = "fa-question-circle";
+                                break;
+                        }
+                        value.template = template;
+
                         // Need to reset the flag because questions left open before switching section will be shown closed by default
                         value.questionsShown = false;
                         if(!value.answered) {

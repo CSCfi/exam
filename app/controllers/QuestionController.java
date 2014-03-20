@@ -4,6 +4,7 @@ import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
 import models.User;
 import models.questions.AbstractQuestion;
+import models.questions.EssayQuestion;
 import models.questions.MultipleChoiseQuestion;
 import play.Logger;
 import play.data.DynamicForm;
@@ -63,11 +64,25 @@ public class QuestionController extends SitnetController {
                       ((MultipleChoiseQuestion)question).setModifier(user);
                       ((MultipleChoiseQuestion)question).setModified(currentTime);
                   }
+
+                  ((MultipleChoiseQuestion) question).generateHash();
+
               } break;
 
               case "EssayQuestion":
               {
+                  if( ((EssayQuestion)question).getCreator() == null)
+                  {
+                      ((EssayQuestion)question).setCreator(user);
+                      ((EssayQuestion)question).setCreated(currentTime);
+                  }
+                  else
+                  {
+                      ((EssayQuestion)question).setModifier(user);
+                      ((EssayQuestion)question).setModified(currentTime);
+                  }
 
+                  ((EssayQuestion) question).generateHash();
 
               } break;
 
@@ -81,17 +96,6 @@ public class QuestionController extends SitnetController {
           }
 
           Ebean.save(question);
-          Logger.debug("id1: "+ ((MultipleChoiseQuestion) question).getId());
-
-          ((MultipleChoiseQuestion) question).save();
-          Logger.debug("id2: "+ ((MultipleChoiseQuestion) question).getId());
-
-          Ebean.save(question);
-          Logger.debug("id3: "+ ((MultipleChoiseQuestion) question).getId());
-
-
-
-
           return ok(Json.toJson(question));
 
       } catch (ClassNotFoundException e) {

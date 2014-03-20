@@ -1,0 +1,9 @@
+<form class="form-inline" role="form">
+    <div class="" ng-repeat="option in newQuestion.options">
+        <div class="" ng-include="newOptionTemplate"></div>
+    </div>
+</form>
+<span ng-click="addNewOption(newQuestion)" class="create-new">
+    <i class="fa fa-plus-circle"></i>
+    {{'sitnet_question_add_new_option'|translate}}
+</span>

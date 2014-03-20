@@ -1,0 +1,7 @@
+<div>
+    <span class="sitnet-info-text pull-right"><i>merkkejä: {{question.answer.answerLength}} / {{question.maxCharacters}}
+        <br>
+        sanoja: {{question.words}}</i></span>
+    <textarea class="form-control" rows="5" ng-model="question.answer.answer" ng-change="countCharacters(question)">
+    </textarea>
+</div>

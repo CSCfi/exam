@@ -53,5 +53,16 @@
     "sitnet_welcome" : "Welcome",
     "sitnet_settings": "Settings",
     "sitnet_active_exams": "Active exams",
-    "sitnet_save_and_return_exam": "Save and close the exam"
+    "sitnet_save_and_return_exam": "Save and close the exam",
+
+    "sitnet_question_mc": "Multiple choice 1-correct",
+    "sitnet_essay": "Essay",
+
+    "sitnet_essay_example": "Student types his answer here...",
+    "sitnet_essay_length_recommendation": "Answer length recommendation (characters): ",
+
+    "sitnet_words": "words",
+    "sitnet_approximately": "approximately"
+
+
 }

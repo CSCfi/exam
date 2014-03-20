@@ -20,7 +20,7 @@ public class MultipleChoiseAnswer extends AbstractAnswer {
     @OneToOne
     private MultipleChoiseOption option;
 
-//    @Override
+    @Override
     public String generateHash() {
 
 //        String attributes = question + instruction;

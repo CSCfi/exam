@@ -53,5 +53,15 @@
     "sitnet_welcome" : "Tervetuloa",
     "sitnet_settings": "Asetukset",
     "sitnet_active_exams": "Aktiiviset tentit",
-    "sitnet_save_and_return_exam": "Tallenna ja palauta tentti"
+    "sitnet_save_and_return_exam": "Tallenna ja palauta tentti",
+
+    "sitnet_question_mc": "Monivalinta 1-oikein",
+    "sitnet_essay": "Essee",
+
+    "sitnet_essay_example": "Opiskelija kirjoittaa vastauksen tähän...",
+    "sitnet_essay_length_recommendation": "Vastauksen pituuden suositus (kirjainmerkkiä): ",
+
+    "sitnet_words": "sanaa",
+    "sitnet_approximately": "noin"
+
 }

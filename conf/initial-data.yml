@@ -120,6 +120,44 @@ organisations:
       root: true
 ######################################################################
 
+question_essay:
+
+# Essay questions
+
+  - &essay1 !!models.questions.EssayQuestion
+    creator: *maika
+    question: Kerro toiseen maailmansotaan johtaneista syistä
+    instruction:
+    materials:
+    evaluationPhrases:
+    evaluationCriterias:
+    comments:
+    maxCharacters: 2250
+    shared: false
+
+  - &essay2 !!models.questions.EssayQuestion
+    creator: *maika
+    question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
+    instruction:
+    materials:
+    evaluationPhrases:
+    evaluationCriterias:
+    comments:
+    maxCharacters: 2250
+    shared: false
+
+  - &essay3 !!models.questions.EssayQuestion
+    creator: *maika
+    question: Millä tavalla Entiteetti-relaatio tietokannat liittyvät Olisuuntautuneeseen ohjelmistokehitykseen?
+    instruction:
+    materials:
+    evaluationPhrases:
+    evaluationCriterias:
+    comments:
+    maxCharacters: 2250
+    shared: false
+
+
 
 question_mutiple_choice:
 
@@ -566,3 +604,12 @@ examsections:
               - *avaruus11
     totalScore:
     
+  - &ooadessay !!models.ExamSection
+    name: Essee kysymykset
+    exam: *ooad
+    questions:
+              - *essay1
+              - *essay2
+              - *essay3
+    totalScore:
+

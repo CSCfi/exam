@@ -17,22 +17,9 @@ public class EssayQuestion extends AbstractQuestion {
         this.type = this.getClass().getSimpleName();
     }
 
-    // probably HTML formatted text
-    private String answer;
 
+    // not really max length, Just a recommendation
     private Long maxCharacters;
-
-    private Long answerLength;
-
-    private Long getAnswerLength() {
-        this.answerLength = new Long(answer.length());
-        return this.answerLength;
-    }
-
-    public String toString()
-    {
-        return "EssayQuestion "+ super.toString();
-    }
 
 
     @Override
@@ -50,6 +37,13 @@ public class EssayQuestion extends AbstractQuestion {
         return hash;
     }
 
+    public Long getMaxCharacters() {
+        return maxCharacters;
+    }
+
+    public void setMaxCharacters(Long maxCharacters) {
+        this.maxCharacters = maxCharacters;
+    }
 
 }
 
