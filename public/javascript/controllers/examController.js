@@ -12,6 +12,9 @@
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "/exam.html";
                 $scope.sections = [];
 
+
+
+
                 // Todo: Fill in rooms from database for final version
                 $scope.examRooms = [
                     "Room1",
@@ -119,6 +122,11 @@
 
                 }
 
+//                CKEDITOR.replace( 'editor1' );
+//
+//                $scope.ckeditorShow = function(id) {
+//                    CKEDITOR.replace(id);
+//                };
                 
                 $scope.addNewSection = function () {
 
