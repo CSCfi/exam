@@ -37,7 +37,7 @@
                 data.map(function (item) {
                     var icon = "";
                     switch (item.type) {
-                    case "MultipleChoiseQuestion":
+                    case "MultipleChoiceQuestion":
                         icon = "fa-list-ol";
                         break;
                     case "EssayQuestion":

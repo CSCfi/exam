@@ -1,18 +1,15 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.Comment;
 import models.Exam;
 import models.User;
 import models.answers.AbstractAnswer;
 import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiseOption;
-import models.questions.MultipleChoiseQuestion;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.Json;

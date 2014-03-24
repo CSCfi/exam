@@ -9,85 +9,45 @@
     <div class="col-md-8">
         <div class="base row">
             <!-- Question header -->
-            <div class="question-header row">
-                <div class="col-md-8">
-                    <h4>
-                        <span class="pointer-hand" ng-hide="showQuestion" ng-click="showQuestion = !showQuestion">
-                            <i class="fa fa-list-ul fa-1x"></i>
-                                {{newQuestion.question}}
-                            <i class="fa fa-pencil"></i>
-                        </span>
-                        <span ng-show="showQuestion">
-                            <form class="form-inline" role="form">
-                                <span class="form-group">
-                                    <input type="text" class="form-control input-lg" ng-model="newQuestion.question"
-                                           ng-blur="showQuestion = !showQuestion" autofocus>
-                                </span>
-                                <button class="btn btn-primary" ng-click="showQuestion = !showQuestion">
-                                    <i class="fa fa-check"></i>
-                                </button>
-                            </form>
-                        </span>
-                    </h4>
-                </div>
-                <div class="col-md-4">
-                    <!-- Icon and background for cog -->
-                    <span class="pull-right fa-stack fa-lg dropdown pointer-hand" ng-click="">
-                        <a class="dropdown-toggle">
-                            <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
-                            <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a ng-click="newMCQuestion()" class="pointer-hand">{{'sitnet_question_mc' | translate}}</a></li>
-                            <li><a ng-click="newEssayQuestion()" class="pointer-hand">{{'sitnet_essay' | translate}}</a></li>
-                        </ul>
-                    </span>
-                    <!-- Icon and background for chevron -->
-                    <span ng-click="" class="pull-right fa-stack fa-lg pointer-hand">
-                        <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-                        <i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'"
-                           class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-                    </span>
-                </div>
+            <div>
+                <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question">
+                </textarea>
             </div>
+
+            <div class="sitnet-info-text">
+                Kysymystyyppi:
+                <select  class="form-control" ng-model="selectedType" ng-change="setQuestionType()"
+                         ng-options="key as value for (key, value) in questionTypes"  >
+                </select>
+            </div>
+
+            <hr>
+            <div ng-include="questionTemplate"></div>
             <hr>
 
             <!-- Question fields -->
-            <div>
-                <span class="sitnet-info-text">{{'sitnet_exam_question_attachment' | translate}}</span>
-                    <span class="editable inline" ng-hide="showAputeksti" ng-click="showAputeksti = !showAputeksti">
-                         <h4>{{newQuestion.instruction}}
-                             <i class="fa fa-pencil"></i>
-                         </h4>
-                    </span>
-
-                <div ng-show="showAputeksti">
-                    <form class="form-inline" role="form">
-                        <div class="row">
-                            <div class="form-group  col-md-6">
-                                <input type="text" class="form-control input-lg" ng-model="newQuestion.instruction"
-                                       ng-blur="showAputeksti = !showAputeksti" autofocus>
-                            </div>
-                            <button class="btn btn-primary" ng-click="showAputeksti = !showAputeksti">
-                                <i class="fa fa-check"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <hr>
-                <div ng-include="questionTemplate"></div>
+            <div class="sitnet-info-text">
+                {{'sitnet_share_this_question' | translate}}
+                <input type="checkbox" ng-model="newQuestion.shared">
             </div>
-            <hr>
-            <span class="sitnet-info-text">{{'sitnet_exam_score' | translate}}:</span>
-            <input type="text" class="form-control " placeholder="{{'sitnet_exam_scoring_of_the_right_answer' | translate}}">
-            <br>
-            <span class="sitnet-info-text">{{'sitnet_exam_evaluation_criteria' | translate}}:</span>
-            <textarea class="form-control" rows="3"></textarea>
+            <div class="sitnet-info-text">
+                Ohjeistus:
+                <input type="text" class="form-control" ng-model="newQuestion.instruction"
+                       placeholder="Kysymykseen liittyvä ohjeistus">
+            </div>
+            <div class="sitnet-info-text">
+                Pisteet:
+                <input type="text" class="form-control " placeholder="Oikean vastauksen pisteytys">
+            </div>
+            <div class="sitnet-info-text">
+                Arviointikriteerit:
+                <textarea class="form-control" rows="3"
+                          placeholder="Vastauksen tulee sisältää seuraavat asiat..."></textarea>
+            </div>
 
-            <span class="sitnet-info-text">{{'sitnet_exam_evaluation_phrase' | translate}}:</span>
-            <textarea class="form-control" rows="3"></textarea>
         </div>
-        <button ng-click="saveQuestion()" type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}
+        <button ng-click="saveQuestion()" type="submit" class="btn btn-success pull-right">{{'sitnet_save' |
+            translate}}
         </button>
         <button ng-click="" type="submit" class="btn btn-danger pull-right">{{'sitnet_remove' | translate}}</button>
     </div>

@@ -5,7 +5,7 @@ import com.avaje.ebean.Ebean;
 import models.*;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiseOption;
-import models.questions.MultipleChoiseQuestion;
+import models.questions.MultipleChoiceQuestion;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import play.Logger;
@@ -165,8 +165,8 @@ public class ExamController extends SitnetController {
 //                q.save();
 
                         switch (q.getType()) {
-                            case "MultipleChoiseQuestion": {
-                                List<MultipleChoiseOption> options = ((MultipleChoiseQuestion) q).getOptions();
+                            case "MultipleChoiceQuestion": {
+                                List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
                                 for (MultipleChoiseOption o : options) {
                                     o.setId(null);
                                 }

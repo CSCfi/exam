@@ -5,7 +5,7 @@ import com.avaje.ebean.Ebean;
 import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
-import models.questions.MultipleChoiseQuestion;
+import models.questions.MultipleChoiceQuestion;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -51,21 +51,21 @@ public class QuestionController extends SitnetController {
 
           switch(df.get("type"))
           {
-              case "MultipleChoiseQuestion":
+              case "MultipleChoiceQuestion":
               {
 
-                  if( ((MultipleChoiseQuestion)question).getCreator() == null)
+                  if( ((MultipleChoiceQuestion)question).getCreator() == null)
                   {
-                      ((MultipleChoiseQuestion)question).setCreator(user);
-                      ((MultipleChoiseQuestion)question).setCreated(currentTime);
+                      ((MultipleChoiceQuestion)question).setCreator(user);
+                      ((MultipleChoiceQuestion)question).setCreated(currentTime);
                   }
                   else
                   {
-                      ((MultipleChoiseQuestion)question).setModifier(user);
-                      ((MultipleChoiseQuestion)question).setModified(currentTime);
+                      ((MultipleChoiceQuestion)question).setModifier(user);
+                      ((MultipleChoiceQuestion)question).setModified(currentTime);
                   }
 
-                  ((MultipleChoiseQuestion) question).generateHash();
+                  ((MultipleChoiceQuestion) question).generateHash();
 
               } break;
 

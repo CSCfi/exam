@@ -10,10 +10,10 @@ import java.util.List;
  * Created by avainik on 3/7/14.
  */
 @Entity
-@DiscriminatorValue("MultipleChoiseQuestion")
-public class MultipleChoiseQuestion extends AbstractQuestion {
+@DiscriminatorValue("MultipleChoiceQuestion")
+public class MultipleChoiceQuestion extends AbstractQuestion {
 
-    public MultipleChoiseQuestion() {
+    public MultipleChoiceQuestion() {
         this.type = this.getClass().getSimpleName();
     }
 
@@ -49,7 +49,7 @@ public class MultipleChoiseQuestion extends AbstractQuestion {
 
     @Override
     public String toString() {
-        return super.toString() + "MultipleChoiseQuestion{" +
+        return super.toString() + "MultipleChoiceQuestion{" +
                 "options=" + options +
                 '}';
     }

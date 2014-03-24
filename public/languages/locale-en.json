@@ -61,6 +61,9 @@
     "sitnet_exam_draw_questions": "Draw questions",
     "sitnet_exam_clear": "Clear",
     "sitnet_exam_remove": "Remove",
+    "sitnet_save_and_return_exam": "Save and close the exam",
+    "sitnet_share_this_question": "Share this question",
+
     "sitnet_exam_score": "Score",
     "sitnet_exam_scoring_of_the_right_answer": "Scoring of the right answer",
     "sitnet_exam_evaluation_criteria": "Evaluation criteria",

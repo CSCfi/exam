@@ -34,7 +34,7 @@
 
                                 var template = "";
                                 switch (value.type) {
-                                    case "MultipleChoiseQuestion":
+                                    case "MultipleChoiceQuestion":
                                         template = $scope.multipleChoiseOptionTemplate;
                                         break;
                                     case "EssayQuestion":
@@ -96,7 +96,7 @@
 
                         var template = "";
                         switch (value.type) {
-                            case "MultipleChoiseQuestion":
+                            case "MultipleChoiceQuestion":
                                 template = $scope.multipleChoiseOptionTemplate;
                                 break;
                             case "EssayQuestion":

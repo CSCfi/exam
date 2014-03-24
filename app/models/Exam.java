@@ -3,8 +3,8 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
+import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
-import models.questions.MultipleChoiseQuestion;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.*;
@@ -206,17 +206,17 @@ public class Exam extends SitnetModel {
                 question_copy.setParent(q);
 
                     switch (q.getType()) {
-                        case "MultipleChoiseQuestion": {
+                        case "MultipleChoiceQuestion": {
                             List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
 
 
-                            List<MultipleChoiseOption> options = ((MultipleChoiseQuestion) q).getOptions();
+                            List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
                             for (MultipleChoiseOption o : options) {
                                 MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
                                 m_option_copy.setId(null);
                                 multipleChoiceOptionCopies.add(m_option_copy);
                             }
-                            ((MultipleChoiseQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
+                            ((MultipleChoiceQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
                         }
                         break;
                     }

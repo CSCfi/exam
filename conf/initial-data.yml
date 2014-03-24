@@ -163,7 +163,7 @@ question_mutiple_choice:
 
 # Multiple choise questions
 
-  - &multi1 !!models.questions.MultipleChoiseQuestion
+  - &multi1 !!models.questions.MultipleChoiceQuestion
     creator: *maika
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     materials:
@@ -177,7 +177,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
     shared: false
 
-  - &multi2 !!models.questions.MultipleChoiseQuestion
+  - &multi2 !!models.questions.MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
     creator: *maika
     materials:
@@ -191,7 +191,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
     shared: false
 
-  - &multi3 !!models.questions.MultipleChoiseQuestion
+  - &multi3 !!models.questions.MultipleChoiceQuestion
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
     creator: *maika
     materials:
@@ -204,7 +204,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Hakman, correctOption: false, score: 1}
     shared: false
 
-  - &multi4 !!models.questions.MultipleChoiseQuestion
+  - &multi4 !!models.questions.MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
     creator: *maika
     materials:
@@ -218,7 +218,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Jokin muu, correctOption: false, score: 1}
     shared: false
 
-  - &multi5 !!models.questions.MultipleChoiseQuestion
+  - &multi5 !!models.questions.MultipleChoiceQuestion
     question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
     creator: *maika
     materials:
@@ -231,7 +231,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false, score: 1}
     shared: false
 ######################################################################
-  - &avaruus1 !!models.questions.MultipleChoiseQuestion
+  - &avaruus1 !!models.questions.MultipleChoiceQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
     creator: *maika
     materials:
@@ -246,7 +246,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: kosmologi, correctOption: true, score: 1}
     shared: false
 
-  - &avaruus2 !!models.questions.MultipleChoiseQuestion
+  - &avaruus2 !!models.questions.MultipleChoiceQuestion
     question:  Auringon fuusioreaktiot tapahtuvat
     creator: *maika
     materials:
@@ -261,7 +261,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Konvektiovyöhykkeessä, correctOption: false, score: 1}
     shared: false
 
-  - &avaruus3 !!models.questions.MultipleChoiseQuestion
+  - &avaruus3 !!models.questions.MultipleChoiceQuestion
     question:   AU mittaa
     creator: *maika
     materials:
@@ -276,7 +276,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Painoa, correctOption: false, score: 1}
     shared: false
 
-  - &avaruus4 !!models.questions.MultipleChoiseQuestion
+  - &avaruus4 !!models.questions.MultipleChoiceQuestion
     question:   Ekliptika on
     creator: *maika
     materials:
@@ -291,7 +291,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Kuun sirppi, correctOption: false, score: 1}
     shared: false
 
-  - &avaruus5 !!models.questions.MultipleChoiseQuestion
+  - &avaruus5 !!models.questions.MultipleChoiceQuestion
     question:   Tähdenlento eli
     creator: *maika
     materials:
@@ -307,7 +307,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Meteorologi, correctOption: false, score: 1}
     shared: false
 
-  - &avaruus6 !!models.questions.MultipleChoiseQuestion
+  - &avaruus6 !!models.questions.MultipleChoiceQuestion
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
     creator: *maika
     materials:
@@ -322,7 +322,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false, score: 1}
     shared: false
 
-  - &avaruus7 !!models.questions.MultipleChoiseQuestion
+  - &avaruus7 !!models.questions.MultipleChoiceQuestion
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
     creator: *maika
     materials:
@@ -338,7 +338,7 @@ question_mutiple_choice:
     shared: false
 
 
-  - &avaruus8 !!models.questions.MultipleChoiseQuestion
+  - &avaruus8 !!models.questions.MultipleChoiceQuestion
     question:   The Great Red Spot tarkoittaa
     creator: *maika
     materials:
@@ -354,7 +354,7 @@ question_mutiple_choice:
     shared: false
 
 
-  - &avaruus9 !!models.questions.MultipleChoiseQuestion
+  - &avaruus9 !!models.questions.MultipleChoiceQuestion
     question:   Vuodenajat aiheutuvat
     creator: *maika
     materials:
@@ -370,7 +370,7 @@ question_mutiple_choice:
     shared: false
 
 
-  - &avaruus10 !!models.questions.MultipleChoiseQuestion
+  - &avaruus10 !!models.questions.MultipleChoiceQuestion
     question:   Uudenkuun aikaan
     creator: *maika
     materials:
@@ -386,7 +386,7 @@ question_mutiple_choice:
     shared: false
 
 
-  - &avaruus11 !!models.questions.MultipleChoiseQuestion
+  - &avaruus11 !!models.questions.MultipleChoiceQuestion
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
     creator: *maika
     materials:

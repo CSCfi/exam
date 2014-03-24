@@ -13,12 +13,43 @@
 
                 $scope.questions = QuestionRes.query();
 
+                $scope.questionTypes = {MultipleChoiceQuestion: 'Monivalinta yksi oikein',
+                                        EssayQuestion: 'Essee'};
+                $scope.selectedType = "";
+
+                $scope.setQuestionType = function () {
+
+                    switch($scope.selectedType)
+                    {
+                        case 'EssayQuestion':
+                            $scope.questionTemplate = $scope.essayQuestionTemplate;
+                            $scope.newQuestion.type = "EssayQuestion";
+                            // Sanan keskimääräinen pituus = 7.5 merkkiä
+                            // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
+                            $scope.newQuestion.maxCharacters = 500;
+                            $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
+                            break;
+
+                        case 'MultipleChoiceQuestion':
+                            $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
+                            $scope.newQuestion.type = "MultipleChoiceQuestion";
+                            $scope.newQuestion.options =
+                                [{
+                                    "option": "Esimerkki vaihtoehto",
+                                    "correctOption": false,
+                                    "score": 1
+                                }];
+                            break;
+
+                    }
+                }
+
 
                 if ($location.path() == '/questions/new') {
                     var newQuestion = {
                         type: "",
                         question: $translate("sitnet_question_write_name"),
-                        instruction: "Kirjoita ohje tähän",
+                        instruction: "",
                         materials: [],
                         evaluationPhrases: [],
                         evaluationCriterias: [],
