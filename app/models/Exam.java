@@ -7,6 +7,7 @@ import models.questions.MultipleChoiseQuestion;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,27 @@ public class Exam extends SitnetModel {
     @Column(length = 32, unique = true)
     private String hash;
 
+    private Timestamp answeringStarted;
+
+    private Timestamp answeringEnded;
+
     private String state;
+
+    public Timestamp getAnsweringStarted() {
+        return answeringStarted;
+    }
+
+    public void setAnsweringStarted(Timestamp answeringStarted) {
+        this.answeringStarted = answeringStarted;
+    }
+
+    public Timestamp getAnsweringEnded() {
+        return answeringEnded;
+    }
+
+    public void setAnsweringEnded(Timestamp answeringEnded) {
+        this.answeringEnded = answeringEnded;
+    }
 
     public String getName() {
         return name;
@@ -132,22 +153,22 @@ public class Exam extends SitnetModel {
     }
 
 
-    public Exam clone(Exam targetExam) {
+    public Exam clone() {
         Exam examClone = new Exam();
 
-        examClone.setCreated(targetExam.getCreated());
-        examClone.setCreator(targetExam.getCreator());
-        examClone.setModified(targetExam.getModified());
-        examClone.setModifier(targetExam.getModifier());
-        examClone.setCourse(targetExam.getCourse());
-        examClone.setName(targetExam.getName());
-        examClone.setExamType(targetExam.getExamType());
-        examClone.setInstruction(targetExam.getInstruction());
-        examClone.setShared(targetExam.isShared());
+        examClone.setCreated(this.getCreated());
+        examClone.setCreator(this.getCreator());
+        examClone.setModified(this.getModified());
+        examClone.setModifier(this.getModifier());
+        examClone.setCourse(this.getCourse());
+        examClone.setName(this.getName());
+        examClone.setExamType(this.getExamType());
+        examClone.setInstruction(this.getInstruction());
+        examClone.setShared(this.isShared());
 
 
         try {
-            examClone.setExamEvent((ExamEvent) targetExam.examEvent.clone());
+            examClone.setExamEvent((ExamEvent) this.examEvent.clone());
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }
@@ -155,7 +176,7 @@ public class Exam extends SitnetModel {
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
 
-        for (ExamSection es : targetExam.getExamSections()) {
+        for (ExamSection es : this.getExamSections()) {
 
             // New arrays are needed for every examsection
             List<AbstractQuestion> examQuestionCopies = createNewExamQuestionList();
@@ -192,7 +213,7 @@ public class Exam extends SitnetModel {
 
         examClone.setExamSections(examSectionsCopies);
 
-        examClone.setExamEvent(targetExam.getExamEvent());
+        examClone.setExamEvent(this.getExamEvent());
         examClone.generateHash();
         examClone.setState("STUDENT_STARTED");
 

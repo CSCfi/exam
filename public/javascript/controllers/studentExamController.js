@@ -22,11 +22,6 @@
                     question.words = question.answer.answer.split(" ").length;
                 };
 
-//                CKEDITOR.replace( 'editor1' );
-//
-//                $scope.ckeditorShow = function(id) {
-//                    CKEDITOR.replace(id);
-//                };
 
                 $scope.doExam = function(hash) {
                     $http.get('/student/doexam/'+$routeParams.hash)
@@ -182,20 +177,15 @@
                 };
 
 
-//
-//                        $scope.ckeditorShow = function(id) {
-//                            CKEDITOR.replace(id);
-//                        }
-
-
+                $scope.saveEssay = function(essay) {
+                 alert(essay);
+                };
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
 
                     if(question.type == "EssayQuestion")
                     {
-                        // this should be done dynamically
-                        // textarea id should be generated with question.id or something
-                        CKEDITOR.replace( 'editor-'+question.id );
+
                     }
 
                     // Flag for indicating are the questions shown or hidden

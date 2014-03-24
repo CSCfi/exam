@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module('sitnet.directives')
-        .directive('CKEditor', function () {
+        .directive('ckEditor', function () {
             return {
                 require: '?ngModel',
                 link: function (scope, elm, attr, ngModel) {

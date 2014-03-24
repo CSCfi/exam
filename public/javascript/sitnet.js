@@ -9,6 +9,7 @@
         'sitnet.controllers',
         'sitnet.resources',
         'sitnet.services',
+        'sitnet.directives',
         'pascalprecht.translate',
         'ngDragDrop'
     ]);

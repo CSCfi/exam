@@ -1,5 +1,6 @@
 package models.answers;
 
+import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
@@ -14,14 +15,8 @@ public class EssayAnswer extends AbstractAnswer {
         this.type = this.getClass().getSimpleName();
     }
 
-
-    // probably HTML formatted text
+    @Column(columnDefinition = "TEXT")
     private String answer;
-
-    // actual lenght of the answer
-    private Long answerLength;
-
-
 
     @Override
     public String generateHash() {
