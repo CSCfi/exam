@@ -8,7 +8,9 @@
                     id: "@id"
                 },
                 {
-                    "update": {method: "PUT"}
+                    "update": {
+                        method: "PUT",
+                        params: { id: "@id" }}
                 }),
 
                 answer: $resource("/student/exams/:hash/question/:qid/option/:oid",

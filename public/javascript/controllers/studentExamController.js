@@ -65,12 +65,6 @@
                 if($routeParams.hash != undefined)
                 $scope.doExam();
 
-//                $scope.answeredExam = {
-//                    "name": "Kirjoita tentin nimi tähän",
-//                    "instruction": "Tentissä saa käyttää apuna lähdemateriaalia",
-//                    "examSections": []
-//                };
-
                 $scope.activateExam = function (exam) {
                     $scope.exam = exam;
                     var modalInstance = $modal.open({
@@ -129,37 +123,22 @@
 
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function () {
-//                    StudentExamRes.save($scope.answer, function (exam) {
-//                        toastr.info("Vastaukset tallennettu.");
-//                    }, function (error) {
-//                        toastr.error("Jokin meni pieleen");
-//                    });
+                    StudentExamRes.exams.update({id: $scope.exam.id}, $scope.exam, function () {
+                        toastr.info("Tentti lähetettiin tarkastettavaksi.");
+                        $http.post('/home')
+
+                    }, function () {
+                        toastr.error("Jokin meni pieleen");
+                    });
                 };
 
                 // Called when a radiobutton is selected
                 $scope.radioChecked = function (doexam, question, option) {
 
                     $scope.exam = doexam;
-//                    $scope.question = question;
-//                    $scope.option = option;
 
                     question.answered = true;
-//                    question.selectedAnswer = option;
                     question.questionStatus = $translate("sitnet_question_answered");
-
-                    if(question.answer == null) {
-                        question.answer = {
-                            "created": null,
-                            "creator": null,
-                            "modified": null,
-                            "modifier": null,
-                            "type": "MultipleChoiseQuestion",
-                            "comments": [],
-                            "option": null
-                        };
-
-                    question.answer.option = option;
-                    }
 
                     StudentExamRes.answer.insertAnswer({hash: doexam.hash, qid: question.id, oid: option.id}, function () {
                         toastr.info("Vastaus lisätty kysymykseen.");
@@ -174,6 +153,7 @@
                 $scope.saveEssay = function(essay) {
                  alert(essay);
                 };
+
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
 

@@ -20,9 +20,6 @@ abstract public class AbstractAnswer extends SitnetModel implements AnswerInterf
 
     protected String type;
 
-    @OneToMany(cascade = CascadeType.PERSIST)
-    protected List<Comment> comments;
-
     public String getType() {
         return type;
     }
@@ -31,19 +28,10 @@ abstract public class AbstractAnswer extends SitnetModel implements AnswerInterf
         this.type = type;
     }
 
-    public List<Comment> getComments() {
-        return comments;
-    }
-
-    public void setComments(List<Comment> comments) {
-        this.comments = comments;
-    }
-
     @Override
     public String toString() {
         return "AbstractAnswer{" +
                 "type='" + type + '\'' +
-                ", comments=" + comments +
                 '}';
     }
 }

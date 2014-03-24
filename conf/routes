@@ -27,10 +27,9 @@ POST          /exams/draft                    controllers.ExamController.createE
 GET           /sections/:id                   controllers.ExamController.getExamSections(id: Long)
 GET           /events                         controllers.ExamController.getExamEvents()
 GET           /student/exams                  controllers.StudentExamController.listActiveExams()
-POST          /student/exams/:id              controllers.StudentExamController.saveAnswersAndExit(id: Long)
-POST          /student/exams                  controllers.StudentExamController.saveAnswers()
+PUT           /student/exams/:id              controllers.StudentExamController.saveAnswersAndExit(id: Long)             
 GET           /student/doexam/:hash           controllers.StudentExamController.startExam(hash: String)
-POST          /student/saveandexit/           controllers.StudentExamController.saveAndExit()
+
 POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
 
 

@@ -5,11 +5,14 @@ import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import models.Comment;
 import models.Exam;
 import models.User;
+import models.answers.AbstractAnswer;
 import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiseOption;
+import models.questions.MultipleChoiseQuestion;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.Json;
@@ -71,108 +74,21 @@ public class StudentExamController extends SitnetController {
         return ok(Json.toJson(studentExam));
     }
 
-    public static Result saveAndExit() {
-
-
-//        DynamicForm df = Form.form().bindFromRequest();
-
-        MultipleChoiseAnswer answer = null;
-        try {
-            answer = bindForm(MultipleChoiseAnswer.class);
-        } catch (MalformedDataException e) {
-            e.printStackTrace();
-        }
-
-        Logger.debug(answer.toString());
-
-        return ok("Tentti tallennettiin");
-    }
-
-    public static Result saveAnswers() throws MalformedDataException {
-        Logger.debug("saveAnswers()");
-
-        MultipleChoiseAnswer answer = null;
-        try {
-            answer = bindForm(MultipleChoiseAnswer.class);
-        } catch (MalformedDataException e) {
-            e.printStackTrace();
-        }
-
-        MultipleChoiseOption option = answer.getOption();
-
-        return ok(Json.toJson(answer));
-    }
-
-    public static Result saveAnswersAndExit(Long id) throws MalformedDataException {
+    public static Result saveAnswersAndExit(Long id) {
         Logger.debug("saveAnswersAndExit()");
 
-        MultipleChoiseAnswer answer = null;
-        try {
-            answer = bindForm(MultipleChoiseAnswer.class);
-        } catch (MalformedDataException e) {
-            e.printStackTrace();
-        }
+//        Exam ex = bindForm(Exam.class);
 
-        MultipleChoiseOption option = answer.getOption();
+        Exam exam = Ebean.find(Exam.class, id);
 
-//        DynamicForm df = Form.form().bindFromRequest();
-//
-//        try {
-//            Class<?> clazz = Class.forName("models.answers."+df.get("type"));
-//            Object answer = clazz.newInstance();
-//
-//            User user = UserController.getLoggedUser();
-//            Timestamp currentTime = new Timestamp(System.currentTimeMillis() * 1000);
-//
-//            answer = bindForm(answer.getClass());
-//
-//            switch(df.get("type"))
-//            {
-//                case "MultipleChoiseQuestion":
-//                {
-//
-//                    if( ((MultipleChoiseAnswer)answer).getCreator() == null)
-//                    {
-//                        ((MultipleChoiseAnswer)answer).setCreator(user);
-//                        ((MultipleChoiseAnswer)answer).setCreated(currentTime);
-//                    }
-//                    else
-//                    {
-//                        ((MultipleChoiseAnswer)answer).setModifier(user);
-//                        ((MultipleChoiseAnswer)answer).setModified(new Timestamp(System.currentTimeMillis() * 1000));
-//                    }
-//                } break;
-//
-//                case "EssayQuestion":
-//                {
-//
-//
-//                } break;
-//
-//                case "MathQuestion":
-//                {
-//
-//
-//                } break;
-//                default:
-//
-//            }
-//
-//            Ebean.save(answer);
-//            return ok(Json.toJson(answer));
-//
-//        } catch (ClassNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (InstantiationException e) {
-//            e.printStackTrace();
-//        } catch (IllegalAccessException e) {
-//            e.printStackTrace();
-//        }
+        exam.setState("REVIEW");
 
-        return ok("fail");
+        exam.update();
+
+        return ok("Exam send for review");
     }
 
-    public static Result insertAnswer(String hash, Long qid, Long oid) throws MalformedDataException {
+    public static Result insertAnswer(String hash, Long qid, Long oid) {
         Logger.debug("insertAnswer()");
 
         // Todo: onko käyttäjällä aikaa jäljellä tehdä koetta?
@@ -191,14 +107,20 @@ public class StudentExamController extends SitnetController {
             m_answer.setModifier(user);
             m_answer.setModified(currentTime);
             question.setAnswer(m_answer);
+
+//            if(question.getComments() == null) {
+//                List<Comment> comments = null;
+//                m_answer.setComments(comments);
+//            }
+
             m_answer.save();
             question.save();
 
             return ok("Vastaus tallennettiin");
         } else {
             // Update answer
-            MultipleChoiseAnswer answer = (MultipleChoiseAnswer)question.getAnswer();
-            answer.setOption(option);
+            AbstractAnswer answer = question.getAnswer();
+            ((MultipleChoiseAnswer)answer).setOption(option);
             answer.setModified(currentTime);
             answer.setModifier(user);
 
