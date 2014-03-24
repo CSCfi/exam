@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Credentials;
 import models.Session;
 import models.User;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.cache.Cache;
@@ -21,7 +22,14 @@ public class SessionController extends SitnetController {
     public static Result login() throws MalformedDataException, UnauthorizedAccessException {
         Credentials credentials = bindForm(Credentials.class);
         Logger.debug("User login with username: {} and password: ***", credentials.getUsername());
-        User user = Ebean.find(User.class).where().eq("email", credentials.getUsername()).eq("password", credentials.getPassword()).findUnique();
+        String md5psswd = DigestUtils.md5Hex(credentials.getPassword());
+
+        // Todo: do not select passwd here
+        User user = Ebean.find(User.class)
+                .select("email, firstName, lastName, userLanguage")
+                .where().eq("email", credentials.getUsername())
+                .eq("password", md5psswd).findUnique();
+
         if (user == null) {
             return unauthorized("Incorrect username or password.");
         }

@@ -33,7 +33,7 @@ public class User extends Model implements Subject {
     @ManyToMany(cascade = CascadeType.ALL)
     private List<SitnetRole> roles;
 
-    @ManyToOne
+    @OneToOne
     private UserLanguage userLanguage;
 
 	public Long getId() {

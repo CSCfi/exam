@@ -34,7 +34,7 @@ users:
       email:      test
       firstName:  Sauli
       lastName:   Student
-      password:   test
+      password:   098f6bcd4621d373cade4e832627b4f6   # test
       roles:  
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
@@ -44,7 +44,7 @@ users:
       email:      opettaja
       firstName:  Maika
       lastName:   Opettaja
-      password:   opettaja
+      password:   7b13170f5729db8ea2a69f1220a8185a  # opettaja
       roles:  
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
@@ -53,7 +53,7 @@ users:
       email:      oppilas
       firstName:  Orville
       lastName:   Oates
-      password:   oppilas
+      password:   2664274e7f6f56c565470797478cb406  #oppilas
       roles:  
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
@@ -62,7 +62,7 @@ users:
       email:      sadek@sample.com
       firstName:  Sadek 
       lastName:   Drobi
-      password:   secret
+      password:   5ebe2294ecd0e0f08eab7690d2a6ee69  #secret
       roles:  
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
@@ -71,7 +71,7 @@ users:
       email:      erwan@sample.com
       firstName:  Erwan   
       lastName:   Loisant
-      password:   secret
+      password:   5ebe2294ecd0e0f08eab7690d2a6ee69  #secret
       roles:  
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
@@ -126,13 +126,13 @@ question_essay:
 
   - &essay1 !!models.questions.EssayQuestion
     creator: *maika
-    question: Kerro toiseen maailmansotaan johtaneista syistä
+    question: Kerro toiseen maailmansotaan johtaneista syistä.
     instruction:
     materials:
     evaluationPhrases:
     evaluationCriterias:
     comments:
-    maxCharacters: 2250
+    maxCharacters: 1000
     shared: false
 
   - &essay2 !!models.questions.EssayQuestion
@@ -143,7 +143,7 @@ question_essay:
     evaluationPhrases:
     evaluationCriterias:
     comments:
-    maxCharacters: 2250
+    maxCharacters: 1024
     shared: false
 
   - &essay3 !!models.questions.EssayQuestion
