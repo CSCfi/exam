@@ -20,7 +20,7 @@
                 $scope.countCharacters = function(question) {
                     question.answer.answerLength = question.answer.answer.length;
                     question.words = question.answer.answer.split(" ").length;
-                }
+                };
 
 //                CKEDITOR.replace( 'editor1' );
 //
@@ -92,12 +92,10 @@
                                 $location.path('/student/doexam/'+exam.hash);
                             }).
                             error(function(error) {
-                                // called asynchronously if an error occurs
-                                // or server returns response with an error status.
-                                $console.log('Error happened: ' + error);
+                                console.log('Error happened: ' + error);
                             });
                     }, function () {
-                        $console.log('Modal dismissed at: ' + new Date());
+                        console.log('Modal dismissed at: ' + new Date());
                     });
                 };
 
@@ -132,7 +130,7 @@
                             value.questionStatus = $translate("sitnet_question_answered");
                         }
                     })
-                }
+                };
 
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function () {
@@ -141,7 +139,7 @@
 //                    }, function (error) {
 //                        toastr.error("Jokin meni pieleen");
 //                    });
-                }
+                };
 
                 // Called when a radiobutton is selected
                 $scope.radioChecked = function (doexam, question, option) {
@@ -163,7 +161,7 @@
                             "type": "MultipleChoiseQuestion",
                             "comments": [],
                             "option": null
-                        }
+                        };
 
                     question.answer.option = option;
                     }
@@ -174,9 +172,9 @@
 //                        toastr.error("Jokin meni pieleen");
 //                    });
 
-                    StudentExamRes.answer.insertAnswer({hash: doexam.hash, qid: question.id, oid: option.id}, function (answer) {
+                    StudentExamRes.answer.insertAnswer({hash: doexam.hash, qid: question.id, oid: option.id}, function () {
                         toastr.info("Vastaus lisätty kysymykseen.");
-                    }, function (error) {
+                    }, function () {
                         toastr.error("Jokin meni pieleen");
                     });
 
@@ -198,7 +196,6 @@
                         // this should be done dynamically
                         // textarea id should be generated with question.id or something
                         CKEDITOR.replace( 'editor-'+question.id );
-;
                     }
 
                     // Flag for indicating are the questions shown or hidden
