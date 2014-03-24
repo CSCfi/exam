@@ -12,7 +12,6 @@ import javax.persistence.*;
 @Table(name = "question")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "question_type", discriminatorType = DiscriminatorType.STRING)
-@DiscriminatorValue("AbstractQuestion")
 /*
  * For some weird reason this class cannot be abstract (Ebean issue) even tough it should
  * Abstract class cannot have Lists
