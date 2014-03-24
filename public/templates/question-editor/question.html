@@ -54,12 +54,13 @@
 
             <!-- Question fields -->
             <div>
-                <span class="sitnet-info-text"> Kysymykseen liittyvä aputeksti/liitetiedosto</span>
+                <span class="sitnet-info-text">{{'sitnet_exam_question_attachment' | translate}}</span>
                     <span class="editable inline" ng-hide="showAputeksti" ng-click="showAputeksti = !showAputeksti">
                          <h4>{{newQuestion.instruction}}
                              <i class="fa fa-pencil"></i>
                          </h4>
                     </span>
+
                 <div ng-show="showAputeksti">
                     <form class="form-inline" role="form">
                         <div class="row">
@@ -77,17 +78,16 @@
                 <div ng-include="questionTemplate"></div>
             </div>
             <hr>
-            <span class="sitnet-info-text">Pisteet:</span>
-            <input type="text" class="form-control " placeholder="Oikean vastauksen pisteytys">
+            <span class="sitnet-info-text">{{'sitnet_exam_score' | translate}}:</span>
+            <input type="text" class="form-control " placeholder="{{'sitnet_exam_scoring_of_the_right_answer' | translate}}">
             <br>
-            <span class="sitnet-info-text">Arviointikriteerit:</span>
+            <span class="sitnet-info-text">{{'sitnet_exam_evaluation_criteria' | translate}}:</span>
             <textarea class="form-control" rows="3"></textarea>
 
-            <span class="sitnet-info-text">Arviointifraasit:</span>
+            <span class="sitnet-info-text">{{'sitnet_exam_evaluation_phrase' | translate}}:</span>
             <textarea class="form-control" rows="3"></textarea>
         </div>
-        <button ng-click="saveQuestion()" type="submit" class="btn btn-success pull-right">{{'sitnet_save' |
-            translate}}
+        <button ng-click="saveQuestion()" type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}
         </button>
         <button ng-click="" type="submit" class="btn btn-danger pull-right">{{'sitnet_remove' | translate}}</button>
     </div>

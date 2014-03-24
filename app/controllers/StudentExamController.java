@@ -182,7 +182,6 @@ public class StudentExamController extends SitnetController {
         User user = UserController.getLoggedUser();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-
         if(question.getAnswer() == null) {
             // Insert new answer
             MultipleChoiseAnswer m_answer = new MultipleChoiseAnswer();
@@ -205,10 +204,7 @@ public class StudentExamController extends SitnetController {
 
             answer.update();
             question.update();
+            return ok("Vastaus päivitettiin");
         }
-
-
-
-        return ok("Vastaus tallennettiin");
     }
 }

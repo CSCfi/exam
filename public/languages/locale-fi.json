@@ -61,7 +61,11 @@
     "sitnet_exam_draw_questions": "Arvo kysymyksiä",
     "sitnet_exam_clear": "Clear",
     "sitnet_exam_remove": "Remove",
-    "sitnet_save_and_return_exam": "Tallenna ja palauta tentti",
+    "sitnet_exam_score": "Pisteet",
+    "sitnet_exam_scoring_of_the_right_answer": "Oikean vastauksen pisteytys",
+    "sitnet_exam_evaluation_criteria": "Arviointikriteerit",
+    "sitnet_exam_evaluation_phrase": "Arviointifraasit",
+    "sitnet_exam_question_attachment": "Kysymykseen liittyvä aputeksti/liitetiedosto",
 
     "sitnet_question_mc": "Monivalinta 1-oikein",
     "sitnet_essay": "Essee",

@@ -65,11 +65,11 @@
                 if($routeParams.hash != undefined)
                 $scope.doExam();
 
-                $scope.answeredExam = {
-                    "name": "Kirjoita tentin nimi tähän",
-                    "instruction": "Tentissä saa käyttää apuna lähdemateriaalia",
-                    "examSections": []
-                };
+//                $scope.answeredExam = {
+//                    "name": "Kirjoita tentin nimi tähän",
+//                    "instruction": "Tentissä saa käyttää apuna lähdemateriaalia",
+//                    "examSections": []
+//                };
 
                 $scope.activateExam = function (exam) {
                     $scope.exam = exam;
@@ -140,11 +140,11 @@
                 $scope.radioChecked = function (doexam, question, option) {
 
                     $scope.exam = doexam;
-                    $scope.question = question;
-                    $scope.option = option;
+//                    $scope.question = question;
+//                    $scope.option = option;
 
                     question.answered = true;
-                    question.selectedAnswer = option;
+//                    question.selectedAnswer = option;
                     question.questionStatus = $translate("sitnet_question_answered");
 
                     if(question.answer == null) {
@@ -160,12 +160,6 @@
 
                     question.answer.option = option;
                     }
-
-//                    StudentExamRes.save($scope.answer, function (exam) {
-//                        toastr.info("Vastaukset tallennettu.");
-//                    }, function (error) {
-//                        toastr.error("Jokin meni pieleen");
-//                    });
 
                     StudentExamRes.answer.insertAnswer({hash: doexam.hash, qid: question.id, oid: option.id}, function () {
                         toastr.info("Vastaus lisätty kysymykseen.");
