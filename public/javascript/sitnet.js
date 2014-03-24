@@ -48,13 +48,14 @@
         $httpProvider.interceptors.push(interceptor);
 
     }]);
-    sitnet.run(['$http', '$localStorage', 'SITNET_CONF',
-        function ($http, $localStorage, SITNET_CONF) {
+    sitnet.run(['$http', '$localStorage', 'sessionService', 'SITNET_CONF',
+        function ($http, $localStorage, sessionService, SITNET_CONF) {
             var user = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
             if (user) {
                 var header = {};
                 header[SITNET_CONF.AUTH_HEADER] = user.token;
                 $http.defaults.headers.common = header;
+                sessionService.user = user;
             }
             $http.get('/ping');
         }]);
