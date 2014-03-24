@@ -1,6 +1,7 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
+import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -15,6 +16,7 @@ import play.libs.Json;
 import play.mvc.Result;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,12 +24,8 @@ import java.util.List;
  */
 public class StudentExamController extends SitnetController {
 
-    public static String clonedHash = null;
-
     @Restrict(@Group({"STUDENT"}))
     public static Result listActiveExams() {
-
-        // TODO: bug on this line
         User user = UserController.getLoggedUser();
         Timestamp now = new Timestamp(DateTime.now().getMillis());
 
@@ -43,50 +41,34 @@ public class StudentExamController extends SitnetController {
     }
 
 
-    public static Result getExamByHash(String hash) {
+    public static Result startExam(String hash) throws UnauthorizedAccessException {
 
-        // Create a copy from the exam when a student is starting it
-        if(!hash.equals("undefined")) {
-            // If hash hasn't been cloned, then clone the exam
-            if(clonedHash == null) {
-                Exam exam = Ebean.find(Exam.class)
-                        .fetch("examSections")
-                        .where()
-                        .eq("hash", hash).findUnique();
+        //todo: check credentials / token
+        Exam blueprint = Ebean.find(Exam.class)
+                .fetch("examSections")
+                .where()
+                .eq("hash", hash).findUnique();
 
-                Exam newExam = new Exam();
-                newExam = newExam.clone(exam);
-                newExam.save();
 
-                clonedHash = newExam.getHash();
-
-                return ok(Json.toJson(newExam));
-            } else {
-                // This is to avoid duplicate cloning of exams
-                if(!clonedHash.equals(hash)) {
-                    Exam exam = Ebean.find(Exam.class)
-                            .fetch("examSections")
-                            .where()
-                            .eq("hash", hash).findUnique();
-
-                    Exam newExam = new Exam();
-                    newExam = newExam.clone(exam);
-                    newExam.save();
-
-                    clonedHash = newExam.getHash();
-
-                    return ok(Json.toJson(newExam));
-                } else {
-                    Exam clonedExam = Ebean.find(Exam.class)
-                            .fetch("examSections")
-                            .where()
-                            .eq("hash", clonedHash).findUnique();
-                    return ok(Json.toJson(clonedExam));
-                }
-            }
-        } else {
-            return notFound("Exam hash was undefined, something went horribly wrong.");
+        if(blueprint == null) {
+            //todo: add proper exception
+            throw new UnauthorizedAccessException("a");
         }
+
+        Exam studentExam = blueprint.clone();
+
+        Exam possibleClone = Ebean.find(Exam.class)
+                .fetch("examSections")
+                .where()
+                .eq("hash", studentExam.getHash()).findUnique();
+
+        if(possibleClone != null) {
+            return ok(Json.toJson(possibleClone));
+        }
+
+        studentExam.save();
+        studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
+        return ok(Json.toJson(studentExam));
     }
 
     public static Result saveAndExit() {
