@@ -2,10 +2,7 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
-import models.Exam;
-import models.ExamEvent;
-import models.ExamSection;
-import models.User;
+import models.*;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiseOption;
 import models.questions.MultipleChoiseQuestion;
@@ -67,9 +64,14 @@ public class ExamController extends SitnetController {
     	"name",
     	"shared",
     	"state").get();
-    	
-    	
-    	Logger.debug("Exam: "+ ex.toString());
+
+
+        DynamicForm df = Form.form().bindFromRequest();
+
+//        ex.setCourse((Course)df.get("course"));
+
+
+        Logger.debug("Exam: "+ ex.toString());
     	ex.update();
 
 //

@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiseOption;
@@ -21,6 +22,11 @@ import java.util.List;
 
 public class Exam extends SitnetModel {
 
+    // student User who has participated in this Exam
+    @ManyToOne
+    @JsonBackReference
+    private User student;
+
     // Tentti liittyy Opintojaksoon
     @ManyToOne
     private Course course;
@@ -41,6 +47,7 @@ public class Exam extends SitnetModel {
     private List<ExamSection> examSections;
 
     @OneToOne
+    @JsonBackReference
     private ExamEvent examEvent;
 
     @Column(length = 32, unique = true)
@@ -126,6 +133,14 @@ public class Exam extends SitnetModel {
 
     public String getHash() {
         return hash;
+    }
+
+    public User getStudent() {
+        return student;
+    }
+
+    public void setStudent(User student) {
+        this.student = student;
     }
 
     public String generateHash() {
