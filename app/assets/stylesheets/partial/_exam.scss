@@ -36,7 +36,7 @@
     background-color: $sitnet-beige-active;
   }
 
-   .exam-header {
+  .exam-header {
     background-color: $sitnet-dark-grey;
     color: white;
     padding: 0.5em;
@@ -78,22 +78,24 @@
     }
 
   }
+
   .exam-info {
   	padding: 5px;
   }
+
   .section {
-/*     margin-bottom: 2em; */
+    /* margin-bottom: 2em; */
     background-color: $sitnet-light-grey;
   }
 
-.exam-name-section {
-	background-color: $sitnet-white;
-	color: black;
-	padding: 0.5em;
-	margin-bottom: 2em;
-}
+  .exam-name-section {
+      background-color: $sitnet-white;
+      color: black;
+      padding: 0.5em;
+      margin-bottom: 2em;
+  }
 
-li {
+  li {
     list-style: none;
   }
 
@@ -101,9 +103,9 @@ li {
     padding: 0;
   }
 
-.pointer-hand {
-	cursor:pointer;
-}
+  .pointer-hand {
+      cursor:pointer;
+  }
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;

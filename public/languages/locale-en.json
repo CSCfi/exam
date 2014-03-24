@@ -54,6 +54,14 @@
     "sitnet_settings": "Settings",
     "sitnet_active_exams": "Active exams",
     "sitnet_save_and_return_exam": "Save and close the exam",
+    "sitnet_exam_time_left": "Time left to complete exam",
+    "sitnet_exam_previous_section": "Previous section",
+    "sitnet_exam_next_section": "Next section",
+    "sitnet_exam_quide": "Exam Guide",
+    "sitnet_exam_draw_questions": "Draw questions",
+    "sitnet_exam_clear": "Clear",
+    "sitnet_exam_remove": "Remove"
+    "sitnet_save_and_return_exam": "Save and close the exam",
 
     "sitnet_question_mc": "Multiple choice 1-correct",
     "sitnet_essay": "Essay",

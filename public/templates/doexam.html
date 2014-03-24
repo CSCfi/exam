@@ -11,10 +11,11 @@
                 </span>
                 {{activeSection.name}}
                 <span class="pull-right">
-                    <i style="padding-left: 5px; line-height: 2.5em">Jäljellä oleva suoritusaika</i>
+                    <i class="section-header-time-left-text">{{'sitnet_exam_time_left' | translate}}</i>
                 </span>
                 <span class="pull-right">
-                    <i style="line-height: 2.5em">2:23</i>
+                    <!-- TODO: Implement the timer functionality e.g. with angular-timer http://siddii.github.io/angular-timer/ -->
+                    <i class="section-header-time-left-clock">2:23</i>
                 </span>
                 <span class="pull-right fa-stack fa-lg">
                     <i class="fa fa-clock-o fa-stack-1x"></i>
@@ -26,7 +27,7 @@
 				<span class="pull-left fa-stack fa-lg ">
 					<i class="fa fa-info-circle fa-stack-2x"></i>
 				</span>
-				<label>Tenttiohje </label>
+				<label>{{'sitnet_exam_quide' | translate}}</label>
 				<i class="sitnet-light-gray">Finally, I always go to sea as a sailor because of the wholesome exercise and pure air. The Captain at the
 					wheel of the ship gets his atmosphere secondhand from the sailors on the fore-deck. He thinks he breathes it first, but not so. In much the
 					same way, the common people lead their leaders.</i>
@@ -49,17 +50,19 @@
 
             <div class="row">
                 <div class="col-md-3">
+                    <!-- TODO: Implement the section change functionality -->
                     <a href="#">
                        <i class="fa fa-arrow-circle-left fa-stack-2x"></i>
                         <!--{{'sitnet_create_new' | translate}}-->
-                        <span class="pull-right">Siirry osioon</span>
+                        <span class="pull-right">{{'sitnet_exam_previous_section' | translate}}</span>
                     </a>
                 </div>
                 <div class="col-md-3 col-md-offset-5">
+                    <!-- TODO: Implement the section change functionality -->
                     <a href="#">
                        <i class="fa fa-arrow-circle-right fa-stack-2x"></i>
                         <!--{{'sitnet_create_new' | translate}}-->
-                        <span class="pull-right">Siirry osioon</span>
+                        <span class="pull-right">{{'sitnet_exam_next_section' | translate}}</span>
                     </a>
                 </div>
             </div>
@@ -80,7 +83,7 @@
         <div>
             <div>
                 <a ng-click="saveExam()">
-                    <i class="btn btn-primary btn-lg active fa fa-sign-out" style="background-color: darkblue; color: #ffffff"><span>{{'sitnet_save_and_return_exam' | translate}}</span></i>
+                    <i class="btn btn-primary btn-lg active fa fa-sign-out exam-signout-button"><span>{{'sitnet_save_and_return_exam' | translate}}</span></i>
                 </a>
             </div>
         </div>
