@@ -10,9 +10,9 @@
                 </a>
 					<ul class="dropdown-menu">
                         <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-                        <li><a class="pointer-hand">Arvo kysymyksiä</a></li>
-                        <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">Tyhjennä</a></li>
-                        <li><a ng-click="removeSection(section)" class="pointer-hand">Poista</a></li>
+                        <li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>
+                        <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>
+                        <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>
                     </ul>
 			</span>
 			<span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
@@ -40,8 +40,6 @@
 </div>
 
 <div class="exam-question-container" ng-hide="section.hide">
-    <div class="question" ng-include="questionPath" ng-repeat="question in section.questions">
-    </div>
-	<span class="create-new"> <i class="fa fa-plus-circle"></i> {{'sitnet_add_content'|translate}}
-	</span>
+    <div class="question" ng-include="questionPath" ng-repeat="question in section.questions"></div>
+	<span class="create-new"> <i class="fa fa-plus-circle"></i> {{'sitnet_add_content'|translate}}</span>
 </div>

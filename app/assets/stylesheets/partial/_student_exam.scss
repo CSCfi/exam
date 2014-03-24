@@ -80,6 +80,10 @@
     margin-bottom: 1em;
   }
 
+  .active-exams-list {
+    margin-bottom: 10px
+  }
+
   .single-question {
     background-color: $sitnet-green;
     -webkit-border-radius: 5px;
@@ -139,6 +143,20 @@
 
   .section-header-icon-chevron {
     line-height: 1.6em;
+  }
+
+  .section-header-time-left-text {
+    padding-left: 5px;
+    line-height: 2.5em
+  }
+
+  .section-header-time-left-clock {
+    line-height: 2.5em
+  }
+
+  .exam-signout-button {
+    background-color: darkblue;
+    color: #ffffff;
   }
 
   -webkit-touch-callout: none;

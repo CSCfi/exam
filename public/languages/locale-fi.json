@@ -54,6 +54,14 @@
     "sitnet_settings": "Asetukset",
     "sitnet_active_exams": "Aktiiviset tentit",
     "sitnet_save_and_return_exam": "Tallenna ja palauta tentti",
+    "sitnet_exam_time_left": "Jäljellä oleva suoritusaika",
+    "sitnet_exam_previous_section": "Edellinen aihealue",
+    "sitnet_exam_next_section": "Seuraava aihealue",
+    "sitnet_exam_quide": "Tenttiohje",
+    "sitnet_exam_draw_questions": "Arvo kysymyksiä",
+    "sitnet_exam_clear": "Clear",
+    "sitnet_exam_remove": "Remove"
+    "sitnet_save_and_return_exam": "Tallenna ja palauta tentti",
 
     "sitnet_question_mc": "Monivalinta 1-oikein",
     "sitnet_essay": "Essee",

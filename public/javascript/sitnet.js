@@ -53,6 +53,7 @@
             var user = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
             if (user) {
                 var header = {};
+
                 header[SITNET_CONF.AUTH_HEADER] = user.token;
                 $http.defaults.headers.common = header;
                 sessionService.user = user;
