@@ -9,18 +9,15 @@
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
 
                 $scope.questionTemplate = null;
-
-
                 $scope.questions = QuestionRes.query();
-
-                $scope.questionTypes = {MultipleChoiceQuestion: 'Monivalinta yksi oikein',
-                                        EssayQuestion: 'Essee'};
+                $scope.questionTypes = {
+                    MultipleChoiceQuestion: 'Monivalinta yksi oikein',
+                    EssayQuestion: 'Essee'
+                };
                 $scope.selectedType = "";
 
                 $scope.setQuestionType = function () {
-
-                    switch($scope.selectedType)
-                    {
+                    switch ($scope.selectedType) {
                         case 'EssayQuestion':
                             $scope.questionTemplate = $scope.essayQuestionTemplate;
                             $scope.newQuestion.type = "EssayQuestion";
@@ -33,17 +30,16 @@
                         case 'MultipleChoiceQuestion':
                             $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
                             $scope.newQuestion.type = "MultipleChoiceQuestion";
-                            $scope.newQuestion.options =
-                                [{
+                            $scope.newQuestion.options = [
+                                {
                                     "option": "Esimerkki vaihtoehto",
                                     "correctOption": false,
                                     "score": 1
-                                }];
+                                }
+                            ];
                             break;
-
                     }
                 }
-
 
                 if ($location.path() == '/questions/new') {
                     var newQuestion = {
@@ -61,20 +57,18 @@
 
                 $scope.newMCQuestion = function () {
                     $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
-
                     $scope.newQuestion.type = "MultipleChoiceQuestion";
-
-                    $scope.newQuestion.options =
-                        [{
+                    $scope.newQuestion.options = [
+                        {
                             "option": "Esimerkki vaihtoehto",
                             "correctOption": false,
                             "score": 1
-                        }];
+                        }
+                    ];
                 };
 
                 $scope.newEssayQuestion = function () {
                     $scope.questionTemplate = $scope.essayQuestionTemplate;
-
                     $scope.newQuestion.type = "EssayQuestion";
 
                     // Sanan keskimääräinen pituus = 7.5 merkkiä
@@ -88,7 +82,6 @@
                 };
 
 
-
                 $scope.saveQuestion = function () {
 
                     // TODO: first should check if question is saved ok on the server, then push to local
@@ -97,11 +90,9 @@
                     QuestionRes.save($scope.newQuestion, function (newQuestion) {
                         toastr.info("Kysymys lisätty.");
                     });
-
                 };
 
                 $scope.deleteQuestion = function (question) {
-
                     if (confirm('Poistetaanko kysymys?')) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
@@ -113,7 +104,6 @@
 
                 $scope.addNewOption = function (newQuestion) {
                     $scope.newQuestion.options.push({
-//                        id: $scope.newQuestion.options.length + 1,
                         option: $translate("sitnet_option"),
                         correctOption: false,
                         score: 1
@@ -126,7 +116,6 @@
                     var checkbox = document.getElementById(option.id);
                     console.log("value " + checkbox.value);
                     console.log("name " + checkbox.name);
-//                    console.log("id " + checkbox.id);
                     console.log(" ");
 
                     angular.forEach($scope.newQuestion.options, function (value, index) {
@@ -137,7 +126,6 @@
 
                 $scope.removeOption = function (option) {
                     $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
-
                 }
             }]);
 }());

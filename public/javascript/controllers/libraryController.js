@@ -22,10 +22,8 @@
                     }
                     result.length = 0;
                     result.push.apply(result, randomQuestions.slice(0, amount));
-//                    console.log(result);
                     shuffle();
                     return result;
-
                 };
                 return {
                     limit: limit,
@@ -37,15 +35,15 @@
                 data.map(function (item) {
                     var icon = "";
                     switch (item.type) {
-                    case "MultipleChoiceQuestion":
-                        icon = "fa-list-ol";
-                        break;
-                    case "EssayQuestion":
-                        icon = "fa-edit";
-                        break;
-                    default:
-                        icon = "fa-edit";
-                        break;
+                        case "MultipleChoiceQuestion":
+                            icon = "fa-list-ol";
+                            break;
+                        case "EssayQuestion":
+                            icon = "fa-edit";
+                            break;
+                        default:
+                            icon = "fa-edit";
+                            break;
                     }
                     item.icon = icon;
                     return item;
@@ -56,8 +54,6 @@
 
             $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
             $scope.libraryFilter = "";
-
             $scope.selected = undefined;
-
         }]);
 }());

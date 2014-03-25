@@ -10,10 +10,8 @@
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_question.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_general.html";
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "/exam.html";
+
                 $scope.sections = [];
-
-
-
 
                 // Todo: Fill in rooms from database for final version
                 $scope.examRooms = [
@@ -109,25 +107,18 @@
                 };
 
                 $scope.newSection = {
-                        hide: false,
-                        name: $translate("sitnet_exam_section_default_name"),
-                        questions: []
-                    };
+                    hide: false,
+                    name: $translate("sitnet_exam_section_default_name"),
+                    questions: []
+                };
 
-                if($routeParams.id === undefined)
-                	$scope.exams = ExamRes.exams.query();
-                else
-                {
+                if ($routeParams.id === undefined)
+                    $scope.exams = ExamRes.exams.query();
+                else {
                     $scope.newExam = ExamRes.exams.get({id: $routeParams.id});
 
                 }
 
-//                CKEDITOR.replace( 'editor1' );
-//
-//                $scope.ckeditorShow = function(id) {
-//                    CKEDITOR.replace(id);
-//                };
-                
                 $scope.addNewSection = function () {
 
                     $scope.sections.push($scope.newSection);
@@ -157,7 +148,6 @@
                     });
 
                 }
-
 
                 $scope.setExamRoom = function (room) {
                     $scope.newExamEvent.room = room;
@@ -229,7 +219,6 @@
                     }
                 }
 
-
                 $scope.editSection = function (section) {
                     console.log(section);
                 };
@@ -239,11 +228,11 @@
                 };
 
                 $scope.editQuestion = function (question) {
-
+                    // Todo: Implement this
                 };
 
                 $scope.editExam = function () {
-
+                    // Todo: Implement this
                 };
 
                 // Called when Save button is clicked
@@ -259,20 +248,6 @@
                     });
                 };
 
-//                $scope.saveExam = function () {
-//                	$scope.newExam.state = "PUBLISHED"
-//                		$scope.newExam.examSections = $scope.sections;
-//                	$scope.newExamEvent.examReadableStartDate = $scope.dateService.modStartDate;
-//                	$scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
-//                	$scope.newExam.examEvent = $scope.newExamEvent;
-//                	
-//                	ExamRes.save($scope.newExam, function (newExam) {
-//                		toastr.info("Tentti tallennettu.");
-//                	}, function (error) {
-//                		toastr.error("Jokin meni pieleen");
-//                	});
-//                };
-//                
                 // Called when a question is drag and dropped to a exam section
                 $scope.onDrop = function ($event, $data, section) {
                     if (angular.isArray($data)) {
@@ -281,7 +256,6 @@
                     }
                     section.questions.push($data);
 
-                    
                     var newQuestion = $data;
                     newQuestion.id = null;
 
@@ -289,20 +263,11 @@
                         value.id = null;
                     })
 
-
                     ExamRes.sections.insertSection({eid: $scope.newExam.id, sid: section.id}, newQuestion, function (section) {
                         toastr.info("Kysymys lisätty osioon.");
                     }, function (error) {
                         toastr.error("Jokin meni pieleen");
                     });
-
-
-//                    QuestionRes.save(newQuestion, function (returnQuestion) {
-//                        newQuestion = returnQuestion;
-//                        toastr.info("Kysymys lisätty.");
-//                    }, function (error) {
-//                        toastr.error("Jokin meni pieleen: " + error);
-//                    });
                 };
             }]);
 }());
