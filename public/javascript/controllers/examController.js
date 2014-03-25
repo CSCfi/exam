@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamCtrl', ['$scope', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'dateService',
-            function ($scope, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, dateService) {
+        .controller('ExamCtrl', ['$scope', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'dateService',
+            function ($scope, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, dateService) {
 
                 $scope.dateService = dateService;
 

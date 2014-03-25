@@ -126,7 +126,7 @@ question_essay:
 
   - &essay1 !!models.questions.EssayQuestion
     creator: *maika
-    question: Kerro toiseen maailmansotaan johtaneista syistä.
+    question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
     materials:
     evaluationPhrases:
@@ -148,7 +148,7 @@ question_essay:
 
   - &essay3 !!models.questions.EssayQuestion
     creator: *maika
-    question: Millä tavalla Entiteetti-relaatio tietokannat liittyvät Olisuuntautuneeseen ohjelmistokehitykseen?
+    question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
     instruction:
     materials:
     evaluationPhrases:

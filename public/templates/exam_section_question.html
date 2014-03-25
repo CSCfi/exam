@@ -1,6 +1,7 @@
 <li class="single-question">
     <div class="col-md-8">
-        <i class="fa fa-2x fa-fw " ng-class="question.icon"></i><span class="menu-item">{{question.question}}</span>
+        <i class="fa fa-2x fa-fw " ng-class="question.icon"></i>
+        <span class="menu-item" ng-bind-html="question.question"></span>
     </div>
         <span ng-click="editQuestion(question)" class=" dropdown pull-right fa-stack fa-lg">
 			<a class="dropdown-toggle">

@@ -27,17 +27,10 @@
 				<span class="pull-left fa-stack fa-lg ">
 					<i class="fa fa-info-circle fa-stack-2x"></i>
 				</span>
-                <label>{{'sitnet_exam_quide' | translate}}</label>
-                <i class="sitnet-light-gray">Finally, I always go to sea as a sailor because of the wholesome exercise and pure air. The Captain at the
-                    wheel of the ship gets his atmosphere secondhand from the sailors on the fore-deck. He thinks he breathes it first, but not so. In much the
-                    same way, the common people lead their leaders.</i>
-            </div>
-            <!--<div class="list-group"  ng-include="multipleChoiseQuestionTemplate">-->
-            <!--{{multipleChoiseQuestionTemplate}}-->
-            <!--</div>-->
-
-
-            <div class="list-group" ng-include="sectionTemplate">
+				<label>{{'sitnet_exam_quide' | translate}}</label>
+				<i class="sitnet-light-gray">{{doexam.instruction}}</i>
+			</div>
+ 			<div class="list-group"  ng-include="sectionTemplate">
             </div>
 
             <!-- SECTION NAVIGATION ARROWS AND LABELS -->

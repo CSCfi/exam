@@ -11,7 +11,8 @@
         'sitnet.services',
         'sitnet.directives',
         'pascalprecht.translate',
-        'ngDragDrop'
+        'ngDragDrop',
+        'ngSanitize'
     ]);
     sitnet.constant('SITNET_CONF', (function () {
         var context_path = '/';

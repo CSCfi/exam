@@ -70,9 +70,9 @@
 				</span>
             </div>
             <ul class="list-group results">
-                <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected"
-                    drag="question"><i
-                        class="fa fa-2x fa-fw {{question.icon}}"></i> <span class="menu-item" ndel="question.question">{{question.question}}</span>
+                <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
+                    <i class="fa fa-2x fa-fw {{question.icon}}"></i>
+                    <span ng-bind-html="question.question"></span>
                 </li>
             </ul>
         </div>

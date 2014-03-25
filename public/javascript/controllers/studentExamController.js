@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('StudentExamController', ['$scope', '$routeParams', '$http', '$modal', '$location', '$translate', 'SITNET_CONF', 'StudentExamRes',
-            function ($scope, $routeParams, $http, $modal, $location, $translate, SITNET_CONF, StudentExamRes) {
+        .controller('StudentExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', 'SITNET_CONF', 'StudentExamRes',
+            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, SITNET_CONF, StudentExamRes) {
 
                 $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section.html";
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_question.html";
