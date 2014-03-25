@@ -9,12 +9,13 @@
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
 
                 $scope.questionTemplate = null;
-                $scope.questions = QuestionRes.query();
+
                 $scope.questionTypes = {
                     MultipleChoiceQuestion: 'Monivalinta yksi oikein',
                     EssayQuestion: 'Essee'
                 };
                 $scope.selectedType = "";
+
 
                 $scope.setQuestionType = function () {
                     switch ($scope.selectedType) {
@@ -39,6 +40,39 @@
                             ];
                             break;
                     }
+                }
+
+                if($routeParams.id === undefined)
+                    $scope.questions = QuestionRes.query();
+                else
+                {
+
+                    QuestionRes.get({id: $routeParams.id},
+                        function (value) {
+                            $scope.newQuestion = value;
+                            console.log("Data ready: " + value);
+
+                            $scope.selectedType = $scope.newQuestion.type;
+                            $scope.setQuestionType();
+                        },
+                        function (error) {
+                            // error
+                        }
+                    );
+
+//                    QuestionRes.get({id: $routeParams.id}).$promise.then(
+//                    function( value ){
+//                        $scope.newQuestion = value;
+//                        console.log("Data ready: "+ value);
+//
+//                        $scope.selectedType = $scope.newQuestion.type;
+//                        $scope.setQuestionType();
+//                    },
+//                        function( error ){
+//                            // error
+//                        }
+//                    );
+
                 }
 
                 if ($location.path() == '/questions/new') {
@@ -127,5 +161,10 @@
                 $scope.removeOption = function (option) {
                     $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
                 }
+
+                $scope.editQuestion = function (question) {
+
+                }
+
             }]);
 }());

@@ -34,6 +34,14 @@ public class QuestionController extends SitnetController {
   }
 
 //  @Authenticate
+  public static Result getQuestion(Long id) {
+
+      AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+
+      return ok(Json.toJson(question));
+  }
+
+//  @Authenticate
 //  @BodyParser.Of(BodyParser.Json.class)
   public static Result addQuestion() throws MalformedDataException {
 

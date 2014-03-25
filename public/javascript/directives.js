@@ -10,7 +10,9 @@
                     if (!ngModel) return;
 
                     ck.on('instanceReady', function () {
+                        console.log("Editor ready");
                         ck.setData(ngModel.$viewValue);
+                        console.log(ngModel.$viewValue);
                     });
 
                     function updateModel() {

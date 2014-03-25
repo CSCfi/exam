@@ -43,6 +43,7 @@ GET           /courses                        controllers.CourseController.getCo
 ############### Question interface ###############
 
 GET           /questions                      controllers.QuestionController.getQuestions()
+GET           /questions/:id                  controllers.QuestionController.getQuestion(id: Long)
 POST          /questions                      controllers.QuestionController.addQuestion()
 DELETE        /questions/:id                  controllers.QuestionController.deleteQuestion(id: Long)
 
