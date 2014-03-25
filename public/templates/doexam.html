@@ -11,11 +11,8 @@
                 </span>
                 {{activeSection.name}}
                 <span class="pull-right">
-                    <i class="section-header-time-left-text">{{'sitnet_exam_time_left' | translate}}</i>
-                </span>
-                <span class="pull-right">
-                    <!-- TODO: Implement the timer functionality e.g. with angular-timer http://siddii.github.io/angular-timer/ -->
-                    <i class="section-header-time-left-clock">2:23</i>
+                    <i class="section-header-time-left-clock">{{remainingTime}}</i>
+                   {{'sitnet_exam_time_left' | translate}}
                 </span>
                 <span class="pull-right fa-stack fa-lg">
                     <i class="fa fa-clock-o fa-stack-1x"></i>

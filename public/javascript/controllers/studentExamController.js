@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('StudentExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', 'SITNET_CONF', 'StudentExamRes',
-            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, SITNET_CONF, StudentExamRes) {
+        .controller('StudentExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes',
+            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes) {
 
                 $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section.html";
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_question.html";
@@ -166,6 +166,18 @@
                         toastr.error("Jokin meni pieleen");
                     });
                 };
+
+
+
+                $scope.remainingTime = 0;
+                $scope.onTimeout = function(){
+                    $scope.remainingTime++;
+                    $timeout($scope.onTimeout,1000);
+                }
+                $timeout($scope.onTimeout,1000);
+
+                $scope.remainingTime
+
 
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
