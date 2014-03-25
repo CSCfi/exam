@@ -54,6 +54,7 @@
     "sitnet_settings": "Settings",
     "sitnet_active_exams": "Active exams",
     "sitnet_save_and_return_exam": "Save and close the exam",
+    "sitnet_abort_exam": "Abort tentti",
     "sitnet_exam_time_left": "Time left to complete exam",
     "sitnet_exam_previous_section": "Previous section",
     "sitnet_exam_next_section": "Next section",

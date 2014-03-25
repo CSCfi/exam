@@ -40,7 +40,6 @@ public class StudentExamController extends SitnetController {
         return ok(Json.toJson(exams));
     }
 
-
     public static Result startExam(String hash) throws UnauthorizedAccessException {
 
         //todo: check credentials / token
@@ -50,7 +49,7 @@ public class StudentExamController extends SitnetController {
                 .eq("hash", hash).findUnique();
 
 
-        if(blueprint == null) {
+        if (blueprint == null) {
             //todo: add proper exception
             throw new UnauthorizedAccessException("a");
         }
@@ -62,7 +61,7 @@ public class StudentExamController extends SitnetController {
                 .where()
                 .eq("hash", studentExam.getHash()).findUnique();
 
-        if(possibleClone != null) {
+        if (possibleClone != null) {
             return ok(Json.toJson(possibleClone));
         }
 
@@ -74,15 +73,21 @@ public class StudentExamController extends SitnetController {
     public static Result saveAnswersAndExit(Long id) {
         Logger.debug("saveAnswersAndExit()");
 
-//        Exam ex = bindForm(Exam.class);
-
         Exam exam = Ebean.find(Exam.class, id);
-
         exam.setState("REVIEW");
-
         exam.update();
 
         return ok("Exam send for review");
+    }
+
+    public static Result abortExam(Long id) {
+        Logger.debug("saveAnswersAndExit()");
+
+        Exam exam = Ebean.find(Exam.class, id);
+        exam.setState("ABORTED");
+        exam.update();
+
+        return ok("Exam aborted");
     }
 
     public static Result insertAnswer(String hash, Long qid, Long oid) {
@@ -95,7 +100,7 @@ public class StudentExamController extends SitnetController {
         User user = UserController.getLoggedUser();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-        if(question.getAnswer() == null) {
+        if (question.getAnswer() == null) {
             // Insert new answer
             MultipleChoiseAnswer m_answer = new MultipleChoiseAnswer();
             m_answer.setOption(option);
@@ -105,11 +110,6 @@ public class StudentExamController extends SitnetController {
             m_answer.setModified(currentTime);
             question.setAnswer(m_answer);
 
-//            if(question.getComments() == null) {
-//                List<Comment> comments = null;
-//                m_answer.setComments(comments);
-//            }
-
             m_answer.save();
             question.save();
 
@@ -117,7 +117,7 @@ public class StudentExamController extends SitnetController {
         } else {
             // Update answer
             AbstractAnswer answer = question.getAnswer();
-            ((MultipleChoiseAnswer)answer).setOption(option);
+            ((MultipleChoiseAnswer) answer).setOption(option);
             answer.setModified(currentTime);
             answer.setModifier(user);
 

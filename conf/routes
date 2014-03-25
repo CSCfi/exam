@@ -28,6 +28,7 @@ GET           /sections/:id                   controllers.ExamController.getExam
 GET           /events                         controllers.ExamController.getExamEvents()
 GET           /student/exams                  controllers.StudentExamController.listActiveExams()
 PUT           /student/exams/:id              controllers.StudentExamController.saveAnswersAndExit(id: Long)             
+PUT           /student/exam/abort/:id         controllers.StudentExamController.abortExam(id: Long)
 GET           /student/doexam/:hash           controllers.StudentExamController.startExam(hash: String)
 
 POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)

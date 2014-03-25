@@ -13,6 +13,16 @@
                         params: { id: "@id" }}
                 }),
 
+                exam: $resource("/student/exam/abort/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "abort": {
+                        method: "PUT",
+                        params: { id: "@id" }}
+                }),
+
                 answer: $resource("/student/exams/:hash/question/:qid/option/:oid",
                 {
                     hash: "@hash", qid: "@qid", oid: "@oid"

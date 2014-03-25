@@ -1,8 +1,8 @@
 <div id="sitnet-header" class="header"></div>
 <div id="studentexam">
 
-<!--  tentti alue -->
-	<div class="col-md-8">
+    <!--  tentti alue -->
+    <div class="col-md-8">
         <div class="studentexam-header">
             <h4>
                 <span class="fa-stack">
@@ -22,26 +22,22 @@
                 </span>
             </h4>
         </div>
-        <div class="section-container" >
-			<div class="exam-info-round">
+        <div class="section-container">
+            <div class="exam-info-round">
 				<span class="pull-left fa-stack fa-lg ">
 					<i class="fa fa-info-circle fa-stack-2x"></i>
 				</span>
-				<label>{{'sitnet_exam_quide' | translate}}</label>
-				<i class="sitnet-light-gray">Finally, I always go to sea as a sailor because of the wholesome exercise and pure air. The Captain at the
-					wheel of the ship gets his atmosphere secondhand from the sailors on the fore-deck. He thinks he breathes it first, but not so. In much the
-					same way, the common people lead their leaders.</i>
-			</div>
-			<!--<div class="list-group"  ng-include="multipleChoiseQuestionTemplate">-->
-                <!--{{multipleChoiseQuestionTemplate}}-->
+                <label>{{'sitnet_exam_quide' | translate}}</label>
+                <i class="sitnet-light-gray">Finally, I always go to sea as a sailor because of the wholesome exercise and pure air. The Captain at the
+                    wheel of the ship gets his atmosphere secondhand from the sailors on the fore-deck. He thinks he breathes it first, but not so. In much the
+                    same way, the common people lead their leaders.</i>
+            </div>
+            <!--<div class="list-group"  ng-include="multipleChoiseQuestionTemplate">-->
+            <!--{{multipleChoiseQuestionTemplate}}-->
             <!--</div>-->
 
 
-
-
-
-
- 			<div class="list-group"  ng-include="sectionTemplate">
+            <div class="list-group" ng-include="sectionTemplate">
             </div>
 
             <!-- SECTION NAVIGATION ARROWS AND LABELS -->
@@ -49,23 +45,23 @@
                 <div class="col-md-3">
                     <!-- TODO: Implement the section change functionality -->
                     <a href="#">
-                       <i class="fa fa-arrow-circle-left fa-stack-2x section-navigation-left-button"></i>
+                        <i class="fa fa-arrow-circle-left fa-stack-2x section-navigation-left-button"></i>
                         <span class="section-navigation-left-text">{{'sitnet_exam_previous_section' | translate}}</span>
                     </a>
                 </div>
                 <div class="col-md-3 col-md-offset-5">
                     <!-- TODO: Implement the section change functionality -->
                     <a href="#">
-                       <i class="fa fa-arrow-circle-right fa-stack-2x section-navigation-right-button"></i>
+                        <i class="fa fa-arrow-circle-right fa-stack-2x section-navigation-right-button"></i>
                         <span class="section-navigation-right-text">{{'sitnet_exam_next_section' | translate}}</span>
                     </a>
                 </div>
             </div>
         </div>
-	</div>
+    </div>
 
-<!-- oikea palsta -->
-	<div class="col-md-4">
+    <!-- oikea palsta -->
+    <div class="col-md-4">
         <h4>
             {{doexam.name}}
         </h4>
@@ -73,12 +69,22 @@
             <span class="list-group-item-text">{{doexam.course.name}}</span>
             <span class="list-group-item-text">{{doexam.course.code}}</span>
         </i>
+
         <div ng-include="sectionsBar"></div>
 
         <div>
+            <!-- SAVE EXAM BUTTON -->
             <div>
-                <a ng-click="saveExam()">
-                    <i class="btn btn-primary btn-lg active fa fa-sign-out exam-signout-button"><span>{{'sitnet_save_and_return_exam' | translate}}</span></i>
+                <a ng-click="saveExam(doexam)">
+                    <i class="btn btn-primary btn-lg active fa fa-sign-out exam-signout-button">
+                        <span class="exam-signout-button-text">{{'sitnet_save_and_return_exam' | translate}}</span></i>
+                </a>
+            </div>
+            <!-- ABORT EXAM BUTTON -->
+            <div>
+                <a ng-click="abortExam(doexam)">
+                    <i class="exam-abort-button btn btn-primary btn-lg active fa fa-times">
+                        <span class="exam-abort-button-text">{{'sitnet_abort_exam' | translate}}</span></i>
                 </a>
             </div>
         </div>

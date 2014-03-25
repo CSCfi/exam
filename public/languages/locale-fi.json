@@ -54,6 +54,7 @@
     "sitnet_settings": "Asetukset",
     "sitnet_active_exams": "Aktiiviset tentit",
     "sitnet_save_and_return_exam": "Tallenna ja palauta tentti",
+    "sitnet_abort_exam": "Keskeytä tentti",
     "sitnet_exam_time_left": "Jäljellä oleva suoritusaika",
     "sitnet_exam_previous_section": "Edellinen aihealue",
     "sitnet_exam_next_section": "Seuraava aihealue",

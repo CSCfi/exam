@@ -170,8 +170,21 @@
   }
 
   .exam-signout-button {
-    background-color: darkblue;
+    background-color: blue;
     color: #ffffff;
+  }
+
+  .exam-signout-button-text {
+    margin-left: 1em;
+  }
+
+  .exam-abort-button {
+    background-color: red;
+    color: #ffffff;
+  }
+
+  .exam-abort-button-text {
+    margin-left: 1em;
   }
 
   -webkit-touch-callout: none;

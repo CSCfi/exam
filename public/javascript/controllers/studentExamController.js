@@ -122,9 +122,20 @@
                 };
 
                 // Called when the save and exit button is clicked
-                $scope.saveExam = function () {
-                    StudentExamRes.exams.update({id: $scope.exam.id}, $scope.exam, function () {
+                $scope.saveExam = function (doexam) {
+                    StudentExamRes.exams.update({id: doexam.id}, function () {
                         toastr.info("Tentti lähetettiin tarkastettavaksi.");
+                        $location.path("/home/");
+
+                    }, function () {
+                        toastr.error("Jokin meni pieleen");
+                    });
+                };
+
+                // Called when the abort button is clicked
+                $scope.abortExam = function (doexam) {
+                    StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
+                        toastr.info("Tentti keskeytettiin.");
                         $location.path("/home/");
 
                     }, function () {
@@ -135,7 +146,7 @@
                 // Called when a radiobutton is selected
                 $scope.radioChecked = function (doexam, question, option) {
 
-                    $scope.exam = doexam;
+//                    $scope.exam = doexam;
 
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
@@ -146,7 +157,7 @@
                         toastr.error("Jokin meni pieleen");
                     });
 
-                    $scope.answer = question.answer;
+//                    $scope.answer = question.answer;
                 };
 
 
