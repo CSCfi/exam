@@ -151,7 +151,7 @@
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
 
-                    StudentExamRes.answer.insertAnswer({hash: doexam.hash, qid: question.id, oid: option.id}, function () {
+                    StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id}, { data : "hello world"}, function () {
                         toastr.info("Vastaus lisätty kysymykseen.");
                     }, function () {
                         toastr.error("Jokin meni pieleen");
@@ -161,8 +161,18 @@
                 };
 
 
-                $scope.saveEssay = function(essay) {
-                 alert(essay);
+                $scope.saveEssay = function (questionId, answer) {
+                    var params = {
+                        hash: $scope.doexam.hash,
+                        qid:  questionId
+                    };
+                    var msg = {};
+                    msg.answer = answer;
+                    StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
+                        toastr.info("Vastaus lisätty kysymykseen.");
+                    }, function () {
+                        toastr.error("Jokin meni pieleen");
+                    });
                 };
 
                 // Called when the chevron is clicked

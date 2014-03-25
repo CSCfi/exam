@@ -22,4 +22,12 @@ public class EssayAnswer extends AbstractAnswer {
     public String generateHash() {
         return "Implement me";
     }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
 }

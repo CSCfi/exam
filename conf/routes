@@ -32,6 +32,7 @@ PUT           /student/exam/abort/:id         controllers.StudentExamController.
 GET           /student/doexam/:hash           controllers.StudentExamController.startExam(hash: String)
 
 POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
+POST          /student/exams/:hash/question/:questionId                    controllers.StudentExamController.insertEssay(hash: String, questionId: Long)
 
 
 ############### Courses interface ###############

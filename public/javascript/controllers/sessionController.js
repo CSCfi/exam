@@ -22,7 +22,7 @@
                 });
 
                 $scope.$on('event:auth-loginConfirmed', function () {
-                    if (dialog) {
+                    if (dialog !== undefined) {
                         dialog.close();
                     }
                 });

@@ -22,14 +22,23 @@
                         method: "PUT",
                         params: { id: "@id" }}
                 }),
-
-                answer: $resource("/student/exams/:hash/question/:qid/option/:oid",
+                
+                multipleChoiseAnswer: $resource("/student/exams/:hash/question/:qid/option/:oid",
                 {
                     hash: "@hash", qid: "@qid", oid: "@oid"
                 },
                 {
-                    "insertAnswer": {
+                    "saveMultipleChoice": {
                         method: "POST", params: { hash: "@hash", qid: "@qid", oid: "@oid" }
+                    }
+                }),
+
+                essayAnswer: $resource("/student/exams/:hash/question/:qid", {
+                    hash: "@hash", qid: "@qid", oid: "@oid"
+                },
+                {
+                    "saveEssay": {
+                        method: "POST", params: { hash: "@hash", qid: "@qid" }
                     }
                 })
             }
