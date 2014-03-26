@@ -8,12 +8,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Credentials;
 import models.Session;
 import models.User;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.util.UUID;
 
@@ -22,7 +22,7 @@ public class SessionController extends SitnetController {
     public static Result login() throws MalformedDataException, UnauthorizedAccessException {
         Credentials credentials = bindForm(Credentials.class);
         Logger.debug("User login with username: {} and password: ***", credentials.getUsername());
-        String md5psswd = DigestUtils.md5Hex(credentials.getPassword());
+        String md5psswd = SitnetUtil.encodeMD5(credentials.getPassword());
 
         // Todo: do not select passwd here
         User user = Ebean.find(User.class)

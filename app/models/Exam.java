@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
-import org.apache.commons.codec.digest.DigestUtils;
+import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -154,7 +154,7 @@ public class Exam extends SitnetModel {
 //                examEvent.getStartTime().toString() +
 //                examEvent.getEndTime().toString();
 
-        this.hash = DigestUtils.md5Hex(attributes);
+        this.hash = SitnetUtil.encodeMD5(attributes);
         play.Logger.debug("Exam hash: " + this.hash);
         return hash;
     }

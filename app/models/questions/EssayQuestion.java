@@ -1,7 +1,7 @@
 package models.questions;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import play.Logger;
+import util.SitnetUtil;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -32,7 +32,7 @@ public class EssayQuestion extends AbstractQuestion {
 
         String attributes = question + instruction;
 
-        this.hash = DigestUtils.md5Hex(attributes);
+        this.hash = SitnetUtil.encodeMD5(attributes);
         Logger.debug("Question hash: " + this.hash);
         return hash;
     }

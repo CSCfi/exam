@@ -53,7 +53,7 @@ public class QuestionController extends SitnetController {
           Object question = clazz.newInstance();
 
           User user = UserController.getLoggedUser();
-          Timestamp currentTime = new Timestamp(System.currentTimeMillis() * 1000);
+          Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
           question = bindForm(question.getClass());
 

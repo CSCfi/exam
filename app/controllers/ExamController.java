@@ -13,6 +13,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -109,6 +110,7 @@ public class ExamController extends SitnetController {
         ExamSection section = bindForm(ExamSection.class);
         section.setExam(Ebean.find(Exam.class, id));
 
+        section = (ExamSection) SitnetUtil.setCreator(section);
 
         section.save();
 
@@ -129,7 +131,7 @@ public class ExamController extends SitnetController {
         Logger.debug("createExam()");
 
         User user = UserController.getLoggedUser();
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis() * 1000);
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
         Exam ex = bindForm(Exam.class);
 //        ex.setId(null);

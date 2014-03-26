@@ -1,9 +1,12 @@
 package models.questions;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import play.Logger;
+import util.SitnetUtil;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import java.util.List;
 
 /**
@@ -29,7 +32,7 @@ public class MultipleChoiceQuestion extends AbstractQuestion {
         for(MultipleChoiseOption option : options)
             attributes += option.getOption();
 
-        this.hash = DigestUtils.md5Hex(attributes);
+        this.hash = SitnetUtil.encodeMD5(attributes);
         Logger.debug("Question hash: " + this.hash);
         return hash;
     }
