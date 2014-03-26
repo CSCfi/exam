@@ -86,42 +86,6 @@
                 </span>
             </div>
             <nav ng-class="minimizeNavigation ? 'minimize' : ''">
-
-                    <!--                 <accordion close-others="oneAtATime"> -->
-                    <!--                 <div ng-repeat="link in links"> -->
-                    <!--                 <a href="{{link.href}}" class="accordion-group accordion-heading"> -->
-                    <!--                        <i class="fa fa-2x fa-fw {{link.class}}"></i> -->
-                    <!--                        <span class="menu-item">{{link.name}}</span> -->
-                    <!--                     </a> -->
-                    <!--                 </div> -->
-                    <!--                 </accordion> -->
-
-                    <!-- 			    <div id="myAccordion" class="accordion"> -->
-                    <!-- 			        <div class="accordion-group" ng-repeat="link in links"> -->
-                    <!-- 			            <div class="accordion-heading"> -->
-                    <!-- 			                <a href="{{link.href}}" data-parent="#myAccordion" data-toggle="collapse" class="accordion-toggle"> -->
-                    <!-- 			                <i class="fa fa-2x fa-fw {{link.class}}"></i> -->
-                    <!-- 			                {{link.name}}</a> -->
-                    <!-- 			            </div> -->
-                    <!-- 			            <div class="accordion-body collapse" id="collapseOne"> -->
-                    <!-- 			                <div class="accordion-inner"> -->
-                    <!-- 			                    <p>HTML stands for HyperText Markup Language. HTML is the main markup language for describing the structure of Web pages. <a href="http://www.tutorialrepublic.com/html-tutorial/" target="_blank">Learn more.</a></p> -->
-                    <!-- 			                </div> -->
-                    <!-- 			            </div> -->
-                    <!-- 			        </div> -->
-                    <!-- 			    </div> -->
-
-
-                    <!-- 			<accordion close-others="oneAtATime"> -->
-                    <!-- 				<accordion-group is-open="true" ng-repeat="link in links"> -->
-                    <!-- 					<a href="{{link.href}}" class="accordion-heading"> -->
-                    <!-- 		               <i class="fa fa-2x fa-fw {{link.class}}"></i> -->
-                    <!-- 		               <span class="menu-item">{{link.name}}</span> -->
-                    <!-- 		            </a> -->
-                    <!-- 	            </accordion-group> -->
-                    <!-- 			</accordion> -->
-
-
                 <ul>
                     <li ng-class="{selected: isActive(link)}" ng-repeat="link in links">
                         <a ng-show="{{link.visible}}" href="{{link.href}}">
@@ -139,7 +103,6 @@
                 <span ng-click="minimizeNavigation = !minimizeNavigation" class="minify"> <i class="fa fa-3x fa-arrow-circle-left hit"></i></span>
             </nav>
         </aside>
-
         <div class="container-fluid vmenu-on">
             <div>
                 <div ng-view></div>

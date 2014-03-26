@@ -1,0 +1,46 @@
+<div id="sitnet-header" class="header">
+    <div ng-controller="ExamController">
+        <div class="row">
+            <div class="col-md-2 col-md-offset-10">
+                <a ng-click="createExam()" class="btn btn-primary btn-lg active header-button">
+                    {{'sitnet_create_new' | translate}}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div >
+        <div class="base">
+            <div class="col-md-6">
+                <h2>{{'sitnet_exams_created_by' | translate}} {{username}} </h2>
+
+                <div class="list-group">
+                    <a ng-repeat="exam in exams" href="#/exams/{{exam.id}}" class="list-group-item">
+                        <h4 class="list-group-item-heading">
+                            <span class="">{{exam.course.code}} - {{exam.name}}</span>
+                            <span class="pull-right">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
+                        </h4>
+                        <!--<p class="list-group-item-text pull-right">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</p>-->
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h2>{{'sitnet_exams_needing_attention' | translate}}</h2>
+
+            <div class="list-group">
+                <a href="#" class="list-group-item active">
+                    <h4 class="list-group-item-heading">Soveltavan Yrtinviljelyn perusteet</h4>
+
+                    <p class="list-group-item-text">Tentti 1</p>
+                </a>
+                <a href="#" class="list-group-item">
+                    <h4 class="list-group-item-heading">Jäkälän syventävät opinnot</h4>
+
+                    <p class="list-group-item-text">Tentti 1</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

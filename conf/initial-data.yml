@@ -478,6 +478,7 @@ examevents:
 exams:
 
   - &astronomianPerusteet !!models.Exam
+    creator: *maika
     course: *765104P
     name: Astronomian perusteet
     examType:
@@ -488,6 +489,7 @@ exams:
     state: PUBLISHED
 
   - &alkeidenperusteet !!models.Exam
+    creator: *maika
     course: *alkeet
     name: Johdatus alkeiden perusteisiin
     examType:
@@ -498,6 +500,7 @@ exams:
     state: PUBLISHED
 
   - &tietokannat2013 !!models.Exam
+    creator: *maika
     course: *tietokannat
     name: Tietokantojen perusteet, syksy 2013
     examType:
@@ -508,6 +511,7 @@ exams:
     state: PUBLISHED
 
   - &tietokannat2014 !!models.Exam
+    creator: *maika
     course: *tietokannat
     name: Tietokantojen perusteet, kevät 2014
     examType:
@@ -518,6 +522,7 @@ exams:
     state: PUBLISHED
 
   - &algoritmit !!models.Exam
+    creator: *maika
     course: *811386A
     name: Algoritmit, 2013
     examType:
@@ -528,6 +533,7 @@ exams:
     state: DRAFT
 
   - &ooad !!models.Exam
+    creator: *maika
     course: *812346A
     name: OOAD, 2013
     examType:

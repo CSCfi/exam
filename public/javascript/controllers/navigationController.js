@@ -24,7 +24,7 @@
                     ]},
                     /*{href: "#/reports", visible: (admin || teacher), class: "fa-bar-chart-o", name: $translate("sitnet_reports")},*/
                     {href: "#/exams", visible: (student || admin || teacher), class: "fa-pencil-square-o", name: $translate("sitnet_exams"), sub: [
-                        {href: "#/student/exams", visible: (student || admin || teacher), class: "fa-caret-right", name: $translate("Aktiiviset tentit")}
+//                        {href: "#/student/exams", visible: (student || admin || teacher), class: "fa-caret-right", name: $translate("sitnet_active_exams")}
                     ]},
                     /*{href: "#/calendar", visible: (student || admin || teacher), class: "fa-calendar", name: $translate("sitnet_calendar")},*/
                     /*{href: "#/notifications", visible: (student || admin || teacher), class: "fa-bullhorn", name: $translate("sitnet_notifications")},*/

@@ -12,8 +12,8 @@
             $routeProvider.when('/questions/new', { templateUrl: tmpl + 'question-editor/question.html'});
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question-editor/question.html'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
-            $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamCtrl'});
-            $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam.html', controller: 'ExamCtrl'});
+            $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamController'});
+            $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam.html', controller: 'ExamController'});
             $routeProvider.when('/calendar', { templateUrl: tmpl + 'calendar.html'});
             $routeProvider.when('/notifications', { templateUrl: tmpl + 'notifications.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});
@@ -30,9 +30,8 @@
             $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html', controller: 'QuestionCtrl'});
 
             /* Student */
-            $routeProvider.when('/student/exams', { templateUrl: tmpl + 'active.html', controller: 'StudentExamController'});
-//            $routeProvider.when('/student/startexam', { templateUrl: tmpl + 'startexam.html', controller: 'StudentExamController'});
-            $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'doexam.html', controller: 'StudentExamController'});
+//            $routeProvider.when('/student/exams', { templateUrl: tmpl + 'exams.html', controller: 'StudentExamController'});
+            $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'student/exam.html', controller: 'StudentExamController'});
 
 
             $routeProvider.otherwise({redirectTo: '/home'});

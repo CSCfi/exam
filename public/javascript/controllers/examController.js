@@ -1,17 +1,25 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamCtrl', ['$scope', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'dateService',
+        .controller('ExamController', ['$scope', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'dateService',
             function ($scope, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, dateService) {
 
                 $scope.dateService = dateService;
 
-                $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section.html";
-                $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_question.html";
-                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_general.html";
-                $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "/exam.html";
+                $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section.html";
+                $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section_question.html";
+                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section_general.html";
+                $scope.examsTemplate;
 
                 $scope.sections = [];
+
+                $scope.user = $scope.session.user;
+                if ($scope.user.isStudent) {
+                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "student/exams.html";
+                }
+                else if ($scope.user.isTeacher) {
+                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/exams.html";
+                }
 
                 // Todo: Fill in rooms from database for final version
                 $scope.examRooms = [
@@ -115,15 +123,24 @@
                 if ($routeParams.id === undefined)
                     $scope.exams = ExamRes.exams.query();
                 else {
-                    $scope.newExam = ExamRes.exams.get({id: $routeParams.id});
-
+                    ExamRes.exams.get({id: $routeParams.id},
+                        function (value) {
+                            $scope.newExam = value;
+                        },
+                        function (error) {
+                            // error
+                        }
+                    );
                 }
 
                 $scope.addNewSection = function () {
-
-                    $scope.sections.push($scope.newSection);
+                    ExamRes.sections.insertSection({eid: $scope.newExam.id}, $scope.newSection, function (section) {
+                        toastr.info("Osio lisätty.");
+                        $scope.newExam.examSections.push(section);
+                    }, function (error) {
+                        toastr.error("Jokin meni pieleen");
+                    });
                 };
-                $scope.addNewSection();
 
                 // Called when create exam button is clicked
                 $scope.createExam = function () {
