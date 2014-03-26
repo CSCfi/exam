@@ -30,6 +30,9 @@
                 $scope.logout = function () {
                     var xhr = $http.post('/logout');
                     xhr.success(function (message) {
+
+                        // This could be how the service is called if we could use it to handle logout
+//                        sessionService.logout();
                         delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
                         delete $http.defaults.headers.common;
                         toastr.success("Uloskirjautuminen onnistui.");

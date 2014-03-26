@@ -40,6 +40,7 @@
         <link rel="stylesheet" media="screen" href=" @routes.Assets.at("stylesheets/main.min.css")">
             -->
 
+
         <script src="@routes.Assets.at("javascript/sitnet.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/routes.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/modules.js")" type="text/javascript"></script>
@@ -71,6 +72,7 @@
         <script src="@routes.Assets.at("javascript/controllers/libraryController.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/controllers/datepickerController.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/controllers/modalInstanceController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascript/controllers/dropdownController.js")" type="text/javascript"></script>
 
     </head>
 
@@ -82,7 +84,17 @@
             <div ng-hide="minimizeNavigation" class="user">
                 <span>
                     <img src="data:image/gif;base64,R0lGODdhRgBGAOMAAMzMzJaWlqqqqpycnLGxscXFxaOjo7e3t76+vgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAARgBGAAAEqRDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodFoUDAIDAGIwKGCsWC3XuyMUDAfAAEEwYMxoNdvNK2QLAbHEeshL7AB4ejwEAoF5ghJcCBOFh488a49bjVkTkoKUPAFka21/A3ESnIpzdX5iXRIGAggBjImpZFS0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMLBEAOw==" alt="me">
-                    <a href="#/user">{{session.user.firstname}} {{session.user.lastname}}&nbsp;<i class="fa fa-caret-down"></i></a>
+                    <li class="dropdown" ng-controller="DropdownCtrl">
+                        <a href="#/user">{{session.user.firstname}} {{session.user.lastname}}&nbsp;</a>
+                        <a class="dropdown-toggle">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li ng-repeat="item in items">
+                                <a href="{{item.link}}">{{item.name}}</a>
+                            </li>
+                        </ul>
+                    </li>
                 </span>
             </div>
             <nav ng-class="minimizeNavigation ? 'minimize' : ''">
