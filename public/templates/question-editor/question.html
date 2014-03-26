@@ -15,7 +15,7 @@
             </div>
 
             <div class="sitnet-info-text">
-                Kysymystyyppi:
+                {{'sitnet_question_type' | translate}}
                 <select  class="form-control" ng-model="selectedType" ng-change="setQuestionType()"
                          ng-options="key as value for (key, value) in questionTypes"  >
                 </select>
@@ -31,18 +31,18 @@
                 <input type="checkbox" ng-model="newQuestion.shared">
             </div>
             <div class="sitnet-info-text">
-                Ohjeistus:
+                {{'sitnet_instruction' | translate}}
                 <input type="text" class="form-control" ng-model="newQuestion.instruction"
-                       placeholder="Kysymykseen liittyvä ohjeistus">
+                       placeholder="{{'sitnet_question_instruction' | translate}}">
             </div>
             <div class="sitnet-info-text">
-                Pisteet:
-                <input type="text" class="form-control " placeholder="Oikean vastauksen pisteytys">
+                {{'sitnet_scores' | translate}}
+                <input type="text" class="form-control " placeholder="{{'sitnet_correct_answer_score' | translate}}">
             </div>
             <div class="sitnet-info-text">
-                Arviointikriteerit:
+                {{'sitnet_exam_evaluation_criteria' | translate}}
                 <textarea class="form-control" rows="3"
-                          placeholder="Vastauksen tulee sisältää seuraavat asiat..."></textarea>
+                          placeholder="{{'sitnet_correct_answer_should_have' | translate}}"></textarea>
             </div>
 
         </div>
