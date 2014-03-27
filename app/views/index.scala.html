@@ -90,9 +90,15 @@
                             <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu">
-                            <li ng-repeat="item in items">
-                                <a href="{{item.link}}">{{item.name}}</a>
-                            </li>
+                            <li role="presentation" class="dropdown-header">Kielivalinnat</li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('en')">EN</a></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('fi')">FI</a></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('swe')">SWE</a></li>
+                            <li role="presentation" class="divider"></li>
+                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="logout()">Logout</a></li>
+                            @*<li ng-repeat="item in items">*@
+                                @*<a ng-click="handleClick(item.link, item.action)">{{item.name}}</a>*@
+                            @*</li>*@
                         </ul>
                     </li>
                 </span>
