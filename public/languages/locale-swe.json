@@ -65,6 +65,8 @@
     "sitnet_exam_remove": "Remove",
     "sitnet_save_and_return_exam": "Save and close the exam",
     "sitnet_share_this_question": "Share this question",
+    "sitnet_sharing": "Sharing",
+    "sitnet_share_this_exam": "I want to share this exam with other teachers",
 
     "sitnet_exam_score": "Score",
     "sitnet_exam_scoring_of_the_right_answer": "Scoring of the right answer",
@@ -88,6 +90,7 @@
     "sitnet_exam_answer_language": "Exam reply language",
     "sitnet_material": "Material",
 
+    "sitnet_placeholder_write_instruction": "Write instructions here",
 
 
     "sitnet_question_mc": "Multiple choice 1-correct",

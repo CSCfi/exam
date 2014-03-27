@@ -47,7 +47,7 @@ public class Exam extends SitnetModel {
     private List<ExamSection> examSections;
 
     @OneToOne
-    @JsonBackReference
+//    @JsonBackReference
     private ExamEvent examEvent;
 
     @Column(length = 32, unique = true)

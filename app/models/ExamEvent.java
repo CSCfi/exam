@@ -1,6 +1,5 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import play.Logger;
 import play.db.ebean.Model;
 import util.SitnetUtil;
@@ -23,9 +22,9 @@ public class ExamEvent extends Model implements Cloneable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(mappedBy = "examEvent")
-    @JsonManagedReference
-    private Exam blueprint;
+//    @OneToOne(mappedBy = "examEvent")
+//    @JsonManagedReference
+//    private Exam blueprint;
 
     @ManyToMany
     private List<Exam> exams;
@@ -196,13 +195,13 @@ public class ExamEvent extends Model implements Cloneable {
         this.quidance = quidance;
     }
 
-    public Exam getBlueprint() {
-        return blueprint;
-    }
-
-    public void setBlueprint(Exam blueprint) {
-        this.blueprint = blueprint;
-    }
+//    public Exam getBlueprint() {
+//        return blueprint;
+//    }
+//
+//    public void setBlueprint(Exam blueprint) {
+//        this.blueprint = blueprint;
+//    }
 
     public List<Exam> getExams() {
         return exams;

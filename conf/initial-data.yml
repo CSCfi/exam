@@ -448,7 +448,7 @@ examevents:
     inspectors:
                     - *maika
     state:
-    room: Akvaario IT102
+    room: Akvaario IT101
     enrolledStudents:
                     - *sauli
                     
@@ -467,10 +467,11 @@ examevents:
     inspectors:
                     - *maika
     state:
-    room: Akvaario IT102
+    room: Akvaario IT4023
     enrolledStudents:
                     - *orville
-                    - *sauli                                 
+                    - *sauli
+
 
 
 

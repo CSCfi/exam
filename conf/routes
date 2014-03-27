@@ -1,56 +1,66 @@
 
-GET           /                               controllers.Index.index()
+GET           /                                                     controllers.Index.index()
 
-POST          /login                          controllers.SessionController.login()
-POST          /logout                         controllers.SessionController.logout()
-GET           /ping                           controllers.SessionController.ping()
+POST          /login                                                controllers.SessionController.login()
+POST          /logout                                               controllers.SessionController.logout()
+GET           /ping                                                 controllers.SessionController.ping()
 
 
 ############### User interface ###############
-GET           /users                          controllers.UserController.getUsers()
-GET           /users/:id                      controllers.UserController.getUser(id: Long)
-PUT           /users/:id                      controllers.UserController.updateUser(id: Long)
-POST          /users                          controllers.UserController.addUser()
-DELETE        /users/:id                      controllers.UserController.deleteUser(id: Long)
+GET           /users                                                controllers.UserController.getUsers()
+GET           /users/:id                                            controllers.UserController.getUser(id: Long)
+PUT           /users/:id                                            controllers.UserController.updateUser(id: Long)
+POST          /users                                                controllers.UserController.addUser()
+DELETE        /users/:id                                            controllers.UserController.deleteUser(id: Long)
 
 
 
 ############### Exam interface ###############
 
-GET           /exams                          controllers.ExamController.getExams()
-GET           /exams/:id                      controllers.ExamController.getExam(id: Long)
-PUT           /exams/:id                      controllers.ExamController.updateExam(id: Long)
-POST          /exams                          controllers.ExamController.createExam()
-POST          /exams/:id/section              controllers.ExamController.insertSection(id: Long)
-POST          /exams/:eid/section/:sid        controllers.ExamController.insertQuestion(eid: Long, sid: Long)
-POST          /exams/draft                    controllers.ExamController.createExamDraft()
-GET           /sections/:id                   controllers.ExamController.getExamSections(id: Long)
-GET           /events                         controllers.ExamController.getExamEvents()
-GET           /student/exams                  controllers.StudentExamController.listActiveExams()
-PUT           /student/exams/:id              controllers.StudentExamController.saveAnswersAndExit(id: Long)             
-PUT           /student/exam/abort/:id         controllers.StudentExamController.abortExam(id: Long)
-GET           /student/doexam/:hash           controllers.StudentExamController.startExam(hash: String)
+GET           /exams                                                controllers.ExamController.getExams()
+GET           /exams/:id                                            controllers.ExamController.getExam(id: Long)
+PUT           /exams/:id                                            controllers.ExamController.updateExam(id: Long)
+POST          /exams                                                controllers.ExamController.createExam()
+POST          /exams/:id/section                                    controllers.ExamController.insertSection(id: Long)
+POST          /exams/:eid/section/:sid                              controllers.ExamController.insertQuestion(eid: Long, sid: Long)
+POST          /exams/draft                                          controllers.ExamController.createExamDraft()
+
+GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
+PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
+PUT           /student/exam/abort/:id                               controllers.StudentExamController.abortExam(id: Long)
+GET           /student/doexam/:hash                                 controllers.StudentExamController.startExam(hash: String)
 
 POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
-POST          /student/exams/:hash/question/:questionId                    controllers.StudentExamController.insertEssay(hash: String, questionId: Long)
+POST          /student/exams/:hash/question/:questionId             controllers.StudentExamController.insertEssay(hash: String, questionId: Long)
+
+############### Events interface ###############
+GET           /events                                               controllers.ExamController.getExamEvents()
+POST          /events                                               controllers.ExamController.insertEvent()
+POST          /events/:examId                                       controllers.ExamController.insertEventWithExam(examId: Long)
+
+
+############### Section interface ###############
+
+GET           /sections/:id                                         controllers.ExamController.getExamSections(id: Long)
+DELETE        /section/:sectionId                                   controllers.ExamController.deleteSection(sectionId: Long)
 
 
 ############### Courses interface ###############
-GET           /courses                        controllers.CourseController.getCourses()
+GET           /courses                                              controllers.CourseController.getCourses()
 
 
 
 ############### Question interface ###############
 
-GET           /questions                      controllers.QuestionController.getQuestions()
-GET           /questions/:id                  controllers.QuestionController.getQuestion(id: Long)
-POST          /questions                      controllers.QuestionController.addQuestion()
-DELETE        /questions/:id                  controllers.QuestionController.deleteQuestion(id: Long)
+GET           /questions                                            controllers.QuestionController.getQuestions()
+GET           /questions/:id                                        controllers.QuestionController.getQuestion(id: Long)
+POST          /questions                                            controllers.QuestionController.addQuestion()
+DELETE        /questions/:id                                        controllers.QuestionController.deleteQuestion(id: Long)
 
 
 # test test test test test
-POST          /test                           controllers.TestController.addQuestion()
+POST          /test                                                 controllers.TestController.addQuestion()
 
 
 
-GET           /assets/*file                   controllers.Assets.at(path="/public", file)
+GET           /assets/*file                                         controllers.Assets.at(path="/public", file)

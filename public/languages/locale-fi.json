@@ -65,6 +65,10 @@
     "sitnet_exam_remove": "Remove",
     "sitnet_save_and_return_exam": "Tallenna ja palauta tentti",
     "sitnet_share_this_question": "Jaa tämä kysymys",
+    "sitnet_sharing": "Jakaminen",
+    "sitnet_share_this_exam": "Haluan jakaa tämän tentin muiden opttajien kanssa",
+
+
     "sitnet_exam_score": "Pisteet",
     "sitnet_exam_scoring_of_the_right_answer": "Oikean vastauksen pisteytys",
     "sitnet_exam_evaluation_criteria": "Arviointikriteerit",
@@ -87,6 +91,7 @@
     "sitnet_exam_answer_language": "Vastauskieli",
     "sitnet_material": "Materiaali",
 
+    "sitnet_placeholder_write_instruction": "Kirjoita ohjeet tähän",
 
     "sitnet_question_mc": "Monivalinta 1-oikein",
     "sitnet_essay": "Essee",
