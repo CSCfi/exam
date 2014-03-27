@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'dateService',
-            function ($scope, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, dateService) {
+        .controller('ExamController', ['$scope', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'dateService',
+            function ($scope, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, dateService) {
 
                 $scope.dateService = dateService;
 
@@ -10,8 +10,6 @@
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section_question.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section_general.html";
                 $scope.examsTemplate;
-
-                $scope.sections = [];
 
                 $scope.user = $scope.session.user;
                 if ($scope.user.isStudent) {
@@ -48,12 +46,20 @@
                 ];
 
                 // Todo: Fill in inspectors from database for final version
-                $scope.examInspectors = [
-                    "Pentti Hilkuri",
-                    "Arvon Penaali",
-                    "Pasi Kuikka"
-                ];
+                UserRes.usersByRole.query({role: 'TEACHER'}, 
+                		function (value) {
+                			$scope.examInspectors = value;
+                		},
+                		function (error) {
+                			
+                		});
 
+//                $scope.examInspectors = [
+//                                         "Pentti Hilkuri",
+//                                         "Arvon Penaali",
+//                                         "Pasi Kuikka"
+//                                         ];
+                
                 // Todo: Fill in gradings from database for final version
                 $scope.examGradings = [
                     "1-3",

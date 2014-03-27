@@ -49,6 +49,24 @@ users:
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
     
+    - &arvo !!models.User
+      email:      arvo
+      firstName:  Arvon
+      lastName:   Penaali
+      password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
+      roles:  
+            - !!models.SitnetRole {name: TEACHER}
+      userLanguage: *suomi
+
+    - &soikkeli !!models.User
+      email:      soikkeli
+      firstName:  Höylä
+      lastName:   Soikkeli
+      password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
+      roles:  
+            - !!models.SitnetRole {name: TEACHER}
+      userLanguage: *suomi
+      
     - &orville !!models.User
       email:      oppilas
       firstName:  Orville

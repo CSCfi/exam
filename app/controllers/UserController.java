@@ -1,16 +1,22 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
-import actions.Authenticate;
-import com.avaje.ebean.Ebean;
+import java.util.List;
+
 import models.Session;
 import models.User;
 import play.Logger;
 import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Result;
+import Exceptions.MalformedDataException;
+import actions.Authenticate;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 
-import java.util.List;
+import com.avaje.ebean.Ebean;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 //todo authorization!
 public class UserController extends SitnetController {
@@ -27,6 +33,31 @@ public class UserController extends SitnetController {
         return ok(Json.toJson(user));
     }
 
+//    @Restrict(@Group({"TEACHER"}))
+    public static Result getUsersByRole(String role) {
+    	  
+    	List<User> users = Ebean.find(User.class)
+    			.where()
+    			.eq("roles.name", role)
+    			.findList();
+        
+    	List<User> filteredUsers =
+    			Ebean.filter(User.class) 
+    			.sort("lastName asc")
+    			.filter(users);
+    	
+    	ArrayNode array = JsonNodeFactory.instance.arrayNode();    	    	   
+        for(User u : filteredUsers) {
+        	ObjectNode part = Json.newObject();
+        	part.put("id", u.getId());
+        	part.put("firstName", u.getFirstName());
+        	part.put("lastName", u.getLastName());
+        	array.add(part);
+        }
+        
+    	return ok(Json.toJson(array));
+    }
+    
     @Authenticate
     public static Result addUser() throws MalformedDataException {
         User user = bindForm(User.class);

@@ -2,6 +2,8 @@ package models;
 
 import java.util.List;
 
+import javax.persistence.Entity;
+
 /*
  * Huoneisto ja tila
  * http://tietomalli.csc.fi/Huoneisto%20ja%20tila-kaavio.html
@@ -9,6 +11,7 @@ import java.util.List;
  * Tenttiakvaario
  * 
  */
+@Entity
 public class ExamRoom {
 
 	private String name;
