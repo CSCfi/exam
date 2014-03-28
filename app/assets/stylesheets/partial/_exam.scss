@@ -4,10 +4,20 @@
   .base {
     background-color: #fff;
     border: solid 1px $sitnet-grey;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
+//    -webkit-border-radius: 4px;
+//    -moz-border-radius: 4px;
     border-radius: 4px;
     padding: 1em;
+  }
+
+  .exam-header {
+    background-color: $sitnet-dark-grey;
+    color: white;
+    padding: 0.5em;
+    margin-top: 1em;
+    a {
+      color: $sitnet-green;
+    }
   }
 
   .exam-general-information {
@@ -38,16 +48,6 @@
 
   .create-new:hover {
     background-color: $sitnet-beige-active;
-  }
-
-  .exam-header {
-    background-color: $sitnet-dark-grey;
-    color: white;
-    padding: 0.5em;
-    margin-top: 1em;
-    a {
-      color: $sitnet-green;
-    }
   }
 
   .exam-question-container {

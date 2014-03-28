@@ -1,22 +1,19 @@
 package controllers;
 
-import java.util.List;
-
+import Exceptions.MalformedDataException;
+import actions.Authenticate;
+import com.avaje.ebean.Ebean;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Session;
 import models.User;
 import play.Logger;
 import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Result;
-import Exceptions.MalformedDataException;
-import actions.Authenticate;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
 
-import com.avaje.ebean.Ebean;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.List;
 
 //todo authorization!
 public class UserController extends SitnetController {
@@ -40,6 +37,9 @@ public class UserController extends SitnetController {
     			.where()
     			.eq("roles.name", role)
     			.findList();
+
+        // didnt work, lazy loading still initializes the object
+//        List<User> immutableUsers = Collections.unmodifiableList(users);
         
     	List<User> filteredUsers =
     			Ebean.filter(User.class) 
@@ -50,8 +50,9 @@ public class UserController extends SitnetController {
         for(User u : filteredUsers) {
         	ObjectNode part = Json.newObject();
         	part.put("id", u.getId());
-        	part.put("firstName", u.getFirstName());
-        	part.put("lastName", u.getLastName());
+//        	part.put("firstName", u.getFirstName());
+//        	part.put("lastName", u.getLastName());
+        	part.put("name", new String(u.getFirstName() +" "+u.getLastName()));
         	array.add(part);
         }
         

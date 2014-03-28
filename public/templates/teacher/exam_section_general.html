@@ -162,12 +162,12 @@
                     translate}} <span
                             class="caret"></span></button>
                 <ul class="dropdown-menu">
-                    <li ng-repeat="inspector in examInspectors" ng-click="setExamInspector(inspector)">
-                    	<a class="pointer-hand">{{inspector.firstName}} {{inspector.lastName}}</a>
+                    <li ng-repeat="inspector in examInspectors |  filter:selected" ng-click="setExamInspector(inspector)">
+                    	<a class="pointer-hand">{{inspector.name}}</a>
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" value="{{newExamEvent.inspector.firstName}} {{newExamEvent.inspector.lastName}}">
+            <input type="text" class="form-control" value="{{newExamEvent.inspector.name}}" ng-model="newExamEvent.inspector.name">
         </div>
     </div>
 
