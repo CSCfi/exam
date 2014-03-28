@@ -1,5 +1,4 @@
 #question-editor {
-  margin-top: 1em;
 
   .base {
     background-color: #fff;
@@ -26,17 +25,14 @@
     background-color: $sitnet-beige-active;
   }
 
-   .question-header {
-    background-color: $sitnet-dark-grey;
+  .question-editor-header {
+    background-color: $sitnet-teacher-turquoise-header;
     color: white;
-    padding: 0.5em;
-    a {
-      color: $sitnet-green;
-    }
+    padding: 1em;
   }
 
   .exam-question-container {
-    padding: 0.5em;
+    padding: 1em;
   }
 
   .exam-question-option {
