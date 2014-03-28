@@ -48,12 +48,8 @@
                     </textarea>
                 </div>
             </div>
-
-
             <div class="exam-sections">
-
-                <div class="" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath"
-                     ng-repeat="section in newExam.examSections"></div>
+                <div class="" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>
             </div>
             <span ng-click="addNewSection()" class="create-new">
                 <i class="fa fa-plus-circle"></i>
@@ -80,12 +76,12 @@
 				</span>
             </div>
             <ul class="list-group results">
-                <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected"
+                <li class="single-question-header" ui-draggable="true" ng-repeat="question in questions | filter:selected"
                     drag="question">
                     <i class="fa fa-2x fa-fw {{question.icon}}"></i>
                     <span class="menu-item" ng-bind-html="question.question"></span>
                 </li>
-                <li class="single-question" ui-draggable="true" drag="random(amount)">
+                <li class="single-question-header" ui-draggable="true" drag="random(amount)">
                     <i class="fa fa-2x fa-fw fa-random"></i> <span class="menu-item">{{ 'sitnet_add_random_questions' | translate }} <input
                         type="number" ng-model="amount" min="1" placeholder="1"/></span>
                 </li>

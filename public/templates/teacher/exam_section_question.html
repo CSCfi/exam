@@ -1,6 +1,6 @@
-<li class="single-question">
-    <div class="col-md-8">
-        <i class="fa fa-2x fa-fw " ng-class="question.icon"></i>
+<li class="single-question-header">
+    <div class="col-md-10">
+        <i class="fa fa-2x fa-fw fa-list-ul" ></i>
         <span class="menu-item" ng-bind-html="question.question"></span>
     </div>
         <span ng-click="editQuestion(question)" class=" dropdown pull-right fa-stack fa-lg">
@@ -8,15 +8,14 @@
                 <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
             </a>
 				<ul class="dropdown-menu">
-                    <li><a>Asetukset</a></li>
-                    <li><a ng-click="removeQuestion(section, question)">Poista</a></li>
+                    <li><a>{{'sitnet_settings' | translate}}</a></li>
+                    <li><a ng-click="removeQuestion(section, question)">{{'sitnet_remove' | translate}}</a></li>
                 </ul>
 		</span>
-
 		<span ng-click="toggleQuestion(question)" class="pull-right fa-stack fa-lg">
               <i ng-class="question.hide ? 'fa-chevron-left' : 'fa-chevron-down'"
                  class="sitnet-white fa fa-stack-1x"></i>
-            </span>
+        </span>
     </div>
 </li>
 <ol ng-hide="question.hide">
