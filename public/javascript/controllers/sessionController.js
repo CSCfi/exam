@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'SITNET_CONF',
-            function ($scope, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, SITNET_CONF) {
+        .controller('SessionCtrl', ['$scope', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'ExamRes', 'SITNET_CONF',
+            function ($scope, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, ExamRes, SITNET_CONF) {
 
                 $scope.session = sessionService;
 
@@ -28,19 +28,30 @@
                 });
 
                 $scope.logout = function () {
-                    var xhr = $http.post('/logout');
-                    xhr.success(function (message) {
+                    // Todo: Fix the backend query to only return this user exams
+//                    var userexams = ExamRes.userexams.query();
+//
+//                    angular.forEach(userexams, function (exam) {
+//
+//                        if (exam.state == "STUDENT_STARTED") {
+//                            toastr.success("SULLA ON TENTTI KESKEN!");
+//                        }
+//                        else {
+                            var xhr = $http.post('/logout');
+                            xhr.success(function (message) {
 
-                        // This could be how the service is called if we could use it to handle logout
+                                // This could be how the service is called if we could use it to handle logout
 //                        sessionService.logout();
-                        delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
-                        delete $http.defaults.headers.common;
-                        toastr.success("Uloskirjautuminen onnistui.");
-                        delete $scope.session.user;
-                        $rootScope.$broadcast('userUpdated');
-                        $location.path("/login");
-                    });
-                };
+                                delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+                                delete $http.defaults.headers.common;
+                                toastr.success("Uloskirjautuminen onnistui.");
+                                delete $scope.session.user;
+                                $rootScope.$broadcast('userUpdated');
+                                $location.path("/login");
+                            });
+                        };
+//                    })
+//                };
 
                 $scope.login = function () {
                     var credentials = {

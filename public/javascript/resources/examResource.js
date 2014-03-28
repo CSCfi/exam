@@ -10,7 +10,11 @@
                 {
                     "update": {method: "PUT"}
                 }),
-                
+
+                userexams: $resource("/exams/user",
+                {
+                }),
+
                 sections: $resource("/exams/:eid/section/:sid",
                 {
                     eid: "@eid", sid: "@sid"
