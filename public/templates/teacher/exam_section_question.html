@@ -3,7 +3,11 @@
         <i class="fa fa-2x fa-fw fa-list-ul" ></i>
         <span class="menu-item" ng-bind-html="question.question"></span>
     </div>
-        <span ng-click="editQuestion(question)" class=" dropdown pull-right fa-stack fa-lg">
+    	<span ng-click="toggleQuestion(question)" class="pull-right fa-stack fa-lg pointer-hand">
+              <i ng-class="question.hide ? 'fa-chevron-left' : 'fa-chevron-down'"
+                 class="sitnet-white fa fa-stack-1x"></i>
+        </span>
+        <span ng-click="editQuestion(question)" class=" dropdown pull-right fa-stack fa-lg pointer-hand">
 			<a class="dropdown-toggle">
                 <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
             </a>
@@ -12,10 +16,6 @@
                     <li><a ng-click="removeQuestion(section, question)">{{'sitnet_remove' | translate}}</a></li>
                 </ul>
 		</span>
-		<span ng-click="toggleQuestion(question)" class="pull-right fa-stack fa-lg">
-              <i ng-class="question.hide ? 'fa-chevron-left' : 'fa-chevron-down'"
-                 class="sitnet-white fa fa-stack-1x"></i>
-        </span>
     </div>
 </li>
 <ol ng-hide="question.hide">

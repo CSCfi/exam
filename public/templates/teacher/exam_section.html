@@ -2,7 +2,12 @@
     <div ng-hide="showDetails">
         <span class="section-header-number">{{section.id}}.</span>
         <span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i class="fa fa-pencil"></i></span>
-        <span class="pull-right fa-stack fa-lg dropdown" ng-click="editSection(section)">
+        <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg pointer-hand">
+            <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
+            <i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'"
+               class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+        </span>
+        <span class="pull-right fa-stack fa-lg dropdown pointer-hand" ng-click="editSection(section)">
             <a class="dropdown-toggle">
                 <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
                 <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
@@ -13,11 +18,6 @@
                     <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>
                     <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>
                 </ul>
-        </span>
-        <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
-            <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-            <i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'"
-               class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
         </span>
     </div>
     <div ng-show="showDetails">
