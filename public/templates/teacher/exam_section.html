@@ -1,42 +1,40 @@
-<div class="exam-header">
-    <h4>
-        <div ng-hide="showDetails">
-			<span class="fa-stack"><i class="fa fa-square-o fa-stack-2x"></i> <i class="fa-stack-1x">{{section.id}}</i></span>
-			<span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i class="fa fa-pencil"></i></span>
-			<span class="pull-right fa-stack fa-lg dropdown" ng-click="editSection(section)">
-				<a class="dropdown-toggle">
-                    <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
-                    <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-                </a>
-					<ul class="dropdown-menu">
-                        <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-                        <li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>
-                        <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>
-                        <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>
-                    </ul>
-			</span>
-			<span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
-                <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-				<i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'"
-                   class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-			</span>
-        </div>
-        <div ng-show="showDetails">
-            <div class="form-inline" role="form">
-				<span class="fa-stack">
-                    <i class="fa fa-square-o fa-stack-2x"></i>
-                    <i class="fa-stack-1x">{{section.id}}</i>
-				</span>
+<div class="section-header">
+    <div ng-hide="showDetails">
+        <span class="section-header-number">{{section.id}}.</span>
+        <span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i class="fa fa-pencil"></i></span>
+        <span class="pull-right fa-stack fa-lg dropdown" ng-click="editSection(section)">
+            <a class="dropdown-toggle">
+                <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
+                <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
+            </a>
+                <ul class="dropdown-menu">
+                    <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
+                    <li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>
+                    <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>
+                    <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>
+                </ul>
+        </span>
+        <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg">
+            <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
+            <i ng-class="section.hide ? 'fa-chevron-left' : 'fa-chevron-down'"
+               class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+        </span>
+    </div>
+    <div ng-show="showDetails">
+        <div class="form-inline" role="form">
+            <span class="fa-stack">
+                <i class="fa fa-square-o fa-stack-2x"></i>
+                <i class="fa-stack-1x">{{section.id}}</i>
+            </span>
 
-                <div class="form-group">
-                    <input type="text" class="form-control input-lg" ng-model="section.name" autofocus>
-                </div>
-                <button class="btn-primary" ng-click="showDetails = !showDetails">
-                    <i class="fa fa-check"></i>
-                </button>
+            <div class="form-group">
+                <input type="text" class="form-control input-lg" ng-model="section.name" autofocus>
             </div>
+            <button class="btn-primary" ng-click="showDetails = !showDetails">
+                <i class="fa fa-check"></i>
+            </button>
         </div>
-    </h4>
+    </div>
 </div>
 
 <div class="exam-question-container" ng-hide="section.hide">

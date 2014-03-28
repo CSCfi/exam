@@ -1,31 +1,22 @@
-<div class="exam-header">
-    <h4>
-        <div>
-			<span class="fa-stack">
-				<i class="fa fa-square-o fa-stack-2x"></i>
-				<i class="fa fa-bars"></i>
-				<i class="fa fa-stack-1x">{{section.id}}</i>
-			</span>
-            <span>{{'sitnet_exam_basic_information' | translate}}</span>
-			<span class="pull-right fa-stack fa-lg dropdown" ng-click="">
-				<a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
-                        class="sitnet-white fa fa-cog fa-stack-1x"></i>
-                </a>
-				<ul class="dropdown-menu">
-                    <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-                </ul>
-			</span>
-			<span ng-click="" class="pull-right fa-stack fa-lg">
-				<i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-				<i ng-class="showInfo ? 'fa-chevron-left' : 'fa-chevron-down'" ng-click="showInfo = !showInfo"
-                   class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-			</span>
-        </div>
-    </h4>
+<div class="exam-general-information-header">
+    {{'sitnet_exam_basic_information' | translate}}
+    <span ng-click="" class="pull-right fa-stack fa-lg">
+        <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
+        <i ng-class="showInfo ? 'fa-chevron-down' : 'fa-chevron-left'" ng-click="showInfo = !showInfo"
+           class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+    </span>
+    <span class="pull-right fa-stack fa-lg dropdown" ng-click="">
+        <a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
+                class="sitnet-white fa fa-cog fa-stack-1x"></i>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
+        </ul>
+    </span>
 </div>
 
 <!-- General info section container -->
-<div class="exam-info" ng-hide="showInfo" ng-controller="DatepickerCtrl">
+<div class="" ng-show="showInfo" ng-controller="DatepickerCtrl">
 
 <!-- Start & End time datepickers -->
 <div class="row">
@@ -162,12 +153,14 @@
                     translate}} <span
                             class="caret"></span></button>
                 <ul class="dropdown-menu">
-                    <li ng-repeat="inspector in examInspectors |  filter:selected" ng-click="setExamInspector(inspector)">
-                    	<a class="pointer-hand">{{inspector.name}}</a>
+                    <li ng-repeat="inspector in examInspectors |  filter:selected"
+                        ng-click="setExamInspector(inspector)">
+                        <a class="pointer-hand">{{inspector.name}}</a>
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" value="{{newExamEvent.inspector.name}}" ng-model="newExamEvent.inspector.name">
+            <input type="text" class="form-control" value="{{newExamEvent.inspector.name}}"
+                   ng-model="newExamEvent.inspector.name">
         </div>
     </div>
 
@@ -243,16 +236,6 @@
             <label>
                 <input type="checkbox" ng-model="newExam.shared"> {{'sitnet_share_this_exam' | translate}}
             </label>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="sitnet-info-text">{{'sitnet_instruction' | translate}}:</div>
-        <div class="input-group">
-            <textarea class="form-control" rows="2" cols="140" ng-model="newExam.instruction"
-                      placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-            </textarea>
         </div>
     </div>
 </div>
