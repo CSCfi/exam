@@ -73,10 +73,8 @@
     border: dashed 2px $sitnet-grey;
     background-color: $sitnet-teacher-green-light;
     padding: 1em;
-    -webkit-border-radius: 2px;
-    -moz-border-radius: 2px;
-    border-radius: 2px;
-    margin: 1em;
+    margin-bottom: 1em;
+    margin-top: 1em;
   }
 
   .active-exams-list {
@@ -88,29 +86,39 @@
   }
 
   .exam-question-option {
-    background-color: $sitnet-green;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    margin: 5px;
-    padding: 5px;
+    background-color: $sitnet-white;
+    border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
+    border-left: 1px solid $sitnet-teacher-turquoise-dark-inactive;
+    border-top: 1px solid $sitnet-teacher-turquoise-dark-inactive;
+    margin-top: -1px;
+    padding-top: 0.5em;
+    padding-left: 0.5em;
     min-height: 3em;
   }
 
-  .single-question-header {
+  .single-question-header-active {
     color: $sitnet-white;
     background-color: $sitnet-teacher-turquoise-active-question;
     padding-top: 0.5em;
+    padding-bottom: 1em;
     min-height: 3em;
-    margin-bottom: 5px;
-    margin-top: 5px;
-
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+  }
+  .single-question-header-inactive {
+    color: $sitnet-white;
+    background-color: $sitnet-teacher-turquoise-light-active;
+    padding-top: 0.5em;
+    padding-bottom: 1em;
+    min-height: 3em;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
   }
 
-  .single-question-icon{
-    color: $sitnet-white;
-    background-color: $sitnet-teacher-turquoise-dark-active;
-    padding-left: 1em;
+  .single-question-icon {
+    color: $sitnet-teacher-turquoise-dark-active;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
   }
 
   li {

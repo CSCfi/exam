@@ -4,11 +4,22 @@
     background-color: $sitnet-dark-grey;
     color: white;
     padding: 0.5em;
+    margin-top: 1em;
     a {
       color: $sitnet-green;
     }
   }
-
+  
+  .single-question-header-inactive {
+    color: $sitnet-white;
+    background-color: $sitnet-teacher-turquoise-light-active;
+    padding-top: 0.5em;
+    padding-bottom: 1em;
+    min-height: 3em;
+    margin-bottom: 0.5em;
+    margin-top: 0.5em;
+  }
+  
   .library {
     padding: 5px;
     min-height: 100%;

@@ -49,28 +49,7 @@
     </div>
 
 
-    <!-- Library  -->
-    <div id="library" class="col-md-4">
-        <div class="library-header">
-            <h4>
-                <i class="fa fa-briefcase"></i>
-                {{'sitnet_library' | translate}}
-            </h4>
-        </div>
-        <div class="library" ng-controller="LibraryCtrl">
-            <div class="input-group">
-                <input ng-model="selected" type="text" class="form-control"
-                       placeholder="{{'sitnet_search' | translate }}">
-				<span class="input-group-addon">
-					<i class="fa fa-search fa-fw"></i>
-				</span>
-            </div>
-            <ul class="list-group results">
-                <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
-                    <i class="fa fa-2x fa-fw {{question.icon}}"></i>
-                    <span ng-bind-html="question.question"></span>
-                </li>
-            </ul>
-        </div>
-    </div>
+    <!-- Question Library -->
+	<div ng-include="libraryTemplate">
+	</div>
 </div>

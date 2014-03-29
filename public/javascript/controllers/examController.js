@@ -9,6 +9,7 @@
                 $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section.html";
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section_question.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section_general.html";
+                $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.examsTemplate;
 
                 $scope.user = $scope.session.user;
@@ -141,7 +142,7 @@
 
                 $scope.addNewSection = function () {
                     ExamRes.sections.insertSection({eid: $scope.newExam.id}, $scope.newSection, function (section) {
-                        toastr.info("Osio lisätty.");
+                        toastr.success("Osio lisätty.");
                         $scope.newExam.examSections.push(section);
                     }, function (error) {
                         toastr.error("Jokin meni pieleen");

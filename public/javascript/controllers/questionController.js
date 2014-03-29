@@ -4,6 +4,7 @@
         .controller('QuestionCtrl', ['$scope', '$routeParams', '$location', 'QuestionRes', '$translate', 'SITNET_CONF',
             function ($scope, $routeParams, $location, QuestionRes, $translate, SITNET_CONF) {
 
+        		$scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";

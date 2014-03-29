@@ -36,7 +36,7 @@
                     var icon = "";
                     switch (item.type) {
                         case "MultipleChoiceQuestion":
-                            icon = "fa-list-ol";
+                            icon = "fa-list-ul";
                             break;
                         case "EssayQuestion":
                             icon = "fa-edit";
