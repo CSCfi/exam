@@ -1,8 +1,11 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LibraryCtrl', ['$scope', '$sce', 'QuestionRes', '$translate', function ($scope, $sce, QuestionRes, $translate) {
+        .controller('LibraryCtrl', ['$scope', 'sessionService', '$sce', 'QuestionRes', '$translate', function ($scope, sessionService, $sce, QuestionRes, $translate) {
 
+            $scope.session = sessionService;
+
+            
             var randomQuestions = function (questions) {
                 var result = [];
                 var randomQuestions = [];

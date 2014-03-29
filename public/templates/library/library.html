@@ -1,11 +1,28 @@
-<div id="library" class="col-md-4">
+<div id="library" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'">
 	<div class="library-header">
 		<h4>
-			<i class="fa fa-briefcase"></i>
-			{{'sitnet_library' | translate}}
+			<span ng-click="session.minimizeLibrary = ! session.minimizeLibrary" class="">
+				<i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
+				<i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
+			</span>
 		</h4>
 	</div>
-	<div class="library" ng-controller="LibraryCtrl">
+	<div class="library" ng-controller="LibraryCtrl" ng-hide="session.minimizeLibrary">
+		<div class="library-name">
+			<span>
+				<i class="fa fa-briefcase"></i>
+				{{'sitnet_library' | translate}}
+			</span>
+			<span class="pull-right dropdown" ng-click="">
+				<a class="dropdown-toggle"><i class="sitnet-orange fa fa-cog"></i>
+				</a>
+				<ul class="dropdown-menu">
+					<li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
+					<li><a class="pointer-hand">Toiminnallisuutta ei ole</a></li>
+					<li><a class="pointer-hand">Vielä toteutettu</a></li>
+				</ul>
+			</span>
+		</div>
 		<div class="input-group">
 			<input ng-model="selected" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
 			<span class="input-group-addon">

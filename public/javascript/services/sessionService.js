@@ -3,6 +3,8 @@
     angular.module('sitnet.services', [])
         .factory('sessionService', function () {
             var sessionUser = {};
+            
+            var minimizeLibrary = false;
 
             var login = function(/*params*/) {
 

@@ -1,5 +1,13 @@
 #library {
-
+  .library {
+    padding: 2em;
+    min-height: 100%;
+    border: solid 1px $sitnet-grey;
+    background-color: $sitnet-light-grey;
+    .results {
+      margin-top: 1em;
+    }
+  }
   .library-header {
     background-color: $sitnet-dark-grey;
     color: white;
@@ -10,6 +18,13 @@
     }
   }
   
+  .library-name {
+    padding-bottom: 0.1em;
+    color: $sitnet-teacher-turquoise-dark-active;
+    font-size: 2em;
+    border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
+    margin-bottom: 1em;
+  }
   .single-question-header-inactive {
     color: $sitnet-white;
     background-color: $sitnet-teacher-turquoise-light-active;
@@ -20,19 +35,4 @@
     margin-top: 0.5em;
   }
   
-  .library {
-    padding: 5px;
-    min-height: 100%;
-    border: solid 1px $sitnet-grey;
-    background-color: white;
-    .results {
-      margin-top: 1em;
-    }
-  }
-  
-	
-.test-library {
-	margin-bottom: 2em;
-}
-
 }

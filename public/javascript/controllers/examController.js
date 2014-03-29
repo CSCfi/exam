@@ -1,10 +1,11 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'dateService',
-            function ($scope, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, dateService) {
+        .controller('ExamController', ['$scope', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'dateService',
+            function ($scope, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, dateService) {
 
                 $scope.dateService = dateService;
+                $scope.session = sessionService;
 
                 $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section.html";
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section_question.html";
