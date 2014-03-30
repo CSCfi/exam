@@ -133,9 +133,9 @@
 
                         QuestionRes.delete({'id': question.id}), function () {
                             toastr.info("Kysymys poistettu.");
-                        }
+                        };
                     }
-                }
+                };
 
                 $scope.addNewOption = function (newQuestion) {
                     $scope.newQuestion.options.push({

@@ -1,12 +1,16 @@
 package util;
 
-import controllers.UserController;
-import models.SitnetModel;
-import models.User;
-import org.apache.commons.codec.digest.DigestUtils;
-
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
+
+import models.SitnetModel;
+import models.User;
+
+import org.apache.commons.codec.digest.DigestUtils;
+
+import Exceptions.MalformedDataException;
+import Exceptions.SitnetException;
+import controllers.UserController;
 
 /**
  * Created by avainik on 3/19/14.
@@ -53,22 +57,37 @@ public class SitnetUtil {
         return clone;
     }
 
-    static public SitnetModel setCreator(SitnetModel object) {
+    static public SitnetModel setCreator(SitnetModel object) throws SitnetException {
 
         User user = UserController.getLoggedUser();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-        if(object.getCreator() == null) {
+        if(object.getCreator() != null) {
+        	throw new SitnetException("Object already has creator");
+        } else {
             object.setCreator(user);
             object.setCreated(currentTime);
-        } else {
-            object.setModifier(user);
-            object.setModified(currentTime);
         }
 
         return object;
     }
 
+    static public SitnetModel setModifier(SitnetModel object) throws SitnetException {
+    	
+    	User user = UserController.getLoggedUser();
+    	Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+    	
+    	// check if user is the owner of this object
+    	if(object.getCreator() != user) {
+        	throw new SitnetException("User id:"+ user.getId() +" is not owner of this object");
+    	} else {
+    		object.setModifier(user);
+    		object.setModified(currentTime);
+    	}
+    	
+    	return object;
+    }
+    
     static public String encodeMD5(String str) {
         return DigestUtils.md5Hex(str);
     }

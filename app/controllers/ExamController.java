@@ -1,10 +1,14 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
+import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import models.Exam;
 import models.ExamEvent;
 import models.ExamSection;
@@ -12,8 +16,10 @@ import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
+
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -47,6 +53,7 @@ public class ExamController extends SitnetController {
         Query<Exam> query = Ebean.createQuery(Exam.class);
         query.fetch("examEvent");
         query.fetch("course");
+        query.fetch("examSections");
         query.setId(id);
 
         Exam exam = query.findUnique();
@@ -73,22 +80,52 @@ public class ExamController extends SitnetController {
     public static Result createExamDraft() throws MalformedDataException {
         Logger.debug("createExamDraft()");
 
-        Exam ex = bindForm(Exam.class);
-        ex.setId(null);
+        Exam exam = new Exam();
+        exam.setName("Kirjoita tentin nimi tähän");
+        try {
+			SitnetUtil.setCreator(exam);
+		} catch (SitnetException e) {
+			e.printStackTrace();
+	        return ok(e.getMessage());
+		}
+        exam.save();
+        
+        ExamSection examSection = new ExamSection();
+        examSection.setName("Osio");
+        try {
+			SitnetUtil.setCreator(examSection);
+		} catch (SitnetException e) {
+			e.printStackTrace();
+			return ok(e.getMessage());
+		}
+        examSection.setExam(exam);
+        examSection.save();
+        exam.getExamSections().add(examSection);
+        
+        ExamEvent examEvent = new ExamEvent();
+        examEvent.setCurrentExam(exam);
+        examEvent.save();
+        exam.setExamEvent(examEvent);
+        
+        exam.save();
 
-        ex.save();
-
-        return ok(Json.toJson(ex));
+        ObjectNode part = Json.newObject();
+    	part.put("id", exam.getId());
+    	
+        return ok(Json.toJson(part));
     }
 
     public static Result insertSection(Long id) throws MalformedDataException {
         Logger.debug("insertSection()");
 
-
         ExamSection section = bindForm(ExamSection.class);
         section.setExam(Ebean.find(Exam.class, id));
-
-        section = (ExamSection) SitnetUtil.setCreator(section);
+        try {
+			section = (ExamSection) SitnetUtil.setCreator(section);
+		} catch (SitnetException e) {
+			e.printStackTrace();
+			return ok(e.getMessage());
+		}
 
         section.save();
 
@@ -98,51 +135,57 @@ public class ExamController extends SitnetController {
     public static Result insertQuestion(Long eid, Long sid) throws MalformedDataException {
         Logger.debug("insertQuestion()");
 
+//        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
 
         return ok();
     }
 
+    public static Result insertAQuestion(Long eid, Long sid, Long qid) throws MalformedDataException {
+    	Logger.debug("insertQuestion()");
+    	
+    	// TODO: Create a clone of the question and add it to section
+    	// TODO: should implement AbstractQuestion.clone
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+        ExamSection section = Ebean.find(ExamSection.class, sid);
+        section.getQuestions().add(question);
+        section.save();
+    	
+    	return ok();
+    }
+    
 
     //  @Authenticate
 //    @Restrict(@Group({"TEACHER"}))
     public static Result createExam() throws MalformedDataException {
         Logger.debug("createExam()");
 
-        User user = UserController.getLoggedUser();
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-
         Exam ex = bindForm(Exam.class);
-//        ex.setId(null);
 
         switch (ex.getState()) {
             case "DRAFT":
             {
                 ex.setId(null);
-
-                if(ex.getCreator() == null) {
-                    ex.setCreator(user);
-                    ex.setCreated(currentTime);
-                } else {
-                    ex.setModifier(user);
-                    ex.setModified(currentTime);
-                }
-
+                try {
+					SitnetUtil.setCreator(ex);
+				} catch (SitnetException e) {
+					e.printStackTrace();
+					return ok(e.getMessage());
+				}
                 ex.save();
 
                 return ok(Json.toJson(ex));
             }
-
             case "PUBLISHED": {
 
                 List<ExamSection> examSections = ex.getExamSections();
                 for (ExamSection es : examSections) {
                     es.setId(null);
-//            es.save();
+//            		es.save();
 
                     List<AbstractQuestion> questions = es.getQuestions();
                     for (AbstractQuestion q : questions) {
                         q.setId(null);
-//                q.save();
+//                		q.save();
 
                         switch (q.getType()) {
                             case "MultipleChoiceQuestion": {
@@ -218,7 +261,7 @@ public class ExamController extends SitnetController {
     public static Result deleteSection(Long sectionId) {
         Ebean.delete(ExamSection.class, sectionId);
 
-        return ok();
+        return ok("removed");
     }
 
     //    @Authenticate
@@ -259,8 +302,7 @@ public class ExamController extends SitnetController {
 
         Exam exam = Ebean.find(Exam.class, examId);
         exam.setExamEvent(examEvent);
-//        examEvent.setBlueprint(exam);
-//        examEvent.getExams().add(exam);
+        examEvent.setCurrentExam(exam);
 
         examEvent.save();
         exam.save();

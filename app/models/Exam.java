@@ -27,13 +27,17 @@ public class Exam extends SitnetModel {
     @JsonBackReference
     private User student;
 
+    // onko tentillä joku toinen nimi, Opintojakson nimen lisäksi
+    private String name;
+    
     // Tentti liittyy Opintojaksoon
     @ManyToOne
     private Course course;
 
-    // onko tentillä joku toinen nimi, Opintojakson nimen lisäksi
-    private String name;
-
+    @OneToOne
+    @JsonBackReference
+    private ExamEvent examEvent;
+    
     private ExamType examType;
 
     // Opettajan antama ohje Opiskelijalle tentin suorittamista varten
@@ -45,10 +49,6 @@ public class Exam extends SitnetModel {
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "exam")
     @JsonManagedReference
     private List<ExamSection> examSections;
-
-    @OneToOne
-//    @JsonBackReference
-    private ExamEvent examEvent;
 
     @Column(length = 32, unique = true)
     private String hash;

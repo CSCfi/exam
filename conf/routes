@@ -24,7 +24,8 @@ PUT           /exams/:id                                            controllers.
 POST          /exams                                                controllers.ExamController.createExam()
 POST          /exams/:id/section                                    controllers.ExamController.insertSection(id: Long)
 POST          /exams/:eid/section/:sid                              controllers.ExamController.insertQuestion(eid: Long, sid: Long)
-POST          /exams/draft                                          controllers.ExamController.createExamDraft()
+POST          /exams/:eid/section/:sid/question/:qid                controllers.ExamController.insertAQuestion(eid: Long, sid: Long, qid: Long)
+GET           /draft		                                        controllers.ExamController.createExamDraft()
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)

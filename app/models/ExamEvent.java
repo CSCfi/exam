@@ -1,12 +1,21 @@
 package models;
 
+import java.sql.Timestamp;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+
 import play.Logger;
 import play.db.ebean.Model;
 import util.SitnetUtil;
 
-import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 
 /*
@@ -22,9 +31,9 @@ public class ExamEvent extends Model implements Cloneable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    @OneToOne(mappedBy = "examEvent")
-//    @JsonManagedReference
-//    private Exam blueprint;
+    @OneToOne(mappedBy = "examEvent")
+    @JsonManagedReference
+    private Exam currentExam;
 
     @ManyToMany
     private List<Exam> exams;
@@ -195,14 +204,6 @@ public class ExamEvent extends Model implements Cloneable {
         this.quidance = quidance;
     }
 
-//    public Exam getBlueprint() {
-//        return blueprint;
-//    }
-//
-//    public void setBlueprint(Exam blueprint) {
-//        this.blueprint = blueprint;
-//    }
-
     public List<Exam> getExams() {
         return exams;
     }
@@ -211,7 +212,15 @@ public class ExamEvent extends Model implements Cloneable {
         this.exams = exams;
     }
 
-    @Override
+    public Exam getCurrentExam() {
+		return currentExam;
+	}
+
+	public void setCurrentExam(Exam currentExam) {
+		this.currentExam = currentExam;
+	}
+
+	@Override
     protected Object clone() throws CloneNotSupportedException {
 
 //        ExamEvent copy = (ExamEvent)super.clone();
