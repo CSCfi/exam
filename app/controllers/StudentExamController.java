@@ -35,8 +35,8 @@ public class StudentExamController extends SitnetController {
                 .fetch("examSections")
                 .where()
                 .eq("state", "PUBLISHED")
-                .lt("examEvent.examActiveEndDate", now)
-                .eq("examEvent.enrolledStudents.id", user.getId())
+//                .lt("examEvent.examActiveEndDate", now)
+//                .eq("examEvent.enrolledStudents.id", user.getId())
                 .findList();
 
         return ok(Json.toJson(exams));

@@ -23,8 +23,12 @@ GET           /exams/:id                                            controllers.
 PUT           /exams/:id                                            controllers.ExamController.updateExam(id: Long)
 POST          /exams                                                controllers.ExamController.createExam()
 POST          /exams/:id/section                                    controllers.ExamController.insertSection(id: Long)
+DELETE        /exams/:eid/section/:sid                              controllers.ExamController.removeSection(eid: Long, sid: Long)
 POST          /exams/:eid/section/:sid                              controllers.ExamController.insertQuestion(eid: Long, sid: Long)
+PUT           /exams/:eid/section/:sid		                        controllers.ExamController.updateSection(eid: Long, sid: Long)
+
 POST          /exams/:eid/section/:sid/question/:qid                controllers.ExamController.insertAQuestion(eid: Long, sid: Long, qid: Long)
+DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
 GET           /draft		                                        controllers.ExamController.createExamDraft()
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
@@ -39,6 +43,7 @@ POST          /student/exams/:hash/question/:questionId             controllers.
 GET           /events                                               controllers.ExamController.getExamEvents()
 POST          /events                                               controllers.ExamController.insertEvent()
 POST          /events/:examId                                       controllers.ExamController.insertEventWithExam(examId: Long)
+PUT           /events/:id                                 		    controllers.ExamController.updateEvent(id: Long)
 
 
 ############### Section interface ###############

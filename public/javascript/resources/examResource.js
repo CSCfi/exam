@@ -19,7 +19,8 @@
                     "query":  {method: "GET"},
                     "get":    {method: "GET", params: {eid: "@eid"}},
                     "update": {method: "PUT"},
-                    "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}}
+                    "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}},
+                    "remove": {method: "DELETE", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}}
                 }),
                 
                 sections: $resource("/exams/:eid/section/:sid",
@@ -27,9 +28,10 @@
                     eid: "@eid", sid: "@sid"
                 },
                 {
-                    "insertSection": {
-                        method: "POST", params: { eid: "@eid" , sid: "@sid"}
-                    }
+                    "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid"}},
+                	"remove": {method: "DELETE", params: { eid: "@eid" , sid: "@sid"}},
+                    "update": {method: "PUT", params: { eid: "@eid" , sid: "@sid"}}
+
                 }),
                 section: $resource("/section/:sectionId",
                 {
@@ -50,14 +52,13 @@
         		{
         		}),
  
-        		events: $resource("/events/:examId",
+        		events: $resource("/events/:id",
                 {
-                    examId: "@examId"
+        			id: "@id"
                 },
                 {
-                    "insertEvent": {
-                        method: "POST", params: { examId: "@examId"}
-                    }
+                    "insertEvent": 	{method: "POST", params: { id: "@id"}},
+                    "update": 		{method: "PUT", params: { id: "@id"}}
 
                 })
             }

@@ -87,7 +87,48 @@
   }
 
   .active-exams-list {
-    margin-bottom: 10px
+    margin-bottom: 10px;
+  }
+  
+  .exam-list {
+  	margin-left: 1em;
+  	margin-right: 1em;
+  }
+
+  .exam-list-published {
+  	margin-left: 1em;
+  	margin-right: 1em;
+	color: $sitnet-dark-grey;
+    border: dashed 3px $sitnet-white;
+    background-color: $sitnet-teacher-turquoise-dark-active;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 8px;
+    padding: 1em;
+  }
+
+  .exam-list-saved {
+  	margin-left: 1em;
+  	margin-right: 1em;
+	color: $sitnet-dark-grey;
+    border: dashed 3px $sitnet-white;
+    background-color: $sitnet-teacher-turquoise-dark-inactive;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 8px;
+    padding: 1em;
+  }
+
+  .exam-list-draft {
+  	margin-left: 1em;
+  	margin-right: 1em;
+	color: $sitnet-dark-grey;
+    border: dashed 3px $sitnet-white;
+    background-color: $sitnet-teacher-green-light;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 8px;
+    padding: 1em;
   }
 
   .create-new:hover {

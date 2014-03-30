@@ -15,6 +15,7 @@ import play.Logger;
 import play.db.ebean.Model;
 import util.SitnetUtil;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 
@@ -31,11 +32,11 @@ public class ExamEvent extends Model implements Cloneable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(mappedBy = "examEvent")
-    @JsonManagedReference
-    private Exam currentExam;
+//    @OneToOne
+//    @JsonBackReference
+//    private Exam currentExam;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.PERSIST)
     private List<Exam> exams;
 
     // tentin voimassaoloaika, tentti on avoin opiskelijoille tästä lähtien
@@ -71,9 +72,6 @@ public class ExamEvent extends Model implements Cloneable {
 
     // Exam material
     private String material;
-
-    // Exam guidance
-    private String quidance;
 
     // TODO: öhm tentin ja tenttitapahtuman tila on 2 eri asiaa!
     /*
@@ -196,14 +194,6 @@ public class ExamEvent extends Model implements Cloneable {
         this.material = material;
     }
 
-    public String getQuidance() {
-        return quidance;
-    }
-
-    public void setQuidance(String quidance) {
-        this.quidance = quidance;
-    }
-
     public List<Exam> getExams() {
         return exams;
     }
@@ -212,13 +202,13 @@ public class ExamEvent extends Model implements Cloneable {
         this.exams = exams;
     }
 
-    public Exam getCurrentExam() {
-		return currentExam;
-	}
-
-	public void setCurrentExam(Exam currentExam) {
-		this.currentExam = currentExam;
-	}
+//    public Exam getCurrentExam() {
+//		return currentExam;
+//	}
+//
+//	public void setCurrentExam(Exam currentExam) {
+//		this.currentExam = currentExam;
+//	}
 
 	@Override
     protected Object clone() throws CloneNotSupportedException {
@@ -260,7 +250,6 @@ public class ExamEvent extends Model implements Cloneable {
                 ", language=" + language +
                 ", answerLanguage=" + answerLanguage +
                 ", material=" + material +
-                ", quidance=" + quidance +
                 ", state='" + state + '\'' +
                 '}';
     }

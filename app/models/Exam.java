@@ -35,7 +35,7 @@ public class Exam extends SitnetModel {
     private Course course;
 
     @OneToOne
-    @JsonBackReference
+    @JsonManagedReference
     private ExamEvent examEvent;
     
     private ExamType examType;
@@ -147,9 +147,7 @@ public class Exam extends SitnetModel {
 
         // TODO: what attributes make examEvent unique?
         // create unique hash for exam
-        String attributes = name +
-                course.getCode() +
-                state;
+        String attributes = name;
 
 //                examEvent.getStartTime().toString() +
 //                examEvent.getEndTime().toString();

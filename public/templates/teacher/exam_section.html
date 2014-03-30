@@ -30,7 +30,7 @@
             <div class="form-group">
                 <input type="text" class="form-control input-lg" ng-model="section.name" autofocus>
             </div>
-            <button class="btn-primary" ng-click="showDetails = !showDetails">
+            <button class="btn-primary" ng-click="showDetails = !showDetails; renameSection(section)">
                 <i class="fa fa-check"></i>
             </button>
         </div>

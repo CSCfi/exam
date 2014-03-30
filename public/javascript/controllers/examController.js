@@ -142,7 +142,7 @@
                 }
 
                 $scope.addNewSection = function () {
-                    ExamRes.sections.insertSection({eid: $scope.newExam.id}, $scope.newSection, function (section) {
+                    ExamRes.sections.insert({eid: $scope.newExam.id}, $scope.newSection, function (section) {
                         toastr.success("Osio lisätty.");
                         $scope.newExam.examSections.push(section);
                     }, function (error) {
@@ -160,60 +160,31 @@
 		                }, function (error) {
 		                    toastr.error("Jokin meni pieleen");
 		                });
-                	
-                	
-                    // first create an empty exam
-//                    ExamRes.exams.save($scope.newExam, function (draftExam) {
-//                        $scope.newExam = draftExam;
-//
-//                        // now insert empty section into exam
-//                        ExamRes.sections.insertSection({eid: draftExam.id}, $scope.newSection, function (section) {
-//                        	$scope.newExam.examSections.push(section);
-//                            toastr.info("Osio lisätty.");
-//                        }, function (error) {
-//                            toastr.error("Jokin meni pieleen");
-//                        });
-//
-//                        ExamRes.events.insertEvent({examId: draftExam.id}, $scope.newExamEvent, function (event) {
-//                            toastr.info("Event lisätty.");
-//                            $scope.newExamEvent = event;
-//                            $scope.newExamEvent.currentExam = $scope.newExam;                            
-//                            $scope.newExam.examEvent = event;
-//                        }, function (error) {
-//                            toastr.error("Jokin meni pieleen");
-//                        });
-//
-//                        $location.path("/exams/" + draftExam.id);
-//                        toastr.info("Tenttiluonnos tehty.");
-//
-//                    }, function (error) {
-//                        toastr.error("Jokin meni pieleen");
-//                    });
-                }
+                };
 
                 $scope.setExamRoom = function (room) {
                     $scope.newExamEvent.room = room;
-                }
+                };
 
                 $scope.setExamDuration = function (duration) {
                     $scope.newExamEvent.duration = duration;
-                }
+                };
 
                 $scope.setExamInspector = function (inspector) {
                     $scope.newExamEvent.inspector = inspector;
-                }
+                };
 
                 $scope.setExamGrading = function (grading) {
                     $scope.newExamEvent.grading = grading;
-                }
+                };
 
                 $scope.setExamLanguage = function (language) {
                     $scope.newExamEvent.language = language;
-                }
+                };
 
                 $scope.setExamAnswerLanguage = function (answerLanguage) {
                     $scope.newExamEvent.answerLanguage = answerLanguage;
-                }
+                };
 
                 var questions = QuestionRes.query(function () {
                     questions.map(function (item) {
@@ -246,27 +217,45 @@
                 $scope.removeSection = function (section) {
                     if (confirm('Poistetaanko osio?')) {
 
-                        ExamRes.section.deleteSection({sectionId: section.id}, function (id) {
+                        ExamRes.sections.remove({eid: $scope.newExam.id, sid: section.id}, function (id) {
                             toastr.info("Osio poistettu.");
                             $scope.newExam.examSections.splice($scope.newExam.examSections.indexOf(section), 1);
-
                         }, function (error) {
                             toastr.error("Jokin meni pieleen");
                         });
                     }
-                }
+                };
 
+                $scope.renameSection = function (section) {
+                	
+            		ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
+            			section = sec;
+            			toastr.info("Osio päivitetty.");
+            		}, function (error) {
+            			toastr.error("Jokin meni pieleen");
+            		});
+                };
+                
                 $scope.clearAllQuestions = function (section) {
                     if (confirm('Poistetaanko kaikki kysymykset?')) {
                         section.questions.splice(0, questions.length);
                     }
-                }
+                };
 
                 $scope.removeQuestion = function (section, question) {
                     if (confirm('Poistetaanko kysymys?')) {
                         section.questions.splice(section.questions.indexOf(question), 1);
+                        
+                        ExamRes.questions.remove({eid: $scope.newExam.id, sid: section.id, qid: question.id}, function (sec) {
+                        	section = sec;
+                        	toastr.info("Kysymys poistettu.");
+                        }, function (error) {
+                            toastr.error("Jokin meni pieleen");
+                        });
+                        
+                        
                     }
-                }
+                };
 
                 $scope.editSection = function (section) {
                     console.log(section);
@@ -286,25 +275,33 @@
 
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
-                    $scope.newExam.state = "SAVED";
-                    $scope.newExamEvent.examReadableStartDate = $scope.dateService.modStartDate;
-                    $scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
+                	$scope.newExam.examEvent.examActiveStartDate = $scope.dateService.startTimestamp;
+                	$scope.newExam.examEvent.examActiveEndDate = $scope.dateService.endTimestamp;
 
                     var examToSave = {
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
                         "instruction": $scope.newExam.instruction,
-                        "state": $scope.newExam.state,
-                        "examEvent": $scope.newExam.examEvent,
+                        "state": 'SAVED',
+	                    "course": $scope.newExam.course,
+	                    "examEvent": $scope.newExam.examEvent,
                         "shared": $scope.newExam.shared
+
                     };
-
-                    ExamRes.exams.update(examToSave, function (exam) {
-
+                    
+                    ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
                         toastr.info("Tentti tallennettu.");
                     }, function (error) {
                         toastr.error("Jokin meni pieleen");
                     });
+                    
+                    ExamRes.events.update({id: $scope.newExam.examEvent.id}, $scope.newExam.examEvent, function (event) {
+                    	console.log(event);
+                    	toastr.info("Tentti tallennettu.");
+                    }, function (error) {
+                    	toastr.error("Tenttitapahtuman tallennus meni pieleen");
+                    });
+      
                 };
 
                 // Called when Save and publish button is clicked
@@ -313,8 +310,11 @@
                     		'opeskelijat voivat osallistua tenttiin eikä tenttiä voi enää muokata.')) {
                     	
 	                	$scope.newExam.state = "PUBLISHED";
-	                	$scope.newExamEvent.examReadableStartDate = $scope.dateService.modStartDate;
-	                	$scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
+//	                	$scope.newExamEvent.examReadableStartDate = $scope.dateService.modStartDate;
+//	                	$scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
+	                	
+	                	$scope.newExam.examEvent.examActiveStartDate = $scope.dateService.startTimestamp;
+	                	$scope.newExam.examEvent.examActiveEndDate = $scope.dateService.endTimestamp;
 	                	
 	                	var examToSave = {
 	                			"id": $scope.newExam.id,
@@ -362,5 +362,11 @@
 //                    	toastr.error("Jokin meni pieleen");
 //                    });
                 };
+                
+                $scope.examFilter = function(item, comparator)
+                {
+                    return (item.state == comparator);
+                };
+                
             }]);
 }());

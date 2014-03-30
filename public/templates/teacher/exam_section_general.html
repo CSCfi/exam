@@ -24,8 +24,9 @@
         <h4>{{'sitnet_start_time' | translate}}</h4>
 
         <p class="input-group">
+
             <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
-                   is-open="stardDateOpened" min="minDate"
+                   is-open="startDateOpened" min="minDate"
                    max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
                    ng-required="true" close-text="Close"/>
 				<span class="input-group-btn">
@@ -122,7 +123,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.room">
+            <input type="text" class="form-control" ng-model="newExam.examEvent.room">
         </div>
     </div>
 
@@ -138,7 +139,7 @@
                             class="pointer-hand">{{duration}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.duration">
+            <input type="text" class="form-control" ng-model="newExam.examEvent.duration">
         </div>
     </div>
 </div>
@@ -159,8 +160,8 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" value="{{newExamEvent.inspector.name}}"
-                   ng-model="newExamEvent.inspector.name">
+            <input type="text" class="form-control" value="{{newExam.examEvent.inspector.name}}"
+                   ng-model="newExam.examEvent.inspector.name">
         </div>
     </div>
 
@@ -176,7 +177,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.grading">
+            <input type="text" class="form-control" ng-model="newExam.examEvent.grading">
         </div>
     </div>
 </div>
@@ -195,7 +196,7 @@
                             class="pointer-hand">{{language}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.language">
+            <input type="text" class="form-control" ng-model="newExam.examEvent.language">
         </div>
     </div>
 
@@ -212,23 +213,23 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.answerLanguage">
+            <input type="text" class="form-control" ng-model="newExam.examEvent.answerLanguage">
         </div>
     </div>
 </div>
 
 <!-- Exam material and quidance input elements -->
 <div class="row">
-    <div class="col-md-6">
-        <div class="sitnet-info-text">{{'sitnet_material' | translate}}:</div>
-        <div class="input-group">
-            <div class="input-group-btn">
-                <div file-browser>
-                    <input type="file" class="form-control" name="Selaa">
-                </div>
-            </div>
-        </div>
-    </div>
+<!--     <div class="col-md-6"> -->
+<!--         <div class="sitnet-info-text">{{'sitnet_material' | translate}}:</div> -->
+<!--         <div class="input-group"> -->
+<!--             <div class="input-group-btn"> -->
+<!--                 <div file-browser> -->
+<!--                     <input type="file" class="form-control" name="Selaa"> -->
+<!--                 </div> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--     </div> -->
 
     <div class="col-md-6">
         <div class="sitnet-info-text">{{'sitnet_sharing' | translate}}:</div>
