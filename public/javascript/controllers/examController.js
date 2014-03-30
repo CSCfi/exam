@@ -236,6 +236,16 @@
             		});
                 };
                 
+                $scope.updateExam = function (exam) {
+                	
+                	ExamRes.exams.update({id: $scope.newExam.id}, exam, function (ex) {
+                		exam = ex;
+                		toastr.info("Tentti päivitetty.");
+                	}, function (error) {
+                		toastr.error("Jokin meni pieleen");
+                	});
+                };
+                
                 $scope.clearAllQuestions = function (section) {
                     if (confirm('Poistetaanko kaikki kysymykset?')) {
                         section.questions.splice(0, questions.length);
