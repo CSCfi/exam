@@ -7,9 +7,9 @@
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
 
-                $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section.html";
-                $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section_question.html";
-                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/exam_section_general.html";
+                $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section.html";
+                $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_question.html";
+                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_general.html";
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.examsTemplate;
 
@@ -18,7 +18,7 @@
                     $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "student/exams.html";
                 }
                 else if ($scope.user.isTeacher) {
-                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/exams.html";
+                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exams.html";
                 }
 
                 // Todo: Fill in rooms from database for final version
@@ -48,12 +48,12 @@
                 ];
 
                 // Todo: Fill in inspectors from database for final version
-                UserRes.usersByRole.query({role: 'TEACHER'}, 
+                UserRes.usersByRole.query({role: 'TEACHER'},
                 		function (value) {
                 			$scope.examInspectors = value;
                 		},
                 		function (error) {
-                			
+
                 		});
 
 //                $scope.examInspectors = [
@@ -61,7 +61,7 @@
 //                                         "Arvon Penaali",
 //                                         "Pasi Kuikka"
 //                                         ];
-                
+
                 // Todo: Fill in gradings from database for final version
                 $scope.examGradings = [
                     "1-3",
@@ -186,7 +186,7 @@
                     $scope.newExamEvent.answerLanguage = answerLanguage;
                 };
 
-                var questions = QuestionRes.query(function () {
+                var questions = QuestionRes.questions.query(function () {
                     questions.map(function (item) {
                         var icon = "";
                         switch (item.type) {

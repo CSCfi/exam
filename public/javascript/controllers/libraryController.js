@@ -34,7 +34,7 @@
                 };
             };
 
-            QuestionRes.query(function (data) {
+            QuestionRes.questions.query(function (data) {
                 data.map(function (item) {
                     var icon = "";
                     switch (item.type) {

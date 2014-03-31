@@ -6,6 +6,7 @@ import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
+import models.questions.MultipleChoiseOption;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -18,110 +19,158 @@ import java.util.List;
 
 public class QuestionController extends SitnetController {
 
-	
-//  @Authenticate
-  public static Result getQuestions() {
-  	
-      List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
-              .where()
-              .eq("parent", null)
-              .findList();
 
-      if(questions != null)
-          Logger.debug(questions.toString());
+    //  @Authenticate
+    public static Result getQuestions() {
 
-      return ok(Json.toJson(questions));
-  }
+        List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
+                .where()
+                .eq("parent", null)
+                .findList();
 
-//  @Authenticate
-  public static Result getQuestion(Long id) {
+        if (questions != null)
+            Logger.debug(questions.toString());
 
-      AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        return ok(Json.toJson(questions));
+    }
 
-      return ok(Json.toJson(question));
-  }
+    //  @Authenticate
+    public static Result getQuestion(Long id) {
 
-//  @Authenticate
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+
+        return ok(Json.toJson(question));
+    }
+
+    //  @Authenticate
 //  @BodyParser.Of(BodyParser.Json.class)
-  public static Result addQuestion() throws MalformedDataException {
+    public static Result addQuestion() throws MalformedDataException {
 
-      DynamicForm df = Form.form().bindFromRequest();
-      Logger.debug("Add question");
+        DynamicForm df = Form.form().bindFromRequest();
+        Logger.debug("Add question");
 
-      try {
-          Class<?> clazz = Class.forName("models.questions."+df.get("type"));
-          Object question = clazz.newInstance();
+        try {
+            Class<?> clazz = Class.forName("models.questions." + df.get("type"));
+            Object question = clazz.newInstance();
 
-          User user = UserController.getLoggedUser();
-          Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+            User user = UserController.getLoggedUser();
+            Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-          question = bindForm(question.getClass());
+            question = bindForm(question.getClass());
 
-          switch(df.get("type"))
-          {
-              case "MultipleChoiceQuestion":
-              {
+            switch (df.get("type")) {
+                case "MultipleChoiceQuestion": {
 
-                  if( ((MultipleChoiceQuestion)question).getCreator() == null)
-                  {
-                      ((MultipleChoiceQuestion)question).setCreator(user);
-                      ((MultipleChoiceQuestion)question).setCreated(currentTime);
-                  }
-                  else
-                  {
-                      ((MultipleChoiceQuestion)question).setModifier(user);
-                      ((MultipleChoiceQuestion)question).setModified(currentTime);
-                  }
+                    if (((MultipleChoiceQuestion) question).getCreator() == null) {
+                        ((MultipleChoiceQuestion) question).setCreator(user);
+                        ((MultipleChoiceQuestion) question).setCreated(currentTime);
+                    } else {
+                        ((MultipleChoiceQuestion) question).setModifier(user);
+                        ((MultipleChoiceQuestion) question).setModified(currentTime);
+                    }
 
-                  ((MultipleChoiceQuestion) question).generateHash();
+                    ((MultipleChoiceQuestion) question).generateHash();
 
-              } break;
+                }
+                break;
 
-              case "EssayQuestion":
-              {
-                  if( ((EssayQuestion)question).getCreator() == null)
-                  {
-                      ((EssayQuestion)question).setCreator(user);
-                      ((EssayQuestion)question).setCreated(currentTime);
-                  }
-                  else
-                  {
-                      ((EssayQuestion)question).setModifier(user);
-                      ((EssayQuestion)question).setModified(currentTime);
-                  }
+                case "EssayQuestion": {
+                    if (((EssayQuestion) question).getCreator() == null) {
+                        ((EssayQuestion) question).setCreator(user);
+                        ((EssayQuestion) question).setCreated(currentTime);
+                    } else {
+                        ((EssayQuestion) question).setModifier(user);
+                        ((EssayQuestion) question).setModified(currentTime);
+                    }
 
-                  ((EssayQuestion) question).generateHash();
+                    ((EssayQuestion) question).generateHash();
 
-              } break;
+                }
+                break;
 
-              case "MathQuestion":
-              {
+                case "MathQuestion": {
 
 
-              } break;
-              default:
+                }
+                break;
+                default:
 
-          }
+            }
 
-          Ebean.save(question);
-          return ok(Json.toJson(question));
+            Ebean.save(question);
+            return ok(Json.toJson(question));
 
-      } catch (ClassNotFoundException e) {
-          e.printStackTrace();
-      } catch (InstantiationException e) {
-          e.printStackTrace();
-      } catch (IllegalAccessException e) {
-          e.printStackTrace();
-      }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
-      return ok("fail");
-  }
+        return ok("fail");
+    }
 
     @BodyParser.Of(BodyParser.Json.class)
     public static Result deleteQuestion(Long id) {
 
-    Ebean.delete(AbstractQuestion.class, id);
+        Ebean.delete(AbstractQuestion.class, id);
 
-    return ok("Question deleted from database!");
+        return ok("Question deleted from database!");
     }
+
+
+    public static Result addOption(Long qid, Long oid) throws MalformedDataException {
+
+        MultipleChoiceQuestion question = Ebean.find(MultipleChoiceQuestion.class, qid);
+        MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
+        option.save();
+        question.getOptions().add(option);
+        question.save();
+
+        return ok(Json.toJson(option));
+    }
+
+
+    public static Result createOption() throws MalformedDataException {
+
+        MultipleChoiseOption option = new MultipleChoiseOption();
+        option.setOption("Esimerkki vaihtoehto");
+        option.setCorrectOption(false);
+        option.save();
+
+        return ok(Json.toJson(option));
+    }
+
+    public static Result getOption(Long id) throws MalformedDataException {
+
+        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
+        return ok(Json.toJson(option));
+    }
+
+    public static Result createQuestionDraft() {
+
+//        if (form().bindFromRequest().get("video_id") != null) {
+//            try {
+//                video_id = Integer.parseInt(form().bindFromRequest().get("video_id"));
+//            } catch (Exception e) {
+//                Logger.error("int not parsed...");
+//            }
+//        }
+
+//        AbstractQuestion question = new AbstractQuestion();
+//        try {
+//            SitnetUtil.setCreator(question);
+//        } catch (SitnetException e) {
+//            e.printStackTrace();
+//            return ok(e.getMessage());
+//        }
+//        question.setQuestion("Kirjoita kysymys tähän");
+//
+//        question.save();
+//
+//        return ok(Json.toJson(question));
+        return ok();
+    }
+
 }

@@ -62,8 +62,15 @@ GET           /courses                                              controllers.
 GET           /questions                                            controllers.QuestionController.getQuestions()
 GET           /questions/:id                                        controllers.QuestionController.getQuestion(id: Long)
 POST          /questions                                            controllers.QuestionController.addQuestion()
+POST          /questions/:qid/option/:oid                           controllers.QuestionController.addOption(qid: Long, oid: Long)
+#PUT           /questions/:qid/options/:oid                          controllers.QuestionController.addOption(qid: Long, oid: Long)
 DELETE        /questions/:id                                        controllers.QuestionController.deleteQuestion(id: Long)
 
+GET           /questions/draft/		                                controllers.QuestionController.createQuestionDraft()
+
+
+GET             /options                                            controllers.QuestionController.createOption()
+GET             /options/:id                                        controllers.QuestionController.getOption(id: Long)
 
 # test test test test test
 POST          /test                                                 controllers.TestController.addQuestion()

@@ -19,7 +19,7 @@ import javax.persistence.*;
  * See:
  * https://groups.google.com/forum/#!topic/play-framework/YOSLdmv_oSc
  */
-abstract public class AbstractQuestion extends SitnetModel implements QuestionInterface {
+abstract public class AbstractQuestion extends SitnetModel {
 
     protected String type;
 

@@ -23,8 +23,11 @@
 
             <!-- Question fields -->
             <div class="sitnet-info-text">
-                {{'sitnet_share_this_question' | translate}}
-                <input type="checkbox" ng-model="newQuestion.shared">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="newQuestion.shared"> {{'sitnet_share_this_question' | translate}}
+                    </label>
+                </div>
             </div>
             <div class="sitnet-info-text">
                 {{'sitnet_instruction' | translate}}
@@ -42,10 +45,10 @@
             </div>
 
         </div>
-        <button ng-click="saveQuestion()" type="submit" class="btn btn-success pull-right">{{'sitnet_save' |
-            translate}}
-        </button>
-        <button ng-click="" type="submit" class="btn btn-danger pull-right">{{'sitnet_remove' | translate}}</button>
+        <p>
+            <!--ng-show="selectedType"-->
+            <button ng-click="saveQuestion()"  type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
+        </p>
     </div>
 
 

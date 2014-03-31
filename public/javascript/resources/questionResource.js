@@ -2,22 +2,28 @@
     'use strict';
     angular.module("sitnet.resources")
         .factory("QuestionRes", ['$resource', function ($resource) {
-            return $resource("/questions/:id",
+            return {
+                questions: $resource("/questions/:id",
                 {
                     id: "@id"
                 },
                 {
-                    "update": {
-                        method: "PUT"
-                    },
+                    "update": {method: "PUT"},
+                    "delete": {method: "DELETE", params: {id: "@id"}},
+                    "create": {method: "GET"}
 
-                    "delete": {
-                        method: "DELETE",
-                        params: {
-                            id: "@id"
-                        }
-                    }
-                }
-            );
+                }),
+                options: $resource("/options/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "update": {method: "PUT"},
+                    "insert": {method: "POST", params: {qid: "@qid"}},
+                    "create": {method: "GET"}
+
+//                    "delete": {method: "DELETE", params: {qid: "@qid", oid: "@oid"}}
+                })
+            };
         }]);
 }());

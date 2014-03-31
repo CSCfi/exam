@@ -66,8 +66,8 @@ public class StudentExamController extends SitnetController {
         if (possibleClone != null) {
             return ok(Json.toJson(possibleClone));
         }
-        studentExam.save();
         studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
+        studentExam.save();
         return ok(Json.toJson(studentExam));
     }
 

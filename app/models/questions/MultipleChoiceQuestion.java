@@ -1,5 +1,6 @@
 package models.questions;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import play.Logger;
 import util.SitnetUtil;
 
@@ -14,14 +15,15 @@ import java.util.List;
  */
 @Entity
 @DiscriminatorValue("MultipleChoiceQuestion")
-public class MultipleChoiceQuestion extends AbstractQuestion {
+public class MultipleChoiceQuestion extends AbstractQuestion implements QuestionInterface {
 
     public MultipleChoiceQuestion() {
         this.type = this.getClass().getSimpleName();
     }
 
 
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
+    @JsonManagedReference
     private List<MultipleChoiseOption> options;
 
     @Override
