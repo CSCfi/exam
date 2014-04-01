@@ -1,5 +1,6 @@
 package models;
 
+import annotations.NonCloneable;
 import play.Logger;
 import play.db.ebean.Model;
 import util.SitnetUtil;
@@ -20,12 +21,14 @@ abstract public class SitnetModel extends Model implements Cloneable {
 	protected Timestamp created;
 	
 	@OneToOne
+    @NonCloneable
 	protected User creator;
 	
 //	@UpdatedTimestamp
 	protected Timestamp modified;
 	
 	@OneToOne
+    @NonCloneable
 	protected User modifier;
 	
 	public SitnetModel() {

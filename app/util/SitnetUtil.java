@@ -1,20 +1,14 @@
 package util;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.sql.Timestamp;
-
+import Exceptions.SitnetException;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import controllers.UserController;
 import models.SitnetModel;
 import models.User;
-
 import org.apache.commons.codec.digest.DigestUtils;
 
-import Exceptions.MalformedDataException;
-import Exceptions.SitnetException;
-import controllers.UserController;
+import java.lang.reflect.Field;
+import java.sql.Timestamp;
 
 /**
  * Created by avainik on 3/19/14.
@@ -22,56 +16,58 @@ import controllers.UserController;
 public class SitnetUtil {
 
 
-    public static Object getClone(Object o)
+    public static Object getClone(Object object)
     {
         Object clone = null;
 
         try
         {
-            clone = o.getClass().newInstance();
-        }
-        catch (InstantiationException e)
-        {
+            clone = object.getClass().newInstance();
+        } catch (InstantiationException e) {
             e.printStackTrace();
-        }
-        catch (IllegalAccessException e)
-        {
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
 
         // Walk up the superclass hierarchy
-        for (Class obj = o.getClass(); !obj.equals(Object.class); obj = obj.getSuperclass())
+        for (Class obj = object.getClass(); !obj.equals(Object.class); obj = obj.getSuperclass())
         {
             // Todo: check annotation
             Field[] fields = obj.getDeclaredFields();
             for (int i = 0; i < fields.length; i++)
             {
-                // Todo: Get declaring class here
-                if (fields[i].getDeclaringClass().isAssignableFrom(SitnetModel.class)) {
-                    Class<?> c = fields[i].getClass();
-                    Method method = null;
+//                // Todo: Get declaring class here
+//                Class<?> clazz = fields[i].getDeclaringClass();
+//                if (SitnetModel.class.isAssignableFrom(clazz)) {
+//
+//                    Method method = null;
+//                    try {
+//                            method = clazz.getDeclaredMethod ("clone",  Void.TYPE);
+//                        if(method == null) {
+//                            break;
+//                        } else {
+//
+//                            fields[i] = method.invoke (fields[i],  Void.TYPE);
+//                        }
+//                    } catch (NoSuchMethodException e) {
+//                        e.printStackTrace();
+//                    } catch (InvocationTargetException e) {
+//                        e.printStackTrace();
+//                    } catch (IllegalAccessException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                }
+                if (fields[i].getAnnotation(JsonBackReference.class) == null) {
+                    fields[i].setAccessible(true);
                     try {
-                        method = c.getDeclaredMethod ("clone", null);
-                        fields[i] = (Field)method.invoke (c, null);
-                    } catch (NoSuchMethodException e) {
-                        e.printStackTrace();
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
+                        // for each class/superclass, copy all fields
+                        // from this object to the clone
+                        fields[i].set(clone, fields[i].get(object));
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
 
-                }
-                if (fields[i].getAnnotation(JsonBackReference.class) != null) {
-                    fields[i].setAccessible(true);
-                    try
-                    {
-                        // for each class/superclass, copy all fields
-                        // from this object to the clone
-                        fields[i].set(clone, fields[i].get(o));
-                    }
-                    catch (IllegalArgumentException e){}
-                    catch (IllegalAccessException e){}
                 }
             }
         }

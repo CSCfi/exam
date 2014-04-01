@@ -3,7 +3,6 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
-import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import util.SitnetUtil;
 
@@ -168,12 +167,12 @@ public class Exam extends SitnetModel {
 
     public Exam clone() {
 
-        Exam examClone = (Exam)SitnetUtil.getClone(this);
+        Exam clone = (Exam)SitnetUtil.getClone(this);
 
-        examClone.generateHash();
-        examClone.setState("STUDENT_STARTED");
+        clone.setState("STUDENT_STARTED");
+        clone.generateHash();
 
-        return examClone;
+        return clone;
 //
 //        examClone.setCreated(this.getCreated());
 //        examClone.setCreator(this.getCreator());
