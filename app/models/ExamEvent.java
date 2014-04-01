@@ -1,22 +1,13 @@
 package models;
 
-import java.sql.Timestamp;
-import java.util.List;
+import annotations.NonCloneable;
+import util.SitnetUtil;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
-
-import play.Logger;
-import play.db.ebean.Model;
-import util.SitnetUtil;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.sql.Timestamp;
+import java.util.List;
 
 
 /*
@@ -26,17 +17,14 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
  * <Opetustapahtuman tyyppi> voi olla esim luento tai tentti.
  */
 @Entity
-public class ExamEvent extends Model implements Cloneable {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class ExamEvent extends SitnetModel {
 
 //    @OneToOne
 //    @JsonBackReference
 //    private Exam currentExam;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
+    @NonCloneable
     private List<Exam> exams;
 
     // tentin voimassaoloaika, tentti on avoin opiskelijoille tästä lähtien
@@ -56,9 +44,11 @@ public class ExamEvent extends Model implements Cloneable {
     // muut opettajat jotka on lisättty tentin tarkastajiksi
     // TODO: miten tarkastajat lisätään? per tentti, per kysymys ?
     @ManyToMany(cascade = CascadeType.PERSIST)
+    @NonCloneable
     private List<User> inspectors;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
+    @NonCloneable
     private List<User> enrolledStudents;
 
     // Exam grading, e.g. 1-5
@@ -211,13 +201,9 @@ public class ExamEvent extends Model implements Cloneable {
 //	}
 
 	@Override
-    protected Object clone() throws CloneNotSupportedException {
+    public Object clone() {
 
-        ExamEvent copy = (ExamEvent)SitnetUtil.getClone(this);
-
-        Logger.debug("clone: "+ copy);
-
-        return copy;
+        return SitnetUtil.getClone(this);
     }
 
     @Override

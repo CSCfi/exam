@@ -47,12 +47,14 @@ public class StudentExamController extends SitnetController {
         //todo: check credentials / token
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
+                .fetch("examEvent")
                 .where()
                 .eq("hash", hash)
                 .findUnique();
 
         Exam possibleClone = Ebean.find(Exam.class)
                 .fetch("examSections")
+                .fetch("examEvent")
                 .where()
                 .eq("hash", hash)
                 .eq("state", "STUDENT_STARTED").findUnique();
@@ -65,6 +67,13 @@ public class StudentExamController extends SitnetController {
         if (possibleClone == null) {
             Exam studentExam = blueprint.clone();
             studentExam.setStudent(UserController.getLoggedUser());
+            studentExam.getExamEvent().save();
+
+//            for(ExamSection es : studentExam.getExamSections()) {
+//                es.setExam(studentExam);
+//            }
+
+
             studentExam.save();
             studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
             return ok(Json.toJson(studentExam));

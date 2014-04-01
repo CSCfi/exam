@@ -1,5 +1,6 @@
 package models;
 
+import annotations.NonCloneable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
@@ -23,6 +24,7 @@ public class Exam extends SitnetModel {
 
     // student User who has participated in this Exam
     @ManyToOne
+    @NonCloneable
     @JsonBackReference
     private User student;
 
@@ -31,10 +33,11 @@ public class Exam extends SitnetModel {
     
     // Tentti liittyy Opintojaksoon
     @ManyToOne
+    @NonCloneable
     private Course course;
 
     @OneToOne
-    @JsonManagedReference
+//    @JsonManagedReference
     private ExamEvent examEvent;
     
     private ExamType examType;
@@ -164,7 +167,7 @@ public class Exam extends SitnetModel {
         this.state = state;
     }
 
-
+    @Override
     public Exam clone() {
 
         Exam clone = (Exam)SitnetUtil.getClone(this);
