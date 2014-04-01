@@ -213,23 +213,9 @@ public class ExamEvent extends Model implements Cloneable {
 	@Override
     protected Object clone() throws CloneNotSupportedException {
 
-//        ExamEvent copy = (ExamEvent)super.clone();
-
-//        copy.setId(null);   // huh?
-//        copy.setExamActiveStartDate(examActiveStartDate);
-//        copy.setExamActiveEndDate(examActiveEndDate);
-//        copy.setExamReadableStartDate(examReadableStartDate);
-//        copy.setExamReadableEndDate(examReadableEndDate);
-//        copy.setRoom(room);
-
         ExamEvent copy = (ExamEvent)SitnetUtil.getClone(this);
 
         Logger.debug("clone: "+ copy);
-
-
-
-
-
 
         return copy;
     }

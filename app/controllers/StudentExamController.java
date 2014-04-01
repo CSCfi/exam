@@ -48,27 +48,29 @@ public class StudentExamController extends SitnetController {
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
                 .where()
-                .eq("hash", hash).findUnique();
+                .eq("hash", hash)
+                .findUnique();
 
+        Exam possibleClone = Ebean.find(Exam.class)
+                .fetch("examSections")
+                .where()
+                .eq("hash", hash)
+                .eq("state", "STUDENT_STARTED").findUnique();
 
         if (blueprint == null) {
             //todo: add proper exception
             throw new UnauthorizedAccessException("a");
         }
 
-        Exam studentExam = blueprint.clone();
-
-        Exam possibleClone = Ebean.find(Exam.class)
-                .fetch("examSections")
-                .where()
-                .eq("hash", studentExam.getHash()).findUnique();
-
-        if (possibleClone != null) {
+        if (possibleClone == null) {
+            Exam studentExam = blueprint.clone();
+            studentExam.setStudent(UserController.getLoggedUser());
+            studentExam.save();
+            studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
+            return ok(Json.toJson(studentExam));
+        } else {
             return ok(Json.toJson(possibleClone));
         }
-        studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
-        studentExam.save();
-        return ok(Json.toJson(studentExam));
     }
 
     public static Result saveAnswersAndExit(Long id) {

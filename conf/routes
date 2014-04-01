@@ -20,6 +20,7 @@ DELETE        /users/:id                                            controllers.
 
 GET           /exams                                                controllers.ExamController.getExams()
 GET           /exams/:id                                            controllers.ExamController.getExam(id: Long)
+GET           /exams/state/:state                                   controllers.ExamController.getExamByState(state: String)
 PUT           /exams/:id                                            controllers.ExamController.updateExam(id: Long)
 POST          /exams                                                controllers.ExamController.createExam()
 POST          /exams/:id/section                                    controllers.ExamController.insertSection(id: Long)

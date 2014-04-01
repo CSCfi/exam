@@ -54,6 +54,32 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(exams));
     }
 
+    public static Result getExamByState(String state) {
+        Logger.debug("getExamByState()");
+
+        User user = UserController.getLoggedUser();
+
+        List<Exam> exams = Ebean.find(Exam.class).where()
+                .eq("state", state)
+                .eq("student.id", user.getId())
+                .findList();
+
+//        String oql =
+//                "  find  exam "
+//                +" fetch examSections "
+//                +" fetch course "
+//                +" fetch examEvent "
+//                +" where state=:state"
+//                +"and user";
+//
+//        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
+//        query.setParameter("state", state);
+//
+//        List<Exam> exams = query.findList();
+
+        return ok(Json.toJson(exams));
+    }
+
     public static Result getExam(Long id) {
     	Logger.debug("getExam(:id)");
 

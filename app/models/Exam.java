@@ -147,7 +147,7 @@ public class Exam extends SitnetModel {
 
         // TODO: what attributes make examEvent unique?
         // create unique hash for exam
-        String attributes = name;
+        String attributes = name + state;
 
 //                examEvent.getStartTime().toString() +
 //                examEvent.getEndTime().toString();
@@ -167,70 +167,78 @@ public class Exam extends SitnetModel {
 
 
     public Exam clone() {
-        Exam examClone = new Exam();
 
-        examClone.setCreated(this.getCreated());
-        examClone.setCreator(this.getCreator());
-        examClone.setModified(this.getModified());
-        examClone.setModifier(this.getModifier());
-        examClone.setCourse(this.getCourse());
-        examClone.setName(this.getName());
-        examClone.setExamType(this.getExamType());
-        examClone.setInstruction(this.getInstruction());
-        examClone.setShared(this.isShared());
+        Exam examClone = (Exam)SitnetUtil.getClone(this);
 
-
-        try {
-            examClone.setExamEvent((ExamEvent) this.examEvent.clone());
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-
-
-        List<ExamSection> examSectionsCopies = createNewExamSectionList();
-
-        for (ExamSection es : this.getExamSections()) {
-
-            // New arrays are needed for every examsection
-            List<AbstractQuestion> examQuestionCopies = createNewExamQuestionList();
-
-            ExamSection examsec_copy = (ExamSection)es._ebean_createCopy();
-            examsec_copy.setId(null);
-
-            for (AbstractQuestion q : es.getQuestions()) {
-
-                AbstractQuestion question_copy = (AbstractQuestion)q._ebean_createCopy();
-                question_copy.setId(null);
-                question_copy.setParent(q);
-
-                    switch (q.getType()) {
-                        case "MultipleChoiceQuestion": {
-                            List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
-
-
-                            List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
-                            for (MultipleChoiseOption o : options) {
-                                MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
-                                m_option_copy.setId(null);
-                                multipleChoiceOptionCopies.add(m_option_copy);
-                            }
-                            ((MultipleChoiceQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
-                        }
-                        break;
-                    }
-                examQuestionCopies.add(question_copy);
-            }
-            examsec_copy.setQuestions(examQuestionCopies);
-            examSectionsCopies.add(examsec_copy);
-        }
-
-        examClone.setExamSections(examSectionsCopies);
-
-        examClone.setExamEvent(this.getExamEvent());
         examClone.generateHash();
         examClone.setState("STUDENT_STARTED");
 
         return examClone;
+//
+//        examClone.setCreated(this.getCreated());
+//        examClone.setCreator(this.getCreator());
+//        examClone.setModified(this.getModified());
+//        examClone.setModifier(this.getModifier());
+//        examClone.setCourse(this.getCourse());
+//        examClone.setName(this.getName());
+//        examClone.setExamType(this.getExamType());
+//        examClone.setInstruction(this.getInstruction());
+//        examClone.setShared(this.isShared());
+//
+//
+//        try {
+//            if(this.examEvent != null) {
+//                examClone.setExamEvent((ExamEvent) this.examEvent.clone());
+//            }
+//        } catch (CloneNotSupportedException e) {
+//            e.printStackTrace();
+//        }
+//
+//
+//        List<ExamSection> examSectionsCopies = createNewExamSectionList();
+//
+//        for (ExamSection es : this.getExamSections()) {
+//
+//            // New arrays are needed for every examsection
+//            List<AbstractQuestion> examQuestionCopies = createNewExamQuestionList();
+//
+//            ExamSection examsec_copy = (ExamSection)es._ebean_createCopy();
+//            examsec_copy.setId(null);
+//
+//            for (AbstractQuestion q : es.getQuestions()) {
+//
+//                AbstractQuestion question_copy = (AbstractQuestion)q._ebean_createCopy();
+//                question_copy.setId(null);
+//                question_copy.setParent(q);
+//
+//                    switch (q.getType()) {
+//                        case "MultipleChoiceQuestion": {
+//                            List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
+//
+//
+//                            List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
+//                            for (MultipleChoiseOption o : options) {
+//                                MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
+//                                m_option_copy.setId(null);
+//                                multipleChoiceOptionCopies.add(m_option_copy);
+//                            }
+//                            ((MultipleChoiceQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
+//                        }
+//                        break;
+//                    }
+//                examQuestionCopies.add(question_copy);
+//            }
+//            examsec_copy.setQuestions(examQuestionCopies);
+//            examSectionsCopies.add(examsec_copy);
+//        }
+//
+//        examClone.setExamSections(examSectionsCopies);
+//
+//        //examClone.setExamEvent(this.getExamEvent());
+//        examClone.generateHash();
+//        examClone.setState("STUDENT_STARTED");
+//
+//        return examClone;
     }
 
     public List<ExamSection> createNewExamSectionList() {

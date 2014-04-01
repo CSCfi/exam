@@ -8,7 +8,7 @@
                 	id: "@id"
                 },
                 {
-                    "update": {method: "PUT"},
+                    "update": {method: "PUT"}
                 }),
                 
                 questions: $resource("/exams/:eid/section/:sid/question/:qid", 
@@ -43,9 +43,10 @@
                     }
 
                 }),
-                
-                userexams: $resource("/exams/user",
+
+                examByState: $resource("/exams/state/:state",
                 {
+                    state: "@state"
                 }),
                 
                 draft: $resource("/draft", null,

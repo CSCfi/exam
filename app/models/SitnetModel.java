@@ -1,6 +1,8 @@
 package models;
 
+import play.Logger;
 import play.db.ebean.Model;
+import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -75,4 +77,13 @@ abstract public class SitnetModel extends Model implements Cloneable {
 		this.modifier = modifier;
 	}
 
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+
+        SitnetModel copy = (SitnetModel)SitnetUtil.getClone(this);
+
+        Logger.debug("clone: " + copy);
+
+        return copy;
+    }
 }

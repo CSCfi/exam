@@ -29,7 +29,17 @@
 
                 $scope.logout = function () {
                     // Todo: Fix the backend query to only return this user exams
-//                    var userexams = ExamRes.userexams.query();
+//                   var userexams = ExamRes.exams.query({state: 'STUDENT_STARTED'},
+//
+//                   );
+
+                    ExamRes.examByState.query({state: 'STUDENT_STARTED'},
+                        function (value) {
+                            $scope.userexams = value;
+                        },
+                        function (error) {
+
+                        });
 //
 //                    angular.forEach(userexams, function (exam) {
 //

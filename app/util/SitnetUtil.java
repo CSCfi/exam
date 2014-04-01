@@ -1,8 +1,12 @@
 package util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Timestamp;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.SitnetModel;
 import models.User;
 
@@ -36,22 +40,39 @@ public class SitnetUtil {
         }
 
         // Walk up the superclass hierarchy
-        for (Class obj = o.getClass();
-             !obj.equals(Object.class);
-             obj = obj.getSuperclass())
+        for (Class obj = o.getClass(); !obj.equals(Object.class); obj = obj.getSuperclass())
         {
+            // Todo: check annotation
             Field[] fields = obj.getDeclaredFields();
             for (int i = 0; i < fields.length; i++)
             {
-                fields[i].setAccessible(true);
-                try
-                {
-                    // for each class/suerclass, copy all fields
-                    // from this object to the clone
-                    fields[i].set(clone, fields[i].get(o));
+                // Todo: Get declaring class here
+                if (fields[i].getDeclaringClass().isAssignableFrom(SitnetModel.class)) {
+                    Class<?> c = fields[i].getClass();
+                    Method method = null;
+                    try {
+                        method = c.getDeclaredMethod ("clone", null);
+                        fields[i] = (Field)method.invoke (c, null);
+                    } catch (NoSuchMethodException e) {
+                        e.printStackTrace();
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+
                 }
-                catch (IllegalArgumentException e){}
-                catch (IllegalAccessException e){}
+                if (fields[i].getAnnotation(JsonBackReference.class) != null) {
+                    fields[i].setAccessible(true);
+                    try
+                    {
+                        // for each class/superclass, copy all fields
+                        // from this object to the clone
+                        fields[i].set(clone, fields[i].get(o));
+                    }
+                    catch (IllegalArgumentException e){}
+                    catch (IllegalAccessException e){}
+                }
             }
         }
         return clone;
