@@ -1,7 +1,9 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import play.db.ebean.Model;
+import util.SitnetUtil;
 
 import javax.persistence.*;
 
@@ -60,6 +62,12 @@ public class MultipleChoiseOption extends Model {
 
     public void setQuestion(MultipleChoiceQuestion question) {
         this.question = question;
+    }
+
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
     }
 
     public String toString() {

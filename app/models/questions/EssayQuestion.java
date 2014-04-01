@@ -45,5 +45,11 @@ public class EssayQuestion extends AbstractQuestion implements QuestionInterface
         this.maxCharacters = maxCharacters;
     }
 
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
+    }
+
 }
 

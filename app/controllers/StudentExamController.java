@@ -65,17 +65,20 @@ public class StudentExamController extends SitnetController {
         }
 
         if (possibleClone == null) {
-            Exam studentExam = blueprint.clone();
+            Exam studentExam = (Exam)blueprint.clone();
             studentExam.setStudent(UserController.getLoggedUser());
+            studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
+            studentExam.setState("STUDENT_STARTED");
+            studentExam.generateHash();
+
+            // 1. might want try Serialization clone approach
+            // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
+            // http://avaje.org/topic-112.html
+            
             studentExam.getExamEvent().save();
 
-//            for(ExamSection es : studentExam.getExamSections()) {
-//                es.setExam(studentExam);
-//            }
-
-
             studentExam.save();
-            studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
+            
             return ok(Json.toJson(studentExam));
         } else {
             return ok(Json.toJson(possibleClone));

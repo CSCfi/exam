@@ -2,11 +2,16 @@ package util;
 
 import Exceptions.SitnetException;
 import annotations.NonCloneable;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import controllers.UserController;
 import models.SitnetModel;
 import models.User;
+
 import org.apache.commons.codec.digest.DigestUtils;
+
+import play.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -58,13 +63,9 @@ public class SitnetUtil {
                                             if (method == null) {
                                                 break;
                                             } else {
-                                                if(fields[i].get(object) != null) {
-
-                        // ERROR here, returned object has all fields null
-
-                                                    Object obo = method.invoke(fields[i].get(object), null);
-                                                    fields[i].set(clone, obo);
-
+                                            	if(fields[i].get(object) != null) {
+                                            		Object obo = method.invoke(fields[i].get(object), null);
+                                            		fields[i].set(clone, obo);
                                                 }
                                             }
                                         } catch (NoSuchMethodException e) {
@@ -78,13 +79,17 @@ public class SitnetUtil {
                                     } else  // its not SitnetModel, just clone it
                                     {
                                         if(fields[i].get(object) != null) {
-                                            String name = fields[i].getName();
+                                            String name = fields[i].getName().toLowerCase();
 
                                             // if this is SitnetModel and must be cloned; set ID null
                                             if(name.equals("id"))
                                                 fields[i].set(clone, null);
-                                            else
+                                            
+                                            // http://avaje.org/topic-112.html
+                                            // removing ebean fields helps in some cases
+                                            else if(!name.startsWith("_ebean"))
                                                 fields[i].set(clone, fields[i].get(object));
+
                                         }
                                     }
 

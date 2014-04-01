@@ -23,9 +23,9 @@ public class ExamEvent extends SitnetModel {
 //    @JsonBackReference
 //    private Exam currentExam;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @NonCloneable
-    private List<Exam> exams;
+//    @ManyToMany(cascade = CascadeType.PERSIST)
+//    @NonCloneable
+//    private List<Exam> exams;
 
     // tentin voimassaoloaika, tentti on avoin opiskelijoille tästä lähtien
     private Timestamp examActiveStartDate;
@@ -55,7 +55,7 @@ public class ExamEvent extends SitnetModel {
     private String grading;
 
     // Exam language
-    private String language;
+    private String examLanguage;
 
     // Exam answer language
     private String answerLanguage;
@@ -160,15 +160,15 @@ public class ExamEvent extends SitnetModel {
         this.grading = grading;
     }
 
-    public String getLanguage() {
-        return language;
-    }
+    public String getExamLanguage() {
+		return examLanguage;
+	}
 
-    public void setLanguage(String language) {
-        this.language = language;
-    }
+	public void setExamLanguage(String examLanguage) {
+		this.examLanguage = examLanguage;
+	}
 
-    public String getAnswerLanguage() {
+	public String getAnswerLanguage() {
         return answerLanguage;
     }
 
@@ -184,21 +184,13 @@ public class ExamEvent extends SitnetModel {
         this.material = material;
     }
 
-    public List<Exam> getExams() {
-        return exams;
-    }
-
-    public void setExams(List<Exam> exams) {
-        this.exams = exams;
-    }
-
-//    public Exam getCurrentExam() {
-//		return currentExam;
-//	}
+//    public List<Exam> getExams() {
+//        return exams;
+//    }
 //
-//	public void setCurrentExam(Exam currentExam) {
-//		this.currentExam = currentExam;
-//	}
+//    public void setExams(List<Exam> exams) {
+//        this.exams = exams;
+//    }
 
 	@Override
     public Object clone() {
@@ -206,23 +198,17 @@ public class ExamEvent extends SitnetModel {
         return SitnetUtil.getClone(this);
     }
 
-    @Override
-    public String toString() {
-        return "ExamEvent{" +
-                "id=" + id +
-                ", examActiveStartDate=" + examActiveStartDate +
-                ", examActiveEndDate=" + examActiveEndDate +
-                ", examReadableStartDate=" + examReadableStartDate +
-                ", examReadableEndDate=" + examReadableEndDate +
-                ", room=" + room +
-                ", duration=" + duration +
-                ", inspectors=" + inspectors +
-                ", enrolledStudents=" + enrolledStudents +
-                ", grading=" + grading +
-                ", language=" + language +
-                ", answerLanguage=" + answerLanguage +
-                ", material=" + material +
-                ", state='" + state + '\'' +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "ExamEvent [examActiveStartDate=" + examActiveStartDate
+				+ ", examActiveEndDate=" + examActiveEndDate
+				+ ", examReadableStartDate=" + examReadableStartDate
+				+ ", examReadableEndDate=" + examReadableEndDate + ", room="
+				+ room + ", duration=" + duration + ", inspectors="
+				+ inspectors + ", enrolledStudents=" + enrolledStudents
+				+ ", grading=" + grading + ", examLanguage=" + examLanguage
+				+ ", answerLanguage=" + answerLanguage + ", material="
+				+ material + ", state=" + state + "]";
+	}
+
 }

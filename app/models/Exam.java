@@ -168,14 +168,14 @@ public class Exam extends SitnetModel {
     }
 
     @Override
-    public Exam clone() {
+    public Object clone() {
 
-        Exam clone = (Exam)SitnetUtil.getClone(this);
+//        Exam clone = (Exam)SitnetUtil.getClone(this);
+//
+//        clone.setState("STUDENT_STARTED");
+//        clone.generateHash();
 
-        clone.setState("STUDENT_STARTED");
-        clone.generateHash();
-
-        return clone;
+        return SitnetUtil.getClone(this);
 //
 //        examClone.setCreated(this.getCreated());
 //        examClone.setCreator(this.getCreator());

@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
+import util.SitnetUtil;
 import models.questions.AbstractQuestion;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -69,6 +70,12 @@ public class ExamSection extends SitnetModel {
         this.exam = exam;
     }
 
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
+    }
+	
     @Override
     public String toString() {
         return "ExamSection{" +

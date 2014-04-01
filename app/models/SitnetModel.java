@@ -11,11 +11,12 @@ import java.sql.Timestamp;
 @MappedSuperclass
 abstract public class SitnetModel extends Model implements Cloneable {
 
-	protected static final long serialVersionUID = 5201571045491048480L;
-
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
     protected Long id;
+	
+	@Version
+    protected Timestamp ebeanTimestamp;
 	
 //	@CreatedTimestamp
 	protected Timestamp created;
@@ -80,7 +81,15 @@ abstract public class SitnetModel extends Model implements Cloneable {
 		this.modifier = modifier;
 	}
 
-    @Override
+    public Timestamp getEbeanTimestamp() {
+		return ebeanTimestamp;
+	}
+
+	public void setEbeanTimestamp(Timestamp ebeanTimestamp) {
+		this.ebeanTimestamp = ebeanTimestamp;
+	}
+
+	@Override
     protected Object clone() throws CloneNotSupportedException {
 
         SitnetModel copy = (SitnetModel)SitnetUtil.getClone(this);

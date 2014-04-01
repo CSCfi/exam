@@ -5,6 +5,8 @@ import models.answers.AbstractAnswer;
 
 import javax.persistence.*;
 
+import util.SitnetUtil;
+
 /**
  * Created by avainik on 3/6/14.
  */
@@ -179,6 +181,12 @@ abstract public class AbstractQuestion extends SitnetModel {
         }
     }
 
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
+    }
+	
    	@Override
     public String toString() {
         return "AbstractQuestion [type=" + type + ", question=" + question

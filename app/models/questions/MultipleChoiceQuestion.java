@@ -1,6 +1,7 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import play.Logger;
 import util.SitnetUtil;
 
@@ -8,6 +9,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+
 import java.util.List;
 
 /**
@@ -59,8 +61,10 @@ public class MultipleChoiceQuestion extends AbstractQuestion implements Question
                 '}';
     }
 
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
     }
+
 }
