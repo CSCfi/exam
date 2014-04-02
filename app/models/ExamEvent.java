@@ -3,9 +3,7 @@ package models;
 import annotations.NonCloneable;
 import util.SitnetUtil;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -43,12 +41,18 @@ public class ExamEvent extends SitnetModel {
 
     // muut opettajat jotka on lisättty tentin tarkastajiksi
     // TODO: miten tarkastajat lisätään? per tentti, per kysymys ?
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.ALL)
     @NonCloneable
+    @JoinTable(name="exam_event_inspectors",
+            joinColumns={@JoinColumn(name="user_id")},
+            inverseJoinColumns={@JoinColumn(name="exam_event_id")})
     private List<User> inspectors;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.ALL)
     @NonCloneable
+    @JoinTable(name="exam_event_enrolled_student",
+            joinColumns={@JoinColumn(name="user_id")},
+            inverseJoinColumns={@JoinColumn(name="exam_event_id")})
     private List<User> enrolledStudents;
 
     // Exam grading, e.g. 1-5

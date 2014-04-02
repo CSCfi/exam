@@ -2,16 +2,11 @@ package util;
 
 import Exceptions.SitnetException;
 import annotations.NonCloneable;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import controllers.UserController;
 import models.SitnetModel;
 import models.User;
-
 import org.apache.commons.codec.digest.DigestUtils;
-
-import play.Logger;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -82,13 +77,14 @@ public class SitnetUtil {
                                             String name = fields[i].getName().toLowerCase();
 
                                             // if this is SitnetModel and must be cloned; set ID null
-                                            if(name.equals("id"))
-                                                fields[i].set(clone, null);
-                                            
                                             // http://avaje.org/topic-112.html
                                             // removing ebean fields helps in some cases
-                                            else if(!name.startsWith("_ebean"))
+                                            if(!name.startsWith("_ebean"))
                                                 fields[i].set(clone, fields[i].get(object));
+                                            if(name.equals("id"))
+                                                fields[i].set(clone, null);
+                                            if(name.equals("ebeantimestamp"))
+                                                fields[i].set(clone, null);
 
                                         }
                                     }
