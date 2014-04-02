@@ -36,7 +36,8 @@ public class Exam extends SitnetModel {
     @NonCloneable
     private Course course;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
 //    @JsonManagedReference
     private ExamEvent examEvent;
     

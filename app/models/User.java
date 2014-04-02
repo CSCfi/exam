@@ -3,6 +3,7 @@ package models;
 import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Role;
 import be.objectify.deadbolt.core.models.Subject;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import play.data.format.Formats;
 import play.db.ebean.Model;
@@ -17,7 +18,6 @@ public class User extends Model implements Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "student")
     @JsonManagedReference

@@ -1,6 +1,8 @@
 package models;
 
 import annotations.NonCloneable;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import util.SitnetUtil;
 
 import javax.persistence.*;
@@ -43,17 +45,31 @@ public class ExamEvent extends SitnetModel {
     // TODO: miten tarkastajat lisätään? per tentti, per kysymys ?
     @ManyToMany(cascade = CascadeType.ALL)
     @NonCloneable
+//    @JsonBackReference
     @JoinTable(name="exam_event_inspectors",
             joinColumns={@JoinColumn(name="user_id")},
             inverseJoinColumns={@JoinColumn(name="exam_event_id")})
     private List<User> inspectors;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @NonCloneable
-    @JoinTable(name="exam_event_enrolled_student",
-            joinColumns={@JoinColumn(name="user_id")},
-            inverseJoinColumns={@JoinColumn(name="exam_event_id")})
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @NonCloneable
+//    @JsonBackReference
+//    @JoinTable(name="exam_event_enrolled_student",
+//            joinColumns={@JoinColumn(name="user_id")},
+//            inverseJoinColumns={@JoinColumn(name="exam_event_id")})
+//    private List<User> enrolledStudents;
+//    @ManyToOne( cascade = CascadeType.ALL, targetEntity=User.class)
+//    @JoinColumn(name="user_id")
+//    @JsonBackReference
+
+    @ManyToOne( cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=User.class)
+//    @JoinTable(name="exam_event_enrolled_student",
+//            joinColumns={@JoinColumn(name="user_id")},
+//            inverseJoinColumns={@JoinColumn(name="exam_event_id")})
     private List<User> enrolledStudents;
+
+//    @OneToMany(cascade = CascadeType.ALL)
+//    private EnrollmentEvent enrollmentEvent;
 
     // Exam grading, e.g. 1-5
     private String grading;
@@ -156,6 +172,15 @@ public class ExamEvent extends SitnetModel {
         this.enrolledStudents = enrolledStudents;
     }
 
+
+//    public EnrollmentEvent getEnrollmentEvent() {
+//        return enrollmentEvent;
+//    }
+//
+//    public void setEnrollmentEvent(EnrollmentEvent enrollmentEvent) {
+//        this.enrollmentEvent = enrollmentEvent;
+//    }
+
     public String getGrading() {
         return grading;
     }
@@ -210,6 +235,7 @@ public class ExamEvent extends SitnetModel {
 				+ ", examReadableEndDate=" + examReadableEndDate + ", room="
 				+ room + ", duration=" + duration + ", inspectors="
 				+ inspectors + ", enrolledStudents=" + enrolledStudents
+//				+ inspectors + ", enrolledStudents=" + enrolledStudents
 				+ ", grading=" + grading + ", examLanguage=" + examLanguage
 				+ ", answerLanguage=" + answerLanguage + ", material="
 				+ material + ", state=" + state + "]";
