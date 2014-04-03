@@ -4,6 +4,7 @@ import annotations.NonCloneable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
+import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import util.SitnetUtil;
 
@@ -36,9 +37,8 @@ public class Exam extends SitnetModel {
     @NonCloneable
     private Course course;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @PrimaryKeyJoinColumn
-//    @JsonManagedReference
+    @OneToOne
+    @JsonManagedReference
     private ExamEvent examEvent;
     
     private ExamType examType;
@@ -171,77 +171,82 @@ public class Exam extends SitnetModel {
     @Override
     public Object clone() {
 
-//        Exam clone = (Exam)SitnetUtil.getClone(this);
-//
-//        clone.setState("STUDENT_STARTED");
-//        clone.generateHash();
+//        return SitnetUtil.getClone(this);
 
-        return SitnetUtil.getClone(this);
-//
-//        examClone.setCreated(this.getCreated());
-//        examClone.setCreator(this.getCreator());
-//        examClone.setModified(this.getModified());
-//        examClone.setModifier(this.getModifier());
-//        examClone.setCourse(this.getCourse());
-//        examClone.setName(this.getName());
-//        examClone.setExamType(this.getExamType());
-//        examClone.setInstruction(this.getInstruction());
-//        examClone.setShared(this.isShared());
-//
-//
+
+
+        Exam clone = (Exam)SitnetUtil.getClone(this);
+
+        clone.setState("STUDENT_STARTED");
+        clone.generateHash();
+
+        clone.setCreated(this.getCreated());
+        clone.setCreator(this.getCreator());
+        clone.setModified(this.getModified());
+        clone.setModifier(this.getModifier());
+        clone.setCourse(this.getCourse());
+        clone.setName(this.getName());
+        clone.setExamType(this.getExamType());
+        clone.setInstruction(this.getInstruction());
+        clone.setShared(this.isShared());
+
+            if(this.examEvent != null) {
+                clone.setExamEvent((ExamEvent) this.examEvent.clone());
+            }
+
 //        try {
 //            if(this.examEvent != null) {
-//                examClone.setExamEvent((ExamEvent) this.examEvent.clone());
+//                clone.setExamEvent((ExamEvent) this.examEvent.clone());
 //            }
 //        } catch (CloneNotSupportedException e) {
 //            e.printStackTrace();
 //        }
-//
-//
-//        List<ExamSection> examSectionsCopies = createNewExamSectionList();
-//
-//        for (ExamSection es : this.getExamSections()) {
-//
-//            // New arrays are needed for every examsection
-//            List<AbstractQuestion> examQuestionCopies = createNewExamQuestionList();
-//
-//            ExamSection examsec_copy = (ExamSection)es._ebean_createCopy();
-//            examsec_copy.setId(null);
-//
-//            for (AbstractQuestion q : es.getQuestions()) {
-//
-//                AbstractQuestion question_copy = (AbstractQuestion)q._ebean_createCopy();
-//                question_copy.setId(null);
-//                question_copy.setParent(q);
-//
-//                    switch (q.getType()) {
-//                        case "MultipleChoiceQuestion": {
-//                            List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
-//
-//
-//                            List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
-//                            for (MultipleChoiseOption o : options) {
-//                                MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
-//                                m_option_copy.setId(null);
-//                                multipleChoiceOptionCopies.add(m_option_copy);
-//                            }
-//                            ((MultipleChoiceQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
-//                        }
-//                        break;
-//                    }
-//                examQuestionCopies.add(question_copy);
-//            }
-//            examsec_copy.setQuestions(examQuestionCopies);
-//            examSectionsCopies.add(examsec_copy);
-//        }
-//
-//        examClone.setExamSections(examSectionsCopies);
-//
-//        //examClone.setExamEvent(this.getExamEvent());
-//        examClone.generateHash();
-//        examClone.setState("STUDENT_STARTED");
-//
-//        return examClone;
+
+
+        List<ExamSection> examSectionsCopies = createNewExamSectionList();
+
+        for (ExamSection es : this.getExamSections()) {
+
+            // New arrays are needed for every examsection
+            List<AbstractQuestion> examQuestionCopies = createNewExamQuestionList();
+
+            ExamSection examsec_copy = (ExamSection)es._ebean_createCopy();
+            examsec_copy.setId(null);
+
+            for (AbstractQuestion q : es.getQuestions()) {
+
+                AbstractQuestion question_copy = (AbstractQuestion)q._ebean_createCopy();
+                question_copy.setId(null);
+                question_copy.setParent(q);
+
+                    switch (q.getType()) {
+                        case "MultipleChoiceQuestion": {
+                            List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
+
+
+                            List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
+                            for (MultipleChoiseOption o : options) {
+                                MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
+                                m_option_copy.setId(null);
+                                multipleChoiceOptionCopies.add(m_option_copy);
+                            }
+                            ((MultipleChoiceQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
+                        }
+                        break;
+                    }
+                examQuestionCopies.add(question_copy);
+            }
+            examsec_copy.setQuestions(examQuestionCopies);
+            examSectionsCopies.add(examsec_copy);
+        }
+
+        clone.setExamSections(examSectionsCopies);
+
+        //clone.setExamEvent(this.getExamEvent());
+        clone.generateHash();
+        clone.setState("STUDENT_STARTED");
+
+        return clone;
     }
 
     public List<ExamSection> createNewExamSectionList() {

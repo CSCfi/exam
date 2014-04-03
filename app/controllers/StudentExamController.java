@@ -44,21 +44,6 @@ public class StudentExamController extends SitnetController {
 
     public static Result startExam(String hash) throws UnauthorizedAccessException {
 
-//
-//        ExamEvent event = Ebean.find(ExamEvent.class)
-//                .where()
-//                .eq("id", 1)
-//                .findUnique();
-//
-//        ExamEvent eventClone = (ExamEvent) SitnetUtil.getClone(event);
-////        eventClone.saveManyToManyAssociations("inspectors");
-////        eventClone.saveManyToManyAssociations("enrolledStudents");
-//        Ebean.saveManyToManyAssociations(eventClone, "inspectors");
-//        Ebean.saveManyToManyAssociations(eventClone, "enrolledStudents");
-//        eventClone.setEbeanTimestamp(null);
-//        eventClone.save();
-//
-//        return ok(Json.toJson(eventClone));
 
 
         //todo: check credentials / token
@@ -83,17 +68,21 @@ public class StudentExamController extends SitnetController {
 
         if (possibleClone == null) {
             Exam studentExam = (Exam)blueprint.clone();
-            studentExam.setStudent(UserController.getLoggedUser());
+//            studentExam.setStudent(UserController.getLoggedUser());
             studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
             studentExam.setState("STUDENT_STARTED");
             studentExam.generateHash();
+
+
+            UserController.getLoggedUser().getExams().add(studentExam);
+            UserController.getLoggedUser().save();
 
             // 1. might want try Serialization clone approach
             // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
             // http://avaje.org/topic-112.html
 
 
-            studentExam.getExamEvent().save();
+//            studentExam.getExamEvent().save();
 
             studentExam.save();
 
