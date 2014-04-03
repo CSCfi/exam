@@ -44,8 +44,6 @@ public class StudentExamController extends SitnetController {
 
     public static Result startExam(String hash) throws UnauthorizedAccessException {
 
-
-
         //todo: check credentials / token
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")

@@ -59,10 +59,27 @@ public class ExamController extends SitnetController {
 
         User user = UserController.getLoggedUser();
 
-        List<Exam> exams = Ebean.find(Exam.class).where()
-                .eq("state", state)
-                .eq("student.id", user.getId())
-                .findList();
+//        List<Exam> exams = Ebean.find(Exam.class)
+//            .fetch("examEvent")
+//            .fetch("course")
+//            .fetch("examSections")
+//            .where()
+//                .eq("state", state)
+//                .eq("student.id", user.getId())
+//            .findList();
+
+        String oql =
+            "  find  exam "
+                +" fetch examSections "
+                +" fetch course "
+                +" fetch examEvent "
+                +" where state=:examstate and student.id=:userid";
+
+        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
+        query.setParameter("examstate", "STUDENT_STARTED");
+        //query.setParameter("userid", user.getId());
+
+        List<Exam> exams = query.findList();
 
 //        String oql =
 //                "  find  exam "
