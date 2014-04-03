@@ -4,6 +4,7 @@ import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Query;
 import models.Exam;
 import models.User;
 import models.answers.AbstractAnswer;
@@ -28,16 +29,30 @@ public class StudentExamController extends SitnetController {
 
     @Restrict(@Group({"STUDENT"}))
     public static Result listActiveExams() {
-        User user = UserController.getLoggedUser();
-        Timestamp now = new Timestamp(DateTime.now().getMillis());
+//        User user = UserController.getLoggedUser();
+//        Timestamp now = new Timestamp(DateTime.now().getMillis());
 
-        List<Exam> exams = Ebean.find(Exam.class)
-                .fetch("examSections")
-                .where()
-                .eq("state", "PUBLISHED")
-//                .lt("examEvent.examActiveEndDate", now)
-//                .eq("examEvent.enrolledStudents.id", user.getId())
-                .findList();
+        String oql =
+                "  find  exam "
+                        +" fetch examSections "
+                        +" fetch course "
+                        +" fetch examEvent "
+                        +" where state=:published or state=:started or state=:returned";
+
+        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
+        query.setParameter("published", "PUBLISHED");
+        query.setParameter("started", "STUDENT_STARTED");
+        query.setParameter("returned", "REVIEW");
+
+        List<Exam> exams = query.findList();
+
+//        List<Exam> exams = Ebean.find(Exam.class)
+//                .fetch("examSections")
+//                .where()
+//                .eq("state", "PUBLISHED")
+////                .lt("examEvent.examActiveEndDate", now)
+////                .eq("examEvent.enrolledStudents.id", user.getId())
+//                .findList();
 
         return ok(Json.toJson(exams));
     }
@@ -72,8 +87,8 @@ public class StudentExamController extends SitnetController {
             studentExam.generateHash();
 
 
-            UserController.getLoggedUser().getExams().add(studentExam);
-            UserController.getLoggedUser().save();
+//            UserController.getLoggedUser().getExams().add(studentExam);
+//            UserController.getLoggedUser().save();
 
             // 1. might want try Serialization clone approach
             // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/

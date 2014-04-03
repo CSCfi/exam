@@ -3,6 +3,7 @@ package models;
 import annotations.NonCloneable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import controllers.UserController;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
@@ -12,6 +13,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
@@ -148,9 +150,11 @@ public class Exam extends SitnetModel {
 
     public String generateHash() {
 
+        Random rand = new Random();
+
         // TODO: what attributes make examEvent unique?
         // create unique hash for exam
-        String attributes = name + state;
+        String attributes = name + state + new String(rand.nextDouble()+"");
 
 //                examEvent.getStartTime().toString() +
 //                examEvent.getEndTime().toString();
@@ -173,13 +177,15 @@ public class Exam extends SitnetModel {
 
 //        return SitnetUtil.getClone(this);
 
+        Exam clone = new Exam();
 
+//        Exam clone = (Exam)SitnetUtil.getClone(this);
 
-        Exam clone = (Exam)SitnetUtil.getClone(this);
+//        clone.setState("STUDENT_STARTED");
+//        clone.generateHash();
 
-        clone.setState("STUDENT_STARTED");
-        clone.generateHash();
-
+        // Causes infinite recursion
+//        clone.setStudent(UserController.getLoggedUser());
         clone.setCreated(this.getCreated());
         clone.setCreator(this.getCreator());
         clone.setModified(this.getModified());
@@ -190,9 +196,9 @@ public class Exam extends SitnetModel {
         clone.setInstruction(this.getInstruction());
         clone.setShared(this.isShared());
 
-            if(this.examEvent != null) {
-                clone.setExamEvent((ExamEvent) this.examEvent.clone());
-            }
+//            if(this.examEvent != null) {
+//                clone.setExamEvent((ExamEvent) this.examEvent.clone());
+//            }
 
 //        try {
 //            if(this.examEvent != null) {
@@ -242,9 +248,10 @@ public class Exam extends SitnetModel {
 
         clone.setExamSections(examSectionsCopies);
 
-        //clone.setExamEvent(this.getExamEvent());
-        clone.generateHash();
+        clone.setExamEvent(this.getExamEvent());
+
         clone.setState("STUDENT_STARTED");
+        clone.generateHash();
 
         return clone;
     }

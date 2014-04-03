@@ -119,7 +119,7 @@
                 $scope.saveExam = function (doexam) {
                     StudentExamRes.exams.update({id: doexam.id}, function () {
                         toastr.info("Tentti lähetettiin tarkastettavaksi.");
-                        $location.path("/home/");
+                        $location.path("/exams/");
 
                     }, function () {
                         toastr.error("Jokin meni pieleen");
