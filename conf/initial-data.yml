@@ -20,6 +20,8 @@
 #
 ######################################################################
 
+# 2014-04-03 20:32:04.575
+
 # Users
 
 user_languages:
@@ -29,6 +31,8 @@ user_languages:
       UILanguageCode: FI_fi
       UILanguageName: Suomi
 
+
+    
 users:
     - &sauli !!models.User
       email:      test
@@ -38,7 +42,6 @@ users:
       roles:  
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
-
 
     - &maika !!models.User
       email:      opettaja
@@ -504,7 +507,7 @@ exams:
     instruction:
     shared: false
     examSections:
-    examEvent: *event1
+#    examEvent: *event1
     state: PUBLISHED
 
   - &alkeidenperusteet !!models.Exam
@@ -515,7 +518,7 @@ exams:
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
     examSections:
-    examEvent: *event1
+#    examEvent: *event1
     state: PUBLISHED
 
   - &tietokannat2013 !!models.Exam
@@ -526,7 +529,7 @@ exams:
     instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
     shared: true
     examSections:
-    examEvent: *event1
+#    examEvent: *event1
     state: PUBLISHED
 
   - &tietokannat2014 !!models.Exam
@@ -537,7 +540,7 @@ exams:
     instruction: Vastaa kaikkiin tenttikysymyksiin
     shared: true
     examSections:
-    examEvent: *event1
+#    examEvent: *event1
     state: PUBLISHED
 
   - &algoritmit !!models.Exam
@@ -548,7 +551,7 @@ exams:
     instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
     shared: true
     examSections:
-    examEvent: *event2
+#    examEvent: *event2
     state: DRAFT
 
   - &ooad !!models.Exam
@@ -559,7 +562,7 @@ exams:
     instruction: Tentissä saa käyttää vain tilakoneita.
     shared: true
     examSections:
-    examEvent: *event3
+#    examEvent: *event3
     state: PUBLISHED
     
     
@@ -637,4 +640,67 @@ examsections:
               - *essay2
               - *essay3
     totalScore:
+    
+exam-enrolments:
+  
+  - !!models.ExamEnrolment
+    user: *sauli
+    exam: *ooad
+    enrolledOn: 2014-04-03 20:32:04.575
 
+  - !!models.ExamEnrolment
+    user: *sauli
+    exam: *algoritmit
+    enrolledOn: 2014-04-03 20:32:04.575
+   
+  - !!models.ExamEnrolment
+    user: *sauli
+    exam: *alkeidenperusteet
+    enrolledOn: 2014-04-03 20:32:04.575
+   
+  - !!models.ExamEnrolment
+    user: *sauli
+    exam: *astronomianPerusteet
+    enrolledOn: 2014-04-03 20:32:04.575
+
+
+exam-inspections:
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *alkeidenperusteet
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *astronomianPerusteet
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *algoritmit
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *ooad
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *tietokannat2013
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *tietokannat2014
+   
+   
+   
+   
+   
+#exam-participations:   
+#  - !!models.ExamParticipation
+#    user: *sauli
+#    exam: *astronomianPerusteet
+#    started: 2014-04-01 12:00:00.575
+#    ended: 2014-04-01 14:45:00.575
+    
+    
+    
+    

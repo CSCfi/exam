@@ -69,7 +69,7 @@ public class StudentExamController extends SitnetController {
         if (possibleClone == null) {
             Exam studentExam = (Exam)blueprint.clone();
 //            studentExam.setStudent(UserController.getLoggedUser());
-            studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
+//            studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
             studentExam.setState("STUDENT_STARTED");
             studentExam.generateHash();
 

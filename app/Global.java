@@ -72,6 +72,8 @@ public class Global extends GlobalSettings {
                 Ebean.save(all.get("examevents"));
                 Ebean.save(all.get("exams"));
                 Ebean.save(all.get("examsections"));
+                Ebean.save(all.get("exam-enrolments"));
+                Ebean.save(all.get("exam-inspections"));
 
                 // generate hashes for questions
                 List<QuestionInterface> questions = (List)all.get("question_mutiple_choice");

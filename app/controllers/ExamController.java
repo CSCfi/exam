@@ -4,16 +4,14 @@ import java.sql.Timestamp;
 import java.util.List;
 
 import models.Exam;
+import models.ExamEnrolment;
 import models.ExamEvent;
+import models.ExamInspection;
 import models.ExamSection;
 import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
-
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -26,7 +24,10 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class ExamController extends SitnetController {
@@ -138,7 +139,7 @@ public class ExamController extends SitnetController {
         ExamEvent examEvent = new ExamEvent();
         examEvent.setDuration(new Double(3));
         examEvent.save();
-        exam.setExamEvent(examEvent);
+//        exam.setExamEvent(examEvent);
         
         exam.save();
 
@@ -264,14 +265,14 @@ public class ExamController extends SitnetController {
                     }
                 }
 
-                ExamEvent event = ex.getExamEvent();
-                Logger.debug(event.toString());
-
-                DateTime dtStart = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableStartDate());
-                event.setExamActiveStartDate(new Timestamp(dtStart.getMillis()));
-
-                DateTime dtEnd = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableEndDate());
-                event.setExamActiveEndDate(new Timestamp(dtEnd.getMillis()));
+//                ExamEvent event = ex.getExamEvent();
+//                Logger.debug(event.toString());
+//
+//                DateTime dtStart = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableStartDate());
+//                event.setExamActiveStartDate(new Timestamp(dtStart.getMillis()));
+//
+//                DateTime dtEnd = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableEndDate());
+//                event.setExamActiveEndDate(new Timestamp(dtEnd.getMillis()));
 
                 Logger.debug(ex.toString());
                 ex.save();
@@ -391,7 +392,7 @@ public class ExamController extends SitnetController {
         ExamEvent examEvent = bindForm(ExamEvent.class);
 
         Exam exam = Ebean.find(Exam.class, examId);
-        exam.setExamEvent(examEvent);
+//        exam.setExamEvent(examEvent);
 //        examEvent.setCurrentExam(exam);
 
         examEvent.save();
@@ -400,4 +401,42 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(examEvent));
     }
 
+	public static Result getEnrolments() {
+		List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
+
+		if (enrolments == null) {
+			return notFound();
+		} else {
+			JsonContext jsonContext = Ebean.createJsonContext();
+			JsonWriteOptions options = new JsonWriteOptions();
+			options.setRootPathProperties("id, enrolledOn, user, exam");
+			options.setPathProperties("user", "id");
+			options.setPathProperties("exam", "id");
+
+			return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+		}
+	}
+
+    public static Result getInspections() {
+    	List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
+    			.fetch("exam", "name", new FetchConfig().query())
+    			.findList();
+
+    	// select only exam.name  works
+    	// but Json reflection will invoke lazy loading 
+    	// https://groups.google.com/forum/#!topic/play-framework/xVDmm4hQqfY
+    	
+        if (inspections == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, user, exam");
+            options.setPathProperties("user", "id");
+            options.setPathProperties("exam", "id");
+            
+            return ok(jsonContext.toJsonString(inspections, true, options)).as("application/json");
+        }        
+    }
+    
 }

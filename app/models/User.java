@@ -3,12 +3,15 @@ package models;
 import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Role;
 import be.objectify.deadbolt.core.models.Subject;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+
 import java.util.List;
 
 @Entity
@@ -41,7 +44,26 @@ public class User extends Model implements Subject {
 
     @OneToOne
     private UserLanguage userLanguage;
-
+    
+    
+    
+    
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
+    @JsonManagedReference
+    private List<ExamEnrolment> enrolments;
+    
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
+    @JsonManagedReference
+    private List<ExamParticipation> participations;
+    
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
+    @JsonManagedReference
+    private List<ExamInspection> inspections;
+    
+    
+    
+    
+    
 	public Long getId() {
         return id;
     }
@@ -114,7 +136,31 @@ public class User extends Model implements Subject {
         return null;
     }
 
-    @Override
+    public List<ExamEnrolment> getEnrolments() {
+		return enrolments;
+	}
+
+	public void setEnrolments(List<ExamEnrolment> enrolments) {
+		this.enrolments = enrolments;
+	}
+
+	public List<ExamParticipation> getParticipations() {
+		return participations;
+	}
+
+	public void setParticipations(List<ExamParticipation> participations) {
+		this.participations = participations;
+	}
+
+	public List<ExamInspection> getInspections() {
+		return inspections;
+	}
+
+	public void setInspections(List<ExamInspection> inspections) {
+		this.inspections = inspections;
+	}
+
+	@Override
     public String getIdentifier() {
         return email;
     }

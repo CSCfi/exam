@@ -75,6 +75,8 @@ GET             /options/:id                                        controllers.
 
 # test test test test test
 POST          /test                                                 controllers.TestController.addQuestion()
+GET           /enrolments                                           controllers.ExamController.getEnrolments()
+GET           /inspections                                          controllers.ExamController.getInspections()
 
 
 

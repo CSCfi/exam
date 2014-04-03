@@ -40,11 +40,8 @@ public class ExamEvent extends SitnetModel {
     // tentin kesto
     private Double duration;
 
-    // muut opettajat jotka on lisättty tentin tarkastajiksi
-    // TODO: miten tarkastajat lisätään? per tentti, per kysymys ?
     @ManyToMany(cascade = CascadeType.ALL)
     @NonCloneable
-    @JsonBackReference
     @JoinTable(name="exam_event_inspectors",
             joinColumns={@JoinColumn(name="user_id")},
             inverseJoinColumns={@JoinColumn(name="exam_event_id")})
@@ -69,13 +66,6 @@ public class ExamEvent extends SitnetModel {
     // Exam material
     private String material;
 
-    // TODO: öhm tentin ja tenttitapahtuman tila on 2 eri asiaa!
-    /*
-     * Tentin tila
-     *
-     * avoin (lähetetty opiskelijalle), peruttu, opiskelija täyttää tenttiä, täytetty, tarkastettavana, tarkastettu jne..}
-     *
-     */
     private String state;
 
     public String getRoom() {
