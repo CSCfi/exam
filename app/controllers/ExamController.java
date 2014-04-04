@@ -54,8 +54,8 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(exams));
     }
 
-    public static Result getExamByState(String state) {
-        Logger.debug("getExamByState()");
+    public static Result getExamsByState(String state) {
+        Logger.debug("getExamsByState()");
 
         User user = UserController.getLoggedUser();
 
@@ -73,10 +73,12 @@ public class ExamController extends SitnetController {
                 +" fetch examSections "
                 +" fetch course "
                 +" fetch examEvent "
-                +" where state=:examstate and student.id=:userid";
+                +" where state=:examstate";
 
         Query<Exam> query = Ebean.createQuery(Exam.class, oql);
-        query.setParameter("examstate", "STUDENT_STARTED");
+        query.setParameter("examstate", state);
+
+        // Todo: Uncomment when student_id gets set to the EXAM table
         //query.setParameter("userid", user.getId());
 
         List<Exam> exams = query.findList();
@@ -109,6 +111,22 @@ public class ExamController extends SitnetController {
         Exam exam = query.findUnique();
    	
     	return ok(Json.toJson(exam));
+    }
+
+    public static Result reviewExam(Long id) {
+        Logger.debug("reviewExam(:id)");
+
+//        Query<Exam> query = Ebean.createQuery(Exam.class);
+//        query.fetch("examEvent");
+//        query.fetch("course");
+//        query.fetch("examSections");
+//        query.setId(id);
+//
+//        Exam exam = query.findUnique();
+//
+//        return ok(Json.toJson(exam));
+
+        return ok("testi toimii");
     }
 
     public static Result updateExam(Long id) throws MalformedDataException {
