@@ -66,9 +66,11 @@ public class Exam extends SitnetModel {
     private String hash;
 
     // tentin voimassaoloaika, tentti on avoin opiskelijoille tästä lähtien
+    @Temporal(TemporalType.TIMESTAMP)
     private Timestamp examActiveStartDate;
     
     // tentin voimassaoloaika, tentti sulkeutuu
+    @Temporal(TemporalType.TIMESTAMP)
     private Timestamp examActiveEndDate;
 
     // Akvaario
@@ -193,12 +195,12 @@ public class Exam extends SitnetModel {
 
 	public String generateHash() {
 
-        // TODO: what attributes make examEvent unique?
+        // TODO: what attributes make Exam unique?
         // create unique hash for exam
-        String attributes = name + state;
-
-//                examEvent.getStartTime().toString() +
-//                examEvent.getEndTime().toString();
+        String attributes = name
+                + state;
+//                + examActiveStartDate.toString()
+//                + examActiveEndDate.toString();
 
         this.hash = SitnetUtil.encodeMD5(attributes);
         play.Logger.debug("Exam hash: " + this.hash);
@@ -250,19 +252,6 @@ public class Exam extends SitnetModel {
         clone.setExamType(this.getExamType());
         clone.setInstruction(this.getInstruction());
         clone.setShared(this.isShared());
-
-//            if(this.examEvent != null) {
-//                clone.setExamEvent((ExamEvent) this.examEvent.clone());
-//            }
-
-//        try {
-//            if(this.examEvent != null) {
-//                clone.setExamEvent((ExamEvent) this.examEvent.clone());
-//            }
-//        } catch (CloneNotSupportedException e) {
-//            e.printStackTrace();
-//        }
-
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
 

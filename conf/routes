@@ -40,12 +40,6 @@ GET           /student/doexam/:hash                                 controllers.
 POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
 POST          /student/exams/:hash/question/:questionId             controllers.StudentExamController.insertEssay(hash: String, questionId: Long)
 
-############### Events interface ###############
-GET           /events                                               controllers.ExamController.getExamEvents()
-POST          /events                                               controllers.ExamController.insertEvent()
-POST          /events/:examId                                       controllers.ExamController.insertEventWithExam(examId: Long)
-PUT           /events/:id                                 		    controllers.ExamController.updateEvent(id: Long)
-
 
 ############### Section interface ###############
 

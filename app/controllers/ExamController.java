@@ -2,8 +2,6 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import Exceptions.SitnetException;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
@@ -57,19 +55,6 @@ public class ExamController extends SitnetController {
                 .eq("state", state)
                 .eq("student.id", user.getId())
                 .findList();
-
-//        String oql =
-//                "  find  exam "
-//                +" fetch examSections "
-//                +" fetch course "
-//                +" fetch examEvent "
-//                +" where state=:state"
-//                +"and user";
-//
-//        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
-//        query.setParameter("state", state);
-//
-//        List<Exam> exams = query.findList();
 
         return ok(Json.toJson(exams));
     }
@@ -277,15 +262,6 @@ public class ExamController extends SitnetController {
                     }
                 }
 
-//                ExamEvent event = ex.getExamEvent();
-//                Logger.debug(event.toString());
-//
-//                DateTime dtStart = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableStartDate());
-//                event.setExamActiveStartDate(new Timestamp(dtStart.getMillis()));
-//
-//                DateTime dtEnd = DateTimeFormat.forPattern("dd-MM-yyyy").parseDateTime(event.getExamReadableEndDate());
-//                event.setExamActiveEndDate(new Timestamp(dtEnd.getMillis()));
-
                 Logger.debug(ex.toString());
                 ex.save();
 
@@ -356,61 +332,6 @@ public class ExamController extends SitnetController {
         User user = UserController.getLoggedUser();
 
         return ok("section created");
-    }
-
-    //  @Authenticate
-    public static Result getExamEvents() {
-
-        List<ExamEvent> examEvents = Ebean.find(ExamEvent.class).findList();
-        return ok(Json.toJson(examEvents));
-    }
-
-    @Restrict(@Group({"TEACHER"}))
-    public static Result insertEvent() throws MalformedDataException {
-
-        ExamEvent examEvent = bindForm(ExamEvent.class);
-        return ok(Json.toJson(examEvent));
-    }
-
-    @Restrict(@Group({"TEACHER"}))
-    public static Result updateEvent(Long id) throws MalformedDataException {
-    	
-        DynamicForm df = Form.form().bindFromRequest();
-
-        Long start = new Long(df.get("examActiveStartDate"));
-        Long end = new Long(df.get("examActiveEndDate"));
-        
-    	ExamEvent examEvent = Form.form(ExamEvent.class).bindFromRequest(
-    	"id",
-//    	"examActiveStartDate",
-//    	"examActiveEndDate",
-    	"room",
-    	"duration",
-    	"grading",
-    	"language",
-    	"answerLanguage",
-    	"material").get();
-    	
-    	examEvent.setExamActiveStartDate(new Timestamp(start));
-    	examEvent.setExamActiveEndDate(new Timestamp(end));
-    	
-    	examEvent.update();
-    	return ok(Json.toJson(examEvent));
-    }
-    
-//    @Restrict(@Group({"TEACHER"}))
-    public static Result insertEventWithExam(Long examId) throws MalformedDataException {
-
-        ExamEvent examEvent = bindForm(ExamEvent.class);
-
-        Exam exam = Ebean.find(Exam.class, examId);
-//        exam.setExamEvent(examEvent);
-//        examEvent.setCurrentExam(exam);
-
-        examEvent.save();
-        exam.save();
-
-        return ok(Json.toJson(examEvent));
     }
 
 	public static Result getEnrolments() {

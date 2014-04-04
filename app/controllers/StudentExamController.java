@@ -18,7 +18,6 @@ import play.libs.Json;
 import play.mvc.Result;
 
 import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,8 +34,8 @@ public class StudentExamController extends SitnetController {
                 .fetch("examSections")
                 .where()
                 .eq("state", "PUBLISHED")
-//                .lt("examEvent.examActiveEndDate", now)
-//                .eq("examEvent.enrolledStudents.id", user.getId())
+                .lt("examActiveEndDate", now)
+//                .eq("enrolledStudents.id", user.getId())
                 .findList();
 
         return ok(Json.toJson(exams));
@@ -44,19 +43,15 @@ public class StudentExamController extends SitnetController {
 
     public static Result startExam(String hash) throws UnauthorizedAccessException {
 
-
-
         //todo: check credentials / token
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
-                .fetch("examEvent")
                 .where()
                 .eq("hash", hash)
                 .findUnique();
 
         Exam possibleClone = Ebean.find(Exam.class)
                 .fetch("examSections")
-                .fetch("examEvent")
                 .where()
                 .eq("hash", hash)
                 .eq("state", "STUDENT_STARTED").findUnique();
@@ -80,9 +75,6 @@ public class StudentExamController extends SitnetController {
             // 1. might want try Serialization clone approach
             // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
             // http://avaje.org/topic-112.html
-
-
-//            studentExam.getExamEvent().save();
 
             studentExam.save();
 
