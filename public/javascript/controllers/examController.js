@@ -103,24 +103,23 @@
                     "instruction": null,
                     "shared": false,
                     "examSections": [],
-                    "examEvent": null,
                     "state": "DRAFT"
                 };
-
-                $scope.newExamEvent = {
-                    "examReadableStartDate": null,
-                    "examReadableEndDate": null,
-                    "examActiveStartDate": null,
-                    "examActiveEndDate": null,
-                    "room": null,
-                    "duration": null,
-                    "inspector": null,
-                    "grading": null,
-                    "language": null,
-                    "answerLanguage": null,
-                    "material": null,
-                    "guidance": null
-                };
+//
+//                $scope.newExamEvent = {
+//                    "examReadableStartDate": null,
+//                    "examReadableEndDate": null,
+//                    "examActiveStartDate": null,
+//                    "examActiveEndDate": null,
+//                    "room": null,
+//                    "duration": null,
+//                    "inspector": null,
+//                    "grading": null,
+//                    "language": null,
+//                    "answerLanguage": null,
+//                    "material": null,
+//                    "guidance": null
+//                };
 
                 $scope.newSection = {
                     hide: false,
@@ -163,27 +162,27 @@
                 };
 
                 $scope.setExamRoom = function (room) {
-                    $scope.newExamEvent.room = room;
+                    $scope.newExam.room = room;
                 };
 
                 $scope.setExamDuration = function (duration) {
-                    $scope.newExamEvent.duration = duration;
+                    $scope.newExam.duration = duration;
                 };
 
                 $scope.setExamInspector = function (inspector) {
-                    $scope.newExamEvent.inspector = inspector;
+                    $scope.newExam.inspector = inspector;
                 };
 
                 $scope.setExamGrading = function (grading) {
-                    $scope.newExamEvent.grading = grading;
+                    $scope.newExam.grading = grading;
                 };
 
                 $scope.setExamLanguage = function (language) {
-                    $scope.newExamEvent.language = language;
+                    $scope.newExam.language = language;
                 };
 
                 $scope.setExamAnswerLanguage = function (answerLanguage) {
-                    $scope.newExamEvent.answerLanguage = answerLanguage;
+                    $scope.newExam.answerLanguage = answerLanguage;
                 };
 
                 var questions = QuestionRes.questions.query(function () {
@@ -235,17 +234,7 @@
             			toastr.error("Jokin meni pieleen");
             		});
                 };
-                
-                $scope.updateExam = function (exam) {
-                	
-                	ExamRes.exams.update({id: $scope.newExam.id}, exam, function (ex) {
-                		exam = ex;
-                		toastr.info("Tentti päivitetty.");
-                	}, function (error) {
-                		toastr.error("Jokin meni pieleen");
-                	});
-                };
-                
+
                 $scope.clearAllQuestions = function (section) {
                     if (confirm('Poistetaanko kaikki kysymykset?')) {
                         section.questions.splice(0, questions.length);
@@ -283,64 +272,75 @@
                     // Todo: Implement this
                 };
 
+
+/*                $scope.updateExam = function (exam) {
+
+                    var examToSave = {
+                        "id": $scope.newExam.id,
+                        "name": $scope.newExam.name
+                    };
+
+                    ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
+                        toastr.info("Tentti tallennettu.");
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+
+                };*/
+
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
-                	$scope.newExam.examEvent.examActiveStartDate = $scope.dateService.startTimestamp;
-                	$scope.newExam.examEvent.examActiveEndDate = $scope.dateService.endTimestamp;
 
                     var examToSave = {
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
                         "instruction": $scope.newExam.instruction,
                         "state": 'SAVED',
-	                    "course": $scope.newExam.course,
-	                    "examEvent": $scope.newExam.examEvent,
-                        "shared": $scope.newExam.shared
-
+	                    "course": $scope.newExam.course,    // there is no course
+                        "shared": $scope.newExam.shared,
+                        "examActiveStartDate": $scope.dateService.startTimestamp,
+                        "examActiveEndDate": $scope.dateService.endTimestamp,
+                        "room": $scope.newExam.room,
+                        "duration": $scope.newExam.duration,
+                        "grading": $scope.newExam.grading,
+                        "examLanguage": $scope.newExam.examLanguage,
+                        "answerLanguage": $scope.newExam.answerLanguage
                     };
                     
                     ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
                         toastr.info("Tentti tallennettu.");
                     }, function (error) {
-                        toastr.error("Jokin meni pieleen");
+                        toastr.error(error.data);
                     });
-                    
-                    ExamRes.events.update({id: $scope.newExam.examEvent.id}, $scope.newExam.examEvent, function (event) {
-                    	console.log(event);
-                    	toastr.info("Tentti tallennettu.");
-                    }, function (error) {
-                    	toastr.error("Tenttitapahtuman tallennus meni pieleen");
-                    });
-      
+
                 };
 
                 // Called when Save and publish button is clicked
                 $scope.saveAndPublishExam = function () {
                     if (confirm('Oletko varma että haluat julkaista tentin?\nTämän jälkeen '+
                     		'opeskelijat voivat osallistua tenttiin eikä tenttiä voi enää muokata.')) {
-                    	
-	                	$scope.newExam.state = "PUBLISHED";
-//	                	$scope.newExamEvent.examReadableStartDate = $scope.dateService.modStartDate;
-//	                	$scope.newExamEvent.examReadableEndDate = $scope.dateService.modEndDate;
-	                	
-	                	$scope.newExam.examEvent.examActiveStartDate = $scope.dateService.startTimestamp;
-	                	$scope.newExam.examEvent.examActiveEndDate = $scope.dateService.endTimestamp;
-	                	
-	                	var examToSave = {
-	                			"id": $scope.newExam.id,
-	                			"name": $scope.newExam.name,
-	                			"instruction": $scope.newExam.instruction,
-	                			"state": $scope.newExam.state,
-	                			"examEvent": $scope.newExam.examEvent,
-	                			"shared": $scope.newExam.shared
-	                	};
-	                	
-	                	ExamRes.exams.update(examToSave, function (exam) {
-	                		
-	                		toastr.info("Tentti tallennettu ja julkaistu.");
-	                	}, function (error) {
-	                		toastr.error("Jokin meni pieleen");
-	                	});
+
+                        var examToSave = {
+                            "id": $scope.newExam.id,
+                            "name": $scope.newExam.name,
+                            "instruction": $scope.newExam.instruction,
+                            "state": 'PUBLISHED',
+                            "course": $scope.newExam.course,    // there is no course
+                            "shared": $scope.newExam.shared,
+                            "examActiveStartDate": $scope.dateService.startTimestamp,
+                            "examActiveEndDate": $scope.dateService.endTimestamp,
+                            "room": $scope.newExam.room,
+                            "duration": $scope.newExam.duration,
+                            "grading": $scope.newExam.grading,
+                            "examLanguage": $scope.newExam.examLanguage,
+                            "answerLanguage": $scope.newExam.answerLanguage
+                        };
+
+                        ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
+                            toastr.success("Tentti tallennettu ja julkaistu");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
                 	}
                 };
                 

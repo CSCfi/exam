@@ -123,7 +123,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.examEvent.room">
+            <input type="text" class="form-control" ng-model="newExam.room">
         </div>
     </div>
 
@@ -139,7 +139,7 @@
                             class="pointer-hand">{{duration}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.examEvent.duration">
+            <input type="text" class="form-control" ng-model="newExam.duration">
         </div>
     </div>
 </div>
@@ -153,14 +153,14 @@
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' | translate}} <span
                             class="caret"></span></button>
                 <ul class="dropdown-menu">
-                    <li ng-repeat="inspector in examInspectors |  filter:selected"
+                    <li ng-repeat="inspector in examInspectors | filter:selected"
                         ng-click="setExamInspector(inspector)">
                         <a class="pointer-hand">{{inspector.name}}</a>
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" value="{{newExam.examEvent.inspector.name}}"
-                   ng-model="newExam.examEvent.inspector.name">
+            <input type="text" class="form-control" value="{{newExam.inspector.name}}"
+                   ng-model="newExam.inspector.name">
         </div>
     </div>
 
@@ -176,7 +176,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.examEvent.grading">
+            <input type="text" class="form-control" ng-model="newExam.grading">
         </div>
     </div>
 </div>
@@ -195,7 +195,7 @@
                             class="pointer-hand">{{language}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.examEvent.language">
+            <input type="text" class="form-control" ng-model="newExam.examLanguage">
         </div>
     </div>
 
@@ -212,7 +212,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.examEvent.answerLanguage">
+            <input type="text" class="form-control" ng-model="newExam.answerLanguage">
         </div>
     </div>
 </div>

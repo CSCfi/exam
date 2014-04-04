@@ -1,14 +1,16 @@
 package controllers;
 
-import java.sql.Timestamp;
-import java.util.List;
-
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamEvent;
-import models.ExamInspection;
-import models.ExamSection;
-import models.User;
+import Exceptions.MalformedDataException;
+import Exceptions.SitnetException;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.FetchConfig;
+import com.avaje.ebean.Query;
+import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.*;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
@@ -18,17 +20,9 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
-import Exceptions.MalformedDataException;
-import Exceptions.SitnetException;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.Query;
-import com.avaje.ebean.text.json.JsonContext;
-import com.avaje.ebean.text.json.JsonWriteOptions;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.sql.Timestamp;
+import java.util.List;
 
 public class ExamController extends SitnetController {
 
@@ -42,7 +36,6 @@ public class ExamController extends SitnetController {
                 "  find  exam "
                 +" fetch examSections "
                 +" fetch course "
-                +" fetch examEvent "
                 +" where state=:published or state=:saved or state=:draft";
         
         Query<Exam> query = Ebean.createQuery(Exam.class, oql);
@@ -85,7 +78,6 @@ public class ExamController extends SitnetController {
     	Logger.debug("getExam(:id)");
 
         Query<Exam> query = Ebean.createQuery(Exam.class);
-        query.fetch("examEvent");
         query.fetch("course");
         query.fetch("examSections");
         query.setId(id);
@@ -96,18 +88,41 @@ public class ExamController extends SitnetController {
     }
 
     public static Result updateExam(Long id) throws MalformedDataException {
-    	Logger.debug("updateExam(:id)");
+
+        DynamicForm df = Form.form().bindFromRequest();
+
+        Long start = new Long(df.get("examActiveStartDate"));
+        Long end = new Long(df.get("examActiveEndDate"));
+
     	Exam ex = Form.form(Exam.class).bindFromRequest(
     	"id",
     	"instruction",
     	"name",
     	"shared",
-    	"state").get();
+    	"state",
+        "room",
+        "duration",
+        "grading",
+        "examLanguage",
+        "answerLanguage").get();
 
-    	ex.generateHash();
-    	ex.update();
+        if(SitnetUtil.isOwner(ex))
+        {
+            ex.setExamActiveStartDate(new Timestamp(start));
+            ex.setExamActiveEndDate(new Timestamp(end));
 
-    	return ok(Json.toJson(ex));
+            try {
+                SitnetUtil.setModifier(ex);
+            } catch (SitnetException e) {
+                e.printStackTrace();
+            }
+            ex.generateHash();
+            ex.update();
+
+            return ok(Json.toJson(ex));
+        }
+        else
+            return notFound("Sinulla ei oikeuksia muokata tätä objektia");
     }
     
     public static Result createExamDraft() throws MalformedDataException {
@@ -135,11 +150,8 @@ public class ExamController extends SitnetController {
         examSection.setExam(exam);
         examSection.save();
         exam.getExamSections().add(examSection);
-        
-        ExamEvent examEvent = new ExamEvent();
-        examEvent.setDuration(new Double(3));
-        examEvent.save();
-//        exam.setExamEvent(examEvent);
+        exam.setDuration(new Double(3));
+        exam.setExamLanguage("fi");
         
         exam.save();
 
@@ -404,7 +416,11 @@ public class ExamController extends SitnetController {
 	public static Result getEnrolments() {
 		List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
 
-		if (enrolments == null) {
+
+//        return ok(Json.toJson(enrolments));
+
+ 
+        if (enrolments == null) {
 			return notFound();
 		} else {
 			JsonContext jsonContext = Ebean.createJsonContext();

@@ -24,25 +24,6 @@ import java.util.List;
  */
 @Entity
 public class Exam extends SitnetModel {
-
-//  @OneToOne
-//  @JsonManagedReference
-//  private ExamEvent examEvent;
-	
-
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @NonCloneable
-//    @JoinTable(name="exam_event_inspectors",
-//            joinColumns={@JoinColumn(name="user_id")},
-//            inverseJoinColumns={@JoinColumn(name="exam_event_id")})
-//    private List<User> inspectors;
-//
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @NonCloneable
-//    @JoinTable(name="exam_event_enrolled_student",
-//            joinColumns={@JoinColumn(name="user_id")},
-//            inverseJoinColumns={@JoinColumn(name="exam_event_id")})
-//    private List<User> enrolledStudents;
 	
     // student User who has participated in this Exam
     @ManyToOne
@@ -51,9 +32,9 @@ public class Exam extends SitnetModel {
     private User student;
     
 
-
     private String name;
-    
+
+    // this should be @OneToOne
     @ManyToOne
     @NonCloneable
     private Course course;
@@ -91,6 +72,7 @@ public class Exam extends SitnetModel {
     private Timestamp examActiveEndDate;
 
     // Akvaario
+
     private String room;
 
     // tentin kesto
@@ -157,14 +139,6 @@ public class Exam extends SitnetModel {
         this.course = course;
     }
 
-//    public ExamEvent getExamEvent() {
-//        return examEvent;
-//    }
-//
-//    public void setExamEvent(ExamEvent examEvent) {
-//        this.examEvent = examEvent;
-//    }
-
     public String getHash() {
         return hash;
     }
@@ -175,22 +149,6 @@ public class Exam extends SitnetModel {
 
 	public void setStudent(User student) {
 		this.student = student;
-	}
-
-	public Timestamp getExamActiveStartDate() {
-		return examActiveStartDate;
-	}
-
-	public void setExamActiveStartDate(Timestamp examActiveStartDate) {
-		this.examActiveStartDate = examActiveStartDate;
-	}
-
-	public Timestamp getExamActiveEndDate() {
-		return examActiveEndDate;
-	}
-
-	public void setExamActiveEndDate(Timestamp examActiveEndDate) {
-		this.examActiveEndDate = examActiveEndDate;
 	}
 
 	public String getRoom() {
@@ -345,7 +303,6 @@ public class Exam extends SitnetModel {
 
         clone.setExamSections(examSectionsCopies);
 
-        //clone.setExamEvent(this.getExamEvent());
         clone.generateHash();
         clone.setState("STUDENT_STARTED");
 
@@ -367,6 +324,22 @@ public class Exam extends SitnetModel {
         return multipleChoiceOptionCopies;
     }
 
+    public Timestamp getExamActiveStartDate() {
+        return examActiveStartDate;
+    }
+
+    public void setExamActiveStartDate(Timestamp examActiveStartDate) {
+        this.examActiveStartDate = examActiveStartDate;
+    }
+
+    public Timestamp getExamActiveEndDate() {
+        return examActiveEndDate;
+    }
+
+    public void setExamActiveEndDate(Timestamp examActiveEndDate) {
+        this.examActiveEndDate = examActiveEndDate;
+    }
+
 	@Override
     public String toString() {
         return "Exam{" +
@@ -375,8 +348,6 @@ public class Exam extends SitnetModel {
                 ", examType=" + examType +
                 ", instruction='" + instruction + '\'' +
                 ", shared=" + shared +
-//                ", examSections=" + examSections +
-//                ", examEvent=" + examEvent +
                 ", hash='" + hash + '\'' +
                 ", state='" + state + '\'' +
                 '}';

@@ -51,17 +51,7 @@
                 
                 draft: $resource("/draft", null,
         		{
-        		}),
- 
-        		events: $resource("/events/:id",
-                {
-        			id: "@id"
-                },
-                {
-                    "insertEvent": 	{method: "POST", params: { id: "@id"}},
-                    "update": 		{method: "PUT", params: { id: "@id"}}
-
-                })
+        		})
             }
         }]);
 }());

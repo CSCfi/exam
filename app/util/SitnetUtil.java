@@ -2,6 +2,7 @@ package util;
 
 import Exceptions.SitnetException;
 import annotations.NonCloneable;
+import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import controllers.UserController;
 import models.SitnetModel;
@@ -131,9 +132,9 @@ public class SitnetUtil {
     	
     	User user = UserController.getLoggedUser();
     	Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-    	
+
     	// check if user is the owner of this object
-    	if(object.getCreator() != user) {
+    	if(object.getCreator().getId() != user.getId()) {
         	throw new SitnetException("User id:"+ user.getId() +" is not owner of this object");
     	} else {
     		object.setModifier(user);
@@ -143,6 +144,30 @@ public class SitnetUtil {
     	return object;
     }
     
+   static public boolean isOwner(SitnetModel object) {
+
+       User user = UserController.getLoggedUser();
+       Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+
+       if(object.getCreator() == null)
+       {
+           Class<?> clazz = object.getClass();
+
+           Object asd = Ebean.find(clazz)
+                   .select("creator.id")
+                   .where()
+                   .eq("id", object.getId())
+                   .findUnique();
+
+           object.setCreator(((SitnetModel)asd).getCreator());
+       }
+
+       if(object.getCreator().getId() != user.getId())
+           return false;
+       else
+        return true;
+    }
+
     static public String encodeMD5(String str) {
         return DigestUtils.md5Hex(str);
     }
