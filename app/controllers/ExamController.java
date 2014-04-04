@@ -57,7 +57,7 @@ public class ExamController extends SitnetController {
     public static Result getExamsByState(String state) {
         Logger.debug("getExamsByState()");
 
-        User user = UserController.getLoggedUser();
+//        User user = UserController.getLoggedUser();
 
 //        List<Exam> exams = Ebean.find(Exam.class)
 //            .fetch("examEvent")

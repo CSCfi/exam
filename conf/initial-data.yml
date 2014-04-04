@@ -560,7 +560,7 @@ exams:
     shared: true
     examSections:
     examEvent: *event3
-    state: PUBLISHED
+    state: REVIEW
     
     
 examsections:

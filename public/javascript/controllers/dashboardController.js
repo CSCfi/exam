@@ -5,21 +5,41 @@
             function ($scope, $http, $translate, SITNET_CONF, sessionService, examService, ExamRes, $location) {
 
                 $scope.session = sessionService;
-                $scope.dashboardTemplate;
+                $scope.dashboardTemplate = null;
+
+
+
                 $scope.allReviewedExams = examService.allReviewedExams;
+
                 $scope.user = $scope.session.user;
 
-                if ($scope.user != null) {
-                    if ($scope.user.isStudent) {
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "student/dashboard.html";
-                    }
-                    else if ($scope.user.isTeacher) {
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/dashboard.html";
-                    }
-                }
+                        if ($scope.user != null) {
+                            if ($scope.user.isStudent) {
+                                $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "student/dashboard.html";
+                            }
+                            else if ($scope.user.isTeacher) {
+                                $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/dashboard.html";
+                            }
+                        }
 
-                $scope.reviewExam = function(id) {
-                    $location.path('/exams/review/' + exam.id);
-                }
+//                ExamRes.examsByState.query({state: 'REVIEW'},
+//                    function (exams) {
+//                        $scope.allReviewedExams = exams;
+//
+//                        $scope.user = $scope.session.user;
+//
+//                        if ($scope.user != null) {
+//                            if ($scope.user.isStudent) {
+//                                $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "student/dashboard.html";
+//                            }
+//                            else if ($scope.user.isTeacher) {
+//                                $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/dashboard.html";
+//                            }
+//                        }
+//                    },
+//                    function (error) {
+//                        var msg = "ERROR";
+//                    }
+//                );
         }]);
 }());
