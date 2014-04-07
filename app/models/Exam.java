@@ -1,8 +1,6 @@
 package models;
 
 import annotations.NonCloneable;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
@@ -10,7 +8,6 @@ import models.questions.MultipleChoiseOption;
 import util.SitnetUtil;
 
 import javax.persistence.*;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +21,6 @@ import java.util.Random;
  */
 @Entity
 public class Exam extends SitnetModel {
-	
-    // student User who has participated in this Exam
-    @ManyToOne
-    @NonCloneable
-    @JsonBackReference
-    private User student;
-    
 
     private String name;
 
@@ -74,7 +64,6 @@ public class Exam extends SitnetModel {
     private Timestamp examActiveEndDate;
 
     // Akvaario
-
     private String room;
 
     // tentin kesto
@@ -144,14 +133,6 @@ public class Exam extends SitnetModel {
     public String getHash() {
         return hash;
     }
-
-    public User getStudent() {
-		return student;
-	}
-
-	public void setStudent(User student) {
-		this.student = student;
-	}
 
 	public String getRoom() {
 		return room;

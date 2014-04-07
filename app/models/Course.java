@@ -6,7 +6,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.util.List;
 
 
 /*
@@ -30,9 +29,7 @@ public class Course extends Model {
 	private String code;
 
 	private String name;
-	
-	// TODO: tänne tietoa
-	private List<User> responsibleTeacher;
+
 
 	private CourseType type;
 	
@@ -70,9 +67,6 @@ public class Course extends Model {
 		return organisation;
 	}
 
-	public List<User> getResponsibleTeacher() {
-		return responsibleTeacher;
-	}
 
 	public CourseType getType() {
 		return type;
@@ -98,9 +92,6 @@ public class Course extends Model {
 		this.organisation = organisation;
 	}
 
-	public void setResponsibleTeacher(List<User> responsibleTeacher) {
-		this.responsibleTeacher = responsibleTeacher;
-	}
 
 	public void setType(CourseType type) {
 		this.type = type;
@@ -113,7 +104,6 @@ public class Course extends Model {
                 ", organisation=" + organisation +
                 ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                ", responsibleTeacher=" + responsibleTeacher +
                 ", type=" + type +
                 ", credits=" + credits +
                 '}';

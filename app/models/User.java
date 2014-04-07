@@ -3,15 +3,11 @@ package models;
 import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Role;
 import be.objectify.deadbolt.core.models.Subject;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import play.data.format.Formats;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,10 +18,6 @@ public class User extends Model implements Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "student")
-    @JsonManagedReference
-    private List<Exam> exams;
 
 //    @Constraints.Required
     @Formats.NonEmpty
@@ -107,14 +99,6 @@ public class User extends Model implements Subject {
 
     public void setRoles(List<SitnetRole> roles) {
         this.roles = roles;
-    }
-
-    public List<Exam> getExams() {
-        return exams;
-    }
-
-    public void setExams(List<Exam> exams) {
-        this.exams = exams;
     }
 
     @Override
