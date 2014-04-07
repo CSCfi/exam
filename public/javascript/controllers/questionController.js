@@ -186,23 +186,47 @@
 
                 }
 
+                $scope.updateOption = function (option) {
+                    QuestionRes.options.update({oid: option.id}, option,
+                        function (response) {
+                            toastr.info("Oikea vaihtoehto päivitetty");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                }
+
                 $scope.correctAnswerToggled = function (optionId, newQuestion) {
 
-                    angular.forEach(newQuestion.options, function (value, index) {
+                    angular.forEach(newQuestion.options, function (option) {
                         // This is the option that was clicked
-                        if (value.id == optionId) {
+                        if (option.id == optionId) {
                             // If the correct is false then switch it to true, otherwise do nothing
-                            if (value.correctOption == false) {
+                            if (option.correctOption == false) {
 
-                                value.correctOption = true;
+                                option.correctOption = true;
 
+                                QuestionRes.options.update({oid: optionId}, option,
+                                    function (response) {
+                                        toastr.info("Oikea vaihtoehto päivitetty");
+                                    }, function (error) {
+                                        toastr.error(error.data);
+                                    }
+                                );
 //                                $scope.correctAnswer = {background: 'green'}
                             }
                         } else {
                             // Check for true values in other options than that was clicked and if found switch them to false
-                            if (value.correctOption == true) {
-                                value.correctOption = false;
+                            if (option.correctOption == true) {
+                                option.correctOption = false;
 
+                                QuestionRes.options.update({oid: optionId}, option,
+                                    function (response) {
+                                        toastr.info("Edellinen oikea vaihtoehto päivitetty");
+                                    }, function (error) {
+                                        toastr.error(error.data);
+                                    }
+                                );
 //                                $scope.wrongAnswer = {background: 'grey'}
                             }
                         }

@@ -133,6 +133,16 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict(@Group({"TEACHER"}))
+    public static Result updateOption(Long oid) throws MalformedDataException {
+
+        MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
+        option.update();
+
+        return ok(Json.toJson(option));
+
+    }
+
+    @Restrict(@Group({"TEACHER"}))
     public static Result deleteQuestion(Long id) {
 
         Ebean.delete(AbstractQuestion.class, id);

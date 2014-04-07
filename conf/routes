@@ -59,6 +59,7 @@ GET           /courses                                              controllers.
 GET           /questions                                            controllers.QuestionController.getQuestions()
 GET           /questions/:id                                        controllers.QuestionController.getQuestion(id: Long)
 PUT           /questions/:id                                        controllers.QuestionController.updateQuestion(id: Long)
+PUT           /questions/option/:oid                                controllers.QuestionController.updateOption(oid: Long)
 POST          /questions                                            controllers.QuestionController.addQuestion()
 POST          /questions/:qid/option                                controllers.QuestionController.addOption(qid: Long)
 DELETE        /questions/:id                                        controllers.QuestionController.deleteQuestion(id: Long)

@@ -6,7 +6,7 @@
             <i class="fa fa-arrows fa-2x"></i>
         </span>
     </div>
-    <input type="text" name="option.option" value="{{option.option}}" class="form-group editable multiplechoice-question-input">
+    <input type="text" name="option.option" ng-model-onblur ng-change="updateOption(option)" ng-model="option.option" class="form-group editable multiplechoice-question-input">
 
     <!--ng-hide="showOption" ng-click="showOption = !showOption">-->
 
@@ -15,13 +15,6 @@
     <!--<div class="form-group" ng-show="showOption">-->
         <!--<input type="text" class="input-sm form-control" ng-model="option.option" autofocus>-->
     <!--</div>-->
-
-    <!--<span style="border: 2px; border-radius:25px; padding:0.3em 2em;" ng-style="myStyle_{{option.id}}"-->
-          <!--ng-click="correctAnswerToggled(option.id, newQuestion)">{{option.correctOption}}</span>-->
-
-    <!--<span style="border: 2px; border-radius:25px; padding:0.3em 2em;" ng-class="{'correct': editor_option == 'Correct', 'wrong': editor_option == 'Wrong'}"-->
-          <!--ng-click="correctAnswerToggled(option.id, newQuestion)">{{option.correctOption}}</span>-->
-    <!---->
 
     <span style="border: 2px; border-radius:25px; padding:0.3em 2em;" ng-class="{'correct-answer': option.correctOption, 'wrong-answer': ! option.correctOption}"
           ng-click="correctAnswerToggled(option.id, newQuestion)">{{option.correctOption}}</span>

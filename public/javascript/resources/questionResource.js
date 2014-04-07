@@ -18,7 +18,7 @@
                     qid: "@qid", oid: "@oid"
                 },
                 {
-                    "update": {method: "PUT"},
+                    "update": {method: "PUT", params: {oid: "@oid"}},
                     "create": {method: "POST", params: {qid: "@qid"}},
                     "delete": {method: "DELETE", params: {oid: "@oid"}}
                 })
