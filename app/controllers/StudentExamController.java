@@ -5,6 +5,8 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.Exam;
+import models.ExamEnrolment;
+import models.ExamParticipation;
 import models.User;
 import models.answers.AbstractAnswer;
 import models.answers.EssayAnswer;
@@ -12,12 +14,12 @@ import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiseOption;
-import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,16 +30,41 @@ public class StudentExamController extends SitnetController {
 
     @Restrict(@Group({"STUDENT"}))
     public static Result listActiveExams() {
-        User user = UserController.getLoggedUser();
-        Timestamp now = new Timestamp(DateTime.now().getMillis());
 
-        List<Exam> exams = Ebean.find(Exam.class)
-                .fetch("examSections")
+        User user = UserController.getLoggedUser();
+
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
                 .where()
-                .eq("state", "PUBLISHED")
-                .lt("examEvent.examActiveEndDate", now)
-                .eq("examEvent.enrolledStudents.id", user.getId())
+                .eq("user.id", user.getId())
                 .findList();
+
+        List<Exam> exams = new ArrayList<Exam>();
+
+        for (ExamEnrolment e : enrolments)
+        {
+            exams.add(e.getExam());
+        }
+
+//        String oql = "find  exam "
+//                        +" fetch examSections "
+//                        +" fetch course "
+//                        +" where state=:published or state=:started or state=:returned";
+//
+//        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
+//        query.setParameter("published", "PUBLISHED");
+//        query.setParameter("started", "STUDENT_STARTED");
+//        query.setParameter("returned", "REVIEW");
+//
+//        List<Exam> exams = query.findList();
+
+//        List<Exam> exams = Ebean.find(Exam.class)
+//                .fetch("examSections")
+//                .where()
+//                .eq("state", "PUBLISHED")
+////                .lt("examEvent.examActiveEndDate", now)
+////                .eq("examEvent.enrolledStudents.id", user.getId())
+//                .findList();
 
         return ok(Json.toJson(exams));
     }
@@ -48,27 +75,44 @@ public class StudentExamController extends SitnetController {
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
                 .where()
-                .eq("hash", hash).findUnique();
+                .eq("hash", hash)
+                .findUnique();
 
+        Exam possibleClone = Ebean.find(Exam.class)
+                .fetch("examSections")
+                .where()
+                .eq("hash", hash)
+                .eq("state", "STUDENT_STARTED").findUnique();
 
         if (blueprint == null) {
             //todo: add proper exception
             throw new UnauthorizedAccessException("a");
         }
 
-        Exam studentExam = blueprint.clone();
+        if (possibleClone == null) {
+            Exam studentExam = (Exam)blueprint.clone();
+//            studentExam.setStudent(UserController.getLoggedUser());
+//            studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
+            studentExam.setState("STUDENT_STARTED");
+            studentExam.generateHash();
+            studentExam.save();
 
-        Exam possibleClone = Ebean.find(Exam.class)
-                .fetch("examSections")
-                .where()
-                .eq("hash", studentExam.getHash()).findUnique();
+            // 1. might want try Serialization clone approach
+            // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
+            // http://avaje.org/topic-112.html
 
-        if (possibleClone != null) {
+            User user = UserController.getLoggedUser();
+            ExamParticipation examParticipation = new ExamParticipation();
+            examParticipation.setUser(user);
+            examParticipation.setExam(studentExam);
+            examParticipation.setStarted(new Timestamp(new Date().getTime()));
+            examParticipation.save();
+            user.getParticipations().add(examParticipation);
+
+            return ok(Json.toJson(studentExam));
+        } else {
             return ok(Json.toJson(possibleClone));
         }
-        studentExam.save();
-        studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
-        return ok(Json.toJson(studentExam));
     }
 
     public static Result saveAnswersAndExit(Long id) {

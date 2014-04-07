@@ -1,6 +1,6 @@
 <form class="form-inline" role="form">
-    <div class="" ng-repeat="option in newQuestion.options">
-        <div class="" ng-include="newOptionTemplate"></div>
+    <div ng-repeat="option in newQuestion.options">
+        <div ng-include="newOptionTemplate"></div>
     </div>
 </form>
 <span ng-click="addNewOption(newQuestion)" class="create-new">

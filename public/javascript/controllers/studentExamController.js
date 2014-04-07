@@ -4,11 +4,7 @@
         .controller('StudentExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes',
             function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes) {
 
-                $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section.html";
-                $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_question.html";
-                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "/exam_section_general.html";
-                $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "/student_sections_bar.html";
-//                $scope.multipleChoiseQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_question.html";
+                $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/essay_question.html";
                 $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/section_template.html";
@@ -123,7 +119,7 @@
                 $scope.saveExam = function (doexam) {
                     StudentExamRes.exams.update({id: doexam.id}, function () {
                         toastr.info("Tentti lähetettiin tarkastettavaksi.");
-                        $location.path("/home/");
+                        $location.path("/exams/");
 
                     }, function () {
                         toastr.error("Jokin meni pieleen");

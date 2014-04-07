@@ -1,11 +1,7 @@
-<div id="sitnet-header" class="header">
-    <a ng-click="createExam()" class="btn btn-primary btn-lg active header-button pull-right">
-        {{'sitnet_create_new' | translate}}
-    </a>
-</div>
 <div id="question-editor" ng-controller="QuestionCtrl">
-    <h2>{{'sitnet_questions_new' | translate}}</h2>
-
+    <div class="question-editor-header">
+        <h2 class="header-title">{{'sitnet_questions_new' | translate}}</h2>
+    </div>
     <div class="col-md-8">
         <div class="base row">
             <!-- Question header -->
@@ -15,66 +11,48 @@
             </div>
 
             <div class="sitnet-info-text">
-                Kysymystyyppi:
+                {{'sitnet_question_type' | translate}}
                 <select  class="form-control" ng-model="selectedType" ng-change="setQuestionType()"
                          ng-options="key as value for (key, value) in questionTypes"  >
                 </select>
             </div>
 
             <hr>
-            <div ng-include="questionTemplate"></div>
+                <div ng-include="questionTemplate"></div>
             <hr>
 
             <!-- Question fields -->
             <div class="sitnet-info-text">
-                {{'sitnet_share_this_question' | translate}}
-                <input type="checkbox" ng-model="newQuestion.shared">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="newQuestion.shared"> {{'sitnet_share_this_question' | translate}}
+                    </label>
+                </div>
             </div>
             <div class="sitnet-info-text">
-                Ohjeistus:
+                {{'sitnet_instruction' | translate}}
                 <input type="text" class="form-control" ng-model="newQuestion.instruction"
-                       placeholder="Kysymykseen liittyvä ohjeistus">
+                       placeholder="{{'sitnet_question_instruction' | translate}}">
             </div>
             <div class="sitnet-info-text">
-                Pisteet:
-                <input type="text" class="form-control " placeholder="Oikean vastauksen pisteytys">
+                {{'sitnet_scores' | translate}}
+                <input type="text" class="form-control " ng-model="newQuestion.score" placeholder="{{'sitnet_correct_answer_score' | translate}}">
             </div>
             <div class="sitnet-info-text">
-                Arviointikriteerit:
-                <textarea class="form-control" rows="3"
-                          placeholder="Vastauksen tulee sisältää seuraavat asiat..."></textarea>
+                {{'sitnet_exam_evaluation_criteria' | translate}}
+                <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias"
+                          placeholder="{{'sitnet_correct_answer_should_have' | translate}}"></textarea>
             </div>
 
         </div>
-        <button ng-click="saveQuestion()" type="submit" class="btn btn-success pull-right">{{'sitnet_save' |
-            translate}}
-        </button>
-        <button ng-click="" type="submit" class="btn btn-danger pull-right">{{'sitnet_remove' | translate}}</button>
+        <p>
+            <!--ng-show="selectedType"-->
+            <button ng-click="saveQuestion()"  type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
+        </p>
     </div>
 
 
-    <!-- Library  -->
-    <div id="library" class="col-md-4">
-        <div class="library-header">
-            <h4>
-                <i class="fa fa-briefcase"></i>
-                {{'sitnet_library' | translate}}
-            </h4>
-        </div>
-        <div class="library" ng-controller="LibraryCtrl">
-            <div class="input-group">
-                <input ng-model="selected" type="text" class="form-control"
-                       placeholder="{{'sitnet_search' | translate }}">
-				<span class="input-group-addon">
-					<i class="fa fa-search fa-fw"></i>
-				</span>
-            </div>
-            <ul class="list-group results">
-                <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
-                    <i class="fa fa-2x fa-fw {{question.icon}}"></i>
-                    <span ng-bind-html="question.question"></span>
-                </li>
-            </ul>
-        </div>
-    </div>
+    <!-- Question Library -->
+	<div ng-include="libraryTemplate">
+	</div>
 </div>

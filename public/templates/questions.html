@@ -1,15 +1,25 @@
-<div id="sitnet-header" class="header"></div>
-
-<div id="questions">
-    <div ng-controller="QuestionCtrl">
-        <h2>{{'sitnet_questions_all' | translate}}</h2>
-        <hr>
-        <div ng-repeat="question in questions" class="list-group">
-
+<div id="question-editor" ng-controller="QuestionCtrl">
+    <div class="question-editor-header">
+        <h2 class="header-title">{{'sitnet_questions_all' | translate}}</h2>
+        <div class="row">
+            <div class="btn-group pull-right">
+                <button type="button" class="btn btn-primary btn-lg dropdown-toggle" data-toggle="dropdown">
+                    {{'sitnet_questions_new' | translate}} <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat='(key, value) in questionTypes'>
+                        <a ng-click="createQuestion(key)">{{value}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div >
+        <div ng-repeat="question in questions" class="list-group exam-question-container">
             <div class="list-group-item active">
                 <h4 class="list-group-item-heading ">
                     <a href="#/questions/{{question.id}}"><span ng-bind-html="question.question"></span></a>
-                    <span><i class="pull-right fa fa-times fa-stack" ng-click="deleteQuestion(question)"></i></span>
+                    <span><i class="pull-right fa fa-times fa-1_5x" ng-click="deleteQuestion(question)"></i></span>
                 </h4>
             </div>
             <div class="list-group-item">

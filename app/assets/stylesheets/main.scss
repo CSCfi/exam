@@ -7,17 +7,17 @@
 @import "partial/user";
 @import "partial/library";
 @import "partial/question-editor";
-@import "partial/questions";
 @import "partial/student_exam";
 @import "partial/dialog";
 
 body {
-  background-color: $sitnet-light-grey;
+  background-color: $sitnet-white;
 }
 
 .pointer {
   cursor: pointer;
 }
+
 .vmenu-on {
   margin-left: 16.66667%
 }
@@ -27,22 +27,27 @@ body {
 }
 
 .inline {
-    display: inline;
+  display: inline;
 }
+
 .editable {
-    cursor: pointer;
+  cursor: pointer;
 }
+
 .editable:hover {
   color: green;
 }
+
 .sitnet-info-text {
   color: grey;
   font-style: italic;
   margin-top: 1em;
 }
+
 .sitnet-dark-green {
   color: $sitnet-dark-green;
 }
+
 .sitnet-green {
   color: $sitnet-green;
 }
@@ -70,33 +75,71 @@ body {
 .sitnet-beige {
   color: $sitnet-beige;
 }
+
 .sitnet-white {
   color: $sitnet-white;
 }
+
 .sitnet-black {
   color: $sitnet-black;
 }
+
 .sitnet-student-lightgreen {
   color: $sitnet-student-lightgreen;
 }
+
 .sitnet-student-darkgreen {
   color: $sitnet-student-darkgreen;
 }
+
 .sitnet-student-inactive-green {
   color: $sitnet-student-inactive-green;
 }
+
 .sitnet-student-turquoise {
   color: $sitnet-student-turquoise;
 }
+
 .sitnet-student-inactive-turquoise {
   color: $sitnet-student-inactive-turquoise;
 }
+
 .sitnet-student-orange {
   color: $sitnet-student-orange;
 }
+
 .sitnet-student-inactive-gray {
   color: $sitnet-student-inactive-gray;
 }
+
 .sitnet-red {
   color: $sitnet-red;
+}
+
+.sitnet-teacher-turquoise-dark-active {
+  color: $sitnet-teacher-turquoise-dark-active;
+}
+
+.sitnet-teacher-turquoise-dark-inactive {
+  color: $sitnet-teacher-turquoise-dark-inactive;
+}
+
+.sitnet-teacher-turquoise-light-active {
+  color: $sitnet-teacher-turquoise-light-active;
+}
+
+.sitnet-teacher-turquoise-light-inactive {
+  color: $sitnet-teacher-turquoise-light-inactive;
+}
+
+.sitnet-teacher-blue-light {
+  color: $sitnet-teacher-blue-light;
+}
+
+.sitnet-teacher-green-dark {
+  color: $sitnet-teacher-green-dark;
+}
+
+.sitnet-teacher-green-light {
+  color: $sitnet-teacher-green-light;
 }

@@ -1,11 +1,11 @@
 package models.questions;
 
-import play.db.ebean.Model;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import play.db.ebean.Model;
+import util.SitnetUtil;
+
+import javax.persistence.*;
 
 @Entity
 public class MultipleChoiseOption extends Model {
@@ -19,6 +19,10 @@ public class MultipleChoiseOption extends Model {
     private boolean correctOption = false;
 
     private Double score;
+
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JsonBackReference
+    private MultipleChoiceQuestion question;
 
 	public Long getId() {
 		return id;
@@ -51,6 +55,20 @@ public class MultipleChoiseOption extends Model {
 	public void setScore(Double score) {
 		this.score = score;
 	}
+
+    public MultipleChoiceQuestion getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(MultipleChoiceQuestion question) {
+        this.question = question;
+    }
+
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
+    }
 
     public String toString() {
         return "MultipleChoiseOption{" +

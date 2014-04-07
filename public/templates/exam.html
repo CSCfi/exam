@@ -1,78 +1,67 @@
-<div id="sitnet-header" class="header"></div>
 <div id="exam">
-    <h2 class="table-heading">{{'sitnet_new_exam' | translate}}</h2>
-
-    <div class="row">
-        <div class="col-md-4">
-            <div class="exam-general-information">
-                <div class="section" ng-include="generalInfoPath"></div>
-            </div>
-            <div class="base">
-                <div class="exam-name-section">
-                    <div ng-hide="showName">
-					<span class="pull-right fa-stack fa-lg dropdown" ng-click="editExam(section)">
-						<a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
-                                class="sitnet-white fa fa-cog fa-stack-1x"></i>
-                        </a>
-						<ul class="dropdown-menu">
-                            <li><a>{{'sitnet_settings' | translate}}</a></li>
-                        </ul>
-					</span>
-
-                        <h3>
-						<span class="editable" ng-click="showName = !showName">
-							{{newExam.name}}
-							<i class="fa fa-pencil"></i>
-						</span>
-                        </h3>
-                    </div>
-                    <div ng-show="showName">
-                        <form class="form-inline" role="form">
-                            <div class="form-group">
-                                <input type="text" class="form-control input-lg" ng-model="newExam.name" autofocus>
-                            </div>
-                            <button class="btn-primary" ng-click="showName = !showName">
-                                <i class="fa fa-check"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                <div class="section" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath"
-                     ng-repeat="section in newExam.examSections"></div>
-            </div>
-		<span ng-click="addNewSection()" class="create-new">
-			<i class="fa fa-plus-circle"></i>
-			{{'sitnet_section_add' | translate}}
-		</span>
-            <button ng-click="saveExam()" class="btn btn-default">{{'sitnet_save' | translate}}</button>
-        </div>
-        <div id="library" class="col-md-4" bs-affix data-offset-top="40 " >
-            <div class="library-header">
-                <h4>
-                    <i class="fa fa-briefcase"></i>
-                    {{'sitnet_library' | translate}}
-                </h4>
-            </div>
-            <div class="library" ng-controller="LibraryCtrl">
-                <div class="input-group">
-                    <input ng-model="selected" type="text" class="form-control"
-                           placeholder="{{'sitnet_search' | translate }}">
-				<span class="input-group-addon">
-					<i class="fa fa-search fa-fw"></i>
-				</span>
-                </div>
-                <ul class="list-group results">
-                    <li class="single-question" ui-draggable="true" ng-repeat="question in questions | filter:selected"
-                        drag="question">
-                        <i class="fa fa-2x fa-fw {{question.icon}}"></i>
-                        <span class="menu-item" ng-bind-html="question.question"></span>
-                    </li>
-                    <li class="single-question" ui-draggable="true" drag="random(amount)">
-                        <i class="fa fa-2x fa-fw fa-random"></i> <span class="menu-item">{{ 'sitnet_add_random_questions' | translate }} <input
-                            type="number" ng-model="amount" min="1" placeholder="1"/></span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+    <div class="exam-header">
+        <h2 class="table-heading">{{'sitnet_new_exam' | translate}}</h2>
     </div>
+    <div class="col-md-8" ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
+        <!-- Exam name -->
+        <div class="exam-name">
+            <div ng-hide="showName">
+                <span class="pull-right fa-stack fa-lg dropdown" ng-click="editExam(section)"></span>
+                <h3>
+                    <span class="editable" ng-click="showName = !showName">
+                        {{newExam.name}} <i class="fa fa-pencil"></i>
+                    </span>
+                </h3>
+            </div>
+            <div ng-show="showName">
+                <form class="form-inline" role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control input-lg" ng-model="newExam.name" autofocus>
+                    </div>
+                    <button class="btn-primary" ng-click="showName = !showName; saveExam(newExam)">
+                        <i class="fa fa-check"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="exam-wrapper">
+            <!-- General Information -->
+            <div class="exam-general-information" ng-include="generalInfoPath">
+            </div>
+
+            <!-- Exam instruction -->
+            <div class="exam-general-information">
+                <div class="exam-general-information-header">
+                    {{'sitnet_instruction' | translate}}
+                    <span ng-click="" class="pull-right fa-stack fa-lg">
+                    <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
+                    <i ng-class="showInstruction ? 'fa-chevron-down' : 'fa-chevron-left'" ng-click="showInstruction = !showInstruction"
+                       class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+                    </span>
+                </div>
+
+                <div class="input-group exam-info" ng-show="showInstruction">
+                    <textarea class="form-control" rows="2" cols="140" ng-model="newExam.instruction"
+                              placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
+                    </textarea>
+                </div>
+            </div>
+            <div class="exam-sections">
+                <div class="" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>
+            </div>
+            <span ng-click="addNewSection()" class="create-new">
+                <center>
+                <i class="fa fa-2x fa-hand-o-right"></i>
+                {{'sitnet_section_add' | translate}}
+                </center>
+            </span>
+            <span><button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button></span>
+            <span class="pull-right"><button ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button></span>
+        </div>
+
+    </div>
+    <!-- Question Library -->
+	<div ng-include="libraryTemplate">
+	</div>
 </div>

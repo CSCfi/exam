@@ -1,9 +1,14 @@
 package models.questions;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import play.Logger;
+import util.SitnetUtil;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,14 +16,15 @@ import java.util.List;
  */
 @Entity
 @DiscriminatorValue("MultipleChoiceQuestion")
-public class MultipleChoiceQuestion extends AbstractQuestion {
+public class MultipleChoiceQuestion extends AbstractQuestion implements QuestionInterface {
 
     public MultipleChoiceQuestion() {
         this.type = this.getClass().getSimpleName();
     }
 
 
-    @OneToMany(cascade = CascadeType.PERSIST)
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
+    @JsonManagedReference
     private List<MultipleChoiseOption> options;
 
     @Override
@@ -29,7 +35,7 @@ public class MultipleChoiceQuestion extends AbstractQuestion {
         for(MultipleChoiseOption option : options)
             attributes += option.getOption();
 
-        this.hash = DigestUtils.md5Hex(attributes);
+        this.hash = SitnetUtil.encodeMD5(attributes);
         Logger.debug("Question hash: " + this.hash);
         return hash;
     }
@@ -40,6 +46,8 @@ public class MultipleChoiceQuestion extends AbstractQuestion {
     }
 
     public List<MultipleChoiseOption> getOptions() {
+        if(options == null)
+            options = new ArrayList<MultipleChoiseOption>();
         return options;
     }
 
@@ -54,8 +62,10 @@ public class MultipleChoiceQuestion extends AbstractQuestion {
                 '}';
     }
 
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
     }
+
 }

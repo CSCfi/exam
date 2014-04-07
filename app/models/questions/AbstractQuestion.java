@@ -2,6 +2,7 @@ package models.questions;
 
 import models.*;
 import models.answers.AbstractAnswer;
+import util.SitnetUtil;
 
 import javax.persistence.*;
 
@@ -19,7 +20,7 @@ import javax.persistence.*;
  * See:
  * https://groups.google.com/forum/#!topic/play-framework/YOSLdmv_oSc
  */
-abstract public class AbstractQuestion extends SitnetModel implements QuestionInterface {
+abstract public class AbstractQuestion extends SitnetModel {
 
     protected String type;
 
@@ -28,6 +29,8 @@ abstract public class AbstractQuestion extends SitnetModel implements QuestionIn
     protected boolean shared;
 
     protected String instruction;
+
+    protected Double score;
 
     /*
      * If question is edited (correcting a spelling mistake)
@@ -43,10 +46,15 @@ abstract public class AbstractQuestion extends SitnetModel implements QuestionIn
     @OneToOne
     protected AbstractAnswer answer;
 
+
+    @Column(columnDefinition = "TEXT")
+    protected String evaluationCriterias;
+
+
     //    @OneToMany(cascade = CascadeType.ALL, mappedBy="question")
     //    @ManyToMany(cascade = CascadeType.PERSIST)
-    @OneToOne
-    protected EvaluationCriteria evaluationCriterias;
+//    @OneToOne
+//    protected EvaluationCriteria evaluationCriterias;
     //    protected List<EvaluationCriteria> evaluationCriterias;
 
     //    attachments, images, Videos, documents
@@ -131,11 +139,11 @@ abstract public class AbstractQuestion extends SitnetModel implements QuestionIn
         this.answer = answer;
     }
 
-    public EvaluationCriteria getEvaluationCriterias() {
+    public String getEvaluationCriterias() {
         return evaluationCriterias;
     }
 
-    public void setEvaluationCriterias(EvaluationCriteria evaluationCriterias) {
+    public void setEvaluationCriterias(String evaluationCriterias) {
         this.evaluationCriterias = evaluationCriterias;
     }
 
@@ -171,6 +179,14 @@ abstract public class AbstractQuestion extends SitnetModel implements QuestionIn
         this.hash = hash;
     }
 
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
+
     public AbstractQuestion getAncestor(AbstractQuestion abstractQuestion) {
         if(abstractQuestion.getParent() == null) {
             return abstractQuestion;
@@ -179,6 +195,12 @@ abstract public class AbstractQuestion extends SitnetModel implements QuestionIn
         }
     }
 
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
+    }
+	
    	@Override
     public String toString() {
         return "AbstractQuestion [type=" + type + ", question=" + question

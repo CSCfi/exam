@@ -1,7 +1,9 @@
 package models;
 
-import java.sql.Date;
-import java.sql.Time;
+import play.db.ebean.Model;
+
+import javax.persistence.*;
+import java.sql.Timestamp;
 
 
 /* 
@@ -10,43 +12,62 @@ import java.sql.Time;
  * 
  * 
  */
-public class Reservation {
+@Entity
+public class Reservation extends Model {
 
-	private Date startDate;
-	private Time startTime;
-	
-	private Date endDate;
-	private Time endTime;
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
 
-    public Date getStartDate() {
-        return startDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Timestamp start;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Timestamp end;
+
+    @OneToOne
+    User user;
+
+    @OneToOne
+    ExamMachine machine;
+
+    public Long getId() {
+        return id;
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public Time getStartTime() {
-        return startTime;
+    public Timestamp getStart() {
+        return start;
     }
 
-    public void setStartTime(Time startTime) {
-        this.startTime = startTime;
+    public void setStart(Timestamp start) {
+        this.start = start;
     }
 
-    public Date getEndDate() {
-        return endDate;
+    public Timestamp getEnd() {
+        return end;
     }
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setEnd(Timestamp end) {
+        this.end = end;
     }
 
-    public Time getEndTime() {
-        return endTime;
+    public User getUser() {
+        return user;
     }
 
-    public void setEndTime(Time endTime) {
-        this.endTime = endTime;
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public ExamMachine getMachine() {
+        return machine;
+    }
+
+    public void setMachine(ExamMachine machine) {
+        this.machine = machine;
     }
 }

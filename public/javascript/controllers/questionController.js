@@ -4,6 +4,7 @@
         .controller('QuestionCtrl', ['$scope', '$routeParams', '$location', 'QuestionRes', '$translate', 'SITNET_CONF',
             function ($scope, $routeParams, $location, QuestionRes, $translate, SITNET_CONF) {
 
+        		$scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
@@ -14,7 +15,7 @@
                     MultipleChoiceQuestion: 'Monivalinta yksi oikein',
                     EssayQuestion: 'Essee'
                 };
-                $scope.selectedType = "";
+                $scope.selectedType = false;
 
 
                 $scope.setQuestionType = function () {
@@ -31,62 +32,43 @@
                         case 'MultipleChoiceQuestion':
                             $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
                             $scope.newQuestion.type = "MultipleChoiceQuestion";
-                            $scope.newQuestion.options = [
-                                {
-                                    "option": "Esimerkki vaihtoehto",
-                                    "correctOption": false,
-                                    "score": 1
-                                }
-                            ];
                             break;
                     }
                 }
 
                 if($routeParams.id === undefined)
-                    $scope.questions = QuestionRes.query();
+                    $scope.questions = QuestionRes.questions.query();
                 else
                 {
-
-                    QuestionRes.get({id: $routeParams.id},
+                    QuestionRes.questions.get({id: $routeParams.id},
                         function (value) {
                             $scope.newQuestion = value;
-                            console.log("Data ready: " + value);
 
                             $scope.selectedType = $scope.newQuestion.type;
                             $scope.setQuestionType();
                         },
                         function (error) {
-                            // error
+                            toastr.error(error.data);
                         }
                     );
-
-//                    QuestionRes.get({id: $routeParams.id}).$promise.then(
-//                    function( value ){
-//                        $scope.newQuestion = value;
-//                        console.log("Data ready: "+ value);
-//
-//                        $scope.selectedType = $scope.newQuestion.type;
-//                        $scope.setQuestionType();
-//                    },
-//                        function( error ){
-//                            // error
-//                        }
-//                    );
-
                 }
 
-                if ($location.path() == '/questions/new') {
-                    var newQuestion = {
-                        type: "",
-                        question: $translate("sitnet_question_write_name"),
-                        instruction: "",
-                        materials: [],
-                        evaluationPhrases: [],
-                        evaluationCriterias: [],
-                        comments: []
-                    };
 
-                    $scope.newQuestion = newQuestion;
+//                http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
+                $scope.createQuestion = function(type) {
+                    var newQuestion = {
+                        type: type,
+                        question: $translate("sitnet_question_write_name")
+                    }
+
+                    QuestionRes.questions.create(newQuestion,
+                        function (response) {
+                            toastr.info("Kysymys lisätty");
+                            $location.path("/questions/" + response.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 }
 
                 $scope.newMCQuestion = function () {
@@ -115,42 +97,71 @@
                     $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
                 };
 
-
                 $scope.saveQuestion = function () {
 
-                    // TODO: first should check if question is saved ok on the server, then push to local
-//                    $scope.questions.push(newQuestion);
+                    // common to all type of questions
+                    var questionToUpdate = {
+                        "id": $scope.newQuestion.id,
+                        "type": $scope.newQuestion.type,
+                        "score": $scope.newQuestion.score,
+                        "question": $scope.newQuestion.question,
+                        "shared": $scope.newQuestion.shared,
+                        "instruction": $scope.newQuestion.instruction,
+                        "evaluationCriterias": $scope.newQuestion.evaluationCriterias
+                    }
 
-                    QuestionRes.save($scope.newQuestion, function (newQuestion) {
-                        toastr.info("Kysymys lisätty.");
-                    });
+                    // update question specific attributes
+                    switch (questionToUpdate.type) {
+                        case 'EssayQuestion':
+                            questionToUpdate.maxCharacters = $scope.newQuestion.maxCharacters;
+                            break;
+
+                        case 'MultipleChoiceQuestion':
+
+                            break;
+                    }
+
+                    QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
+                        function (responce) {
+                            toastr.info("Kysymys tallennettu");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 };
 
                 $scope.deleteQuestion = function (question) {
                     if (confirm('Poistetaanko kysymys?')) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
-                        QuestionRes.delete({'id': question.id}), function () {
-                            toastr.info("Kysymys poistettu.");
-                        }
+                        QuestionRes.questions.delete({'id': question.id}), function () {
+                            toastr.info("Kysymys poistettu");
+                        };
                     }
-                }
+                };
 
                 $scope.addNewOption = function (newQuestion) {
-                    $scope.newQuestion.options.push({
-                        option: $translate("sitnet_option"),
-                        correctOption: false,
-                        score: 1
-                    });
+
+                    var option = {
+                        "option": "Esimerkki vaihtoehto",
+                        "correctOption": false,
+                        "score": 1
+                    };
+
+                    QuestionRes.options.create({qid: newQuestion.id}, option,
+                        function (response) {
+                            newQuestion.options.push(response);
+                            toastr.info("Vaihtoehto lisätty");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 };
 
                 $scope.radioChecked = function (option) {
                     option.correctOption = true;
 
                     var checkbox = document.getElementById(option.id);
-                    console.log("value " + checkbox.value);
-                    console.log("name " + checkbox.name);
-                    console.log(" ");
 
                     angular.forEach($scope.newQuestion.options, function (value, index) {
                         if (value.id != option.id)
@@ -159,7 +170,16 @@
                 };
 
                 $scope.removeOption = function (option) {
-                    $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
+
+                    QuestionRes.options.delete({qid: null, oid: option.id},
+                        function (response) {
+                            $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
+                            toastr.info("Vaihtoehto poistettu");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+
                 }
 
                 $scope.editQuestion = function (question) {

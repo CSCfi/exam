@@ -15,18 +15,20 @@
     "sitnet_exam_templates": "Exam templates",
     "sitnet_create_new_exam": "Create new Exam",
     "sitnet_course_code": "Course code",
-    "sitnet_course_scope": "Course scope",
+    "sitnet_course_scope": "Course credits",
 	"sitnet_course_name": "Course name",
 	"sitnet_faculty_name": "Faculty/Organization",
 	"sitnet_exam_instructor": "Exam instructor",
     "sitnet_exams_created_by": "Exams created by",
     "sitnet_exams_needing_attention": "Exams needing attention",
+    "sitnet_exams_in_review": "Arvioitavissa olevat tentit",
     "sitnet_new_exam": "Creating new exam",
     "sitnet_exam_name": "Name of the exam",
     "sitnet_add_content": "Add new content here by dragging question from library or clicking this area.",
     "sitnet_section_add": "Add new section by clicking here",
     "sitnet_save": "Save",
     "sitnet_remove": "Remove",
+    "sitnet_choose": "Choose",
     "sitnet_library": "Library",
     "sitnet_search": "Search",
     "sitnet_name": "Name",
@@ -63,13 +65,36 @@
     "sitnet_exam_clear": "Clear",
     "sitnet_exam_remove": "Remove",
     "sitnet_save_and_return_exam": "Save and close the exam",
-    "sitnet_share_this_question": "Share this question",
+    "sitnet_share_this_question": "I want to share this question with other teachers",
+    "sitnet_sharing": "Sharing",
+    "sitnet_share_this_exam": "I want to share this exam with other teachers",
+    "sitnet_save_and_publish": "Save and publish",
+
 
     "sitnet_exam_score": "Score",
     "sitnet_exam_scoring_of_the_right_answer": "Scoring of the right answer",
     "sitnet_exam_evaluation_criteria": "Evaluation criteria",
     "sitnet_exam_evaluation_phrase": "Evaluation phrase",
     "sitnet_exam_question_attachment": "Attachment for the question",
+    "sitnet_question_instruction": "Instruction for the question",
+    "sitnet_instruction": "Instruction",
+    "sitnet_scores": "Score",
+    "sitnet_question_type": "Question type",
+    "sitnet_correct_answer_score": "Score for correct answer",
+    "sitnet_correct_answer_should_have": "Correct answer should have...",
+    "sitnet_exam_basic_information": "Basic information",
+    "sitnet_start_time": "Start time",
+    "sitnet_end_time": "End time",
+    "sitnet_active_period": "Active period",
+    "sitnet_examination_location": "Examination room",
+    "sitnet_exam_duration": "Exam duration",
+    "sitnet_grade_scale": "Grade scale",
+    "sitnet_exam_language": "Exam language",
+    "sitnet_exam_answer_language": "Exam reply language",
+    "sitnet_material": "Material",
+
+    "sitnet_placeholder_write_instruction": "Write instructions here",
+
 
     "sitnet_question_mc": "Multiple choice 1-correct",
     "sitnet_essay": "Essay",
@@ -78,7 +103,7 @@
     "sitnet_essay_length_recommendation": "Answer length recommendation (characters): ",
 
     "sitnet_words": "words",
-    "sitnet_approximately": "approximately"
+    "sitnet_approximately": "approximately",
 
-
+    "sitnet_exam_review": "Exam review"
 }

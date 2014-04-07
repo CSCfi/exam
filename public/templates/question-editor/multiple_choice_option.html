@@ -1,12 +1,16 @@
+<div ng-repeat="option in newQuestion.options"></div>
 <div class="question-editor-option">
-    <div class="form-group">
-        <input type="radio" id={{option.id}} name={{newQuestion.question}} class="list-group-item-text" ng-click="radioChecked(option)"/>
+    <div class="form-group" ng-click="radioChecked(option)">
+        <!--<input type="radio" id={{option.id}} name={{newQuestion.question}} class="list-group-item-text" ng-click="radioChecked(option)"/>-->
+        <span id={{option.id}} name={{newQuestion.question}} class="list-group-item-text">
+            <i class="fa fa-arrows fa-2x"></i>
+        </span>
     </div>
-    <div class="form-group editable" ng-hide="showOption" ng-click="showOption = !showOption">
-        {{option.option}}
+    <input type="text" name="option.option" value="{{option.option}}" class="form-group editable multiplechoice-question-input"
+           ng-hide="showOption" ng-click="showOption = !showOption">
+
         <i class="fa fa-pencil"></i>
         <span class="badge" ng-show="option.correctOption" class="ng-hide">TOSI</span>
-    </div>
     <div class="form-group" ng-show="showOption">
         <input type="text" class="input-sm form-control" ng-model="option.option" autofocus>
     </div>
@@ -15,7 +19,7 @@
             <i class="fa fa-check"></i>
         </button>
     </div>
-    <span ng-click="removeOption(option)" class="pull-right">
+    <span ng-click="removeOption(option)" class="pull-right fa-2x">
         <i class="fa fa-times fa-1_5x pull-right pointer" title="Poista"></i>
     </span>
 </div>

@@ -1,8 +1,11 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LibraryCtrl', ['$scope', '$sce', 'QuestionRes', '$translate', function ($scope, $sce, QuestionRes, $translate) {
+        .controller('LibraryCtrl', ['$scope', 'sessionService', '$sce', 'QuestionRes', '$translate', function ($scope, sessionService, $sce, QuestionRes, $translate) {
 
+            $scope.session = sessionService;
+
+            
             var randomQuestions = function (questions) {
                 var result = [];
                 var randomQuestions = [];
@@ -31,12 +34,12 @@
                 };
             };
 
-            QuestionRes.query(function (data) {
+            QuestionRes.questions.query(function (data) {
                 data.map(function (item) {
                     var icon = "";
                     switch (item.type) {
                         case "MultipleChoiceQuestion":
-                            icon = "fa-list-ol";
+                            icon = "fa-list-ul";
                             break;
                         case "EssayQuestion":
                             icon = "fa-edit";

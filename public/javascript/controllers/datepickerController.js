@@ -52,6 +52,7 @@
                     var curr_month = d.getMonth() + 1; //Months are zero based
                     var curr_year = d.getFullYear();
                     $scope.dateService.modStartDate = curr_date + "-" + curr_month + "-" + curr_year;
+                    $scope.dateService.startTimestamp = d.getTime();
                 });
 
                 $scope.$watch('dateService.endDate', function (v) {
@@ -60,6 +61,13 @@
                     var curr_month = d.getMonth() + 1; //Months are zero based
                     var curr_year = d.getFullYear();
                     $scope.dateService.modEndDate = curr_date + "-" + curr_month + "-" + curr_year;
+                    $scope.dateService.endTimestamp = d.getTime();
+                    
+//                    var myDate="26-02-2012";
+//                    myDate=myDate.split("-");
+//                    var newDate=myDate[1]+"/"+myDate[0]+"/"+myDate[2];
+//                    alert(new Date(newDate).getTime());
+                    
                 });
 
                 $scope.dateOptions = {

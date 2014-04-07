@@ -1,14 +1,20 @@
 package models;
 
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 /*
  * Opinnon tyyppi
  * http://tietomalli.csc.fi/Opinnon%20tyyppi.html
  */
 public class CourseType {
 
-	private Long id;
-	
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
+
 	private String code;
 	
 	private String name;

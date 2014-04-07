@@ -1,16 +1,17 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import annotations.NonCloneable;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
-import org.apache.commons.codec.digest.DigestUtils;
+import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
@@ -19,23 +20,17 @@ import java.util.List;
  * 
  */
 @Entity
-
 public class Exam extends SitnetModel {
 
-    // student User who has participated in this Exam
-    @ManyToOne
-    @JsonBackReference
-    private User student;
-
-    // Tentti liittyy Opintojaksoon
-    @ManyToOne
-    private Course course;
-
-    // onko tentillä joku toinen nimi, Opintojakson nimen lisäksi
     private String name;
 
-    private ExamType examType;
+    // this should be @OneToOne
+    @ManyToOne
+    @NonCloneable
+    private Course course;
 
+    private ExamType examType;
+    
     // Opettajan antama ohje Opiskelijalle tentin suorittamista varten
     private String instruction;
 
@@ -46,35 +41,47 @@ public class Exam extends SitnetModel {
     @JsonManagedReference
     private List<ExamSection> examSections;
 
+    /*
+     *  Kun opiskelijalle tehdään kopio tentistä, tämä tulee viittaamaan alkuperäiseen tenttiin
+     *  
+     *  Lisäksi tentaattori pitää löytää joukko tenttejä, jotka ovat suoritettuja, jotka pitää tarkistaa
+     *  tätä viitettä voidaan käyttää niiden tenttien löytämiseen  
+     */
     @OneToOne
-    @JsonBackReference
-    private ExamEvent examEvent;
+    @NonCloneable
+    private Exam parent;
+
 
     @Column(length = 32, unique = true)
     private String hash;
 
-    private Timestamp answeringStarted;
+    // tentin voimassaoloaika, tentti on avoin opiskelijoille tästä lähtien
+    @Temporal(TemporalType.TIMESTAMP)
+    private Timestamp examActiveStartDate;
+    
+    // tentin voimassaoloaika, tentti sulkeutuu
+    @Temporal(TemporalType.TIMESTAMP)
+    private Timestamp examActiveEndDate;
 
-    private Timestamp answeringEnded;
+    // Akvaario
+    private String room;
 
+    // tentin kesto
+    private Double duration;
+
+    // Exam grading, e.g. 1-5
+    private String grading;
+
+    // Exam language
+    private String examLanguage;
+
+    // Exam answer language
+    private String answerLanguage;
+    
     private String state;
 
-    public Timestamp getAnsweringStarted() {
-        return answeringStarted;
-    }
-
-    public void setAnsweringStarted(Timestamp answeringStarted) {
-        this.answeringStarted = answeringStarted;
-    }
-
-    public Timestamp getAnsweringEnded() {
-        return answeringEnded;
-    }
-
-    public void setAnsweringEnded(Timestamp answeringEnded) {
-        this.answeringEnded = answeringEnded;
-    }
-
+    private String grade;
+    
     public String getName() {
         return name;
     }
@@ -123,43 +130,76 @@ public class Exam extends SitnetModel {
         this.course = course;
     }
 
-    public ExamEvent getExamEvent() {
-        return examEvent;
-    }
-
-    public void setExamEvent(ExamEvent examEvent) {
-        this.examEvent = examEvent;
-    }
-
     public String getHash() {
         return hash;
     }
 
-    public User getStudent() {
-        return student;
-    }
+	public String getRoom() {
+		return room;
+	}
 
-    public void setStudent(User student) {
-        this.student = student;
-    }
+	public Double getDuration() {
+		return duration;
+	}
+
+	public void setDuration(Double duration) {
+		this.duration = duration;
+	}
+
+	public String getGrading() {
+		return grading;
+	}
+
+	public void setGrading(String grading) {
+		this.grading = grading;
+	}
+
+	public String getExamLanguage() {
+		return examLanguage;
+	}
+
+	public void setExamLanguage(String examLanguage) {
+		this.examLanguage = examLanguage;
+	}
+
+	public String getAnswerLanguage() {
+		return answerLanguage;
+	}
+
+	public void setAnswerLanguage(String answerLanguage) {
+		this.answerLanguage = answerLanguage;
+	}
 
     public String generateHash() {
 
+        Random rand = new Random();
+
         // TODO: what attributes make examEvent unique?
         // create unique hash for exam
-        String attributes = name +
-                course.getCode() +
-                state;
+        String attributes = name + state + new String(rand.nextDouble()+"");
 
-//                examEvent.getStartTime().toString() +
-//                examEvent.getEndTime().toString();
-
-        this.hash = DigestUtils.md5Hex(attributes);
+        this.hash = SitnetUtil.encodeMD5(attributes);
         play.Logger.debug("Exam hash: " + this.hash);
         return hash;
     }
 
-    public String getState() {
+    public Exam getParent() {
+		return parent;
+	}
+
+	public void setParent(Exam parent) {
+		this.parent = parent;
+	}
+
+	public String getGrade() {
+		return grade;
+	}
+
+	public void setGrade(String grade) {
+		this.grade = grade;
+	}
+
+	public String getState() {
         return state;
     }
 
@@ -167,27 +207,29 @@ public class Exam extends SitnetModel {
         this.state = state;
     }
 
+    @Override
+    public Object clone() {
 
-    public Exam clone() {
-        Exam examClone = new Exam();
+//        return SitnetUtil.getClone(this);
 
-        examClone.setCreated(this.getCreated());
-        examClone.setCreator(this.getCreator());
-        examClone.setModified(this.getModified());
-        examClone.setModifier(this.getModifier());
-        examClone.setCourse(this.getCourse());
-        examClone.setName(this.getName());
-        examClone.setExamType(this.getExamType());
-        examClone.setInstruction(this.getInstruction());
-        examClone.setShared(this.isShared());
+        Exam clone = new Exam();
 
+//        Exam clone = (Exam)SitnetUtil.getClone(this);
 
-        try {
-            examClone.setExamEvent((ExamEvent) this.examEvent.clone());
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+//        clone.setState("STUDENT_STARTED");
+//        clone.generateHash();
 
+        // Causes infinite recursion
+//        clone.setStudent(UserController.getLoggedUser());
+        clone.setCreated(this.getCreated());
+        clone.setCreator(this.getCreator());
+        clone.setModified(this.getModified());
+        clone.setModifier(this.getModifier());
+        clone.setCourse(this.getCourse());
+        clone.setName(this.getName());
+        clone.setExamType(this.getExamType());
+        clone.setInstruction(this.getInstruction());
+        clone.setShared(this.isShared());
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
 
@@ -226,13 +268,13 @@ public class Exam extends SitnetModel {
             examSectionsCopies.add(examsec_copy);
         }
 
-        examClone.setExamSections(examSectionsCopies);
+        clone.setExamSections(examSectionsCopies);
 
-        examClone.setExamEvent(this.getExamEvent());
-        examClone.generateHash();
-        examClone.setState("STUDENT_STARTED");
+        clone.generateHash();
+        clone.setState("STUDENT_STARTED");
+        clone.generateHash();
 
-        return examClone;
+        return clone;
     }
 
     public List<ExamSection> createNewExamSectionList() {
@@ -250,7 +292,23 @@ public class Exam extends SitnetModel {
         return multipleChoiceOptionCopies;
     }
 
-    @Override
+    public Timestamp getExamActiveStartDate() {
+        return examActiveStartDate;
+    }
+
+    public void setExamActiveStartDate(Timestamp examActiveStartDate) {
+        this.examActiveStartDate = examActiveStartDate;
+    }
+
+    public Timestamp getExamActiveEndDate() {
+        return examActiveEndDate;
+    }
+
+    public void setExamActiveEndDate(Timestamp examActiveEndDate) {
+        this.examActiveEndDate = examActiveEndDate;
+    }
+
+	@Override
     public String toString() {
         return "Exam{" +
                 "course=" + course +
@@ -258,8 +316,6 @@ public class Exam extends SitnetModel {
                 ", examType=" + examType +
                 ", instruction='" + instruction + '\'' +
                 ", shared=" + shared +
-//                ", examSections=" + examSections +
-                ", examEvent=" + examEvent +
                 ", hash='" + hash + '\'' +
                 ", state='" + state + '\'' +
                 '}';

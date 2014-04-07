@@ -2,7 +2,14 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import actions.Authenticate;
+
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import models.Session;
 import models.User;
 import play.Logger;
@@ -21,12 +28,55 @@ public class UserController extends SitnetController {
         return ok(Json.toJson(users));
     }
 
-    @Authenticate
-    public static Result getUser(long id) {
+//    @Authenticate
+    public static Result getUser(Long id) {
         User user = Ebean.find(User.class, id);
-        return ok(Json.toJson(user));
+        
+		if (user == null) {
+			return notFound();
+		} else {
+			JsonContext jsonContext = Ebean.createJsonContext();
+			JsonWriteOptions options = new JsonWriteOptions();
+			options.setRootPathProperties("id, email, firstName, lastName, roles, userLanguage");
+			options.setPathProperties("roles", "name");
+//			options.setPathProperties("exam", "id");
+
+			return ok(jsonContext.toJsonString(user, true, options)).as("application/json");
+		}
+		
+		
+//        return ok(Json.toJson(user));
     }
 
+//    @Restrict(@Group({"TEACHER"}))
+    public static Result getUsersByRole(String role) {
+    	  
+    	List<User> users = Ebean.find(User.class)
+    			.where()
+    			.eq("roles.name", role)
+    			.findList();
+
+        // didnt work, lazy loading still initializes the object
+//        List<User> immutableUsers = Collections.unmodifiableList(users);
+        
+    	List<User> filteredUsers =
+    			Ebean.filter(User.class) 
+    			.sort("lastName asc")
+    			.filter(users);
+    	
+    	ArrayNode array = JsonNodeFactory.instance.arrayNode();    	    	   
+        for(User u : filteredUsers) {
+        	ObjectNode part = Json.newObject();
+        	part.put("id", u.getId());
+//        	part.put("firstName", u.getFirstName());
+//        	part.put("lastName", u.getLastName());
+        	part.put("name", new String(u.getFirstName() +" "+u.getLastName()));
+        	array.add(part);
+        }
+        
+    	return ok(Json.toJson(array));
+    }
+    
     @Authenticate
     public static Result addUser() throws MalformedDataException {
         User user = bindForm(User.class);

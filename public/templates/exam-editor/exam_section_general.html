@@ -1,40 +1,32 @@
-<div class="exam-header">
-    <h4>
-        <div>
-			<span class="fa-stack">
-				<i class="fa fa-square-o fa-stack-2x"></i>
-				<i class="fa fa-bars"></i>
-				<i class="fa fa-stack-1x">{{section.id}}</i>
-			</span>
-            <span ng-click="">Tentin yleistiedot</span>
-			<span class="pull-right fa-stack fa-lg dropdown" ng-click="">
-				<a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
-                        class="sitnet-white fa fa-cog fa-stack-1x"></i>
-                </a>
-				<ul class="dropdown-menu">
-                    <li><a class="pointer-hand">Asetukset</a></li>
-                </ul>
-			</span>
-			<span ng-click="" class="pull-right fa-stack fa-lg">
-				<i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-				<i ng-class="showInfo ? 'fa-chevron-left' : 'fa-chevron-down'" ng-click="showInfo = !showInfo"
-                   class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-			</span>
-        </div>
-    </h4>
+<div class="exam-general-information-header">
+    {{'sitnet_exam_basic_information' | translate}}
+    <span ng-click="" class="pull-right fa-stack fa-lg">
+        <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
+        <i ng-class="showInfo ? 'fa-chevron-down' : 'fa-chevron-left'" ng-click="showInfo = !showInfo"
+           class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+    </span>
+    <span class="pull-right fa-stack fa-lg dropdown" ng-click="">
+        <a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
+                class="sitnet-white fa fa-cog fa-stack-1x"></i>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
+        </ul>
+    </span>
 </div>
 
 <!-- General info section container -->
-<div class="exam-info" ng-hide="showInfo" ng-controller="DatepickerCtrl">
+<div class="" ng-show="showInfo" ng-controller="DatepickerCtrl">
 
 <!-- Start & End time datepickers -->
 <div class="row">
     <div class="col-md-6">
-        <h4>Alkuaika</h4>
+        <h4>{{'sitnet_start_time' | translate}}</h4>
 
         <p class="input-group">
+
             <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
-                   is-open="stardDateOpened" min="minDate"
+                   is-open="startDateOpened" min="minDate"
                    max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
                    ng-required="true" close-text="Close"/>
 				<span class="input-group-btn">
@@ -46,7 +38,7 @@
     </div>
 
     <div class="col-md-6">
-        <h4>Loppuaika</h4>
+        <h4>{{'sitnet_end_time' | translate}}</h4>
 
         <p class="input-group">
             <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
@@ -64,7 +56,7 @@
 <!-- Summary of start and end times -->
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
-        <div>Tentin aikajakso on:
+        <div>{{'sitnet_active_period' | translate}}:
             <em>{{dateService.startDate | date:'dd/MM/yyyy' }} - {{dateService.endDate | date:'dd/MM/yyyy' }}</em>
         </div>
     </div>
@@ -72,7 +64,7 @@
 
 <div class="row">
     <div class="col-md-6">
-        <div class="sitnet-info-text">Opintojakson koodi:</div>
+        <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}:</div>
         <div class="input-group">
             <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.code">
 				<span class="input-group-addon"
@@ -83,7 +75,7 @@
     </div>
 
     <div class="col-md-6">
-        <div class="sitnet-info-text">Opintojakson nimi:</div>
+        <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
         <div class="input-group">
             <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.name">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
@@ -96,7 +88,7 @@
 <!-- Course scope and organization name input elements -->
 <div class="row">
     <div class="col-md-6">
-        <div class="sitnet-info-text">Opintojakson laajuus:</div>
+        <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}:</div>
         <div class="input-group">
             <!-- placeholder="opintopistettä" -->
             <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits">
@@ -107,7 +99,7 @@
     </div>
 
     <div class="col-md-6">
-        <div class="sitnet-info-text">Organisaatio/tiedekunta:</div>
+        <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}:</div>
         <div class="input-group">
             <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.organisation.name">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
@@ -120,33 +112,34 @@
 <!-- Room name and exam length input elements -->
 <div class="row">
     <div class="col-md-6">
-        <div class="sitnet-info-text">Suorituspaikka:</div>
+        <div class="sitnet-info-text">{{'sitnet_examination_location' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" data-target="">
-                    Valitse<span
+                    {{'sitnet_choose' | translate}}<span
                         class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="room in examRooms" ng-click="setExamRoom(room)"><a class="pointer-hand">{{room}}</a>
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.room">
+            <input type="text" class="form-control" ng-model="newExam.room">
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="sitnet-info-text">Tentin kesto:</div>
+        <div class="sitnet-info-text">{{'sitnet_exam_duration' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
-                        class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' |
+                    translate}} <span
+                            class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="duration in examDurations" ng-click="setExamDuration(duration)"><a
                             class="pointer-hand">{{duration}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.duration">
+            <input type="text" class="form-control" ng-model="newExam.duration">
         </div>
     </div>
 </div>
@@ -154,32 +147,36 @@
 <!-- Exam inspector and exam score scale input elements -->
 <div class="row">
     <div class="col-md-6">
-        <div class="sitnet-info-text">Tarkastaja:</div>
+        <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
-                        class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' | translate}} <span
+                            class="caret"></span></button>
                 <ul class="dropdown-menu">
-                    <li ng-repeat="inspector in examInspectors" ng-click="setExamInspector(inspector)"><a
-                            class="pointer-hand">{{inspector}}</a></li>
+                    <li ng-repeat="inspector in examInspectors | filter:selected"
+                        ng-click="setExamInspector(inspector)">
+                        <a class="pointer-hand">{{inspector.name}}</a>
+                    </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.inspector">
+            <input type="text" class="form-control" value="{{newExam.inspector.name}}"
+                   ng-model="newExam.inspector.name">
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="sitnet-info-text">Arvosana-asteikko:</div>
+        <div class="sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
-                        class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' |
+                    translate}} <span
+                            class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="grading in examGradings" ng-click="setExamGrading(grading)"><a class="pointer-hand">{{grading}}</a>
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.grading">
+            <input type="text" class="form-control" ng-model="newExam.grading">
         </div>
     </div>
 </div>
@@ -187,59 +184,58 @@
 <!-- Exam and answer language input elements -->
 <div class="row">
     <div class="col-md-6">
-        <div class="sitnet-info-text">Kokeen kieli:</div>
+        <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
-                        class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' |
+                    translate}} <span
+                            class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="language in examLanguages" ng-click="setExamLanguage(language)"><a
                             class="pointer-hand">{{language}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.language">
+            <input type="text" class="form-control" ng-model="newExam.examLanguage">
         </div>
     </div>
 
     <div class="col-md-6">
-        <div class="sitnet-info-text">Vastauskieli:</div>
+        <div class="sitnet-info-text">{{'sitnet_exam_answer_language' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Valitse <span
-                        class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' |
+                    translate}} <span
+                            class="caret"></span></button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="answerLanguage in examAnswerLanguages"
                         ng-click="setExamAnswerLanguage(answerLanguage)"><a class="pointer-hand">{{answerLanguage}}</a>
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExamEvent.answerLanguage">
+            <input type="text" class="form-control" ng-model="newExam.answerLanguage">
         </div>
     </div>
 </div>
 
 <!-- Exam material and quidance input elements -->
 <div class="row">
-    <div class="col-md-6">
-        <div class="sitnet-info-text">Materiaali:</div>
-        <div class="input-group">
-            <div class="input-group-btn">
-                <div file-browser>
-                    <input type="file" class="form-control" name="Selaa">
-                </div>
-            </div>
-        </div>
-    </div>
+<!--     <div class="col-md-6"> -->
+<!--         <div class="sitnet-info-text">{{'sitnet_material' | translate}}:</div> -->
+<!--         <div class="input-group"> -->
+<!--             <div class="input-group-btn"> -->
+<!--                 <div file-browser> -->
+<!--                     <input type="file" class="form-control" name="Selaa"> -->
+<!--                 </div> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--     </div> -->
 
     <div class="col-md-6">
-        <div class="sitnet-info-text">Ohjeistus:</div>
-        <div class="input-group">
-            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.instruction">
-				<span class="input-group-addon" title="Ohjeet ohjeistuksen lisäämiseen.">
-					<i class="fa fa-question-circle fa-fw"></i>
-				</span>
+        <div class="sitnet-info-text">{{'sitnet_sharing' | translate}}:</div>
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="newExam.shared"> {{'sitnet_share_this_exam' | translate}}
+            </label>
         </div>
     </div>
-</div>
-
 </div>

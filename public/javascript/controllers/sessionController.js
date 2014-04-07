@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'SITNET_CONF',
-            function ($scope, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, SITNET_CONF) {
+        .controller('SessionCtrl', ['$scope', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'ExamRes', 'SITNET_CONF',
+            function ($scope, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, ExamRes, SITNET_CONF) {
 
                 $scope.session = sessionService;
 
@@ -28,8 +28,31 @@
                 });
 
                 $scope.logout = function () {
+                    // Todo: Fix the backend query to only return this user exams
+//                   var userexams = ExamRes.exams.query({state: 'STUDENT_STARTED'},
+//
+//                   );
+
+                    ExamRes.examsByState.query({state: 'STUDENT_STARTED'},
+                        function (value) {
+
+                            if (value.length > 0) {
+                                toastr.success("SULLA ON TENTTI KESKEN!");
+                            } else {
+                                $scope.dologout();
+                            };
+                        },
+                        function (error) {
+                            toastr.success(error, "SULLA ON TENTTI HUKASSA!");
+                        });
+                };
+
+                $scope.dologout = function () {
                     var xhr = $http.post('/logout');
                     xhr.success(function (message) {
+
+                        // This could be how the service is called if we could use it to handle logout
+//                        sessionService.logout();
                         delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
                         delete $http.defaults.headers.common;
                         toastr.success("Uloskirjautuminen onnistui.");

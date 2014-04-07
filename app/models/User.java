@@ -8,6 +8,7 @@ import play.data.format.Formats;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -17,11 +18,6 @@ public class User extends Model implements Subject {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "student")
-    @JsonManagedReference
-    private List<Exam> exams;
 
 //    @Constraints.Required
     @Formats.NonEmpty
@@ -41,7 +37,26 @@ public class User extends Model implements Subject {
 
     @OneToOne
     private UserLanguage userLanguage;
-
+    
+    
+    
+    
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
+    @JsonManagedReference
+    private List<ExamEnrolment> enrolments;
+    
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
+    @JsonManagedReference
+    private List<ExamParticipation> participations;
+    
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
+    @JsonManagedReference
+    private List<ExamInspection> inspections;
+    
+    
+    
+    
+    
 	public Long getId() {
         return id;
     }
@@ -86,14 +101,6 @@ public class User extends Model implements Subject {
         this.roles = roles;
     }
 
-    public List<Exam> getExams() {
-        return exams;
-    }
-
-    public void setExams(List<Exam> exams) {
-        this.exams = exams;
-    }
-
     @Override
     public List<? extends Role> getRoles() {
         return roles;
@@ -114,7 +121,43 @@ public class User extends Model implements Subject {
         return null;
     }
 
-    @Override
+    public List<ExamEnrolment> getEnrolments() {
+
+        if(enrolments == null) {
+            enrolments = new ArrayList<ExamEnrolment>();
+        }
+        return enrolments;
+	}
+
+	public void setEnrolments(List<ExamEnrolment> enrolments) {
+		this.enrolments = enrolments;
+	}
+
+	public List<ExamParticipation> getParticipations() {
+
+        if(participations == null) {
+            participations = new ArrayList<ExamParticipation>();
+        }
+        return participations;
+	}
+
+	public void setParticipations(List<ExamParticipation> participations) {
+		this.participations = participations;
+	}
+
+	public List<ExamInspection> getInspections() {
+
+        if(inspections == null) {
+            inspections = new ArrayList<ExamInspection>();
+        }
+        return inspections;
+	}
+
+	public void setInspections(List<ExamInspection> inspections) {
+		this.inspections = inspections;
+	}
+
+	@Override
     public String getIdentifier() {
         return email;
     }

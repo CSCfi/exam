@@ -1,7 +1,7 @@
 package models.questions;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import play.Logger;
+import util.SitnetUtil;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
@@ -11,7 +11,7 @@ import javax.persistence.Entity;
  */
 @Entity
 @DiscriminatorValue("EssayQuestion")
-public class EssayQuestion extends AbstractQuestion {
+public class EssayQuestion extends AbstractQuestion implements QuestionInterface {
 
     public EssayQuestion() {
         this.type = this.getClass().getSimpleName();
@@ -32,7 +32,7 @@ public class EssayQuestion extends AbstractQuestion {
 
         String attributes = question + instruction;
 
-        this.hash = DigestUtils.md5Hex(attributes);
+        this.hash = SitnetUtil.encodeMD5(attributes);
         Logger.debug("Question hash: " + this.hash);
         return hash;
     }
@@ -43,6 +43,12 @@ public class EssayQuestion extends AbstractQuestion {
 
     public void setMaxCharacters(Long maxCharacters) {
         this.maxCharacters = maxCharacters;
+    }
+
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
     }
 
 }

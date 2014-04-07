@@ -3,12 +3,14 @@ package models.questions;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import util.SitnetUtil;
+
 /**
  * Created by avainik on 3/6/14.
  */
 @Entity
 @DiscriminatorValue("MathQuestion")
-public class MathQuestion extends AbstractQuestion {
+public class MathQuestion extends AbstractQuestion implements QuestionInterface {
 
     public MathQuestion() {
         this.type = this.getClass().getSimpleName();
@@ -25,4 +27,11 @@ public class MathQuestion extends AbstractQuestion {
     public String generateHash() {
         return "MathQuestion: implement my hash";
     }
+
+	@Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
+    }
+
 }

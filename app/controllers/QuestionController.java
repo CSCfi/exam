@@ -1,127 +1,181 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
+import Exceptions.SitnetException;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import models.SitnetModel;
 import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
+import models.questions.MultipleChoiseOption;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
-import play.mvc.BodyParser;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.sql.Timestamp;
 import java.util.List;
 
 public class QuestionController extends SitnetController {
 
-	
-//  @Authenticate
-  public static Result getQuestions() {
-  	
-      List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
-              .where()
-              .eq("parent", null)
-              .findList();
 
-      if(questions != null)
-          Logger.debug(questions.toString());
+    //  @Authenticate
+    public static Result getQuestions() {
 
-      return ok(Json.toJson(questions));
-  }
+        List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
+                .where()
+                .eq("parent", null)
+                .findList();
 
-//  @Authenticate
-  public static Result getQuestion(Long id) {
+        if (questions != null)
+            Logger.debug(questions.toString());
 
-      AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        return ok(Json.toJson(questions));
+    }
 
-      return ok(Json.toJson(question));
-  }
+    //  @Authenticate
+    public static Result getQuestion(Long id) {
 
-//  @Authenticate
-//  @BodyParser.Of(BodyParser.Json.class)
-  public static Result addQuestion() throws MalformedDataException {
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
 
-      DynamicForm df = Form.form().bindFromRequest();
-      Logger.debug("Add question");
+        return ok(Json.toJson(question));
+    }
 
-      try {
-          Class<?> clazz = Class.forName("models.questions."+df.get("type"));
-          Object question = clazz.newInstance();
+    @Restrict(@Group({"TEACHER"}))
+    public static Result addQuestion() throws MalformedDataException {
 
-          User user = UserController.getLoggedUser();
-          Timestamp currentTime = new Timestamp(System.currentTimeMillis() * 1000);
+        DynamicForm df = Form.form().bindFromRequest();
 
-          question = bindForm(question.getClass());
+        try {
+            Class<?> clazz = Class.forName("models.questions." + df.get("type"));
+            Object question = clazz.newInstance();
 
-          switch(df.get("type"))
-          {
-              case "MultipleChoiceQuestion":
-              {
+            User user = UserController.getLoggedUser();
+            Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-                  if( ((MultipleChoiceQuestion)question).getCreator() == null)
-                  {
-                      ((MultipleChoiceQuestion)question).setCreator(user);
-                      ((MultipleChoiceQuestion)question).setCreated(currentTime);
-                  }
-                  else
-                  {
-                      ((MultipleChoiceQuestion)question).setModifier(user);
-                      ((MultipleChoiceQuestion)question).setModified(currentTime);
-                  }
+            question = bindForm(question.getClass());
 
-                  ((MultipleChoiceQuestion) question).generateHash();
+            switch (df.get("type")) {
+                case "MultipleChoiceQuestion": {
 
-              } break;
+                    try {
+                        SitnetUtil.setCreator((SitnetModel)question);
+                    } catch (SitnetException e) {
+                        e.printStackTrace();
+                        return ok(e.getMessage());
+                    }
+                    ((MultipleChoiceQuestion) question).generateHash();
 
-              case "EssayQuestion":
-              {
-                  if( ((EssayQuestion)question).getCreator() == null)
-                  {
-                      ((EssayQuestion)question).setCreator(user);
-                      ((EssayQuestion)question).setCreated(currentTime);
-                  }
-                  else
-                  {
-                      ((EssayQuestion)question).setModifier(user);
-                      ((EssayQuestion)question).setModified(currentTime);
-                  }
+                } break;
 
-                  ((EssayQuestion) question).generateHash();
+                case "EssayQuestion": {
 
-              } break;
+                    try {
+                        SitnetUtil.setCreator((SitnetModel)question);
+                    } catch (SitnetException e) {
+                        e.printStackTrace();
+                        return ok(e.getMessage());
+                    }
+                    ((EssayQuestion) question).generateHash();
 
-              case "MathQuestion":
-              {
+                } break;
+
+                case "MathQuestion": {
 
 
-              } break;
-              default:
+                } break;
 
-          }
+                default:
 
-          Ebean.save(question);
-          return ok(Json.toJson(question));
+            }
 
-      } catch (ClassNotFoundException e) {
-          e.printStackTrace();
-      } catch (InstantiationException e) {
-          e.printStackTrace();
-      } catch (IllegalAccessException e) {
-          e.printStackTrace();
-      }
+            Ebean.save(question);
+            return ok(Json.toJson(question));
 
-      return ok("fail");
-  }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
-    @BodyParser.Of(BodyParser.Json.class)
+        return ok("fail");
+    }
+
+   @Restrict(@Group({"TEACHER"}))
+    public static Result updateQuestion(Long id) throws MalformedDataException {
+
+       DynamicForm df = Form.form().bindFromRequest();
+
+
+       switch (df.get("type")) {
+           case "MultipleChoiceQuestion": {
+               MultipleChoiceQuestion question = bindForm(MultipleChoiceQuestion.class);
+               question.update();
+               return ok(Json.toJson(question));
+           }
+
+           case "EssayQuestion": {
+               EssayQuestion question = bindForm(EssayQuestion.class);
+               question.update();
+               return ok(Json.toJson(question));
+           }
+
+           default:
+       }
+       return ok("fail");
+    }
+
+    @Restrict(@Group({"TEACHER"}))
     public static Result deleteQuestion(Long id) {
 
-    Ebean.delete(AbstractQuestion.class, id);
+        Ebean.delete(AbstractQuestion.class, id);
 
-    return ok("Question deleted from database!");
+        return ok("Question deleted from database!");
     }
+
+
+    @Restrict(@Group({"TEACHER"}))
+    public static Result deleteOption(Long oid) {
+
+        Ebean.delete(MultipleChoiseOption.class, oid);
+
+        return ok("Option deleted from database!");
+    }
+
+    @Restrict(@Group({"TEACHER"}))
+    public static Result addOption(Long qid) throws MalformedDataException {
+
+        MultipleChoiceQuestion question = Ebean.find(MultipleChoiceQuestion.class, qid);
+        MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
+        question.getOptions().add(option);
+        question.save();
+        option.save();
+
+        return ok(Json.toJson(option));
+    }
+
+
+    public static Result createOption() throws MalformedDataException {
+
+        MultipleChoiseOption option = new MultipleChoiseOption();
+        option.setOption("Esimerkki vaihtoehto");
+        option.setCorrectOption(false);
+        option.save();
+
+        return ok(Json.toJson(option));
+    }
+
+    public static Result getOption(Long id) throws MalformedDataException {
+
+        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
+        return ok(Json.toJson(option));
+    }
+
 }

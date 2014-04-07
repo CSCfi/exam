@@ -20,6 +20,8 @@
 #
 ######################################################################
 
+# 2014-04-03 20:32:04.575
+
 # Users
 
 user_languages:
@@ -29,6 +31,8 @@ user_languages:
       UILanguageCode: FI_fi
       UILanguageName: Suomi
 
+
+    
 users:
     - &sauli !!models.User
       email:      test
@@ -39,7 +43,6 @@ users:
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
 
-
     - &maika !!models.User
       email:      opettaja
       firstName:  Maika
@@ -49,6 +52,24 @@ users:
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
     
+    - &arvo !!models.User
+      email:      arvo
+      firstName:  Arvon
+      lastName:   Penaali
+      password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
+      roles:  
+            - !!models.SitnetRole {name: TEACHER}
+      userLanguage: *suomi
+
+    - &soikkeli !!models.User
+      email:      soikkeli
+      firstName:  Höylä
+      lastName:   Soikkeli
+      password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
+      roles:  
+            - !!models.SitnetRole {name: TEACHER}
+      userLanguage: *suomi
+      
     - &orville !!models.User
       email:      oppilas
       firstName:  Orville
@@ -126,8 +147,11 @@ question_essay:
 
   - &essay1 !!models.questions.EssayQuestion
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
+    score: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -137,8 +161,11 @@ question_essay:
 
   - &essay2 !!models.questions.EssayQuestion
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     instruction:
+    score: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -148,8 +175,11 @@ question_essay:
 
   - &essay3 !!models.questions.EssayQuestion
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
     instruction:
+    score: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -165,8 +195,11 @@ question_mutiple_choice:
 
   - &multi1 !!models.questions.MultipleChoiceQuestion
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -180,7 +213,10 @@ question_mutiple_choice:
   - &multi2 !!models.questions.MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -194,7 +230,10 @@ question_mutiple_choice:
   - &multi3 !!models.questions.MultipleChoiceQuestion
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -207,7 +246,10 @@ question_mutiple_choice:
   - &multi4 !!models.questions.MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -221,7 +263,10 @@ question_mutiple_choice:
   - &multi5 !!models.questions.MultipleChoiceQuestion
     question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -234,11 +279,12 @@ question_mutiple_choice:
   - &avaruus1 !!models.questions.MultipleChoiceQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
+    evaluationCriterias:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: kosmonautti, correctOption: false, score: 1}
@@ -249,11 +295,12 @@ question_mutiple_choice:
   - &avaruus2 !!models.questions.MultipleChoiceQuestion
     question:  Auringon fuusioreaktiot tapahtuvat
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
+    evaluationCriterias:  Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Ytimessä, correctOption: true, score: 1}
@@ -264,11 +311,12 @@ question_mutiple_choice:
   - &avaruus3 !!models.questions.MultipleChoiceQuestion
     question:   AU mittaa
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
+    evaluationCriterias:  Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Aikaa, correctOption: false, score: 1}
@@ -279,11 +327,12 @@ question_mutiple_choice:
   - &avaruus4 !!models.questions.MultipleChoiceQuestion
     question:   Ekliptika on
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
+    evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
@@ -294,11 +343,12 @@ question_mutiple_choice:
   - &avaruus5 !!models.questions.MultipleChoiceQuestion
     question:   Tähdenlento eli
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
+    evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
@@ -310,11 +360,12 @@ question_mutiple_choice:
   - &avaruus6 !!models.questions.MultipleChoiceQuestion
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
+    evaluationCriterias:  Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Aineen palamisesta ilmakehässä, correctOption: true, score: 1}
@@ -325,11 +376,12 @@ question_mutiple_choice:
   - &avaruus7 !!models.questions.MultipleChoiceQuestion
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
+    evaluationCriterias:  Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maa, correctOption: false, score: 1}
@@ -341,11 +393,12 @@ question_mutiple_choice:
   - &avaruus8 !!models.questions.MultipleChoiceQuestion
     question:   The Great Red Spot tarkoittaa
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
+    evaluationCriterias:  Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false, score: 1}
@@ -357,11 +410,12 @@ question_mutiple_choice:
   - &avaruus9 !!models.questions.MultipleChoiceQuestion
     question:   Vuodenajat aiheutuvat
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
+    evaluationCriterias:  Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false, score: 1}
@@ -373,11 +427,12 @@ question_mutiple_choice:
   - &avaruus10 !!models.questions.MultipleChoiceQuestion
     question:   Uudenkuun aikaan
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                       criteria: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
+    evaluationCriterias: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false, score: 1}
@@ -389,11 +444,12 @@ question_mutiple_choice:
   - &avaruus11 !!models.questions.MultipleChoiceQuestion
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
     creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
+    evaluationCriterias:  Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Kuun vetovoima, correctOption: false, score: 1}
@@ -435,106 +491,74 @@ courses:
     name: Oliosuuntautunut analyysi ja suunnittelu
     type: 
     credits: 5   
-    
-       
-
-examevents:
-
-# startTime 1393549200   28.02.2014 00:00
-# endTime   1419728400   28.12.2014 00:00
-
-  - &event1 !!models.ExamEvent
-    duration: 1
-    inspectors:
-                    - *maika
-    state:
-    room: Akvaario IT102
-    enrolledStudents:
-                    - *sauli
-                    
-  - &event2 !!models.ExamEvent
-    duration: 1
-    inspectors:
-                    - *maika
-    state:
-    room: Akvaario IT102
-    enrolledStudents:
-                    - *orville
-                    - *sauli
-                    
-  - &event3 !!models.ExamEvent
-    duration: 1
-    inspectors:
-                    - *maika
-    state:
-    room: Akvaario IT102
-    enrolledStudents:
-                    - *orville
-                    - *sauli                                 
-
-
 
 
 exams:
 
   - &astronomianPerusteet !!models.Exam
+    creator: *maika
+    created: 2014-01-01 12:30:05.123
     course: *765104P
     name: Astronomian perusteet
     examType:
     instruction:
     shared: false
     examSections:
-    examEvent: *event1
     state: PUBLISHED
 
   - &alkeidenperusteet !!models.Exam
+    creator: *maika
+    created: 2014-01-01 12:30:05.123
     course: *alkeet
     name: Johdatus alkeiden perusteisiin
     examType:
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
     examSections:
-    examEvent: *event1
     state: PUBLISHED
 
   - &tietokannat2013 !!models.Exam
+    creator: *maika
+    created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, syksy 2013
     examType:
     instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
     shared: true
     examSections:
-    examEvent: *event1
     state: PUBLISHED
 
   - &tietokannat2014 !!models.Exam
+    creator: *maika
+    created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, kevät 2014
     examType:
     instruction: Vastaa kaikkiin tenttikysymyksiin
     shared: true
     examSections:
-    examEvent: *event1
     state: PUBLISHED
 
   - &algoritmit !!models.Exam
+    creator: *maika
+    created: 2014-01-01 12:30:05.123
     course: *811386A
     name: Algoritmit, 2013
     examType:
     instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
     shared: true
     examSections:
-    examEvent: *event2
     state: DRAFT
 
   - &ooad !!models.Exam
+    creator: *maika
+    created: 2014-01-01 12:30:05.123
     course: *812346A
     name: OOAD, 2013
     examType:
     instruction: Tentissä saa käyttää vain tilakoneita.
     shared: true
     examSections:
-    examEvent: *event3
     state: PUBLISHED
     
     
@@ -612,4 +636,67 @@ examsections:
               - *essay2
               - *essay3
     totalScore:
+    
+exam-enrolments:
+  
+  - !!models.ExamEnrolment
+    user: *sauli
+    exam: *ooad
+    enrolledOn: 2014-04-03 20:32:04.575
 
+  - !!models.ExamEnrolment
+    user: *sauli
+    exam: *algoritmit
+    enrolledOn: 2014-04-03 20:32:04.575
+   
+  - !!models.ExamEnrolment
+    user: *sauli
+    exam: *alkeidenperusteet
+    enrolledOn: 2014-04-03 20:32:04.575
+   
+  - !!models.ExamEnrolment
+    user: *sauli
+    exam: *astronomianPerusteet
+    enrolledOn: 2014-04-03 20:32:04.575
+
+
+exam-inspections:
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *alkeidenperusteet
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *astronomianPerusteet
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *algoritmit
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *ooad
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *tietokannat2013
+   
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *tietokannat2014
+   
+   
+   
+   
+   
+#exam-participations:   
+#  - !!models.ExamParticipation
+#    user: *sauli
+#    exam: *astronomianPerusteet
+#    started: 2014-04-01 12:00:00.575
+#    ended: 2014-04-01 14:45:00.575
+    
+    
+    
+    

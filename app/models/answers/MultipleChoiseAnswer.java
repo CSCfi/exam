@@ -28,7 +28,7 @@ public class MultipleChoiseAnswer extends AbstractAnswer {
 //        for(MultipleChoiseOption option : options)
 //            attributes += option.getOption();
 //
-//        this.hash = DigestUtils.md5Hex(attributes);
+//        this.hash = SitnetUtil.encodeMD5(attributes);
 //        Logger.debug("Question hash: " + this.hash);
         return "Implement me";
     }
