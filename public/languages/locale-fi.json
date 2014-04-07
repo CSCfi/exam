@@ -20,6 +20,7 @@
     "sitnet_exam_instructor": "Tentin tarkastaja",
     "sitnet_exams_created_by": "Luodut tentit käyttäjältä",
     "sitnet_exams_needing_attention": "Huomiota vaativat tentit",
+    "sitnet_exams_in_review": "Arvioitavissa olevat tentit",
     "sitnet_new_exam": "Uuden tentin luominen",
     "sitnet_exam_name": "Kokeen nimi",
     "sitnet_add_content": "Lisää uusi aineisto osioon raahaamalla se kirjastosta tai painamalla tätä aluetta.",
@@ -101,6 +102,7 @@
     "sitnet_essay_length_recommendation": "Vastauksen pituuden suositus (kirjainmerkkiä): ",
 
     "sitnet_words": "sanaa",
-    "sitnet_approximately": "noin"
+    "sitnet_approximately": "noin",
 
+    "sitnet_exam_review": "Tentin arviointi"
 }

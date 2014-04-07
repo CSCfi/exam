@@ -21,6 +21,7 @@
 	"sitnet_exam_instructor": "Exam instructor",
     "sitnet_exams_created_by": "Exams created by",
     "sitnet_exams_needing_attention": "Exams needing attention",
+    "sitnet_exams_in_review": "Arvioitavissa olevat tentit",
     "sitnet_new_exam": "Creating new exam",
     "sitnet_exam_name": "Name of the exam",
     "sitnet_add_content": "Add new content here by dragging question from library or clicking this area.",
@@ -102,7 +103,7 @@
     "sitnet_essay_length_recommendation": "Answer length recommendation (characters): ",
 
     "sitnet_words": "words",
-    "sitnet_approximately": "approximately"
+    "sitnet_approximately": "approximately",
 
-
+    "sitnet_exam_review": "Exam review"
 }

@@ -46,15 +46,34 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(exams));
     }
 
-    public static Result getExamByState(String state) {
-        Logger.debug("getExamByState()");
+    public static Result getExamsByState(String state) {
+        Logger.debug("getExamsByState()");
 
-        User user = UserController.getLoggedUser();
+//        User user = UserController.getLoggedUser();
 
-        List<Exam> exams = Ebean.find(Exam.class).where()
-                .eq("state", state)
-                .eq("student.id", user.getId())
-                .findList();
+//        List<Exam> exams = Ebean.find(Exam.class)
+//            .fetch("examEvent")
+//            .fetch("course")
+//            .fetch("examSections")
+//            .where()
+//                .eq("state", state)
+//                .eq("student.id", user.getId())
+//            .findList();
+
+        String oql =
+            "  find  exam "
+                +" fetch examSections "
+                +" fetch course "
+                +" fetch examEvent "
+                +" where state=:examstate";
+
+        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
+        query.setParameter("examstate", state);
+
+        // Todo: Uncomment when student_id gets set to the EXAM table
+        //query.setParameter("userid", user.getId());
+
+        List<Exam> exams = query.findList();
 
         return ok(Json.toJson(exams));
     }
@@ -70,6 +89,22 @@ public class ExamController extends SitnetController {
         Exam exam = query.findUnique();
    	
     	return ok(Json.toJson(exam));
+    }
+
+    public static Result reviewExam(Long id) {
+        Logger.debug("reviewExam(:id)");
+
+//        Query<Exam> query = Ebean.createQuery(Exam.class);
+//        query.fetch("examEvent");
+//        query.fetch("course");
+//        query.fetch("examSections");
+//        query.setId(id);
+//
+//        Exam exam = query.findUnique();
+//
+//        return ok(Json.toJson(exam));
+
+        return ok("testi toimii");
     }
 
     public static Result updateExam(Long id) throws MalformedDataException {

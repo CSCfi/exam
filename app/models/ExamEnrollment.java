@@ -10,8 +10,8 @@ import java.util.List;
 /**
  * Created by mpellikka on 02/04/14.
  */
-//@Entity
-public class EnrollmentEvent extends SitnetModel {
+@Entity
+public class ExamEnrollment extends SitnetModel {
 
 //    @OneToMany(cascade = CascadeType.PERSIST)
 //    @NonCloneable
@@ -27,7 +27,7 @@ public class EnrollmentEvent extends SitnetModel {
 //
 //    @Override
 //    public String toString() {
-//        return "EnrollmentEvent{" +
+//        return "ExamEnrollment{" +
 //                "enrolledStudents=" + enrolledStudents +
 //                '}';
 //    }

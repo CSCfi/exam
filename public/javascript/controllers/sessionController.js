@@ -33,35 +33,34 @@
 //
 //                   );
 
-                    ExamRes.examByState.query({state: 'STUDENT_STARTED'},
+                    ExamRes.examsByState.query({state: 'STUDENT_STARTED'},
                         function (value) {
-                            $scope.userexams = value;
+
+                            if (value.length > 0) {
+                                toastr.success("SULLA ON TENTTI KESKEN!");
+                            } else {
+                                $scope.dologout();
+                            };
                         },
                         function (error) {
-
+                            toastr.success(error, "SULLA ON TENTTI HUKASSA!");
                         });
-//
-//                    angular.forEach(userexams, function (exam) {
-//
-//                        if (exam.state == "STUDENT_STARTED") {
-//                            toastr.success("SULLA ON TENTTI KESKEN!");
-//                        }
-//                        else {
-                            var xhr = $http.post('/logout');
-                            xhr.success(function (message) {
+                };
 
-                                // This could be how the service is called if we could use it to handle logout
+                $scope.dologout = function () {
+                    var xhr = $http.post('/logout');
+                    xhr.success(function (message) {
+
+                        // This could be how the service is called if we could use it to handle logout
 //                        sessionService.logout();
-                                delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
-                                delete $http.defaults.headers.common;
-                                toastr.success("Uloskirjautuminen onnistui.");
-                                delete $scope.session.user;
-                                $rootScope.$broadcast('userUpdated');
-                                $location.path("/login");
-                            });
-                        };
-//                    })
-//                };
+                        delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+                        delete $http.defaults.headers.common;
+                        toastr.success("Uloskirjautuminen onnistui.");
+                        delete $scope.session.user;
+                        $rootScope.$broadcast('userUpdated');
+                        $location.path("/login");
+                    });
+                };
 
                 $scope.login = function () {
                     var credentials = {

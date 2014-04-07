@@ -20,17 +20,18 @@ DELETE        /users/:id                                            controllers.
 
 GET           /exams                                                controllers.ExamController.getExams()
 GET           /exams/:id                                            controllers.ExamController.getExam(id: Long)
-GET           /exams/state/:state                                   controllers.ExamController.getExamByState(state: String)
+GET           /exams/review/:id                                     controllers.ExamController.reviewExam(id: Long)
+GET           /exams/state/:state                                   controllers.ExamController.getExamsByState(state: String)
 PUT           /exams/:id                                            controllers.ExamController.updateExam(id: Long)
 POST          /exams                                                controllers.ExamController.createExam()
 POST          /exams/:id/section                                    controllers.ExamController.insertSection(id: Long)
 DELETE        /exams/:eid/section/:sid                              controllers.ExamController.removeSection(eid: Long, sid: Long)
 POST          /exams/:eid/section/:sid                              controllers.ExamController.insertQuestion(eid: Long, sid: Long)
-PUT           /exams/:eid/section/:sid		                        controllers.ExamController.updateSection(eid: Long, sid: Long)
+PUT           /exams/:eid/section/:sid                              controllers.ExamController.updateSection(eid: Long, sid: Long)
 
 POST          /exams/:eid/section/:sid/question/:qid                controllers.ExamController.insertAQuestion(eid: Long, sid: Long, qid: Long)
 DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
-GET           /draft		                                        controllers.ExamController.createExamDraft()
+GET           /draft                                                controllers.ExamController.createExamDraft()
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
@@ -39,6 +40,7 @@ GET           /student/doexam/:hash                                 controllers.
 
 POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
 POST          /student/exams/:hash/question/:questionId             controllers.StudentExamController.insertEssay(hash: String, questionId: Long)
+
 
 
 ############### Section interface ###############
@@ -61,11 +63,11 @@ POST          /questions/:qid/option/:oid                           controllers.
 #PUT           /questions/:qid/options/:oid                          controllers.QuestionController.addOption(qid: Long, oid: Long)
 DELETE        /questions/:id                                        controllers.QuestionController.deleteQuestion(id: Long)
 
-GET           /questions/draft/		                                controllers.QuestionController.createQuestionDraft()
+GET           /questions/draft/                                     controllers.QuestionController.createQuestionDraft()
 
 
-GET             /options                                            controllers.QuestionController.createOption()
-GET             /options/:id                                        controllers.QuestionController.getOption(id: Long)
+GET           /options                                              controllers.QuestionController.createOption()
+GET           /options/:id                                          controllers.QuestionController.getOption(id: Long)
 
 # test test test test test
 POST          /test                                                 controllers.TestController.addQuestion()

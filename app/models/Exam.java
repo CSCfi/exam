@@ -4,7 +4,6 @@ import annotations.NonCloneable;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
@@ -15,6 +14,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
@@ -157,9 +157,9 @@ public class Exam extends SitnetModel {
 		return room;
 	}
 
-	public void setRoom(String room) {
-		this.room = room;
-	}
+        // TODO: what attributes make examEvent unique?
+        // create unique hash for exam
+        String attributes = name + state;
 
 	public Double getDuration() {
 		return duration;
@@ -193,14 +193,16 @@ public class Exam extends SitnetModel {
 		this.answerLanguage = answerLanguage;
 	}
 
-	public String generateHash() {
+    public String generateHash() {
 
-        // TODO: what attributes make Exam unique?
+        Random rand = new Random();
+
+        // TODO: what attributes make examEvent unique?
         // create unique hash for exam
-        String attributes = name
-                + state;
-//                + examActiveStartDate.toString()
-//                + examActiveEndDate.toString();
+        String attributes = name + state + new String(rand.nextDouble()+"");
+
+//                examEvent.getStartTime().toString() +
+//                examEvent.getEndTime().toString();
 
         this.hash = SitnetUtil.encodeMD5(attributes);
         play.Logger.debug("Exam hash: " + this.hash);
@@ -236,13 +238,15 @@ public class Exam extends SitnetModel {
 
 //        return SitnetUtil.getClone(this);
 
+        Exam clone = new Exam();
 
+//        Exam clone = (Exam)SitnetUtil.getClone(this);
 
-        Exam clone = (Exam)SitnetUtil.getClone(this);
+//        clone.setState("STUDENT_STARTED");
+//        clone.generateHash();
 
-        clone.setState("STUDENT_STARTED");
-        clone.generateHash();
-
+        // Causes infinite recursion
+//        clone.setStudent(UserController.getLoggedUser());
         clone.setCreated(this.getCreated());
         clone.setCreator(this.getCreator());
         clone.setModified(this.getModified());
@@ -294,6 +298,7 @@ public class Exam extends SitnetModel {
 
         clone.generateHash();
         clone.setState("STUDENT_STARTED");
+        clone.generateHash();
 
         return clone;
     }

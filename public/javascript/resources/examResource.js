@@ -44,7 +44,7 @@
 
                 }),
 
-                examByState: $resource("/exams/state/:state",
+                examsByState: $resource("/exams/state/:state",
                 {
                     state: "@state"
                 }),
