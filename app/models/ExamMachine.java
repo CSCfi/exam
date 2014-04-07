@@ -2,16 +2,14 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 /*
  * Tenttikone jolla opiskelija tekee tentin
  * Kone sijaitsee Tenttiakvaariossa
  * 
  */
+@Entity
 public class ExamMachine {
 
 	// TODO: varausaikataulu
@@ -30,7 +28,7 @@ public class ExamMachine {
 
     @ManyToOne
     @JsonBackReference
-	private ExamRoom examRoom;
+	private ExamRoom room;
 	
 	private Reservation reservation;
 
@@ -50,12 +48,12 @@ public class ExamMachine {
         this.name = name;
     }
 
-    public ExamRoom getExamRoom() {
-        return examRoom;
+    public ExamRoom getRoom() {
+        return room;
     }
 
-    public void setExamRoom(ExamRoom examRoom) {
-        this.examRoom = examRoom;
+    public void setRoom(ExamRoom room) {
+        this.room = room;
     }
 
     public Reservation getReservation() {
