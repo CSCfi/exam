@@ -8,21 +8,19 @@
                     id: "@id"
                 },
                 {
-                    "update": {method: "PUT"},
+                    "update": {method: "PUT", params: {id: "@id"}},
                     "delete": {method: "DELETE", params: {id: "@id"}},
-                    "create": {method: "GET"}
+                    "create": {method: "POST"}
 
                 }),
-                options: $resource("/options/:id",
+                options: $resource("/questions/:qid/option/:oid",
                 {
-                    id: "@id"
+                    qid: "@qid", oid: "@oid"
                 },
                 {
                     "update": {method: "PUT"},
-                    "insert": {method: "POST", params: {qid: "@qid"}},
-                    "create": {method: "GET"}
-
-//                    "delete": {method: "DELETE", params: {qid: "@qid", oid: "@oid"}}
+                    "create": {method: "POST", params: {qid: "@qid"}},
+                    "delete": {method: "DELETE", params: {oid: "@oid"}}
                 })
             };
         }]);

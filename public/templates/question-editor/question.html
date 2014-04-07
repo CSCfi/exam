@@ -36,11 +36,11 @@
             </div>
             <div class="sitnet-info-text">
                 {{'sitnet_scores' | translate}}
-                <input type="text" class="form-control " placeholder="{{'sitnet_correct_answer_score' | translate}}">
+                <input type="text" class="form-control " ng-model="newQuestion.score" placeholder="{{'sitnet_correct_answer_score' | translate}}">
             </div>
             <div class="sitnet-info-text">
                 {{'sitnet_exam_evaluation_criteria' | translate}}
-                <textarea class="form-control" rows="3"
+                <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias"
                           placeholder="{{'sitnet_correct_answer_should_have' | translate}}"></textarea>
             </div>
 

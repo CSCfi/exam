@@ -2,10 +2,9 @@ package models.questions;
 
 import models.*;
 import models.answers.AbstractAnswer;
+import util.SitnetUtil;
 
 import javax.persistence.*;
-
-import util.SitnetUtil;
 
 /**
  * Created by avainik on 3/6/14.
@@ -31,6 +30,8 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     protected String instruction;
 
+    protected Double score;
+
     /*
      * If question is edited (correcting a spelling mistake)
      * inplace in an active exam (question is used in an exam that has been published)
@@ -45,10 +46,15 @@ abstract public class AbstractQuestion extends SitnetModel {
     @OneToOne
     protected AbstractAnswer answer;
 
+
+    @Column(columnDefinition = "TEXT")
+    protected String evaluationCriterias;
+
+
     //    @OneToMany(cascade = CascadeType.ALL, mappedBy="question")
     //    @ManyToMany(cascade = CascadeType.PERSIST)
-    @OneToOne
-    protected EvaluationCriteria evaluationCriterias;
+//    @OneToOne
+//    protected EvaluationCriteria evaluationCriterias;
     //    protected List<EvaluationCriteria> evaluationCriterias;
 
     //    attachments, images, Videos, documents
@@ -133,11 +139,11 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.answer = answer;
     }
 
-    public EvaluationCriteria getEvaluationCriterias() {
+    public String getEvaluationCriterias() {
         return evaluationCriterias;
     }
 
-    public void setEvaluationCriterias(EvaluationCriteria evaluationCriterias) {
+    public void setEvaluationCriterias(String evaluationCriterias) {
         this.evaluationCriterias = evaluationCriterias;
     }
 
@@ -171,6 +177,14 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
     }
 
     public AbstractQuestion getAncestor(AbstractQuestion abstractQuestion) {

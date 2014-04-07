@@ -1,7 +1,6 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import play.Logger;
 import util.SitnetUtil;
 
@@ -9,7 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
-
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,6 +46,8 @@ public class MultipleChoiceQuestion extends AbstractQuestion implements Question
     }
 
     public List<MultipleChoiseOption> getOptions() {
+        if(options == null)
+            options = new ArrayList<MultipleChoiseOption>();
         return options;
     }
 

@@ -18,8 +18,8 @@
                     return [
                         {href: "#/home", visible: (student || admin || teacher), class: "fa-home", name: $translate("sitnet_dashboard")},
                         {href: "#/questions", visible: (admin || teacher), class: "fa-question-circle", name: $translate("sitnet_questions"), sub: [
-                            {href: "#/questions/new", visible: (admin || teacher), class: "fa-caret-right", name: $translate("sitnet_questions_new")}
-                            /*{href: "#/active", class: "fa-caret-right", name: $translate("sitnet_questions_all")}
+                           /* {href: "#/questions/new", visible: (admin || teacher), class: "fa-caret-right", name: $translate("sitnet_questions_new")}
+                             {href: "#/active", class: "fa-caret-right", name: $translate("sitnet_questions_all")}
                              {href: "#/questions/own", class: "fa-caret-right", name: $translate("sitnet_questions_ows")},
                              {href: "#/questions/bank", class: "fa-caret-right", name: $translate("sitnet_questions_bank")}*/
                         ]},

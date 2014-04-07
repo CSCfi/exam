@@ -1,7 +1,11 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
+import Exceptions.SitnetException;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import models.SitnetModel;
 import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
@@ -11,8 +15,8 @@ import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
-import play.mvc.BodyParser;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -42,12 +46,10 @@ public class QuestionController extends SitnetController {
         return ok(Json.toJson(question));
     }
 
-    //  @Authenticate
-//  @BodyParser.Of(BodyParser.Json.class)
+    @Restrict(@Group({"TEACHER"}))
     public static Result addQuestion() throws MalformedDataException {
 
         DynamicForm df = Form.form().bindFromRequest();
-        Logger.debug("Add question");
 
         try {
             Class<?> clazz = Class.forName("models.questions." + df.get("type"));
@@ -61,38 +63,33 @@ public class QuestionController extends SitnetController {
             switch (df.get("type")) {
                 case "MultipleChoiceQuestion": {
 
-                    if (((MultipleChoiceQuestion) question).getCreator() == null) {
-                        ((MultipleChoiceQuestion) question).setCreator(user);
-                        ((MultipleChoiceQuestion) question).setCreated(currentTime);
-                    } else {
-                        ((MultipleChoiceQuestion) question).setModifier(user);
-                        ((MultipleChoiceQuestion) question).setModified(currentTime);
+                    try {
+                        SitnetUtil.setCreator((SitnetModel)question);
+                    } catch (SitnetException e) {
+                        e.printStackTrace();
+                        return ok(e.getMessage());
                     }
-
                     ((MultipleChoiceQuestion) question).generateHash();
 
-                }
-                break;
+                } break;
 
                 case "EssayQuestion": {
-                    if (((EssayQuestion) question).getCreator() == null) {
-                        ((EssayQuestion) question).setCreator(user);
-                        ((EssayQuestion) question).setCreated(currentTime);
-                    } else {
-                        ((EssayQuestion) question).setModifier(user);
-                        ((EssayQuestion) question).setModified(currentTime);
-                    }
 
+                    try {
+                        SitnetUtil.setCreator((SitnetModel)question);
+                    } catch (SitnetException e) {
+                        e.printStackTrace();
+                        return ok(e.getMessage());
+                    }
                     ((EssayQuestion) question).generateHash();
 
-                }
-                break;
+                } break;
 
                 case "MathQuestion": {
 
 
-                }
-                break;
+                } break;
+
                 default:
 
             }
@@ -111,7 +108,31 @@ public class QuestionController extends SitnetController {
         return ok("fail");
     }
 
-    @BodyParser.Of(BodyParser.Json.class)
+   @Restrict(@Group({"TEACHER"}))
+    public static Result updateQuestion(Long id) throws MalformedDataException {
+
+       DynamicForm df = Form.form().bindFromRequest();
+
+
+       switch (df.get("type")) {
+           case "MultipleChoiceQuestion": {
+               MultipleChoiceQuestion question = bindForm(MultipleChoiceQuestion.class);
+               question.update();
+               return ok(Json.toJson(question));
+           }
+
+           case "EssayQuestion": {
+               EssayQuestion question = bindForm(EssayQuestion.class);
+               question.update();
+               return ok(Json.toJson(question));
+           }
+
+           default:
+       }
+       return ok("fail");
+    }
+
+    @Restrict(@Group({"TEACHER"}))
     public static Result deleteQuestion(Long id) {
 
         Ebean.delete(AbstractQuestion.class, id);
@@ -120,13 +141,22 @@ public class QuestionController extends SitnetController {
     }
 
 
-    public static Result addOption(Long qid, Long oid) throws MalformedDataException {
+    @Restrict(@Group({"TEACHER"}))
+    public static Result deleteOption(Long oid) {
+
+        Ebean.delete(MultipleChoiseOption.class, oid);
+
+        return ok("Option deleted from database!");
+    }
+
+    @Restrict(@Group({"TEACHER"}))
+    public static Result addOption(Long qid) throws MalformedDataException {
 
         MultipleChoiceQuestion question = Ebean.find(MultipleChoiceQuestion.class, qid);
         MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
-        option.save();
         question.getOptions().add(option);
         question.save();
+        option.save();
 
         return ok(Json.toJson(option));
     }
@@ -146,31 +176,6 @@ public class QuestionController extends SitnetController {
 
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
         return ok(Json.toJson(option));
-    }
-
-    public static Result createQuestionDraft() {
-
-//        if (form().bindFromRequest().get("video_id") != null) {
-//            try {
-//                video_id = Integer.parseInt(form().bindFromRequest().get("video_id"));
-//            } catch (Exception e) {
-//                Logger.error("int not parsed...");
-//            }
-//        }
-
-//        AbstractQuestion question = new AbstractQuestion();
-//        try {
-//            SitnetUtil.setCreator(question);
-//        } catch (SitnetException e) {
-//            e.printStackTrace();
-//            return ok(e.getMessage());
-//        }
-//        question.setQuestion("Kirjoita kysymys tähän");
-//
-//        question.save();
-//
-//        return ok(Json.toJson(question));
-        return ok();
     }
 
 }

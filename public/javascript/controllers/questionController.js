@@ -32,13 +32,6 @@
                         case 'MultipleChoiceQuestion':
                             $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
                             $scope.newQuestion.type = "MultipleChoiceQuestion";
-//                            $scope.newQuestion.options = [
-//                                {
-//                                    "option": "Esimerkki vaihtoehto",
-//                                    "correctOption": false,
-//                                    "score": 1
-//                                }
-//                            ];
                             break;
                     }
                 }
@@ -55,33 +48,25 @@
                             $scope.setQuestionType();
                         },
                         function (error) {
-                            // error
+                            toastr.error(error.data);
                         }
                     );
                 }
 
-                if ($location.path() == '/questions/new') {
-                    var newQuestion = {
-                        type: "",
-                        question: $translate("sitnet_question_write_name"),
-                        instruction: "",
-                        materials: [],
-                        evaluationPhrases: [],
-                        evaluationCriterias: [],
-                        comments: []
-                    };
-
-                    $scope.newQuestion = newQuestion;
-                }
 
 //                http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
                 $scope.createQuestion = function(type) {
-                    QuestionRes.questions.create({type: type},
+                    var newQuestion = {
+                        type: type,
+                        question: $translate("sitnet_question_write_name")
+                    }
+
+                    QuestionRes.questions.create(newQuestion,
                         function (response) {
-                            newQuestion.options.push(response);
-                            toastr.info("Vaihtoehto lisätty");
+                            toastr.info("Kysymys lisätty");
+                            $location.path("/questions/" + response.id);
                         }, function (error) {
-                            toastr.error("Jokin meni pieleen");
+                            toastr.error(error.data);
                         }
                     );
                 }
@@ -114,12 +99,35 @@
 
                 $scope.saveQuestion = function () {
 
-                    // TODO: first should check if question is saved ok on the server, then push to local
-//                    $scope.questions.push(newQuestion);
+                    // common to all type of questions
+                    var questionToUpdate = {
+                        "id": $scope.newQuestion.id,
+                        "type": $scope.newQuestion.type,
+                        "score": $scope.newQuestion.score,
+                        "question": $scope.newQuestion.question,
+                        "shared": $scope.newQuestion.shared,
+                        "instruction": $scope.newQuestion.instruction,
+                        "evaluationCriterias": $scope.newQuestion.evaluationCriterias
+                    }
 
-                    QuestionRes.questions.save($scope.newQuestion, function (newQuestion) {
-                        toastr.info("Kysymys lisätty");
-                    });
+                    // update question specific attributes
+                    switch (questionToUpdate.type) {
+                        case 'EssayQuestion':
+                            questionToUpdate.maxCharacters = $scope.newQuestion.maxCharacters;
+                            break;
+
+                        case 'MultipleChoiceQuestion':
+
+                            break;
+                    }
+
+                    QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
+                        function (responce) {
+                            toastr.info("Kysymys tallennettu");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 };
 
                 $scope.deleteQuestion = function (question) {
@@ -134,26 +142,20 @@
 
                 $scope.addNewOption = function (newQuestion) {
 
-//                    var option = {
-//                        "option": "Esimerkki vaihtoehto",
-//                        "correctOption": false,
-//                        "score": 1
-//                    };
+                    var option = {
+                        "option": "Esimerkki vaihtoehto",
+                        "correctOption": false,
+                        "score": 1
+                    };
 
-                    QuestionRes.options.create(
+                    QuestionRes.options.create({qid: newQuestion.id}, option,
                         function (response) {
                             newQuestion.options.push(response);
                             toastr.info("Vaihtoehto lisätty");
                         }, function (error) {
-                            toastr.error("Jokin meni pieleen");
+                            toastr.error(error.data);
                         }
                     );
-
-//                    $scope.newQuestion.options.push({
-//                        option: $translate("sitnet_option"),
-//                        correctOption: false,
-//                        score: 1
-//                    });
                 };
 
                 $scope.radioChecked = function (option) {
@@ -168,7 +170,16 @@
                 };
 
                 $scope.removeOption = function (option) {
-                    $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
+
+                    QuestionRes.options.delete({qid: null, oid: option.id},
+                        function (response) {
+                            $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
+                            toastr.info("Vaihtoehto poistettu");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+
                 }
 
                 $scope.editQuestion = function (question) {

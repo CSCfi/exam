@@ -151,6 +151,7 @@ question_essay:
     created: 2014-01-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
+    score: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -164,6 +165,7 @@ question_essay:
     created: 2014-01-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     instruction:
+    score: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -177,6 +179,7 @@ question_essay:
     created: 2014-01-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
     instruction:
+    score: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -196,6 +199,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -212,6 +216,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -228,6 +233,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -243,6 +249,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -259,6 +266,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -274,10 +282,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
+    evaluationCriterias:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: kosmonautti, correctOption: false, score: 1}
@@ -291,10 +298,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
+    evaluationCriterias:  Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Ytimessä, correctOption: true, score: 1}
@@ -308,10 +314,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
+    evaluationCriterias:  Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Aikaa, correctOption: false, score: 1}
@@ -325,10 +330,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
+    evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
@@ -342,10 +346,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
+    evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
@@ -360,10 +363,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
+    evaluationCriterias:  Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Aineen palamisesta ilmakehässä, correctOption: true, score: 1}
@@ -377,10 +379,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
+    evaluationCriterias:  Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maa, correctOption: false, score: 1}
@@ -395,10 +396,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
+    evaluationCriterias:  Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false, score: 1}
@@ -413,10 +413,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
+    evaluationCriterias:  Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false, score: 1}
@@ -431,10 +430,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                       criteria: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
+    evaluationCriterias: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false, score: 1}
@@ -449,10 +447,9 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
+    score: 5
     evaluationPhrases:
-    evaluationCriterias:
-                   !!models.EvaluationCriteria
-                      criteria: Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
+    evaluationCriterias:  Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
     comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Kuun vetovoima, correctOption: false, score: 1}

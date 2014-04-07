@@ -157,7 +157,7 @@
 	                        toastr.info("Tenttiluonnos tehty.");
 	                        $location.path("/exams/" + response.id);
 		                }, function (error) {
-		                    toastr.error("Jokin meni pieleen");
+		                    toastr.error(error.data);
 		                });
                 };
 
