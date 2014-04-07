@@ -4,8 +4,8 @@ import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Query;
 import models.Exam;
+import models.ExamEnrolment;
 import models.User;
 import models.answers.AbstractAnswer;
 import models.answers.EssayAnswer;
@@ -18,6 +18,7 @@ import play.libs.Json;
 import play.mvc.Result;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,22 +28,33 @@ public class StudentExamController extends SitnetController {
 
     @Restrict(@Group({"STUDENT"}))
     public static Result listActiveExams() {
-//        User user = UserController.getLoggedUser();
-//        Timestamp now = new Timestamp(DateTime.now().getMillis());
 
-        String oql =
-                "  find  exam "
-                        +" fetch examSections "
-                        +" fetch course "
-                        +" fetch examEvent "
-                        +" where state=:published or state=:started or state=:returned";
+        User user = UserController.getLoggedUser();
 
-        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
-        query.setParameter("published", "PUBLISHED");
-        query.setParameter("started", "STUDENT_STARTED");
-        query.setParameter("returned", "REVIEW");
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .where()
+                .eq("user.id", user.getId())
+                .findList();
 
-        List<Exam> exams = query.findList();
+        List<Exam> exams = new ArrayList<Exam>();
+
+        for (ExamEnrolment e : enrolments)
+        {
+            exams.add(e.getExam());
+        }
+
+//        String oql = "find  exam "
+//                        +" fetch examSections "
+//                        +" fetch course "
+//                        +" where state=:published or state=:started or state=:returned";
+//
+//        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
+//        query.setParameter("published", "PUBLISHED");
+//        query.setParameter("started", "STUDENT_STARTED");
+//        query.setParameter("returned", "REVIEW");
+//
+//        List<Exam> exams = query.findList();
 
 //        List<Exam> exams = Ebean.find(Exam.class)
 //                .fetch("examSections")

@@ -1,19 +1,10 @@
 package models;
 
-import java.sql.Timestamp;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import play.db.ebean.Model;
+
+import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 public class ExamEnrolment extends Model {
@@ -27,6 +18,7 @@ public class ExamEnrolment extends Model {
 	private User user;
 
 	// Kun opiskelija aloittaa tentin tämä viite setataan kopioon
+    // ja lisätään Userille ExamParticipation
 	@OneToOne
 	private Exam exam;
 
