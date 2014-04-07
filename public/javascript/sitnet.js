@@ -12,7 +12,9 @@
         'sitnet.directives',
         'pascalprecht.translate',
         'ngDragDrop',
-        'ngSanitize'
+        'ngSanitize',
+        'mgcrea.jquery',
+        'mgcrea.bootstrap.affix'
     ]);
     sitnet.constant('SITNET_CONF', (function () {
         var context_path = '/';
