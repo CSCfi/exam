@@ -494,45 +494,6 @@ courses:
     name: Oliosuuntautunut analyysi ja suunnittelu
     type: 
     credits: 5   
-    
-       
-
-#examevents:
-
-# startTime 1393549200   28.02.2014 00:00
-# endTime   1419728400   28.12.2014 00:00
-#
-#  - &event1 !!models.ExamEvent
-#    duration: 1
-#    inspectors:
-#                    - *maika
-#    state:
-#    room: Akvaario IT101
-#    enrolledStudents:
-#                    - *sauli
-#
-#  - &event2 !!models.ExamEvent
-#    duration: 1
-#    inspectors:
-#                    - *maika
-#    state:
-#    room: Akvaario IT102
-#    enrolledStudents:
-#                    - *orville
-#                    - *sauli
-#
-#  - &event3 !!models.ExamEvent
-#    duration: 1
-#    inspectors:
-#                    - *maika
-#    state:
-#    room: Akvaario IT4023
-#    enrolledStudents:
-#                    - *orville
-#                    - *sauli
-#
-#
-
 
 
 exams:
