@@ -186,5 +186,31 @@
 
                 }
 
+                $scope.correctAnswerToggled = function (optionId, newQuestion) {
+
+                    angular.forEach(newQuestion.options, function (value, index) {
+                        // This is the option that was clicked
+                        if (value.id == optionId) {
+                            // If the correct is false then switch it to true, otherwise do nothing
+                            if (value.correctOption == false) {
+
+                                value.correctOption = true;
+
+//                                $scope.correctAnswer = {background: 'green'}
+                            }
+                        } else {
+                            // Check for true values in other options than that was clicked and if found switch them to false
+                            if (value.correctOption == true) {
+                                value.correctOption = false;
+
+//                                $scope.wrongAnswer = {background: 'grey'}
+                            }
+                        }
+                    })
+
+                    // Save changes to database
+
+                }
+
             }]);
 }());

@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class StudentExamController extends SitnetController {
 
-    @Restrict(@Group({"STUDENT"}))
+//    @Restrict(@Group({"STUDENT"}))
     public static Result listActiveExams() {
 
         User user = UserController.getLoggedUser();
@@ -97,11 +97,22 @@ public class StudentExamController extends SitnetController {
             studentExam.generateHash();
             studentExam.save();
 
+            User user = UserController.getLoggedUser();
+
+            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                    .where()
+                    .eq("user.id", user.getId())
+                    .eq("exam.id", blueprint.getId())
+                    .findUnique();
+
+            enrolment.setExam(studentExam);
+            enrolment.save();
+
             // 1. might want try Serialization clone approach
             // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
             // http://avaje.org/topic-112.html
 
-            User user = UserController.getLoggedUser();
+
             ExamParticipation examParticipation = new ExamParticipation();
             examParticipation.setUser(user);
             examParticipation.setExam(studentExam);

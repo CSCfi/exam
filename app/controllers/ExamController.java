@@ -64,7 +64,6 @@ public class ExamController extends SitnetController {
             "  find  exam "
                 +" fetch examSections "
                 +" fetch course "
-                +" fetch examEvent "
                 +" where state=:examstate";
 
         Query<Exam> query = Ebean.createQuery(Exam.class, oql);

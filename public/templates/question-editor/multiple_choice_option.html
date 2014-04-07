@@ -6,14 +6,26 @@
             <i class="fa fa-arrows fa-2x"></i>
         </span>
     </div>
-    <input type="text" name="option.option" value="{{option.option}}" class="form-group editable multiplechoice-question-input"
-           ng-hide="showOption" ng-click="showOption = !showOption">
+    <input type="text" name="option.option" value="{{option.option}}" class="form-group editable multiplechoice-question-input">
 
-        <i class="fa fa-pencil"></i>
-        <span class="badge" ng-show="option.correctOption" class="ng-hide">TOSI</span>
-    <div class="form-group" ng-show="showOption">
-        <input type="text" class="input-sm form-control" ng-model="option.option" autofocus>
-    </div>
+    <!--ng-hide="showOption" ng-click="showOption = !showOption">-->
+
+        <!--<i class="fa fa-pencil"></i>-->
+        <!--<span class="badge" ng-show="option.correctOption" class="ng-hide">TOSI</span>-->
+    <!--<div class="form-group" ng-show="showOption">-->
+        <!--<input type="text" class="input-sm form-control" ng-model="option.option" autofocus>-->
+    <!--</div>-->
+
+    <!--<span style="border: 2px; border-radius:25px; padding:0.3em 2em;" ng-style="myStyle_{{option.id}}"-->
+          <!--ng-click="correctAnswerToggled(option.id, newQuestion)">{{option.correctOption}}</span>-->
+
+    <!--<span style="border: 2px; border-radius:25px; padding:0.3em 2em;" ng-class="{'correct': editor_option == 'Correct', 'wrong': editor_option == 'Wrong'}"-->
+          <!--ng-click="correctAnswerToggled(option.id, newQuestion)">{{option.correctOption}}</span>-->
+    <!---->
+
+    <span style="border: 2px; border-radius:25px; padding:0.3em 2em;" ng-class="{'correct-answer': option.correctOption, 'wrong-answer': ! option.correctOption}"
+          ng-click="correctAnswerToggled(option.id, newQuestion)">{{option.correctOption}}</span>
+
     <div class="form-group" ng-show="showOption">
         <button class="btn btn-primary" ng-click="showOption = !showOption">
             <i class="fa fa-check"></i>
