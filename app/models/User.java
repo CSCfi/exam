@@ -12,6 +12,7 @@ import play.db.ebean.Model;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -137,7 +138,11 @@ public class User extends Model implements Subject {
     }
 
     public List<ExamEnrolment> getEnrolments() {
-		return enrolments;
+
+        if(enrolments == null) {
+            enrolments = new ArrayList<ExamEnrolment>();
+        }
+        return enrolments;
 	}
 
 	public void setEnrolments(List<ExamEnrolment> enrolments) {
@@ -145,7 +150,11 @@ public class User extends Model implements Subject {
 	}
 
 	public List<ExamParticipation> getParticipations() {
-		return participations;
+
+        if(participations == null) {
+            participations = new ArrayList<ExamParticipation>();
+        }
+        return participations;
 	}
 
 	public void setParticipations(List<ExamParticipation> participations) {
@@ -153,7 +162,11 @@ public class User extends Model implements Subject {
 	}
 
 	public List<ExamInspection> getInspections() {
-		return inspections;
+
+        if(inspections == null) {
+            inspections = new ArrayList<ExamInspection>();
+        }
+        return inspections;
 	}
 
 	public void setInspections(List<ExamInspection> inspections) {

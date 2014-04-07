@@ -157,10 +157,6 @@ public class Exam extends SitnetModel {
 		return room;
 	}
 
-        // TODO: what attributes make examEvent unique?
-        // create unique hash for exam
-        String attributes = name + state;
-
 	public Double getDuration() {
 		return duration;
 	}
@@ -200,9 +196,6 @@ public class Exam extends SitnetModel {
         // TODO: what attributes make examEvent unique?
         // create unique hash for exam
         String attributes = name + state + new String(rand.nextDouble()+"");
-
-//                examEvent.getStartTime().toString() +
-//                examEvent.getEndTime().toString();
 
         this.hash = SitnetUtil.encodeMD5(attributes);
         play.Logger.debug("Exam hash: " + this.hash);

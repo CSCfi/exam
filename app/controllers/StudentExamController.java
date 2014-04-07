@@ -6,6 +6,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
+import models.ExamParticipation;
 import models.User;
 import models.answers.AbstractAnswer;
 import models.answers.EssayAnswer;
@@ -19,6 +20,7 @@ import play.mvc.Result;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -93,13 +95,19 @@ public class StudentExamController extends SitnetController {
 //            studentExam.setAnsweringStarted(new Timestamp(new Date().getTime()));
             studentExam.setState("STUDENT_STARTED");
             studentExam.generateHash();
-
+            studentExam.save();
 
             // 1. might want try Serialization clone approach
             // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
             // http://avaje.org/topic-112.html
 
-            studentExam.save();
+            User user = UserController.getLoggedUser();
+            ExamParticipation examParticipation = new ExamParticipation();
+            examParticipation.setUser(user);
+            examParticipation.setExam(studentExam);
+            examParticipation.setStarted(new Timestamp(new Date().getTime()));
+            examParticipation.save();
+            user.getParticipations().add(examParticipation);
 
             return ok(Json.toJson(studentExam));
         } else {
