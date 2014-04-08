@@ -23,7 +23,16 @@
                             $scope.doexam = data;
                             $scope.activeSection = $scope.doexam.examSections[0];
 
-                            // Loop through all questions in the active section
+                            // set sections and question nubering
+                            angular.forEach($scope.doexam.examSections, function (section, index) {
+                                section.index = index +1;
+
+                                angular.forEach(section.questions, function (question, index) {
+                                    question.index = index +1;
+                                });
+                            });
+
+                                // Loop through all questions in the active section
                             angular.forEach($scope.activeSection.questions, function (value, index) {
 
                                 var template = "";

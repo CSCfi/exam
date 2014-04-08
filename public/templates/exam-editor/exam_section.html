@@ -1,6 +1,6 @@
 <div class="section-header">
     <div ng-hide="showDetails">
-        <span class="section-header-number">{{section.id}}.</span>
+        <span class="section-header-number">{{section.index}}.</span>
         <span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i class="fa fa-pencil"></i></span>
         <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg pointer-hand">
             <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
@@ -24,7 +24,7 @@
         <div class="form-inline" role="form">
             <span class="fa-stack">
                 <i class="fa fa-square-o fa-stack-2x"></i>
-                <i class="fa-stack-1x">{{section.id}}</i>
+                <i class="fa-stack-1x">{{section.index}}</i>
             </span>
 
             <div class="form-group">

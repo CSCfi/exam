@@ -131,11 +131,20 @@
                     $scope.exams = ExamRes.exams.query();
                 else {
                     ExamRes.exams.get({id: $routeParams.id},
-                        function (value) {
-                            $scope.newExam = value;
+                        function (exam) {
+                            $scope.newExam = exam;
+
+                            // set sections and question nubering
+                            angular.forEach($scope.newExam.examSections, function (section, index) {
+                                section.index = index +1;
+
+                                angular.forEach(section.questions, function (question, index) {
+                                    question.index = index +1;
+                                });
+                            });
                         },
                         function (error) {
-                            // error
+                            toastr.error(error.data);
                         }
                     );
                 }
