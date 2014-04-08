@@ -22,10 +22,94 @@ public class ExamRoom extends Model {
 
 	private String name;
 
+    private String roomCode;
+
+
+    private String buildingName;
+
+    @OneToOne
+    private MailAddress mailAddress;
+
+    // aukioloaika
+    private String workingHours;
+
+    // Esteettömyystieto
+    private String accessibilityInfo;
+
+    // Tilaohjeet
+    private String roomInstruction;
+
+    // Vahtimestari tai muu yhteystieto esim. virkailija: (vapaaehtoinen)
+    // tämä voisi olla myös Sitnet User, muuta ei välttämättä kannata
+    private String contactPerson;
+
+    private Long examMachineCount;
+
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "room")
     @JsonManagedReference
-    private List<ExamMachine> examMachine;
+    private List<ExamMachine> examMachines;
+
+    public String getBuildingName() {
+        return buildingName;
+    }
+
+    public void setBuildingName(String buildingName) {
+        this.buildingName = buildingName;
+    }
+
+    public MailAddress getMailAddress() {
+        return mailAddress;
+    }
+
+    public void setMailAddress(MailAddress mailAddress) {
+        this.mailAddress = mailAddress;
+    }
+
+    public String getWorkingHours() {
+        return workingHours;
+    }
+
+    public void setWorkingHours(String workingHours) {
+        this.workingHours = workingHours;
+    }
+
+    public String getAccessibilityInfo() {
+        return accessibilityInfo;
+    }
+
+    public void setAccessibilityInfo(String accessibilityInfo) {
+        this.accessibilityInfo = accessibilityInfo;
+    }
+
+    public String getRoomInstruction() {
+        return roomInstruction;
+    }
+
+    public void setRoomInstruction(String roomInstruction) {
+        this.roomInstruction = roomInstruction;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
+    }
+
+    public Long getExamMachineCount() {
+        examMachineCount = new Long(examMachines.size());
+        return examMachineCount;
+    }
+
+    public String getRoomCode() {
+        return roomCode;
+    }
+
+    public void setRoomCode(String roomCode) {
+        this.roomCode = roomCode;
+    }
 
     public Long getId() {
         return id;
@@ -43,11 +127,11 @@ public class ExamRoom extends Model {
         this.name = name;
     }
 
-    public List<ExamMachine> getExamMachine() {
-        return examMachine;
+    public List<ExamMachine> getExamMachines() {
+        return examMachines;
     }
 
-    public void setExamMachine(List<ExamMachine> examMachine) {
-        this.examMachine = examMachine;
+    public void setExamMachines(List<ExamMachine> examMachines) {
+        this.examMachines = examMachines;
     }
 }

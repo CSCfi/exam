@@ -1,6 +1,8 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import play.db.ebean.Model;
 
 import javax.persistence.*;
 
@@ -10,27 +12,34 @@ import javax.persistence.*;
  * 
  */
 @Entity
-public class ExamMachine {
-
-	// TODO: varausaikataulu
-	
-	/* 
-	 * jonkinlainen ID jolla kone tunnistetaan
-	 * 
-	 * Esim akvaario-koneenID  IT103-7
-	 */
+public class ExamMachine extends Model {
 
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-	private String name;
+    /*
+     * jonkinlainen ID jolla kone tunnistetaan
+     *
+     * Esim akvaario-koneenID  IT103-7
+     */
+    private String name;
+
+    // Esteettömyystieto
+    private String accessibilityInfo;
+
+    // Ohjelmistot
+    private String softwareInfo;
+
+    private String ipAddress;
 
     @ManyToOne
     @JsonBackReference
 	private ExamRoom room;
-	
-	private Reservation reservation;
+
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "machine")
+    @JsonManagedReference
+    private Reservation reservation;
 
     public Long getId() {
         return id;
@@ -58,6 +67,30 @@ public class ExamMachine {
 
     public Reservation getReservation() {
         return reservation;
+    }
+
+    public String getAccessibilityInfo() {
+        return accessibilityInfo;
+    }
+
+    public void setAccessibilityInfo(String accessibilityInfo) {
+        this.accessibilityInfo = accessibilityInfo;
+    }
+
+    public String getSoftwareInfo() {
+        return softwareInfo;
+    }
+
+    public void setSoftwareInfo(String softwareInfo) {
+        this.softwareInfo = softwareInfo;
+    }
+
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
     public void setReservation(Reservation reservation) {

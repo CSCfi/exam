@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -29,6 +30,7 @@ public class Reservation extends Model {
     User user;
 
     @OneToOne
+    @JsonBackReference
     ExamMachine machine;
 
     public Long getId() {

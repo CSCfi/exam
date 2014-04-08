@@ -688,15 +688,58 @@ exam-inspections:
    
    
    
-   
-   
-#exam-participations:   
-#  - !!models.ExamParticipation
-#    user: *sauli
-#    exam: *astronomianPerusteet
-#    started: 2014-04-01 12:00:00.575
-#    ended: 2014-04-01 14:45:00.575
-    
-    
-    
-    
+############### Tilavaraus ###############
+
+
+
+exam-machines:
+
+  - &exam-machine1 !!models.ExamMachine
+    name: Pegasus 01
+    accessibilityInfo: Nostettava sähköpöytä
+    softwareInfo: Mathematica, Notepad, Mozilla Firefox
+    ipAddress: 123.456.789.123
+#    room: *room-pegasus
+    reservation:
+
+  - &exam-machine2 !!models.ExamMachine
+    name: Pegasus 02
+    accessibilityInfo:
+    softwareInfo: Notepad, Mozilla Firefox
+    ipAddress: 123.456.789.321
+#    room: *room-pegasus
+    reservation:
+
+  - &exam-machine3 !!models.ExamMachine
+    name: Pegasus 03
+    accessibilityInfo: Pistekirjoitus alusta
+    softwareInfo: Notepad
+    ipAddress: 123.456.789.132
+#    room: *room-pegasus
+    reservation:
+
+mail-addresses:
+  - &oulu-yo !!models.MailAddress
+    street: Yliopistokatu 1
+    zip: 90570
+    city: Oulu
+
+
+exam-rooms:
+
+  - &room-pegasus !!models.ExamRoom
+    name: Tenttiakvaario Pegasus
+    roomCode: IT101
+    buildingName: Oulun yliopston päärakennus
+    mailAddress: *oulu-yo
+    workingHours: 8.00 - 16.00
+    accessibilityInfo: Tilassa on pyöräätuoliramppi
+    roomInstruction: Tilaan ei saa tuoda juomia tai ruokia.
+    contactPerson: Kiinteistöinsinööri Timppa Vaksi. puh. 040 123 4567
+    examMachines:
+      - *exam-machine1
+      - *exam-machine2
+      - *exam-machine3
+
+
+
