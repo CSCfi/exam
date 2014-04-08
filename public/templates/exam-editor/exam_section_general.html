@@ -16,43 +16,45 @@
 </div>
 
 <!-- General info section container -->
-<div class="" ng-show="showInfo" ng-controller="DatepickerCtrl">
+<div ng-show="showInfo" ng-controller="DatepickerCtrl">
 
-<!-- Start & End time datepickers -->
-<div class="row">
-    <div class="col-md-6">
-        <h4>{{'sitnet_start_time' | translate}}</h4>
+    <!-- Start & End time datepickers -->
+    <div class="row">
+        <div class="col-md-6">
+            <h4>{{'sitnet_start_time' | translate}}</h4>
 
-        <p class="input-group">
+            <p class="input-group">
 
-            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
-                   is-open="startDateOpened" min="minDate"
-                   max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
-                   ng-required="true" close-text="Close"/>
-				<span class="input-group-btn">
-					<button class="btn btn-default" ng-click="openStartDate($event)">
-                        <i class="fa fa-calendar"></i>
-                    </button>
-				</span>
-        </p>
-    </div>
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                       is-open="startDateOpened" min="minDate"
+                       max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                       ng-required="true" close-text="Close" >
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="openStartDate($event)" ui-blur="saveExam()">
+                            <i class="fa fa-calendar"></i>
+                        </button>
+                    </span>
+            </p>
+        </div>
 
-    <div class="col-md-6">
-        <h4>{{'sitnet_end_time' | translate}}</h4>
+        <div class="col-md-6">
+            <h4>{{'sitnet_end_time' | translate}}</h4>
 
-        <p class="input-group">
-            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
-                   is-open="endDateOpened" min="dateService.startDate"
-                   max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
-                   ng-required="true" close-text="Close"/>
-				<span class="input-group-btn">
-					<button class="btn btn-default" ng-click="openEndDate($event)">
-                        <i class="fa fa-calendar"></i>
-                    </button>
-				</span>
-        </p>
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                       is-open="endDateOpened" min="dateService.startDate"
+                       max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                       ng-required="true" close-text="Close" >
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="openEndDate($event)" ui-blur="saveExam()">
+                            <i class="fa fa-calendar"></i>
+                        </button>
+                    </span>
+            </p>
+        </div>
     </div>
 </div>
+
 <!-- Summary of start and end times -->
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
@@ -66,7 +68,7 @@
     <div class="col-md-6">
         <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}:</div>
         <div class="input-group">
-            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.code">
+            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.code" ui-blur="saveExam()">
 				<span class="input-group-addon"
                       ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
 					<i class="fa fa-question-circle fa-fw"></i>
@@ -77,7 +79,7 @@
     <div class="col-md-6">
         <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
         <div class="input-group">
-            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.name">
+            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.name" ui-blur="saveExam()">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
@@ -91,7 +93,7 @@
         <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}:</div>
         <div class="input-group">
             <!-- placeholder="opintopistettä" -->
-            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits">
+            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits" ui-blur="saveExam()">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
@@ -101,7 +103,7 @@
     <div class="col-md-6">
         <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}:</div>
         <div class="input-group">
-            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.organisation.name">
+            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.organisation.name" ui-blur="saveExam()">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
@@ -115,15 +117,16 @@
         <div class="sitnet-info-text">{{'sitnet_examination_location' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" data-target="">
-                    {{'sitnet_choose' | translate}}<span
-                        class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ui-blur="saveExam()">
+                    {{'sitnet_choose' | translate}}
+                    <span class="caret"></span>
+                </button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="room in examRooms" ng-click="setExamRoom(room)"><a class="pointer-hand">{{room}}</a>
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.room">
+            <input type="text" class="form-control" ng-model="newExam.room" ui-blur="saveExam()">
         </div>
     </div>
 
@@ -131,15 +134,16 @@
         <div class="sitnet-info-text">{{'sitnet_exam_duration' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' |
-                    translate}} <span
-                            class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ui-blur="saveExam()">
+                    {{'sitnet_choose' | translate}}
+                    <span class="caret"></span>
+                </button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="duration in examDurations" ng-click="setExamDuration(duration)"><a
                             class="pointer-hand">{{duration}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.duration">
+            <input type="text" class="form-control" ng-model="newExam.duration" ui-blur="saveExam()">
         </div>
     </div>
 </div>
@@ -150,8 +154,10 @@
         <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' | translate}} <span
-                            class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ui-blur="saveExam()">
+                    {{'sitnet_choose' | translate}}
+                    <span class="caret"></span>
+                </button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="inspector in examInspectors | filter:selected"
                         ng-click="setExamInspector(inspector)">
@@ -159,8 +165,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" value="{{newExam.inspector.name}}"
-                   ng-model="newExam.inspector.name">
+            <input type="text" class="form-control" value="{{newExam.inspector.name}}" ng-model="newExam.inspector.name" ui-blur="saveExam()">
         </div>
     </div>
 
@@ -168,15 +173,16 @@
         <div class="sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' |
-                    translate}} <span
-                            class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ui-blur="saveExam()">
+                    {{'sitnet_choose' | translate}}
+                    <span class="caret"></span>
+                </button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="grading in examGradings" ng-click="setExamGrading(grading)"><a class="pointer-hand">{{grading}}</a>
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.grading">
+            <input type="text" class="form-control" ng-model="newExam.grading" ui-blur="saveExam()">
         </div>
     </div>
 </div>
@@ -187,15 +193,16 @@
         <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' |
-                    translate}} <span
-                            class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ui-blur="saveExam()">
+                    {{'sitnet_choose' | translate}}
+                    <span class="caret"></span>
+                </button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="language in examLanguages" ng-click="setExamLanguage(language)"><a
                             class="pointer-hand">{{language}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.examLanguage">
+            <input type="text" class="form-control" ng-model="newExam.examLanguage" ui-blur="saveExam()">
         </div>
     </div>
 
@@ -203,16 +210,17 @@
         <div class="sitnet-info-text">{{'sitnet_exam_answer_language' | translate}}:</div>
         <div class="input-group">
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">{{'sitnet_choose' |
-                    translate}} <span
-                            class="caret"></span></button>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ui-blur="saveExam()">
+                    {{'sitnet_choose' | translate}}
+                    <span class="caret"></span>
+                </button>
                 <ul class="dropdown-menu">
                     <li ng-repeat="answerLanguage in examAnswerLanguages"
                         ng-click="setExamAnswerLanguage(answerLanguage)"><a class="pointer-hand">{{answerLanguage}}</a>
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.answerLanguage">
+            <input type="text" class="form-control" ng-model="newExam.answerLanguage" ui-blur="saveExam()">
         </div>
     </div>
 </div>
@@ -234,7 +242,7 @@
         <div class="sitnet-info-text">{{'sitnet_sharing' | translate}}:</div>
         <div class="checkbox">
             <label>
-                <input type="checkbox" ng-model="newExam.shared"> {{'sitnet_share_this_exam' | translate}}
+                <input type="checkbox" ng-model="newExam.shared" ui-blur="saveExam()"> {{'sitnet_share_this_exam' | translate}}
             </label>
         </div>
     </div>

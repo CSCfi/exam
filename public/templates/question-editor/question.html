@@ -6,7 +6,7 @@
         <div class="base row">
             <!-- Question header -->
             <div>
-                <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question">
+                <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question" ui-blur="saveQuestion()">
                 </textarea>
             </div>
 
@@ -25,22 +25,23 @@
             <div class="sitnet-info-text">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-model="newQuestion.shared"> {{'sitnet_share_this_question' | translate}}
+                        <input type="checkbox" ng-model="newQuestion.shared" ui-blur="saveQuestion()"> {{'sitnet_share_this_question' | translate}}
                     </label>
                 </div>
             </div>
             <div class="sitnet-info-text">
                 {{'sitnet_instruction' | translate}}
-                <input type="text" class="form-control" ng-model="newQuestion.instruction"
+                <input type="text" class="form-control" ng-model="newQuestion.instruction" ui-blur="saveQuestion()"
                        placeholder="{{'sitnet_question_instruction' | translate}}">
             </div>
             <div class="sitnet-info-text">
                 {{'sitnet_scores' | translate}}
-                <input type="text" class="form-control " ng-model="newQuestion.score" placeholder="{{'sitnet_correct_answer_score' | translate}}">
+                <input type="text" class="form-control " ng-model="newQuestion.score" ui-blur="saveQuestion()"
+                       placeholder="{{'sitnet_correct_answer_score' | translate}}">
             </div>
             <div class="sitnet-info-text">
                 {{'sitnet_exam_evaluation_criteria' | translate}}
-                <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias"
+                <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias" ui-blur="saveQuestion()"
                           placeholder="{{'sitnet_correct_answer_should_have' | translate}}"></textarea>
             </div>
 

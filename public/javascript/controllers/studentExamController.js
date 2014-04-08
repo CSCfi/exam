@@ -91,6 +91,17 @@
                     });
                 };
 
+                $scope.continueExam = function (exam) {
+                    $http.get('/student/doexam/' + exam.hash)
+                        .success(function (clonedExam) {
+                            $scope.clonedExam = clonedExam;
+                            $location.path('/student/doexam/' + clonedExam.hash);
+                        }).
+                        error(function (error) {
+                            console.log('Error happened: ' + error);
+                        });
+                }
+
                 $scope.setActiveSection = function (section) {
                     $scope.activeSection = section;
 

@@ -24,7 +24,7 @@
     <span class="sitnet-info-text">Listaa tentit jotka opiskelija on aloittanut, mutta ei palauttanut tai keskeyttänyt</span>
 
     <div class="exam-list-saved">
-        <a ng-repeat="exam in exams | filter: {state: 'STUDENT_STARTED'}" class="active-exams-list list-group-item">
+        <a ng-repeat="exam in exams | filter: {state: 'STUDENT_STARTED'}" ng-click="continueExam(exam)" class="active-exams-list list-group-item">
             <h4 class="list-group-item-heading">
                 <span class="">{{exam.course.code}} - {{exam.name}}</span><span class="pull-right">Kesken</span>
             </h4>
