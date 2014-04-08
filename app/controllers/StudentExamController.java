@@ -187,18 +187,18 @@ public class StudentExamController extends SitnetController {
         if(question.getAnswer() == null) {
             MultipleChoiseAnswer answer = new MultipleChoiseAnswer();
             answer.setOption(option);
-            answer.setCreator(user);
-            answer.setCreated(currentTime);
-            answer.setModifier(user);
-            answer.setModified(currentTime);
+//            answer.setCreator(user);
+//            answer.setCreated(currentTime);
+//            answer.setModifier(user);
+//            answer.setModified(currentTime);
             question.setAnswer(answer);
             answer.save();
             question.save();
         } else {
             AbstractAnswer answer = question.getAnswer();
             ((MultipleChoiseAnswer) answer).setOption(option);
-            answer.setModified(currentTime);
-            answer.setModifier(user);
+//            answer.setModified(currentTime);
+//            answer.setModifier(user);
             answer.update();
             question.update();
         }
