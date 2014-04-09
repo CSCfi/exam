@@ -42,7 +42,7 @@
                 </div>
 
                 <div class="input-group exam-info" ng-show="showInstruction">
-                    <textarea class="form-control" rows="2" cols="140" ng-model="newExam.instruction"
+                    <textarea class="form-control" rows="2" cols="140" ng-model="newExam.instruction" ui-blur="saveExam()"
                               placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
                     </textarea>
                 </div>
