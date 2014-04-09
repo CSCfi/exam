@@ -21,10 +21,10 @@ public class Reservation extends Model {
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp start;
+    private Timestamp startAt;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp end;
+    private Timestamp endAt;
 
     @OneToOne
     User user;
@@ -41,20 +41,20 @@ public class Reservation extends Model {
         this.id = id;
     }
 
-    public Timestamp getStart() {
-        return start;
+    public Timestamp getStartAt() {
+        return startAt;
     }
 
-    public void setStart(Timestamp start) {
-        this.start = start;
+    public void setStartAt(Timestamp startAt) {
+        this.startAt = startAt;
     }
 
-    public Timestamp getEnd() {
-        return end;
+    public Timestamp getEndAt() {
+        return endAt;
     }
 
-    public void setEnd(Timestamp end) {
-        this.end = end;
+    public void setEndAt(Timestamp endAt) {
+        this.endAt = endAt;
     }
 
     public User getUser() {

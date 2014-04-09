@@ -562,7 +562,7 @@ exams:
     state: PUBLISHED
     
     
-examsections:
+exam-sections:
 
   - &osio1 !!models.ExamSection
     name: Monivalinnat 1

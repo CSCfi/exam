@@ -4,7 +4,6 @@ import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Role;
 import be.objectify.deadbolt.core.models.Subject;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import play.data.format.Formats;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -12,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "sitnet_users")
 public class User extends Model implements Subject {
 
     @Id
@@ -20,7 +19,7 @@ public class User extends Model implements Subject {
     private Long id;
 
 //    @Constraints.Required
-    @Formats.NonEmpty
+//    @Formats.NonEmpty
     private String email;
 
 //    @Constraints.Required
