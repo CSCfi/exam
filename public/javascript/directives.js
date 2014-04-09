@@ -31,12 +31,21 @@
             };
         })
 
-        .directive('uiBlur', function() {
-        return function(scope, elem, attrs) {
+        .directive('uiBlur', function () {
+            return function (scope, elem, attrs) {
 
-            elem.bind('blur', function() {
-                scope.$apply(attrs.uiBlur);
-            });
-        };
+                elem.bind('blur', function () {
+                    scope.$apply(attrs.uiBlur);
+                });
+            };
+        })
+
+        .directive('uiChange', function () {
+            return function (scope, elem, attrs) {
+
+                elem.bind('change', function () {
+                    scope.$apply(attrs.uiChange);
+                });
+            };
         });
 }());

@@ -68,7 +68,7 @@
     <div class="col-md-6">
         <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}:</div>
         <div class="input-group">
-            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.code" ui-blur="saveExam()">
+            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.code" ui-change="saveExam()">
 				<span class="input-group-addon"
                       ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
 					<i class="fa fa-question-circle fa-fw"></i>
@@ -79,7 +79,7 @@
     <div class="col-md-6">
         <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
         <div class="input-group">
-            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.name" ui-blur="saveExam()">
+            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.name" ui-change="saveExam()">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
@@ -93,7 +93,7 @@
         <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}:</div>
         <div class="input-group">
             <!-- placeholder="opintopistettä" -->
-            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits" ui-blur="saveExam()">
+            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits" ui-change="saveExam()">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
@@ -103,7 +103,7 @@
     <div class="col-md-6">
         <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}:</div>
         <div class="input-group">
-            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.organisation.name" ui-blur="saveExam()">
+            <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.organisation.name" ui-change="saveExam()">
 				<span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
 					<i class="fa fa-question-circle fa-fw"></i>
 				</span>
@@ -126,7 +126,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.room" ui-blur="saveExam()">
+            <input type="text" class="form-control" ng-model="newExam.room" ui-change="saveExam()">
         </div>
     </div>
 
@@ -143,7 +143,7 @@
                             class="pointer-hand">{{duration}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.duration" ui-blur="saveExam()">
+            <input type="text" class="form-control" ng-model="newExam.duration" ui-change="saveExam()">
         </div>
     </div>
 </div>
@@ -165,7 +165,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" value="{{newExam.inspector.name}}" ng-model="newExam.inspector.name" ui-blur="saveExam()">
+            <input type="text" class="form-control" value="{{newExam.inspector.name}}" ng-model="newExam.inspector.name" ui-change="saveExam()">
         </div>
     </div>
 
@@ -182,7 +182,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.grading" ui-blur="saveExam()">
+            <input type="text" class="form-control" ng-model="newExam.grading" ui-change="saveExam()">
         </div>
     </div>
 </div>
@@ -202,7 +202,7 @@
                             class="pointer-hand">{{language}}</a></li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.examLanguage" ui-blur="saveExam()">
+            <input type="text" class="form-control" ng-model="newExam.examLanguage" ui-change="saveExam()">
         </div>
     </div>
 
@@ -220,7 +220,7 @@
                     </li>
                 </ul>
             </div>
-            <input type="text" class="form-control" ng-model="newExam.answerLanguage" ui-blur="saveExam()">
+            <input type="text" class="form-control" ng-model="newExam.answerLanguage" ui-change="saveExam()">
         </div>
     </div>
 </div>
