@@ -66,10 +66,12 @@ DELETE        /questions/:id                                        controllers.
 DELETE        /questions/option/:oid                                controllers.QuestionController.deleteOption(oid: Long)
 
 
-
-
 GET           /options                                              controllers.QuestionController.createOption()
 GET           /options/:id                                          controllers.QuestionController.getOption(id: Long)
+
+############### Reservation interface ###############
+
+GET             /rooms                                              controllers.ReservationController.getExamRooms()
 
 # test test test test test
 POST          /test                                                 controllers.TestController.addQuestion()
