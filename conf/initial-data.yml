@@ -708,7 +708,6 @@ exam-machines:
     accessibilityInfo: Nostettava sähköpöytä
     softwareInfo: Mathematica, Notepad, Mozilla Firefox
     ipAddress: 123.456.789.123
-    expanded: true
 #    room: *room-pegasus
     reservation:
 
@@ -717,7 +716,6 @@ exam-machines:
     accessibilityInfo:
     softwareInfo: Notepad, Mozilla Firefox
     ipAddress: 123.456.789.321
-    expanded: true
 #    room: *room-pegasus
     reservation:
 
@@ -726,7 +724,6 @@ exam-machines:
     accessibilityInfo: Pistekirjoitus alusta
     softwareInfo: Notepad
     ipAddress: 123.456.789.132
-    expanded: true
 #    room: *room-pegasus
     reservation:
 
@@ -752,7 +749,6 @@ exam-rooms:
       - *exam-machine1
       - *exam-machine2
       - *exam-machine3
-    expanded: true
 
 
 

@@ -1,35 +1,22 @@
-<div class="row">
-    <div class="machine-header" ng-class="machine.expanded ? 'machine-header-active' : 'machine-header-inactive'">
-        <span class="">
-            <i class="fa fa-2x fa-desktop"></i>
-        </span>
-        <span class="menu-item">{{machine.name}}</span>
-        <span ng-click="machine.expanded = !machine.expanded" class="pull-right fa-stack fa-lg">
+<div ng-class="machine.expand ? 'single-question-header-active' : 'single-question-header-inactive'">
+	<span class="single-question-icon">
+		<i class="fa fa-2x fa-list-ul"></i>
+	</span>
+    <span class="menu-item" ng-bind-html="machine.name"></span>
+  	<span ng-click="machine.expanded = !machine.expanded; expandMachine(machine)" class="pull-right fa-stack fa-lg pointer-hand">
             <i ng-class="machine.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
                class="sitnet-white fa fa-stack-1x"></i>
-        </span>
-        <span ng-click="editMachine(machine)" class=" dropdown pull-right fa-stack fa-lg">
-            <a class="dropdown-toggle">
-                <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-            </a>
-            <ul class="dropdown-menu">
-                <li><a>{{'sitnet_settings' | translate}}</a></li>
-                <li><a ng-click="removeMachine(room, machine)">{{'sitnet_remove' | translate}}</a></li>
-            </ul>
-        </span>
-    </div>
+    </span>
+    <span ng-click="editMachine(question)" class=" dropdown pull-right fa-stack fa-lg pointer-hand">
+		<a class="dropdown-toggle">
+            <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
+        </a>
+		<ul class="dropdown-menu">
+            <li><a>{{'sitnet_settings' | translate}}</a></li>
+            <li><a ng-click="removeMachine(section, question)">{{'sitnet_remove' | translate}}</a></li>
+        </ul>
+	</span>
 </div>
-<div class="row" ng-show="machine.expanded">
-    <div class="">
-        <div class="sitnet-info-text">Esteettömyys:</div>
-        <input type="text" class="form-control" ng-model="machine.accessibilityInfo" ui-change="">
-    </div>
-    <div class="">
-        <div class="sitnet-info-text">Ohjelmistot:</div>
-        <input type="text" class="form-control" ng-model="machine.softwareInfo" ui-change="">
-    </div>
-    <div class="">
-        <div class="sitnet-info-text">IP-osoite:</div>
-        <input type="text" class="form-control" ng-model="machine.ipAddress" ui-change="">
-    </div>
+<div ng-show="machine.expanded">
+
 </div>
