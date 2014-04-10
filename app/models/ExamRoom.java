@@ -51,6 +51,17 @@ public class ExamRoom extends Model {
     @JsonManagedReference
     private List<ExamMachine> examMachines;
 
+    // In UI, section has been expanded
+    private Boolean expanded;
+
+    public Boolean getExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(Boolean expanded) {
+        this.expanded = expanded;
+    }
+
     public String getBuildingName() {
         return buildingName;
     }

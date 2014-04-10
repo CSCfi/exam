@@ -41,6 +41,17 @@ public class ExamMachine extends Model {
     @JsonManagedReference
     private Reservation reservation;
 
+    // In UI, section has been expanded
+    private Boolean expanded;
+
+    public Boolean getExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(Boolean expanded) {
+        this.expanded = expanded;
+    }
+
     public Long getId() {
         return id;
     }

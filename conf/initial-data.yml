@@ -97,6 +97,15 @@ users:
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
 
+    - !!models.User
+      email:      admin
+      firstName:  Admin
+      lastName:   Instrator
+      password:   21232f297a57a5a743894a0e4a801fc3  #admin
+      roles:
+            - !!models.SitnetRole {name: ADMIN}
+      userLanguage: *suomi
+
 
   
 user_roles:
