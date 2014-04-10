@@ -1,0 +1,45 @@
+<div id="exam">
+    <div class="exam-header">
+        <h2 class="table-heading">{{'sitnet_new_room' | translate}}</h2>
+    </div>
+    <div>
+        <!-- Room name -->
+        <div class="exam-name">
+            <div ng-hide="showName">
+                <span class="pull-right fa-stack fa-lg dropdown" ng-click="editRoom()"></span>
+                <h3>
+                    <span class="editable" ng-click="showName = !showName">
+                        {{room.name}} <i class="fa fa-pencil"></i>
+                    </span>
+                </h3>
+            </div>
+            <div ng-show="showName">
+                <form class="form-inline" role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control input-lg" ng-model="room.name" autofocus>
+                    </div>
+                    <button class="btn-primary" ng-click="showName = !showName; saveRoom()">
+                        <i class="fa fa-check"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="exam-wrapper">
+            <!-- General Information -->
+            <div class="exam-general-information" ng-include="generalInfoPath">
+            </div>
+            <div class="exam-sections">
+                <div class="" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>
+            </div>
+            <span ng-click="addNewSection()" class="create-new">
+                <center>
+                <i class="fa fa-2x fa-hand-o-right"></i>
+                {{'sitnet_section_add' | translate}}
+                </center>
+            </span>
+            <span><button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button></span>
+            <span class="pull-right"><button ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button></span>
+        </div>
+	</div>
+</div>

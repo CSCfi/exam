@@ -72,6 +72,7 @@ GET           /options/:id                                          controllers.
 
 GET           /rooms                                                controllers.ReservationController.getExamRooms()
 GET           /rooms/:id                                            controllers.ReservationController.getExamRoom(id: Long)
+GET           /rooms/draft                                          controllers.ReservationController.createExamRoomDraft()
 
 # test test test test test
 POST          /test                                                 controllers.TestController.addQuestion()

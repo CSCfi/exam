@@ -1,10 +1,14 @@
 package controllers;
 
+import Exceptions.MalformedDataException;
+import Exceptions.SitnetException;
 import com.avaje.ebean.Ebean;
-import models.ExamRoom;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.*;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.util.List;
 
@@ -31,6 +35,30 @@ public class ReservationController extends SitnetController {
 //        Exam exam = query.findUnique();
 
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
+
+        return ok(Json.toJson(examRoom));
+    }
+
+    public static Result createExamRoomDraft() throws MalformedDataException
+
+    {
+        Logger.debug("createExamRoomDraft()");
+
+        ExamRoom examRoom = new ExamRoom();
+        examRoom.setName("Kirjoita tentintilan nimi tähän");
+        examRoom.setState("DRAFT");
+        examRoom.save();
+
+        MailAddress mailAddress = new MailAddress();
+        examRoom.setMailAddress(mailAddress);
+
+//        ExamMachine examMachine = new ExamMachine();
+//
+//        examRoom.setExamMachines(exam);
+//        examSection.save();
+//        exam.getExamSections().add(examSection);
+//        exam.setDuration(new Double(3));
+//        exam.setExamLanguage("fi");
 
         return ok(Json.toJson(examRoom));
     }

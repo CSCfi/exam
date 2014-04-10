@@ -110,5 +110,6 @@
     "sitnet_multiplechoice_question_correct": "Correct",
     "sitnet_multiplechoice_question_incorrect": "Incorrect",
 
-    "sitnet_exam_rooms": "Exam rooms"
+    "sitnet_exam_rooms": "Exam rooms",
+    "sitnet_new_room": "Creating new room resource"
 }

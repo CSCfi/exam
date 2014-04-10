@@ -45,6 +45,7 @@ public class ExamRoom extends Model {
 
     private Long examMachineCount;
 
+    private String state;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "room")
     @JsonManagedReference
@@ -133,5 +134,13 @@ public class ExamRoom extends Model {
 
     public void setExamMachines(List<ExamMachine> examMachines) {
         this.examMachines = examMachines;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }
