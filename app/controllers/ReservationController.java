@@ -45,20 +45,19 @@ public class ReservationController extends SitnetController {
         Logger.debug("createExamRoomDraft()");
 
         ExamRoom examRoom = new ExamRoom();
-        examRoom.setName("Kirjoita tentintilan nimi tähän");
+        examRoom.setName("Kirjoita tenttitilan nimi tähän");
         examRoom.setState("DRAFT");
         examRoom.save();
 
         MailAddress mailAddress = new MailAddress();
         examRoom.setMailAddress(mailAddress);
 
-//        ExamMachine examMachine = new ExamMachine();
-//
-//        examRoom.setExamMachines(exam);
-//        examSection.save();
-//        exam.getExamSections().add(examSection);
-//        exam.setDuration(new Double(3));
-//        exam.setExamLanguage("fi");
+        ExamMachine examMachine = new ExamMachine();
+        examMachine.setName("Kone");
+        examMachine.save();
+        examRoom.getExamMachines().add(examMachine);
+
+        examRoom.save();
 
         return ok(Json.toJson(examRoom));
     }
