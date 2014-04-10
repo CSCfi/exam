@@ -237,6 +237,32 @@
             		});
                 };
 
+                $scope.expandSection = function (section) {
+
+                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
+                        section = sec;
+//                        toastr.info("Osio päivitetty.");
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                };
+
+                $scope.expandQuestion = function (question) {
+
+                    var questionToUpdate = {
+                        "id": question.id,
+                        "type": question.type,
+                        "expanded": question.expanded
+                    };
+
+                    QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function (q) {
+                        question = q;
+//                        toastr.info("Osio päivitetty.");
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                };
+
                 $scope.clearAllQuestions = function (section) {
                     if (confirm('Poistetaanko kaikki kysymykset?')) {
                         section.questions.splice(0, questions.length);
@@ -262,9 +288,9 @@
                     console.log(section);
                 };
 
-                $scope.toggleQuestion = function (question) {
-                    question.hide = !question.hide;
-                };
+//                $scope.Question = function (question) {
+//                    question.hide = !question.hide;
+//                };
 
                 $scope.editQuestion = function (question) {
                     // Todo: Implement this

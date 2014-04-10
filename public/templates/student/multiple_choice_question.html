@@ -7,12 +7,12 @@
                 <i class="fa-stack-1x sitnet-black">{{question.id}}.</i>
             </span>
             <span class="sitnet-white" ng-bind-html="question.question"></span>
-			<span ng-click="showQuestion = !showQuestion" class="pull-right fa-stack fa-lg">
-                <i ng-class="showQuestion ? 'sitnet-white' : 'sitnet-student-darkgreen'"
+			<span ng-click="question.expanded = !question.expanded" class="pull-right fa-stack fa-lg">
+                <i ng-class="question.expanded ? 'sitnet-white' : 'sitnet-student-darkgreen'"
                    class="fa fa-square fa-stack-2x section-header-icon-square">
                 </i>
 				<i ng-click="chevronClicked(question)"
-                   ng-class="showQuestion ? 'fa-chevron-down sitnet-student-darkgreen' : 'fa-chevron-left'"
+                   ng-class="question.expanded ? 'fa-chevron-down sitnet-student-darkgreen' : 'fa-chevron-left'"
                    class="sitnet-white fa fa-chevron-left fa-stack-1x section-header-icon-chevron">
                 </i>
 			</span>
@@ -23,7 +23,7 @@
         </div>
     </h4>
 
-        <div class="exam-question-container" ng-hide="!showQuestion">
+        <div class="exam-question-container" ng-hide="!question.expanded">
             <div class="question" ng-include="multipleChoiseOptionTemplate"></div>
         </div>
 

@@ -38,9 +38,7 @@
                     sectionId: "@sectionId"
                 },
                 {
-                    "deleteSection": {
-                        method: "DELETE", params: { sectionId: "@sectionId"}
-                    }
+                    "deleteSection": {method: "DELETE", params: { sectionId: "@sectionId"}}
 
                 }),
 

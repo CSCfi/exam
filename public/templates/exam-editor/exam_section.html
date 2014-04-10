@@ -2,7 +2,7 @@
     <div ng-hide="showDetails">
         <span class="section-header-number">{{section.index}}.</span>
         <span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i class="fa fa-pencil"></i></span>
-        <span ng-click="toggleSection(section)" class="pull-right fa-stack fa-lg pointer-hand">
+        <span ng-click="section.expanded = !section.expanded; expandSection(section)" class="pull-right fa-stack fa-lg pointer-hand">
             <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
             <i ng-class="section.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
                class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>

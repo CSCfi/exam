@@ -199,15 +199,7 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(section));
     }
 
-    public static Result insertQuestion(Long eid, Long sid) throws MalformedDataException {
-        Logger.debug("insertQuestion()");
-
-//        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
-
-        return ok();
-    }
-
-    public static Result insertAQuestion(Long eid, Long sid, Long qid) throws MalformedDataException {
+    public static Result insertQuestion(Long eid, Long sid, Long qid) throws MalformedDataException {
     	Logger.debug("insertQuestion()");
     	
     	// TODO: Create a clone of the question and add it to section
@@ -244,7 +236,9 @@ public class ExamController extends SitnetController {
     	
     	ExamSection section = Form.form(ExamSection.class).bindFromRequest(
     	"id",
-    	"name").get();
+    	"name",
+        "expanded"
+        ).get();
 
     	section.update();
 
