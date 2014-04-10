@@ -16,8 +16,8 @@
         <!--<input type="text" class="input-sm form-control" ng-model="option.option" autofocus>-->
     <!--</div>-->
 
-    <span style="border: 2px; border-radius:25px; padding:0.3em 2em;" ng-class="{'correct-answer': option.correctOption, 'wrong-answer': ! option.correctOption}"
-          ng-click="correctAnswerToggled(option.id, newQuestion)">{{option.correctOption}}</span>
+    <span answer-state class="answer-state" ng-class="{'correct-answer': option.correctOption, 'wrong-answer': !option.correctOption}"
+          ng-click="correctAnswerToggled(option.id, newQuestion)" ng-model="answerState">{{answerState}}</span>
 
     <div class="form-group" ng-show="showOption">
         <button class="btn btn-primary" ng-click="showOption = !showOption">

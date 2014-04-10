@@ -104,5 +104,8 @@
     "sitnet_words": "sanaa",
     "sitnet_approximately": "noin",
 
-    "sitnet_exam_review": "Tentin arviointi"
+    "sitnet_exam_review": "Tentin arviointi",
+
+    "sitnet_multiplechoice_question_correct": "Oikein",
+    "sitnet_multiplechoice_question_incorrect": "Väärin"
 }

@@ -17,6 +17,7 @@
                 };
                 $scope.selectedType = false;
 
+                $scope.answerState = "";
 
                 $scope.setQuestionType = function () {
                     switch ($scope.selectedType) {

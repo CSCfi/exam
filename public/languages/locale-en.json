@@ -105,5 +105,8 @@
     "sitnet_words": "words",
     "sitnet_approximately": "approximately",
 
-    "sitnet_exam_review": "Exam review"
+    "sitnet_exam_review": "Exam review",
+
+    "sitnet_multiplechoice_question_correct": "Correct",
+    "sitnet_multiplechoice_question_incorrect": "Incorrect"
 }

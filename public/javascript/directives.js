@@ -34,18 +34,41 @@
         .directive('uiBlur', function () {
             return function (scope, elem, attrs) {
 
+                var newExam = scope.newExam;
+
                 elem.bind('blur', function () {
                     scope.$apply(attrs.uiBlur);
                 });
             };
         })
 
-        .directive('uiChange', function () {
-            return function (scope, elem, attrs) {
+        .directive('answerState', ['$translate',  function ($translate) {
+            return {
+                link: function (scope, elem, attrs, ngModel) {
 
-                elem.bind('change', function () {
-                    scope.$apply(attrs.uiChange);
-                });
+                    if (scope.option.correctOption == true) {
+                        scope.answerState = $translate("sitnet_multiplechoice_question_correct");
+                    } else {
+                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");;
+                    }
+
+                    elem.bind('blur', function () {
+                        scope.$apply(attrs.uiBlur);
+                    });
+                }
             };
+        }])
+
+        .directive('uiChange', function () {
+            return {
+                restrict: 'A', // only activate on element attribute
+
+                link: function (scope, elem, attrs) {
+
+                    elem.bind('change', function () {
+                        scope.$apply(attrs.uiChange);
+                    });
+                }
+            }
         });
 }());

@@ -187,7 +187,7 @@
                 };
 
                 $scope.setExamLanguage = function (language) {
-                    $scope.newExam.language = language;
+                    $scope.newExam.examLanguage = language;
                 };
 
                 $scope.setExamAnswerLanguage = function (answerLanguage) {
