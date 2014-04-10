@@ -123,7 +123,9 @@ public class ExamController extends SitnetController {
         "duration",
         "grading",
         "examLanguage",
-        "answerLanguage").get();
+        "answerLanguage",
+        "expanded")
+        .get();
 
         if(SitnetUtil.isOwner(ex))
         {
@@ -305,32 +307,6 @@ public class ExamController extends SitnetController {
             default:
 
         }
-
-
-
-/**
- *
- * play.api.Application$$anon$1: Execution exception[[PersistenceException: ERROR executing DML bindLog[] error[NULL not allowed for column
- * "QUESTION_TYPE"; SQL statement:\n insert into question
- * (id, question_type, created, modified, type, question, shared, instruction, hash, creator_id, modifier_id, derived_from_question_id)
- * values (?,?,?,?,?,?,?,?,?,?,?,?) [23502-172]]]]
-
- Ebean fails to insert Discriminator
- This is a bug
-
- Discussion:
- *  http://eclipse.1072660.n5.nabble.com/Value-of-DiscriminatorValue-not-persisted-td162195.html
- *
- *  Bug:
- *  https://bugs.eclipse.org/bugs/show_bug.cgi?id=415526
- *
- *  Possible solution:
- *  Update Ebean to v.2.5.1
- *
- *
- *
- */
-
 
         return badRequest("Jokin meni pieleen");
     }

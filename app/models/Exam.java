@@ -81,7 +81,22 @@ public class Exam extends SitnetModel {
     private String state;
 
     private String grade;
-    
+
+    // In UI, section has been expanded
+    private Boolean expanded;
+
+    public Boolean getExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(Boolean expanded) {
+        this.expanded = expanded;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
     public String getName() {
         return name;
     }

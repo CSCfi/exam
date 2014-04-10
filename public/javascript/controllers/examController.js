@@ -105,24 +105,10 @@
                     "examSections": [],
                     "state": "DRAFT"
                 };
-//
-//                $scope.newExamEvent = {
-//                    "examReadableStartDate": null,
-//                    "examReadableEndDate": null,
-//                    "examActiveStartDate": null,
-//                    "examActiveEndDate": null,
-//                    "room": null,
-//                    "duration": null,
-//                    "inspector": null,
-//                    "grading": null,
-//                    "language": null,
-//                    "answerLanguage": null,
-//                    "material": null,
-//                    "guidance": null
-//                };
+
 
                 $scope.newSection = {
-                    hide: false,
+                    expanded: true,
                     name: $translate("sitnet_exam_section_default_name"),
                     questions: []
                 };
@@ -134,14 +120,7 @@
                         function (exam) {
                             $scope.newExam = exam;
 
-                            // set sections and question nubering
-                            angular.forEach($scope.newExam.examSections, function (section, index) {
-                                section.index = index +1;
-
-                                angular.forEach(section.questions, function (question, index) {
-                                    question.index = index +1;
-                                });
-                            });
+                            $scope.reindexNumbering();
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -149,12 +128,24 @@
                     );
                 }
 
+                $scope.reindexNumbering = function () {
+                    // set sections and question nubering
+                    angular.forEach($scope.newExam.examSections, function (section, index) {
+                        section.index = index +1;
+
+                        angular.forEach(section.questions, function (question, index) {
+                            question.index = index +1;
+                        });
+                    });
+                }
+
                 $scope.addNewSection = function () {
                     ExamRes.sections.insert({eid: $scope.newExam.id}, $scope.newSection, function (section) {
                         toastr.success("Osio lisätty.");
                         $scope.newExam.examSections.push(section);
+                        $scope.reindexNumbering();
                     }, function (error) {
-                        toastr.error("Jokin meni pieleen");
+                        toastr.error(error.data);
                     });
                 };
 
@@ -219,7 +210,7 @@
 
                 $scope.toggleSection = function (section) {
                     section.icon = "";
-                    section.hide = !section.hide;
+                    section.expanded = !section.expanded;
                 };
 
                 $scope.removeSection = function (section) {
@@ -228,8 +219,10 @@
                         ExamRes.sections.remove({eid: $scope.newExam.id, sid: section.id}, function (id) {
                             toastr.info("Osio poistettu.");
                             $scope.newExam.examSections.splice($scope.newExam.examSections.indexOf(section), 1);
+                            $scope.reindexNumbering();
+
                         }, function (error) {
-                            toastr.error("Jokin meni pieleen");
+                            toastr.error(error.data);
                         });
                     }
                 };
@@ -240,7 +233,7 @@
             			section = sec;
             			toastr.info("Osio päivitetty.");
             		}, function (error) {
-            			toastr.error("Jokin meni pieleen");
+            			toastr.error(error.data);
             		});
                 };
 
@@ -258,7 +251,7 @@
                         	section = sec;
                         	toastr.info("Kysymys poistettu.");
                         }, function (error) {
-                            toastr.error("Jokin meni pieleen");
+                            toastr.error(error.data);
                         });
                         
                         
@@ -281,22 +274,6 @@
                     // Todo: Implement this
                 };
 
-
-/*                $scope.updateExam = function (exam) {
-
-                    var examToSave = {
-                        "id": $scope.newExam.id,
-                        "name": $scope.newExam.name
-                    };
-
-                    ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
-                        toastr.info("Tentti tallennettu.");
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
-
-                };*/
-
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
 
@@ -313,7 +290,8 @@
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.grading,
                         "examLanguage": $scope.newExam.examLanguage,
-                        "answerLanguage": $scope.newExam.answerLanguage
+                        "answerLanguage": $scope.newExam.answerLanguage,
+                        "expanded": $scope.newExam.expanded
                     };
                     
                     ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
@@ -371,14 +349,14 @@
                     ExamRes.questions.insert({eid: $scope.newExam.id, sid: section.id, qid: $data.id}, function (section) {
                         toastr.info("Kysymys lisätty osioon.");
                     }, function (error) {
-                        toastr.error("Jokin meni pieleen");
+                        toastr.error(error.data);
                     });
                     
                     
 //                    ExamRes.sections.insertSection({eid: $scope.newExam.id, sid: section.id}, newQuestion, function (section) {
 //                    	toastr.info("Kysymys lisätty osioon.");
 //                    }, function (error) {
-//                    	toastr.error("Jokin meni pieleen");
+//                    	toastr.error(error.data);
 //                    });
                 };
                 

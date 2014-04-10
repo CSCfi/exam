@@ -1,17 +1,15 @@
 package models;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.questions.AbstractQuestion;
+import util.SitnetUtil;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-
-import util.SitnetUtil;
-import models.questions.AbstractQuestion;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.util.List;
 
 /*
  * Tenttiosio, joka voi sisältää useita kysymyksiä (Kysymystyyppejä)
@@ -37,6 +35,9 @@ public class ExamSection extends SitnetModel {
 
 	// osion kokonaispisteet
 	private Long totalScore;
+
+    // In UI, section has been expanded
+    private Boolean expanded;
 
 	public List<AbstractQuestion> getQuestions() {
 		return questions;
@@ -70,7 +71,15 @@ public class ExamSection extends SitnetModel {
         this.exam = exam;
     }
 
-	@Override
+    public Boolean getExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(Boolean expanded) {
+        this.expanded = expanded;
+    }
+
+    @Override
     public Object clone() {
 
         return SitnetUtil.getClone(this);

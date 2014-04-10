@@ -91,6 +91,9 @@ abstract public class AbstractQuestion extends SitnetModel {
     @Column(length = 32)
     protected String hash;
 
+    // In UI, section has been expanded
+    private Boolean expanded;
+
     public String getType() {
         return type;
     }
@@ -181,6 +184,14 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     public Double getScore() {
         return score;
+    }
+
+    public Boolean getExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(Boolean expanded) {
+        this.expanded = expanded;
     }
 
     public void setScore(Double score) {

@@ -29,24 +29,6 @@
             <!-- General Information -->
             <div class="exam-general-information" ng-include="generalInfoPath">
             </div>
-
-            <!-- Exam instruction -->
-            <div class="exam-general-information">
-                <div class="exam-general-information-header">
-                    {{'sitnet_instruction' | translate}}
-                    <span ng-click="" class="pull-right fa-stack fa-lg">
-                    <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-                    <i ng-class="showInstruction ? 'fa-chevron-down' : 'fa-chevron-left'" ng-click="showInstruction = !showInstruction"
-                       class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-                    </span>
-                </div>
-
-                <div class="input-group exam-info" ng-show="showInstruction">
-                    <textarea class="form-control" rows="2" cols="140" ng-model="newExam.instruction" ui-blur="saveExam()"
-                              placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-                    </textarea>
-                </div>
-            </div>
             <div class="exam-sections">
                 <div class="" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>
             </div>

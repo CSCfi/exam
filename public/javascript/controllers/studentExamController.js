@@ -142,7 +142,7 @@
                         $location.path("/exams/");
 
                     }, function () {
-                        toastr.error("Jokin meni pieleen");
+                        toastr.error(error.data);
                     });
                 };
 
@@ -153,7 +153,7 @@
                         $location.path("/home/");
 
                     }, function () {
-                        toastr.error("Jokin meni pieleen");
+                        toastr.error(error.data);
                     });
                 };
 
@@ -165,7 +165,7 @@
                     StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id}, { data: "hello world"}, function () {
                         toastr.info("Vastaus lisätty kysymykseen.");
                     }, function () {
-                        toastr.error("Jokin meni pieleen");
+                        toastr.error(error.data);
                     });
                 };
 
@@ -179,7 +179,7 @@
                     StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
                         toastr.info("Vastaus lisätty kysymykseen.");
                     }, function () {
-                        toastr.error("Jokin meni pieleen");
+                        toastr.error(error.data);
                     });
                 };
 
