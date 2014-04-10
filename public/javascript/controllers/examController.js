@@ -241,7 +241,6 @@
 
                     ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
                         section = sec;
-//                        toastr.info("Osio päivitetty.");
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -257,7 +256,6 @@
 
                     QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function (q) {
                         question = q;
-//                        toastr.info("Osio päivitetty.");
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -287,10 +285,6 @@
                 $scope.editSection = function (section) {
                     console.log(section);
                 };
-
-//                $scope.Question = function (question) {
-//                    question.hide = !question.hide;
-//                };
 
                 $scope.editQuestion = function (question) {
                     // Todo: Implement this
@@ -346,7 +340,8 @@
                             "duration": $scope.newExam.duration,
                             "grading": $scope.newExam.grading,
                             "examLanguage": $scope.newExam.examLanguage,
-                            "answerLanguage": $scope.newExam.answerLanguage
+                            "answerLanguage": $scope.newExam.answerLanguage,
+                            "expanded": $scope.newExam.expanded
                         };
 
                         ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
