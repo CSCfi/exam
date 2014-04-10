@@ -107,5 +107,7 @@
     "sitnet_exam_review": "Tentin arviointi",
 
     "sitnet_multiplechoice_question_correct": "Oikein",
-    "sitnet_multiplechoice_question_incorrect": "Väärin"
+    "sitnet_multiplechoice_question_incorrect": "Väärin",
+
+    "sitnet_exam_rooms": "Tenttitilat"
 }

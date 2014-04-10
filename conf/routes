@@ -71,6 +71,7 @@ GET           /options/:id                                          controllers.
 ############### Reservation interface ###############
 
 GET           /rooms                                                controllers.ReservationController.getExamRooms()
+GET           /rooms/:id                                            controllers.ReservationController.getExamRoom(id: Long)
 
 # test test test test test
 POST          /test                                                 controllers.TestController.addQuestion()

@@ -13,6 +13,7 @@
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question-editor/question.html'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamController'});
+            $routeProvider.when('/rooms', { templateUrl: tmpl + 'admin/rooms.html', controller: 'RoomCtrl'});
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam-editor/exam.html', controller: 'ExamController'});
             $routeProvider.when('/calendar', { templateUrl: tmpl + 'calendar.html'});
             $routeProvider.when('/notifications', { templateUrl: tmpl + 'notifications.html'});

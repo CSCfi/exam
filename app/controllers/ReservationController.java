@@ -2,6 +2,7 @@ package controllers;
 
 import com.avaje.ebean.Ebean;
 import models.ExamRoom;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -19,4 +20,18 @@ public class ReservationController extends SitnetController {
         return ok(Json.toJson(rooms));
     }
 
+    public static Result getExamRoom(Long id) {
+        Logger.debug("getExamRoomid)");
+
+//        Query<ExamRoom> query = Ebean.createQuery(ExamRoom.class);
+//        query.fetch("course");
+//        query.fetch("examSections");
+//        query.setId(id);
+
+//        Exam exam = query.findUnique();
+
+        ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
+
+        return ok(Json.toJson(examRoom));
+    }
 }

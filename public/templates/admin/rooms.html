@@ -1,0 +1,24 @@
+<div id="sitnet-header" class="header">
+	<!--<div ng-controller="RoomCtrl">-->
+		<div class="row">
+			<div class="col-md-2 col-md-offset-10">
+				<a ng-click="createExamRoom()" class="btn btn-primary btn-lg active header-button"> {{'sitnet_create_new' | translate}} </a>
+			</div>
+		</div>
+	<!--</div>-->
+</div>
+<div id="exam" class="row">
+	<div class="exam-list">
+		<!--<div class="col-md-8">-->
+			<h2 class="sitnet-teacher-turquoise-dark-active">Tenttitilat</h2>
+			<span class="sitnet-info-text">Nämä ovat olemassaolevia tentittiloja</span>
+
+			<div class="exam-list-published">
+				<a ng-repeat="room in rooms" href="#/rooms/{{room.id}}" class="active-exams-list list-group-item">
+					<h4 class="list-group-item-heading">
+						<span class="">{{room.roomCode}} - {{room.name}}</span>
+					</h4>
+				</a>
+			</div>
+	</div>
+</div>
