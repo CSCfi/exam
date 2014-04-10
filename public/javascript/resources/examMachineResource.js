@@ -2,14 +2,14 @@
     'use strict';
     angular.module("sitnet.resources")
         .factory("ExamMachineResource", ['$resource', function ($resource) {
-            return $resource(
-                "/machines/:id",
-                {
-                    id: "@id"
-                },
-                {
-                    "update": {method: "PUT"}
-                }
-            );
+            return {
+                machines: $resource("/machines/:id",
+                    {
+                        id: "@id"
+                    },
+                    {
+                        "update": {method: "PUT"}
+                    })
+            }
         }]);
 }());

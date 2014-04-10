@@ -1,8 +1,11 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('RoomCtrl', ['$scope', 'RoomRes', '$location', '$routeParams',
-            function ($scope, RoomRes, $location, $routeParams) {
+        .controller('RoomCtrl', ['$scope', 'RoomRes', 'SITNET_CONF','$routeParams',
+            function ($scope, RoomRes, SITNET_CONF, $routeParams) {
+
+                $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/machine.html";
+
 
                 if ($routeParams.id === undefined)
                     $scope.rooms = RoomRes.rooms.query();

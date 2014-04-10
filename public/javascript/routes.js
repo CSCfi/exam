@@ -27,7 +27,7 @@
             $routeProvider.when('/logout', { templateUrl: tmpl + 'logout.html', controller: 'SessionCtrl' });
             $routeProvider.when('/courses', { templateUrl: tmpl + 'courses.html', controller: 'CourseCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html', controller: 'QuestionCtrl'});
-            $routeProvider.when('/machine', { templateUrl: tmpl + 'admin/machine.html', controller: 'RoomCtrl'});
+            $routeProvider.when('/machines', { templateUrl: tmpl + 'unimplemented/machines.html', controller: 'RoomCtrl'});
 
             /* Student */
 //            $routeProvider.when('/student/exams', { templateUrl: tmpl + 'exams.html', controller: 'StudentExamController'});
