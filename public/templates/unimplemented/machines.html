@@ -1,5 +1,5 @@
-<div id="reservation" ng-repeat="room in rooms">
+<div ng-repeat="room in rooms">
 
-    <div class="machines-section" ng-include="machineTemplate" ng-repeat="machine in room.examMachines">
+    <div id="reservation" class="machines-section" ng-include="machineTemplate" ng-repeat="machine in room.examMachines">
     </div>
 </div>
