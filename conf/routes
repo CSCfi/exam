@@ -72,13 +72,17 @@ GET           /options/:id                                          controllers.
 
 GET           /rooms                                                controllers.ReservationController.getExamRooms()
 GET           /rooms/:id                                            controllers.ReservationController.getExamRoom(id: Long)
+PUT           /rooms/:id                                            controllers.ReservationController.updateExamRoom(id: Long)
+PUT           /address/:id                                          controllers.ReservationController.updateExamRoomAddress(id: Long)
 GET           /draft/rooms                                          controllers.ReservationController.createExamRoomDraft()
 
 
 ############### ExamMachines interface ###############
 
-GET           /machines                                                controllers.ExamMachineController.getExamMachines()
-GET           /machines/:id                                            controllers.ExamMachineController.getExamMachine(id: Long)
+GET           /machines                                             controllers.ExamMachineController.getExamMachines()
+GET           /machines/:id                                         controllers.ExamMachineController.getExamMachine(id: Long)
+PUT           /machines/:id                                         controllers.ExamMachineController.updateExamMachine(id: Long)
+POST          /machines/:id                                         controllers.ExamMachineController.insertExamMachine(id: Long)
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()

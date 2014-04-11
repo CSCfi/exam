@@ -8,7 +8,8 @@
                     id: "@id"
                 },
                 {
-                    "update": {method: "PUT"}
+                    "update": {method: "PUT"},
+                    "insert": {method: "POST"}
                 }
             );
         }]);

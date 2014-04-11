@@ -50,6 +50,7 @@ public class ReservationController extends SitnetController {
         examRoom.save();
 
         MailAddress mailAddress = new MailAddress();
+        mailAddress.save();
         examRoom.setMailAddress(mailAddress);
 
         ExamMachine examMachine = new ExamMachine();
@@ -60,5 +61,21 @@ public class ReservationController extends SitnetController {
         examRoom.save();
 
         return ok(Json.toJson(examRoom));
+    }
+
+    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    public static Result updateExamRoom(Long id) throws MalformedDataException {
+        ExamRoom room = bindForm(ExamRoom.class);
+        room.update();
+
+        return ok(Json.toJson(room));
+    }
+
+    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    public static Result updateExamRoomAddress(Long id) throws MalformedDataException {
+        MailAddress address = bindForm(MailAddress.class);
+        address.update();
+
+        return ok(Json.toJson(address));
     }
 }

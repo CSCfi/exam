@@ -6,7 +6,7 @@
         <!-- Room name -->
         <div class="exam-name">
             <div ng-hide="showName">
-                <span class="pull-right fa-stack fa-lg dropdown" ng-click="editRoom()"></span>
+                <span class="pull-right fa-stack fa-lg dropdown"></span>
                 <h3>
                     <span class="editable" ng-click="showName = !showName">
                         {{roomInstance.name}} <i class="fa fa-pencil"></i>
@@ -18,7 +18,7 @@
                     <div class="form-group">
                         <input type="text" class="form-control input-lg" ng-model="roomInstance.name" autofocus>
                     </div>
-                    <button class="btn-primary" ng-click="showName = !showName; saveRoom()">
+                    <button class="btn-primary" ng-click="showName = !showName; updateRoom(roomInstance)">
                         <i class="fa fa-check"></i>
                     </button>
                 </form>
@@ -30,7 +30,7 @@
                 <div class="sitnet-info-text">Huonekoodi</div>
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomCode"
-                           ui-change="saveRoom()">
+                           ui-change="updateRoom(roomInstance)">
                     <span class="input-group-addon"
                           ng-click="toaster.info('Tenttitilan yksilöivä tunniste. Esim: 811380A');">
                         <i class="fa fa-question-circle fa-fw"></i>
@@ -42,7 +42,7 @@
                 <div class="sitnet-info-text">Rakennuksen nimi</div>
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.buildingName"
-                           ui-change="saveRoom()">
+                           ui-change="updateRoom(roomInstance)">
                         <span class="input-group-addon"
                               ng-click="toaster.info('Rakennuksen nimi jossa kone sijaitsee');">
                             <i class="fa fa-question-circle fa-fw"></i>
@@ -51,23 +51,73 @@
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-md-6">
+                <div class="sitnet-info-text">Aukioloaika</div>
+                <div class="input-group">
+                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.workingHours"
+                           ui-change="updateRoom(roomInstance)">
+                    <span class="input-group-addon"
+                          ng-click="toaster.info('Tenttitilan päivänsisäinen aukioloaika esim. 8-16');">
+                        <i class="fa fa-question-circle fa-fw"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="sitnet-info-text">Esteettömyystieto</div>
+                <div class="input-group">
+                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.accessibilityInfo"
+                           ui-change="updateRoom(roomInstance)">
+                        <span class="input-group-addon"
+                              ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">
+                            <i class="fa fa-question-circle fa-fw"></i>
+                        </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="sitnet-info-text">Tilaohjeet</div>
+                <div class="input-group">
+                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomInstruction"
+                           ui-change="updateRoom(roomInstance)">
+                    <span class="input-group-addon"
+                          ng-click="toaster.info('Tenttitilan käyttämiseen liittyvä ohjeistus');">
+                        <i class="fa fa-question-circle fa-fw"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="sitnet-info-text">Yhteyshenkilö</div>
+                <div class="input-group">
+                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.contactPerson"
+                           ui-change="updateRoom(roomInstance)">
+                        <span class="input-group-addon"
+                              ng-click="toaster.info('Ota yhteyttä tähän henkilöön lisätietoa kaivatessasi');">
+                            <i class="fa fa-question-circle fa-fw"></i>
+                        </span>
+                </div>
+            </div>
+        </div>
+
+        <h3>Postiosoite</h3>
+        <div id="address" class="machines-section" ng-include="addressTemplate">
+        </div>
+
+        <div>
+            <h3>Tenttitilan koneet</h3>
+            <button ng-click="addNewMachine(roomInstance)" class="btn btn-primary">{{'sitnet_create_new' | translate}}</button>
+        </div>
         <div id="reservation" class="machines-section" ng-include="machineTemplate" ng-repeat="machine in roomInstance.examMachines">
         </div>
-        <!--<div class="exam-wrapper">-->
-            <!--&lt;!&ndash; General Information &ndash;&gt;-->
-            <!--<div class="exam-general-information" ng-include="generalInfoPath">-->
-            <!--</div>-->
-            <!--<div class="exam-sections">-->
-                <!--<div class="" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>-->
-            <!--</div>-->
-            <!--<span ng-click="addNewSection()" class="create-new">-->
-                <!--<center>-->
-                <!--<i class="fa fa-2x fa-hand-o-right"></i>-->
-                <!--{{'sitnet_section_add' | translate}}-->
-                <!--</center>-->
-            <!--</span>-->
-            <!--<span><button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button></span>-->
-            <!--<span class="pull-right"><button ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button></span>-->
-        <!--</div>-->
+
 	</div>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-5">
+            <button ng-click="saveRoom(roomInstance)" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+        </div>
+    </div>
 </div>

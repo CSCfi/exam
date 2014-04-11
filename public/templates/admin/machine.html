@@ -1,37 +1,62 @@
 <div class="machine-header" ng-class="machine.expanded ? 'machine-header-active' : 'machine-header-inactive'">
-	<span class="">
-		<i class="fa fa-2x fa-desktop"></i>
-	</span>
-    <span class="menu-item">{{machine.name}}</span>
-  	<span ng-click="machine.expanded = !machine.expanded"
-          class="pull-right fa-stack fa-lg pointer-hand">
-            <i ng-class="machine.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
-               class="sitnet-white fa fa-stack-1x"></i>
-    </span>
-    <span ng-click="editMachine()" class=" dropdown pull-right fa-stack fa-lg pointer-hand">
-		<a class="dropdown-toggle">
-            <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-        </a>
-		<ul class="dropdown-menu">
-            <li><a>{{'sitnet_settings' | translate}}</a></li>
-            <li><a ng-click="removeMachine()">{{'sitnet_remove' | translate}}</a></li>
-        </ul>
-	</span>
+	<div>
+        <!-- Machine icon -->
+		<i class="pull-left fa fa-2x fa-desktop"></i>
+
+        <!-- Machine name -->
+        <div ng-hide="showName">
+            <!--<span class="pull-right fa-stack fa-lg dropdown" ng-click="editMachine()"></span>-->
+            <span class="editable" ng-click="showName = !showName">
+                {{machine.name}} <i class="fa fa-pencil"></i>
+            </span>
+        </div>
+        <div ng-show="showName">
+            <form class="form-inline" role="form">
+                <div class="form-group">
+                    <input type="text" class="form-control input-lg" ng-model="machine.name" autofocus>
+                </div>
+                <button class="btn-primary" ng-click="showName = !showName; updateMachine(machine)">
+                    <i class="fa fa-check"></i>
+                </button>
+            </form>
+        </div>
+
+
+
+    <!--<div class="exam-name">-->
+
+    <!--</div>-->
+
+    <!-- <span class="menu-item">{{machine.name}}</span> -->
+        <div ng-click="machine.expanded = !machine.expanded" class="pull-right fa-stack fa-lg pointer-hand" style="line-height: 0em">
+                <i ng-class="machine.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
+                   class="sitnet-white fa fa-stack-1x"></i>
+        </div>
+        <div ng-click="editMachine()" class=" dropdown pull-right fa-stack fa-lg pointer-hand" style="line-height: 0em">
+            <a class="dropdown-toggle">
+                <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a>{{'sitnet_settings' | translate}}</a></li>
+                <li><a ng-click="removeMachine()">{{'sitnet_remove' | translate}}</a></li>
+            </ul>
+        </div>
+    </div>
 </div>
 <div ng-show="machine.expanded">
     <div class="sitnet-info-text">Esteettömyys:</div>
     <div>
-        <input type="text" class="form-control" ng-model="machine.accessibilityInfo" ui-change="">
+        <input type="text" class="form-control" ng-model="machine.accessibilityInfo" ui-change="updateMachine(machine)">
     </div>
 
     <div class="sitnet-info-text">Ohjelmistot:</div>
     <div>
-        <input type="text" class="form-control" ng-model="machine.softwareInfo" ui-change="">
+        <input type="text" class="form-control" ng-model="machine.softwareInfo" ui-change="updateMachine(machine)">
     </div>
 
     <div class="sitnet-info-text">IP-osoite:</div>
     <div>
-        <input type="text" class="form-control" ng-model="machine.ipAddress" ui-change="">
+        <input type="text" class="form-control" ng-model="machine.ipAddress" ui-change="updateMachine(machine)">
     </div>
 
 </div>

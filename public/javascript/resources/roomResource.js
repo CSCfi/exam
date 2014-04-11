@@ -1,9 +1,17 @@
 (function () {
     'use strict';
     angular.module("sitnet.resources")
-        .factory("RoomRes", ['$resource', function ($resource) {
+        .factory("RoomResource", ['$resource', function ($resource) {
             return {
                 rooms: $resource("/rooms/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "update": {method: "PUT"}
+                }),
+
+                addresses: $resource("/address/:id",
                 {
                     id: "@id"
                 },
