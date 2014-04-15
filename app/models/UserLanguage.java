@@ -12,7 +12,8 @@ import javax.persistence.Id;
  * Kieli
  * http://tietomalli.csc.fi/Kieli.html
  * 
- * 
+ * Language abbreviations
+ *  * http://tilastokeskus.fi/meta/luokitukset/kieli/001-2003/index.html
  */
 @Entity
 public class UserLanguage extends Model {
