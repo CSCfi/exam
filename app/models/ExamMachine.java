@@ -44,6 +44,11 @@ public class ExamMachine extends Model {
     // In UI, section has been expanded
     private Boolean expanded;
 
+    // Machine may be out of service,
+    private String statusComment;
+
+    private boolean outOfService;
+
     public Boolean getExpanded() {
         return expanded;
     }
@@ -98,6 +103,22 @@ public class ExamMachine extends Model {
 
     public String getIpAddress() {
         return ipAddress;
+    }
+
+    public String getStatusComment() {
+        return statusComment;
+    }
+
+    public void setStatusComment(String statusComment) {
+        this.statusComment = statusComment;
+    }
+
+    public Boolean getOutOfService() {
+        return outOfService;
+    }
+
+    public void setOutOfService(Boolean outOfService) {
+        this.outOfService = outOfService;
     }
 
     public void setIpAddress(String ipAddress) {

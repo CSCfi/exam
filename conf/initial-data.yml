@@ -710,6 +710,7 @@ exam-machines:
     ipAddress: 123.456.789.123
 #    room: *room-pegasus
     reservation:
+    outOfService: false
 
   - &exam-machine2 !!models.ExamMachine
     name: Pegasus 02
@@ -718,6 +719,7 @@ exam-machines:
     ipAddress: 123.456.789.321
 #    room: *room-pegasus
     reservation:
+    outOfService: false
 
   - &exam-machine3 !!models.ExamMachine
     name: Pegasus 03
@@ -726,6 +728,8 @@ exam-machines:
     ipAddress: 123.456.789.132
 #    room: *room-pegasus
     reservation:
+    outOfService: true
+    statusComment: Näyttö rikki
 
 mail-addresses:
   - &oulu-yo !!models.MailAddress
@@ -741,7 +745,7 @@ exam-rooms:
     roomCode: IT101
     buildingName: Oulun yliopston päärakennus
     campus: Linnanmaa
-    organization: *OulunYliopisto
+    organization:
     mailAddress: *oulu-yo
     workingHours: 8.00 - 16.00
     transitionTime: 5
@@ -754,6 +758,7 @@ exam-rooms:
       - *exam-machine1
       - *exam-machine2
       - *exam-machine3
+    outOfService: false
 
 
 

@@ -59,7 +59,7 @@
                 };
 
                 $scope.updateAddress = function (address) {
-                    RoomResource.addresses.update(address,
+                    RoomResource.addresses.update({id: address}, address,
                         function (updated_address) {
                             toastr.info("Tenttitilan osoite päivitetty");
                         },
@@ -70,8 +70,9 @@
                 };
 
                 $scope.updateMachine = function (machine) {
-                    ExamMachineResource.update(machine,
+                    ExamMachineResource.update({id: machine.id}, machine,
                         function (updated_machine) {
+                            machine = updated_machine;
                             toastr.info("Tenttikone päivitetty.");
                         },
                         function (error) {

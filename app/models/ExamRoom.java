@@ -57,6 +57,11 @@ public class ExamRoom extends Model {
 
     private Long examMachineCount;
 
+    // ExamRoom may be out of service,
+    private String statusComment;
+
+    private Boolean outOfService;
+
     private String state;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
@@ -157,6 +162,22 @@ public class ExamRoom extends Model {
 
     public void setExamMachines(List<ExamMachine> examMachines) {
         this.examMachines = examMachines;
+    }
+
+    public Boolean getOutOfService() {
+        return outOfService;
+    }
+
+    public void setOutOfService(Boolean outOfService) {
+        this.outOfService = outOfService;
+    }
+
+    public String getStatusComment() {
+        return statusComment;
+    }
+
+    public void setStatusComment(String statusComment) {
+        this.statusComment = statusComment;
     }
 
     public String getState() {

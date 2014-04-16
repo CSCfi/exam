@@ -33,7 +33,8 @@
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomCode"
                            ui-change="updateRoom(roomInstance)">
                     <span class="input-group-addon"
-                          ng-click="toaster.info('Tenttitilan yksilöivä tunniste. Esim: 811380A');">
+                          <!--ng-click="toaster.info('Tenttitilan yksilöivä tunniste. Esim: 811380A');"-->
+                            >
                         <i class="fa fa-question-circle fa-fw"></i>
                     </span>
                 </div>
@@ -45,7 +46,8 @@
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.buildingName"
                            ui-change="updateRoom(roomInstance)">
                         <span class="input-group-addon"
-                              ng-click="toaster.info('Rakennuksen nimi jossa kone sijaitsee');">
+                              <!--ng-click="toaster.info('Rakennuksen nimi jossa kone sijaitsee');"-->
+                                >
                             <i class="fa fa-question-circle fa-fw"></i>
                         </span>
                 </div>
@@ -60,7 +62,8 @@
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.campus"
                            ui-change="updateRoom(roomInstance)">
                     <span class="input-group-addon"
-                          ng-click="toaster.info('Kampus, jossa tenttitila sijaitsee');">
+                          <!--ng-click="toaster.info('Kampus, jossa tenttitila sijaitsee');"-->
+                            >
                         <i class="fa fa-question-circle fa-fw"></i>
                     </span>
                 </div>
@@ -109,19 +112,19 @@
         <!-- Accessibility information -->
         <div class="row">
             <div class="col-md-12">
-                <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}</div>
-                <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.accessibilityInfo"
-                           ui-change="updateRoom(roomInstance)">
-                        <span class="input-group-addon"
-                              ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">
-                            <i class="fa fa-question-circle fa-fw"></i>
-                        </span>
-                </div>
                 <div class="checkbox">
                     <label>
                         <input type="checkbox" ng-model="roomInstance.accessible" ui-change="updateRoom(roomInstance)"> {{'sitnet_room_accessible' | translate}}
                     </label>
+                </div>
+                <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}</div>
+                <div class="input-group">
+                    <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.accessibilityInfo" ui-change="updateRoom(roomInstance)">
+                    </textarea>
+                        <span class="input-group-addon"
+                              ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">
+                            <i class="fa fa-question-circle fa-fw"></i>
+                        </span>
                 </div>
             </div>
         </div>
@@ -173,6 +176,27 @@
         <div id="address" class="machines-section" ng-include="addressTemplate">
         </div>
 
+        <!-- Service status -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="roomInstance.outOfService" ui-change="updateRoom(roomInstance)"> {{'sitnet_out_of_service' | translate}}
+                    </label>
+                </div>
+                <div class="sitnet-info-text">{{'sitnet_reason' | translate}}</div>
+                <div class="input-group">
+                    <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.statusComment" ui-change="updateRoom(roomInstance)">
+                    </textarea>
+                        <span class="input-group-addon"
+                              <!--ng-click="{toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');}"-->
+                                >
+                            <i class="fa fa-question-circle fa-fw"></i>
+                        </span>
+                </div>
+            </div>
+        </div>
+
         <!-- Exam room machines -->
         <div>
             <h3>Tenttitilan koneet</h3>
@@ -180,12 +204,12 @@
         </div>
         <div id="reservation" class="machines-section" ng-include="machineTemplate" ng-repeat="machine in roomInstance.examMachines">
         </div>
-	</div>
 
-    <!-- Button row -->
-    <div class="row">
-        <div class="col-md-6 col-md-offset-5">
-            <button ng-click="saveRoom(roomInstance)" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+        <!-- Button row -->
+        <div class="row">
+            <div class="col-md-6 col-md-offset-5">
+                <button ng-click="saveRoom(roomInstance)" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+            </div>
         </div>
     </div>
 </div>

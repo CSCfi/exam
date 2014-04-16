@@ -51,4 +51,23 @@
         <input type="text" class="form-control" ng-model="machine.ipAddress" ui-change="updateMachine(machine)">
     </div>
 
+    <!-- Service status -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="machine.outOfService" ui-change="updateMachine(machine)"> {{'sitnet_out_of_service' | translate}}
+                </label>
+            </div>
+            <div class="sitnet-info-text">{{'sitnet_reason' | translate}}</div>
+            <div class="input-group">
+                <textarea class="form-control ng-pristine ng-valid" ng-model="machine.statusComment" ui-change="updateMachine(machine)">
+                </textarea>
+                        <span class="input-group-addon">
+                            <i class="fa fa-question-circle fa-fw"></i>
+                        </span>
+            </div>
+        </div>
+    </div>
+
 </div>

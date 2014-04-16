@@ -121,5 +121,8 @@
 "sitnet_room_contact_person": "Yhteyshenkilö",
 "sitnet_room_videorecordings_url": "Linkki videotallenteisiin",
 
-"sitnet_save_and_publish": "Tallenna ja julkaise"
+"sitnet_save_and_publish": "Tallenna ja julkaise",
+
+"sitnet_out_of_service": "Pois käytöstä",
+"sitnet_reason": "Syy"
 }
