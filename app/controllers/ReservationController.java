@@ -1,14 +1,15 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
-import Exceptions.SitnetException;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.*;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.MailAddress;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
 
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
 public class ReservationController extends SitnetController {
 
 
-//    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
     public static Result getExamRooms() {
         List<ExamRoom> rooms = Ebean.find(ExamRoom.class).findList();
         return ok(Json.toJson(rooms));
@@ -77,5 +78,14 @@ public class ReservationController extends SitnetController {
         address.update();
 
         return ok(Json.toJson(address));
+    }
+
+    @Restrict(@Group({"ADMIN"}))
+    public static Result removeExamRoom(Long id) throws MalformedDataException {
+
+        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        room.delete();
+
+        return ok();
     }
 }

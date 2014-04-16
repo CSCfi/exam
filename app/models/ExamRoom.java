@@ -47,7 +47,7 @@ public class ExamRoom extends Model {
 
     private String state;
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "room")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
     @JsonManagedReference
     private List<ExamMachine> examMachines;
 

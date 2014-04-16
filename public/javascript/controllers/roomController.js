@@ -34,10 +34,11 @@
                     );
                 };
 
+
                 $scope.updateRoom = function (room) {
                     RoomResource.rooms.update(room,
                         function (updated_room) {
-                            toastr.info("Tenttitilan huone päivitettiin.");
+                            toastr.info("Tenttitila päivitetty.");
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -48,7 +49,7 @@
                 $scope.saveRoom = function (room) {
                     RoomResource.rooms.update(room,
                         function (updated_room) {
-                            toastr.info("Tenttitila talletettiin.");
+                            toastr.info("Tenttitila tallennettu.");
                             $location.path("/rooms/");
                         },
                         function (error) {
@@ -60,7 +61,7 @@
                 $scope.updateAddress = function (address) {
                     RoomResource.addresses.update(address,
                         function (updated_address) {
-                            toastr.info("Tenttitilan osoite päivitettiin");
+                            toastr.info("Tenttitilan osoite päivitetty");
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -71,7 +72,7 @@
                 $scope.updateMachine = function (machine) {
                     ExamMachineResource.update(machine,
                         function (updated_machine) {
-                            toastr.info("Tenttitilan kone päivitettiin.");
+                            toastr.info("Tenttikone päivitetty.");
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -84,12 +85,41 @@
                         "name": "Kirjoita koneen nimi tähän"
                     };
 
-                    ExamMachineResource.insert(room, newMachine, function (machine) {
-                        toastr.info("Tentti tallennettu.");
+                    ExamMachineResource.insert({id: room.id}, newMachine, function (machine) {
+                        toastr.info("Tenttikone lisätty.");
                         room.examMachines.push(machine);
                     }, function (error) {
                         toastr.error(error.data);
                     });
                 };
+
+                $scope.removeMachine = function (machine) {
+                    if (confirm('Koneella voi olla varauksia\nPoistetaanko kone?')) {
+                        ExamMachineResource.remove({id: machine.id},
+                            function () {
+                                $scope.roomInstance.examMachines.splice($scope.roomInstance.examMachines.indexOf(machine), 1);
+                                toastr.info("Tenttikone poistettu");
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
+                };
+
+                $scope.removeRoom = function (room) {
+                    if (confirm('Haluatko poistaa tilan kaikki sen koneet ja varaukset?\nTulevaisuudessä tässä pitää olla joku hieno logiikka')) {
+                        RoomResource.rooms.remove({id: room.id},
+                            function () {
+                                $scope.rooms.splice($scope.rooms.indexOf(room), 1);
+                                toastr.info("Tenttitila poistettu");
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
+                };
+
         }]);
 }());

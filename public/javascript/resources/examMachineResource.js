@@ -9,7 +9,8 @@
                 },
                 {
                     "update": {method: "PUT"},
-                    "insert": {method: "POST"}
+                    "insert": {method: "POST"},
+                    "remove": {method: "DELETE"}
                 }
             );
         }]);

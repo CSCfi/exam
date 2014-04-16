@@ -5,7 +5,6 @@
 
         <!-- Machine name -->
         <div ng-hide="showName">
-            <!--<span class="pull-right fa-stack fa-lg dropdown" ng-click="editMachine()"></span>-->
             <span class="editable" ng-click="showName = !showName">
                 {{machine.name}} <i class="fa fa-pencil"></i>
             </span>
@@ -21,13 +20,6 @@
             </form>
         </div>
 
-
-
-    <!--<div class="exam-name">-->
-
-    <!--</div>-->
-
-    <!-- <span class="menu-item">{{machine.name}}</span> -->
         <div ng-click="machine.expanded = !machine.expanded" class="pull-right fa-stack fa-lg pointer-hand" style="line-height: 0em">
                 <i ng-class="machine.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
                    class="sitnet-white fa fa-stack-1x"></i>
@@ -38,7 +30,7 @@
             </a>
             <ul class="dropdown-menu">
                 <li><a>{{'sitnet_settings' | translate}}</a></li>
-                <li><a ng-click="removeMachine()">{{'sitnet_remove' | translate}}</a></li>
+                <li><a ng-click="removeMachine(machine)">{{'sitnet_remove' | translate}}</a></li>
             </ul>
         </div>
     </div>

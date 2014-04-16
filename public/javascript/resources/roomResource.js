@@ -8,7 +8,8 @@
                     id: "@id"
                 },
                 {
-                    "update": {method: "PUT"}
+                    "update": {method: "PUT"},
+                    "remove": {method: "DELETE"}
                 }),
 
                 addresses: $resource("/address/:id",

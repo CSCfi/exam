@@ -1,6 +1,8 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.ExamMachine;
 import models.ExamRoom;
@@ -49,5 +51,14 @@ public class ExamMachineController extends SitnetController {
         machine.save();
 
         return ok(Json.toJson(machine));
+    }
+
+    @Restrict(@Group({"ADMIN"}))
+    public static Result removeExamMachine(Long id) throws MalformedDataException {
+
+        ExamMachine machine = Ebean.find(ExamMachine.class, id);
+        machine.delete();
+
+        return ok();
     }
 }
