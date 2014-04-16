@@ -82,6 +82,7 @@
 "sitnet_section_add": "Lisää aihealue tenttiin klikkaamalla tästä",
 "sitnet_settings": "Asetukset",
 "sitnet_share_this_question": "Jaa tämä kysymys",
+"sitnet_share_this_exam": "Jaa tämä koe",
 "sitnet_start_time": "Tenttiaika alkaa",
 "sitnet_tools": "Työkalut",
 "sitnet_user_language_change ": "Käyttäjän kielivalinta",
@@ -92,20 +93,33 @@
 
 "sitnet_placeholder_write_instruction": "Kirjoita ohjeet tähän",
 
-    "sitnet_question_mc": "Monivalinta 1-oikein",
-    "sitnet_essay": "Essee",
+"sitnet_question_mc": "Monivalinta 1-oikein",
+"sitnet_essay": "Essee",
 
-    "sitnet_essay_example": "Opiskelija kirjoittaa vastauksen tähän...",
-    "sitnet_essay_length_recommendation": "Vastauksen pituuden suositus (kirjainmerkkiä): ",
+"sitnet_essay_example": "Opiskelija kirjoittaa vastauksen tähän...",
+"sitnet_essay_length_recommendation": "Vastauksen pituuden suositus (kirjainmerkkiä): ",
 
-    "sitnet_approximately": "noin",
+"sitnet_approximately": "noin",
 
-    "sitnet_exam_review": "Tentin arviointi",
+"sitnet_exam_review": "Tentin arviointi",
+"sitnet_exams_to_be_reviewed": "Tarkastettavana olevat tentit",
 
-    "sitnet_multiplechoice_question_correct": "Oikein",
-    "sitnet_multiplechoice_question_incorrect": "Väärin",
+"sitnet_multiplechoice_question_correct": "Oikein",
+"sitnet_multiplechoice_question_incorrect": "Väärin",
 
-    "sitnet_exam_rooms": "Tenttitilat",
-    "sitnet_new_room": "Uuden huonetilan luonti"
+"sitnet_exam_rooms": "Tenttitilat",
+"sitnet_new_room": "Uuden huonetilan luonti",
+"sitnet_room_code": "Huonekoodi",
+"sitnet_room_building_name": "Rakennuksen nimi",
+"sitnet_room_campus": "Kampus",
+"sitnet_room_organization": "Organisaatio",
+"sitnet_room_working_hours": "Aukioloajat",
+"sitnet_room_transition_time": "Tentin siirtymäaika",
+"sitnet_room_accessibility_info": "Esteettömyystieto",
+"sitnet_room_accessible": "Tilassa esteetön pääsy",
+"sitnet_room_guidance": "Tilaohjeet",
+"sitnet_room_contact_person": "Yhteyshenkilö",
+"sitnet_room_videorecordings_url": "Linkki videotallenteisiin",
 
+"sitnet_save_and_publish": "Tallenna ja julkaise"
 }

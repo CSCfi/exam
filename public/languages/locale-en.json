@@ -82,6 +82,7 @@
 "sitnet_section_add": "Add new section by clicking here",
 "sitnet_settings": "Settings",
 "sitnet_share_this_question": "Share this question",
+"sitnet_share_this_exam": "Share this exam",
 "sitnet_start_time": "Exam time starts",
 "sitnet_tools": "Tools",
 "sitnet_user_language_change ": "User language selection",
@@ -92,19 +93,33 @@
 
 "sitnet_placeholder_write_instruction": "Write instructions here",
 
-    "sitnet_question_mc": "Multiple choice 1-correct",
-    "sitnet_essay": "Essay",
+"sitnet_question_mc": "Multiple choice 1-correct",
+"sitnet_essay": "Essay",
 
-    "sitnet_essay_example": "Student types his answer here...",
-    "sitnet_essay_length_recommendation": "Answer length recommendation (characters): ",
+"sitnet_essay_example": "Student types his answer here...",
+"sitnet_essay_length_recommendation": "Answer length recommendation (characters): ",
 
-    "sitnet_approximately": "approximately",
+"sitnet_approximately": "approximately",
 
-    "sitnet_exam_review": "Exam review",
+"sitnet_exam_review": "Exam review",
+"sitnet_exams_to_be_reviewed": "Exams to be reviewed",
 
-    "sitnet_multiplechoice_question_correct": "Correct",
-    "sitnet_multiplechoice_question_incorrect": "Incorrect",
+"sitnet_multiplechoice_question_correct": "Correct",
+"sitnet_multiplechoice_question_incorrect": "Incorrect",
 
-    "sitnet_exam_rooms": "Exam rooms",
-    "sitnet_new_room": "Creating new room resource"
+"sitnet_exam_rooms": "Exam rooms",
+"sitnet_new_room": "Creating new room resource",
+"sitnet_room_code": "Room code",
+"sitnet_room_building_name": "Building name",
+"sitnet_room_campus": "Campus",
+"sitnet_room_organization": "Organization",
+"sitnet_room_working_hours": "Working hours",
+"sitnet_room_transition_time": "Exam transition time",
+"sitnet_room_accessibility_info": "Accessibility info",
+"sitnet_room_accessible": "Room has no accessibility issues",
+"sitnet_room_guidance": "Guidance",
+"sitnet_room_contact_person": "Contact person",
+"sitnet_room_videorecordings_url": "Video recordings URL",
+
+"sitnet_save_and_publish": "Save and publish"
 }

@@ -32,7 +32,7 @@ user_languages:
       UILanguageName: Suomi
 
 
-    
+
 users:
     - &sauli !!models.User
       email:      test
@@ -123,7 +123,7 @@ user_roles:
 
 organisations:
  
-    - !!models.Organisation
+    - &OulunYliopisto !!models.Organisation
       name: Oulun Yliopisto
       nameAbbreviation:
       code:
@@ -740,11 +740,16 @@ exam-rooms:
     name: Tenttiakvaario Pegasus
     roomCode: IT101
     buildingName: Oulun yliopston päärakennus
+    campus: Linnanmaa
+    organization: *OulunYliopisto
     mailAddress: *oulu-yo
     workingHours: 8.00 - 16.00
+    transitionTime: 5
     accessibilityInfo: Tilassa on pyöräätuoliramppi
+    accessible: true
     roomInstruction: Tilaan ei saa tuoda juomia tai ruokia.
     contactPerson: Kiinteistöinsinööri Timppa Vaksi. puh. 040 123 4567
+    videoRecordingsURL: www.utu.fi/videot
     examMachines:
       - *exam-machine1
       - *exam-machine2

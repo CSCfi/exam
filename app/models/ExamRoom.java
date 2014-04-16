@@ -24,17 +24,27 @@ public class ExamRoom extends Model {
 
     private String roomCode;
 
-
     private String buildingName;
+
+    private String campus;
+
+    @OneToOne
+    private Organisation organization;
 
     @OneToOne
     private MailAddress mailAddress;
 
-    // aukioloaika
+    // Aukioloaika
     private String workingHours;
 
-    // Esteettömyystieto
+    // Tentin siirtymäaika, oletuksena 5min, joka on pois tentin suoritusajasta, esim. 60min tentissä tenttiaikaa on 55min.
+    private String transitionTime;
+
+    // Accessibility info describes what accessibility issues there are regarding the room
     private String accessibilityInfo;
+
+    // Checkbox indicating is there any accessibility issues concerning the room
+    private Boolean accessible;
 
     // Tilaohjeet
     private String roomInstruction;
@@ -42,6 +52,8 @@ public class ExamRoom extends Model {
     // Vahtimestari tai muu yhteystieto esim. virkailija: (vapaaehtoinen)
     // tämä voisi olla myös Sitnet User, muuta ei välttämättä kannata
     private String contactPerson;
+
+    private String videoRecordingsURL;
 
     private Long examMachineCount;
 
@@ -153,5 +165,45 @@ public class ExamRoom extends Model {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getCampus() {
+        return campus;
+    }
+
+    public void setCampus(String campus) {
+        this.campus = campus;
+    }
+
+    public Organisation getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organisation organization) {
+        this.organization = organization;
+    }
+
+    public Boolean getAccessible() {
+        return accessible;
+    }
+
+    public void setAccessible(Boolean accessible) {
+        this.accessible = accessible;
+    }
+
+    public String getTransitionTime() {
+        return transitionTime;
+    }
+
+    public void setTransitionTime(String transitionTime) {
+        this.transitionTime = transitionTime;
+    }
+
+    public String getVideoRecordingsURL() {
+        return videoRecordingsURL;
+    }
+
+    public void setVideoRecordingsURL(String videoRecordingsURL) {
+        this.videoRecordingsURL = videoRecordingsURL;
     }
 }

@@ -65,6 +65,7 @@ public class Global extends GlobalSettings {
                 // HUOM, järjestyksellä on väliä 
                 Ebean.save(all.get("user_languages"));
                 Ebean.save(all.get("users"));
+                Ebean.save(all.get("organisations"));
                 Ebean.save(all.get("courses"));
                 Ebean.save(all.get("question_mutiple_choice"));
                 Ebean.save(all.get("exams"));
