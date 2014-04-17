@@ -705,27 +705,42 @@ exam-machines:
 
   - &exam-machine1 !!models.ExamMachine
     name: Pegasus 01
+    otherIdentifier: Huone, jonka tunnus on 1
+    surveillanceCamera: CAM-001
     accessibilityInfo: Nostettava sähköpöytä
+    accessible: true
     softwareInfo: Mathematica, Notepad, Mozilla Firefox
     ipAddress: 123.456.789.123
+    videoRecordings: www.utu.fi/examroom/1/recordings
+    working: true
 #    room: *room-pegasus
     reservation:
     outOfService: false
 
   - &exam-machine2 !!models.ExamMachine
     name: Pegasus 02
-    accessibilityInfo:
+    otherIdentifier: Huone, jonka tunnus on 2
+    surveillanceCamera: CAM-002
+    accessibilityInfo: Automaattisesti avautuvat ovet
+    accessible: true
     softwareInfo: Notepad, Mozilla Firefox
     ipAddress: 123.456.789.321
+    videoRecordings: www.utu.fi/examroom/2/recordings
+    working: true
 #    room: *room-pegasus
     reservation:
     outOfService: false
 
   - &exam-machine3 !!models.ExamMachine
     name: Pegasus 03
+    otherIdentifier: Huone, jonka tunnus on 3
+    surveillanceCamera: CAM-003
     accessibilityInfo: Pistekirjoitus alusta
+    accessible: true
     softwareInfo: Notepad
     ipAddress: 123.456.789.132
+    videoRecordings: www.utu.fi/examroom/3/recordings
+    working: false
 #    room: *room-pegasus
     reservation:
     outOfService: true

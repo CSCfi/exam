@@ -16,7 +16,9 @@
             <div ng-show="showName">
                 <form class="form-inline" role="form">
                     <div class="form-group">
-                        <input type="text" class="form-control input-lg" ng-model="roomInstance.name" autofocus>
+                        <label>
+                            <input type="text" class="form-control input-lg" ng-model="roomInstance.name" autofocus>
+                        </label>
                     </div>
                     <button class="btn-primary" ng-click="showName = !showName; updateRoom(roomInstance)">
                         <i class="fa fa-check"></i>
@@ -172,7 +174,7 @@
         </div>
 
         <!-- Address -->
-        <h3>Postiosoite</h3>
+        <h3>{{'sitnet_exam_room_postal_address' | translate }}</h3>
         <div id="address" class="machines-section" ng-include="addressTemplate">
         </div>
 
@@ -199,10 +201,14 @@
 
         <!-- Exam room machines -->
         <div>
-            <h3>Tenttitilan koneet</h3>
-            <button ng-click="addNewMachine(roomInstance)" class="btn btn-primary">{{'sitnet_create_new' | translate}}</button>
+            <h3>{{'sitnet_exam_room_machines' | translate }}
+                <span>
+                    <button ng-click="addNewMachine(roomInstance)" class="btn btn-primary" style="float: right">{{'sitnet_create_new' | translate}}</button>
+                </span>
+            </h3>
         </div>
-        <div id="reservation" class="machines-section" ng-include="machineTemplate" ng-repeat="machine in roomInstance.examMachines">
+        <div id="reservation" class="machines-section" ng-include="machineTemplate" ng-repeat="machine in roomInstance.examMachines"
+             style="padding-left: 1em; margin-bottom: 2em">
         </div>
 
         <!-- Button row -->

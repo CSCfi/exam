@@ -88,7 +88,7 @@
 "sitnet_user_language_change ": "Käyttäjän kielivalinta",
 "sitnet_user_preferences": "Käyttäjän profiiliasetukset",
 "sitnet_username": "Käyttäjätunnus",
-"sitnet_welcome ": "Tervetuloa",
+"sitnet_welcome": "Tervetuloa",
 "sitnet_words": "sanaa",
 
 "sitnet_placeholder_write_instruction": "Kirjoita ohjeet tähän",
@@ -107,8 +107,10 @@
 "sitnet_multiplechoice_question_correct": "Oikein",
 "sitnet_multiplechoice_question_incorrect": "Väärin",
 
-"sitnet_exam_rooms": "Tenttitilat",
 "sitnet_new_room": "Uuden huonetilan luonti",
+"sitnet_exam_rooms": "Tenttitilat",
+"sitnet_exam_room_postal_address": "Postiosoite",
+"sitnet_exam_room_machines": "Tenttitilan koneet",
 "sitnet_room_code": "Huonekoodi",
 "sitnet_room_building_name": "Rakennuksen nimi",
 "sitnet_room_campus": "Kampus",
@@ -122,6 +124,14 @@
 "sitnet_room_videorecordings_url": "Linkki videotallenteisiin",
 
 "sitnet_save_and_publish": "Tallenna ja julkaise",
+
+"sitnet_machine_other_identifier": "Muu tunniste",
+"sitnet_machine_surveillance_camera": "Valvontakameran tunniste",
+"sitnet_machine_accessibility": "Esteettömyys",
+"sitnet_machine_accessible": "Koneelle on esteetön pääsy",
+"sitnet_machine_softwares": "Ohjelmistot",
+"sitnet_machine_ip_address": "IP-osoite",
+"sitnet_machine_video_recordings": "Videotallenteet",
 
 "sitnet_out_of_service": "Pois käytöstä",
 "sitnet_reason": "Syy"

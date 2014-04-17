@@ -1,28 +1,28 @@
 <div class="machine-header" ng-class="machine.expanded ? 'machine-header-active' : 'machine-header-inactive'">
-	<div>
+    <div>
         <!-- Machine icon -->
-		<i class="pull-left fa fa-2x fa-desktop"></i>
+        <i class="pull-left fa fa-2x fa-desktop"></i>
 
         <!-- Machine name -->
-        <div ng-hide="showName">
-            <span class="editable" ng-click="showName = !showName">
+        <div ng-hide="showMachineName">
+            <span class="editable" ng-click="showMachineName = !showMachineName">
                 {{machine.name}} <i class="fa fa-pencil"></i>
             </span>
         </div>
-        <div ng-show="showName">
+        <div ng-show="showMachineName">
             <form class="form-inline" role="form">
                 <div class="form-group">
                     <input type="text" class="form-control input-lg" ng-model="machine.name" autofocus>
                 </div>
-                <button class="btn-primary" ng-click="showName = !showName; updateMachine(machine)">
+                <button class="btn-primary" ng-click="showMachineName = !showMachineName; updateMachine(machine)">
                     <i class="fa fa-check"></i>
                 </button>
             </form>
         </div>
 
         <div ng-click="machine.expanded = !machine.expanded" class="pull-right fa-stack fa-lg pointer-hand" style="line-height: 0em">
-                <i ng-class="machine.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
-                   class="sitnet-white fa fa-stack-1x"></i>
+            <i ng-class="machine.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
+               class="sitnet-white fa fa-stack-1x"></i>
         </div>
         <div ng-click="editMachine()" class=" dropdown pull-right fa-stack fa-lg pointer-hand" style="line-height: 0em">
             <a class="dropdown-toggle">
@@ -36,19 +36,81 @@
     </div>
 </div>
 <div ng-show="machine.expanded">
-    <div class="sitnet-info-text">Esteettömyys:</div>
-    <div>
-        <input type="text" class="form-control" ng-model="machine.accessibilityInfo" ui-change="updateMachine(machine)">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="machine.working" ui-change="updateMachine(machine)">Kone on käytössä
+                </label>
+            </div>
+        </div>
     </div>
 
-    <div class="sitnet-info-text">Ohjelmistot:</div>
-    <div>
-        <input type="text" class="form-control" ng-model="machine.softwareInfo" ui-change="updateMachine(machine)">
+    <div ng-hide="!machine.working">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="sitnet-info-text">
+                {{'sitnet_machine_accessibility' | translate}}
+            </div>
+            <div>
+                <input type="text" class="form-control" ng-model="machine.accessibilityInfo" ui-change="updateMachine(machine)">
+                <!--<span class="input-group-addon" ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">-->
+                <!--<i class="fa fa-question-circle fa-fw"></i>-->
+                <!--</span>-->
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="machine.accessible" ui-change="updateMachine(machine)">{{'sitnet_machine_accessible' | translate}}
+                </label>
+            </div>
+        </div>
     </div>
 
-    <div class="sitnet-info-text">IP-osoite:</div>
-    <div>
-        <input type="text" class="form-control" ng-model="machine.ipAddress" ui-change="updateMachine(machine)">
+    <!-- Other indentifier & Surveillance camera information -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_machine_other_identifier' | translate}}</div>
+            <div>
+                <input type="text" class="form-control" ng-model="machine.otherIdentifier" ui-change="updateMachine(machine)">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_machine_surveillance_camera' | translate}}</div>
+            <div>
+                <input type="text" class="form-control" ng-model="machine.surveillanceCamera" ui-change="updateMachine(machine)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Softwares & IP-address information -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
+            <div>
+                <input type="text" class="form-control" ng-model="machine.softwareInfo" ui-change="updateMachine(machine)">
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_machine_ip_address' | translate}}</div>
+            <div>
+                <input type="text" class="form-control" ng-model="machine.ipAddress" ui-change="updateMachine(machine)">
+            </div>
+        </div>
+    </div>
+
+    <!-- Video recordings URL -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_machine_video_recordings' | translate}}</div>
+            <div>
+                <input type="text" class="form-control" ng-model="machine.videoRecordings" ui-change="updateMachine(machine)">
+            </div>
+        </div>
+    </div>
+
     </div>
 
     <!-- Service status -->
