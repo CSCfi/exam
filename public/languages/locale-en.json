@@ -107,8 +107,10 @@
 "sitnet_multiplechoice_question_correct": "Correct",
 "sitnet_multiplechoice_question_incorrect": "Incorrect",
 
-"sitnet_exam_rooms": "Exam rooms",
 "sitnet_new_room": "Creating new room resource",
+"sitnet_exam_rooms": "Exam rooms",
+"sitnet_exam_room_postal_address": "Postal address",
+"sitnet_exam_room_machines": "Exam room machines",
 "sitnet_room_code": "Room code",
 "sitnet_room_building_name": "Building name",
 "sitnet_room_campus": "Campus",
@@ -122,6 +124,14 @@
 "sitnet_room_videorecordings_url": "Video recordings URL",
 
 "sitnet_save_and_publish": "Save and publish",
+
+"sitnet_machine_other_identifier": "Other identification",
+"sitnet_machine_surveillance_camera": "Surveillance camera id",
+"sitnet_machine_accessibility": "Accessibility",
+"sitnet_machine_accessible": "Machine is accessible",
+"sitnet_machine_softwares": "Software",
+"sitnet_machine_ip_address": "IP-address",
+"sitnet_machine_video_recordings": "Video recordings",
 
 "sitnet_out_of_service": "Out of service",
 "sitnet_reason": "Reason"

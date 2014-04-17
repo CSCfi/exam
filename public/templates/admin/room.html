@@ -35,8 +35,7 @@
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomCode"
                            ui-change="updateRoom(roomInstance)">
                     <span class="input-group-addon"
-                          <!--ng-click="toaster.info('Tenttitilan yksilöivä tunniste. Esim: 811380A');"-->
-                            >
+                          ng-click="toaster.info('Tenttitilan yksilöivä tunniste. Esim: 811380A');">
                         <i class="fa fa-question-circle fa-fw"></i>
                     </span>
                 </div>
@@ -48,8 +47,7 @@
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.buildingName"
                            ui-change="updateRoom(roomInstance)">
                         <span class="input-group-addon"
-                              <!--ng-click="toaster.info('Rakennuksen nimi jossa kone sijaitsee');"-->
-                                >
+                              ng-click="toaster.info('Rakennuksen nimi jossa kone sijaitsee');">
                             <i class="fa fa-question-circle fa-fw"></i>
                         </span>
                 </div>
@@ -64,8 +62,7 @@
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.campus"
                            ui-change="updateRoom(roomInstance)">
                     <span class="input-group-addon"
-                          <!--ng-click="toaster.info('Kampus, jossa tenttitila sijaitsee');"-->
-                            >
+                          ng-click="toaster.info('Kampus, jossa tenttitila sijaitsee');">
                         <i class="fa fa-question-circle fa-fw"></i>
                     </span>
                 </div>
@@ -183,7 +180,7 @@
             <div class="col-md-12">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" ng-model="roomInstance.outOfService" ui-change="updateRoom(roomInstance)"> {{'sitnet_out_of_service' | translate}}
+                        <input type="checkbox" ng-model="roomInstance.outOfService" ng-change="updateRoom(roomInstance)"> {{'sitnet_out_of_service' | translate}}
                     </label>
                 </div>
                 <div class="sitnet-info-text">{{'sitnet_reason' | translate}}</div>
@@ -191,8 +188,7 @@
                     <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.statusComment" ui-change="updateRoom(roomInstance)">
                     </textarea>
                         <span class="input-group-addon"
-                              <!--ng-click="{toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');}"-->
-                                >
+                              ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">
                             <i class="fa fa-question-circle fa-fw"></i>
                         </span>
                 </div>

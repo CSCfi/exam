@@ -712,7 +712,6 @@ exam-machines:
     softwareInfo: Mathematica, Notepad, Mozilla Firefox
     ipAddress: 123.456.789.123
     videoRecordings: www.utu.fi/examroom/1/recordings
-    working: true
 #    room: *room-pegasus
     reservation:
     outOfService: false
@@ -726,7 +725,6 @@ exam-machines:
     softwareInfo: Notepad, Mozilla Firefox
     ipAddress: 123.456.789.321
     videoRecordings: www.utu.fi/examroom/2/recordings
-    working: true
 #    room: *room-pegasus
     reservation:
     outOfService: false
@@ -740,7 +738,6 @@ exam-machines:
     softwareInfo: Notepad
     ipAddress: 123.456.789.132
     videoRecordings: www.utu.fi/examroom/3/recordings
-    working: false
 #    room: *room-pegasus
     reservation:
     outOfService: true

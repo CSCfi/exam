@@ -45,8 +45,6 @@ public class ExamMachine extends Model {
 
     private String videoRecordings;
 
-    private boolean working;
-
     @ManyToOne
     @JsonBackReference
 	private ExamRoom room;
@@ -173,13 +171,5 @@ public class ExamMachine extends Model {
 
     public void setVideoRecordings(String videoRecordings) {
         this.videoRecordings = videoRecordings;
-    }
-
-    public boolean isWorking() {
-        return working;
-    }
-
-    public void setWorking(boolean working) {
-        this.working = working;
     }
 }
