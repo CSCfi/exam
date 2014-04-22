@@ -34,9 +34,8 @@
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomCode"
                            ui-change="updateRoom(roomInstance)">
-                    <span class="input-group-addon">
-                          <!--ng-click="toaster.info('Tenttitilan yksilöivä tunniste. Esim: 811380A');"-->
-
+                    <span class="input-group-addon"
+                          ng-click="toaster.info('Tenttitilan yksilöivä tunniste. Esim: 811380A');">
                         <i class="fa fa-question-circle fa-fw"></i>
                     </span>
                 </div>
@@ -47,9 +46,8 @@
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.buildingName"
                            ui-change="updateRoom(roomInstance)">
-                        <span class="input-group-addon">
-                              <!--ng-click="toaster.info('Rakennuksen nimi jossa kone sijaitsee');"-->
-
+                        <span class="input-group-addon"
+                              ng-click="toaster.info('Rakennuksen nimi jossa kone sijaitsee');">
                             <i class="fa fa-question-circle fa-fw"></i>
                         </span>
                 </div>
@@ -63,9 +61,8 @@
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.campus"
                            ui-change="updateRoom(roomInstance)">
-                    <span class="input-group-addon">
-                          <!--ng-click="toaster.info('Kampus, jossa tenttitila sijaitsee');"-->
-
+                    <span class="input-group-addon"
+                          ng-click="toaster.info('Kampus, jossa tenttitila sijaitsee');">
                         <i class="fa fa-question-circle fa-fw"></i>
                     </span>
                 </div>
@@ -86,16 +83,50 @@
 
         <!-- Working hours & Exam transition time -->
         <div class="row">
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_room_working_hours' | translate}}</div>
-                <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.workingHours"
-                           ui-change="updateRoom(roomInstance)">
-                    <span class="input-group-addon">
-                          <!--ng-click="toaster.info('Tenttitilan päivänsisäinen aukioloaika esim. 8-16');">-->
-                        <i class="fa fa-question-circle fa-fw"></i>
-                    </span>
+            <div class="col-md-6" ng-controller="TimepickerController">
+                <div class="sitnet-info-text">{{'sitnet_room_default_working_hours' | translate}}</div>
+
+                <div class="col-md-3">
+                    <h4>Alkuaika</h4>
+                    <div ng-model="startTime" ng-change="startTimeChanged()" style="display:inline-block;">
+                        <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
+                    </div>
                 </div>
+
+                <div class="col-md-3">
+                    <h4>Loppuaika</h4>
+                    <div ng-model="endTime" ng-change="endTimeChanged()" style="display:inline-block;">
+                        <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
+                    </div>
+                </div>
+
+                <!--<pre class="alert alert-info">Time is: {{mytime | date:'shortTime' }}</pre>-->
+
+                <!--<div class="row">-->
+                    <!--<div class="col-xs-6">-->
+                        <!--Hours step is:-->
+                        <!--<select class="form-control" ng-model="hstep" ng-options="opt for opt in options.hstep"></select>-->
+                    <!--</div>-->
+                    <!--<div class="col-xs-6">-->
+                        <!--Minutes step is:-->
+                        <!--<select class="form-control" ng-model="mstep" ng-options="opt for opt in options.mstep"></select>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<hr>-->
+
+                <!--<button class="btn btn-info" ng-click="toggleMode()">12H / 24H</button>-->
+                <!--<button class="btn btn-default" ng-click="update()">Set to 14:00</button>-->
+                <!--<button class="btn btn-danger" ng-click="clear()">Clear</button>-->
+
+                <!--<div class="input-group">-->
+                    <!--<input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.workingHours"-->
+                           <!--ui-change="updateRoom(roomInstance)">-->
+                    <!--<span class="input-group-addon"-->
+                          <!--ng-click="toaster.info('Tenttitilan päivänsisäinen aukioloaika esim. 8-16');">-->
+                        <!--<i class="fa fa-question-circle fa-fw"></i>-->
+                    <!--</span>-->
+                <!--</div>-->
             </div>
 
             <div class="col-md-6">
@@ -103,8 +134,8 @@
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.transitionTime"
                            ui-change="updateRoom(roomInstance)" value="5">
-                        <span class="input-group-addon">
-                              <!--ng-click="toaster.info('Siirtymäaika tenttien suoritusten välillä, oletuksena 5min');">-->
+                        <span class="input-group-addon"
+                              ng-click="toaster.info('Siirtymäaika tenttien suoritusten välillä, oletuksena 5min');">
                             <i class="fa fa-question-circle fa-fw"></i>
                         </span>
                 </div>
@@ -123,8 +154,8 @@
                 <div class="input-group">
                     <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.accessibilityInfo" ui-change="updateRoom(roomInstance)">
                     </textarea>
-                        <span class="input-group-addon">
-                              <!--ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">-->
+                        <span class="input-group-addon"
+                              ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">
                             <i class="fa fa-question-circle fa-fw"></i>
                         </span>
                 </div>
@@ -190,9 +221,8 @@
                 <div class="input-group">
                     <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.statusComment" ui-change="updateRoom(roomInstance)">
                     </textarea>
-                        <span class="input-group-addon">
-                              <!--ng-click="{toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');}"-->
-                                >
+                        <span class="input-group-addon"
+                              ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">
                             <i class="fa fa-question-circle fa-fw"></i>
                         </span>
                 </div>

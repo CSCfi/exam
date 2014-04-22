@@ -115,7 +115,7 @@
 "sitnet_room_building_name": "Rakennuksen nimi",
 "sitnet_room_campus": "Kampus",
 "sitnet_room_organization": "Organisaatio",
-"sitnet_room_working_hours": "Aukioloajat",
+"sitnet_room_default_working_hours": "Oletusaukioloaika",
 "sitnet_room_transition_time": "Tentin siirtymäaika",
 "sitnet_room_accessibility_info": "Esteettömyystieto",
 "sitnet_room_accessible": "Tilassa esteetön pääsy",
