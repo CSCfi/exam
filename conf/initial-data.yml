@@ -755,13 +755,13 @@ exam-rooms:
   - &room-pegasus !!models.ExamRoom
     name: Tenttiakvaario Pegasus
     roomCode: IT101
-    buildingName: Oulun yliopston päärakennus
+    buildingName: Oulun yliopiston päärakennus
     campus: Linnanmaa
     organization:
     mailAddress: *oulu-yo
     workingHours: 8.00 - 16.00
     transitionTime: 5
-    accessibilityInfo: Tilassa on pyöräätuoliramppi
+    accessibilityInfo: Tilassa on pyörätuoliramppi
     accessible: true
     roomInstruction: Tilaan ei saa tuoda juomia tai ruokia.
     contactPerson: Kiinteistöinsinööri Timppa Vaksi. puh. 040 123 4567
