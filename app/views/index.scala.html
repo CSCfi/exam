@@ -92,9 +92,16 @@
             <div ng-hide="minimizeNavigation" class="logo">
                 <img src="@routes.Assets.at("images/sitnet.png")" alt="sitnet" />
             </div>
-            <div ng-hide="minimizeNavigation" class="user">
-                <span>
-                    <img src="data:image/gif;base64,R0lGODdhRgBGAOMAAMzMzJaWlqqqqpycnLGxscXFxaOjo7e3t76+vgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAARgBGAAAEqRDISau9OOvNu/9gKI5kaZ5oqq5s675wLM90bd94ru987//AoHBILBqPyKRyyWw6n9CodFoUDAIDAGIwKGCsWC3XuyMUDAfAAEEwYMxoNdvNK2QLAbHEeshL7AB4ejwEAoF5ghJcCBOFh488a49bjVkTkoKUPAFka21/A3ESnIpzdX5iXRIGAggBjImpZFS0tba3uLm6u7y9vr/AwcLDxMXGx8jJysvMLBEAOw==" alt="me">
+            <div ng-hide="minimizeNavigation" >
+                <div id="user">
+                    <img src="@routes.Assets.at("images/user70.png")" alt="me" />
+
+                    <span class="pull-right locale-bar">
+                        <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
+                        <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
+                        <span class="locale-item"> <a ng-click="switchLanguage('swe')">SWE</a></span>
+                    </span>
+
                     <li class="dropdown" ng-controller="DropdownCtrl">
                         <a href="#/user">{{session.user.firstname}} {{session.user.lastname}}&nbsp;</a>
                         <a class="dropdown-toggle">
@@ -112,7 +119,7 @@
                             @*</li>*@
                         </ul>
                     </li>
-                </span>
+                </div>
             </div>
             <nav ng-class="minimizeNavigation ? 'minimize' : ''">
                 <ul>
