@@ -167,8 +167,10 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_room_guidance' | translate}}</div>
                 <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomInstruction"
-                           ui-change="updateRoom(roomInstance)">
+                    <!--<input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomInstruction"-->
+                           <!--ui-change="updateRoom(roomInstance)">-->
+                    <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomInstruction" ui-change="updateRoom(roomInstance)">
+                    </textarea>
                     <span class="input-group-addon"
                           ng-click="toaster.info('Tenttitilan käyttämiseen liittyvä ohjeistus');">
                         <i class="fa fa-question-circle fa-fw"></i>

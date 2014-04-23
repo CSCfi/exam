@@ -1,15 +1,9 @@
 package models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import play.db.ebean.Model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import javax.persistence.*;
 
 @Entity
 public class ExamInspection extends Model {
@@ -34,7 +28,7 @@ public class ExamInspection extends Model {
     // Voidaanko tämä vältää jos sovitaan että tentin luoja on automaattisesti myös tarkastaja
     
 	@OneToOne
-//	@JsonBackReference
+	@JsonBackReference
 	private Exam exam;
 
 	@ManyToOne

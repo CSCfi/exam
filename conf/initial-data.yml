@@ -527,7 +527,7 @@ exams:
     state: PUBLISHED
 
   - &tietokannat2013 !!models.Exam
-    creator: *maika
+    creator: *arvo
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, syksy 2013
@@ -538,7 +538,7 @@ exams:
     state: PUBLISHED
 
   - &tietokannat2014 !!models.Exam
-    creator: *maika
+    creator: *arvo
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, kevät 2014

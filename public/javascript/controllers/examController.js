@@ -20,6 +20,9 @@
                 else if ($scope.user.isTeacher) {
                     $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exams.html";
                 }
+                else if ($scope.user.isAdmin) {
+                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exams.html";
+                }
 
                 // Todo: Fill in rooms from database for final version
                 $scope.examRooms = [

@@ -19,6 +19,8 @@ import play.mvc.Results;
 import play.mvc.SimpleResult;
 
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
@@ -59,9 +61,23 @@ public class Global extends GlobalSettings {
     private static class InitialData {
         public static void insert(Application app) {
             if (Ebean.find(User.class).findRowCount() == 0) {
-                @SuppressWarnings("unchecked")
-                Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
-                
+
+                String dataFile = "initial-data.yml";
+                String hostname = null;
+
+                // if application is running on sitnet01.csc.fi, load different initial-data file
+                try {
+                    hostname = InetAddress.getLocalHost().getHostName();
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
+
+                if ((hostname != null) && hostname.equals("sitnet01.csc.fi"))
+                    dataFile = "demo-data.yml";
+
+                 @SuppressWarnings("unchecked")
+                 Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load(dataFile);
+
                 // HUOM, järjestyksellä on väliä 
                 Ebean.save(all.get("user_languages"));
                 Ebean.save(all.get("users"));
@@ -77,15 +93,15 @@ public class Global extends GlobalSettings {
                 Ebean.save(all.get("exam-machines"));
 
                 // generate hashes for questions
-                List<QuestionInterface> questions = (List)all.get("question_mutiple_choice");
-                for (QuestionInterface q : questions){
+                List<QuestionInterface> questions = (List) all.get("question_mutiple_choice");
+                for (QuestionInterface q : questions) {
                     q.generateHash();
                 }
                 Ebean.save(questions);
 
                 // generate hashes for questions
-                List<Exam> exams = (List)all.get("exams");
-                for (Exam e : exams){
+                List<Exam> exams = (List) all.get("exams");
+                for (Exam e : exams) {
                     e.generateHash();
                 }
                 Ebean.save(exams);

@@ -161,6 +161,15 @@ public class User extends Model implements Subject {
         return email;
     }
 
+    public boolean hasRole(String name) {
+
+        for (SitnetRole role : this.roles) {
+            if(role.getName().equals(name))
+                return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "User [id=" + id + ", email=" + email + ", name=" + lastName + " " +
