@@ -14,7 +14,8 @@
         'ngDragDrop',
         'ngSanitize',
         'mgcrea.jquery',
-        'mgcrea.bootstrap.affix'
+        'mgcrea.bootstrap.affix',
+        'ui.calendar'
     ]);
     sitnet.constant('SITNET_CONF', (function () {
         var context_path = '/';

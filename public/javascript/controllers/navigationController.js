@@ -30,7 +30,7 @@
                         {href: "#/rooms", visible: (student || admin || teacher), class: "fa-sitemap", name: $translate("sitnet_exam_rooms"), sub: [
 //                        {href: "#/student/exams", visible: (student || admin || teacher), class: "fa-caret-right", name: $translate("sitnet_active_exams")}
                         ]},
-                        /*{href: "#/calendar", visible: (student || admin || teacher), class: "fa-calendar", name: $translate("sitnet_calendar")},*/
+                        {href: "#/calendar", visible: (student || admin || teacher), class: "fa-calendar", name: $translate("sitnet_calendar")},
                         /*{href: "#/notifications", visible: (student || admin || teacher), class: "fa-bullhorn", name: $translate("sitnet_notifications")},*/
                         /*{href: "#/messages", visible: (student || admin || teacher), class: "fa-comment-o", name: $translate("sitnet_messages")},*/
                         /*{href: "#/tools", visible: (student || admin || teacher), class: "fa-map-marker", name: $translate("sitnet_tools")},*/
