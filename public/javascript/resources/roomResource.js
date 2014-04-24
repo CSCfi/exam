@@ -20,6 +20,14 @@
                     "update": {method: "PUT"}
                 }),
 
+                workinghours: $resource("/workinghours/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "update": {method: "PUT"}
+                }),
+
                 draft: $resource("draft/rooms", null,
                 {
                 })

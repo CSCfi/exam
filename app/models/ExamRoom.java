@@ -1,6 +1,8 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.calendar.AbstractCalendarEvent;
+import models.calendar.DefaultWorkingHours;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -34,8 +36,8 @@ public class ExamRoom extends Model {
     @OneToOne
     private MailAddress mailAddress;
 
-    // Aukioloaika
-    private String workingHours;
+    @OneToOne
+    private DefaultWorkingHours calendarEvent;
 
     // Tentin siirtymäaika, oletuksena 5min, joka on pois tentin suoritusajasta, esim. 60min tentissä tenttiaikaa on 55min.
     private String transitionTime;
@@ -95,12 +97,12 @@ public class ExamRoom extends Model {
         this.mailAddress = mailAddress;
     }
 
-    public String getWorkingHours() {
-        return workingHours;
+    public DefaultWorkingHours getCalendarEvent() {
+        return calendarEvent;
     }
 
-    public void setWorkingHours(String workingHours) {
-        this.workingHours = workingHours;
+    public void setCalendarEvent(DefaultWorkingHours calendarEvent) {
+        this.calendarEvent = calendarEvent;
     }
 
     public String getAccessibilityInfo() {

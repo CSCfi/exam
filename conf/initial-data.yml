@@ -293,6 +293,12 @@ mail-addresses:
     zip: 90570
     city: Oulu
 
+calendar-events:
+  - &cal-event !!models.calendar.DefaultWorkingHours
+    startDate: 2014-04-03 20:32:04.575
+    endDate: 2014-05-03 20:32:04.575
+    startTime: 1396339200
+    endTime: 1396368000
 
 exam-rooms:
 
@@ -303,7 +309,7 @@ exam-rooms:
     campus: Linnanmaa
     organization:
     mailAddress: *oulu-yo
-    workingHours: 8.00 - 16.00
+    calendarEvent: *cal-event
     transitionTime: 5
     accessibilityInfo: Tilassa on pyörätuoliramppi
     accessible: true

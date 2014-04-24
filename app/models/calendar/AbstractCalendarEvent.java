@@ -25,12 +25,11 @@ abstract public class AbstractCalendarEvent extends Model {
     @Temporal(TemporalType.TIMESTAMP)
     protected Timestamp endDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.TIME)
     protected Timestamp startTime;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.TIME)
     protected Timestamp endTime;
-
 
     @Temporal(TemporalType.TIMESTAMP)
     protected Timestamp interval;

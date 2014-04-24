@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('TimepickerController', ['$scope',
-            function ($scope) {
+        .controller('TimepickerController', ['$scope', 'RoomResource',
+            function ($scope, RoomResource) {
 
                 $scope.startTime = new Date();
                 $scope.endTime = new Date();
@@ -36,6 +36,9 @@
                     }
 
                     console.log('Start time changed to: ' + $scope.startTime);
+                    console.log('Start time hours: ' + $scope.startTime.getHours());
+                    console.log('Start time minutes: ' + $scope.startTime.getMinutes());
+                    console.log('Time is: ' + $scope.startTime.getTime());
                 };
 
                 $scope.endTimeChanged = function () {
@@ -51,5 +54,22 @@
 //                $scope.clear = function() {
 //                    $scope.mytime = null;
 //                };
+
+                $scope.saveWorkingHours = function () {
+
+                    var workingHoursToSave = {
+                        "startTime": $scope.startTime,
+                        "endTime": $scope.endTime
+                    };
+
+                    RoomResource.workinghours.update(workingHoursToSave,
+                        function () {
+                            toastr.info("Tenttitilan oletusajat päivitetty.");
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                }
             }])
 }());
