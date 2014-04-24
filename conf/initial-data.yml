@@ -1,28 +1,11 @@
 ######################################################################
 #
+# For demo UI evaluation purpose only
 #
-#
-# - !!models.Exam  // - !! stands for List
-#   !!models.Exam  // without '-' stand for one object
-#
-#
-# To reference an Object you must have right annotaions 
-# for example: Exam has reference to a Course (without @ManyToOne it wont work)
-#
-#
-#@Entity
-#public class Exam extends SitnetModel {
-#
-#  // Tentti liittyy Opintojaksoon
-#  @Constraints.Required
-#  @ManyToOne
-#  private Course course;  
+# Removed most of initial-data to encourage UI-testers to create actual data
 #
 ######################################################################
 
-# 2014-04-03 20:32:04.575
-
-# Users
 
 user_languages:
     - &suomi !!models.UserLanguage
@@ -31,15 +14,13 @@ user_languages:
       UILanguageCode: FI_fi
       UILanguageName: Suomi
 
-
-
 users:
     - &sauli !!models.User
       email:      test
       firstName:  Sauli
       lastName:   Student
       password:   098f6bcd4621d373cade4e832627b4f6   # test
-      roles:  
+      roles:
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
 
@@ -48,16 +29,16 @@ users:
       firstName:  Maika
       lastName:   Opettaja
       password:   7b13170f5729db8ea2a69f1220a8185a  # opettaja
-      roles:  
+      roles:
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
-    
+
     - &arvo !!models.User
       email:      arvo
       firstName:  Arvon
       lastName:   Penaali
       password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
-      roles:  
+      roles:
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
 
@@ -66,34 +47,34 @@ users:
       firstName:  Höylä
       lastName:   Soikkeli
       password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
-      roles:  
+      roles:
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
-      
+
     - &orville !!models.User
       email:      oppilas
       firstName:  Orville
       lastName:   Oates
       password:   2664274e7f6f56c565470797478cb406  #oppilas
-      roles:  
+      roles:
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
-    
+
     - !!models.User
       email:      sadek@sample.com
-      firstName:  Sadek 
+      firstName:  Sadek
       lastName:   Drobi
       password:   5ebe2294ecd0e0f08eab7690d2a6ee69  #secret
-      roles:  
+      roles:
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
-    
+
     - !!models.User
       email:      erwan@sample.com
-      firstName:  Erwan   
+      firstName:  Erwan
       lastName:   Loisant
       password:   5ebe2294ecd0e0f08eab7690d2a6ee69  #secret
-      roles:  
+      roles:
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
 
@@ -107,7 +88,7 @@ users:
       userLanguage: *suomi
 
 
-  
+
 user_roles:
 
     - !!models.SitnetRole
@@ -115,14 +96,14 @@ user_roles:
 
     - !!models.SitnetRole
       name: STUDENT
-    
+
     - !!models.SitnetRole
       name: TEACHER
 
 ######################################################################
 
 organisations:
- 
+
     - &OulunYliopisto !!models.Organisation
       name: Oulun Yliopisto
       nameAbbreviation:
@@ -134,24 +115,23 @@ organisations:
           nameAbbreviation:
           code:
           vatIdNumber:
-          organisations: 
+          organisations:
                 - !!models.Organisation
                   name: Tietojenkäsittelytieteiden laitos
                   nameAbbreviation:
                   code:
                   vatIdNumber:
-                  organisations: 
+                  organisations:
                   parent: null
                   root: true
           parent: null
           root: true
-      organisations: 
+      organisations:
       parent: null
       root: true
 ######################################################################
 
 question_essay:
-
 # Essay questions
 
   - &essay1 !!models.questions.EssayQuestion
@@ -168,352 +148,63 @@ question_essay:
     maxCharacters: 1000
     shared: false
 
-  - &essay2 !!models.questions.EssayQuestion
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
-    instruction:
-    score: 5
-    materials:
-    evaluationPhrases:
-    evaluationCriterias:
-    comments:
-    maxCharacters: 1024
-    shared: false
-
-  - &essay3 !!models.questions.EssayQuestion
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
-    instruction:
-    score: 5
-    materials:
-    evaluationPhrases:
-    evaluationCriterias:
-    comments:
-    maxCharacters: 2250
-    shared: false
-
-
 
 question_mutiple_choice:
-
 # Multiple choise questions
 
   - &multi1 !!models.questions.MultipleChoiceQuestion
     creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
-    question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
+    question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     materials:
     score: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
     options:
-        - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: 99, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Kissoja koiria ja muita eläimiä, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Abstrakteja henkilöitä, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Olio voidaan nähdä itsenäisenä pienenä koneena joka kapseloi tietoa ja toimintoja, correctOption: true, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Oliolla on aina Rakentaja ja Hajottaja, correctOption: false, score: 1}
     shared: false
-
-  - &multi2 !!models.questions.MultipleChoiceQuestion
-    question: Mikä on ikuisen elämän salaisuus?
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: IDCLIP, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
-    shared: false
-
-  - &multi3 !!models.questions.MultipleChoiceQuestion
-    question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Antiteflon, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Adheesio, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Hakman, correctOption: false, score: 1}
-    shared: false
-
-  - &multi4 !!models.questions.MultipleChoiceQuestion
-    question: Mitä lampaat laskevat jotta ne nukahtaisivat?
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Lampaita, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Ihmisiä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Paimenkoiria, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Jokin muu, correctOption: false, score: 1}
-    shared: false
-
-  - &multi5 !!models.questions.MultipleChoiceQuestion
-    question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Tulevaisuus valkenee, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false, score: 1}
-    shared: false
-######################################################################
-  - &avaruus1 !!models.questions.MultipleChoiceQuestion
-    question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: kosmonautti, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: kosmetologi, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: kosmologi, correctOption: true, score: 1}
-    shared: false
-
-  - &avaruus2 !!models.questions.MultipleChoiceQuestion
-    question:  Auringon fuusioreaktiot tapahtuvat
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Ytimessä, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Säteilyvyöhykkeessä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Konvektiovyöhykkeessä, correctOption: false, score: 1}
-    shared: false
-
-  - &avaruus3 !!models.questions.MultipleChoiceQuestion
-    question:   AU mittaa
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Aikaa, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Etäisyyttä, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Painoa, correctOption: false, score: 1}
-    shared: false
-
-  - &avaruus4 !!models.questions.MultipleChoiceQuestion
-    question:   Ekliptika on
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Kuun sirppi, correctOption: false, score: 1}
-    shared: false
-
-  - &avaruus5 !!models.questions.MultipleChoiceQuestion
-    question:   Tähdenlento eli
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Meteoriitti, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Meteorologi, correctOption: false, score: 1}
-    shared: false
-
-  - &avaruus6 !!models.questions.MultipleChoiceQuestion
-    question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Aineen palamisesta ilmakehässä, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Kaasujen hehkumisesta, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Auringon valon heijastumisesta kiintoaineesta, correctOption: false, score: 1}
-    shared: false
-
-  - &avaruus7 !!models.questions.MultipleChoiceQuestion
-    question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Maa, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Jupiter, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Venus, correctOption: false, score: 1}
-    shared: false
-
-
-  - &avaruus8 !!models.questions.MultipleChoiceQuestion
-    question:   The Great Red Spot tarkoittaa
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Jupiterin korkeapaineen aluetta, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Mars-planeettaa, correctOption: false, score: 1}
-    shared: false
-
-
-  - &avaruus9 !!models.questions.MultipleChoiceQuestion
-    question:   Vuodenajat aiheutuvat
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Auringon ja Maan etäisyys muuttuu vuoden aikana, correctOption: false, score: 1}
-    shared: false
-
-
-  - &avaruus10 !!models.questions.MultipleChoiceQuestion
-    question:   Uudenkuun aikaan
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Kuu on Auringon ja Maan välissä, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Kuu tulee uudelleen näkyviin, correctOption: false, score: 1}
-    shared: false
-
-
-  - &avaruus11 !!models.questions.MultipleChoiceQuestion
-    question:   Vuoksen ja luoteen aiheuttavat pääasiassa
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
-    materials:
-    score: 5
-    evaluationPhrases:
-    evaluationCriterias:  Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
-    comments:
-    options:
-        - !!models.questions.MultipleChoiseOption {option: Kuun vetovoima, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Auringon vetovoima, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Maapallon pinnanmuodot, correctOption: false, score: 1}
-    shared: false
-
 
 ######################################################################
 
 courses:
-  
+
   - &alkeet !!models.Course
     code: 810136P
     name: Johdatus alkeiden perusteisiin
-    type: 
+    type:
     credits: 5
-      
+
   - &tietokannat !!models.Course
     code: 811380A
-    name: Tietokantojen perusteet 
-    type: 
+    name: Tietokantojen perusteet
+    type:
     credits: 7
 
   - &765104P !!models.Course
     code: 765104P
-    name: Astronomian perusteet 
-    type: 
+    name: Astronomian perusteet
+    type:
     credits: 8
 
   - &811386A !!models.Course
     code: 811386A
     name: Algoritmit
-    type: 
+    type:
     credits: 5
-    
+
   - &812346A !!models.Course
     code: 812346A
     name: Oliosuuntautunut analyysi ja suunnittelu
-    type: 
-    credits: 5   
+    type:
+    credits: 5
 
-
+######################################################################
 exams:
-
-  - &astronomianPerusteet !!models.Exam
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    course: *765104P
-    name: Astronomian perusteet
-    examType:
-    instruction:
-    shared: false
-    examSections:
-    state: PUBLISHED
 
   - &alkeidenperusteet !!models.Exam
     creator: *maika
@@ -526,51 +217,6 @@ exams:
     examSections:
     state: PUBLISHED
 
-  - &tietokannat2013 !!models.Exam
-    creator: *arvo
-    created: 2014-01-01 12:30:05.123
-    course: *tietokannat
-    name: Tietokantojen perusteet, syksy 2013
-    examType:
-    instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
-    shared: true
-    examSections:
-    state: PUBLISHED
-
-  - &tietokannat2014 !!models.Exam
-    creator: *arvo
-    created: 2014-01-01 12:30:05.123
-    course: *tietokannat
-    name: Tietokantojen perusteet, kevät 2014
-    examType:
-    instruction: Vastaa kaikkiin tenttikysymyksiin
-    shared: true
-    examSections:
-    state: PUBLISHED
-
-  - &algoritmit !!models.Exam
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    course: *811386A
-    name: Algoritmit, 2013
-    examType:
-    instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
-    shared: true
-    examSections:
-    state: DRAFT
-
-  - &ooad !!models.Exam
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    course: *812346A
-    name: OOAD, 2013
-    examType:
-    instruction: Tentissä saa käyttää vain tilakoneita.
-    shared: true
-    examSections:
-    state: PUBLISHED
-    
-    
 exam-sections:
 
   - &osio1 !!models.ExamSection
@@ -578,128 +224,26 @@ exam-sections:
     exam: *alkeidenperusteet
     questions:
               - *multi1
-              - *multi2
-    totalScore:
-
-  - &osio2 !!models.ExamSection
-    name: Monivalinnat 2
-    exam: *tietokannat2013
-    questions:
-              - *multi3
-              - *multi4
-              - *multi5
-    totalScore:
-
-  - &osio3 !!models.ExamSection
-    name: Monivalinnat 3
-    exam: *algoritmit
-    questions:
-              - *avaruus4
-              - *multi4
-              - *avaruus5
-    totalScore:
-
-  - &osio4 !!models.ExamSection
-    name: Monivalinnat 4
-    exam: *ooad
-    questions:
-              - *avaruus9
-              - *avaruus8
-              - *avaruus7
-              - *multi1
-              - *multi2
-              - *multi3
-    totalScore:
-
-  - &osio5 !!models.ExamSection
-    name: Monivalinnat 5
-    exam: *ooad
-    questions:
-              - *avaruus9
-              - *avaruus8
-              - *avaruus7
-    totalScore:
-
-  - &astro1 !!models.ExamSection
-    name: Astronomian Monivalinnat
-    exam: *astronomianPerusteet
-    questions:
-              - *avaruus1
-              - *avaruus2
-              - *avaruus3
-              - *avaruus4
-              - *avaruus5
-              - *avaruus6
-              - *avaruus7
-              - *avaruus8
-              - *avaruus9
-              - *avaruus10
-              - *avaruus11
-    totalScore:
-    
-  - &ooadessay !!models.ExamSection
-    name: Essee kysymykset
-    exam: *ooad
-    questions:
               - *essay1
-              - *essay2
-              - *essay3
     totalScore:
-    
+
+######################################################################
 exam-enrolments:
-  
-  - !!models.ExamEnrolment
-    user: *sauli
-    exam: *ooad
-    enrolledOn: 2014-04-03 20:32:04.575
 
-  - !!models.ExamEnrolment
-    user: *sauli
-    exam: *algoritmit
-    enrolledOn: 2014-04-03 20:32:04.575
-   
   - !!models.ExamEnrolment
     user: *sauli
     exam: *alkeidenperusteet
     enrolledOn: 2014-04-03 20:32:04.575
-   
-  - !!models.ExamEnrolment
-    user: *sauli
-    exam: *astronomianPerusteet
-    enrolledOn: 2014-04-03 20:32:04.575
 
-
+######################################################################
 exam-inspections:
-   
+
   - !!models.ExamInspection
     user: *arvo
     exam: *alkeidenperusteet
-   
-  - !!models.ExamInspection
-    user: *arvo
-    exam: *astronomianPerusteet
-   
-  - !!models.ExamInspection
-    user: *arvo
-    exam: *algoritmit
-   
-  - !!models.ExamInspection
-    user: *arvo
-    exam: *ooad
-   
-  - !!models.ExamInspection
-    user: *arvo
-    exam: *tietokannat2013
-   
-  - !!models.ExamInspection
-    user: *arvo
-    exam: *tietokannat2014
-   
-   
-   
+
+
 ############### Tilavaraus ###############
-
-
 
 exam-machines:
 

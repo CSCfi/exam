@@ -19,8 +19,6 @@ import play.mvc.Results;
 import play.mvc.SimpleResult;
 
 import java.lang.reflect.Method;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
@@ -62,21 +60,8 @@ public class Global extends GlobalSettings {
         public static void insert(Application app) {
             if (Ebean.find(User.class).findRowCount() == 0) {
 
-                String dataFile = "initial-data.yml";
-                String hostname = null;
-
-                // if application is running on sitnet01.csc.fi, load different initial-data file
-                try {
-                    hostname = InetAddress.getLocalHost().getHostName();
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
-
-                if ((hostname != null) && hostname.equals("sitnet01.csc.fi"))
-                    dataFile = "demo-data.yml";
-
                  @SuppressWarnings("unchecked")
-                 Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load(dataFile);
+                 Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
 
                 // HUOM, järjestyksellä on väliä 
                 Ebean.save(all.get("user_languages"));
