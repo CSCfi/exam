@@ -1,6 +1,30 @@
 <div id="sitnet-header" class="header">
     <h2 class="table-heading">{{'sitnet_dashboard' | translate}}</h2>
 </div>
+
+<div id="dashboard" class="tools-block">
+    <span ng-controller="ExamController">
+        <a ng-click="createExam()" class="btn btn-primary btn-lg active header-button"> {{'sitnet_create_new_exam' | translate}} </a>
+    </span>
+    <span ng-controller="QuestionCtrl">
+    <div class="btn-group pull-right">
+        <button type="button" class="btn btn-primary btn-lg dropdown-toggle" data-toggle="dropdown">
+            {{'sitnet_questions_new' | translate}} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li ng-repeat='(key, value) in questionTypes'>
+                <a ng-click="createQuestion(key)">{{value}}</a>
+            </li>
+        </ul>
+    </div>
+    </span>
+
+    <span>
+
+    </span>
+
+</div>
+
 <div id="exam" class="row">
     <div class="exam-list">
         <div>
@@ -19,5 +43,4 @@
             </div>
         </div>
     </div>
-</div>
 </div>
