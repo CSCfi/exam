@@ -1,11 +1,37 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('TimepickerController', ['$scope', 'RoomResource',
-            function ($scope, RoomResource) {
+        .controller('TimepickerController', ['$scope', '$routeParams', 'RoomResource',
+            function ($scope, $routeParams, RoomResource) {
 
-                $scope.startTime = new Date();
-                $scope.endTime = new Date();
+                if ($routeParams.id === undefined)
+                    $scope.rooms = RoomResource.rooms.query();
+                else {
+                    RoomResource.rooms.get({id: $routeParams.id},
+                        function (room) {
+                            $scope.room = room;
+                            $scope.calendarEvent = $scope.room.calendarEvent;
+
+                            $scope.startTime = new Date($scope.calendarEvent.startTime);
+                            $scope.endTime = new Date($scope.calendarEvent.endTime);
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                }
+
+//                if ($scope.roomInstance.startTime == null) {
+//                    $scope.startTime = new Date();
+//                } else {
+//                    $scope.startTime = $scope.roomInstance.startTime;
+//                }
+//
+//                if ($scope.roomInstance.endTime == null) {
+//                    $scope.endTime = new Date();
+//                } else {
+//                    $scope.endTime = $scope.roomInstance.endTime;
+//                }
 
                 $scope.hourstep = 1;
                 $scope.minutestep = 1;
@@ -36,9 +62,7 @@
                     }
 
                     console.log('Start time changed to: ' + $scope.startTime);
-                    console.log('Start time hours: ' + $scope.startTime.getHours());
-                    console.log('Start time minutes: ' + $scope.startTime.getMinutes());
-                    console.log('Time is: ' + $scope.startTime.getTime());
+//                    console.log('Start time hours: ' + $scope.startTime.getHours());
                 };
 
                 $scope.endTimeChanged = function () {
@@ -47,7 +71,6 @@
                         $scope.endTime = $scope.startTime;
                         toastr.success("Loppuaika ei voi olla pienempi kuin alkuaika!");
                     }
-
 //                    console.log('End time changed to: ' + $scope.endTime);
                 };
 
@@ -55,16 +78,14 @@
 //                    $scope.mytime = null;
 //                };
 
-                $scope.saveWorkingHours = function () {
+                $scope.saveWorkingHours = function (calendarEvent) {
+                    calendarEvent.startTime = $scope.startTime.getTime();
+                    calendarEvent.endTime = $scope.endTime.getTime();
 
-                    var workingHoursToSave = {
-                        "startTime": $scope.startTime,
-                        "endTime": $scope.endTime
-                    };
-
-                    RoomResource.workinghours.update(workingHoursToSave,
-                        function () {
+                    RoomResource.workinghours.update({id: calendarEvent.id}, calendarEvent,
+                            function (workingHours) {
                             toastr.info("Tenttitilan oletusajat päivitetty.");
+                            console.log('Updated start time hours: ' + workingHours.startTime);
                         },
                         function (error) {
                             toastr.error(error.data);

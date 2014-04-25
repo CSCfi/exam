@@ -59,7 +59,8 @@
                 };
 
                 $scope.updateAddress = function (address) {
-                    RoomResource.addresses.update({id: address}, address,
+//                    RoomResource.addresses.update({id: address}, address,
+                    RoomResource.addresses.update(address,
                         function (updated_address) {
                             toastr.info("Tenttitilan osoite päivitetty");
                         },

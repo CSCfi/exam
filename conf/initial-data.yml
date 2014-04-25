@@ -295,10 +295,8 @@ mail-addresses:
 
 calendar-events:
   - &cal-event !!models.calendar.DefaultWorkingHours
-    startDate: 2014-04-03 20:32:04.575
-    endDate: 2014-05-03 20:32:04.575
-    startTime: 1396339200
-    endTime: 1396368000
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 16:00:00.000
 
 exam-rooms:
 

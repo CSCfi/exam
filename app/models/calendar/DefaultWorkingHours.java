@@ -22,16 +22,10 @@ public class DefaultWorkingHours extends Model {
 //    }
 
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp startDate;
+    protected Timestamp startTime;
 
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp endDate;
-
-    @Temporal(TemporalType.TIME)
-    protected Time startTime;
-
-    @Temporal(TemporalType.TIME)
-    protected Time endTime;
+    protected Timestamp endTime;
 
     public Long getId() {
         return id;
@@ -41,35 +35,19 @@ public class DefaultWorkingHours extends Model {
         this.id = id;
     }
 
-    public Timestamp getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Timestamp startDate) {
-        this.startDate = startDate;
-    }
-
-    public Timestamp getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Timestamp endDate) {
-        this.endDate = endDate;
-    }
-
-    public Time getStartTime() {
+    public Timestamp getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Time startTime) {
+    public void setStartTime(Timestamp startTime) {
         this.startTime = startTime;
     }
 
-    public Time getEndTime() {
+    public Timestamp getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Time endTime) {
+    public void setEndTime(Timestamp endTime) {
         this.endTime = endTime;
     }
 }

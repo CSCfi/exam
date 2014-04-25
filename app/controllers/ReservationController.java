@@ -7,10 +7,15 @@ import com.avaje.ebean.Ebean;
 import models.ExamMachine;
 import models.ExamRoom;
 import models.MailAddress;
+import models.calendar.DefaultWorkingHours;
 import play.Logger;
+import play.data.DynamicForm;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
+import java.util.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -54,6 +59,13 @@ public class ReservationController extends SitnetController {
         mailAddress.save();
         examRoom.setMailAddress(mailAddress);
 
+        DefaultWorkingHours workingHours = new DefaultWorkingHours();
+        Date date = new Date();
+        workingHours.setStartTime(new Timestamp(date.getTime()));
+        workingHours.setEndTime(new Timestamp(date.getTime()));
+        workingHours.save();
+        examRoom.setCalendarEvent(workingHours);
+
         ExamMachine examMachine = new ExamMachine();
         examMachine.setName("Kone");
         examMachine.save();
@@ -66,7 +78,30 @@ public class ReservationController extends SitnetController {
 
     //    @Restrict(@Group({"TEACHER", "ADMIN"}))
     public static Result updateExamRoom(Long id) throws MalformedDataException {
-        ExamRoom room = bindForm(ExamRoom.class);
+//        DynamicForm df = Form.form().bindFromRequest();
+//
+//        Long start = new Long(df.get("examActiveStartDate"));
+//        Long end = new Long(df.get("examActiveEndDate"));
+
+        ExamRoom room = Form.form(ExamRoom.class).bindFromRequest(
+                "id",
+                "name",
+                "roomCode",
+                "buildingName",
+                "campus",
+                "transitionTime",
+                "accessibilityInfo",
+                "accessible",
+                "roomInstruction",
+                "contactPerson",
+                "videoRecordingsURL",
+                "examMachineCount",
+                "statusComment",
+                "outOfService",
+                "state",
+                "expanded")
+                .get();
+
         room.update();
 
         return ok(Json.toJson(room));
@@ -78,6 +113,25 @@ public class ReservationController extends SitnetController {
         address.update();
 
         return ok(Json.toJson(address));
+    }
+
+    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    public static Result updateExamRoomWorkingHours(Long id) throws MalformedDataException {
+        DynamicForm df = Form.form().bindFromRequest();
+
+        DefaultWorkingHours defaultHours = Ebean.find(DefaultWorkingHours.class, id);
+
+        Long startTime = Long.parseLong(df.get("startTime"));
+        Long endTime = Long.parseLong(df.get("endTime"));
+
+        Timestamp start = new Timestamp(startTime);
+        Timestamp end = new Timestamp(endTime);
+
+        defaultHours.setStartTime(start);
+        defaultHours.setEndTime(end);
+
+        defaultHours.update();
+        return ok(Json.toJson(defaultHours));
     }
 
     @Restrict(@Group({"ADMIN"}))

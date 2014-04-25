@@ -75,6 +75,7 @@ GET           /rooms/:id                                            controllers.
 PUT           /rooms/:id                                            controllers.ReservationController.updateExamRoom(id: Long)
 DELETE        /rooms/:id                                            controllers.ReservationController.removeExamRoom(id: Long)
 PUT           /address/:id                                          controllers.ReservationController.updateExamRoomAddress(id: Long)
+PUT           /workinghours/:id                                     controllers.ReservationController.updateExamRoomWorkingHours(id: Long)
 GET           /draft/rooms                                          controllers.ReservationController.createExamRoomDraft()
 
 
