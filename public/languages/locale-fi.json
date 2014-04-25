@@ -103,6 +103,7 @@
 
 "sitnet_exam_review": "Tentin arviointi",
 "sitnet_exams_to_be_reviewed": "Tarkastettavana olevat tentit",
+"sitnet_exams_to_be_reviewed_by_you": "Tentit, joissa olet tarkastajana",
 
 "sitnet_multiplechoice_question_correct": "Oikein",
 "sitnet_multiplechoice_question_incorrect": "Väärin",
@@ -110,18 +111,24 @@
 "sitnet_new_room": "Uuden huonetilan luonti",
 "sitnet_exam_rooms": "Tenttitilat",
 "sitnet_exam_room_postal_address": "Postiosoite",
+"sitnet_exam_room_address_street": "Katuosoite",
+"sitnet_exam_room_address_zip": "Postinumero",
+"sitnet_exam_room_address_city": "Postitoimipaikka",
 "sitnet_exam_room_machines": "Tenttitilan koneet",
 "sitnet_room_code": "Huonekoodi",
 "sitnet_room_building_name": "Rakennuksen nimi",
 "sitnet_room_campus": "Kampus",
 "sitnet_room_organization": "Organisaatio",
 "sitnet_room_default_working_hours": "Oletusaukioloaika",
+"sitnet_room_default_working_hours_start": "Alkuaika",
+"sitnet_room_default_working_hours_end": "Loppuaika",
 "sitnet_room_transition_time": "Tentin siirtymäaika",
 "sitnet_room_accessibility_info": "Esteettömyystieto",
 "sitnet_room_accessible": "Tilassa esteetön pääsy",
 "sitnet_room_guidance": "Tilaohjeet",
 "sitnet_room_contact_person": "Yhteyshenkilö",
 "sitnet_room_videorecordings_url": "Linkki videotallenteisiin",
+"sitnet_room_general_info": "Luodut tentittilat",
 
 "sitnet_save_and_publish": "Tallenna ja julkaise",
 
@@ -134,5 +141,33 @@
 "sitnet_machine_video_recordings": "Videotallenteet",
 
 "sitnet_out_of_service": "Pois käytöstä",
-"sitnet_reason": "Syy"
+"sitnet_reason": "Syy",
+
+"sitnet_logout_success": "Uloskirjautuminen onnistui",
+
+"sitnet_published_exams": "Julkaistut tentit",
+"sitnet_published": "Julkaistu",
+"sitnet_published_exams_info_main": "Nämä tentit ovat julkaistu, opiskelijat voivat ilmoittautua ja osallistua näihin tentteihin.",
+"sitnet_published_exams_info_other": "Näitä tenttejä EI PYSTY muokkaamaan tai poistaan.",
+
+"sitnet_saved_exams": "Tallennetut tentit",
+"sitnet_saved": "Talletettu",
+"sitnet_saved_exams_info_main": "Näitä tenttejä ei ole vielä julkaistu, eivätkä opiskelijat voi ilmoittautua näihin tentteihin.",
+"sitnet_saved_exams_info_other": "Näitä tenttejä PYSTYY muokkaamaan tai poistaan.",
+
+"sitnet_draft_exams": "Vedokset",
+"sitnet_draft": "Vedos",
+"sitnet_draft_exams_info_main": "Vedokset ovat tenttejä joita ei ole julkaistu.",
+
+"sitnet_started_exams": "Aloitetut tentit",
+"sitnet_in_progress": "Kesken",
+"sitnet_started_exams_info_main": "Nämä ovat pelkästään demoamista varten.",
+"sitnet_started_exams_info_other": "Listaa tentit jotka opiskelija on aloittanut, mutta ei palauttanut tai keskeyttänyt",
+
+"sitnet_returned_exams": "Palautetut tentit",
+"sitnet_returned": "Palautettu",
+"sitnet_returned_exams_info_main": "Nämä ovat pelkästään demoamista varten.",
+"sitnet_returned_exams_info_other": "Listaa tentit jotka opiskelija on aloittanut, mutta ei palauttanut tai keskeyttänyt",
+
+"sitnet_created_by": "Luonut"
 }

@@ -2,7 +2,7 @@
 	<div>
         <div class="row">
             <div class="col-md-6">
-                <div class="sitnet-info-text">Katuosoite</div>
+                <div class="sitnet-info-text">{{'sitnet_exam_room_address_street' | translate}}</div>
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.street"
                            ui-change="updateAddress(roomInstance.mailAddress)">
@@ -14,12 +14,12 @@
             </div>
 
             <div class="col-md-6">
-                <div class="sitnet-info-text">Postinumero</div>
+                <div class="sitnet-info-text">{{'sitnet_exam_room_address_street' | translate}}</div>
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.zip"
                            ui-change="updateAddress(roomInstance.mailAddress)">
                         <span class="input-group-addon"
-                              ng-click="toaster.info('Tentttitilan postinumero');">
+                              ng-click="toaster.info('Tenttitilan postinumero');">
                             <i class="fa fa-question-circle fa-fw"></i>
                         </span>
                 </div>
@@ -27,7 +27,7 @@
         </div>
         <div class="row">
             <div class="col-md-6 col-md-offset-3">
-                <div class="sitnet-info-text">Postitoimipaikka</div>
+                <div class="sitnet-info-text">{{'sitnet_exam_room_address_city' | translate}}</div>
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.city"
                            ui-change="updateAddress(roomInstance.mailAddress)">
@@ -40,42 +40,3 @@
         </div>
     </div>
 </div>
-
-
-    <!--<div class="exam-name">-->
-
-    <!--</div>-->
-
-    <!-- <span class="menu-item">{{machine.name}}</span> -->
-        <!--<div ng-click="machine.expanded = !machine.expanded" class="pull-right fa-stack fa-lg pointer-hand" style="line-height: 0em">-->
-                <!--<i ng-class="machine.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"-->
-                   <!--class="sitnet-white fa fa-stack-1x"></i>-->
-        <!--</div>-->
-        <!--<div ng-click="editMachine()" class=" dropdown pull-right fa-stack fa-lg pointer-hand" style="line-height: 0em">-->
-            <!--<a class="dropdown-toggle">-->
-                <!--<i class="sitnet-white fa fa-cog fa-stack-1x"></i>-->
-            <!--</a>-->
-            <!--<ul class="dropdown-menu">-->
-                <!--<li><a>{{'sitnet_settings' | translate}}</a></li>-->
-                <!--<li><a ng-click="removeMachine()">{{'sitnet_remove' | translate}}</a></li>-->
-            <!--</ul>-->
-        <!--</div>-->
-    <!--</div>-->
-<!--</div>-->
-<!--<div ng-show="machine.expanded">-->
-    <!--<div class="sitnet-info-text">Esteettömyys:</div>-->
-    <!--<div>-->
-        <!--<input type="text" class="form-control" ng-model="machine.accessibilityInfo" ui-change="updateMachine(machine)">-->
-    <!--</div>-->
-
-    <!--<div class="sitnet-info-text">Ohjelmistot:</div>-->
-    <!--<div>-->
-        <!--<input type="text" class="form-control" ng-model="machine.softwareInfo" ui-change="updateMachine(machine)">-->
-    <!--</div>-->
-
-    <!--<div class="sitnet-info-text">IP-osoite:</div>-->
-    <!--<div>-->
-        <!--<input type="text" class="form-control" ng-model="machine.ipAddress" ui-change="updateMachine(machine)">-->
-    <!--</div>-->
-
-

@@ -55,7 +55,7 @@
 //                        sessionService.logout();
                         delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
                         delete $http.defaults.headers.common;
-                        toastr.success("Uloskirjautuminen onnistui.");
+                        toastr.success($translate("sitnet_logout_success"));
                         delete $scope.session.user;
                         $rootScope.$broadcast('userUpdated');
                         $location.path("/login");

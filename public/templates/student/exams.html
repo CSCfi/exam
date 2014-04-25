@@ -1,7 +1,6 @@
 <div id="studentexam" ng-controller="StudentExamController">
     <h2 class="table-heading">{{"sitnet_active_exams" | translate}}</h2>
 
-    <!--<div class="col-md-8">-->
     <div>
         <div class="list-group">
             <a ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}" ng-click="activateExam(exam)" class="active-exams-list list-group-item">
@@ -16,36 +15,30 @@
             </a>
         </div>
     </div>
-    <!--<div id="library" class="col-md-4">Oikea palsta</div>-->
 
     <hr>
-    <h2 class="sitnet-teacher-turquoise-light-active">Aloitetut tentit</h2>
-    <span class="sitnet-info-text">Nämä ovat pelkästään demoamista varten.</span>
-    <span class="sitnet-info-text">Listaa tentit jotka opiskelija on aloittanut, mutta ei palauttanut tai keskeyttänyt</span>
+    <h2 class="sitnet-teacher-turquoise-light-active">{{'sitnet_started_exams' | translate}}</h2>
+    <span class="sitnet-info-text">{{'sitnet_started_exams_info_main' | translate}}</span>
+    <span class="sitnet-info-text">{{'sitnet_started_exams_info_other' | translate}}</span>
 
     <div class="exam-list-saved">
         <a ng-repeat="exam in exams | filter: {state: 'STUDENT_STARTED'}" ng-click="continueExam(exam)" class="active-exams-list list-group-item">
             <h4 class="list-group-item-heading">
-                <span class="">{{exam.course.code}} - {{exam.name}}</span><span class="pull-right">Kesken</span>
+                <span class="">{{exam.course.code}} - {{exam.name}}</span><span class="pull-right">{{'sitnet_in_progress' | translate}}</span>
             </h4>
-
-            <!--<div class="sitnet-info-text">Opiskelija: {{exam.student.firstName}} {{exam.student.lastName}}</div>-->
         </a>
     </div>
 
     <hr>
-    <h2 class="sitnet-teacher-turquoise-light-active">Palautetut tentit</h2>
-    <span class="sitnet-info-text">Nämä ovat pelkästään demoamista varten.</span>
-    <span class="sitnet-info-text">Listaa tentit jotka opiskelija on palauttanut</span>
+    <h2 class="sitnet-teacher-turquoise-light-active">{{'sitnet_returned_exams' | translate}}</h2>
+    <span class="sitnet-info-text">{{'sitnet_returned_exams_info_main' | translate}}</span>
+    <span class="sitnet-info-text">{{'sitnet_returned_exams_info_other' | translate}}</span>
 
     <div class="exam-list-saved">
         <a ng-repeat="exam in exams | filter: {state: 'REVIEW'}" class="active-exams-list list-group-item">
             <h4 class="list-group-item-heading">
-                <span class="">{{exam.course.code}} - {{exam.name}}</span><span class="pull-right">Palautettu</span>
+                <span class="">{{exam.course.code}} - {{exam.name}}</span><span class="pull-right">{{'sitnet_returned' | translate}}</span>
             </h4>
-
-            <!--<div class="sitnet-info-text">Opiskelija: {{exam.student.firstName}} {{exam.student.lastName}}</div>-->
         </a>
     </div>
-
 </div>

@@ -85,10 +85,10 @@
 "sitnet_share_this_exam": "Share this exam",
 "sitnet_start_time": "Exam time starts",
 "sitnet_tools": "Tools",
-"sitnet_user_language_change ": "User language selection",
+"sitnet_user_language_change": "User language selection",
 "sitnet_user_preferences": "User profile settings",
 "sitnet_username": "Username",
-"sitnet_welcome ": "Welcome",
+"sitnet_welcome": "Welcome",
 "sitnet_words": "words",
 
 "sitnet_placeholder_write_instruction": "Write instructions here",
@@ -103,25 +103,32 @@
 
 "sitnet_exam_review": "Exam review",
 "sitnet_exams_to_be_reviewed": "Exams to be reviewed",
+"sitnet_exams_to_be_reviewed_by_you": "Exams to be reviewed by you",
 
 "sitnet_multiplechoice_question_correct": "Correct",
 "sitnet_multiplechoice_question_incorrect": "Incorrect",
 
-"sitnet_new_room": "Creating new room resource",
 "sitnet_exam_rooms": "Exam rooms",
+"sitnet_new_room": "Creating new room resource",
 "sitnet_exam_room_postal_address": "Postal address",
+"sitnet_exam_room_address_street": "Street",
+"sitnet_exam_room_address_zip": "Zip code",
+"sitnet_exam_room_address_city": "City",
 "sitnet_exam_room_machines": "Exam room machines",
 "sitnet_room_code": "Room code",
 "sitnet_room_building_name": "Building name",
 "sitnet_room_campus": "Campus",
 "sitnet_room_organization": "Organization",
-"sitnet_room_working_hours": "Working hours",
+"sitnet_room_default_working_hours": "Working hours",
+"sitnet_room_default_working_hours_start": "Start",
+"sitnet_room_default_working_hours_end": "End",
 "sitnet_room_transition_time": "Exam transition time",
 "sitnet_room_accessibility_info": "Accessibility info",
 "sitnet_room_accessible": "Room has no accessibility issues",
 "sitnet_room_guidance": "Guidance",
 "sitnet_room_contact_person": "Contact person",
 "sitnet_room_videorecordings_url": "Video recordings URL",
+"sitnet_room_general_info": "List of created exam rooms",
 
 "sitnet_save_and_publish": "Save and publish",
 
@@ -134,5 +141,33 @@
 "sitnet_machine_video_recordings": "Video recordings",
 
 "sitnet_out_of_service": "Out of service",
-"sitnet_reason": "Reason"
+"sitnet_reason": "Reason",
+
+"sitnet_logout_success": "Successfully logged out",
+
+"sitnet_published_exams": "Published exams",
+"sitnet_published": "Published",
+"sitnet_published_exams_info_main": "These exams are published, and thus students can enroll to them.",
+"sitnet_published_exams_info_other": "These exams cannot be modified.",
+
+"sitnet_saved_exams": "Saved exams",
+"sitnet_saved": "Saved",
+"sitnet_saved_exams_info_main": "These exams haven't been published, and thus students cannot enrolled to them.",
+"sitnet_saved_exams_info_other": "These exams CAN BE modified.",
+
+"sitnet_draft_exams": "Drafts",
+"sitnet_draft": "Draft",
+"sitnet_draft_exams_info_main": "Drafts are exams that haven't been published.",
+
+"sitnet_started_exams": "Exams in progress",
+"sitnet_in_progress": "In progress",
+"sitnet_started_exams_info_main": "Only for demo purpose.",
+"sitnet_started_exams_info_other": "List the exams that the student has started but hasn't returned or aborted.",
+
+"sitnet_returned_exams": "Returned exams",
+"sitnet_returned": "Returned",
+"sitnet_returned_exams_info_main": "Only for demo purpose.",
+"sitnet_returned_exams_info_other": "List the exams that the student has returned.",
+
+"sitnet_created_by": "Created by"
 }

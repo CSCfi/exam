@@ -87,14 +87,14 @@
                 <div class="sitnet-info-text">{{'sitnet_room_default_working_hours' | translate}}</div>
 
                 <div class="col-md-3">
-                    <h4>Alkuaika</h4>
+                    <h4>{{'sitnet_room_default_working_hours_start' | translate}}</h4>
                     <div ng-model="startTime" ng-change="startTimeChanged()" style="display:inline-block;">
                         <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <h4>Loppuaika</h4>
+                    <h4>{{'sitnet_room_default_working_hours_end' | translate}}</h4>
                     <div ng-model="endTime" ng-change="endTimeChanged()" style="display:inline-block;">
                         <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
                     </div>
@@ -103,33 +103,6 @@
                 <div>
                     <button ng-click="saveWorkingHours(roomInstance.calendarEvent)" class="btn btn-primary" style="margin-top: 5.4em">{{'sitnet_save' | translate}}</button>
                 </div>
-                <!--<pre class="alert alert-info">Time is: {{mytime | date:'shortTime' }}</pre>-->
-
-                <!--<div class="row">-->
-                    <!--<div class="col-xs-6">-->
-                        <!--Hours step is:-->
-                        <!--<select class="form-control" ng-model="hstep" ng-options="opt for opt in options.hstep"></select>-->
-                    <!--</div>-->
-                    <!--<div class="col-xs-6">-->
-                        <!--Minutes step is:-->
-                        <!--<select class="form-control" ng-model="mstep" ng-options="opt for opt in options.mstep"></select>-->
-                    <!--</div>-->
-                <!--</div>-->
-
-                <!--<hr>-->
-
-                <!--<button class="btn btn-info" ng-click="toggleMode()">12H / 24H</button>-->
-                <!--<button class="btn btn-default" ng-click="update()">Set to 14:00</button>-->
-                <!--<button class="btn btn-danger" ng-click="clear()">Clear</button>-->
-
-                <!--<div class="input-group">-->
-                    <!--<input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.workingHours"-->
-                           <!--ui-change="updateRoom(roomInstance)">-->
-                    <!--<span class="input-group-addon"-->
-                          <!--ng-click="toaster.info('Tenttitilan päivänsisäinen aukioloaika esim. 8-16');">-->
-                        <!--<i class="fa fa-question-circle fa-fw"></i>-->
-                    <!--</span>-->
-                <!--</div>-->
             </div>
 
             <div class="col-md-6">
