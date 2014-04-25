@@ -27,7 +27,7 @@
                         {href: "#/exams", visible: (student || admin || teacher), class: "fa-pencil-square-o", name: $translate("sitnet_exams"), sub: [
 //                        {href: "#/student/exams", visible: (student || admin || teacher), class: "fa-caret-right", name: $translate("sitnet_active_exams")}
                         ]},
-                        {href: "#/rooms", visible: (student || admin || teacher), class: "fa-sitemap", name: $translate("sitnet_exam_rooms"), sub: [
+                        {href: "#/rooms", visible: (admin), class: "fa-sitemap", name: $translate("sitnet_exam_rooms"), sub: [
 //                        {href: "#/student/exams", visible: (student || admin || teacher), class: "fa-caret-right", name: $translate("sitnet_active_exams")}
                         ]},
                         {href: "#/calendar", visible: (student || admin || teacher), class: "fa-calendar", name: $translate("sitnet_calendar")},

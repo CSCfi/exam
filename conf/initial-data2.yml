@@ -1,0 +1,302 @@
+######################################################################
+#
+# For demo UI evaluation purpose only
+#
+# Removed most of initial-data to encourage UI-testers to create actual data
+#
+######################################################################
+
+
+user_languages:
+    - &suomi !!models.UserLanguage
+      nativeLanguageCode: fi
+      nativeLanguageName: Suomi
+      UILanguageCode: FI_fi
+      UILanguageName: Suomi
+
+users:
+
+    - !!models.User
+      email:      sitnetad
+      firstName:  Admin
+      lastName:   Instrator
+      password:   c74626d3eca0613f356cd34ecd1301c5  #sitnetad
+      roles:
+            - !!models.SitnetRole {name: ADMIN}
+      userLanguage: *suomi
+
+    - &maika !!models.User
+      email:      maikaope
+      firstName:  Maika
+      lastName:   Opettaja
+      password:   1d0ebf168b86f79a0c34e81eb1fd70cd  # maikaope
+      roles:
+            - !!models.SitnetRole {name: TEACHER}
+      userLanguage: *suomi
+
+    - &sauli !!models.User
+      email:      saulistu
+      firstName:  Sauli
+      lastName:   Student
+      password:   72e6570dbfeb95d5df59e08f1fa6302f   # saulistu
+      roles:
+            - !!models.SitnetRole {name: STUDENT}
+      userLanguage: *suomi
+
+    - &arvo !!models.User
+      email:      arvo
+      firstName:  Arvon
+      lastName:   Penaali
+      password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
+      roles:
+            - !!models.SitnetRole {name: TEACHER}
+      userLanguage: *suomi
+
+    - &soikkeli !!models.User
+      email:      soikkeli
+      firstName:  Höylä
+      lastName:   Soikkeli
+      password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
+      roles:
+            - !!models.SitnetRole {name: TEACHER}
+      userLanguage: *suomi
+
+    - &orville !!models.User
+      email:      oppilas
+      firstName:  Orville
+      lastName:   Oates
+      password:   2664274e7f6f56c565470797478cb406  #oppilas
+      roles:
+            - !!models.SitnetRole {name: STUDENT}
+      userLanguage: *suomi
+
+user_roles:
+
+    - !!models.SitnetRole
+      name: ADMIN
+
+    - !!models.SitnetRole
+      name: STUDENT
+
+    - !!models.SitnetRole
+      name: TEACHER
+
+######################################################################
+
+organisations:
+
+    - &OulunYliopisto !!models.Organisation
+      name: Oulun Yliopisto
+      nameAbbreviation:
+      code:
+      vatIdNumber:
+      organisations:
+        - !!models.Organisation
+          name: Luonnontieteellinen tiedekunta
+          nameAbbreviation:
+          code:
+          vatIdNumber:
+          organisations:
+                - !!models.Organisation
+                  name: Tietojenkäsittelytieteiden laitos
+                  nameAbbreviation:
+                  code:
+                  vatIdNumber:
+                  organisations:
+                  parent: null
+                  root: true
+          parent: null
+          root: true
+      organisations:
+      parent: null
+      root: true
+######################################################################
+
+question_essay:
+# Essay questions
+
+  - &essay1 !!models.questions.EssayQuestion
+    creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
+    question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
+    instruction:
+    score: 5
+    materials:
+    evaluationPhrases:
+    evaluationCriterias:
+    comments:
+    maxCharacters: 1000
+    shared: false
+
+
+question_mutiple_choice:
+# Multiple choise questions
+
+  - &multi1 !!models.questions.MultipleChoiceQuestion
+    creator: *maika
+    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:30:05.123
+    question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
+    materials:
+    score: 5
+    evaluationPhrases:
+    evaluationCriterias:
+    comments:
+    options:
+        - !!models.questions.MultipleChoiseOption {option: Kissoja koiria ja muita eläimiä, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Abstrakteja henkilöitä, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Olio voidaan nähdä itsenäisenä pienenä koneena joka kapseloi tietoa ja toimintoja, correctOption: true, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Oliolla on aina Rakentaja ja Hajottaja, correctOption: false, score: 1}
+    shared: false
+
+######################################################################
+
+courses:
+
+  - &alkeet !!models.Course
+    code: 810136P
+    name: Johdatus alkeiden perusteisiin
+    type:
+    credits: 5
+
+  - &tietokannat !!models.Course
+    code: 811380A
+    name: Tietokantojen perusteet
+    type:
+    credits: 7
+
+  - &765104P !!models.Course
+    code: 765104P
+    name: Astronomian perusteet
+    type:
+    credits: 8
+
+  - &811386A !!models.Course
+    code: 811386A
+    name: Algoritmit
+    type:
+    credits: 5
+
+  - &812346A !!models.Course
+    code: 812346A
+    name: Oliosuuntautunut analyysi ja suunnittelu
+    type:
+    credits: 5
+
+######################################################################
+exams:
+
+  - &alkeidenperusteet !!models.Exam
+    creator: *maika
+    created: 2014-01-01 12:30:05.123
+    course: *alkeet
+    name: Johdatus alkeiden perusteisiin
+    examType:
+    instruction: Vastaa kolmeen tehtävään neljästä
+    shared: false
+    examSections:
+    state: PUBLISHED
+
+exam-sections:
+
+  - &osio1 !!models.ExamSection
+    name: Monivalinnat 1
+    exam: *alkeidenperusteet
+    questions:
+              - *multi1
+              - *essay1
+    totalScore:
+
+exam-enrolments:
+
+  - !!models.ExamEnrolment
+    user: *sauli
+    exam: *alkeidenperusteet
+    enrolledOn: 2014-04-03 20:32:04.575
+
+exam-inspections:
+
+  - !!models.ExamInspection
+    user: *arvo
+    exam: *alkeidenperusteet
+
+
+############### Tilavaraus ###############
+
+
+
+exam-machines:
+
+  - &exam-machine1 !!models.ExamMachine
+    name: Pegasus 01
+    otherIdentifier: Huone, jonka tunnus on 1
+    surveillanceCamera: CAM-001
+    accessibilityInfo: Nostettava sähköpöytä
+    accessible: true
+    softwareInfo: Mathematica, Notepad, Mozilla Firefox
+    ipAddress: 123.456.789.123
+    videoRecordings: www.utu.fi/examroom/1/recordings
+#    room: *room-pegasus
+    reservation:
+    outOfService: false
+
+  - &exam-machine2 !!models.ExamMachine
+    name: Pegasus 02
+    otherIdentifier: Huone, jonka tunnus on 2
+    surveillanceCamera: CAM-002
+    accessibilityInfo: Automaattisesti avautuvat ovet
+    accessible: true
+    softwareInfo: Notepad, Mozilla Firefox
+    ipAddress: 123.456.789.321
+    videoRecordings: www.utu.fi/examroom/2/recordings
+#    room: *room-pegasus
+    reservation:
+    outOfService: false
+
+  - &exam-machine3 !!models.ExamMachine
+    name: Pegasus 03
+    otherIdentifier: Huone, jonka tunnus on 3
+    surveillanceCamera: CAM-003
+    accessibilityInfo: Pistekirjoitus alusta
+    accessible: true
+    softwareInfo: Notepad
+    ipAddress: 123.456.789.132
+    videoRecordings: www.utu.fi/examroom/3/recordings
+#    room: *room-pegasus
+    reservation:
+    outOfService: true
+    statusComment: Näyttö rikki
+
+mail-addresses:
+  - &oulu-yo !!models.MailAddress
+    street: Yliopistokatu 1
+    zip: 90570
+    city: Oulu
+
+calendar-events:
+  - &cal-event !!models.calendar.DefaultWorkingHours
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 16:00:00.000
+
+exam-rooms:
+
+  - &room-pegasus !!models.ExamRoom
+    name: Tenttiakvaario Pegasus
+    roomCode: IT101
+    buildingName: Oulun yliopiston päärakennus
+    campus: Linnanmaa
+    organization:
+    mailAddress: *oulu-yo
+    calendarEvent: *cal-event
+    transitionTime: 5
+    accessibilityInfo: Tilassa on pyörätuoliramppi
+    accessible: true
+    roomInstruction: Tilaan ei saa tuoda juomia tai ruokia.
+    contactPerson: Kiinteistöinsinööri Timppa Vaksi. puh. 040 123 4567
+    videoRecordingsURL: www.utu.fi/videot
+    examMachines:
+      - *exam-machine1
+      - *exam-machine2
+      - *exam-machine3
+    outOfService: false
