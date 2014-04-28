@@ -479,8 +479,70 @@ courses:
     code: 812346A
     name: Oliosuuntautunut analyysi ja suunnittelu
     type: 
-    credits: 5   
+    credits: 5
 
+#####################################################################
+  - &ay905061Y !!models.Course
+    code: ay905061Y
+    name: Arabian peruskurssi II
+    type:
+    credits: 5
+
+  - &ayA113801 !!models.Course
+    code: ayA113801
+    name: Historia 25
+    type:
+    credits: 25
+
+  - &ayA113301 !!models.Course
+    code: ayA113301
+    name: Elämänkatsomustieto 25
+    type:
+    credits: 25
+
+  - &A110102 !!models.Course
+    code: A110102
+    name: Englantilainen filologia aineopinnot
+    type:
+    credits: 35
+
+  - &ayA114001 !!models.Course
+    code: ayA114001
+    name: Japani-opinnot perusopintoja
+    type:
+    credits: 27
+
+  - &ayA110401 !!models.Course
+    code: ayA110401
+    name: Suomen kieli
+    type:
+    credits: 25
+
+  - &ayA111501 !!models.Course
+    code: ayA111501
+    name: Valtio-oppi
+    type:
+    credits: 25
+
+  - &ayA250504 !!models.Course
+    code: ayA250504
+    name: Kasvatustiede
+    type:
+    credits: 25
+
+  - &ay900060A !!models.Course
+    code: ay900060A
+    name: Tekniikan viestintä
+    type:
+    credits: 2
+
+  - &ay464085A !!models.Course
+    code: ay464085A
+    name: Tuotesuojaus
+    type:
+    credits: 3.5
+
+  ################################################################
 
 exams:
 
