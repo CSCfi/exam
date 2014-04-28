@@ -2,6 +2,7 @@ import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
+import models.ApiError;
 import models.Exam;
 import models.User;
 import models.questions.QuestionInterface;
@@ -19,6 +20,7 @@ import play.mvc.Results;
 import play.mvc.SimpleResult;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,10 +46,22 @@ public class Global extends GlobalSettings {
                 if (cause instanceof MalformedDataException) {
                     return Results.badRequest(Json.toJson(errorMessage));
                 }
+                if (cause instanceof IllegalArgumentException) {
+                    return Results.badRequest(Json.toJson(new ApiError(errorMessage)));
+                }
                 return Results.internalServerError(Json.toJson(errorMessage));
             }
         });
         return promise;
+    }
+
+    @Override
+    public Promise<SimpleResult> onBadRequest(Http.RequestHeader request, String error) {
+        return F.Promise.promise(new F.Function0<SimpleResult>() {
+            public SimpleResult apply() {
+                return Results.badRequest(Json.toJson(new ApiError(error)));
+            }
+        });
     }
 
     @Override

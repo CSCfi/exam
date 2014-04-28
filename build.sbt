@@ -4,7 +4,6 @@ name := "sitnet"
 
 version := "1.0-SNAPSHOT"
 
-
 play.Project.playScalaSettings ++ SassPlugin.sassSettings
 
 libraryDependencies ++= Seq(
@@ -13,8 +12,6 @@ libraryDependencies ++= Seq(
   javaEbean,
   cache
 )
-
-
 
 resolvers += Resolver.url("Objectify Play Repository", url("http://schaloner.github.com/releases/"))(Resolver.ivyStylePatterns)
 
@@ -27,3 +24,7 @@ resolvers += Resolver.sonatypeRepo("releases")
 libraryDependencies += "be.objectify" %% "deadbolt-java" % "2.2-RC4"
 
 play.Project.playJavaSettings
+
+routesImport += "util.scala.Binders._"
+
+routesImport += "controllers.CourseController.FilterType"

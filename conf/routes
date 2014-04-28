@@ -49,9 +49,8 @@ DELETE        /section/:sectionId                                   controllers.
 
 
 ############### Courses interface ###############
-GET           /courses                                              controllers.CourseController.getCourses()
-
-
+GET           /courses                                              controllers.CourseController.getCourses(filter: Option[FilterType], q: Option[String])
+GET           /courses/:id                                          controllers.CourseController.getCourse(id: Long)
 
 ############### Question interface ###############
 

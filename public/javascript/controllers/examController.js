@@ -52,12 +52,12 @@
 
                 // Todo: Fill in inspectors from database for final version
                 UserRes.usersByRole.query({role: 'TEACHER'},
-                		function (value) {
-                			$scope.examInspectors = value;
-                		},
-                		function (error) {
+                    function (value) {
+                        $scope.examInspectors = value;
+                    },
+                    function (error) {
 
-                		});
+                    });
 
 //                $scope.examInspectors = [
 //                                         "Pentti Hilkuri",
@@ -155,13 +155,13 @@
                 // Called when create exam button is clicked
                 $scope.createExam = function () {
 
-                	ExamRes.draft.get( 
-                		function (response) {
-	                        toastr.info("Tenttiluonnos tehty.");
-	                        $location.path("/exams/" + response.id);
-		                }, function (error) {
-		                    toastr.error(error.data);
-		                });
+                    ExamRes.draft.get(
+                        function (response) {
+                            toastr.info("Tenttiluonnos tehty.");
+                            $location.path("/exams/" + response.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
                 };
 
                 $scope.setExamRoom = function (room) {
@@ -231,13 +231,13 @@
                 };
 
                 $scope.renameSection = function (section) {
-                	
-            		ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
-            			section = sec;
-            			toastr.info("Osio päivitetty.");
-            		}, function (error) {
-            			toastr.error(error.data);
-            		});
+
+                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
+                        section = sec;
+                        toastr.info("Osio päivitetty.");
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
                 };
 
                 $scope.expandSection = function (section) {
@@ -275,8 +275,8 @@
                         section.questions.splice(section.questions.indexOf(question), 1);
                         
                         ExamRes.questions.remove({eid: $scope.newExam.id, sid: section.id, qid: question.id}, function (sec) {
-                        	section = sec;
-                        	toastr.info("Kysymys poistettu.");
+                            section = sec;
+                            toastr.info("Kysymys poistettu.");
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -299,13 +299,13 @@
 
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
-
+                    console.log("pol");
                     var examToSave = {
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
                         "instruction": $scope.newExam.instruction,
                         "state": 'SAVED',
-	                    "course": $scope.newExam.course,    // there is no course
+                        "course": $scope.newExam.course,    // there is no course
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": $scope.dateService.startTimestamp,
                         "examActiveEndDate": $scope.dateService.endTimestamp,
@@ -328,7 +328,7 @@
                 // Called when Save and publish button is clicked
                 $scope.saveAndPublishExam = function () {
                     if (confirm('Oletko varma että haluat julkaista tentin?\nTämän jälkeen '+
-                    		'opeskelijat voivat osallistua tenttiin eikä tenttiä voi enää muokata.')) {
+                            'opeskelijat voivat osallistua tenttiin eikä tenttiä voi enää muokata.')) {
 
                         var examToSave = {
                             "id": $scope.newExam.id,
@@ -352,7 +352,7 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                	}
+                    }
                 };
                 
                 // Called when a question is drag and dropped to a exam section
@@ -378,9 +378,9 @@
                     
                     
 //                    ExamRes.sections.insertSection({eid: $scope.newExam.id, sid: section.id}, newQuestion, function (section) {
-//                    	toastr.info("Kysymys lisätty osioon.");
+//                      toastr.info("Kysymys lisätty osioon.");
 //                    }, function (error) {
-//                    	toastr.error(error.data);
+//                      toastr.error(error.data);
 //                    });
                 };
                 
@@ -388,6 +388,5 @@
                 {
                     return (item.state == comparator);
                 };
-                
             }]);
 }());
