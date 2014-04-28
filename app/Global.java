@@ -56,7 +56,7 @@ public class Global extends GlobalSettings {
     }
 
     @Override
-    public Promise<SimpleResult> onBadRequest(Http.RequestHeader request, String error) {
+    public Promise<SimpleResult> onBadRequest(Http.RequestHeader request, final String error) {
         return F.Promise.promise(new F.Function0<SimpleResult>() {
             public SimpleResult apply() {
                 return Results.badRequest(Json.toJson(new ApiError(error)));
