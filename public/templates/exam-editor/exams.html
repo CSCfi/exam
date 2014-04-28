@@ -16,10 +16,10 @@
         <span class="sitnet-info-text">Näitä tenttejä EI voi muokata tai poista.</span>
 
         <div class="exam-list-published">
-            <a ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}" href="#/exams/{{exam.id}}"
-               class="active-exams-list list-group-item">
+            <a ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}" href="#/exams/{{exam.id}}" class="active-exams-list ">
                 <h4 class="list-group-item-heading">
                     <span class="">{{exam.course.code}} - {{exam.name}}</span>
+                    <span><i class="pull-right fa fa-times fa-1_5x" ng-click="deleteExam(exam)"></i></span>
                 </h4>
                 <span class="pull-right sitnet-info-text">Julkaistu</span>
 
@@ -37,6 +37,7 @@
                class="active-exams-list list-group-item">
                 <h4 class="list-group-item-heading">
                     <span class="">{{exam.course.code}} - {{exam.name}}</span>
+                    <span><i class="pull-right fa fa-times fa-1_5x" ng-click="deleteExam(exam)"></i></span>
                 </h4>
                 <span class="pull-right sitnet-info-text">Tallennettu</span>
 
@@ -53,6 +54,7 @@
                class="active-exams-list list-group-item">
                 <h4 class="list-group-item-heading">
                     <span class="">{{exam.course.code}} - {{exam.name}}</span>
+                    <span><i class="pull-right fa fa-times fa-1_5x" ng-click="deleteExam(exam)"></i></span>
                 </h4>
                 <span class="pull-right sitnet-info-text">VEDOS</span>
 

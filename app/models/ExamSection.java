@@ -25,7 +25,7 @@ public class ExamSection extends SitnetModel {
     private String name;
 
     // A question may be used in many sections, this @ManyToMany
-	@ManyToMany(cascade = CascadeType.PERSIST)
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JsonManagedReference
 	private List<AbstractQuestion> questions;
 

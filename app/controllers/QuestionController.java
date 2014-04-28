@@ -150,7 +150,6 @@ public class QuestionController extends SitnetController {
         return ok("Question deleted from database!");
     }
 
-
     @Restrict(@Group({"TEACHER"}))
     public static Result deleteOption(Long oid) {
 

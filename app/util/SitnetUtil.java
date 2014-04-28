@@ -39,7 +39,7 @@ public class SitnetUtil {
                 fields[i].setAccessible(true);
 
                 try {
-                    if(fields[i].get(object) != null) {
+                    if (fields[i].get(object) != null) {
 
 
                         if (fields[i].getAnnotation(JsonBackReference.class) == null) {
@@ -59,9 +59,9 @@ public class SitnetUtil {
                                             if (method == null) {
                                                 break;
                                             } else {
-                                            	if(fields[i].get(object) != null) {
-                                            		Object obo = method.invoke(fields[i].get(object), null);
-                                            		fields[i].set(clone, obo);
+                                                if (fields[i].get(object) != null) {
+                                                    Object obo = method.invoke(fields[i].get(object), null);
+                                                    fields[i].set(clone, obo);
                                                 }
                                             }
                                         } catch (NoSuchMethodException e) {
@@ -74,17 +74,17 @@ public class SitnetUtil {
 
                                     } else  // its not SitnetModel, just clone it
                                     {
-                                        if(fields[i].get(object) != null) {
+                                        if (fields[i].get(object) != null) {
                                             String name = fields[i].getName().toLowerCase();
 
                                             // if this is SitnetModel and must be cloned; set ID null
                                             // http://avaje.org/topic-112.html
                                             // removing ebean fields helps in some cases
-                                            if(!name.startsWith("_ebean"))
+                                            if (!name.startsWith("_ebean"))
                                                 fields[i].set(clone, fields[i].get(object));
-                                            if(name.equals("id"))
+                                            if (name.equals("id"))
                                                 fields[i].set(clone, null);
-                                            if(name.equals("ebeantimestamp"))
+                                            if (name.equals("ebeantimestamp"))
                                                 fields[i].set(clone, null);
 
                                         }
@@ -93,11 +93,10 @@ public class SitnetUtil {
                                 } catch (IllegalAccessException e) {
                                     e.printStackTrace();
                                 }
-                            }
-                            else
+                            } else
                                 try {
                                     fields[i].setAccessible(true);
-                                    if(fields[i].get(object) != null)
+                                    if (fields[i].get(object) != null)
                                         fields[i].set(clone, fields[i].get(object));
                                 } catch (IllegalAccessException e) {
                                     e.printStackTrace();
@@ -118,8 +117,8 @@ public class SitnetUtil {
         User user = UserController.getLoggedUser();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-        if(object.getCreator() != null) {
-        	throw new SitnetException("Object already has creator");
+        if (object.getCreator() != null) {
+            throw new SitnetException("Object already has creator");
         } else {
             object.setCreator(user);
             object.setCreated(currentTime);
@@ -129,43 +128,44 @@ public class SitnetUtil {
     }
 
     static public SitnetModel setModifier(SitnetModel object) throws SitnetException {
-    	
-    	User user = UserController.getLoggedUser();
-    	Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-    	// check if user is the owner of this object
-    	if(object.getCreator().getId() != user.getId()) {
-        	throw new SitnetException("User id:"+ user.getId() +" is not owner of this object");
-    	} else {
-    		object.setModifier(user);
-    		object.setModified(currentTime);
-    	}
-    	
-    	return object;
+        User user = UserController.getLoggedUser();
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+
+        // check if user is the owner of this object
+        if (object.getCreator().getId() != user.getId()) {
+            throw new SitnetException("User id:" + user.getId() + " is not owner of this object");
+        } else {
+            object.setModifier(user);
+            object.setModified(currentTime);
+        }
+
+        return object;
     }
-    
-   static public boolean isOwner(SitnetModel object) {
 
-       User user = UserController.getLoggedUser();
-       Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-       if(object.getCreator() == null)
-       {
-           Class<?> clazz = object.getClass();
 
-           Object asd = Ebean.find(clazz)
-                   .select("creator.id")
-                   .where()
-                   .eq("id", object.getId())
-                   .findUnique();
+    static public boolean isOwner(SitnetModel object) {
 
-           object.setCreator(((SitnetModel)asd).getCreator());
-       }
+        User user = UserController.getLoggedUser();
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-       if(object.getCreator().getId() != user.getId())
-           return false;
-       else
-        return true;
+        if (object.getCreator() == null) {
+            Class<?> clazz = object.getClass();
+
+            Object asd = Ebean.find(clazz)
+                    .select("creator.id")
+                    .where()
+                    .eq("id", object.getId())
+                    .findUnique();
+
+            object.setCreator(((SitnetModel) asd).getCreator());
+        }
+
+        if (object.getCreator().getId() != user.getId())
+            return false;
+        else
+            return true;
     }
 
     static public String encodeMD5(String str) {

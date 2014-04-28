@@ -66,22 +66,6 @@
     </div>
 
     <div class="row" ng-controller="CourseTypeaheadCtrl">
-        <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}:</div>
-            <div class="input-group">
-                <input type="text" class="form-control ng-pristine ng-valid"
-                       ng-model="courseCodeSearch" ui-change="saveExam()"
-                       placeholder=""
-                       typeahead-on-select="onCourseSelect($item, $model, $label)"
-                       typeahead="c as c.code for c in getCourses('code', $viewValue)"
-                       typeahead-loading="loadingCoursesByCode">
-                       <span class="input-group-addon"
-                                          ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
-                            <i class="fa fa-question-circle fa-fw"></i>
-                            <i ng-show="loadingCoursesByCode" class="fa fa-refresh"></i>
-                       </span>
-            </div>
-        </div>
 
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
@@ -101,6 +85,24 @@
 
             </div>
         </div>
+
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}:</div>
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid"
+                       ng-model="courseCodeSearch" ui-change="saveExam()"
+                       placeholder=""
+                       typeahead-on-select="onCourseSelect($item, $model, $label)"
+                       typeahead="c as c.code for c in getCourses('code', $viewValue)"
+                       typeahead-loading="loadingCoursesByCode">
+                       <span class="input-group-addon"
+                                          ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
+                            <i class="fa fa-question-circle fa-fw"></i>
+                            <i ng-show="loadingCoursesByCode" class="fa fa-refresh"></i>
+                       </span>
+            </div>
+        </div>
+
     </div>
 
     <!-- Course scope and organization name input elements -->

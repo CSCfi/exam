@@ -26,7 +26,6 @@ import java.util.List;
 
 public class ExamController extends SitnetController {
 
-//    @Restrict(@Group({"TEACHER", "ADMIN"}))
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExams() {
 
@@ -99,6 +98,22 @@ public class ExamController extends SitnetController {
         List<Exam> exams = query.findList();
 
         return ok(Json.toJson(exams));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result deleteExam(Long id) {
+
+        User user = UserController.getLoggedUser();
+        Exam exam = Ebean.find(Exam.class, id);
+
+        if(user.hasRole("ADMIN") || SitnetUtil.isOwner(exam))
+        {
+            Ebean.delete(Exam.class, id);
+            return ok("Exam deleted from database!");
+        }
+        else
+            return forbidden("You don't have the permission to modify this object");
+
     }
 
     public static Result getExam(Long id) {

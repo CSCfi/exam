@@ -354,7 +354,20 @@
                         });
                     }
                 };
-                
+
+                $scope.deleteExam = function (exam) {
+                    if (confirm('Haluatko poistaa tentin lopullisesti?')) {
+
+                        ExamRes.exams.remove({id: exam.id}, function (ex) {
+                            toastr.success("Tentti poistettu");
+                            $scope.exams.splice($scope.exams.indexOf(exam), 1);
+
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    }
+                };
+
                 // Called when a question is drag and dropped to a exam section
                 $scope.onDrop = function ($event, $data, section) {
                     if (angular.isArray($data)) {

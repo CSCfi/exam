@@ -37,7 +37,7 @@ public class Exam extends SitnetModel {
     private boolean shared;
 
     // An ExamSection may be used only in one Exam
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "exam")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
     private List<ExamSection> examSections;
 
