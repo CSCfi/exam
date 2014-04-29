@@ -185,6 +185,27 @@
       cursor:pointer;
   }
 
+  .sitnet-list-item {
+    background-color: $sitnet-white;
+    color: $sitnet-grey;
+    padding: 1em;
+    margin-bottom: 1em;
+
+    a {
+      color: $sitnet-black;
+      text-decoration: none;
+      display: inline;
+    }
+    a:hover {
+      color: $sitnet-blue;
+    }
+  }
+
+  .sitnet-list-item-heading {
+    font-size: 1.5em;
+
+  }
+
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

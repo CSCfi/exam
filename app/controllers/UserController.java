@@ -2,14 +2,12 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import actions.Authenticate;
-
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import models.Session;
 import models.User;
 import play.Logger;
@@ -26,6 +24,7 @@ public class UserController extends SitnetController {
     public static Result getUsers() {
         List<User> users = Ebean.find(User.class).findList();
         return ok(Json.toJson(users));
+
     }
 
 //    @Authenticate
@@ -39,13 +38,9 @@ public class UserController extends SitnetController {
 			JsonWriteOptions options = new JsonWriteOptions();
 			options.setRootPathProperties("id, email, firstName, lastName, roles, userLanguage");
 			options.setPathProperties("roles", "name");
-//			options.setPathProperties("exam", "id");
 
 			return ok(jsonContext.toJsonString(user, true, options)).as("application/json");
 		}
-		
-		
-//        return ok(Json.toJson(user));
     }
 
 //    @Restrict(@Group({"TEACHER"}))
