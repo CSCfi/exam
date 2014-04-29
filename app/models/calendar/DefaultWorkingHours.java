@@ -6,9 +6,6 @@ import javax.persistence.*;
 import java.sql.Time;
 import java.sql.Timestamp;
 
-/**
- * Created by avainik on 4/22/14.
- */
 @Entity
 @DiscriminatorValue("DefaultWorkingHours")
 public class DefaultWorkingHours extends Model {
@@ -17,14 +14,10 @@ public class DefaultWorkingHours extends Model {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
 
-//    public DefaultWorkingHours() {
-//        this.event_type = this.getClass().getSimpleName();
-//    }
-
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.TIME)
     protected Timestamp startTime;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.TIME)
     protected Timestamp endTime;
 
     public Long getId() {
