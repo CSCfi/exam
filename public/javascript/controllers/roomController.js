@@ -1,12 +1,13 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('RoomCtrl', ['$scope', '$routeParams', '$location', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF',
-            function ($scope, $routeParams, $location, RoomResource, ExamMachineResource, SITNET_CONF) {
+        .controller('RoomCtrl', ['$scope', '$routeParams', '$location', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService',
+            function ($scope, $routeParams, $location, RoomResource, ExamMachineResource, SITNET_CONF, dateService) {
+
+                $scope.dateService = dateService;
 
                 $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/machine.html";
                 $scope.addressTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/address.html";
-
 
                 if ($routeParams.id === undefined)
                     $scope.rooms = RoomResource.rooms.query();
@@ -121,6 +122,27 @@
                             }
                         );
                     }
+                };
+
+                $scope.createNewException = function(room) {
+
+                    var newCalendarException = {
+                        "exceptionStartDate": $scope.dateService.exceptionStartDateTimestamp,
+                        "exceptionEndDate": $scope.dateService.exceptionEndDateTimestamp,
+                        "exceptionStartTime": $scope.dateService.exceptionStartTime,
+                        "exceptionEndTime": $scope.dateService.exceptionEndTime
+                    };
+
+                    RoomResource.exception.update({id: room.id}, newCalendarException,
+                        function (exceptionEvent) {
+                            toastr.info("Tenttitilan poikkeusaika lisätty.");
+
+                            $scope.roomInstance.calendarExceptionEvents.push(exceptionEvent);
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 };
         }]);
 }());

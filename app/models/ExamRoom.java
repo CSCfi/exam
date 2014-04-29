@@ -3,9 +3,11 @@ package models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.calendar.AbstractCalendarEvent;
 import models.calendar.DefaultWorkingHours;
+import models.calendar.ExceptionWorkingHours;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -38,6 +40,10 @@ public class ExamRoom extends Model {
 
     @OneToOne
     private DefaultWorkingHours calendarEvent;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
+    @JsonManagedReference
+    private List<ExceptionWorkingHours> calendarExceptionEvents;
 
     // Tentin siirtymäaika, oletuksena 5min, joka on pois tentin suoritusajasta, esim. 60min tentissä tenttiaikaa on 55min.
     private String transitionTime;
@@ -103,6 +109,17 @@ public class ExamRoom extends Model {
 
     public void setCalendarEvent(DefaultWorkingHours calendarEvent) {
         this.calendarEvent = calendarEvent;
+    }
+
+    public List<ExceptionWorkingHours> getCalendarExceptionEvents() {
+        if(calendarExceptionEvents == null) {
+            calendarExceptionEvents = new ArrayList<ExceptionWorkingHours>();
+        }
+        return calendarExceptionEvents;
+    }
+
+    public void setCalendarExceptionEvents(List<ExceptionWorkingHours> calendarExceptionEvents) {
+        this.calendarExceptionEvents = calendarExceptionEvents;
     }
 
     public String getAccessibilityInfo() {

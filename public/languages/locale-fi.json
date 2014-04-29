@@ -169,5 +169,7 @@
 "sitnet_returned_exams_info_main": "Nämä ovat pelkästään demoamista varten.",
 "sitnet_returned_exams_info_other": "Listaa tentit jotka opiskelija on aloittanut, mutta ei palauttanut tai keskeyttänyt",
 
-"sitnet_created_by": "Luonut"
+"sitnet_created_by": "Luonut",
+
+"sitnet_add_exception_time": "Lisää uusi poikkeus"
 }

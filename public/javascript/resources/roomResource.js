@@ -28,6 +28,15 @@
                     "update": {method: "PUT"}
                 }),
 
+                exception: $resource("/exception/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "update": {method: "PUT"},
+                    "insert": {method: "POST"}
+                }),
+
                 draft: $resource("draft/rooms", null,
                 {
                 })

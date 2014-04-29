@@ -8,6 +8,7 @@ import models.ExamMachine;
 import models.ExamRoom;
 import models.MailAddress;
 import models.calendar.DefaultWorkingHours;
+import models.calendar.ExceptionWorkingHours;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -132,6 +133,34 @@ public class ReservationController extends SitnetController {
 
         defaultHours.update();
         return ok(Json.toJson(defaultHours));
+    }
+
+    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    public static Result updateExamRoomExceptionWorkingHours(Long id) throws MalformedDataException {
+        ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
+
+        DynamicForm df = Form.form().bindFromRequest();
+
+        Long exceptionStartDate = Long.parseLong(df.get("exceptionStartDate"));
+        Long exceptionStartTime = Long.parseLong(df.get("exceptionStartTime"));
+        Long exceptionEndDate = Long.parseLong(df.get("exceptionEndDate"));
+        Long exceptionEndTime = Long.parseLong(df.get("exceptionEndTime"));
+
+        Timestamp exceptionStartDateTimestamp = new Timestamp(exceptionStartDate);
+        Timestamp exceptionStartTimeTimestamp = new Timestamp(exceptionStartTime);
+        Timestamp exceptionEndDateTimestamp = new Timestamp(exceptionEndDate);
+        Timestamp exceptionEndTimeTimestamp = new Timestamp(exceptionEndTime);
+
+        ExceptionWorkingHours exceptionHours = new ExceptionWorkingHours();
+
+        exceptionHours.setExceptionStartDate(exceptionStartDateTimestamp);
+        exceptionHours.setExceptionStartTime(exceptionStartTimeTimestamp);
+        exceptionHours.setExceptionEndDate(exceptionEndDateTimestamp);
+        exceptionHours.setExceptionEndTime(exceptionEndTimeTimestamp);
+        exceptionHours.setRoom(examRoom);
+
+        exceptionHours.save();
+        return ok(Json.toJson(exceptionHours));
     }
 
     @Restrict(@Group({"ADMIN"}))

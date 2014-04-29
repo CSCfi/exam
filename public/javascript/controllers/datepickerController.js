@@ -8,7 +8,9 @@
 
                 $scope.today = function () {
                     $scope.dateService.startDate = new Date();
+                    $scope.dateService.exceptionStartDate = new Date();
                     $scope.dateService.endDate = new Date();
+                    $scope.dateService.exceptionEndDate = new Date();
                 };
                 $scope.today();
 
@@ -19,7 +21,9 @@
 
                 $scope.clear = function () {
                     $scope.dateService.startDate = null;
+                    $scope.dateService.exceptionStartDate = null;
                     $scope.dateService.endDate = null;
+                    $scope.dateService.exceptionEndDate = null;
                 };
 
                 // Disable weekend selection
@@ -62,12 +66,24 @@
                     var curr_year = d.getFullYear();
                     $scope.dateService.modEndDate = curr_date + "-" + curr_month + "-" + curr_year;
                     $scope.dateService.endTimestamp = d.getTime();
-                    
-//                    var myDate="26-02-2012";
-//                    myDate=myDate.split("-");
-//                    var newDate=myDate[1]+"/"+myDate[0]+"/"+myDate[2];
-//                    alert(new Date(newDate).getTime());
-                    
+                });
+
+                $scope.$watch('dateService.exceptionStartDate', function (v) {
+                    var d = new Date(v);
+                    var curr_date = d.getDate();
+                    var curr_month = d.getMonth() + 1; //Months are zero based
+                    var curr_year = d.getFullYear();
+                    $scope.dateService.modStartDate = curr_date + "-" + curr_month + "-" + curr_year;
+                    $scope.dateService.exceptionStartDateTimestamp = d.getTime();
+                });
+
+                $scope.$watch('dateService.exceptionEndDate', function (v) {
+                    var d = new Date(v);
+                    var curr_date = d.getDate();
+                    var curr_month = d.getMonth() + 1; //Months are zero based
+                    var curr_year = d.getFullYear();
+                    $scope.dateService.modEndDate = curr_date + "-" + curr_month + "-" + curr_year;
+                    $scope.dateService.exceptionEndDateTimestamp = d.getTime();
                 });
 
                 $scope.dateOptions = {

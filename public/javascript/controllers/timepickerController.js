@@ -1,8 +1,14 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('TimepickerController', ['$scope', '$routeParams', 'RoomResource',
-            function ($scope, $routeParams, RoomResource) {
+        .controller('TimepickerController', ['$scope', '$routeParams', 'RoomResource', 'dateService',
+            function ($scope, $routeParams, RoomResource, dateService) {
+
+                $scope.dateService = dateService;
+                $scope.exceptionStartTime = new Date();
+                $scope.dateService.exceptionStartTime = $scope.exceptionStartTime;
+                $scope.exceptionEndTime = new Date();
+                $scope.dateService.exceptionEndTime = $scope.exceptionEndTime;
 
                 if ($routeParams.id === undefined)
                     $scope.rooms = RoomResource.rooms.query();
@@ -21,39 +27,11 @@
                     );
                 }
 
-//                if ($scope.roomInstance.startTime == null) {
-//                    $scope.startTime = new Date();
-//                } else {
-//                    $scope.startTime = $scope.roomInstance.startTime;
-//                }
-//
-//                if ($scope.roomInstance.endTime == null) {
-//                    $scope.endTime = new Date();
-//                } else {
-//                    $scope.endTime = $scope.roomInstance.endTime;
-//                }
-
                 $scope.hourstep = 1;
                 $scope.minutestep = 1;
 
-//                $scope.options = {
-//                    hstep: [1, 2, 3],
-//                    mstep: [1, 5, 10, 15, 25, 30]
-//                };
-
                 // Whether to display 12H or 24H mode
                 $scope.ismeridian = false;
-
-//                $scope.toggleMode = function() {
-//                    $scope.ismeridian = ! $scope.ismeridian;
-//                };
-
-//                $scope.update = function() {
-//                    var d = new Date();
-//                    d.setHours( 14 );
-//                    d.setMinutes( 0 );
-//                    $scope.mytime = d;
-//                };
 
                 $scope.startTimeChanged = function () {
 
@@ -62,7 +40,6 @@
                     }
 
                     console.log('Start time changed to: ' + $scope.startTime);
-//                    console.log('Start time hours: ' + $scope.startTime.getHours());
                 };
 
                 $scope.endTimeChanged = function () {
@@ -71,12 +48,34 @@
                         $scope.endTime = $scope.startTime;
                         toastr.success("Loppuaika ei voi olla pienempi kuin alkuaika!");
                     }
-//                    console.log('End time changed to: ' + $scope.endTime);
+
+                    console.log('End time changed to: ' + $scope.endTime);
                 };
 
-//                $scope.clear = function() {
-//                    $scope.mytime = null;
-//                };
+                $scope.exceptionStartTimeChanged = function () {
+
+                    if ($scope.exceptionStartTime > $scope.exceptionEndTime) {
+                        $scope.exceptionEndTime = $scope.exceptionStartTime;
+                    }
+
+                    console.log('Exception start time changed to: ' + $scope.exceptionStartTime);
+
+                    var startTime = $scope.exceptionStartTime.getTime();
+
+                    $scope.dateService.exceptionStartTime = startTime;
+                };
+
+                $scope.exceptionEndTimeChanged = function () {
+
+                    if ($scope.exceptionEndTime < $scope.exceptionStartTime) {
+                        $scope.exceptionEndTime = $scope.exceptionStartTime;
+                        toastr.success("Loppuaika ei voi olla pienempi kuin alkuaika!");
+                    }
+
+                    console.log('Exception end time changed to: ' + $scope.exceptionEndTime);
+
+                    $scope.dateService.exceptionEndTime = $scope.exceptionEndTime.getTime();
+                };
 
                 $scope.saveWorkingHours = function (calendarEvent) {
                     calendarEvent.startTime = $scope.startTime.getTime();

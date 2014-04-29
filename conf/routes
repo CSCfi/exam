@@ -76,6 +76,8 @@ PUT           /rooms/:id                                            controllers.
 DELETE        /rooms/:id                                            controllers.ReservationController.removeExamRoom(id: Long)
 PUT           /address/:id                                          controllers.ReservationController.updateExamRoomAddress(id: Long)
 PUT           /workinghours/:id                                     controllers.ReservationController.updateExamRoomWorkingHours(id: Long)
+PUT           /exception/:id                                        controllers.ReservationController.updateExamRoomExceptionWorkingHours(id: Long)
+#POST          /exception                                            controllers.ReservationController.createExceptionCalendarEvent()
 GET           /draft/rooms                                          controllers.ReservationController.createExamRoomDraft()
 
 

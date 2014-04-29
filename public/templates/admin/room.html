@@ -103,6 +103,66 @@
                 <div>
                     <button ng-click="saveWorkingHours(roomInstance.calendarEvent)" class="btn btn-primary" style="margin-top: 5.4em">{{'sitnet_save' | translate}}</button>
                 </div>
+
+                <div>
+                    <button ng-click="showExceptionTimes = !showExceptionTimes" class="btn btn-primary">{{'sitnet_add_exception_time' | translate}}</button>
+                </div>
+
+                    <!-- Creating a new exception calendar event -->
+                    <div ng-show="showExceptionTimes" ng-controller="DatepickerCtrl">
+
+                        <div class="col-md-12">
+                            <h4>Poikkeusajan alkupäivä</h4>
+
+                            <p class="input-group">
+                                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.exceptionStartDate"
+                                       is-open="startDateOpened" min="minDate"
+                                       max="'2215-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                                       ng-required="true" close-text="Close">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" ng-click="openStartDate($event)">
+                                        <i class="fa fa-calendar"></i>
+                                    </button>
+                            </span>
+                            </p>
+                        </div>
+
+                        <div class="col-md-12">
+                            <h4>Poikkeusajan loppupäivä</h4>
+
+                            <p class="input-group">
+                                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.exceptionEndDate"
+                                       is-open="endDateOpened" min="dateService.exceptionStartDate"
+                                       max="'2215-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                                       ng-required="true" close-text="Close">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" ng-click="openEndDate($event)">
+                                        <i class="fa fa-calendar"></i>
+                                    </button>
+                            </span>
+                            </p>
+                        </div>
+
+                        <div ng-controller="TimepickerController">
+                            <div class="col-md-3">
+                                <h4>Poikkeusajan alkuaika</h4>
+                                <div ng-model="exceptionStartTime" ng-change="exceptionStartTimeChanged()" style="display:inline-block;">
+                                    <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <h4>Poikkeusajan loppupäivä</h4>
+                                <div ng-model="exceptionEndTime" ng-change="exceptionEndTimeChanged()" style="display:inline-block;">
+                                    <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button ng-click="createNewException(roomInstance)" class="btn btn-primary">Tallenna poikkeus</button>
+                        </div>
+                </div>
             </div>
 
             <div class="col-md-6">
@@ -121,11 +181,6 @@
         <!-- Accessibility information -->
         <div class="row">
             <div class="col-md-12">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" ng-model="roomInstance.accessible" ng-change="updateRoom(roomInstance)"> {{'sitnet_room_accessible' | translate}}
-                    </label>
-                </div>
                 <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}</div>
                 <div class="input-group">
                     <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.accessibilityInfo" ui-change="updateRoom(roomInstance)">
@@ -134,6 +189,11 @@
                               ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">
                             <i class="fa fa-question-circle fa-fw"></i>
                         </span>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="roomInstance.accessible" ng-change="updateRoom(roomInstance)"> {{'sitnet_room_accessible' | translate}}
+                    </label>
                 </div>
             </div>
         </div>
