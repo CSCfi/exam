@@ -33,10 +33,9 @@
                             });
 
                                 // Loop through all questions in the active section
-                            angular.forEach($scope.activeSection.questions, function (value, index) {
-
+                            angular.forEach($scope.activeSection.questions, function (question, index) {
                                 var template = "";
-                                switch (value.type) {
+                                switch (question.type) {
                                     case "MultipleChoiceQuestion":
                                         template = $scope.multipleChoiseOptionTemplate;
                                         break;
@@ -47,16 +46,23 @@
                                         template = "fa-question-circle";
                                         break;
                                 }
-                                value.template = template;
+                                question.template = template;
 
-                                if (!value.answer) {
-                                    // When question has not been answered it's status color is set to gray
-                                    // When an active exam is opened it cannot have any answers set
-                                    value.selectedAnsweredState = 'question-unanswered-header';
-                                    value.questionStatus = $translate("sitnet_question_unanswered");
+                                if (question.expanded == null) {
+                                    question.expanded = true;
+                                }
+                                if (question.expanded) {
+                                    question.selectedAnsweredState = 'question-active-header';
                                 } else {
-                                    value.selectedAnsweredState = 'question-answered-header';
-                                    value.questionStatus = $translate("sitnet_question_answered");
+                                    if (!question.answer) {
+                                        // When question is folded and has not been answered it's status color is set to gray
+                                        question.selectedAnsweredState = 'question-unanswered-header';
+                                        question.questionStatus = $translate("sitnet_question_unanswered");
+                                    } else {
+                                        // When question is folded and has not been answered it's status color is set to green
+                                        question.selectedAnsweredState = 'question-answered-header';
+                                        question.questionStatus = $translate("sitnet_question_answered");
+                                    }
                                 }
                             })
                         }).
@@ -106,10 +112,10 @@
                     $scope.activeSection = section;
 
                     // Loop through all questions in the active section
-                    angular.forEach($scope.activeSection.questions, function (value, index) {
+                    angular.forEach($scope.activeSection.questions, function (question, index) {
 
                         var template = "";
-                        switch (value.type) {
+                        switch (question.type) {
                             case "MultipleChoiceQuestion":
                                 template = $scope.multipleChoiseOptionTemplate;
                                 break;
@@ -120,17 +126,23 @@
                                 template = "fa-question-circle";
                                 break;
                         }
-                        value.template = template;
+                        question.template = template;
 
-                        // Need to reset the flag because questions left open before switching section will be shown closed by default
-                        value.questionsShown = false;
-                        if (!value.answered) {
-                            // When question has not been answered it's status color is set to gray
-                            value.selectedAnsweredState = 'question-unanswered-header';
-                            value.questionStatus = $translate("sitnet_question_unanswered");
+                        if (question.expanded == null) {
+                            question.expanded = true;
+                        }
+                        if (question.expanded) {
+                            question.selectedAnsweredState = 'question-active-header';
                         } else {
-                            value.selectedAnsweredState = 'question-answered-header';
-                            value.questionStatus = $translate("sitnet_question_answered");
+                            if (!question.answer) {
+                                // When question is folded and has not been answered it's status color is set to gray
+                                question.selectedAnsweredState = 'question-unanswered-header';
+                                question.questionStatus = $translate("sitnet_question_unanswered");
+                            } else {
+                                // When question is folded and has not been answered it's status color is set to green
+                                question.selectedAnsweredState = 'question-answered-header';
+                                question.questionStatus = $translate("sitnet_question_answered");
+                            }
                         }
                     })
                 };
@@ -209,19 +221,15 @@
 
                     // State machine for resolving how the question header is drawn
                     if (question.answered) {
-                        if (question.questionsShown) {
-                            question.questionsShown = false;
+                        if (question.expanded) {
                             question.selectedAnsweredState = 'question-answered-header';
                         } else {
-                            question.questionsShown = true;
                             question.selectedAnsweredState = 'question-active-header';
                         }
                     } else {
-                        if (question.questionsShown) {
-                            question.questionsShown = false;
+                        if (question.expanded) {
                             question.selectedAnsweredState = 'question-unanswered-header';
                         } else {
-                            question.questionsShown = true;
                             question.selectedAnsweredState = 'question-active-header';
                         }
                     }
