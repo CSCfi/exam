@@ -170,6 +170,7 @@
 "sitnet_returned_exams_info_other": "Listaa tentit jotka opiskelija on aloittanut, mutta ei palauttanut tai keskeyttänyt",
 
 "sitnet_created_by": "Luonut",
+"sitnet_can_be_enrolled": "Avoin",
 
 "sitnet_add_exception_time": "Lisää uusi poikkeus"
 }

@@ -3,49 +3,62 @@
 
     <!--  EXAM AREA -->
     <div class="col-md-8">
-        <div class="studentexam-header">
-            <h4>
-                <span class="fa-stack">
-                    <i class="fa fa-square-o fa-stack-2x"></i>
-                    <i class="fa-stack-1x">1</i>
-                </span>
-                {{activeSection.name}}
-                <span class="pull-right">
-                    <i class="section-header-time-left-clock">{{remainingTime}}</i>
-                   {{'sitnet_exam_time_left' | translate}}
-                </span>
-                <span class="pull-right fa-stack fa-lg">
-                    <i class="fa fa-clock-o fa-stack-1x"></i>
-                </span>
-            </h4>
-        </div>
-        <div class="section-container">
-            <div class="exam-info-round">
-				<span class="pull-left fa-stack fa-lg ">
-					<i class="fa fa-info-circle fa-stack-2x"></i>
-				</span>
-				<label>{{'sitnet_exam_quide' | translate}}</label>
-				<i class="sitnet-light-gray">{{doexam.instruction}}</i>
-			</div>
- 			<div class="list-group"  ng-include="sectionTemplate">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="studentexam-header">
+                    <h4>
+                        <span class="fa-stack">
+                            <i class="fa fa-square-o fa-stack-2x"></i>
+                            <i class="fa-stack-1x">1</i>
+                        </span>
+                        {{activeSection.name}}
+                        <span class="pull-right">
+                            <i class="section-header-time-left-clock">{{remainingTime}}</i>
+                           {{'sitnet_exam_time_left' | translate}}
+                        </span>
+                        <span class="pull-right fa-stack fa-lg">
+                            <i class="fa fa-clock-o fa-stack-1x"></i>
+                        </span>
+                    </h4>
+                </div>
             </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="exam-info-round">
+                    <span class="pull-left fa-stack fa-lg">
+                        <i class="fa fa-info-circle fa-stack-2x"></i>
+                    </span>
+                    <label>{{'sitnet_exam_quide' | translate}}</label>
+                    <i class="sitnet-light-gray">{{doexam.instruction}}</i>
+                </div>
+            </div>
+        </div>
 
-            <!-- SECTION NAVIGATION ARROWS AND LABELS -->
-            <div class="row">
-                <div class="col-md-3">
-                    <!-- TODO: Implement the section change functionality -->
-                    <a href="#">
-                        <i class="fa fa-arrow-circle-left fa-stack-2x section-navigation-left-button"></i>
-                        <span class="section-navigation-left-text">{{'sitnet_exam_previous_section' | translate}}</span>
-                    </a>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="section-container">
+                    <div class="list-group"  ng-include="sectionTemplate">
+                    </div>
                 </div>
-                <div class="col-md-3 col-md-offset-5">
-                    <!-- TODO: Implement the section change functionality -->
-                    <a href="#">
-                        <i class="fa fa-arrow-circle-right fa-stack-2x section-navigation-right-button"></i>
-                        <span class="section-navigation-right-text">{{'sitnet_exam_next_section' | translate}}</span>
-                    </a>
-                </div>
+            </div>
+        </div>
+
+        <!-- SECTION NAVIGATION ARROWS AND LABELS -->
+        <div class="row">
+            <div class="col-md-3">
+                <!-- PREVIOUS SECTION BUTTON -->
+                <a ng-click="setPreviousSection(doexam, activeSection)">
+                    <i class="fa fa-arrow-circle-left fa-stack-2x section-navigation-left-button"></i>
+                    <span class="section-navigation-left-text">{{'sitnet_exam_previous_section' | translate}}</span>
+                </a>
+            </div>
+            <div class="col-md-3 col-md-offset-5">
+                <!-- NEXT SECTION BUTTON -->
+                <a ng-click="setNextSection(doexam, activeSection)">
+                    <i class="fa fa-arrow-circle-right fa-stack-2x section-navigation-right-button"></i>
+                    <span class="section-navigation-right-text">{{'sitnet_exam_next_section' | translate}}</span>
+                </a>
             </div>
         </div>
     </div>

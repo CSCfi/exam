@@ -162,6 +162,45 @@
                     })
                 };
 
+                $scope.setPreviousSection = function (exam, active_section) {
+                    var sectionCount = exam.examSections.length;
+
+                    // Loop through all sections in the exam
+                    angular.forEach(exam.examSections, function (section, index) {
+                        // If section is same as the active_section
+                        if (angular.equals(section, active_section)) {
+                            // If this is the first element in the array
+                            if (index == 0) {
+                                var section = exam.examSections[sectionCount-1];
+//                                $scope.setActiveSection(exam.examSections[sectionCount]);
+                                $scope.setActiveSection(section);
+                            }
+                            else {
+                                $scope.setActiveSection(exam.examSections[index-1]);
+                            }
+                        }
+                    })
+                }
+
+                $scope.setNextSection = function (exam, active_section) {
+                    var sectionCount = exam.examSections.length;
+
+                    // Loop through all sections in the exam
+                    angular.forEach(exam.examSections, function (section, index) {
+                        // If section is same as the active_section
+                        if (angular.equals(section, active_section)) {
+                            // If this is the last element in the array
+                            if (index == sectionCount-1) {
+                                // Jump to the beginning of the array
+                                var section = exam.examSections[0];
+                                $scope.setActiveSection(section);
+                            } else {
+                                $scope.setActiveSection(exam.examSections[index+1]);
+                            }
+                        }
+                    })
+                }
+
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
                     StudentExamRes.exams.update({id: doexam.id}, function () {

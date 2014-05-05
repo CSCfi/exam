@@ -169,5 +169,8 @@
 "sitnet_returned_exams_info_main": "Only for demo purpose.",
 "sitnet_returned_exams_info_other": "List the exams that the student has returned.",
 
-"sitnet_created_by": "Created by"
+"sitnet_created_by": "Created by",
+"sitnet_can_be_enrolled": "Avoin",
+
+"sitnet_add_exception_time": "Add new exception"
 }

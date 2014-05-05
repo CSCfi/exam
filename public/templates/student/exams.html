@@ -6,7 +6,7 @@
             <a ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}" ng-click="activateExam(exam)" class="active-exams-list list-group-item">
                 <h4 class="list-group-item-heading">
                     {{exam.name}}
-                    <span class="pull-right">{{exam.examEvent.examReadableStartDate}} Avoin</span>
+                    <span class="pull-right">{{exam.examEvent.examReadableStartDate}} {{sitnet_can_be_enrolled | translate}}</span>
                 </h4>
                 <i>
                     <span class="list-group-item-text">{{exam.course.name}}</span>
