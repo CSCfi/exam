@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('StudentExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes',
-            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes) {
+        .controller('StudentExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes',
+            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, QuestionRes) {
 
                 $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
@@ -53,7 +53,14 @@
                                 }
                                 if (question.expanded) {
                                     question.selectedAnsweredState = 'question-active-header';
-                                } else {
+
+                                    if (!question.answer) {
+                                        question.questionStatus = $translate("sitnet_question_unanswered");
+                                    } else {
+                                        question.questionStatus = $translate("sitnet_question_answered");
+                                    }
+                                }
+                                else {
                                     if (!question.answer) {
                                         // When question is folded and has not been answered it's status color is set to gray
                                         question.selectedAnsweredState = 'question-unanswered-header';
@@ -131,9 +138,17 @@
                         if (question.expanded == null) {
                             question.expanded = true;
                         }
+
                         if (question.expanded) {
                             question.selectedAnsweredState = 'question-active-header';
-                        } else {
+
+                            if (!question.answer) {
+                                question.questionStatus = $translate("sitnet_question_unanswered");
+                            } else {
+                                question.questionStatus = $translate("sitnet_question_answered");
+                            }
+                        }
+                        else {
                             if (!question.answer) {
                                 // When question is folded and has not been answered it's status color is set to gray
                                 question.selectedAnsweredState = 'question-unanswered-header';
@@ -173,8 +188,11 @@
                 $scope.radioChecked = function (doexam, question, option) {
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
+                    $scope.option = option;
 
-                    StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id}, { data: "hello world"}, function () {
+                    StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id}, { data: "hello world" },
+                        function (updated_answer) {
+                        question.answer = updated_answer;
                         toastr.info("Vastaus lisätty kysymykseen.");
                     }, function () {
                         toastr.error(error.data);
@@ -212,11 +230,6 @@
 
                     if (question.type == "EssayQuestion") {
 
-                    }
-
-                    // Flag for indicating are the questions shown or hidden
-                    if (question.questionsShown == null) {
-                        question.questionsShown = false;
                     }
 
                     // State machine for resolving how the question header is drawn

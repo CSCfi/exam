@@ -147,6 +147,7 @@ question_essay:
     comments:
     maxCharacters: 1000
     shared: false
+    expanded: true
 
   - &essay2 !!models.questions.EssayQuestion
     creator: *maika
@@ -161,6 +162,7 @@ question_essay:
     comments:
     maxCharacters: 1024
     shared: false
+    expanded: true
 
   - &essay3 !!models.questions.EssayQuestion
     creator: *maika
@@ -175,7 +177,7 @@ question_essay:
     comments:
     maxCharacters: 2250
     shared: false
-
+    expanded: true
 
 
 question_mutiple_choice:
@@ -198,6 +200,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: 99, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
     shared: false
+    expanded: true
 
   - &multi2 !!models.questions.MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
@@ -215,6 +218,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: IDCLIP, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
     shared: false
+    expanded: true
 
   - &multi3 !!models.questions.MultipleChoiceQuestion
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
@@ -231,6 +235,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Adheesio, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Hakman, correctOption: false, score: 1}
     shared: false
+    expanded: true
 
   - &multi4 !!models.questions.MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
@@ -248,6 +253,7 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Paimenkoiria, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Jokin muu, correctOption: false, score: 1}
     shared: false
+    expanded: true
 
   - &multi5 !!models.questions.MultipleChoiceQuestion
     question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
@@ -264,6 +270,8 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false, score: 1}
     shared: false
+    expanded: true
+
 ######################################################################
   - &avaruus1 !!models.questions.MultipleChoiceQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on

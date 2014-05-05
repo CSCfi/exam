@@ -194,6 +194,7 @@ public class StudentExamController extends SitnetController {
             question.setAnswer(answer);
             answer.save();
             question.save();
+            return ok(Json.toJson(answer));
         } else {
             AbstractAnswer answer = question.getAnswer();
             ((MultipleChoiseAnswer) answer).setOption(option);
@@ -201,7 +202,7 @@ public class StudentExamController extends SitnetController {
 //            answer.setModifier(user);
             answer.update();
             question.update();
+            return ok(Json.toJson(answer));
         }
-        return ok("Vastaus tallennettiin");
     }
 }
