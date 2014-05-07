@@ -1,5 +1,5 @@
 <div id="sitnet-header" class="header"></div>
-<div id="studentexam">
+<div id="studentexam" class="container-fluid">
 
     <!--  EXAM AREA -->
     <div class="col-md-8">
@@ -46,18 +46,18 @@
 
         <!-- SECTION NAVIGATION ARROWS AND LABELS -->
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-sm-6 col-md-3 col-md-offset-1">
                 <!-- PREVIOUS SECTION BUTTON -->
                 <a ng-click="setPreviousSection(doexam, activeSection)">
                     <i class="fa fa-arrow-circle-left fa-stack-2x section-navigation-left-button"></i>
-                    <span class="section-navigation-left-text">{{'sitnet_exam_previous_section' | translate}}</span>
+                    <div class="section-navigation-left-text">{{'sitnet_exam_previous_section' | translate}}</div>
                 </a>
             </div>
-            <div class="col-md-3 col-md-offset-5">
+            <div class="col-sm-6 col-md-4 col-md-offset-4">
                 <!-- NEXT SECTION BUTTON -->
                 <a ng-click="setNextSection(doexam, activeSection)">
                     <i class="fa fa-arrow-circle-right fa-stack-2x section-navigation-right-button"></i>
-                    <span class="section-navigation-right-text">{{'sitnet_exam_next_section' | translate}}</span>
+                    <div class="section-navigation-right-text">{{'sitnet_exam_next_section' | translate}}</div>
                 </a>
             </div>
         </div>
