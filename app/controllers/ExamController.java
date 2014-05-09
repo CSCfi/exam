@@ -208,7 +208,6 @@ public class ExamController extends SitnetController {
         examSection.setExam(exam);
         examSection.save();
         exam.getExamSections().add(examSection);
-        exam.setDuration(new Double(3));
         exam.setExamLanguage("fi");
 
         exam.save();

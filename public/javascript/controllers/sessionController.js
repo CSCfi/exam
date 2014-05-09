@@ -106,7 +106,9 @@
                     });
                 };
 
-
+                $scope.go = function (location) {
+                    $location.path(location);
+                };
 
             }]);
 }());
