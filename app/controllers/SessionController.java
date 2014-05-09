@@ -20,9 +20,22 @@ import java.util.UUID;
 public class SessionController extends SitnetController {
 
     public static Result login() throws MalformedDataException, UnauthorizedAccessException {
+
+
+        String MetadisplayName = request().getHeader("Meta-displayName");
+        String cn = request().getHeader("cn");
+        String displayName = request().getHeader("displayName");
+        String eppn = request().getHeader("eppn");
+        String homeorg = request().getHeader("homeorg");
+        String logouturl = request().getHeader("logouturl");
+        String orgtype = request().getHeader("orgtype");
+        String sn = request().getHeader("sn");
+
+
         Credentials credentials = bindForm(Credentials.class);
         Logger.debug("User login with username: {} and password: ***", credentials.getUsername());
         String md5psswd = SitnetUtil.encodeMD5(credentials.getPassword());
+
 
         // Todo: do not select passwd here
         User user = Ebean.find(User.class)

@@ -33,6 +33,9 @@ POST          /exams/:eid/section/:sid/question/:qid                controllers.
 DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
 GET           /draft                                                controllers.ExamController.createExamDraft()
 
+GET           /enrolments                                           controllers.ExamController.getEnrolments()
+GET           /inspections                                          controllers.ExamController.getInspections()
+
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
 PUT           /student/exam/abort/:id                               controllers.StudentExamController.abortExam(id: Long)
@@ -91,9 +94,7 @@ DELETE        /machines/:id                                         controllers.
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()
-GET           /enrolments                                           controllers.ExamController.getEnrolments()
-GET           /inspections                                          controllers.ExamController.getInspections()
-
+GET           /secure                                               controllers.TestController.shibbolethHeaders()
 
 
 GET           /assets/*file                                         controllers.Assets.at(path="/public", file)

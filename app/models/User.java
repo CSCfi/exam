@@ -18,17 +18,14 @@ public class User extends Model implements Subject {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-//    @Constraints.Required
-//    @Formats.NonEmpty
+    private ShibbolethUser shibbolethUser;
+
     private String email;
 
-//    @Constraints.Required
     private String lastName;
 
-//    @Constraints.Required
     private String firstName;
 
-//    @Constraints.Required
     private String password;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -62,6 +59,14 @@ public class User extends Model implements Subject {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public ShibbolethUser getShibbolethUser() {
+        return shibbolethUser;
+    }
+
+    public void setShibbolethUser(ShibbolethUser shibbolethUser) {
+        this.shibbolethUser = shibbolethUser;
     }
 
     public String getEmail() {
