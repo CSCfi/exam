@@ -31,8 +31,11 @@
 		</div>
 		<ul class="list-group results">
 			<li class="single-question-header-inactive" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
-				<span class="single-question-icon"><i class="fa fa-2x fa-fw {{question.icon}}"></i></span>
-				<span class="menu-item" ng-bind-html="question.question"></span>
+				<div>
+
+                    <div class="single-question-icon"><i class="fa fa-2x fa-fw {{question.icon}}"></i></div>
+                    <div class="menu-item short-text" >{{stripHtml(question.question)}}</div>
+                </div>
 			</li>
 			<li class="single-question-header" ui-draggable="true" drag="random(amount)"><i class="fa fa-2x fa-fw fa-random"></i> 
 				<span class="menu-item">

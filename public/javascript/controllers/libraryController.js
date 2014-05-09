@@ -55,6 +55,23 @@
                 $scope.random = randomQuestions(data).limit;
             });
 
+            $scope.stripHtml = function(text) {
+                return String(text).replace(/<[^>]+>/gm, '');
+            }
+
+            $scope.shortText = function (text) {
+                // reomve HTML tags
+                var str = String(text).replace(/<[^>]+>/gm, '');
+
+                // shorten string
+                var maxLength = 40;
+                if(str.length > maxLength)
+                    str = String(str).substr(0, maxLength) + "...";
+
+                return str;
+            }
+
+
             $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
             $scope.libraryFilter = "";
             $scope.selected = undefined;
