@@ -22,33 +22,39 @@
             <hr>
 
             <!-- Question fields -->
-            <div class="sitnet-info-text">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" ng-model="newQuestion.shared" ui-blur="saveQuestion()"> {{'sitnet_share_this_question' | translate}}
-                    </label>
+            <form name="questionForm" novalidate>
+                <div class="sitnet-info-text">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" ng-model="newQuestion.shared" ui-blur="saveQuestion()"> {{'sitnet_share_this_question' | translate}}
+                        </label>
+                    </div>
                 </div>
-            </div>
-            <div class="sitnet-info-text">
-                {{'sitnet_instruction' | translate}}
-                <input type="text" class="form-control" ng-model="newQuestion.instruction" ui-blur="saveQuestion()"
-                       placeholder="{{'sitnet_question_instruction' | translate}}">
-            </div>
-            <div class="sitnet-info-text">
-                {{'sitnet_scores' | translate}}
-                <input type="text" class="form-control " ng-model="newQuestion.score" ui-blur="saveQuestion()"
-                       placeholder="{{'sitnet_correct_answer_score' | translate}}">
-            </div>
-            <div class="sitnet-info-text">
-                {{'sitnet_exam_evaluation_criteria' | translate}}
-                <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias" ui-blur="saveQuestion()"
-                          placeholder="{{'sitnet_correct_answer_should_have' | translate}}"></textarea>
-            </div>
-
+                <div class="sitnet-info-text">
+                    {{'sitnet_scores' | translate}}
+                    <label ng-hide="questionForm.score.$valid"> kentän arvon on oltava numero</label>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <input name="score" type="text" class="col-lg-2 form-control" ng-model="newQuestion.score"
+                                   ui-change="questionForm.score.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/"
+                                   placeholder="{{'sitnet_correct_answer_score' | translate}}">
+                        </div>
+                    </div>
+                </div>                <div class="sitnet-info-text">
+                    {{'sitnet_instruction' | translate}}
+                    <input type="text" class="form-control" ng-model="newQuestion.instruction" ui-change="saveQuestion()"
+                           placeholder="{{'sitnet_question_instruction' | translate}}">
+                </div>
+                <div class="sitnet-info-text">
+                    {{'sitnet_exam_evaluation_criteria' | translate}}
+                    <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias" ui-change="saveQuestion()"
+                              placeholder="{{'sitnet_correct_answer_should_have' | translate}}"></textarea>
+                </div>
+            </form>
         </div>
         <p>
             <!--ng-show="selectedType"-->
-            <button ng-click="saveQuestion()"  type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
+            <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion()" type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
         </p>
     </div>
 
