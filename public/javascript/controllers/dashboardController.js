@@ -7,9 +7,9 @@
                 $scope.session = sessionService;
                 $scope.dashboardTemplate = null;
 
+                $scope.allReviewedExams = ExamRes.examsByState.query({state: 'REVIEW'});
 
-
-                $scope.allReviewedExams = examService.allReviewedExams;
+//                $scope.allReviewedExams = examService.allReviewedExams;
 
                 $scope.user = $scope.session.user;
 

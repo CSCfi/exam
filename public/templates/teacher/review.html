@@ -3,62 +3,30 @@
         <h2 class="table-heading">{{'sitnet_exam_review' | translate}}</h2>
     </div>
 
-    <!--<div class="col-md-8" ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">-->
-        <!--&lt;!&ndash; Exam name &ndash;&gt;-->
-        <!--<div class="exam-name">-->
-            <!--<div ng-hide="showName">-->
-                <!--<span class="pull-right fa-stack fa-lg dropdown" ng-click="editExam(section)"></span>-->
+    <div class="col-md-12">
+        <div class="exam-name">
+            <h3>
+                {{examToBeReviewed.course.code}} - {{examToBeReviewed.name}}
+            </h3>
+        </div>
 
-                <!--<h3>-->
-                    <!--<span class="editable" ng-click="showName = !showName">-->
-                        <!--{{newExam.name}} <i class="fa fa-pencil"></i>-->
-                    <!--</span>-->
-                <!--</h3>-->
-            <!--</div>-->
-            <!--<div ng-show="showName">-->
-                <!--<form class="form-inline" role="form">-->
-                    <!--<div class="form-group">-->
-                        <!--<input type="text" class="form-control input-lg" ng-model="newExam.name" autofocus>-->
-                    <!--</div>-->
-                    <!--<button class="btn-primary" ng-click="showName = !showName; updateExam(newExam)">-->
-                        <!--<i class="fa fa-check"></i>-->
-                    <!--</button>-->
-                <!--</form>-->
-            <!--</div>-->
-        <!--</div>-->
+        <div class="exam-wrapper">
+            <!-- General Information -->
+            <div class="exam-general-information" ng-include="generalInfoPath">
+            </div>
 
-        <!--<div class="exam-wrapper">-->
-            <!--&lt;!&ndash; General Information &ndash;&gt;-->
-            <!--<div class="exam-general-information" ng-include="generalInfoPath">-->
-            <!--</div>-->
+            <div class="exam-sections">
+                <div ng-include="reviewSectionPath" ng-repeat="section in examToBeReviewed.examSections"></div>
+                </div>
+            </div>
 
-            <!--&lt;!&ndash; Exam instruction &ndash;&gt;-->
-            <!--<div class="exam-general-information">-->
-                <!--<div class="exam-general-information-header">-->
-                    <!--{{'sitnet_instruction' | translate}}-->
-                    <!--<span ng-click="" class="pull-right fa-stack fa-lg">-->
-                    <!--<i class="sitnet-grey fa fa-square fa-stack-2x"></i>-->
-                    <!--<i ng-class="showInstruction ? 'fa-chevron-down' : 'fa-chevron-left'" ng-click="showInstruction = !showInstruction"-->
-                       <!--class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>-->
-                    <!--</span>-->
-                <!--</div>-->
+            <div>
+                Tentin kokonaispisteet: {{getExamTotalScore(examToBeReviewed)}}
+            </div>
+        </div>
 
-                <!--<div class="input-group exam-info" ng-show="showInstruction">-->
-                    <!--<textarea class="form-control" rows="2" cols="140" ng-model="newExam.instruction"-->
-                              <!--placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">-->
-                    <!--</textarea>-->
-                <!--</div>-->
-            <!--</div>-->
-            <!--<div class="exam-sections">-->
-                <!--<div class="" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>-->
-            <!--</div>-->
-            <!--<span ng-click="addNewSection()" class="create-new">-->
-                <!--<center>-->
-                    <!--<i class="fa fa-2x fa-hand-o-right"></i>-->
-                    <!--{{'sitnet_section_add' | translate}}-->
-                <!--</center>-->
-            <!--</span>-->
-            <!--<span><button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button></span>-->
-            <!--<span class="pull-right"><button ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button></span>-->
-        <!--</div>-->
+        <div style="padding-left: 1em">
+            <button ng-click="examReviewReady(examToBeReviewed)" class="btn btn-primary" style="margin-top: 5em">Tallenna ja arvioi</button>
+        </div>
+    </div>
 </div>

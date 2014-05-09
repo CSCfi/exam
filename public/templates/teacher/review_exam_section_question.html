@@ -1,0 +1,7 @@
+<!-- Included from review_exam_section_question.html -->
+            <td>{{$index + 1}}</td>
+            <td><i class="fa fa-2x fa-list-ul"></i></td>
+            <td ng-bind-html="question.question"> {{question.question}}</td>
+            <td><span ng-repeat="option in question.options | filter: {correctOption: true}">{{option.option}}</span></td>
+            <td>{{question.answer.option.option}}</td>
+            <td>{{scoreAnswer(question)}}</td>

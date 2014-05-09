@@ -34,7 +34,7 @@
             $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'student/exam.html', controller: 'StudentExamController'});
 
             /* Teacher */
-            $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'teacher/review.html'});
+            $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'teacher/review.html', controller: 'ExamReviewController'});
 
             /* Admin */
             $routeProvider.when('/rooms', { templateUrl: tmpl + 'admin/rooms.html', controller: 'RoomCtrl'});

@@ -171,6 +171,7 @@
 
 "sitnet_created_by": "Created by",
 "sitnet_can_be_enrolled": "Avoin",
+"sitnet_state_inspect": "Tarkista",
 
 "sitnet_add_exception_time": "Add new exception"
 }

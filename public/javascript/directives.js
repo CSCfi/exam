@@ -59,6 +59,23 @@
             };
         }])
 
+//        .directive('examScore', function () {
+//            return {
+//                link: function (scope, elem, attrs, ngModel) {
+//
+//                    if (scope.option.correctOption == true) {
+//                        scope.score = scope.question.score;
+//                    } else {
+//                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");;
+//                    }
+//
+//                    elem.bind('blur', function () {
+//                        scope.$apply(attrs.uiBlur);
+//                    });
+//                }
+//            };
+//        }])
+
         .directive('uiChange', function () {
             return {
                 restrict: 'A', // only activate on element attribute

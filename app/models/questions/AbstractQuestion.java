@@ -24,6 +24,7 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     protected String type;
 
+    @Column(columnDefinition = "TEXT")
     protected String question;
 
     protected boolean shared;
