@@ -4,7 +4,7 @@
         .controller('QuestionCtrl', ['$scope', '$routeParams', '$location', 'QuestionRes', '$translate', 'SITNET_CONF',
             function ($scope, $routeParams, $location, QuestionRes, $translate, SITNET_CONF) {
 
-        		$scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
+                $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
@@ -37,10 +37,9 @@
                     }
                 }
 
-                if($routeParams.id === undefined)
+                if ($routeParams.id === undefined)
                     $scope.questions = QuestionRes.questions.query();
-                else
-                {
+                else {
                     QuestionRes.questions.get({id: $routeParams.id},
                         function (value) {
                             $scope.newQuestion = value;
@@ -56,10 +55,10 @@
 
 
 //                http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
-                $scope.createQuestion = function(type) {
+                $scope.createQuestion = function (type) {
                     var newQuestion = {
-                        type: type,
-                        question: $translate("sitnet_question_write_name")
+                        type: type
+//                        question: $translate("sitnet_question_write_name")
                     }
 
                     QuestionRes.questions.create(newQuestion,
@@ -72,17 +71,17 @@
                     );
                 }
 
-                $scope.newMCQuestion = function () {
-                    $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
-                    $scope.newQuestion.type = "MultipleChoiceQuestion";
-                    $scope.newQuestion.options = [
-                        {
-                            "option": "Esimerkki vaihtoehto",
-                            "correctOption": false,
-                            "score": 1
-                        }
-                    ];
-                };
+//                $scope.newMCQuestion = function () {
+//                    $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
+//                    $scope.newQuestion.type = "MultipleChoiceQuestion";
+//                    $scope.newQuestion.options = [
+//                        {
+//                            "option": "Esimerkki vaihtoehto",
+//                            "correctOption": false,
+//                            "score": 1
+//                        }
+//                    ];
+//                };
 
                 $scope.newEssayQuestion = function () {
                     $scope.questionTemplate = $scope.essayQuestionTemplate;
@@ -144,7 +143,7 @@
                 $scope.addNewOption = function (newQuestion) {
 
                     var option = {
-                        "option": "Esimerkki vaihtoehto",
+//                        "option": "Esimerkki vaihtoehto",
                         "correctOption": false,
                         "score": 1
                     };
@@ -203,32 +202,29 @@
                         // This is the option that was clicked
                         if (option.id == optionId) {
                             // If the correct is false then switch it to true, otherwise do nothing
-                            if (option.correctOption == false) {
-
+                            if (option.correctOption === false) {
                                 option.correctOption = true;
 
                                 QuestionRes.options.update({oid: optionId}, option,
                                     function (response) {
-                                        toastr.info("Oikea vaihtoehto päivitetty");
+//                                        toastr.info("Oikea vaihtoehto päivitetty");
                                     }, function (error) {
                                         toastr.error(error.data);
                                     }
                                 );
-//                                $scope.correctAnswer = {background: 'green'}
                             }
                         } else {
                             // Check for true values in other options than that was clicked and if found switch them to false
-                            if (option.correctOption == true) {
+                            if (option.correctOption === true) {
                                 option.correctOption = false;
 
                                 QuestionRes.options.update({oid: optionId}, option,
                                     function (response) {
-                                        toastr.info("Edellinen oikea vaihtoehto päivitetty");
+//                                        toastr.info("Edellinen oikea vaihtoehto päivitetty");
                                     }, function (error) {
                                         toastr.error(error.data);
                                     }
                                 );
-//                                $scope.wrongAnswer = {background: 'grey'}
                             }
                         }
                     })
@@ -237,5 +233,9 @@
 
                 }
 
+                $scope.go = function (location) {
+                    $location.path(location);
+                };
+                
             }]);
 }());

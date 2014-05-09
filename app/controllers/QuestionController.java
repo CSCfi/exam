@@ -174,7 +174,7 @@ public class QuestionController extends SitnetController {
     public static Result createOption() throws MalformedDataException {
 
         MultipleChoiseOption option = new MultipleChoiseOption();
-        option.setOption("Esimerkki vaihtoehto");
+//        option.setOption("Esimerkki vaihtoehto");
         option.setCorrectOption(false);
         option.save();
 

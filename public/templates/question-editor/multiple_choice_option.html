@@ -6,18 +6,14 @@
             <i class="fa fa-arrows fa-2x"></i>
         </span>
     </div>
-    <input type="text" name="option.option" ng-model="option.option" ui-blur="updateOption(option)" class="form-group editable multiplechoice-question-input">
+    <input type="text" name="option.option" class="form-group editable multiplechoice-question-input"
+           ng-model="option.option" ui-blur="updateOption(option)" placeholder="{{'sitnet_question_new_option' | translate}}">
 
-    <!--ng-hide="showOption" ng-click="showOption = !showOption">-->
-
-        <!--<i class="fa fa-pencil"></i>-->
-        <!--<span class="badge" ng-show="option.correctOption" class="ng-hide">TOSI</span>-->
-    <!--<div class="form-group" ng-show="showOption">-->
-        <!--<input type="text" class="input-sm form-control" ng-model="option.option" autofocus>-->
-    <!--</div>-->
-
-    <span answer-state class="answer-state" ng-class="{'correct-answer': option.correctOption, 'wrong-answer': !option.correctOption}"
-          ng-click="correctAnswerToggled(option.id, newQuestion)" ng-model="answerState">{{answerState}}</span>
+    <span class="answer-state"
+          ng-class="{'correct-answer': option.correctOption, 'wrong-answer': !option.correctOption}"
+          ng-click="correctAnswerToggled(option.id, newQuestion)" ng-model="answerState">
+        {{option.correctOption ? ('sitnet_multiplechoice_question_correct' | translate) : ('sitnet_multiplechoice_question_incorrect' | translate)}}
+    </span>
 
     <div class="form-group" ng-show="showOption">
         <button class="btn btn-primary" ng-click="showOption = !showOption">

@@ -105,5 +105,8 @@
                         toastr.error(message, "Kirjautuminen epäonnistui!");
                     });
                 };
+
+
+
             }]);
 }());
