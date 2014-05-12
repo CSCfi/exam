@@ -160,12 +160,12 @@ public class StudentExamController extends SitnetController {
 
         if(previousAnswer == null) {
             previousAnswer = new EssayAnswer();
-            previousAnswer.setCreated(currentTime);
-            previousAnswer.setCreator(user);
+//            previousAnswer.setCreated(currentTime);
+//            previousAnswer.setCreator(user);
         }
 
-        previousAnswer.setModifier(user);
-        previousAnswer.setModified(currentTime);
+//        previousAnswer.setModifier(user);
+//        previousAnswer.setModified(currentTime);
         previousAnswer.setAnswer(answerString);
         previousAnswer.save();
 

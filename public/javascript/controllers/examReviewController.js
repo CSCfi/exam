@@ -4,20 +4,9 @@
         .controller('ExamReviewController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes',
             function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes) {
 
-//                $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "student/student_sections_bar.html";
-//                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
-//                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/essay_question.html";
-//                $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/section_template.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_general.html";
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section.html";
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section_question.html";
-//                $scope.exams = StudentExamRes.exams.query();
-//                $scope.tempQuestion = null;
-//
-//                $scope.countCharacters = function (question) {
-//                    question.answer.answerLength = question.answer.answer.length;
-//                    question.words = question.answer.answer.split(" ").length;
-//                };
 
                 var examTotalScore = 0;
 
@@ -62,27 +51,14 @@
                 $scope.getSectionTotalScore = function(section) {
                     var score = 0;
 
-//                    section.questions.map(function (item) {
-//                        switch (item.type) {
-//                            case "MultipleChoiceQuestion":
-//                                angular.forEach(question.options, function (option, index) {
-//                                    if (option.correctOption === true && question.answer.option.id === option.id) {
-//                                        score = score + question.score;
-//                                    }
-//                                });
-//                                break;
-//                            case "EssayQuestion":
-//                                break;
-//                            default:
-//                                break;
-//                        }
-//                    });
-
                     angular.forEach(section.questions, function(question, index) {
 
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
                                 angular.forEach(question.options, function (option, index) {
+                                	if(question.answer === null) {
+                                        return 0;
+                                    }
                                     if (option.correctOption === true && question.answer.option.id === option.id) {
                                         score = score + question.score;
                                     }
@@ -95,16 +71,7 @@
                             default:
                                 break;
                         }
-
-
-//                        angular.forEach(question.options, function (option, index) {
-//
-//                            if (option.correctOption === true && question.answer.option.id === option.id) {
-//                                score = score + question.score;
-//                            }
-//                        });
                     });
-
                     return score;
                 };
 

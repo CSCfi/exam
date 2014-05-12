@@ -238,10 +238,13 @@
                     });
                 };
 
-                $scope.saveEssay = function (questionId, answer) {
+                $scope.saveEssay = function (question, answer) {
+                	question.answered = true;
+                	question.questionStatus = $translate("sitnet_question_answered");
+                	
                     var params = {
                         hash: $scope.doexam.hash,
-                        qid: questionId
+                        qid: question.id
                     };
                     var msg = {};
                     msg.answer = answer;
