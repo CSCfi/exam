@@ -7,7 +7,7 @@
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
 
-                $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/review_exam_section.html";
+                $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section.html";
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_question.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_general.html";
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";

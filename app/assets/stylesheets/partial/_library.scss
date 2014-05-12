@@ -1,6 +1,6 @@
 #library {
   .library {
-    padding: 2em;
+    padding: 1em;
     min-height: 100%;
     border: solid 1px $sitnet-grey;
     background-color: $sitnet-light-grey;
@@ -29,8 +29,8 @@
     color: $sitnet-white;
     background-color: $sitnet-teacher-turquoise-light-active;
     padding-top: 0.5em;
-    padding-bottom: 1em;
-    min-height: 3em;
+    padding-bottom: 0.5em;
+    min-height: 2.5em;
     margin-bottom: 0.5em;
     margin-top: 0.5em;
   }
@@ -44,8 +44,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+//    padding-left: 1em;
+    padding-right: 1em;
   }
 
   li {
