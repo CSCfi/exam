@@ -12,11 +12,11 @@
         <h2 class="sitnet-teacher-turquoise-dark-active">{{'sitnet_exam_rooms' | translate}}</h2>
         <span class="sitnet-info-text">{{'sitnet_room_general_info' | translate}}</span>
 
-        <div class="">
+        <div>
             <div class="exam-machine" ng-repeat="room in rooms">
                 <h3>
                     <a href="#/rooms/{{room.id}}">
-                        <span class="">{{room.roomCode}} - {{room.name}}</span>
+                        <span >{{room.roomCode}} - {{room.name}}</span>
                     </a>
                     <div class="dropdown pull-right fa-stack fa-lg pointer-hand">
                         <a class="dropdown-toggle">

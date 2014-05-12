@@ -24,7 +24,7 @@
     <div class="exam-list-saved">
         <a ng-repeat="exam in exams | filter: {state: 'STUDENT_STARTED'}" ng-click="continueExam(exam)" class="active-exams-list list-group-item">
             <h4 class="list-group-item-heading">
-                <span class="">{{exam.course.code}} - {{exam.name}}</span><span class="pull-right">{{'sitnet_in_progress' | translate}}</span>
+                <span >{{exam.course.code}} - {{exam.name}}</span><span class="pull-right">{{'sitnet_in_progress' | translate}}</span>
             </h4>
         </a>
     </div>
@@ -37,7 +37,7 @@
     <div class="exam-list-saved">
         <a ng-repeat="exam in exams | filter: {state: 'REVIEW'}" class="active-exams-list list-group-item">
             <h4 class="list-group-item-heading">
-                <span class="">{{exam.course.code}} - {{exam.name}}</span><span class="pull-right">{{'sitnet_returned' | translate}}</span>
+                <span >{{exam.course.code}} - {{exam.name}}</span><span class="pull-right">{{'sitnet_returned' | translate}}</span>
             </h4>
         </a>
     </div>

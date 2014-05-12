@@ -30,7 +30,7 @@
             <div class="exam-general-information" ng-include="generalInfoPath">
             </div>
             <div class="exam-sections">
-                <div class="" ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>
+                <div ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>
             </div>
             <span ng-click="addNewSection()" class="create-new">
                 <center>

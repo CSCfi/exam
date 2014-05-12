@@ -1,7 +1,8 @@
+<!--<div id="library" data-spy="library" data-offset-top="100" bs-affix ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'">-->
 <div id="library" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'">
 	<div class="library-header">
 		<h4>
-			<span ng-click="session.minimizeLibrary = ! session.minimizeLibrary" class="">
+			<span ng-click="session.minimizeLibrary = ! session.minimizeLibrary">
 				<i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
 				<i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
 			</span>
@@ -13,7 +14,7 @@
 				<i class="fa fa-briefcase"></i>
 				{{'sitnet_library' | translate}}
 			</span>
-			<span class="pull-right dropdown" ng-click="">
+			<span class="pull-right dropdown">
 				<a class="dropdown-toggle"><i class="sitnet-orange fa fa-cog"></i>
 				</a>
 				<ul class="dropdown-menu">
