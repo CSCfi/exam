@@ -1,4 +1,5 @@
 #library {
+
   .library {
     padding: 1em;
     min-height: 100%;
@@ -44,15 +45,17 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-//    padding-left: 1em;
     padding-right: 1em;
   }
 
-  .myaffix {
-//    position: fixed;
+  .library-main.affix {
+    position: fixed;
     right: 0;
     top: 0;
     width: 28%;
+    overflow-y: scroll;
+    margin-right: 1em;
+    padding-right: 0;
   }
 
   li {
