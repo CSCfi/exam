@@ -121,7 +121,7 @@ question_essay:
     created: 2014-01-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
-    score: 5
+    maxScore: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -139,15 +139,15 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
     options:
-        - !!models.questions.MultipleChoiseOption {option: Kissoja koiria ja muita eläimiä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Abstrakteja henkilöitä, correctOption: false, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Olio voidaan nähdä itsenäisenä pienenä koneena joka kapseloi tietoa ja toimintoja, correctOption: true, score: 1}
-        - !!models.questions.MultipleChoiseOption {option: Oliolla on aina Rakentaja ja Hajottaja, correctOption: false, score: 1}
+        - !!models.questions.MultipleChoiseOption {option: Kissoja koiria ja muita eläimiä, correctOption: false, maxScore: 1}
+        - !!models.questions.MultipleChoiseOption {option: Abstrakteja henkilöitä, correctOption: false, maxScore: 1}
+        - !!models.questions.MultipleChoiseOption {option: Olio voidaan nähdä itsenäisenä pienenä koneena joka kapseloi tietoa ja toimintoja, correctOption: true, maxScore: 1}
+        - !!models.questions.MultipleChoiseOption {option: Oliolla on aina Rakentaja ja Hajottaja, correctOption: false, maxScore: 1}
     shared: false
 
 ######################################################################

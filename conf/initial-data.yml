@@ -140,7 +140,7 @@ question_essay:
     created: 2014-01-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
-    score: 5
+    maxScore: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -155,7 +155,7 @@ question_essay:
     created: 2014-01-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     instruction:
-    score: 5
+    maxScore: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -170,7 +170,7 @@ question_essay:
     created: 2014-01-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
     instruction:
-    score: 5
+    maxScore: 5
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -190,7 +190,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -208,7 +208,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -226,7 +226,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -243,7 +243,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -261,7 +261,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -279,7 +279,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
     comments:
@@ -295,7 +295,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
     comments:
@@ -311,7 +311,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
     comments:
@@ -327,7 +327,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
     comments:
@@ -343,7 +343,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
     comments:
@@ -360,7 +360,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
     comments:
@@ -376,7 +376,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
     comments:
@@ -393,7 +393,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
     comments:
@@ -410,7 +410,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
     comments:
@@ -427,7 +427,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
     comments:
@@ -444,7 +444,7 @@ question_mutiple_choice:
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
-    score: 5
+    maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
     comments:
@@ -562,6 +562,7 @@ exams:
     examType:
     instruction:
     shared: false
+    grading: 0-5
     examSections:
     state: PUBLISHED
 
@@ -573,6 +574,7 @@ exams:
     examType:
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
+    grading: 0-5
     examSections:
     state: PUBLISHED
 
@@ -584,6 +586,7 @@ exams:
     examType:
     instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
     shared: true
+    grading: 0-5
     examSections:
     state: PUBLISHED
 
@@ -595,6 +598,7 @@ exams:
     examType:
     instruction: Vastaa kaikkiin tenttikysymyksiin
     shared: true
+    grading: Improbatur-Laudatur
     examSections:
     state: PUBLISHED
 
@@ -606,6 +610,7 @@ exams:
     examType:
     instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
     shared: true
+    grading: Hyväksytty/Hylätty
     examSections:
     state: DRAFT
 
@@ -617,6 +622,7 @@ exams:
     examType:
     instruction: Tentissä saa käyttää vain tilakoneita.
     shared: true
+    grading: 0-5
     examSections:
     state: PUBLISHED
     

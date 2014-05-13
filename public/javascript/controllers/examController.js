@@ -67,9 +67,9 @@
 
                 // Todo: Fill in gradings from database for final version
                 $scope.examGradings = [
-                    "1-3",
-                    "1-5",
-                    "4-10"
+                    "0-5",
+                    "Improbatur-Laudatur",
+                    "Hyväksytty-Hylätty"
                 ];
 
                 // Todo: Fill in languages from database for final version

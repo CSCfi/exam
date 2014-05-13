@@ -50,7 +50,15 @@
                 
                 draft: $resource("/draft", null,
         		{
-        		})
+        		}),
+
+                review: $resource("/review/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "update": {method: "PUT"}
+                })
             }
         }]);
 }());

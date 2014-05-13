@@ -20,13 +20,36 @@
                 </div>
             </div>
 
-            <div>
+            <div style="margin-top: 3em">
                 Tentin kokonaispisteet: {{getExamTotalScore(examToBeReviewed)}}
             </div>
         </div>
+    </div>
 
-        <div style="padding-left: 1em">
-            <button ng-click="examReviewReady(examToBeReviewed)" class="btn btn-primary" style="margin-top: 5em">Tallenna ja arvioi</button>
+    <div class="row" style="padding-left: 1em">
+        <div class="col-md-6">
+            <div class="sitnet-info-text">Tentin Arvosana:</div>
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        {{'sitnet_choose' | translate}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="grade in examGrading" ng-click="setExamGrade(grade)"><a class="pointer-hand">{{grade}}</a>
+                        </li>
+                    </ul>
+                </div>
+                <input type="text" class="form-control" ng-model="examToBeReviewed.grade">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div style="padding-left: 1em">
+                <button ng-click="examReviewReady(examToBeReviewed)" class="btn btn-primary" style="margin-top: 5em">Tallenna arviointi</button>
+            </div>
         </div>
     </div>
 </div>

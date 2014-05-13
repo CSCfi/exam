@@ -69,7 +69,7 @@ public class Exam extends SitnetModel {
     // tentin kesto
     private Double duration;
 
-    // Exam grading, e.g. 1-5
+    // Exam grading, e.g. 0-5
     private String grading;
 
     // Exam language

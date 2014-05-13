@@ -21,6 +21,7 @@ public class EssayQuestion extends AbstractQuestion implements QuestionInterface
     // not really max length, Just a recommendation
     private Long maxCharacters;
 
+    private Double evaluatedScore;
 
     @Override
     public String getType() {
@@ -45,7 +46,15 @@ public class EssayQuestion extends AbstractQuestion implements QuestionInterface
         this.maxCharacters = maxCharacters;
     }
 
-	@Override
+    public Double getEvaluatedScore() {
+        return evaluatedScore;
+    }
+
+    public void setEvaluatedScore(Double evaluatedScore) {
+        this.evaluatedScore = evaluatedScore;
+    }
+
+    @Override
     public Object clone() {
 
         return SitnetUtil.getClone(this);

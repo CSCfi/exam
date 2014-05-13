@@ -31,7 +31,7 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     protected String instruction;
 
-    protected Double score;
+    protected Double maxScore;
 
     /*
      * If question is edited (correcting a spelling mistake)
@@ -183,8 +183,8 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.hash = hash;
     }
 
-    public Double getScore() {
-        return score;
+    public Double getMaxScore() {
+        return maxScore;
     }
 
     public Boolean getExpanded() {
@@ -195,8 +195,8 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.expanded = expanded;
     }
 
-    public void setScore(Double score) {
-        this.score = score;
+    public void setMaxScore(Double maxScore) {
+        this.maxScore = maxScore;
     }
 
     public AbstractQuestion getAncestor(AbstractQuestion abstractQuestion) {

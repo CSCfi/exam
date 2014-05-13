@@ -21,7 +21,7 @@ DELETE        /users/:id                                            controllers.
 GET           /exams                                                controllers.ExamController.getExams()
 GET           /exams/:id                                            controllers.ExamController.getExam(id: Long)
 DELETE        /exams/:id                                            controllers.ExamController.deleteExam(id: Long)
-GET           /exams/review/:id                                     controllers.ExamController.reviewExam(id: Long)
+PUT           /review/:id                                           controllers.ExamController.reviewExam(id: Long)
 GET           /exams/state/:state                                   controllers.ExamController.getExamsByState(state: String)
 PUT           /exams/:id                                            controllers.ExamController.updateExam(id: Long)
 POST          /exams                                                controllers.ExamController.createExam()

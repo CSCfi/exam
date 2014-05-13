@@ -78,7 +78,7 @@
 //                        {
 //                            "option": "Esimerkki vaihtoehto",
 //                            "correctOption": false,
-//                            "score": 1
+//                            "maxScore": 1
 //                        }
 //                    ];
 //                };

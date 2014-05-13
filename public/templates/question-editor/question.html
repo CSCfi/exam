@@ -32,14 +32,15 @@
                 </div>
                 <div class="sitnet-info-text">
                     {{'sitnet_scores' | translate}}
-                    <label ng-hide="questionForm.score.$valid"> kentän arvon on oltava numero</label>
+                    <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
                     <div class="row">
                         <div class="col-lg-2">
-                            <input name="score" type="text" class="col-lg-2 form-control" ng-model="newQuestion.score"
-                                   ui-change="questionForm.score.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                            <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
+                                   ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
                         </div>
                     </div>
-                </div>                <div class="sitnet-info-text">
+                </div>
+                <div class="sitnet-info-text">
                     {{'sitnet_instruction' | translate}}
                     <input type="text" class="form-control" ng-model="newQuestion.instruction" ui-change="saveQuestion()"
                            placeholder="{{'sitnet_question_instruction' | translate}}">

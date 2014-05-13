@@ -30,23 +30,24 @@
     <table class="table table-bordered">
         <thead>
             <tr style="background-color: lightgrey">
-                <th style="width: 3%">#</th>
-                <th style="width: 3%">Kuva</th>
-                <th style="width: 35%">Kysymys</th>
-                <th style="width: 15%">Oikein</th>
-                <th style="width: 15%">Vastaus</th>
-                <th style="width: 5%">Pisteet</th>
+                <th style="width: 2%">#</th>
+                <th style="width: 2%"><i class="fa fa-1x fa-tags"></i></th>
+                <th style="width: 30%">Kysymys</th>
+                <th style="width: 30%">Oikein</th>
+                <th style="width: 30%">Vastaus</th>
+                <th style="width: 2%">Pisteet</th>
             </tr>
         </thead>
-        <tbody >
-            <tr style="background-color: {{question.backgroundColor}}" ng-include="questionPath" ng-repeat="question in section.questions">
-
+        <tbody ng-repeat="question in section.questions">
+            <tr ng-if="question.type === 'MultipleChoiceQuestion'" style="background-color: {{question.backgroundColor}}" ng-include="multiplechoiceQuestionPath">
             </tr>
 
+            <tr ng-if="question.type === 'EssayQuestion'" style="background-color: {{question.backgroundColor}}" ng-include="essayQuestionPath">
+            </tr>
         </tbody>
     </table>
 
-    <div>
+    <div style="margin-top: 3em">
         Osion kokonaispisteet: {{getSectionTotalScore(section)}}
     </div>
 </div>

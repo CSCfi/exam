@@ -113,7 +113,6 @@ public class QuestionController extends SitnetController {
 
        DynamicForm df = Form.form().bindFromRequest();
 
-
        switch (df.get("type")) {
            case "MultipleChoiceQuestion": {
                MultipleChoiceQuestion question = bindForm(MultipleChoiceQuestion.class);

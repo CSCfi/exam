@@ -132,17 +132,27 @@ public class ExamController extends SitnetController {
     public static Result reviewExam(Long id) {
         Logger.debug("reviewExam(:id)");
 
-//        Query<Exam> query = Ebean.createQuery(Exam.class);
-//        query.fetch("examEvent");
-//        query.fetch("course");
-//        query.fetch("examSections");
-//        query.setId(id);
-//
-//        Exam exam = query.findUnique();
-//
-//        return ok(Json.toJson(exam));
+        DynamicForm df = Form.form().bindFromRequest();
 
-        return ok("testi toimii");
+        Exam ex = Form.form(Exam.class).bindFromRequest(
+                "id",
+                "instruction",
+                "name",
+                "shared",
+                "state",
+                "room",
+                "duration",
+                "grading",
+                "examLanguage",
+                "answerLanguage",
+                "grade",
+                "expanded")
+                .get();
+
+        ex.generateHash();
+        ex.update();
+
+        return ok(Json.toJson(ex));
     }
 
     public static Result updateExam(Long id) throws MalformedDataException {

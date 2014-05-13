@@ -64,7 +64,7 @@
 //                link: function (scope, elem, attrs, ngModel) {
 //
 //                    if (scope.option.correctOption == true) {
-//                        scope.score = scope.question.score;
+//                        scope.maxScore = scope.question.maxScore;
 //                    } else {
 //                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");;
 //                    }
