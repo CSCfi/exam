@@ -1,0 +1,42 @@
+<div id="sitnet-header" class="header">
+    <h2 class="table-heading">{{'sitnet_softwares' | translate}}</h2>
+</div>
+<div class="form-group">
+    <div class="exam-header">
+    <br/>
+    </div>
+    <div class="col-md-3">
+        <form class="form-inline" role="form">
+            <div class="sitnet-info-text">{{'sitnet_software_name' | translate}}</div>
+            <div class="pull-left col-md-8 row"><input type="text" class="form-control col-md-12" ng-model="software.name"/></div>
+            <div class="pull-right col-md-4"><button ng-click="addSoftware(software.name)" class="btn btn-primary pull-left">{{'sitnet_create_new' | translate}}</button></div>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <table class="table table-striped table-condensed col-md-5 pull-left">
+            <tr ng-repeat="software in softwares" ng-model="softwareList">
+                <td>
+                    <div ng-hide="showName">
+                        <span class="editable" ng-click="showName = !showName">
+                            {{ software.name }}
+                        </span>
+                        <a class="editable pull-right" ng-click="showName = !showName;"><i class="fa fa-pencil"></i></a>
+                    </div>
+                    <div ng-show="showName">
+                        <form class="form-inline" role="form">
+                            <div class="form-group">
+                                <label>
+                                    <input type="text" class="form-control input-sm" ng-model="software.name" autofocus>
+                                </label>
+                            </div>
+                            <button class="btn btn-primary btn-sm" ng-click="showName = !showName; updateSoftware(software);">
+                                <i class="fa fa-check"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                <td class="col-md-1"><a ng-click="removeSoftware(software)"><i class="fa fa-times"></i></a></td>
+            </tr>
+        </table>
+    </div>
+</div>

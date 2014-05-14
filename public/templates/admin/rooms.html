@@ -1,7 +1,10 @@
 <div id="sitnet-header" class="header">
     <!--<div ng-controller="RoomCtrl">-->
     <div class="row">
-        <div class="col-md-2 col-md-offset-10">
+        <div class="col-md-2">
+            <a ng-click="manageSoftwares()" class="btn btn-primary btn-lg active header-button">{{'sitnet_softwares' | translate}}</a>
+        </div>
+        <div class="col-md-2 col-md-offset-8">
             <a ng-click="createExamRoom()" class="btn btn-primary btn-lg active header-button">{{'sitnet_create_new' | translate}}</a>
         </div>
     </div>

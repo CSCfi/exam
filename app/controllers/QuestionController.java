@@ -46,7 +46,7 @@ public class QuestionController extends SitnetController {
         return ok(Json.toJson(question));
     }
 
-    @Restrict(@Group({"TEACHER"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result addQuestion() throws MalformedDataException {
 
         DynamicForm df = Form.form().bindFromRequest();

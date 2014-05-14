@@ -742,7 +742,7 @@ exam-inspections:
   - !!models.ExamInspection
     user: *arvo
     exam: *ooad
-   
+
   - !!models.ExamInspection
     user: *arvo
     exam: *tietokannat2013
@@ -755,7 +755,21 @@ exam-inspections:
    
 ############### Tilavaraus ###############
 
+softwares:
+  - &Matematica !!models.Software
+    name: Matematica
 
+  - &Firefox !!models.Software
+    name: Firefox
+
+  - &Excel !!models.Software
+    name: Excel
+
+  - &Mathcad !!models.Software
+    name: Mathcad
+
+  - &Notepad !!models.Software
+    name: Notepad
 
 exam-machines:
 
@@ -765,7 +779,9 @@ exam-machines:
     surveillanceCamera: CAM-001
     accessibilityInfo: Nostettava sähköpöytä
     accessible: true
-    softwareInfo: Mathematica, Notepad, Mozilla Firefox
+    softwareInfo:
+        - *Matematica
+        - *Firefox
     ipAddress: 123.456.789.123
     videoRecordings: www.utu.fi/examroom/1/recordings
 #    room: *room-pegasus
@@ -778,7 +794,10 @@ exam-machines:
     surveillanceCamera: CAM-002
     accessibilityInfo: Automaattisesti avautuvat ovet
     accessible: true
-    softwareInfo: Notepad, Mozilla Firefox
+    softwareInfo:
+        - *Matematica
+        - *Firefox
+        - *Notepad
     ipAddress: 123.456.789.321
     videoRecordings: www.utu.fi/examroom/2/recordings
 #    room: *room-pegasus
@@ -791,7 +810,10 @@ exam-machines:
     surveillanceCamera: CAM-003
     accessibilityInfo: Pistekirjoitus alusta
     accessible: true
-    softwareInfo: Notepad
+    softwareInfo:
+        - *Matematica
+        - *Firefox
+        - *Notepad
     ipAddress: 123.456.789.132
     videoRecordings: www.utu.fi/examroom/3/recordings
 #    room: *room-pegasus
@@ -831,6 +853,4 @@ exam-rooms:
       - *exam-machine2
       - *exam-machine3
     outOfService: false
-
-
 

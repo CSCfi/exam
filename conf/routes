@@ -92,6 +92,15 @@ PUT           /machines/:id                                         controllers.
 POST          /machines/:id                                         controllers.ExamMachineController.insertExamMachine(id: Long)
 DELETE        /machines/:id                                         controllers.ExamMachineController.removeExamMachine(id: Long)
 
+
+GET           /softwares                                            controllers.ExamMachineController.getSoftwares()
+GET           /softwares/:id                                        controllers.ExamMachineController.getSoftware(id: Long)
+DELETE        /softwares/:id                                        controllers.ExamMachineController.removeSoftware(id: Long)
+POST          /softwares/add/:name                                  controllers.ExamMachineController.addSoftware(name: String)
+PUT           /softwares/update/:id/:name	                        controllers.ExamMachineController.updateSoftware(id: Long, name: String)
+
+
+
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()
 GET           /secure                                               controllers.TestController.shibbolethHeaders()

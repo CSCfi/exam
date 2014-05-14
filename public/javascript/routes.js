@@ -28,6 +28,10 @@
             $routeProvider.when('/courses', { templateUrl: tmpl + 'courses.html', controller: 'CourseCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html', controller: 'QuestionCtrl'});
             $routeProvider.when('/machines', { templateUrl: tmpl + 'admin/machine.html', controller: 'RoomCtrl'});
+            $routeProvider.when('/softwares', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
+            $routeProvider.when('/softwares/update/:id/:name', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
+            $routeProvider.when('/softwares/:id', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
+            $routeProvider.when('/softwares/add/:name', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
 
             /* Student */
 //            $routeProvider.when('/student/exams', { templateUrl: tmpl + 'exams.html', controller: 'StudentExamController'});

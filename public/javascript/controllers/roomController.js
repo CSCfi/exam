@@ -1,17 +1,17 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('RoomCtrl', ['$scope', '$routeParams', '$location', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService',
-            function ($scope, $routeParams, $location, RoomResource, ExamMachineResource, SITNET_CONF, dateService) {
+        .controller('RoomCtrl', ['$scope', '$routeParams', '$location', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService',
+            function ($scope, $routeParams, $location, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService) {
 
                 $scope.dateService = dateService;
 
                 $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/machine.html";
                 $scope.addressTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/address.html";
 
-                if ($routeParams.id === undefined)
+                if ($routeParams.id === undefined) {
                     $scope.rooms = RoomResource.rooms.query();
-                else {
+                } else {
                     RoomResource.rooms.get({id: $routeParams.id},
                         function (room) {
                             $scope.roomInstance = room;
@@ -23,16 +23,8 @@
                 }
 
                 // Called when create exam button is clicked
-                $scope.createExamRoom = function () {
-                    RoomResource.draft.get(
-                        function (room) {
-                            $scope.roomInstance = room;
-                            toastr.info("Tenttitilan luonnos tehty.");
-                            $location.path("/rooms/" + room.id);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+                $scope.manageSoftwares = function () {
+                    $location.path("/softwares");
                 };
 
 
@@ -83,6 +75,21 @@
                     );
                 };
 
+                $scope.selectedSoftwares = function(machine) {
+                    var softwares = [], str = "";
+                    angular.forEach(machine.softwareInfo, function(software, index) {
+                            softwares.push(software.name)
+                    });
+                    for(var i = 0; i < softwares.length; i++) {
+                        str += softwares[i]
+                        if(i + 1 != softwares.length) {
+                            str += ", "
+                        }
+                    }
+                    return str;
+                }
+                $scope.softwares = SoftwareResource.softwares.query();
+
                 $scope.addNewMachine = function (room) {
                     var newMachine = {
                         "name": "Kirjoita koneen nimi tähän"
@@ -94,6 +101,48 @@
                     }, function (error) {
                         toastr.error(error.data);
                     });
+                };
+
+                $scope.updateMachineSoftware = function (machine) {
+                    $scope.updateMachine(machine);
+                    $scope.selectedSoftwares(machine);
+                };
+
+                $scope.updateSoftware = function (software) {
+                    SoftwareResource.update.update({id: software.id}, software,
+                        function (updated_software) {
+                            software = updated_software;
+                            toastr.info("Ohjelmisto päivitetty.");
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                $scope.addSoftware = function (name) {
+                    SoftwareResource.add.insert({name: name}, function (software) {
+                            toastr.info("Ohjelmisto lisätty.");
+                            $scope.softwares.push(software);
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                $scope.removeSoftware = function (software) {
+                    SoftwareResource.software.remove({id: software.id},
+                        function () {
+                            toastr.info("Ohjelmisto poistettu.");
+                            if($scope.softwares.indexOf(software) > -1) {
+                                $scope.softwares.splice($scope.softwares.indexOf(software), 1);
+                            }
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 };
 
                 $scope.removeMachine = function (machine) {

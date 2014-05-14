@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.util.List;
 
 /*
  * Tenttikone jolla opiskelija tekee tentin
@@ -37,7 +38,8 @@ public class ExamMachine extends Model {
     private boolean accessible;
 
     // Ohjelmistot
-    private String softwareInfo;
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<Software> softwareInfo;
 
     private String ipAddress;
 
@@ -113,11 +115,11 @@ public class ExamMachine extends Model {
         this.accessible = accessible;
     }
 
-    public String getSoftwareInfo() {
+    public List<Software> getSoftwareInfo() {
         return softwareInfo;
     }
 
-    public void setSoftwareInfo(String softwareInfo) {
+    public void setSoftwareInfo(List<Software> softwareInfo) {
         this.softwareInfo = softwareInfo;
     }
 

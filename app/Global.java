@@ -76,7 +76,7 @@ public class Global extends GlobalSettings {
                  @SuppressWarnings("unchecked")
                  Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
 
-                // HUOM, järjestyksellä on väliä 
+                // HUOM, järjestyksellä on väliä
                 Ebean.save(all.get("user_languages"));
                 Ebean.save(all.get("users"));
                 Ebean.save(all.get("organisations"));
@@ -88,6 +88,7 @@ public class Global extends GlobalSettings {
                 Ebean.save(all.get("exam-inspections"));
                 Ebean.save(all.get("mail-addresses"));
                 Ebean.save(all.get("calendar-events"));
+                Ebean.save(all.get("softwares"));
                 Ebean.save(all.get("exam-rooms"));
                 Ebean.save(all.get("exam-machines"));
 
