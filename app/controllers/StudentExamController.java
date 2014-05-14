@@ -6,7 +6,6 @@ import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
 import models.User;
-import models.answers.AbstractAnswer;
 import models.answers.EssayAnswer;
 import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
@@ -177,15 +176,27 @@ public class StudentExamController extends SitnetController {
 
         // Todo: onko käyttäjällä aikaa jäljellä tehdä koetta?
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class)
+                .fetch("answer")
+                .where()
+                .eq("id", qid)
+                .findUnique();
+
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+
+        // must clone answered option because teacher can remove original option.
+        MultipleChoiseOption answeredOption = new MultipleChoiseOption();
+        answeredOption.setOption(option.getOption());
+        answeredOption.setCorrectOption(option.isCorrectOption());
+        answeredOption.setScore(option.getScore());
+        answeredOption.save();
 
         User user = UserController.getLoggedUser();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
         if(question.getAnswer() == null) {
             MultipleChoiseAnswer answer = new MultipleChoiseAnswer();
-            answer.setOption(option);
+            answer.setOption(answeredOption);
 //            answer.setCreator(user);
 //            answer.setCreated(currentTime);
 //            answer.setModifier(user);
@@ -195,12 +206,21 @@ public class StudentExamController extends SitnetController {
             question.save();
             return ok(Json.toJson(answer));
         } else {
-            AbstractAnswer answer = question.getAnswer();
-            ((MultipleChoiseAnswer) answer).setOption(option);
+            MultipleChoiseAnswer answer = (MultipleChoiseAnswer) question.getAnswer();
+            MultipleChoiseOption agh = Ebean.find(MultipleChoiseOption.class, answer.getOption().getId());
+            answer.setOption(agh);
+
+            long optionId = answer.getOption().getId();
+            answer.setOption(answeredOption);
+
 //            answer.setModified(currentTime);
 //            answer.setModifier(user);
             answer.update();
             question.update();
+
+            // delete old answered option
+            Ebean.delete(MultipleChoiseOption.class, optionId);
+
             return ok(Json.toJson(answer));
         }
     }

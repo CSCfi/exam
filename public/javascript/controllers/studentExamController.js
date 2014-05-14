@@ -230,7 +230,6 @@
                 $scope.radioChecked = function (doexam, question, option) {
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
-                    $scope.option = option;
 
                     StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id},
                         function (updated_answer) {
@@ -267,8 +266,6 @@
                 }
                 $timeout($scope.onTimeout,1000);
 
-                $scope.remainingTime
-
 
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
@@ -292,5 +289,16 @@
                         }
                     }
                 };
+
+                $scope.isAnswer = function (question, option) {
+
+                    if(question.answer === null)
+                        return false;
+                    else if(question.answer.option === null)
+                        return false;
+                    else if(option.option === question.answer.option.option)
+                        return true;
+                };
+
             }]);
 }());
