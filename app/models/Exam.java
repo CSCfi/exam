@@ -245,6 +245,7 @@ public class Exam extends SitnetModel {
         clone.setExamType(this.getExamType());
         clone.setInstruction(this.getInstruction());
         clone.setShared(this.isShared());
+        clone.setGrading(this.getGrading());
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
 

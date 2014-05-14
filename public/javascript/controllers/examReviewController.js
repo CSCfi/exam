@@ -47,7 +47,7 @@
                             return 0;
                         }
                         if(option.correctOption === true && question.answer.option.id === option.id) {
-                            score = question.score;
+                            score = question.maxScore;
                             question.backgroundColor = 'green';
                         }
                         if (option.correctOption === false && question.answer.option.id === option.id) {
