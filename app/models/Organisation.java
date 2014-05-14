@@ -1,6 +1,7 @@
 package models;
 
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import java.util.List;
 
 // TODO: tätä täytyy miettiä tarkemmin miten Organisaatiot kannattaa maalintaa
@@ -32,6 +33,7 @@ public class Organisation extends SitnetModel {
 	
 	
 	// Organisaatiolla on N kappaletta lapsia, joilla voi olla omia lapsia
+    @ManyToOne
 	private List<Organisation> organisations;
 	
 	private Organisation parent;
@@ -39,7 +41,28 @@ public class Organisation extends SitnetModel {
 	// Ylin organisaatio?
 	private boolean root;
 
-	public Organisation(User creator) {
+
+    private String courseUnitInfoUrl;
+
+    private String recordsWhitelistIp;
+
+    public String getRecordsWhitelistIp() {
+        return recordsWhitelistIp;
+    }
+
+    public void setRecordsWhitelistIp(String recordsWhitelistIp) {
+        this.recordsWhitelistIp = recordsWhitelistIp;
+    }
+
+    public String getCourseUnitInfoUrl() {
+        return courseUnitInfoUrl;
+    }
+
+    public void setCourseUnitInfoUrl(String courseUnitInfoUrl) {
+        this.courseUnitInfoUrl = courseUnitInfoUrl;
+    }
+
+    public Organisation(User creator) {
 		super(creator);
 		// TODO Auto-generated constructor stub
 	}

@@ -34,6 +34,19 @@ abstract public class AbstractQuestion extends SitnetModel {
     @Column(columnDefinition="numeric default 0")
     protected Double maxScore = 0.0;
 
+
+    @Column(columnDefinition="numeric default 0")
+    protected Double evaluatedScore;
+
+    public Double getEvaluatedScore() {
+        return evaluatedScore;
+    }
+
+    public void setEvaluatedScore(Double evaluatedScore) {
+        this.evaluatedScore = evaluatedScore;
+    }
+
+
     /*
      * If question is edited (correcting a spelling mistake)
      * inplace in an active exam (question is used in an exam that has been published)
