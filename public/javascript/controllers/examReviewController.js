@@ -30,6 +30,20 @@
                                 $scope.examGrading.push('4');
                                 $scope.examGrading.push('5');
                             }
+                            if ($scope.examToBeReviewed.grading == 'Hyväksytty-Hylätty') {
+                            	$scope.examGrading.push('Hyväksytty');
+                            	$scope.examGrading.push('Hylätty');
+                            }
+                            if ($scope.examToBeReviewed.grading == 'Improbatur-Laudatur') {
+                            	$scope.examGrading.push('Laudatur');
+                            	$scope.examGrading.push('Eximia cum laude approbatur');
+                            	$scope.examGrading.push('Magna cum laude approbatur');
+                            	$scope.examGrading.push('Cum laude approbatur');
+                            	$scope.examGrading.push('Non sine laude approbatur');
+                            	$scope.examGrading.push('Lubenter approbatur');
+                            	$scope.examGrading.push('Approbatur');
+                            	$scope.examGrading.push('Improbatur');
+                            }
                         },
                         function (error) {
                             toastr.error(error.data);
