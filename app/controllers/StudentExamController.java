@@ -1,8 +1,6 @@
 package controllers;
 
 import Exceptions.UnauthorizedAccessException;
-import be.objectify.deadbolt.java.actions.Group;
-import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
@@ -176,6 +174,7 @@ public class StudentExamController extends SitnetController {
     }
 
     public static Result insertAnswer(String hash, Long qid, Long oid)  {
+
         // Todo: onko käyttäjällä aikaa jäljellä tehdä koetta?
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);

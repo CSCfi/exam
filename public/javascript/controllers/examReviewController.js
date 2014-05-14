@@ -46,11 +46,8 @@
                             question.backgroundColor = 'grey';
                             return 0;
                         }
-                        if (option.correctOption === true && question.answer.option.id === option.id) {
-                            score = question.maxScore;
-
-//                            console.log(maxScore);
-//                            console.log($scope.totalScore);
+                        if(option.correctOption === true && question.answer.option.id === option.id) {
+                            score = question.score;
                             question.backgroundColor = 'green';
                         }
                         if (option.correctOption === false && question.answer.option.id === option.id) {

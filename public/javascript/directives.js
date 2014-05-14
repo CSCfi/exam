@@ -11,7 +11,7 @@
 
                     ck.on('instanceReady', function () {
                         ck.setData(ngModel.$viewValue);
-                        console.log(ngModel.$viewValue);
+//                        console.log(ngModel.$viewValue);
                     });
 
                     function updateModel() {

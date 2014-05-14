@@ -25,26 +25,25 @@
 				</ul>
 			</span>
 		</div>
-		<div class="input-group">
-			<input ng-model="selected" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+        <div class="input-group">
+            <input ng-model="selected" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
 			<span class="input-group-addon">
 				<i class="fa fa-search fa-fw"></i>
 			</span>
-		</div>
-		<ul class="list-group results">
-			<li class="single-question-header-inactive" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
-				<div class="row">
+        </div>
+        <ul class="list-group results">
+            <li class="single-question-header-inactive" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
+                <div class="row">
 
                     <div class="single-question-icon col-md-1"><i class="fa fa-2x fa-fw {{question.icon}}"></i></div>
                     <div class="menu-item short-text col-md-11" >{{stripHtml(question.question)}}</div>
                 </div>
-			</li>
-			<li class="single-question-header" ui-draggable="true" drag="random(amount)"><i class="fa fa-2x fa-fw fa-random"></i> 
+            </li>
 				<span class="menu-item">
 					{{ 'sitnet_add_random_questions' | translate }} <input type="number" ng-model="amount" min="1" placeholder="0" />
 				</span>
-			</li>
+            </li>
 		</ul>
-	</div>
+    </div>
 </div>
 </div>

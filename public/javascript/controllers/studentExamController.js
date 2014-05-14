@@ -125,6 +125,9 @@
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
                                 template = $scope.multipleChoiseOptionTemplate;
+
+//                                console.log("asd: "+ question.answer.option);
+
                                 break;
                             case "EssayQuestion":
                                 template = $scope.essayQuestionTemplate;
@@ -229,7 +232,7 @@
                     question.questionStatus = $translate("sitnet_question_answered");
                     $scope.option = option;
 
-                    StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id}, { data: "hello world" },
+                    StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id},
                         function (updated_answer) {
                         question.answer = updated_answer;
                         toastr.info("Vastaus lisätty kysymykseen.");
