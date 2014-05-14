@@ -143,6 +143,7 @@ public class ExamController extends SitnetController {
                 "room",
                 "duration",
                 "grading",
+                "otherGrading",
                 "examLanguage",
                 "answerLanguage",
                 "grade",

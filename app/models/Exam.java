@@ -72,6 +72,9 @@ public class Exam extends SitnetModel {
     // Exam grading, e.g. 0-5
     private String grading;
 
+    // Free text for exam grading
+    private String otherGrading;
+    
     // Exam language
     private String examLanguage;
 
@@ -169,6 +172,14 @@ public class Exam extends SitnetModel {
 		this.grading = grading;
 	}
 
+	public String getOtherGrading() {
+		return otherGrading;
+	}
+
+	public void setOtherGrading(String otherGrading) {
+		this.otherGrading = otherGrading;
+	}
+	
 	public String getExamLanguage() {
 		return examLanguage;
 	}

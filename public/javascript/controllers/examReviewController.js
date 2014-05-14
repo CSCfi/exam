@@ -121,7 +121,8 @@
                     var examToReview = {
                         "id": reviewed_exam.id,
                         "state": 'REVIEWED',
-                        "grade": reviewed_exam.grade
+                        "grade": reviewed_exam.grade,
+                        "otherGrading": reviewed_exam.otherGrading
                     }
 
 
