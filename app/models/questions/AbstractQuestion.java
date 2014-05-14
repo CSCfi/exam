@@ -31,7 +31,8 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     protected String instruction;
 
-    protected Double maxScore;
+    @Column(columnDefinition="numeric default 0")
+    protected Double maxScore = 0.0;
 
     /*
      * If question is edited (correcting a spelling mistake)
