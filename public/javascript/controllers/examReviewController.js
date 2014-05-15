@@ -8,9 +8,6 @@
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section.html";
                 $scope.multiplechoiceQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_multiplechoice_question.html";
                 $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_essay_question.html";
-
-                var examTotalScore = 0;
-
                 $scope.examGrading = [];
 
                 if ($routeParams.id === undefined) {
@@ -51,24 +48,28 @@
                     );
                 }
 
-                $scope.scoreAnswer = function (question) {
+                $scope.scoreMultipleChoiceAnswer = function (question) {
                     var score = 0;
 
-                    angular.forEach(question.options, function(option, key) {
-                        //todo: how about multiple choice questions?
-                        if (question.answer === null) {
-                            question.backgroundColor = 'grey';
-                            return 0;
-                        }
-                        if(option.correctOption === true && question.answer.option.id === option.id) {
-                            score = question.maxScore;
-                            question.backgroundColor = 'green';
-                        }
-                        if (option.correctOption === false && question.answer.option.id === option.id) {
-                            question.backgroundColor = 'red';
-                        }
-                    });
+                    //todo: how about multiple choice questions?
+                    if (question.answer === null) {
+                        question.backgroundColor = 'grey';
+                    } else if (question.answer.option.correctOption === true) {
+                        score = question.maxScore;
+                        question.backgroundColor = 'green';
+                    } else if (question.answer.option.correctOption === false) {
+                        question.backgroundColor = 'red';
+                    } else {
+                        toastr.info("Vastauksen tila oli epämääräinen, ota yhteyttä devaajiin");
+                    }
+
                     return score;
+                };
+
+                $scope.scoreEssayAnswer = function (question) {
+                    if (question.answer === null) {
+                        question.evaluatedScore = 0;
+                    }
                 };
 
                 $scope.getSectionTotalScore = function(section) {
@@ -78,28 +79,23 @@
 
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
-                                angular.forEach(question.options, function (option, index) {
-                                    if(question.answer === null) {
-                                        return 0;
-                                    }
-                                    if (option.correctOption === true && question.answer.option.id === option.id) {
-                                        score = score + question.maxScore;
-                                    }
-                                });
+                                if (question.answer === null) {
+                                    return 0;
+                                }
+                                if (question.answer.option.correctOption === true) {
+                                    score = score + question.maxScore;
+                                }
                                 break;
                             case "EssayQuestion":
-                                // Todo: This doesn't work the expected way
-                                if(question.answer === null) {
-                                    score = 0;
+                                if (question.evaluatedScore) {
+                                    var number = parseFloat(question.evaluatedScore);
+                                    if(angular.isNumber(number)) {
+                                        score = score + number;
+                                    }
                                 }
-                                var number = parseFloat(question.evaluatedScore);
-                                if(angular.isNumber(number)){
-                                    score = score + number;
-                                }
-
                                 break;
                             default:
-//                                return 0;
+                                toastr.info("Kysymystyyppi ei ole tuettu.");
                                 break;
                         }
                     });
@@ -107,24 +103,25 @@
                 };
 
                 $scope.getExamTotalScore = function(exam) {
-                    var total = 0;
+                    var totalScore = 0;
                     angular.forEach(exam.examSections, function(section){
-                        total += $scope.getSectionTotalScore(section);
+                        totalScore += $scope.getSectionTotalScore(section);
                     })
-                    return total;
+
+                    exam.totalScore = totalScore;
+
+                    return totalScore;
                 }
 
                 // Called when the review ready button is clicked
                 $scope.examReviewReady = function (reviewed_exam) {
-//                    reviewed_exam.state = 'REVIEWED';
-
                     var examToReview = {
                         "id": reviewed_exam.id,
                         "state": 'REVIEWED',
                         "grade": reviewed_exam.grade,
-                        "otherGrading": reviewed_exam.otherGrading
+                        "otherGrading": reviewed_exam.otherGrading,
+                        "totalScore": reviewed_exam.totalScore
                     }
-
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
                         toastr.info("Tentti on tarkastettu.");
@@ -146,7 +143,7 @@
                         "id": question.id,
                         "type": question.type,
                         "expanded": question.expanded,
-                        "evaluatedScore": question.evaluatedScore
+                        "evaluatedScore": question.evaluatedScore,
                     };
 
                     QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function (q) {

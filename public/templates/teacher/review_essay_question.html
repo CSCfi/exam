@@ -4,7 +4,7 @@
     <td ng-bind-html="question.question"> {{question.question}}</td>
     <td>{{question.evaluationCriterias}}</td>
     <td ng-bind-html="question.answer.answer">{{question.answer.answer}}</td>
-    <td>
+    <td>{{scoreEssayAnswer(question)}}
         <span class="editable" ng-click="editScore = !editScore">
             {{question.evaluatedScore}} <i class="fa fa-pencil"></i>
         </span>

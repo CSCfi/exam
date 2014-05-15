@@ -74,7 +74,10 @@ public class Exam extends SitnetModel {
 
     // Free text for exam grading
     private String otherGrading;
-    
+
+    // Exam total score - calculated from all section scores
+    private String totalScore;
+
     // Exam language
     private String examLanguage;
 
@@ -179,8 +182,16 @@ public class Exam extends SitnetModel {
 	public void setOtherGrading(String otherGrading) {
 		this.otherGrading = otherGrading;
 	}
-	
-	public String getExamLanguage() {
+
+    public String getTotalScore() {
+        return totalScore;
+    }
+
+    public void setTotalScore(String totalScore) {
+        this.totalScore = totalScore;
+    }
+
+    public String getExamLanguage() {
 		return examLanguage;
 	}
 
