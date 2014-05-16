@@ -178,5 +178,8 @@
 "sitnet_select": "Valitse",
 "sitnet_close": "Sulje",
 "sitnet_softwares": "Ohjelmistot",
-"sitnet_software_name": "Ohjelmiston nimi"
+"sitnet_software_name": "Ohjelmiston nimi",
+
+"sitnet_approved": "Hyväksytty",
+"sitnet_rejected": "Hylätty"
 }

@@ -71,6 +71,10 @@
                     return score;
                 };
 
+                $scope.removeNewLines = function(answer) {
+                    return answer ? answer.replace(/\n/g, '') : '';
+                }
+
                 $scope.getSectionTotalScore = function(section) {
                     var score = 0;
 

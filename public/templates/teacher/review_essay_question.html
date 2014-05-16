@@ -3,21 +3,14 @@
     <td><i class="fa fa-2x fa-edit"></i></td>
     <td ng-bind-html="question.question"> {{question.question}}</td>
     <td>{{question.evaluationCriterias}}</td>
-    <td ng-bind-html="question.answer.answer">{{question.answer.answer}}</td>
+    <td ng-init="" ng-bind-html="removeNewLines({{ question.answer.answer }})"></td>
     <td>
-        <span class="editable" ng-click="editScore = !editScore">
-            {{question.evaluatedScore}} <i class="fa fa-pencil"></i>
-        </span>
-        <span>
-            <div ng-show="editScore">
-                <form name="essayReviewForm" novalidate>
-                    <div>
-                        <input type="text" class="input-lg" ng-model="question.evaluatedScore" required ng-pattern="/^\d*(\.\d+)?$/" autofocus>
-                    </div>
-                    <button class="btn-primary" ng-click="editScore = !editScore; insertEssayScore(question)">
-                        <i class="fa fa-check"></i>
-                    </button>
-                </form>
-            </div>
-        </span>
+        <div class="col-md-12 text-center">
+            <select class="form-control col-md-12" ng-model="question.evaluatedScore">
+                <option value="0" ng-selected="true">{{ 'sitnet_select' | translate }}</option>
+                <option value="{{ question.maxScore }}">({{ question.maxScore }}) {{ 'sitnet_approved' | translate }}</option>
+                <option value="0">(0) {{ 'sitnet_rejected' | translate }}</option>
+            </select>
+            <span>{{ question.evaluatedScore }}</span>
+        </div>
     </td>

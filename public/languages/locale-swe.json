@@ -178,5 +178,7 @@
 "sitnet_can_be_enrolled": "Avoin",
 "sitnet_state_inspect": "Tarkista",
 
-"sitnet_add_exception_time": "Add new exception"
+"sitnet_add_exception_time": "Add new exception",
+"sitnet_approved": "Approved",
+"sitnet_rejected": "Rejected"
 }
