@@ -13,4 +13,21 @@
             </select>
             <span>{{ question.evaluatedScore }}</span>
         </div>
+    <td ng-bind-html="question.answer.answer">{{question.answer.answer}}</td>
+    <td>{{scoreEssayAnswer(question)}}
+        <span class="editable" ng-click="editScore = !editScore">
+            {{question.evaluatedScore}} <i class="fa fa-pencil"></i>
+        </span>
+        <span>
+            <div ng-show="editScore">
+                <form name="essayReviewForm" novalidate>
+                    <div>
+                        <input type="text" class="input-lg" ng-model="question.evaluatedScore" required ng-pattern="/^\d*(\.\d+)?$/" autofocus>
+                    </div>
+                    <button class="btn-primary" ng-click="editScore = !editScore; insertEssayScore(question)">
+                        <i class="fa fa-check"></i>
+                    </button>
+                </form>
+            </div>
+        </span>
     </td>

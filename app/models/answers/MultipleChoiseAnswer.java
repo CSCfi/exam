@@ -2,6 +2,7 @@ package models.answers;
 
 import models.questions.MultipleChoiseOption;
 
+import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
@@ -17,7 +18,7 @@ public class MultipleChoiseAnswer extends AbstractAnswer {
         this.type = this.getClass().getSimpleName();
     }
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private MultipleChoiseOption option;
 
     @Override

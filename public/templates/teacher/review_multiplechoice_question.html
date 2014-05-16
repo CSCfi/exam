@@ -4,4 +4,4 @@
     <td ng-bind-html="question.question"> {{question.question}}</td>
     <td><span ng-repeat="option in question.options | filter: {correctOption: true}">{{option.option}}</span></td>
     <td>{{question.answer.option.option}}</td>
-    <td>{{scoreAnswer(question)}}</td>
+    <td>{{scoreMultipleChoiceAnswer(question)}}</td>
