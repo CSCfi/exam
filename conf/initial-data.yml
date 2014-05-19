@@ -141,6 +141,7 @@ question_essay:
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
     maxScore: 5
+    evaluationType: Points
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -156,6 +157,7 @@ question_essay:
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     instruction:
     maxScore: 5
+    evaluationType: Points
     materials:
     evaluationPhrases:
     evaluationCriterias:
@@ -171,6 +173,7 @@ question_essay:
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
     instruction:
     maxScore: 5
+    evaluationType: Select
     materials:
     evaluationPhrases:
     evaluationCriterias:

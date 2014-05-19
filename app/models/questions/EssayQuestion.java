@@ -23,6 +23,9 @@ public class EssayQuestion extends AbstractQuestion implements QuestionInterface
 
     private Double evaluatedScore;
 
+    // POINTS or SELECT
+    private String evaluationType;
+
     @Override
     public String getType() {
         return this.type;
@@ -52,6 +55,14 @@ public class EssayQuestion extends AbstractQuestion implements QuestionInterface
 
     public void setEvaluatedScore(Double evaluatedScore) {
         this.evaluatedScore = evaluatedScore;
+    }
+
+    public String getEvaluationType() {
+        return evaluationType;
+    }
+
+    public void setEvaluationType(String evaluationType) {
+        this.evaluationType = evaluationType;
     }
 
     @Override

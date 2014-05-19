@@ -180,5 +180,9 @@
 
 "sitnet_add_exception_time": "Add new exception",
 "sitnet_approved": "Approved",
-"sitnet_rejected": "Rejected"
+"sitnet_rejected": "Rejected",
+
+"sitnet_evaluation_type": "Evaluation type",
+"sitnet_evaluation_points": "Points",
+"sitnet_evaluation_select": "Approved / Rejected"
 }

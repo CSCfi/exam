@@ -186,4 +186,8 @@ public class QuestionController extends SitnetController {
         return ok(Json.toJson(option));
     }
 
+    public static enum EssayEvaluationType {
+        POINTS, SELECT;
+    }
+
 }

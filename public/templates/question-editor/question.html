@@ -30,16 +30,51 @@
                         </label>
                     </div>
                 </div>
-                <div class="sitnet-info-text">
-                    {{'sitnet_scores' | translate}}
-                    <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
-                    <div class="row">
-                        <div class="col-lg-2">
-                            <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
-                                   ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                    <!-- Essay -->
+                    <div ng-show="selectedType == 'EssayQuestion'">
+                        <div class="sitnet-info-text">
+                            {{'sitnet_evaluation_type' | translate}}
+                            <div class="row">
+                                <div class="col-lg-2">
+                                    <select class="form-control" ng-model="newQuestion.evaluationType" ng-change="saveQuestion()">
+                                        <option value="Points">{{ 'sitnet_evaluation_points' | translate }}</option>
+                                        <option value="Select">{{ 'sitnet_evaluation_select' | translate }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- POINTS -->
+                        <div class="sitnet-info-text" ng-show="selectedType == 'EssayQuestion' && newQuestion.evaluationType == 'Points'">
+                            {{'sitnet_scores' | translate}}
+                            <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
+                            <div class="row">
+                                <div class="col-lg-2">
+                                    <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
+                                           ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- SELECT -->
+                        <div class="sitnet-info-text" ng-show="selectedType == 'EssayQuestion' && newQuestion.evaluationType == 'Points'" ng-model="newQuestion.maxScore">
+                            <div class="row">
+                                {{ 'sitnet_approved' | translate }} / {{ 'sitnet_rejected' | translate }}
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Multi -->
+                    <div ng-show="selectedType == 'MultipleChoiceQuestion'">
+                        <div class="sitnet-info-text">
+                            {{'sitnet_scores' | translate}}
+                            <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
+                            <div class="row">
+                                <div class="col-lg-2">
+                                    <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
+                                           ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 <div class="sitnet-info-text">
                     {{'sitnet_instruction' | translate}}
                     <input type="text" class="form-control" ng-model="newQuestion.instruction" ui-change="saveQuestion()"

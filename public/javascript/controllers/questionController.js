@@ -24,6 +24,7 @@
                         case 'EssayQuestion':
                             $scope.questionTemplate = $scope.essayQuestionTemplate;
                             $scope.newQuestion.type = "EssayQuestion";
+                            $scope.newQuestion.evaluationType = "Points";
                             // Sanan keskimääräinen pituus = 7.5 merkkiä
                             // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
                             $scope.newQuestion.maxCharacters = 500;
@@ -86,7 +87,7 @@
                 $scope.newEssayQuestion = function () {
                     $scope.questionTemplate = $scope.essayQuestionTemplate;
                     $scope.newQuestion.type = "EssayQuestion";
-
+                    $scope.newQuestion.evaluationType = "Points";
                     // Sanan keskimääräinen pituus = 7.5 merkkiä
                     // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
                     $scope.newQuestion.maxCharacters = 500;
@@ -114,6 +115,7 @@
                     switch (questionToUpdate.type) {
                         case 'EssayQuestion':
                             questionToUpdate.maxCharacters = $scope.newQuestion.maxCharacters;
+                            questionToUpdate.evaluationType =  $scope.newQuestion.evaluationType;
                             break;
 
                         case 'MultipleChoiceQuestion':

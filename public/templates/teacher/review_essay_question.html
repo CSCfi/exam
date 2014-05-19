@@ -3,31 +3,15 @@
     <td><i class="fa fa-2x fa-edit"></i></td>
     <td ng-bind-html="question.question"> {{question.question}}</td>
     <td>{{question.evaluationCriterias}}</td>
-    <td ng-init="" ng-bind-html="removeNewLines({{ question.answer.answer }})"></td>
+    <td ng-bind-html="removeNewLines({{ question.answer.answer }})"></td>
     <td>
         <div class="col-md-12 text-center">
-            <select class="form-control col-md-12" ng-model="question.evaluatedScore">
-                <option value="0" ng-selected="true">{{ 'sitnet_select' | translate }}</option>
-                <option value="{{ question.maxScore }}">({{ question.maxScore }}) {{ 'sitnet_approved' | translate }}</option>
-                <option value="0">(0) {{ 'sitnet_rejected' | translate }}</option>
+            <select ng-show="question.evaluationType == 'Points'" class="form-control" ng-model="question.evaluatedScore" ng-change="insertEssayScore(question)">
+                <option ng-repeat="i in range(0, question.parent.maxScore, 1)" value="{{ i }}" ng-selected="question.evaluatedScore == i">{{ i }}</option>
             </select>
-            <span>{{ question.evaluatedScore }}</span>
+            <select ng-show="question.evaluationType == 'Select'" class="form-control" ng-model="question.evaluatedScore" ng-change="insertEssayScore(question)">
+                <option value="1" ng-selected="question.evaluatedScore == 1">{{ 'sitnet_approved' | translate }}</option>
+                <option value="0" ng-selected="question.evaluatedScore == 0">{{ 'sitnet_rejected' | translate }}</option>
+            </select>
         </div>
-    <td ng-bind-html="question.answer.answer">{{question.answer.answer}}</td>
-    <td>{{scoreEssayAnswer(question)}}
-        <span class="editable" ng-click="editScore = !editScore">
-            {{question.evaluatedScore}} <i class="fa fa-pencil"></i>
-        </span>
-        <span>
-            <div ng-show="editScore">
-                <form name="essayReviewForm" novalidate>
-                    <div>
-                        <input type="text" class="input-lg" ng-model="question.evaluatedScore" required ng-pattern="/^\d*(\.\d+)?$/" autofocus>
-                    </div>
-                    <button class="btn-primary" ng-click="editScore = !editScore; insertEssayScore(question)">
-                        <i class="fa fa-check"></i>
-                    </button>
-                </form>
-            </div>
-        </span>
     </td>

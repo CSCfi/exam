@@ -81,6 +81,13 @@
                     }
                 };
 
+                $scope.range = function(min, max, step){
+                    step = (step === undefined) ? 1 : step;
+                    var input = [];
+                    for (var i = min; i <= max; i += step) input.push(i);
+                    return input;
+                };
+
                 $scope.getSectionTotalScore = function(section) {
                     var score = 0;
 
@@ -98,13 +105,12 @@
                                 });
                                 break;
                             case "EssayQuestion":
-                                // Todo: This doesn't work the expected way
-                                if(question.answer === null) {
-                                    score = 0;
-                                }
-                                var number = parseFloat(question.evaluatedScore);
-                                if(angular.isNumber(number)){
-                                    score = score + number;
+
+                                if(question.evaluatedScore && question.evaluationType == 'Points') {
+                                    var number = parseFloat(question.evaluatedScore);
+                                    if(angular.isNumber(number)){
+                                        score = score + number;
+                                    }
                                 }
 
                                 break;

@@ -181,5 +181,9 @@
 "sitnet_software_name": "Ohjelmiston nimi",
 
 "sitnet_approved": "Hyväksytty",
-"sitnet_rejected": "Hylätty"
+"sitnet_rejected": "Hylätty",
+
+"sitnet_evaluation_type": "Arviointityyppi",
+"sitnet_evaluation_points": "Pisteet",
+"sitnet_evaluation_select": "Hyväksytty / Hylätty"
 }
