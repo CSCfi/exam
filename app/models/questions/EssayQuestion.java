@@ -23,7 +23,7 @@ public class EssayQuestion extends AbstractQuestion implements QuestionInterface
 
     private Double evaluatedScore;
 
-    // POINTS or SELECT
+    // Points, Select
     private String evaluationType;
 
     @Override
