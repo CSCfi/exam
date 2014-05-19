@@ -44,7 +44,7 @@
             </div>
         </div>
         <div ng-hide="showOtherGrading">
-            <span class="pull-right fa-stack fa-lg dropdown" ng-click=""></span>
+            <span class="pull-right fa-stack fa-lg dropdown"></span>
             <div class="sitnet-info-text">Aseta muu arviointikriteeri:</div>
             <h3>
                 <span class="editable" ng-click="showOtherGrading = !showOtherGrading">
@@ -53,8 +53,9 @@
             </h3>
         </div>
         <div ng-show="showOtherGrading">
+            <div class="sitnet-info-text">Muu arviointikriteeri:</div>
             <form class="form-inline" role="form">
-                <div class="form-group" style="margin-top: 2em">
+                <div class="form-group" style="margin-top: 0.5em">
                     <input type="text" class="form-control input-lg" ng-model="examToBeReviewed.otherGrading" autofocus>
                 </div>
                 <button class="btn-primary" ng-click="showOtherGrading = !showOtherGrading">
