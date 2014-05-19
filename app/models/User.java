@@ -33,9 +33,9 @@ public class User extends Model implements Subject {
 
     @OneToOne
     private UserLanguage userLanguage;
-    
-    
-    
+
+    @OneToOne
+    private Organisation organisation;
     
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
@@ -48,12 +48,17 @@ public class User extends Model implements Subject {
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
     private List<ExamInspection> inspections;
-    
-    
-    
-    
-    
-	public Long getId() {
+
+
+    public Organisation getOrganisation() {
+        return organisation;
+    }
+
+    public void setOrganisation(Organisation organisation) {
+        this.organisation = organisation;
+    }
+
+    public Long getId() {
         return id;
     }
 

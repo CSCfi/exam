@@ -99,6 +99,11 @@ DELETE        /softwares/:id                                        controllers.
 POST          /softwares/add/:name                                  controllers.ExamMachineController.addSoftware(name: String)
 PUT           /softwares/update/:id/:name	                        controllers.ExamMachineController.updateSoftware(id: Long, name: String)
 
+#### integration ####
+
+
+GET           /integration/info/:organisationId/:id                 controllers.Interfaces.getInfo(organisationId: String, id: String)
+GET           /integration/record/:vatIdNumber/:startDate           controllers.Interfaces.getRecords(vatIdNumber: String, startDate: String)
 
 
 ############### test test test test test###############

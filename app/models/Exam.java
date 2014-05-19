@@ -91,6 +91,25 @@ public class Exam extends SitnetModel {
     // In UI, section has been expanded
     private Boolean expanded;
 
+    @Transient
+    public double getTotalScore() {
+        double total = 0;
+        if (examSections != null) {
+            for (ExamSection section : examSections) {
+                if (section != null && section.getQuestions() != null) {
+                    List<AbstractQuestion> questions = section.getQuestions();
+                    for (AbstractQuestion question : questions) {
+                        if (question != null && question.getEvaluatedScore() != null) {
+                            total += question.getEvaluatedScore();
+                        }
+                    }
+                }
+            }
+        }
+        return total;
+    }
+
+
     public Boolean getExpanded() {
         return expanded;
     }
@@ -350,7 +369,9 @@ public class Exam extends SitnetModel {
     public String toString() {
         return "Exam{" +
                 "course=" + course +
+                ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
+                ", state='" + state + '\'' +
                 ", examType=" + examType +
                 ", instruction='" + instruction + '\'' +
                 ", shared=" + shared +

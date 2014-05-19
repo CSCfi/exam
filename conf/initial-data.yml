@@ -24,6 +24,38 @@
 
 # Users
 
+
+organisations:
+
+    - &OulunYliopisto !!models.Organisation
+      name: Oulun Yliopisto
+      nameAbbreviation:
+      code:
+      vatIdNumber: FI0245895-1
+      organisations:
+        - !!models.Organisation
+          name: Luonnontieteellinen tiedekunta
+          nameAbbreviation:
+          code:
+          vatIdNumber: FI0245895-2
+          organisations:
+                - !!models.Organisation
+                  name: Tietojenkäsittelytieteiden laitos
+                  nameAbbreviation:
+                  code:
+                  vatIdNumber: FI0245895-3
+                  organisations:
+                  parent: null
+                  root: true
+          parent: null
+          root: true
+      organisations:
+      parent: null
+      root: true
+
+######################################################################
+
+
 user_languages:
     - &suomi !!models.UserLanguage
       nativeLanguageCode: fi
@@ -41,6 +73,7 @@ users:
       roles:
             - !!models.SitnetRole {name: ADMIN}
       userLanguage: *suomi
+      organisation: *OulunYliopisto
 
     - &maika !!models.User
       email:      maikaope
@@ -50,6 +83,8 @@ users:
       roles:  
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
+      organisation: *OulunYliopisto
+
 
     - &sauli !!models.User
       email:      saulistu
@@ -59,6 +94,7 @@ users:
       roles:  
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
+      organisation: *OulunYliopisto
 
     - &arvo !!models.User
       email:      arvo
@@ -68,6 +104,7 @@ users:
       roles:  
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
+      organisation: *OulunYliopisto
 
     - &soikkeli !!models.User
       email:      soikkeli
@@ -77,6 +114,7 @@ users:
       roles:  
             - !!models.SitnetRole {name: TEACHER}
       userLanguage: *suomi
+      organisation: *OulunYliopisto
       
     - &orville !!models.User
       email:      oppilas
@@ -86,6 +124,7 @@ users:
       roles:  
             - !!models.SitnetRole {name: STUDENT}
       userLanguage: *suomi
+      organisation: *OulunYliopisto
 
 
 user_roles:
@@ -99,35 +138,6 @@ user_roles:
     - !!models.SitnetRole
       name: TEACHER
 
-######################################################################
-
-organisations:
- 
-    - &OulunYliopisto !!models.Organisation
-      name: Oulun Yliopisto
-      nameAbbreviation:
-      code:
-      vatIdNumber:
-      organisations:
-        - !!models.Organisation
-          name: Luonnontieteellinen tiedekunta
-          nameAbbreviation:
-          code:
-          vatIdNumber:
-          organisations: 
-                - !!models.Organisation
-                  name: Tietojenkäsittelytieteiden laitos
-                  nameAbbreviation:
-                  code:
-                  vatIdNumber:
-                  organisations: 
-                  parent: null
-                  root: true
-          parent: null
-          root: true
-      organisations: 
-      parent: null
-      root: true
 ######################################################################
 
 question_essay:

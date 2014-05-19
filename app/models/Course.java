@@ -30,6 +30,7 @@ public class Course extends Model {
 
 	private String name;
 
+    private String level;
 
 	private CourseType type;
 	
@@ -39,8 +40,16 @@ public class Course extends Model {
 	public Course() {
 		
 	}
-	
-	public Course(String name) {
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public Course(String name) {
 		super();
 		this.name = name;
 	}
