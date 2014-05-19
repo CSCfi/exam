@@ -58,6 +58,15 @@
                 },
                 {
                     "update": {method: "PUT"}
+                }),
+
+                comment: $resource("/review/:eid/comment/:cid",
+                {
+                    id: "@eid", cid: "@cid"
+                },
+                {
+                    "insert": {method: "POST", params: { eid: "@eid" }},
+                    "update": {method: "PUT", params: { eid: "@eid" , sid: "@cid"}}
                 })
             }
         }]);

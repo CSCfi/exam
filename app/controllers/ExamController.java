@@ -157,6 +157,65 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(ex));
     }
 
+    public static Result insertComment(Long eid, Long cid) throws MalformedDataException {
+        Logger.debug("insertComment()");
+
+        Comment bindComment = bindForm(Comment.class);
+
+        Exam exam = Ebean.find(Exam.class, eid);
+
+        Comment newComment = new Comment();
+        newComment.setComment(bindComment.getComment());
+        newComment.save();
+
+        exam.setExamFeedback(newComment);
+        exam.save();
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, comment, creator");
+        options.setPathProperties("creator", "id, firstName, lastName");
+
+        return ok(jsonContext.toJsonString(newComment, true, options)).as("application/json");
+
+//        Query<Exam> query = Ebean.createQuery(Exam.class);
+//        query.fetch("examFeedback");
+//        query.setId(eid);
+
+    }
+
+    public static Result updateComment(Long eid, Long cid) throws MalformedDataException {
+        Logger.debug("insertComment()");
+
+        Comment bindComment = bindForm(Comment.class);
+
+        Comment comment = Ebean.find(Comment.class, cid);
+
+        try {
+            comment = (Comment) SitnetUtil.setCreator(comment);
+        } catch (SitnetException e) {
+            e.printStackTrace();
+        }
+        comment.setComment(bindComment.getComment());
+        comment.save();
+
+        Exam exam = Ebean.find(Exam.class, eid);
+
+        exam.setExamFeedback(comment);
+        exam.save();
+
+        if (comment == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, comment, creator");
+            options.setPathProperties("creator", "id, firstName, lastName");
+
+            return ok(jsonContext.toJsonString(comment, true, options)).as("application/json");
+        }
+    }
+
     public static Result updateExam(Long id) throws MalformedDataException {
 
         DynamicForm df = Form.form().bindFromRequest();
