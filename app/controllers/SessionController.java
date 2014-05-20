@@ -6,41 +6,62 @@ import actions.Authenticate;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
+import models.Credentials;
 import models.Session;
 import models.SitnetRole;
 import models.User;
 import org.joda.time.DateTime;
+import play.Logger;
 import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.util.*;
 
 public class SessionController extends SitnetController {
 
     public static Result login() throws MalformedDataException, UnauthorizedAccessException {
-//        Credentials credentials = bindForm(Credentials.class);
-//        Logger.debug("User login with username: {} and password: ***", credentials.getUsername());
-//        String md5psswd = SitnetUtil.encodeMD5(credentials.getPassword());
 
-        Map<String, String[]> attributes = request().headers();
-        String eppn = request().getHeader("eppn");
+        User user = null;
 
-        User user = Ebean.find(User.class)
-                .where()
-                .eq("email", eppn)
-                .findUnique();
-
-        // First login -> create user
-        if(user == null)
+        String loginType= ConfigFactory.load().getString("sitnet.login");
+        if(loginType.equals("DEBUG"))
         {
-            user = new User();
+            Credentials credentials = bindForm(Credentials.class);
+            Logger.debug("User login with username: {} and password: ***", credentials.getUsername());
+            String md5psswd = SitnetUtil.encodeMD5(credentials.getPassword());
 
-            user.setAttributes(attributes);
-            user.setEmail(request().getHeader("eppn"));
-            user.setLastName(request().getHeader("sn"));
-            user.setFirstName(request().getHeader("displayName"));
-            user.save();
+            user = Ebean.find(User.class)
+                    .select("email, firstName, lastName, userLanguage")
+                    .where().eq("email", credentials.getUsername())
+                    .eq("password", md5psswd).findUnique();
+
+            if (user == null) {
+                return unauthorized("Incorrect username or password.");
+            }
+        }
+        else if(loginType.equals("HAKA"))
+        {
+            Map<String, String[]> attributes = request().headers();
+            String eppn = request().getHeader("eppn");
+
+            user = Ebean.find(User.class)
+                    .where()
+                    .eq("email", eppn)
+                    .findUnique();
+
+            // First login -> create user
+            if(user == null)
+            {
+                user = new User();
+
+                user.setAttributes(attributes);
+                user.setEmail(request().getHeader("eppn"));
+                user.setLastName(request().getHeader("sn"));
+                user.setFirstName(request().getHeader("displayName"));
+                user.save();
+            }
         }
 
         // User exists in the system -> log in
