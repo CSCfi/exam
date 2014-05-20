@@ -86,7 +86,7 @@ users:
       organisation: *OulunYliopisto
 
     - &maika !!models.User
-      email:      maikaope
+      email:      maikaope@funet.fi
       firstName:  Maika
       lastName:   Opettaja
       password:   1d0ebf168b86f79a0c34e81eb1fd70cd  # maikaope

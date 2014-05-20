@@ -32,9 +32,10 @@ public class SessionController extends SitnetController {
             Logger.debug("User login with username: {} and password: ***", credentials.getUsername());
             String md5psswd = SitnetUtil.encodeMD5(credentials.getPassword());
 
+
             user = Ebean.find(User.class)
                     .select("email, firstName, lastName, userLanguage")
-                    .where().eq("email", credentials.getUsername())
+                    .where().eq("email", credentials.getUsername() + "@funet.fi")
                     .eq("password", md5psswd).findUnique();
 
             if (user == null) {
