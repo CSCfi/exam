@@ -9,6 +9,7 @@ import play.db.ebean.Model;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "sitnet_users")
@@ -33,6 +34,12 @@ public class User extends Model implements Subject {
 
     @OneToOne
     private UserLanguage userLanguage;
+
+    // Shibboleth attributes
+    Map<String, String[]> attributes;
+
+
+
 
     @OneToOne
     private Organisation organisation;
@@ -74,6 +81,14 @@ public class User extends Model implements Subject {
         this.shibbolethUser = shibbolethUser;
     }
 
+    public Map<String, String[]> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, String[]> attributes) {
+        this.attributes = attributes;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -112,6 +127,8 @@ public class User extends Model implements Subject {
 
     @Override
     public List<? extends Role> getRoles() {
+        if(roles == null)
+            roles = new ArrayList();
         return roles;
     }
 
