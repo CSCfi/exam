@@ -115,6 +115,16 @@
 	cursor: pointer;
   }
 
+  .question-editor.affix {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 28%;
+    overflow-y: scroll;
+    margin-right: 1em;
+    padding-right: 0;
+  }
+
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

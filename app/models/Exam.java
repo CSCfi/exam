@@ -1,6 +1,7 @@
 package models;
 
 import annotations.NonCloneable;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
@@ -24,7 +25,7 @@ public class Exam extends SitnetModel {
 
     private String name;
 
-    // this should be @OneToOne
+
     @ManyToOne
     @NonCloneable
     private Course course;
@@ -50,7 +51,6 @@ public class Exam extends SitnetModel {
     @OneToOne
     @NonCloneable
     private Exam parent;
-
 
     @Column(length = 32, unique = true)
     private String hash;
@@ -88,11 +88,28 @@ public class Exam extends SitnetModel {
 
     private String grade;
 
+    /*
+     * this is the user who is marked as evaluator of the Exam
+     * in WebOodi, or other system
+     */
+    @JsonBackReference
+    @NonCloneable
+    @OneToOne
+    private User gradedByUser;
+
     @OneToOne
     private Comment examFeedback;
 
     // In UI, section has been expanded
     private Boolean expanded;
+
+    public User getGradedByUser() {
+        return gradedByUser;
+    }
+
+    public void setGradedByUser(User gradedByUser) {
+        this.gradedByUser = gradedByUser;
+    }
 
     @Transient
     public double getTotalScore() {
