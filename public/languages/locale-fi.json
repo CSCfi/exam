@@ -187,8 +187,9 @@
 "sitnet_evaluation_points": "Pisteet",
 "sitnet_evaluation_select": "Hyväksytty / Hylätty",
 
-    "sitnet_exam_choose_credit_type": "Valitse tentin suoritustyyppi",
-    "sitnet_exam_credit_type_partial": "Osasuoritus",
-    "sitnet_exam_credit_type_final": "Loppusuoritus",
-    "sitnet_exam_credit_type_maturity": "Kypsyysnäyte"
+"sitnet_exam_choose_credit_type": "Valitse tentin suoritustyyppi",
+"sitnet_exam_credit_type_partial": "Osasuoritus",
+"sitnet_exam_credit_type_final": "Loppusuoritus",
+"sitnet_exam_credit_type_maturity": "Kypsyysnäyte"
+
 }

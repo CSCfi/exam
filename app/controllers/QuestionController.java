@@ -5,6 +5,10 @@ import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.SqlQuery;
+import com.avaje.ebean.SqlRow;
+import com.avaje.ebean.SqlUpdate;
+import models.ExamSection;
 import models.SitnetModel;
 import models.User;
 import models.questions.AbstractQuestion;
@@ -144,7 +148,52 @@ public class QuestionController extends SitnetController {
     @Restrict(@Group({"TEACHER"}))
     public static Result deleteQuestion(Long id) {
 
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+
+        List<AbstractQuestion> children = Ebean.find(AbstractQuestion.class)
+                .where()
+                .eq("parent.id", id)
+                .findList();
+
+        for(AbstractQuestion a : children) {
+            a.setParent(null);
+            a.save();
+//            question.save();
+        }
+
+        List<MultipleChoiseOption> options = Ebean.find(MultipleChoiseOption.class)
+                .where()
+                .eq("question.id", id)
+                .findList();
+
+        for (MultipleChoiseOption o : options) {
+            o.setQuestion(null);
+            o.delete();
+        }
+
+
+        List<ExamSection> examSections = Ebean.find(ExamSection.class)
+                .where()
+                .eq("questions.id", id)
+                .findList();
+
+        for (ExamSection section : examSections) {
+            section.getQuestions().remove(question);
+            section.save();
+        }
+
+//        String sql = " delete from exam_section_question "
+//                + " where question_id = :id1 ";
+//
+//        SqlQuery sqlQuery = Ebean.createSqlQuery(sql);
+//        sqlQuery.setParameter("id1", id);
+//        List<SqlRow> list = sqlQuery.findList();
+//
+//        Logger.debug("SQL lause vaikutti näin moineen riviin: "+ list);
+//
         Ebean.delete(AbstractQuestion.class, id);
+
+//        question.delete();
 
         return ok("Question deleted from database!");
     }
