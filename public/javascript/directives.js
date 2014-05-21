@@ -97,11 +97,8 @@
                 link: function (scope, elem, attrs) {
 
                     var winHeight = $window.innerHeight;
-
-                    var headerHeight = attrs.banner ? attrs.banner : 0;
-
-                    elem.css('height', winHeight - 10);
-                }
+                    elem.css('height', winHeight - 100);
+                 }
             };
         });
 }());

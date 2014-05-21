@@ -1,49 +1,76 @@
+<script>
+    $(document).ready(function () {
 
-<div id="library" class="base">
-    <div sn-library class="library-main" data-spy="affix" data-offset-top="100" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'">
-	<div class="library-header">
-		<h4>
-			<span ng-click="session.minimizeLibrary = ! session.minimizeLibrary">
-				<i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
-				<i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
-			</span>
-		</h4>
-	</div>
-	<div class="library" ng-controller="LibraryCtrl" ng-hide="session.minimizeLibrary">
-		<div class="library-name">
-			<span>
-				<i class="fa fa-briefcase"></i>
-				{{'sitnet_library' | translate}}
-			</span>
-			<span class="pull-right dropdown">
-				<a class="dropdown-toggle"><i class="sitnet-orange fa fa-cog"></i>
-				</a>
-				<ul class="dropdown-menu">
-					<li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-					<li><a class="pointer-hand">Toiminnallisuutta ei ole</a></li>
-					<li><a class="pointer-hand">Vielä toteutettu</a></li>
-				</ul>
-			</span>
-		</div>
-        <div class="input-group">
-            <input ng-model="selected" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
-			<span class="input-group-addon">
-				<i class="fa fa-search fa-fw"></i>
-			</span>
-        </div>
-        <ul class="list-group results">
-            <li class="single-question-header-inactive" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
-                <div class="row">
+        /*
+         * Clamped-width.
+         * Usage:
+         *  <div data-clampedwidth=".myParent">This long content will force clamped width</div>
+         *
+         * Author: LV
+         */
+        $('[data-clampedwidth]').each(function () {
+            var elem = $(this);
+            var parentPanel = elem.data('clampedwidth');
+            var resizeFn = function () {
+                var affixWidth = $(parentPanel).width() - parseInt(elem.css('paddingLeft')) - parseInt(elem.css('paddingRight')) - parseInt(elem.css('marginLeft')) - parseInt(elem.css('marginRight')) - parseInt(elem.css('borderLeftWidth')) - parseInt(elem.css('borderRightWidth'));
+                elem.css('width', affixWidth);
+            };
 
-                    <div class="single-question-icon col-md-1"><i class="fa fa-2x fa-fw {{question.icon}}"></i></div>
-                    <div class="menu-item short-text col-md-11" >{{stripHtml(question.question)}}</div>
+            resizeFn();
+            $(window).resize(resizeFn);
+        });
+
+    });
+</script>
+
+<div id="library">
+    <div class="col-md-4">
+        <div sn-library bs-affix class="library-main" data-spy="affix" data-offset-top="100" data-clampedwidth=".col-md-4">
+            <div class="library-header">
+                <h4>
+                    <span ng-click="session.minimizeLibrary = ! session.minimizeLibrary">
+                        <i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
+                        <i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
+                    </span>
+                </h4>
+            </div>
+            <div class="library" ng-controller="LibraryCtrl" ng-hide="session.minimizeLibrary">
+                <div class="library-name">
+                    <span>
+                        <i class="fa fa-briefcase"></i>
+                        {{'sitnet_library' | translate}}
+                    </span>
+                    <span class="pull-right dropdown">
+                        <a class="dropdown-toggle"><i class="sitnet-orange fa fa-cog"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
+                            <li><a class="pointer-hand">Toiminnallisuutta ei ole</a></li>
+                            <li><a class="pointer-hand">Vielä toteutettu</a></li>
+                        </ul>
+                    </span>
                 </div>
-            </li>
-				<span class="menu-item">
-					{{ 'sitnet_add_random_questions' | translate }} <input type="number" ng-model="amount" min="1" placeholder="0" />
-				</span>
-            </li>
-		</ul>
+                <div class="input-group">
+                    <input ng-model="selected" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                    <span class="input-group-addon">
+                        <i class="fa fa-search fa-fw"></i>
+                    </span>
+                </div>
+                <ul class="list-group results">
+                    <li class="single-question-header-inactive" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
+                        <div class="row">
+
+                            <div class="single-question-icon col-md-1"><i class="fa fa-2x fa-fw {{question.icon}}"></i></div>
+                            <div class="menu-item short-text col-md-11" >{{stripHtml(question.question)}}</div>
+                        </div>
+                    </li>
+                        <span class="menu-item">
+                            {{ 'sitnet_add_random_questions' | translate }} <input type="number" ng-model="amount" min="1" placeholder="0" />
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 </div>
-</div>
+

@@ -3,7 +3,7 @@
   .library {
     padding: 1em;
     min-height: 100%;
-    border: solid 1px $sitnet-grey;
+    //border: solid 1px $sitnet-grey;
     background-color: $sitnet-light-grey;
     .results {
       margin-top: 1em;
@@ -50,12 +50,10 @@
 
   .library-main.affix {
     position: fixed;
-    right: 0;
-    top: 0;
-    width: 28%;
     overflow-y: scroll;
-    margin-right: 1em;
-    padding-right: 0;
+    margin-right: 2em;
+    top: 0;
+    //height: 100%;
   }
 
   li {
