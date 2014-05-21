@@ -142,7 +142,7 @@ question_essay:
 # Essay questions
 
   - &essay1 !!models.questions.EssayQuestion
-    creator: 
+    creator: *arvo
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
@@ -158,7 +158,7 @@ question_essay:
     expanded: true
 
   - &essay2 !!models.questions.EssayQuestion
-    creator: 
+    creator: *arvo
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
@@ -174,7 +174,7 @@ question_essay:
     expanded: true
 
   - &essay3 !!models.questions.EssayQuestion
-    creator: 
+    creator: *arvo
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
@@ -195,7 +195,7 @@ question_mutiple_choice:
 # Multiple choise questions
 
   - &multi1 !!models.questions.MultipleChoiceQuestion
-    creator: 
+    creator: *arvo
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
@@ -214,7 +214,7 @@ question_mutiple_choice:
 
   - &multi2 !!models.questions.MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
-    creator: 
+    creator: *arvo
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
