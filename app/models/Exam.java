@@ -100,6 +100,8 @@ public class Exam extends SitnetModel {
     @OneToOne
     private Comment examFeedback;
 
+    private String creditType;
+
     // In UI, section has been expanded
     private Boolean expanded;
 
@@ -289,6 +291,14 @@ public class Exam extends SitnetModel {
 
     public void setExamFeedback(Comment examFeedback) {
         this.examFeedback = examFeedback;
+    }
+
+    public String getCreditType() {
+        return creditType;
+    }
+
+    public void setCreditType(String creditType) {
+        this.creditType = creditType;
     }
 
     @Override

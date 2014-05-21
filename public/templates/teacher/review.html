@@ -26,6 +26,15 @@
         </div>
     </div>
 
+    <div class="col-md-12 text-center" style="margin-bottom: 1em">
+        <div class="sitnet-info-text">{{'sitnet_exam_choose_credit_type' | translate}}:</div>
+        <select class="form-control" ng-model="examToBeReviewed.creditType" ng-change="insertCreditType(examToBeReviewed)" ng-required="true">
+            <option value="Partial">{{'sitnet_exam_credit_type_partial' | translate}}</option>
+            <option value="Final" selected>{{'sitnet_exam_credit_type_final' | translate}}</option>
+            <option value="Maturity">{{'sitnet_exam_credit_type_maturity' | translate}}</option>
+        </select>
+    </div>
+
     <div class="row" style="padding-left: 1em">
         <div class="col-md-6">
             <div class="sitnet-info-text">Tentin Arvosana:</div>

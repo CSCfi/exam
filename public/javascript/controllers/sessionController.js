@@ -13,12 +13,14 @@
                 var dialog;
 
                 $scope.$on('event:auth-loginRequired', function () {
-                    dialog = $modal.open({
-                        templateUrl: 'assets/templates/login.html',
-                        backdrop: 'static',
-                        keyboard: false,
-                        controller: "SessionCtrl"
-                    });
+//                    dialog = $modal.open({
+//                        templateUrl: 'assets/templates/login.html',
+//                        backdrop: 'static',
+//                        keyboard: false,
+//                        controller: "SessionCtrl"
+//                    });
+
+                    $scope.login();
                 });
 
                 $scope.$on('event:auth-loginConfirmed', function () {
@@ -48,7 +50,9 @@
                 };
 
                 $scope.dologout = function () {
-                    var xhr = $http.post('/logout');
+//                    var xhr = $http.post('/logout');
+                    var xhr = $http.get('https://testidp.funet.fi/logout_dummy.jsp');
+
                     xhr.success(function (message) {
 
                         // This could be how the service is called if we could use it to handle logout
@@ -60,6 +64,9 @@
                         $rootScope.$broadcast('userUpdated');
                         $location.path("/login");
                     });
+
+
+
                 };
 
                 $scope.login = function () {

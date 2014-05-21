@@ -148,6 +148,7 @@ public class ExamController extends SitnetController {
                 "examLanguage",
                 "answerLanguage",
                 "grade",
+                "creditType",
                 "expanded")
                 .get();
 
@@ -185,7 +186,7 @@ public class ExamController extends SitnetController {
     }
 
     public static Result updateComment(Long eid, Long cid) throws MalformedDataException {
-        Logger.debug("insertComment()");
+        Logger.debug("updateComment()");
 
         Comment bindComment = bindForm(Comment.class);
 
