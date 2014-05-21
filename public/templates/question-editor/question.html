@@ -3,7 +3,7 @@
         <h2 class="header-title">{{'sitnet_questions_new' | translate}}</h2>
     </div>
     <div class="base row">
-        <div class="col-md-8">
+        <div class="col-md-8"  ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
             <form name="questionForm" novalidate>
                 <div class="row">
                     <div class="col-md-6">
@@ -112,7 +112,9 @@
             </form>
         </div>
         <!-- Question Library-->
-        <div ng-include="libraryTemplate">
+        <!--<div ng-include="libraryTemplate">-->
+        <!--</div>-->
+        <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'">
         </div>
      </div>
 </div>

@@ -107,6 +107,7 @@
                         authService.loginConfirmed();
                         $rootScope.$broadcast('userUpdated');
                         toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
+                        $location.path("/home");
                     });
                     xhr.error(function (message) {
                         toastr.error(message, "Kirjautuminen epäonnistui!");
