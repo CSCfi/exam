@@ -56,6 +56,14 @@
     //height: 100%;
   }
 
+  .library-main {
+//    position: fixed;
+    overflow-y: scroll;
+    margin-right: 2em;
+    top: 0;
+    //height: 100%;
+  }
+
   li {
     padding-left: 0.5em;
     padding-right: 0.5em;
