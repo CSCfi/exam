@@ -259,6 +259,7 @@ public class ExamController extends SitnetController {
     public static Result createExamDraft() throws MalformedDataException {
         Logger.debug("createExamDraft()");
 
+
         Exam exam = new Exam();
         exam.setName("Kirjoita tentin nimi tähän");
         exam.setState("DRAFT");
@@ -271,7 +272,7 @@ public class ExamController extends SitnetController {
         exam.save();
 
         ExamSection examSection = new ExamSection();
-        examSection.setName("Aihealue");
+        examSection.setName("Osio");
         try {
             SitnetUtil.setCreator(examSection);
         } catch (SitnetException e) {

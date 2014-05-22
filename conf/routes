@@ -111,6 +111,9 @@ GET           /integration/info/:organisationId/:id                 controllers.
 GET           /integration/record/:vatIdNumber/:startDate           controllers.Interfaces.getRecords(vatIdNumber: String, startDate: String)
 
 
+############### SQLinterface ###############
+GET           /admin/query                                          controllers.RawSQLQueryController.executeSQL()
+
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()
 GET           /secure                                               controllers.TestController.shibbolethHeaders()
