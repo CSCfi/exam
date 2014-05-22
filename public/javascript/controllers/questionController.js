@@ -8,6 +8,7 @@
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
+                $scope.userQuestionsPath = SITNET_CONF.TEMPLATES_PATH + "question-listing/user_questions.html";
 
                 $scope.questionTemplate = null;
 

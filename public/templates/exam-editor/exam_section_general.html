@@ -72,7 +72,7 @@
             <div class="input-group">
                 <input type="text" class="form-control ng-pristine ng-valid"
                        ng-model="newExam.course.name" ui-change="saveExam()"
-                       placeholder=""
+                       placeholder="Opintojakson nimi"
                        typeahead-on-select="onCourseSelect($item, $model, $label)"
                        typeahead="c as c.name for c in getCourses('name', $viewValue)"
                        typeahead-min-length="2"
