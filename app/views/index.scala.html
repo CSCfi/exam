@@ -94,7 +94,7 @@
     </head>
 
     <body ng-controller="SessionCtrl">
-        <aside id="vmenu" class="col-md-2" ng-controller="NavigationCtrl">
+        <div id="vmenu" class="col-md-2" ng-controller="NavigationCtrl">
             <div ng-hide="minimizeNavigation" class="logo">
                 <img src="@routes.Assets.at("images/sitnet.png")" alt="sitnet" />
             </div>
@@ -144,7 +144,7 @@
                 </ul>
                 <span ng-click="minimizeNavigation = !minimizeNavigation" class="minify"> <i class="fa fa-3x fa-arrow-circle-left hit"></i></span>
             </nav>
-        </aside>
+        </div>
         <div class="container-fluid vmenu-on">
             <div>
                 <div ng-view></div>

@@ -24,7 +24,7 @@ public class ExamSection extends SitnetModel {
 
     private String name;
 
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.DETACH)
 	@JsonManagedReference
 	private List<AbstractQuestion> questions;
 

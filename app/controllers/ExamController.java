@@ -271,7 +271,7 @@ public class ExamController extends SitnetController {
         exam.save();
 
         ExamSection examSection = new ExamSection();
-        examSection.setName("Osio");
+        examSection.setName("Aihealue");
         try {
             SitnetUtil.setCreator(examSection);
         } catch (SitnetException e) {
