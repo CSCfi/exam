@@ -25,48 +25,53 @@
 
 <div id="library">
     <div class="col-md-4">
-        <div sn-library bs-affix class="library-main" data-spy="affix" data-offset-top="100" data-clampedwidth=".col-md-4">
+        <div sn-library bs-affix class="library-main" data-spy="affix" data-offset-top="50" data-clampedwidth=".col-md-4">
             <div class="library-header">
                 <h4>
-                    <span ng-click="session.minimizeLibrary = ! session.minimizeLibrary">
+                    <div ng-click="session.minimizeLibrary = ! session.minimizeLibrary">
                         <i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
                         <i ng-class="session.minimizeLibrary ? 'fa fa-chevron-left' : 'fa fa-chevron-right'"></i>
-                    </span>
+                    </div>
                 </h4>
             </div>
             <div class="library" ng-controller="LibraryCtrl" ng-hide="session.minimizeLibrary">
-                <div class="library-name">
-                    <span>
-                        <i class="fa fa-briefcase"></i>
-                        {{'sitnet_library' | translate}}
-                    </span>
-                    <span class="pull-right dropdown">
-                        <a class="dropdown-toggle"><i class="sitnet-orange fa fa-cog"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-                            <li><a class="pointer-hand">Toiminnallisuutta ei ole</a></li>
-                            <li><a class="pointer-hand">Vielä toteutettu</a></li>
-                        </ul>
-                    </span>
+                <div class="row">
+                    <div class="col-md-10">
+                        <div class="library-name">
+                            <div>
+                                <i class="fa fa-briefcase"></i>
+                                {{'sitnet_library' | translate}}
+                            </div>
+                        </div>
+                     </div>
+                    <div class="col-md-2">
+                        <div class="pull-right dropdown">
+                            <div class="dropdown-toggle"><i class="sitnet-orange fa fa-cog"></i>
+                            </div>
+                            <ul class="dropdown-menu">
+                                <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
+                                <li><a class="pointer-hand">Toiminnallisuutta ei ole</a></li>
+                                <li><a class="pointer-hand">Vielä toteutettu</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="input-group">
                     <input ng-model="selected" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
-                    <span class="input-group-addon">
+                    <div class="input-group-addon">
                         <i class="fa fa-search fa-fw"></i>
-                    </span>
+                    </div>
                 </div>
                 <ul class="list-group results">
                     <li class="single-question-header-inactive" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
                         <div class="row">
-
                             <div class="single-question-icon col-md-1"><i class="fa fa-2x fa-fw {{question.icon}}"></i></div>
                             <div class="menu-item short-text col-md-11" >{{stripHtml(question.question)}}</div>
                         </div>
                     </li>
-                        <span class="menu-item">
+                        <div class="menu-item">
                             {{ 'sitnet_add_random_questions' | translate }} <input type="number" ng-model="amount" min="1" placeholder="0" />
-                        </span>
+                        </div>
                     </li>
                 </ul>
             </div>
