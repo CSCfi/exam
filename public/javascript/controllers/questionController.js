@@ -72,17 +72,18 @@
                     );
                 }
 
-//                $scope.newMCQuestion = function () {
-//                    $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
-//                    $scope.newQuestion.type = "MultipleChoiceQuestion";
-//                    $scope.newQuestion.options = [
-//                        {
-//                            "option": "Esimerkki vaihtoehto",
-//                            "correctOption": false,
-//                            "maxScore": 1
-//                        }
-//                    ];
-//                };
+                $scope.copyQuestion = function (question) {
+                    console.log(question.id);
+
+                    QuestionRes.question.copy(question,
+                        function (questionCopy) {
+                            toastr.info("Kysymys kopioitu");
+                            $location.path("/questions/" + questionCopy.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
 
                 $scope.newEssayQuestion = function () {
                     $scope.questionTemplate = $scope.essayQuestionTemplate;

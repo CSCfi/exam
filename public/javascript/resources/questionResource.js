@@ -13,6 +13,15 @@
                     "create": {method: "POST"}
 
                 }),
+
+                question: $resource("/question/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "copy": {method: "POST"}
+                }),
+
                 options: $resource("/questions/:qid/option/:oid",
                 {
                     qid: "@qid", oid: "@oid"

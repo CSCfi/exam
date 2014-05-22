@@ -1,6 +1,12 @@
 <div id="question-editor" ng-controller="QuestionCtrl">
     <div class="question-editor-header row">
         <h2 class="header-title">{{'sitnet_questions_new' | translate}}</h2>
+
+        <div class="row">
+            <div class="col-md-2 col-md-offset-10">
+                <a ng-click="copyQuestion(newQuestion)" class="btn btn-primary btn-lg active header-button"> {{'sitnet_question_copy' | translate}} </a>
+            </div>
+        </div>
     </div>
     <div class="base row">
         <div class="col-md-8"  ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
