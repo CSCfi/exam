@@ -308,6 +308,18 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(section));
     }
 
+    public static Result updateCourse(Long eid, Long cid) throws MalformedDataException {
+        Logger.debug("updateCourse()");
+
+        Exam exam = Ebean.find(Exam.class, eid);
+        Course course = Ebean.find(Course.class, cid);
+
+        exam.setCourse(course);
+        exam.save();
+
+        return ok(Json.toJson(exam));
+    }
+
     public static Result insertQuestion(Long eid, Long sid, Long qid) throws MalformedDataException {
         Logger.debug("insertQuestion()");
 

@@ -1,7 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CourseTypeaheadCtrl', function ($http, $scope, limitToFilter, CourseRes) {
+        .controller('CourseTypeaheadCtrl', ['$http', '$scope', 'limitToFilter', 'CourseRes', 'ExamRes',
+            function ($http, $scope, limitToFilter, CourseRes, ExamRes) {
 
             $scope.getCourses = function(filter, criteria) {
                 return CourseRes.courses.query({filter: filter, q: criteria}).$promise.then(
@@ -14,11 +15,23 @@
                 );
             };
 
-            $scope.onCourseSelect = function ($item, $model, $label) {
-               $scope.newExam.course = $item;
-               $scope.courseCodeSearch = $item;
-               $scope.courseNameSearch = $item;
-            };
+            $scope.onCourseSelect = function ($item, $model, $label, exam) {
 
-        });
+                console.log($item);
+                console.log($model);
+                console.log($label);
+                console.log(exam);
+
+                ExamRes.course.update({eid: exam.id, cid: $item.id}, function (updated_exam) {
+                    toastr.success("Kurssi lisättiin tenttiin.");
+                    $scope.newExam = updated_exam;
+                }, function (error) {
+                    toastr.error(error.data);
+                });
+
+                $scope.newExam.course = $item;
+                $scope.courseCodeSearch = $item;
+                $scope.courseNameSearch = $item;
+            };
+        }]);
 }());

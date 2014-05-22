@@ -31,6 +31,7 @@ POST          /exams                                                controllers.
 POST          /exams/:id/section                                    controllers.ExamController.insertSection(id: Long)
 DELETE        /exams/:eid/section/:sid                              controllers.ExamController.removeSection(eid: Long, sid: Long)
 PUT           /exams/:eid/section/:sid                              controllers.ExamController.updateSection(eid: Long, sid: Long)
+PUT           /exams/:eid/course/:cid                               controllers.ExamController.updateCourse(eid: Long, cid: Long)
 
 POST          /exams/:eid/section/:sid/question/:qid                controllers.ExamController.insertQuestion(eid: Long, sid: Long, qid: Long)
 DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
