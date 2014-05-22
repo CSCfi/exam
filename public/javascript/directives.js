@@ -49,7 +49,7 @@
                     if (scope.option.correctOption === true) {
                         scope.answerState = $translate("sitnet_multiplechoice_question_correct");
                     } else {
-                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");;
+                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");
                     }
 
                     elem.bind('change', function () {
