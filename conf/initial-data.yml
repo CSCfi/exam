@@ -634,7 +634,7 @@ exams:
     shared: true
     grading: 0-5
     examSections:
-    state: PUBLISHED
+    state: REVIEW
     
     
 exam-sections:
@@ -761,7 +761,9 @@ exam-inspections:
     user: *arvo
     exam: *tietokannat2014
    
-   
+  - !!models.ExamInspection
+    user: *sauli
+    exam: *ooad
    
 ############### Tilavaraus ###############
 
