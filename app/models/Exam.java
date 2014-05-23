@@ -1,6 +1,7 @@
 package models;
 
 import annotations.NonCloneable;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
