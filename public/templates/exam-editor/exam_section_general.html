@@ -71,8 +71,8 @@
             <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
             <div class="input-group">
                 <input type="text" class="form-control ng-pristine ng-valid"
-                       ng-model="courseNameSearch" ui-change="saveExam()"
-                       placeholder=""
+                       ng-model="newExam.course.name" ui-change="saveExam()"
+                       placeholder="Opintojakson nimi"
                        typeahead-on-select="onCourseSelect($item, $model, $label)"
                        typeahead="c as c.name for c in getCourses('name', $viewValue)"
                        typeahead-min-length="2"
@@ -90,9 +90,9 @@
             <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}:</div>
             <div class="input-group">
                 <input type="text" class="form-control ng-pristine ng-valid"
-                       ng-model="courseCodeSearch" ui-change="saveExam()"
-                       placeholder=""
-                       typeahead-on-select="onCourseSelect($item, $model, $label)"
+                       ng-model="newExam.course.code"
+                       placeholder="Opintojakson koodi"
+                       typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
                        typeahead="c as c.code for c in getCourses('code', $viewValue)"
                        typeahead-loading="loadingCoursesByCode">
                        <span class="input-group-addon"
@@ -262,7 +262,7 @@
             </div>
 
             <div class="input-group exam-info">
-                <textarea class="form-control" rows="2" cols="140" ng-model="newExam.instruction" ui-blur="saveExam()"
+                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction" ui-blur="saveExam()"
                           placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
                 </textarea>
             </div>

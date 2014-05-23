@@ -77,7 +77,7 @@
 
   .multiplechoice-question-input {
     margin-left: 0.3em;
-    width: 75%;
+    width: 100%;
   }
 
   .single-question {
@@ -113,6 +113,16 @@
 
   .pointer-hand {
 	cursor: pointer;
+  }
+
+  .question-editor.affix {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 28%;
+    overflow-y: scroll;
+    margin-right: 1em;
+    padding-right: 0;
   }
 
   -webkit-touch-callout: none;

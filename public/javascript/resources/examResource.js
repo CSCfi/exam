@@ -34,6 +34,15 @@
                     "update": {method: "PUT", params: { eid: "@eid" , sid: "@sid"}}
 
                 }),
+
+                course: $resource("/exams/:eid/course/:cid",
+                {
+                    eid: "@eid", sid: "@cid"
+                },
+                {
+                    "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}}
+                }),
+
                 section: $resource("/section/:sectionId",
                 {
                     sectionId: "@sectionId"
@@ -58,6 +67,16 @@
                 },
                 {
                     "update": {method: "PUT"}
+                }),
+
+                comment: $resource("/review/:eid/comment/:cid",
+                {
+                    id: "@eid", cid: "@cid"
+                },
+                {
+                    "insert": {method: "POST", params: { eid: "@eid" }},
+                    "update": {method: "PUT", params: { eid: "@eid" , sid: "@cid"}}
+                
                 }),
                 inspections: $resource("/exam/:id/inspections",
                 {

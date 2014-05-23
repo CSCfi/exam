@@ -21,7 +21,7 @@ public class EssayQuestion extends AbstractQuestion implements QuestionInterface
     // not really max length, Just a recommendation
     private Long maxCharacters;
 
-    private Double evaluatedScore;
+    //private Double evaluatedScore;
 
     // Points, Select
     private String evaluationType;
@@ -49,13 +49,13 @@ public class EssayQuestion extends AbstractQuestion implements QuestionInterface
         this.maxCharacters = maxCharacters;
     }
 
-    public Double getEvaluatedScore() {
-        return evaluatedScore;
-    }
-
-    public void setEvaluatedScore(Double evaluatedScore) {
-        this.evaluatedScore = evaluatedScore;
-    }
+//    public Double getEvaluatedScore() {
+//        return evaluatedScore;
+//    }
+//
+//    public void setEvaluatedScore(Double evaluatedScore) {
+//        this.evaluatedScore = evaluatedScore;
+//    }
 
     public String getEvaluationType() {
         return evaluationType;

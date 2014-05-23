@@ -5,8 +5,13 @@ import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.SqlQuery;
+import com.avaje.ebean.SqlRow;
+import com.avaje.ebean.SqlUpdate;
+import models.ExamSection;
 import models.SitnetModel;
 import models.User;
+import models.answers.AbstractAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
@@ -19,6 +24,7 @@ import play.mvc.Result;
 import util.SitnetUtil;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuestionController extends SitnetController {
@@ -43,6 +49,54 @@ public class QuestionController extends SitnetController {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
 
+        return ok(Json.toJson(question));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result copyQuestion(Long id) throws MalformedDataException {
+
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+
+        switch (question.getType()) {
+            case "MultipleChoiceQuestion": {
+                MultipleChoiceQuestion multipleChoiceQuestion = null;
+                multipleChoiceQuestion = (MultipleChoiceQuestion) question.clone();
+
+                try {
+                    multipleChoiceQuestion = (MultipleChoiceQuestion) SitnetUtil.setCreator(multipleChoiceQuestion);
+                } catch (SitnetException e) {
+                    e.printStackTrace();
+                }
+
+                multipleChoiceQuestion.setOptions(new ArrayList<MultipleChoiseOption>());
+                multipleChoiceQuestion.save();
+                List<MultipleChoiseOption> options = ((MultipleChoiceQuestion)question).getOptions();
+                for (MultipleChoiseOption o : options) {
+                    MultipleChoiseOption clonedOpt = (MultipleChoiseOption) o.clone();
+                    clonedOpt.setQuestion(multipleChoiceQuestion);
+                    clonedOpt.save();
+                    multipleChoiceQuestion.getOptions().add(clonedOpt);
+                }
+                break;
+            }
+            case "EssayQuestion":
+                EssayQuestion essayQuestion = null;
+                essayQuestion = (EssayQuestion) question.clone();
+
+                try {
+                    essayQuestion = (EssayQuestion) SitnetUtil.setCreator(essayQuestion);
+                } catch (SitnetException e) {
+                    e.printStackTrace();
+                }
+
+                AbstractAnswer answer = question.getAnswer();
+                essayQuestion.setAnswer(answer);
+                essayQuestion.save();
+
+                break;
+        }
+
+        Ebean.save(question);
         return ok(Json.toJson(question));
     }
 
@@ -144,7 +198,52 @@ public class QuestionController extends SitnetController {
     @Restrict(@Group({"TEACHER"}))
     public static Result deleteQuestion(Long id) {
 
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+
+        List<AbstractQuestion> children = Ebean.find(AbstractQuestion.class)
+                .where()
+                .eq("parent.id", id)
+                .findList();
+
+        for(AbstractQuestion a : children) {
+            a.setParent(null);
+            a.save();
+//            question.save();
+        }
+
+        List<MultipleChoiseOption> options = Ebean.find(MultipleChoiseOption.class)
+                .where()
+                .eq("question.id", id)
+                .findList();
+
+        for (MultipleChoiseOption o : options) {
+            o.setQuestion(null);
+            o.delete();
+        }
+
+
+        List<ExamSection> examSections = Ebean.find(ExamSection.class)
+                .where()
+                .eq("questions.id", id)
+                .findList();
+
+        for (ExamSection section : examSections) {
+            section.getQuestions().remove(question);
+            section.save();
+        }
+
+//        String sql = " delete from exam_section_question "
+//                + " where question_id = :id1 ";
+//
+//        SqlQuery sqlQuery = Ebean.createSqlQuery(sql);
+//        sqlQuery.setParameter("id1", id);
+//        List<SqlRow> list = sqlQuery.findList();
+//
+//        Logger.debug("SQL lause vaikutti näin moineen riviin: "+ list);
+//
         Ebean.delete(AbstractQuestion.class, id);
+
+//        question.delete();
 
         return ok("Question deleted from database!");
     }

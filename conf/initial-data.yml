@@ -23,8 +23,18 @@
 # 2014-04-03 20:32:04.575
 
 # Users
+user-roles:
+    - &role-admin !!models.SitnetRole
+      name: ADMIN
 
+    - &role-student !!models.SitnetRole
+      name: STUDENT
 
+    - &role-teacher !!models.SitnetRole
+      name: TEACHER
+      
+      
+  
 organisations:
 
     - &OulunYliopisto !!models.Organisation
@@ -66,33 +76,32 @@ user_languages:
 users:
 
     - !!models.User
-      email:      sitnetad
+      email:      sitnetad@funet.fi
       firstName:  Admin
       lastName:   Instrator
       password:   c74626d3eca0613f356cd34ecd1301c5  #sitnetad
       roles:
-            - !!models.SitnetRole {name: ADMIN}
+            - *role-admin
       userLanguage: *suomi
       organisation: *OulunYliopisto
 
     - &maika !!models.User
-      email:      maikaope
+      email:      maikaope@funet.fi
       firstName:  Maika
       lastName:   Opettaja
       password:   1d0ebf168b86f79a0c34e81eb1fd70cd  # maikaope
       roles:  
-            - !!models.SitnetRole {name: TEACHER}
+            - *role-teacher
       userLanguage: *suomi
-      organisation: *OulunYliopisto
 
 
     - &sauli !!models.User
-      email:      saulistu
+      email:      saulistu@funet.fi
       firstName:  Sauli
       lastName:   Student
       password:   72e6570dbfeb95d5df59e08f1fa6302f   # saulistu
       roles:  
-            - !!models.SitnetRole {name: STUDENT}
+            - *role-student
       userLanguage: *suomi
       organisation: *OulunYliopisto
 
@@ -102,7 +111,7 @@ users:
       lastName:   Penaali
       password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
       roles:  
-            - !!models.SitnetRole {name: TEACHER}
+            - *role-teacher
       userLanguage: *suomi
       organisation: *OulunYliopisto
 
@@ -112,7 +121,7 @@ users:
       lastName:   Soikkeli
       password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
       roles:  
-            - !!models.SitnetRole {name: TEACHER}
+            - *role-teacher
       userLanguage: *suomi
       organisation: *OulunYliopisto
       
@@ -122,21 +131,9 @@ users:
       lastName:   Oates
       password:   2664274e7f6f56c565470797478cb406  #oppilas
       roles:  
-            - !!models.SitnetRole {name: STUDENT}
+            - *role-student
       userLanguage: *suomi
       organisation: *OulunYliopisto
-
-
-user_roles:
-
-    - !!models.SitnetRole
-      name: ADMIN
-
-    - !!models.SitnetRole
-      name: STUDENT
-
-    - !!models.SitnetRole
-      name: TEACHER
 
 ######################################################################
 
@@ -592,7 +589,7 @@ exams:
     state: PUBLISHED
 
   - &tietokannat2013 !!models.Exam
-    creator: *arvo
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, syksy 2013
@@ -604,7 +601,7 @@ exams:
     state: PUBLISHED
 
   - &tietokannat2014 !!models.Exam
-    creator: *arvo
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, kevät 2014
@@ -637,7 +634,7 @@ exams:
     shared: true
     grading: 0-5
     examSections:
-    state: PUBLISHED
+    state: REVIEW
     
     
 exam-sections:
@@ -764,7 +761,9 @@ exam-inspections:
     user: *arvo
     exam: *tietokannat2014
    
-   
+  - !!models.ExamInspection
+    user: *sauli
+    exam: *ooad
    
 ############### Tilavaraus ###############
 

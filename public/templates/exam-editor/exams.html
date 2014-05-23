@@ -10,61 +10,62 @@
 </div>
 <div id="exam" class="row">
     <div class="exam-list">
-        <!--<div class="col-md-8">-->
-        <h2 class="sitnet-teacher-turquoise-dark-active">Julkaistut tentit</h2>
-        <span class="sitnet-info-text">Nämä tentit ovat julkaistu, opiskelijat voivat ilmoittautua ja osallistua näihin tentteihin.</span>
-        <span class="sitnet-info-text">Näitä tenttejä EI voi muokata tai poista.</span>
+        <div class="col-md-8">
+            <h2 class="sitnet-teacher-turquoise-dark-active">Julkaistut tentit</h2>
+            <span class="sitnet-info-text">Nämä tentit ovat julkaistu, opiskelijat voivat ilmoittautua ja osallistua näihin tentteihin.</span>
+            <span class="sitnet-info-text">Näitä tenttejä EI voi muokata tai poista.</span>
 
-        <div class="exam-list-published">
-            <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}">
-                <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
-                    <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
-                </a>
-                <span class="sitnet-teacher-turquoise-dark-active">
-                    <i title="{{'sitnet_remove' | translate}}" class="pull-right fa fa-times fa-2x pointer" ng-click="deleteExam(exam)"></i>
-                </span>
-                <div>
-                    <span class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
-                    <span class="pull-right sitnet-info-text">Julkaistu</span>
+            <div class="exam-list-published">
+                <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}">
+                    <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
+                        <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
+                    </a>
+                    <span class="sitnet-teacher-turquoise-dark-active">
+                        <i title="{{'sitnet_remove' | translate}}" class="pull-right fa fa-times fa-2x pointer" ng-click="deleteExam(exam)"></i>
+                    </span>
+                    <div>
+                        <span class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
+                        <span class="pull-right sitnet-info-text">Julkaistu</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <hr>
-        <h2 class="sitnet-teacher-turquoise-light-active">Tallennetut tentit</h2>
-        <span class="sitnet-info-text">Näitä tenttejä ei ole vielä julkaistu, eivätkä opiskelijat voi ilmoittautua näihin tentteihin.</span>
-        <span class="sitnet-info-text">Näitä tenttejä voi muokata tai poista.</span>
+            <hr>
+            <h2 class="sitnet-teacher-turquoise-light-active">Tallennetut tentit</h2>
+            <span class="sitnet-info-text">Näitä tenttejä ei ole vielä julkaistu, eivätkä opiskelijat voi ilmoittautua näihin tentteihin.</span>
+            <span class="sitnet-info-text">Näitä tenttejä voi muokata tai poista.</span>
 
-        <div class="exam-list-saved">
-            <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'SAVED'}">
-                <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
-                    <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
-                </a>
-                <span class="sitnet-teacher-turquoise-dark-active">
-                    <i title="{{'sitnet_remove' | translate}}" class="pull-right fa fa-times fa-2x pointer" ng-click="deleteExam(exam)"></i>
-                </span>
-                <div>
-                    <span class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
-                    <span class="pull-right sitnet-info-text">Tallennettu</span>
+            <div class="exam-list-saved">
+                <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'SAVED'}">
+                    <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
+                        <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
+                    </a>
+                    <span class="sitnet-teacher-turquoise-dark-active">
+                        <i title="{{'sitnet_remove' | translate}}" class="pull-right fa fa-times fa-2x pointer" ng-click="deleteExam(exam)"></i>
+                    </span>
+                    <div>
+                        <span class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
+                        <span class="pull-right sitnet-info-text">Tallennettu</span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <hr>
-        <h2 class="sitnet-teacher-turquoise-light-inactive">Vedokset</h2>
-        <span class="sitnet-info-text">Vedokset ovat tenttejä joita et ole muistanut tallentaa.</span>
+            <hr>
+            <h2 class="sitnet-teacher-turquoise-light-inactive">Vedokset</h2>
+            <span class="sitnet-info-text">Vedokset ovat tenttejä joita et ole muistanut tallentaa.</span>
 
-        <div class="exam-list-draft">
-            <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'DRAFT'}">
-                <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
-                    <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
-                </a>
-                <span class="sitnet-teacher-turquoise-dark-active">
-                    <i title="{{'sitnet_remove' | translate}}" class="pull-right fa fa-times fa-2x pointer" ng-click="deleteExam(exam)"></i>
-                </span>
-                <div>
-                    <span class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
-                    <span class="pull-right sitnet-info-text">Vedos</span>
+            <div class="exam-list-draft">
+                <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'DRAFT'}">
+                    <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
+                        <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
+                    </a>
+                    <span class="sitnet-teacher-turquoise-dark-active">
+                        <i title="{{'sitnet_remove' | translate}}" class="pull-right fa fa-times fa-2x pointer" ng-click="deleteExam(exam)"></i>
+                    </span>
+                    <div>
+                        <span class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
+                        <span class="pull-right sitnet-info-text">Vedos</span>
+                    </div>
                 </div>
             </div>
         </div>

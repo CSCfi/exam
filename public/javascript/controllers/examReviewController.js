@@ -9,8 +9,6 @@
                 $scope.multiplechoiceQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_multiplechoice_question.html";
                 $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_essay_question.html";
 
-                var examTotalScore = 0;
-
                 $scope.examGrading = [];
 
                 if ($routeParams.id === undefined) {
@@ -51,23 +49,23 @@
                     );
                 }
 
-                $scope.scoreAnswer = function (question) {
+                $scope.scoreMultipleChoiceAnswer = function (question) {
                     var score = 0;
 
-                    angular.forEach(question.options, function(option, key) {
-                        //todo: how about multiple choice questions?
-                        if (question.answer === null) {
-                            question.backgroundColor = 'grey';
-                            return 0;
-                        }
-                        if(option.correctOption === true && question.answer.option.id === option.id) {
-                            score = question.maxScore;
-                            question.backgroundColor = 'green';
-                        }
-                        if (option.correctOption === false && question.answer.option.id === option.id) {
-                            question.backgroundColor = 'red';
-                        }
-                    });
+                    if (question.answer === null) {
+                        question.backgroundColor = 'grey';
+                        return 0;
+                    }
+
+                    if(question.answer.option.correctOption === true) {
+                        score = question.maxScore;
+                        question.backgroundColor = 'green';
+                    }
+
+                    if(question.answer.option.correctOption === false) {
+                        question.backgroundColor = 'red';
+                    }
+
                     return score;
                 };
 
@@ -95,14 +93,13 @@
 
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
-                                angular.forEach(question.options, function (option, index) {
-                                    if(question.answer === null) {
-                                        return 0;
-                                    }
-                                    if (option.correctOption === true && question.answer.option.id === option.id) {
-                                        score = score + question.maxScore;
-                                    }
-                                });
+                                if (question.answer === null) {
+                                    question.backgroundColor = 'grey';
+                                    return 0;
+                                }
+                                if(question.answer.option.correctOption === true) {
+                                    score = score + question.maxScore;
+                                }
                                 break;
                             case "EssayQuestion":
 
@@ -123,31 +120,16 @@
                 };
 
                 $scope.getExamTotalScore = function(exam) {
-                    var total = 0;
-                    angular.forEach(exam.examSections, function(section){
-                        total += $scope.getSectionTotalScore(section);
-                    })
-                    return total;
-                }
 
-                // Called when the review ready button is clicked
-                $scope.examReviewReady = function (reviewed_exam) {
-//                    reviewed_exam.state = 'REVIEWED';
-
-                    var examToReview = {
-                        "id": reviewed_exam.id,
-                        "state": 'REVIEWED',
-                        "grade": reviewed_exam.grade,
-                        "otherGrading": reviewed_exam.otherGrading
+                    if (exam) {
+                        var total = 0;
+                        angular.forEach(exam.examSections, function(section) {
+                            total += $scope.getSectionTotalScore(section);
+                        })
+                        $scope.examToBeReviewed.totalScore = total;
+                        return total;
                     }
-
-
-                    ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
-                        toastr.info("Tentti on tarkastettu.");
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
-                };
+                }
 
                 // Called when the cog is clicked
                 $scope.cogChecked = function () {
@@ -172,8 +154,67 @@
                     });
                 };
 
+                $scope.insertCreditType = function (exam) {
+                    console.log($scope.examToBeReviewed.creditType);
+
+                    var examToReview = {
+                        "id": exam.id,
+                        "creditType": $scope.examToBeReviewed.creditType
+                    }
+
+
+                    ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
+                        toastr.info("Tarkastettavaa tenttiä päivitettiin.");
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                };
+
                 $scope.setExamGrade = function (grade) {
                     $scope.examToBeReviewed.grade = grade;
+                };
+
+                // Called when the save feedback button is clicked
+                $scope.saveFeedback = function (exam) {
+
+                    var examFeedback = {
+                        "comment": exam.examFeedback.comment
+                    }
+
+                    // Update comment
+                    if (exam.examFeedback.id) {
+                        ExamRes.comment.update({eid: exam.id, cid: exam.examFeedback.id}, examFeedback, function (exam) {
+                            toastr.info("Tentin kommentti on päivitetty.");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    // Insert new comment
+                    } else {
+                        ExamRes.comment.insert({eid: exam.id, cid: 0}, examFeedback, function (comment) {
+                            toastr.info("Uusi kommentti lisättiin tenttiin.");
+                            exam.examFeedback = comment;
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    }
+                };
+
+                // Called when the review ready button is clicked
+                $scope.examReviewReady = function (reviewed_exam) {
+
+                    var examToReview = {
+                        "id": reviewed_exam.id,
+                        "state": 'REVIEWED',
+                        "grade": reviewed_exam.grade,
+                        "otherGrading": reviewed_exam.otherGrading,
+                        "totalScore": reviewed_exam.totalScore
+                    }
+
+                    ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
+                        toastr.info("Tentti on tarkastettu.");
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
                 };
             }]);
 }());

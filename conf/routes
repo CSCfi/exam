@@ -2,6 +2,7 @@
 GET           /                                                     controllers.Index.index()
 
 POST          /login                                                controllers.SessionController.login()
+POST          /shiblogin                                            controllers.SessionController.shiblogin()
 POST          /logout                                               controllers.SessionController.logout()
 GET           /ping                                                 controllers.SessionController.ping()
 
@@ -23,12 +24,15 @@ GET           /exams                                                controllers.
 GET           /exams/:id                                            controllers.ExamController.getExam(id: Long)
 DELETE        /exams/:id                                            controllers.ExamController.deleteExam(id: Long)
 PUT           /review/:id                                           controllers.ExamController.reviewExam(id: Long)
+POST          /review/:eid/comment/:cid                             controllers.ExamController.insertComment(eid: Long, cid: Long)
+PUT           /review/:eid/comment/:cid                             controllers.ExamController.updateComment(eid: Long, cid: Long)
 GET           /exams/state/:state                                   controllers.ExamController.getExamsByState(state: String)
 PUT           /exams/:id                                            controllers.ExamController.updateExam(id: Long)
 POST          /exams                                                controllers.ExamController.createExam()
 POST          /exams/:id/section                                    controllers.ExamController.insertSection(id: Long)
 DELETE        /exams/:eid/section/:sid                              controllers.ExamController.removeSection(eid: Long, sid: Long)
 PUT           /exams/:eid/section/:sid                              controllers.ExamController.updateSection(eid: Long, sid: Long)
+PUT           /exams/:eid/course/:cid                               controllers.ExamController.updateCourse(eid: Long, cid: Long)
 
 GET 		  /exam/:id/inspections									controllers.ExamController.getExamInspections(id: Long)
 POST		  /exams/:eid/inspector/:uid							controllers.ExamController.insertInspection(eid: Long, uid: Long)
@@ -68,6 +72,7 @@ GET           /questions/:id                                        controllers.
 PUT           /questions/:id                                        controllers.QuestionController.updateQuestion(id: Long)
 PUT           /questions/option/:oid                                controllers.QuestionController.updateOption(oid: Long)
 POST          /questions                                            controllers.QuestionController.addQuestion()
+POST          /question/:id                                         controllers.QuestionController.copyQuestion(id: Long)
 POST          /questions/:qid/option                                controllers.QuestionController.addOption(qid: Long)
 DELETE        /questions/:id                                        controllers.QuestionController.deleteQuestion(id: Long)
 DELETE        /questions/option/:oid                                controllers.QuestionController.deleteOption(oid: Long)
@@ -110,6 +115,9 @@ PUT           /softwares/update/:id/:name	                        controllers.Ex
 GET           /integration/info/:organisationId/:id                 controllers.Interfaces.getInfo(organisationId: String, id: String)
 GET           /integration/record/:vatIdNumber/:startDate           controllers.Interfaces.getRecords(vatIdNumber: String, startDate: String)
 
+
+############### SQLinterface ###############
+GET           /admin/query                                          controllers.RawSQLQueryController.executeSQL()
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()

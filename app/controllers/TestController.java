@@ -85,7 +85,7 @@ public class TestController extends SitnetController {
 //        orgtype: 1 value(s)
 //        sn: 1 value(s)
 
-            Logger.debug("*****************************");
+        Logger.debug("*****************************");
 
         Map<String, String[]> headers = request().headers();
 
@@ -96,9 +96,11 @@ public class TestController extends SitnetController {
             String[] asdasd = entry.getValue();
             Logger.debug("value: "+ Arrays.toString(asdasd));
         }
-            Logger.debug("##############################");
+        Logger.debug("##############################");
+        Logger.debug("##############################");
 
 
         return ok();
     }
 }
+

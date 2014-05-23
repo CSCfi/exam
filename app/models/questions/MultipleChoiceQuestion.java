@@ -23,7 +23,7 @@ public class MultipleChoiceQuestion extends AbstractQuestion implements Question
     }
 
 
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy="question")
     @JsonManagedReference
     private List<MultipleChoiseOption> options;
 

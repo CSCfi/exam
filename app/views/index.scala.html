@@ -95,60 +95,60 @@
     </head>
 
     <body ng-controller="SessionCtrl">
-        <aside id="vmenu" class="col-md-2" ng-controller="NavigationCtrl">
-            <div ng-hide="minimizeNavigation" class="logo">
-                <img src="@routes.Assets.at("images/sitnet.png")" alt="sitnet" />
-            </div>
-            <div ng-hide="minimizeNavigation" >
-                <div id="user">
-                    <img src="@routes.Assets.at("images/user70.png")" alt="me" />
-
-                    <span class="pull-right locale-bar">
-                        <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
-                        <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
-                        <span class="locale-item"> <a ng-click="switchLanguage('swe')">SWE</a></span>
-                    </span>
-
-                    <li class="dropdown" ng-controller="DropdownCtrl">
-                        <a href="#/user">{{session.user.firstname}} {{session.user.lastname}}&nbsp;</a>
-                        <a class="dropdown-toggle">
-                            <i class="fa fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                            <li role="presentation" class="dropdown-header">Kielivalinnat</li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('en')">EN</a></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('fi')">FI</a></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('swe')">SWE</a></li>
-                            <li role="presentation" class="divider"></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="logout()">Logout</a></li>
-                            @*<li ng-repeat="item in items">*@
-                                @*<a ng-click="handleClick(item.link, item.action)">{{item.name}}</a>*@
-                            @*</li>*@
-                        </ul>
-                    </li>
+        <div ng-controller="NavigationCtrl">
+            <div id="vmenu" >
+                <div ng-hide="minimizeNavigation" class="logo">
+                    <img src="@routes.Assets.at("images/sitnet.png")" alt="sitnet" />
                 </div>
-            </div>
-            <nav ng-class="minimizeNavigation ? 'minimize' : ''">
-                <ul>
-                    <li ng-class="{selected: isActive(link)}" ng-repeat="link in links">
-                        <a ng-show="{{link.visible}}" href="{{link.href}}">
-                            <i class="fa fa-2x fa-fw {{link.class}}"></i>
-                            <span class="menu-item">{{link.name}}</span>
-                        </a>
-                        <div class="submenu" ng-repeat="subItem in link.sub" ng-show="isActive(link)">
-                            <a href="{{subItem.href}}">
-                                <i ng-show="{{subItem.visible}}" class="fa fa-2x fa-fw {{subItem.class}}"></i>
-                                <span class="menu-item">{{subItem.name}}</span>
+                <div ng-hide="minimizeNavigation" >
+                    <div id="user">
+                        <img src="@routes.Assets.at("images/user70.png")" alt="me" />
+
+                        <span class="pull-right locale-bar">
+                            <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
+                            <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
+                            <span class="locale-item"> <a ng-click="switchLanguage('swe')">SWE</a></span>
+                        </span>
+
+                        <li class="dropdown" ng-controller="DropdownCtrl">
+                            <a href="#/user">{{session.user.firstname}} {{session.user.lastname}}&nbsp;</a>
+                            <a class="dropdown-toggle">
+                                <i class="fa fa-caret-down"></i>
                             </a>
-                        </div>
-                    </li>
-                </ul>
-                <span ng-click="minimizeNavigation = !minimizeNavigation" class="minify"> <i class="fa fa-3x fa-arrow-circle-left hit"></i></span>
-            </nav>
-        </aside>
-        <div class="container-fluid vmenu-on">
-            <div>
-                <div ng-view></div>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                <li role="presentation" class="dropdown-header">Kielivalinnat</li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('en')">EN</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('fi')">FI</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('swe')">SWE</a></li>
+                                <li role="presentation" class="divider"></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="logout()">Logout</a></li>
+                                @*<li ng-repeat="item in items">*@
+                                    @*<a ng-click="handleClick(item.link, item.action)">{{item.name}}</a>*@
+                                @*</li>*@
+                            </ul>
+                        </li>
+                    </div>
+                </div>
+                <nav ng-class="minimizeNavigation ? 'minimize' : ''">
+                    <ul>
+                        <li ng-class="{selected: isActive(link)}" ng-repeat="link in links">
+                            <a ng-show="{{link.visible}}" href="{{link.href}}">
+                                <i class="fa fa-2x fa-fw {{link.class}}"></i>
+                                <span class="menu-item">{{link.name}}</span>
+                            </a>
+                            <div class="submenu" ng-repeat="subItem in link.sub" ng-show="isActive(link)">
+                                <a href="{{subItem.href}}">
+                                    <i ng-show="{{subItem.visible}}" class="fa fa-2x fa-fw {{subItem.class}}"></i>
+                                    <span class="menu-item">{{subItem.name}}</span>
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                    <span ng-click="minimizeNavigation = !minimizeNavigation" class="minify"> <i class="fa fa-3x fa-arrow-circle-left hit"></i></span>
+                </nav>
+            </div>
+            <div class="container-fluid" ng-class="minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
+                <div class="row" ng-view/>
             </div>
         </div>
     </body>

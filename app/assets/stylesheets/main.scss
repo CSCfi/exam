@@ -7,6 +7,7 @@
 @import "partial/user";
 @import "partial/library";
 @import "partial/question-editor";
+@import "partial/question-listing";
 @import "partial/student_exam";
 @import "partial/dialog";
 @import "partial/reservation";
@@ -31,11 +32,11 @@ body {
 }
 
 .vmenu-on {
-  margin-left: 16.66667%
+  margin-left: 225px;
 }
 
 .vmenu-off {
-  margin-left: 0;
+  margin-left: 65px;
 }
 
 .inline {

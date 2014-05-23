@@ -1,5 +1,7 @@
 package models.questions;
 
+import annotations.NonCloneable;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.*;
 import models.answers.AbstractAnswer;
 import util.SitnetUtil;
@@ -34,18 +36,8 @@ abstract public class AbstractQuestion extends SitnetModel {
     @Column(columnDefinition="numeric default 0")
     protected Double maxScore = 0.0;
 
-
     @Column(columnDefinition="numeric default 0")
     protected Double evaluatedScore;
-
-    public Double getEvaluatedScore() {
-        return evaluatedScore;
-    }
-
-    public void setEvaluatedScore(Double evaluatedScore) {
-        this.evaluatedScore = evaluatedScore;
-    }
-
 
     /*
      * If question is edited (correcting a spelling mistake)
@@ -55,37 +47,30 @@ abstract public class AbstractQuestion extends SitnetModel {
      * track of different versions.
      * This attribute might have use in statistics.
      */
-    @OneToOne
+    @OneToOne (cascade = CascadeType.ALL)
+    @NonCloneable
     protected AbstractQuestion parent;
 
-    @OneToOne
+    @OneToOne (cascade = CascadeType.ALL)
     protected AbstractAnswer answer;
-
 
     @Column(columnDefinition = "TEXT")
     protected String evaluationCriterias;
 
-
     //    @OneToMany(cascade = CascadeType.ALL, mappedBy="question")
     //    @ManyToMany(cascade = CascadeType.PERSIST)
 //    @OneToOne
-//    protected EvaluationCriteria evaluationCriterias;
     //    protected List<EvaluationCriteria> evaluationCriterias;
 
     //    attachments, images, Videos, documents
-    //    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
-    @OneToOne
-    //    protected List<Material> materials;
+    @OneToOne(cascade = CascadeType.ALL)
     protected Material materials;
 
-    //    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
-    @OneToOne
-    //    protected List<EvaluationPhrase> evaluationPhrases;
+    @OneToOne(cascade = CascadeType.ALL)
     protected EvaluationPhrase evaluationPhrases;
 
-    //    @OneToMany(cascade = CascadeType.PERSIST, mappedBy="question")
-    @OneToOne
-    //    protected List<Comment> comments;
+    @OneToOne(cascade = CascadeType.ALL)
+    @NonCloneable
     protected Comment comments;
 
     /*
@@ -108,6 +93,7 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     // In UI, section has been expanded
     private Boolean expanded;
+
 
     public String getType() {
         return type;
@@ -197,10 +183,6 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.hash = hash;
     }
 
-    public Double getMaxScore() {
-        return maxScore;
-    }
-
     public Boolean getExpanded() {
         return expanded;
     }
@@ -209,8 +191,20 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.expanded = expanded;
     }
 
+    public Double getMaxScore() {
+        return maxScore;
+    }
+
     public void setMaxScore(Double maxScore) {
         this.maxScore = maxScore;
+    }
+
+    public Double getEvaluatedScore() {
+        return evaluatedScore;
+    }
+
+    public void setEvaluatedScore(Double evaluatedScore) {
+        this.evaluatedScore = evaluatedScore;
     }
 
     public AbstractQuestion getAncestor(AbstractQuestion abstractQuestion) {

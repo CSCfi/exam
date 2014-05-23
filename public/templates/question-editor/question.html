@@ -1,99 +1,128 @@
 <div id="question-editor" ng-controller="QuestionCtrl">
-    <div class="question-editor-header">
+    <div class="question-editor-header row">
         <h2 class="header-title">{{'sitnet_questions_new' | translate}}</h2>
+
+        <div class="row">
+            <div class="col-md-2 col-md-offset-10">
+                <a ng-click="copyQuestion(newQuestion)" class="btn btn-primary btn-lg active header-button"> {{'sitnet_question_copy' | translate}} </a>
+            </div>
+        </div>
     </div>
-    <div class="col-md-8">
-        <div class="base row">
-            <!-- Question header -->
-            <div>
-                <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question" ui-change="saveQuestion()" placeholder="{{'sitnet_question_write_name' | translate}}">
-                </textarea>
-            </div>
-
-            <div class="sitnet-info-text">
-                {{'sitnet_question_type' | translate}}
-                <select  class="form-control" ng-model="selectedType" ng-change="setQuestionType()"
-                         ng-options="key as value for (key, value) in questionTypes"  >
-                </select>
-            </div>
-
-            <hr>
-                <div ng-include="questionTemplate"></div>
-            <hr>
-
-            <!-- Question fields -->
+    <div class="base row">
+        <div class="col-md-8"  ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
             <form name="questionForm" novalidate>
-                <div class="sitnet-info-text">
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" ng-model="newQuestion.shared" ui-change="saveQuestion()"> {{'sitnet_share_this_question' | translate}}
-                        </label>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="sitnet-info-text">
+                                Kysymyksen lyhyt nimi: <br><input class="col-lg-2 form-control" name="shortname"><br>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="sitnet-info-text">
+                            <div class="checkbox">
+                                <label>
+                                    <br>
+                                    <input type="checkbox" ng-model="newQuestion.shared" ui-change="saveQuestion()"> {{'sitnet_share_this_question' | translate}}
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                    <!-- Essay -->
-                    <div ng-show="selectedType == 'EssayQuestion'">
-                        <div class="sitnet-info-text">
-                            {{'sitnet_evaluation_type' | translate}}
-                            <div class="row">
-                                <div class="col-lg-2">
-                                    <select class="form-control" ng-model="newQuestion.evaluationType" ng-change="saveQuestion()">
-                                        <option value="Points">{{ 'sitnet_evaluation_points' | translate }}</option>
-                                        <option value="Select">{{ 'sitnet_evaluation_select' | translate }}</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- POINTS -->
-                        <div class="sitnet-info-text" ng-show="selectedType == 'EssayQuestion' && newQuestion.evaluationType == 'Points'">
-                            {{'sitnet_scores' | translate}}
-                            <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
-                            <div class="row">
-                                <div class="col-lg-2">
-                                    <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
-                                           ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
-                                </div>
-                            </div>
-                        </div>
-                        <!-- SELECT -->
-                        <div class="sitnet-info-text" ng-show="selectedType == 'EssayQuestion' && newQuestion.evaluationType == 'Points'" ng-model="newQuestion.maxScore">
-                            <div class="row">
-                                {{ 'sitnet_approved' | translate }} / {{ 'sitnet_rejected' | translate }}
-                            </div>
-                        </div>
+                <br>
+                <div class="row">
+                    <div class="sitnet-info-text">
+                        {{'sitnet_question_type' | translate}}
+                        <select  class="form-control" ng-model="selectedType" ng-change="setQuestionType()"
+                                 ng-options="key as value for (key, value) in questionTypes"  >
+                        </select>
                     </div>
+                </div>
 
-                    <!-- Multi -->
-                    <div ng-show="selectedType == 'MultipleChoiceQuestion'">
-                        <div class="sitnet-info-text">
-                            {{'sitnet_scores' | translate}}
-                            <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
-                            <div class="row">
-                                <div class="col-lg-2">
-                                    <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
-                                           ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
-                                </div>
+                <!-- Question header -->
+                <div>
+                    <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question" ui-change="saveQuestion()" placeholder="{{'sitnet_question_write_name' | translate}}">
+                    </textarea>
+                </div>
+
+                <hr>
+                    <div ng-include="questionTemplate"></div>
+                <hr>
+
+
+                <!-- Question fields -->
+
+                <!-- Essay -->
+                <div ng-show="selectedType == 'EssayQuestion'">
+                    <div class="sitnet-info-text">
+                        {{'sitnet_evaluation_type' | translate}}
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <select class="form-control" ng-model="newQuestion.evaluationType" ng-change="saveQuestion()">
+                                    <option value="Points">{{ 'sitnet_evaluation_points' | translate }}</option>
+                                    <option value="Select">{{ 'sitnet_evaluation_select' | translate }}</option>
+                                </select>
                             </div>
                         </div>
                     </div>
+                    <!-- POINTS -->
+                    <div class="sitnet-info-text" ng-show="selectedType == 'EssayQuestion' && newQuestion.evaluationType == 'Points'">
+                        {{'sitnet_scores' | translate}}
+                        <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
+                                       ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- SELECT -->
+                    <div class="sitnet-info-text" ng-show="selectedType == 'EssayQuestion' && newQuestion.evaluationType == 'Points'" ng-model="newQuestion.maxScore">
+                        <div class="row">
+                            {{ 'sitnet_approved' | translate }} / {{ 'sitnet_rejected' | translate }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multi -->
+                <div ng-show="selectedType == 'MultipleChoiceQuestion'">
+                    <div class="sitnet-info-text">
+                        {{'sitnet_scores' | translate}}
+                        <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
+                                       ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="sitnet-info-text">
                     {{'sitnet_instruction' | translate}}
-                    <input type="text" class="form-control" ng-model="newQuestion.instruction" ui-change="saveQuestion()"
+                    <textarea class="form-control" rows="3" ng-model="newQuestion.instruction" ui-change="saveQuestion()"
                            placeholder="{{'sitnet_question_instruction' | translate}}">
+                    </textarea>
                 </div>
+
                 <div class="sitnet-info-text">
                     {{'sitnet_exam_evaluation_criteria' | translate}}
                     <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias" ui-change="saveQuestion()"
-                              placeholder="{{'sitnet_correct_answer_should_have' | translate}}"></textarea>
+                              placeholder="{{'sitnet_correct_answer_should_have' | translate}}">
+                    </textarea>
                 </div>
+
+                <p>
+                    <!--ng-show="selectedType"-->
+                    <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion(); go('/questions')" type="submit" class="btn btn-success" style="margin-top: 1em">
+                        {{'sitnet_save' | translate}}
+                    </button>
+                </p>
             </form>
         </div>
-        <p>
-            <!--ng-show="selectedType"-->
-            <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion(); go('/questions')" type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
-        </p>
-    </div>
-
-    <!-- Question Library -->
-	<div ng-include="libraryTemplate">
-	</div>
+        <!-- Question Library-->
+        <!--<div ng-include="libraryTemplate">-->
+        <!--</div>-->
+        <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'">
+        </div>
+     </div>
 </div>

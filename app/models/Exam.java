@@ -24,7 +24,7 @@ public class Exam extends SitnetModel {
 
     private String name;
 
-    // this should be @OneToOne
+
     @ManyToOne
     @NonCloneable
     private Course course;
@@ -91,8 +91,30 @@ public class Exam extends SitnetModel {
     @OneToOne
     private ExamInspection examInspection;
 
+    /*
+     * this is the user who is marked as evaluator of the Exam
+     * in WebOodi, or other system
+     */
+    @JsonBackReference
+    @NonCloneable
+    @OneToOne
+    private User gradedByUser;
+
+    @OneToOne
+    private Comment examFeedback;
+
+    private String creditType;
+
     // In UI, section has been expanded
     private Boolean expanded;
+
+    public User getGradedByUser() {
+        return gradedByUser;
+    }
+
+    public void setGradedByUser(User gradedByUser) {
+        this.gradedByUser = gradedByUser;
+    }
 
     @Transient
     public double getTotalScore() {
@@ -262,6 +284,22 @@ public class Exam extends SitnetModel {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public Comment getExamFeedback() {
+        return examFeedback;
+    }
+
+    public void setExamFeedback(Comment examFeedback) {
+        this.examFeedback = examFeedback;
+    }
+
+    public String getCreditType() {
+        return creditType;
+    }
+
+    public void setCreditType(String creditType) {
+        this.creditType = creditType;
     }
 
     public ExamInspection getExamInspection() {

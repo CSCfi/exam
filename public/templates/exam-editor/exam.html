@@ -25,7 +25,7 @@
             </div>
         </div>
 
-        <div class="exam-wrapper">
+        <div class="exam-wrapper" style="padding-bottom: 2em;">
             <!-- General Information -->
             <div class="exam-general-information" ng-include="generalInfoPath">
             </div>
@@ -38,12 +38,16 @@
                 {{'sitnet_section_add' | translate}}
                 </center>
             </span>
-            <span><button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button></span>
-            <span class="pull-right"><button ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button></span>
+            <span><button ng-click="saveExam(); go('/exams')" class="btn btn-primary">{{'sitnet_save' | translate}}</button></span>
+            <span class="pull-right"><button ng-click="saveAndPublishExam(); go('/exams')" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button></span>
         </div>
 
     </div>
     <!-- Question Library -->
-	<div ng-include="libraryTemplate">
-	</div>
+    <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'">
+    </div>
+
+    <!-- Question Library-->
+    <!--<div ng-include="libraryTemplate">-->
+    <!--</div>-->
 </div>
