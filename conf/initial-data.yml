@@ -142,7 +142,7 @@ question_essay:
 # Essay questions
 
   - &essay1 !!models.questions.EssayQuestion
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
@@ -158,7 +158,7 @@ question_essay:
     expanded: true
 
   - &essay2 !!models.questions.EssayQuestion
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
@@ -174,7 +174,7 @@ question_essay:
     expanded: true
 
   - &essay3 !!models.questions.EssayQuestion
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
@@ -195,7 +195,7 @@ question_mutiple_choice:
 # Multiple choise questions
 
   - &multi1 !!models.questions.MultipleChoiceQuestion
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
@@ -214,7 +214,7 @@ question_mutiple_choice:
 
   - &multi2 !!models.questions.MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -232,7 +232,7 @@ question_mutiple_choice:
 
   - &multi3 !!models.questions.MultipleChoiceQuestion
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -249,7 +249,7 @@ question_mutiple_choice:
 
   - &multi4 !!models.questions.MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -267,7 +267,7 @@ question_mutiple_choice:
 
   - &multi5 !!models.questions.MultipleChoiceQuestion
     question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -285,7 +285,7 @@ question_mutiple_choice:
 ######################################################################
   - &avaruus1 !!models.questions.MultipleChoiceQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -301,7 +301,7 @@ question_mutiple_choice:
 
   - &avaruus2 !!models.questions.MultipleChoiceQuestion
     question:  Auringon fuusioreaktiot tapahtuvat
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -317,7 +317,7 @@ question_mutiple_choice:
 
   - &avaruus3 !!models.questions.MultipleChoiceQuestion
     question:   AU mittaa
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -333,7 +333,7 @@ question_mutiple_choice:
 
   - &avaruus4 !!models.questions.MultipleChoiceQuestion
     question:   Ekliptika on
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -349,7 +349,7 @@ question_mutiple_choice:
 
   - &avaruus5 !!models.questions.MultipleChoiceQuestion
     question:   Tähdenlento eli
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -366,7 +366,7 @@ question_mutiple_choice:
 
   - &avaruus6 !!models.questions.MultipleChoiceQuestion
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -382,7 +382,7 @@ question_mutiple_choice:
 
   - &avaruus7 !!models.questions.MultipleChoiceQuestion
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -399,7 +399,7 @@ question_mutiple_choice:
 
   - &avaruus8 !!models.questions.MultipleChoiceQuestion
     question:   The Great Red Spot tarkoittaa
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -416,7 +416,7 @@ question_mutiple_choice:
 
   - &avaruus9 !!models.questions.MultipleChoiceQuestion
     question:   Vuodenajat aiheutuvat
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -433,7 +433,7 @@ question_mutiple_choice:
 
   - &avaruus10 !!models.questions.MultipleChoiceQuestion
     question:   Uudenkuun aikaan
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -450,7 +450,7 @@ question_mutiple_choice:
 
   - &avaruus11 !!models.questions.MultipleChoiceQuestion
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     created: 2014-01-01 12:30:05.123
     materials:
@@ -565,7 +565,7 @@ courses:
 exams:
 
   - &astronomianPerusteet !!models.Exam
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *765104P
     name: Astronomian perusteet
@@ -577,7 +577,7 @@ exams:
     state: PUBLISHED
 
   - &alkeidenperusteet !!models.Exam
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *alkeet
     name: Johdatus alkeiden perusteisiin
@@ -589,7 +589,7 @@ exams:
     state: PUBLISHED
 
   - &tietokannat2013 !!models.Exam
-    creator: *arvo
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, syksy 2013
@@ -601,7 +601,7 @@ exams:
     state: PUBLISHED
 
   - &tietokannat2014 !!models.Exam
-    creator: *arvo
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *tietokannat
     name: Tietokantojen perusteet, kevät 2014
@@ -613,7 +613,7 @@ exams:
     state: PUBLISHED
 
   - &algoritmit !!models.Exam
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *811386A
     name: Algoritmit, 2013
@@ -625,7 +625,7 @@ exams:
     state: DRAFT
 
   - &ooad !!models.Exam
-    creator: 
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *812346A
     name: OOAD, 2013

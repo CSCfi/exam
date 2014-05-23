@@ -22,6 +22,7 @@ import play.mvc.Result;
 import util.SitnetUtil;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExamController extends SitnetController {
@@ -258,6 +259,7 @@ public class ExamController extends SitnetController {
     public static Result createExamDraft() throws MalformedDataException {
         Logger.debug("createExamDraft()");
 
+
         Exam exam = new Exam();
         exam.setName("Kirjoita tentin nimi tähän");
         exam.setState("DRAFT");
@@ -307,14 +309,53 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(section));
     }
 
+    public static Result updateCourse(Long eid, Long cid) throws MalformedDataException {
+        Logger.debug("updateCourse()");
+
+        Exam exam = Ebean.find(Exam.class, eid);
+        Course course = Ebean.find(Course.class, cid);
+
+        exam.setCourse(course);
+        exam.save();
+
+        return ok(Json.toJson(exam));
+    }
+
     public static Result insertQuestion(Long eid, Long sid, Long qid) throws MalformedDataException {
         Logger.debug("insertQuestion()");
 
         // TODO: Create a clone of the question and add it to section
         // TODO: should implement AbstractQuestion.clone
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+
+        MultipleChoiceQuestion q = null;
+
+        switch (question.getType()) {
+            case "MultipleChoiceQuestion": {
+                q = (MultipleChoiceQuestion) question.clone();
+                q.setParent(question);
+                try {
+                    q = (MultipleChoiceQuestion) SitnetUtil.setCreator(q);
+                } catch (SitnetException e) {
+                    e.printStackTrace();
+                }
+                q.setOptions(new ArrayList<MultipleChoiseOption>());
+                q.save();
+                List<MultipleChoiseOption> options = ((MultipleChoiceQuestion)question).getOptions();
+                for (MultipleChoiseOption o : options) {
+                    MultipleChoiseOption clonedOpt = (MultipleChoiseOption) o.clone();
+                    clonedOpt.setQuestion(q);
+                    clonedOpt.save();
+                    q.getOptions().add(clonedOpt);
+                }
+                break;
+            }
+            case "EssayQuestion":
+                break;
+        }
+
         ExamSection section = Ebean.find(ExamSection.class, sid);
-        section.getQuestions().add(question);
+        section.getQuestions().add(q);
         section.save();
 
         return ok(Json.toJson(section));

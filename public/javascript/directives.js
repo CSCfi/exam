@@ -49,7 +49,7 @@
                     if (scope.option.correctOption === true) {
                         scope.answerState = $translate("sitnet_multiplechoice_question_correct");
                     } else {
-                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");;
+                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");
                     }
 
                     elem.bind('change', function () {
@@ -97,11 +97,8 @@
                 link: function (scope, elem, attrs) {
 
                     var winHeight = $window.innerHeight;
-
-                    var headerHeight = attrs.banner ? attrs.banner : 0;
-
-                    elem.css('height', winHeight - 10);
-                }
+                    elem.css('height', winHeight - 100);
+                 }
             };
         });
 }());

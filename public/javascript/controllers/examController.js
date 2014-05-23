@@ -305,7 +305,7 @@
                         "name": $scope.newExam.name,
                         "instruction": $scope.newExam.instruction,
                         "state": 'SAVED',
-                        "course": $scope.newExam.course,    // there is no course
+//                        "course": $scope.newExam.course,    // there is no course
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": $scope.dateService.startTimestamp,
                         "examActiveEndDate": $scope.dateService.endTimestamp,
@@ -324,6 +324,10 @@
                     });
 
                 };
+
+                $scope.saveCourseCode = function() {
+                    console.log($scope.courseCodeSearch);
+                }
 
                 // Called when Save and publish button is clicked
                 $scope.saveAndPublishExam = function () {

@@ -5,6 +5,7 @@
             var sessionUser = {};
 
             var minimizeLibrary = false;
+            var minimizeNavigation = false;
 
             var login = function(/*params*/) {
 

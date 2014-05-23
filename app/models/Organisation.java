@@ -1,11 +1,11 @@
 package models;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import play.db.ebean.Model;
+
+import javax.persistence.*;
 import java.util.List;
 
-// TODO: tätä täytyy miettiä tarkemmin miten Organisaatiot kannattaa maalintaa
-
+// http://tietomalli.csc.fi/Korkeakoulu-kaavio.html
 /* 
  * Dummy Organisaatio
  * 
@@ -18,7 +18,11 @@ import java.util.List;
  * Biologian laitos		Maantieteen laitos		Konetekniikka		Tuotantotalous
  */
 @Entity
-public class Organisation extends SitnetModel {
+public class Organisation extends Model {
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    protected Long id;
 
 	private String name;
 	
@@ -30,8 +34,8 @@ public class Organisation extends SitnetModel {
 	// VAT identification number
 	// Y-tunnus
 	private String vatIdNumber;
-	
-	
+
+
 	// Organisaatiolla on N kappaletta lapsia, joilla voi olla omia lapsia
     @ManyToOne
 	private List<Organisation> organisations;
@@ -61,11 +65,6 @@ public class Organisation extends SitnetModel {
     public void setCourseUnitInfoUrl(String courseUnitInfoUrl) {
         this.courseUnitInfoUrl = courseUnitInfoUrl;
     }
-
-    public Organisation(User creator) {
-		super(creator);
-		// TODO Auto-generated constructor stub
-	}
 
 	public String getName() {
 		return name;

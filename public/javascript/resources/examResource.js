@@ -34,6 +34,15 @@
                     "update": {method: "PUT", params: { eid: "@eid" , sid: "@sid"}}
 
                 }),
+
+                course: $resource("/exams/:eid/course/:cid",
+                {
+                    eid: "@eid", sid: "@cid"
+                },
+                {
+                    "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}}
+                }),
+
                 section: $resource("/section/:sectionId",
                 {
                     sectionId: "@sectionId"

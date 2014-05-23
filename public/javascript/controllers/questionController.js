@@ -8,6 +8,7 @@
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
+                $scope.userQuestionsPath = SITNET_CONF.TEMPLATES_PATH + "question-listing/user_questions.html";
 
                 $scope.questionTemplate = null;
 
@@ -72,17 +73,18 @@
                     );
                 }
 
-//                $scope.newMCQuestion = function () {
-//                    $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
-//                    $scope.newQuestion.type = "MultipleChoiceQuestion";
-//                    $scope.newQuestion.options = [
-//                        {
-//                            "option": "Esimerkki vaihtoehto",
-//                            "correctOption": false,
-//                            "maxScore": 1
-//                        }
-//                    ];
-//                };
+                $scope.copyQuestion = function (question) {
+                    console.log(question.id);
+
+                    QuestionRes.question.copy(question,
+                        function (questionCopy) {
+                            toastr.info("Kysymys kopioitu");
+                            $location.path("/questions/" + questionCopy.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
 
                 $scope.newEssayQuestion = function () {
                     $scope.questionTemplate = $scope.essayQuestionTemplate;

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:complexType name="record">
+    <xs:sequence>
+      <xs:element name="courseImplementation" type="xs:string" minOccurs="0"/>
+      <xs:element name="courseUnitCode" type="xs:string" minOccurs="0"/>
+      <xs:element name="courseUnitLevel" type="xs:string" minOccurs="0"/>
+      <xs:element name="courseUnitType" type="xs:string" minOccurs="0"/>
+      <xs:element name="creditLanguage" type="xs:string" minOccurs="0"/>
+      <xs:element name="creditType" type="xs:string" minOccurs="0"/>
+      <xs:element name="credits" type="xs:string" minOccurs="0"/>
+      <xs:element name="date" type="xs:string" minOccurs="0"/>
+      <xs:element name="examDate" type="xs:string" minOccurs="0"/>
+      <xs:element name="examScore" type="xs:string" minOccurs="0"/>
+      <xs:element name="gradeScale" type="xs:string" minOccurs="0"/>
+      <xs:element name="identifier" type="xs:string" minOccurs="0"/>
+      <xs:element name="lecturer" type="xs:string" minOccurs="0"/>
+      <xs:element name="lecturerId" type="xs:string" minOccurs="0"/>
+      <xs:element name="student" type="xs:string" minOccurs="0"/>
+      <xs:element name="studentCredit" type="xs:string" minOccurs="0"/>
+      <xs:element name="studentId" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
+
