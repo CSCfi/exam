@@ -7,7 +7,7 @@
     <td>
         <div class="col-md-12 text-center">
             <select ng-show="question.evaluationType == 'Points'" class="form-control" ng-model="question.evaluatedScore" ng-change="insertEssayScore(question)">
-                <option ng-repeat="i in range(0, question.parent.maxScore, 1)" value="{{ i }}" ng-selected="question.evaluatedScore == i">{{ i }}</option>
+                <option ng-repeat="i in range(0, question.maxScore, 1)" value="{{ i }}" ng-selected="question.evaluatedScore == i">{{ i }}</option>
             </select>
             <select ng-show="question.evaluationType == 'Select'" class="form-control" ng-model="question.evaluatedScore" ng-change="insertEssayScore(question)">
                 <option value="1" ng-selected="question.evaluatedScore == 1">{{ 'sitnet_approved' | translate }}</option>

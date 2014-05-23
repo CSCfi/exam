@@ -185,5 +185,10 @@
 
 "sitnet_evaluation_type": "Arviointityyppi",
 "sitnet_evaluation_points": "Pisteet",
-"sitnet_evaluation_select": "Hyväksytty / Hylätty"
+"sitnet_evaluation_select": "Hyväksytty / Hylätty",
+
+"sitnet_message": "Saateviesti",
+"sitnet_name": "Nimi",
+"sitnet_add": "Lisää",
+"sitnet_inspector_name": "Tarkastajan nimi"
 }

@@ -10,6 +10,7 @@ GET           /ping                                                 controllers.
 GET           /users                                                controllers.UserController.getUsers()
 GET           /users/:id                                            controllers.UserController.getUser(id: Long)
 GET           /users/byrole/:role                                   controllers.UserController.getUsersByRole(role: String)
+GET           /users/filter/:role                                   controllers.UserController.getUsersByRoleFilter(role: String, q: String)
 PUT           /users/:id                                            controllers.UserController.updateUser(id: Long)
 POST          /users                                                controllers.UserController.addUser()
 DELETE        /users/:id                                            controllers.UserController.deleteUser(id: Long)
@@ -28,6 +29,10 @@ POST          /exams                                                controllers.
 POST          /exams/:id/section                                    controllers.ExamController.insertSection(id: Long)
 DELETE        /exams/:eid/section/:sid                              controllers.ExamController.removeSection(eid: Long, sid: Long)
 PUT           /exams/:eid/section/:sid                              controllers.ExamController.updateSection(eid: Long, sid: Long)
+
+GET 		  /exam/:id/inspections									controllers.ExamController.getExamInspections(id: Long)
+POST		  /exams/:eid/inspector/:uid							controllers.ExamController.insertInspection(eid: Long, uid: Long)
+DELETE		  /exams/inspector/:id									controllers.ExamController.deleteInspection(id: Long)
 
 POST          /exams/:eid/section/:sid/question/:qid                controllers.ExamController.insertQuestion(eid: Long, sid: Long, qid: Long)
 DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)

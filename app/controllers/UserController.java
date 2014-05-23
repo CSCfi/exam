@@ -3,6 +3,7 @@ package controllers;
 import Exceptions.MalformedDataException;
 import actions.Authenticate;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -70,6 +71,31 @@ public class UserController extends SitnetController {
         }
         
     	return ok(Json.toJson(array));
+    }
+
+    //    @Restrict(@Group({"TEACHER"}))
+    public static Result getUsersByRoleFilter(String role, String criteria) {
+
+        List<User> users = Ebean.find(User.class)
+                .where()
+                .and(
+                        Expr.eq("roles.name", role),
+                        Expr.or(
+                                Expr.icontains("lastName", criteria),
+                                Expr.icontains("firstName", criteria)
+                        )
+                )
+                .findList();
+
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+        for(User u : users) {
+            ObjectNode part = Json.newObject();
+            part.put("id", u.getId());
+            part.put("name", new String(u.getFirstName() +" "+u.getLastName()));
+            array.add(part);
+        }
+
+        return ok(Json.toJson(array));
     }
     
     @Authenticate

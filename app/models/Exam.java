@@ -88,6 +88,9 @@ public class Exam extends SitnetModel {
 
     private String grade;
 
+    @OneToOne
+    private ExamInspection examInspection;
+
     // In UI, section has been expanded
     private Boolean expanded;
 
@@ -202,9 +205,7 @@ public class Exam extends SitnetModel {
 		this.otherGrading = otherGrading;
 	}
 
-    public String getTotalScore() {
-        return totalScore;
-    }
+//    public String getTotalScore() { return totalScore; }
 
     public void setTotalScore(String totalScore) {
         this.totalScore = totalScore;
@@ -261,6 +262,14 @@ public class Exam extends SitnetModel {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public ExamInspection getExamInspection() {
+        return examInspection;
+    }
+
+    public void setExamInspection(ExamInspection examInspection) {
+        this.examInspection = examInspection;
     }
 
     @Override

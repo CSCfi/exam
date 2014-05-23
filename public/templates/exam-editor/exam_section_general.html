@@ -7,8 +7,8 @@
            class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
     </span>
     <span class="pull-right fa-stack fa-lg dropdown">
-        <a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i> <i
-                class="sitnet-white fa fa-cog fa-stack-1x"></i>
+        <a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
+               <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
         </a>
         <ul class="dropdown-menu">
             <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
@@ -161,8 +161,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="duration in examDurations" ng-click="setExamDuration(duration)"><a
-                                class="pointer-hand">{{duration}}</a></li>
+                        <li ng-repeat="duration in examDurations" ng-click="setExamDuration(duration)"><a class="pointer-hand">{{duration}}</a></li>
                     </ul>
                 </div>
                 <input type="text" class="form-control" ng-model="newExam.duration" ui-change="saveExam()">
@@ -174,22 +173,15 @@
     <div class="row">
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
-            <div class="input-group">
-                <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                            ui-blur="saveExam()">
-                        {{'sitnet_choose' | translate}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li ng-repeat="inspector in examInspectors | filter:selected"
-                            ng-click="setExamInspector(inspector)">
-                            <a class="pointer-hand">{{inspector.name}}</a>
-                        </li>
+            <div class="col-md-12 row">
+                <div class="pull-left col-md-2 row">
+                    <button class="btn btn-default" ng-click="openInspectorModal()">{{'sitnet_add' | translate}}</button>
+                </div>
+                <div class="pull-left col-md-10" style="margin-left:0.5em;">
+                    <ul>
+                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="(key, value) in inspectors"><h6>{{ value }} <a ng-click="removeInspector(key)"><i class="fa fa-times" style="cursor: pointer;" title="{{'sitnet_remove' | translate}}"></i></a></h6></li>
                     </ul>
                 </div>
-                <input type="text" class="form-control" value="{{newExam.inspector.name}}" ng-model="newExam.inspector.name"
-                       ui-change="saveExam()">
             </div>
         </div>
 

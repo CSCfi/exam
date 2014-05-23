@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'dateService',
-            function ($scope, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, dateService) {
+        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'dateService',
+            function ($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
@@ -50,21 +50,6 @@
                     "7.0"
                 ];
 
-                // Todo: Fill in inspectors from database for final version
-                UserRes.usersByRole.query({role: 'TEACHER'},
-                    function (value) {
-                        $scope.examInspectors = value;
-                    },
-                    function (error) {
-
-                    });
-
-//                $scope.examInspectors = [
-//                                         "Pentti Hilkuri",
-//                                         "Arvon Penaali",
-//                                         "Pasi Kuikka"
-//                                         ];
-
                 // Todo: Fill in gradings from database for final version
                 $scope.examGradings = [
                     "0-5",
@@ -109,13 +94,6 @@
                     "state": "DRAFT"
                 };
 
-
-                $scope.newSection = {
-                    expanded: true,
-                    name: $translate("sitnet_exam_section_default_name"),
-                    questions: []
-                };
-
                 if ($routeParams.id === undefined)
                     $scope.exams = ExamRes.exams.query();
                 else {
@@ -124,11 +102,67 @@
                             $scope.newExam = exam;
 
                             $scope.reindexNumbering();
+                            getInspectors();
                         },
                         function (error) {
                             toastr.error(error.data);
                         }
                     );
+                }
+
+                $scope.openInspectorModal = function () {
+
+                    var exam = {
+                        "id": $scope.newExam.id
+                    }
+
+                    var modalInstance = $modal.open({
+                        templateUrl: 'assets/templates/exam-editor/exam_inspector.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: "ExamInspectionController",
+                        resolve: {
+                            exam: function () {
+                                return exam;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (inspectors) {
+                        getInspectors ()
+                    }, function () {});
+                }
+
+                $scope.newSection = {
+                    expanded: true,
+                    name: $translate("sitnet_exam_section_default_name"),
+                    questions: []
+                };
+
+                $scope.inspectors = {};
+
+                function getInspectors () {
+                    if($scope.newExam.id) {
+                        ExamRes.inspections.get({id: $scope.newExam.id},
+                            function (inspectors) {
+                                console.log(inspectors);
+                                $scope.inspectors = inspectors;
+
+                            },
+                            function (error) {
+                                //toastr.error(error.data);
+                            });
+                    }
+                }
+
+                $scope.removeInspector = function(id) {
+                    ExamRes.inspector.remove({id: id},
+                        function (inspectors) {
+                            getInspectors();
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        });
                 }
 
                 $scope.reindexNumbering = function () {
@@ -170,10 +204,6 @@
 
                 $scope.setExamDuration = function (duration) {
                     $scope.newExam.duration = duration;
-                };
-
-                $scope.setExamInspector = function (inspector) {
-                    $scope.newExam.inspector = inspector;
                 };
 
                 $scope.setExamGrading = function (grading) {
@@ -299,7 +329,7 @@
 
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
-                    console.log("pol");
+
                     var examToSave = {
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,

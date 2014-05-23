@@ -19,7 +19,11 @@
 	            usersByRole: $resource("/users/byrole/:role", 
 	            {
 	            	role: "@role"
-	            })
+	            }),
+                filterUsers: $resource("/users/filter/:role",
+                {
+                    role: "@role"
+                })
             }
         }]);
 }());

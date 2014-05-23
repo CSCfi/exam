@@ -58,7 +58,30 @@
                 },
                 {
                     "update": {method: "PUT"}
-                })
+                }),
+                inspections: $resource("/exam/:id/inspections",
+                {
+                    id: "@id"
+                },
+                {
+                    "get": {method: "GET", params: { id: "@id" }}
+                }),
+                inspection: $resource("/exams/:eid/inspector/:uid",
+                {
+                    eid: "@eid", uid: "@uid"
+                },
+                {
+                    "insert": {method: "POST", params: { eid: "@eid" , uid: "@uid"}},
+                    "remove": {method: "DELETE", params: { eid: "@eid" , uid: "@uid"}},
+                    "update": {method: "PUT", params: { eid: "@eid" , uid: "@uid"}}
+                }),
+                inspector: $resource("/exams/inspector/:id",
+                    {
+                        id: "@id"
+                    },
+                    {
+                        "remove": {method: "DELETE", params: { id: "@id"}}
+                    })
             }
         }]);
 }());
