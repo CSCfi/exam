@@ -45,6 +45,21 @@ public class QuestionController extends SitnetController {
     }
 
     //  @Authenticate
+    public static Result getQuestionsForUser(Long id) {
+
+        List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
+                .where()
+                .eq("creator.id", id)
+//                .orderBy("created, asc")
+                .findList();
+
+//        if (questions != null)
+//            Logger.debug(questions.toString());
+
+        return ok(Json.toJson(questions));
+    }
+
+    //  @Authenticate
     public static Result getQuestion(Long id) {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);

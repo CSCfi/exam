@@ -6,43 +6,42 @@
     <span ng-controller="ExamController">
         <a ng-click="createExam()" class="btn btn-primary btn-lg active header-button"> {{'sitnet_create_new_exam' | translate}} </a>
     </span>
+
     <span ng-controller="QuestionCtrl">
-    <div class="btn-group pull-right">
-        <button type="button" class="btn btn-primary btn-lg dropdown-toggle" data-toggle="dropdown">
-            {{'sitnet_questions_new' | translate}} <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
-            <li ng-repeat='(key, value) in questionTypes'>
-                <a ng-click="createQuestion(key)">{{value}}</a>
-            </li>
-        </ul>
-    </div>
+        <div class="btn-group pull-right">
+            <button type="button" class="btn btn-primary btn-lg dropdown-toggle" data-toggle="dropdown">
+                {{'sitnet_questions_new' | translate}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li ng-repeat='(key, value) in questionTypes'>
+                    <a ng-click="createQuestion(key)">{{value}}</a>
+                </li>
+            </ul>
+        </div>
     </span>
 
     <span>
-
     </span>
-
 </div>
 
 <!--<div class="container-fluid">-->
-    <div id="exam" class="row">
-        <div class="exam-list">
-            <div>
-                <h2 class="sitnet-teacher-turquoise-dark-active">{{'sitnet_exams_to_be_reviewed' | translate}}</h2>
-                <span class="sitnet-info-text">{{'sitnet_exams_to_be_reviewed_by_you' | translate}}</span>
+<div id="exam" class="row">
+    <div class="exam-list">
+        <div>
+            <h2 class="sitnet-teacher-turquoise-dark-active">{{'sitnet_exams_to_be_reviewed' | translate}}</h2>
+            <span class="sitnet-info-text">{{'sitnet_exams_to_be_reviewed_by_you' | translate}}</span>
 
-                <div class="exam-list-published">
-                    <a ng-repeat="exam in allReviewedExams" href="#/exams/review/{{exam.id}}" class="active-exams-list list-group-item">
-                        <h4 class="list-group-item-heading">
-                            <span >{{exam.course.code}} - {{exam.name}}</span>
-                        </h4>
-                        <span class="pull-right sitnet-info-text">{{'sitnet_state_inspect' | translate}}</span>
+            <div class="exam-list-published">
+                <a ng-repeat="exam in allReviewedExams" href="#/exams/review/{{exam.id}}" class="active-exams-list list-group-item">
+                    <h4 class="list-group-item-heading">
+                        <span>{{exam.course.code}} - {{exam.name}}</span>
+                    </h4>
+                    <span class="pull-right sitnet-info-text">{{'sitnet_state_inspect' | translate}}</span>
 
-                        <div class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</div>
-                    </a>
-                </div>
+                    <div class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</div>
+                </a>
             </div>
         </div>
     </div>
+</div>
 </div>

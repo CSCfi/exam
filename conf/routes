@@ -69,6 +69,7 @@ GET           /courses/:id                                          controllers.
 
 GET           /questions                                            controllers.QuestionController.getQuestions()
 GET           /questions/:id                                        controllers.QuestionController.getQuestion(id: Long)
+GET           /questionlist/user/:id                                controllers.QuestionController.getQuestionsForUser(id: Long)
 PUT           /questions/:id                                        controllers.QuestionController.updateQuestion(id: Long)
 PUT           /questions/option/:oid                                controllers.QuestionController.updateOption(oid: Long)
 POST          /questions                                            controllers.QuestionController.addQuestion()
@@ -107,7 +108,7 @@ GET           /softwares                                            controllers.
 GET           /softwares/:id                                        controllers.ExamMachineController.getSoftware(id: Long)
 DELETE        /softwares/:id                                        controllers.ExamMachineController.removeSoftware(id: Long)
 POST          /softwares/add/:name                                  controllers.ExamMachineController.addSoftware(name: String)
-PUT           /softwares/update/:id/:name	                        controllers.ExamMachineController.updateSoftware(id: Long, name: String)
+PUT           /softwares/update/:id/:name                           controllers.ExamMachineController.updateSoftware(id: Long, name: String)
 
 #### integration ####
 

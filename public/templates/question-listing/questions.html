@@ -1,4 +1,4 @@
-<div id="exam" ng-controller="QuestionCtrl">
+<div id="exam">
     <div class="exam-header">
         <div class="row">
             <div class="col-md-3">
@@ -19,12 +19,12 @@
         </div>
     </div>
 
-    <div class="container-fluid" style="padding-right: 1em">
+    <div class="container-fluid" style="padding-right: 2em">
         <div class="row">
             <div class="col-md-12">
                 <div class="exam-wrapper">
                     <div class="section-header">
-                        Omat Kysymykset
+                        {{'sitnet_questions_owners_list' | translate}}
                         <span class="pull-right fa-stack fa-lg">
                             <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
                             <i ng-class="showUsersQuestions ? 'fa-chevron-down' : 'fa-chevron-left'"
@@ -36,33 +36,11 @@
                     <div ng-show="showUsersQuestions">
 
                         <div class="exam-general-information" ng-repeat="question in questions">
-                            <!--<div class="section-header">-->
-                                <!--<div ng-hide="showDetails">-->
-                                    <!--<span class="section-header-number">{{$index +1}}.</span>-->
-                                    <!--<span>{{question.question}}</span>-->
-                                <!--<span class="pull-right fa-stack fa-lg pointer-hand">-->
-                                    <!--<i class="sitnet-grey fa fa-square fa-stack-2x"></i>-->
-                                    <!--<i ng-class="showQuestion ? 'fa-chevron-down' : 'fa-chevron-left'"-->
-                                       <!--ng-click="showQuestion = !showQuestion"-->
-                                       <!--class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>-->
-                                <!--</span>-->
-                                <!--<span class="pull-right fa-stack fa-lg dropdown pointer-hand" ng-click="editQuestion(question)">-->
-                                    <!--<a class="dropdown-toggle">-->
-                                        <!--<i class="sitnet-blue fa fa-square fa-stack-2x"></i>-->
-                                        <!--<i class="sitnet-white fa fa-cog fa-stack-1x"></i>-->
-                                    <!--</a>-->
-                                        <!--<ul class="dropdown-menu">-->
-                                            <!--<li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>-->
-                                            <!--<li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>-->
-                                            <!--<li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>-->
-                                            <!--<li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>-->
-                                        <!--</ul>-->
-                                <!--</span>-->
-                                <!--</div>-->
-                            <!--</div>-->
-
                             <div class="exam-question-container">
-                                <div class="questions-main-label" ng-include="userQuestionsPath">
+                                <div ng-if="question.type === 'MultipleChoiceQuestion'" class="questions-main-label" ng-include="questionListingMultipleChoice">
+                                </div>
+
+                                <div ng-if="question.type === 'EssayQuestion'" class="questions-main-label" ng-include="questionListingEssay">
                                 </div>
                             </div>
                         </div>

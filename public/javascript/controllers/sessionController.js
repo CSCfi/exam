@@ -95,6 +95,7 @@
                         header[SITNET_CONF.AUTH_HEADER] = user.token;
                         $http.defaults.headers.common = header;
                         var sessionUser = {
+                            id: user.id,
                             firstname: user.firstname,
                             lastname: user.lastname,
                             isAdmin: (hasRole(user, 'ADMIN')),

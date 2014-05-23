@@ -1,17 +1,11 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('QuestionCtrl', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'sessionService', 'SITNET_CONF',
+        .controller('QuestionListingController', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'sessionService', 'SITNET_CONF',
             function ($scope, $routeParams, $location, $translate, QuestionRes, sessionService, SITNET_CONF) {
-
-                $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
-                $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
-                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
-                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
 
                 $scope.questionListingMultipleChoice = SITNET_CONF.TEMPLATES_PATH + "question-listing/multiplechoice_questions.html";
                 $scope.questionListingEssay = SITNET_CONF.TEMPLATES_PATH + "question-listing/essay_questions.html";
-
                 $scope.questionTemplate = null;
 
                 $scope.questionTypes = {
@@ -46,7 +40,7 @@
                 }
 
                 if ($routeParams.id === undefined)
-                    $scope.questions = QuestionRes.questions.query();
+                    $scope.questions = QuestionRes.questionlist.query({id: $scope.user.id});
                 else {
                     QuestionRes.questions.get({id: $routeParams.id},
                         function (value) {

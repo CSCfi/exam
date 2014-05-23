@@ -41,7 +41,7 @@
 "sitnet_exam_remove": "Poista",
 "sitnet_exam_score": "Arvosana / Maksimipisteet",
 "sitnet_exam_scoring_of_the_right_answer": "Pisteet oikeasta vastauksesta",
-"sitnet_exam_section_default_name ": "Aihealue",
+"sitnet_exam_section_default_name": "Aihealue",
 "sitnet_exam_templates": "Tenttipohjat",
 "sitnet_exam_time_left": "Aikaa jäljellä",
 "sitnet_examination_location": "Tenttitila",
@@ -85,7 +85,7 @@
 "sitnet_share_this_exam": "Jaa tämä koe",
 "sitnet_start_time": "Tenttiaika alkaa",
 "sitnet_tools": "Työkalut",
-"sitnet_user_language_change ": "Käyttäjän kielivalinta",
+"sitnet_user_language_change": "Käyttäjän kielivalinta",
 "sitnet_user_preferences": "Käyttäjän profiiliasetukset",
 "sitnet_username": "Käyttäjätunnus",
 "sitnet_welcome": "Tervetuloa",
@@ -193,6 +193,7 @@
 "sitnet_exam_credit_type_maturity": "Kypsyysnäyte",
 
     "sitnet_question_copy": "Käytä pohjana uudelle",
+    "sitnet_questions_owners_list": "Omat kysymykset"
 
 "sitnet_message": "Saateviesti",
 "sitnet_name": "Nimi",

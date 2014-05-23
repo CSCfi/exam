@@ -22,6 +22,13 @@
                     "copy": {method: "POST"}
                 }),
 
+                questionlist: $resource("/questionlist/user/:id",
+                {
+                    id: "@id"
+                },
+                {
+                }),
+
                 options: $resource("/questions/:qid/option/:oid",
                 {
                     qid: "@qid", oid: "@oid"
