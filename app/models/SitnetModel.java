@@ -2,6 +2,7 @@ package models;
 
 import annotations.NonCloneable;
 import play.Logger;
+import play.data.format.Formats;
 import play.db.ebean.Model;
 import util.SitnetUtil;
 
@@ -21,7 +22,7 @@ abstract public class SitnetModel extends Model implements Cloneable {
 	
 //	@CreatedTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-//    @Formats.DateTime(pattern="dd/MM/yyyy")
+    @Formats.DateTime(pattern="yyyy/MM/dd")
     protected Timestamp created;
 	
 	@OneToOne
