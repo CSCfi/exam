@@ -18,7 +18,7 @@
                         "id": $scope.exam.id
                     },
                     "comment": {
-                        "comment": null
+                        "comment": ""
                     }
                 }
 
@@ -49,13 +49,18 @@
                 };
 
                 $scope.saveInspector = function () {
-                    ExamRes.inspection.insert({eid: $scope.newInspection.exam.id, uid: $scope.newInspection.user.id}, $scope.newInspection, function (inspection) {
-                        toastr.info("Tentti tallennettu.");
-                        $scope.ok(inspection);
-                    }, function (error) {
-                        toastr.error(error.data);
+                    if($scope.newInspection.user.id && $scope.newInspection.user.id > 0 && $scope.newInspection.exam.id && $scope.newInspection.exam.id > 0) {
+                        ExamRes.inspection.insert({eid: $scope.newInspection.exam.id, uid: $scope.newInspection.user.id}, $scope.newInspection, function (inspection) {
+                            toastr.info("Tentti tallennettu.");
+                            $scope.ok(inspection);
+                        }, function (error) {
+                            toastr.error(error.data);
+                            $scope.cancel();
+                        });
+                    } else {
+                        toastr.error("Opettajaa ei löytynyt");
                         $scope.cancel();
-                    });
+                    }
                 }
 
             }]);

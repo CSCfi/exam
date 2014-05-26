@@ -11,6 +11,7 @@
                 <div class="input-group">
                     <input type="text" class="form-control"
                            ng-model="newInspection.user.name"
+                           typeahead-editable="false"
                            typeahead-on-select="setExamInspector($item, $model, $label);"
                            typeahead="t.name for t in examInspectors('name', $viewValue)">
                 </div>
@@ -24,7 +25,7 @@
                     </div>
 
                     <div class="input-group exam-info">
-                        <textarea class="form-control" rows="3" cols="120" ng-model="newInspection.comment.comment" placeholder=""></textarea>
+                        <textarea class="form-control" rows="3" cols="120" ng-model="newInspection.comment.comment"></textarea>
                     </div>
                 </div>
             </div>

@@ -145,9 +145,7 @@
                     if($scope.newExam.id) {
                         ExamRes.inspections.get({id: $scope.newExam.id},
                             function (inspectors) {
-                                console.log(inspectors);
                                 $scope.inspectors = inspectors;
-
                             },
                             function (error) {
                                 //toastr.error(error.data);
@@ -316,7 +314,7 @@
                 };
 
                 $scope.editSection = function (section) {
-                    console.log(section);
+                    //console.log(section);
                 };
 
                 $scope.editQuestion = function (question) {
@@ -356,7 +354,7 @@
                 };
 
                 $scope.saveCourseCode = function() {
-                    console.log($scope.courseCodeSearch);
+                    //console.log($scope.courseCodeSearch);
                 }
 
                 // Called when Save and publish button is clicked
