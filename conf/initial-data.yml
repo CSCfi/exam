@@ -743,7 +743,7 @@ exam-inspections:
     exam: *tietokannat2014
    
   - !!models.ExamInspection
-    user: *sauli
+    user: *maika
     exam: *ooad
    
 ############### Tilavaraus ###############
