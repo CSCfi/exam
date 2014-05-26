@@ -52,6 +52,7 @@ public class Exam extends SitnetModel {
     @NonCloneable
     private Exam parent;
 
+
     @Column(length = 32, unique = true)
     private String hash;
 
@@ -87,6 +88,9 @@ public class Exam extends SitnetModel {
     private String state;
 
     private String grade;
+
+    @OneToOne
+    private ExamInspection examInspection;
 
     /*
      * this is the user who is marked as evaluator of the Exam
@@ -224,9 +228,7 @@ public class Exam extends SitnetModel {
 		this.otherGrading = otherGrading;
 	}
 
-//    public String getTotalScore() {
-//        return totalScore;
-//    }
+//    public String getTotalScore() { return totalScore; }
 
     public void setTotalScore(String totalScore) {
         this.totalScore = totalScore;
@@ -299,6 +301,14 @@ public class Exam extends SitnetModel {
 
     public void setCreditType(String creditType) {
         this.creditType = creditType;
+    }
+
+    public ExamInspection getExamInspection() {
+        return examInspection;
+    }
+
+    public void setExamInspection(ExamInspection examInspection) {
+        this.examInspection = examInspection;
     }
 
     @Override

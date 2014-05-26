@@ -9,6 +9,8 @@ import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.AbstractQuestion;
@@ -22,8 +24,7 @@ import play.mvc.Result;
 import util.SitnetUtil;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class ExamController extends SitnetController {
 
@@ -259,7 +260,6 @@ public class ExamController extends SitnetController {
     public static Result createExamDraft() throws MalformedDataException {
         Logger.debug("createExamDraft()");
 
-
         Exam exam = new Exam();
         exam.setName("Kirjoita tentin nimi tähän");
         exam.setState("DRAFT");
@@ -281,10 +281,17 @@ public class ExamController extends SitnetController {
         }
         examSection.setExam(exam);
         examSection.save();
+
         exam.getExamSections().add(examSection);
         exam.setExamLanguage("fi");
 
         exam.save();
+
+        // lisätään tentin luoja tarkastajiin (SITNET-178)
+        ExamInspection inspection = new ExamInspection();
+        inspection.setExam(exam);
+        inspection.setUser(UserController.getLoggedUser());
+        inspection.save();
 
         ObjectNode part = Json.newObject();
         part.put("id", exam.getId());
@@ -506,6 +513,20 @@ public class ExamController extends SitnetController {
         }
     }
 
+    public static Result getExamInspections(Long id) {
+
+        List<ExamInspection> inspections = Ebean.find(ExamInspection.class).where().eq("exam.id", id).findList();
+
+        Map<String, String> results = new HashMap<>();
+
+        if(inspections != null) {
+            for(ExamInspection i : inspections) {
+                results.put("" + i.getId(), i.getUser().getFirstName() + " " + i.getUser().getLastName());
+            }
+        }
+        return ok(Json.toJson(results));
+    }
+
     public static Result getInspections() {
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("exam", "name", new FetchConfig().query())
@@ -528,4 +549,26 @@ public class ExamController extends SitnetController {
         }
     }
 
+    public static Result insertInspection(Long eid, Long uid) throws SitnetException {
+        Logger.debug("insertInspection()");
+
+        ExamInspection inspection = bindForm(ExamInspection.class);
+
+        inspection.setExam(Ebean.find(Exam.class, eid));
+        inspection.setUser(Ebean.find(User.class, uid));
+
+        inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
+        inspection.getComment().save();
+        inspection.save();
+
+        return ok(Json.toJson(inspection));
+    }
+
+    public static Result deleteInspection(Long id) {
+        Logger.debug("removeInspection()");
+
+        Ebean.delete(ExamInspection.class, id);
+
+        return ok();
+    }
 }

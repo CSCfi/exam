@@ -192,6 +192,11 @@
 "sitnet_exam_credit_type_final": "Loppusuoritus",
 "sitnet_exam_credit_type_maturity": "Kypsyysnäyte",
 
-    "sitnet_question_copy": "Käytä pohjana uudelle"
+"sitnet_question_copy": "Käytä pohjana uudelle",
+"sitnet_questions_owners_list": "Omat kysymykset",
 
+"sitnet_message": "Saateviesti",
+"sitnet_name": "Nimi",
+"sitnet_add": "Lisää",
+"sitnet_inspector_name": "Tarkastajan nimi"
 }

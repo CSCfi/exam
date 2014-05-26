@@ -1,0 +1,44 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4><i class="sitnet-white">{{'sitnet_exam_instructor' | translate}}</i></h4>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">
+                    {{'sitnet_inspector_name' | translate}}
+                </div>
+                <div class="input-group">
+                    <input type="text" class="form-control"
+                           ng-model="newInspection.user.name"
+                           typeahead-editable="false"
+                           typeahead-min-length="2"
+                           typeahead-on-select="setExamInspector($item, $model, $label);"
+                           typeahead="t.name for t in examInspectors('name', $viewValue)">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="exam-general-information">
+                    <div class="sitnet-info-text">
+                        {{'sitnet_message' | translate}}
+                    </div>
+
+                    <div class="input-group exam-info">
+                        <textarea class="form-control" rows="3" cols="120" ng-model="newInspection.comment.comment"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-3">
+            <button ng-click="cancel()" class="btn btn-danger">{{'sitnet_button_cancel' | translate}}</button>
+        </div>
+        <div class="col-md-3 col-md-offset-5">
+            <!--{{'sitnet_create_new' | translate}}-->
+            <button ng-click="saveInspector()" class="btn btn-primary">{{'sitnet_button_save' | translate}}</button>
+        </div>
+    </div>
+</div>

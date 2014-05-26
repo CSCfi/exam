@@ -184,5 +184,10 @@
 
 "sitnet_evaluation_type": "Evaluation type",
 "sitnet_evaluation_points": "Points",
-"sitnet_evaluation_select": "Approved / Rejected"
+"sitnet_evaluation_select": "Approved / Rejected",
+
+"sitnet_message": "Message",
+"sitnet_name": "Name",
+"sitnet_add": "Add",
+"sitnet_inspector_name": "Inspector's name"
 }

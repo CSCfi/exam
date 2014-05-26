@@ -35,6 +35,10 @@ public class ExamInspection extends Model {
 	@JsonBackReference
 	private User user;
 
+    @OneToOne
+    @JsonBackReference
+    private Comment comment;
+
 	public Exam getExam() {
 		return exam;
 	}
@@ -58,5 +62,12 @@ public class ExamInspection extends Model {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	
+
+    public Comment getComment() {
+        return comment;
+    }
+
+    public void setComment(Comment comment) {
+        this.comment = comment;
+    }
 }

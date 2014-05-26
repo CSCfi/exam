@@ -34,7 +34,7 @@ public class SessionController extends SitnetController {
 
 
             user = Ebean.find(User.class)
-                    .select("email, firstName, lastName, userLanguage")
+                    .select("id, email, firstName, lastName, userLanguage")
                     .where().eq("email", credentials.getUsername() + "@funet.fi")
                     .eq("password", md5psswd).findUnique();
 
@@ -72,6 +72,7 @@ public class SessionController extends SitnetController {
         session.setUserId(user.getId());
         Cache.set(SITNET_CACHE_KEY + token, session);
         ObjectNode result = Json.newObject();
+        result.put("id", user.getId());
         result.put("token", token);
         result.put("firstname", user.getFirstName());
         result.put("lastname", user.getLastName());

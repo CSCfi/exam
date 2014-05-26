@@ -106,7 +106,7 @@ users:
       organisation: *OulunYliopisto
 
     - &arvo !!models.User
-      email:      arvo
+      email:      arvo@funet.fi
       firstName:  Arvon
       lastName:   Penaali
       password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
@@ -116,7 +116,7 @@ users:
       organisation: *OulunYliopisto
 
     - &soikkeli !!models.User
-      email:      soikkeli
+      email:      soikkeli@funet.fi
       firstName:  Höylä
       lastName:   Soikkeli
       password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
@@ -126,7 +126,7 @@ users:
       organisation: *OulunYliopisto
       
     - &orville !!models.User
-      email:      oppilas
+      email:      oppilas@funet.fi
       firstName:  Orville
       lastName:   Oates
       password:   2664274e7f6f56c565470797478cb406  #oppilas
@@ -143,8 +143,7 @@ question_essay:
 
   - &essay1 !!models.questions.EssayQuestion
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-04-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
     maxScore: 5
@@ -154,13 +153,12 @@ question_essay:
     evaluationCriterias:
     comments:
     maxCharacters: 1000
-    shared: false
-    expanded: true
+    shared: true
+    expanded: false
 
   - &essay2 !!models.questions.EssayQuestion
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-03-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     instruction:
     maxScore: 5
@@ -171,12 +169,11 @@ question_essay:
     comments:
     maxCharacters: 1024
     shared: false
-    expanded: true
+    expanded: false
 
   - &essay3 !!models.questions.EssayQuestion
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    creator: *arvo
+    created: 2014-02-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
     instruction:
     maxScore: 5
@@ -187,7 +184,7 @@ question_essay:
     comments:
     maxCharacters: 2250
     shared: false
-    expanded: true
+    expanded: false
 
 
 question_mutiple_choice:
@@ -196,8 +193,7 @@ question_mutiple_choice:
 
   - &multi1 !!models.questions.MultipleChoiceQuestion
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     materials:
     maxScore: 5
@@ -209,14 +205,13 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: 99, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: 7, correctOption: false, score: 1}
-    shared: false
-    expanded: true
+    shared: true
+    expanded: false
 
   - &multi2 !!models.questions.MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-03 12:40:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -228,13 +223,12 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: IDCLIP, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: IDCHOPPERS, correctOption: false, score: 1}
     shared: false
-    expanded: true
+    expanded: false
 
   - &multi3 !!models.questions.MultipleChoiceQuestion
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-01 12:10:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -245,13 +239,12 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Adheesio, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Hakman, correctOption: false, score: 1}
     shared: false
-    expanded: true
+    expanded: false
 
   - &multi4 !!models.questions.MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    creator: *arvo
+    created: 2014-01-02 12:50:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -263,13 +256,12 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Paimenkoiria, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Jokin muu, correctOption: false, score: 1}
     shared: false
-    expanded: true
+    expanded: false
 
   - &multi5 !!models.questions.MultipleChoiceQuestion
     question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
-    creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    creator: *arvo
+    created: 2014-01-06 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -280,14 +272,13 @@ question_mutiple_choice:
         - !!models.questions.MultipleChoiseOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Sokaiset itse itsesi sillä valo palaa menneisyyteen ja häikäisee taustapeilistä, correctOption: false, score: 1}
     shared: false
-    expanded: true
+    expanded: false
 
 ######################################################################
   - &avaruus1 !!models.questions.MultipleChoiceQuestion
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-07 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -302,8 +293,7 @@ question_mutiple_choice:
   - &avaruus2 !!models.questions.MultipleChoiceQuestion
     question:  Auringon fuusioreaktiot tapahtuvat
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-08 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -318,8 +308,7 @@ question_mutiple_choice:
   - &avaruus3 !!models.questions.MultipleChoiceQuestion
     question:   AU mittaa
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-09 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -334,8 +323,7 @@ question_mutiple_choice:
   - &avaruus4 !!models.questions.MultipleChoiceQuestion
     question:   Ekliptika on
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-10 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -350,8 +338,7 @@ question_mutiple_choice:
   - &avaruus5 !!models.questions.MultipleChoiceQuestion
     question:   Tähdenlento eli
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-11 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -367,8 +354,7 @@ question_mutiple_choice:
   - &avaruus6 !!models.questions.MultipleChoiceQuestion
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-12 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -383,8 +369,7 @@ question_mutiple_choice:
   - &avaruus7 !!models.questions.MultipleChoiceQuestion
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-13 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -400,8 +385,7 @@ question_mutiple_choice:
   - &avaruus8 !!models.questions.MultipleChoiceQuestion
     question:   The Great Red Spot tarkoittaa
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-14 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -417,8 +401,7 @@ question_mutiple_choice:
   - &avaruus9 !!models.questions.MultipleChoiceQuestion
     question:   Vuodenajat aiheutuvat
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-15 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -434,8 +417,7 @@ question_mutiple_choice:
   - &avaruus10 !!models.questions.MultipleChoiceQuestion
     question:   Uudenkuun aikaan
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-16 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
@@ -451,8 +433,7 @@ question_mutiple_choice:
   - &avaruus11 !!models.questions.MultipleChoiceQuestion
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
     creator: *maika
-    created: 2014-01-01 12:30:05.123
-    created: 2014-01-01 12:30:05.123
+    created: 2014-01-17 12:30:05.123
     materials:
     maxScore: 5
     evaluationPhrases:
