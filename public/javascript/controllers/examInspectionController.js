@@ -23,7 +23,7 @@
                 }
 
                 $scope.examInspectors = function (filter, criteria) {
-                    return UserRes.filterUsers.query({role: 'TEACHER', q: criteria}).$promise.then(
+                    return UserRes.filterUsersByExam.query({role: 'TEACHER', eid: $scope.newInspection.exam.id, q: criteria}).$promise.then(
                         function (names) {
                             return limitToFilter(names, 15);
                         },

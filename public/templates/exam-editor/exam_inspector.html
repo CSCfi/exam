@@ -12,6 +12,7 @@
                     <input type="text" class="form-control"
                            ng-model="newInspection.user.name"
                            typeahead-editable="false"
+                           typeahead-min-length="2"
                            typeahead-on-select="setExamInspector($item, $model, $label);"
                            typeahead="t.name for t in examInspectors('name', $viewValue)">
                 </div>

@@ -12,6 +12,7 @@ GET           /users                                                controllers.
 GET           /users/:id                                            controllers.UserController.getUser(id: Long)
 GET           /users/byrole/:role                                   controllers.UserController.getUsersByRole(role: String)
 GET           /users/filter/:role                                   controllers.UserController.getUsersByRoleFilter(role: String, q: String)
+GET           /users/filter/:role/:eid                              controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
 PUT           /users/:id                                            controllers.UserController.updateUser(id: Long)
 POST          /users                                                controllers.UserController.addUser()
 DELETE        /users/:id                                            controllers.UserController.deleteUser(id: Long)

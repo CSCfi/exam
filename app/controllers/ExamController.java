@@ -9,6 +9,8 @@ import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.AbstractQuestion;
@@ -22,10 +24,7 @@ import play.mvc.Result;
 import util.SitnetUtil;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ExamController extends SitnetController {
 

@@ -9,6 +9,7 @@ import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.ExamInspection;
 import models.Session;
 import models.User;
 import play.Logger;
@@ -93,6 +94,43 @@ public class UserController extends SitnetController {
             part.put("id", u.getId());
             part.put("name", new String(u.getFirstName() +" "+u.getLastName()));
             array.add(part);
+        }
+
+        return ok(Json.toJson(array));
+    }
+
+    //    @Restrict(@Group({"TEACHER"}))
+    public static Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
+
+        List<User> users = Ebean.find(User.class)
+                .where()
+                .and(
+                        Expr.eq("roles.name", role),
+                        Expr.or(
+                                Expr.icontains("lastName", criteria),
+                                Expr.icontains("firstName", criteria)
+                        )
+                )
+                .findList();
+
+        List<ExamInspection> inspections = Ebean.find(ExamInspection.class).where().eq("exam.id", eid).findList();
+
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+
+        // removes all user who are already inspectors
+        for(User u : users) {
+            boolean b = true;
+            for(ExamInspection i : inspections) {
+                if(u.getId() == i.getUser().getId()) {
+                    b = false;
+                }
+            }
+            if(b) {
+                ObjectNode part = Json.newObject();
+                part.put("id", u.getId());
+                part.put("name", new String(u.getFirstName() + " " + u.getLastName()));
+                array.add(part);
+            }
         }
 
         return ok(Json.toJson(array));
