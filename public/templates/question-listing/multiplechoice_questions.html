@@ -1,5 +1,6 @@
 <div ng-class="question.expand ? 'single-question-header-active' : 'single-question-header-inactive'">
-	<span class="single-question-icon">
+
+    <span class="single-question-icon">
 		<i class="fa fa-2x fa-list-ul"></i>
 	</span>
     <a class="menu-item" ng-bind-html="question.question" href="#/questions/{{question.id}}" style="font-size: 1.5em"></a>
@@ -7,7 +8,8 @@
             <i ng-class="question.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
                class="sitnet-white fa fa-stack-1x"></i>
     </span>
-    <span ng-click="editQuestion(question)" class=" dropdown pull-right fa-stack fa-lg pointer-hand">
+
+    <span ng-click="editQuestion(question)" class="dropdown pull-right fa-stack fa-lg pointer-hand">
 		<a class="dropdown-toggle">
 			<i class="sitnet-white fa fa-cog fa-stack-1x"></i>
 	    </a>
@@ -16,6 +18,14 @@
 			<li><a ng-click="removeQuestion(section, question)">{{'sitnet_remove' | translate}}</a></li>
 		</ul>
 	</span>
+
+    <span class="pull-right fa-stack">
+        <i ng-if="question.shared === true" class="sitnet-white fa fa-users" style="font-size: 1.333em; line-height: 2em"></i>
+    </span>
+    <span class="pull-right">
+        <i ng-if="question.shared === false" class="sitnet-white fa fa-user" style="font-size: 1.333em; line-height: 2em"></i>
+    </span>
+
 </div>
 <ol ng-show="question.expanded">
     <li class="exam-question-option" ng-repeat="option in question.options">

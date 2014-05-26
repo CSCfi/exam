@@ -25,6 +25,7 @@ import util.SitnetUtil;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class QuestionController extends SitnetController {
@@ -50,11 +51,8 @@ public class QuestionController extends SitnetController {
         List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
                 .where()
                 .eq("creator.id", id)
-//                .orderBy("created, asc")
+                .orderBy("created asc")
                 .findList();
-
-//        if (questions != null)
-//            Logger.debug(questions.toString());
 
         return ok(Json.toJson(questions));
     }
