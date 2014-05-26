@@ -51,7 +51,7 @@ public class QuestionController extends SitnetController {
         List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
                 .where()
                 .eq("creator.id", id)
-                .orderBy("created asc")
+                .orderBy("created desc")
                 .findList();
 
         return ok(Json.toJson(questions));
