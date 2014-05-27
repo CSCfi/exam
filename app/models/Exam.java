@@ -89,9 +89,6 @@ public class Exam extends SitnetModel {
 
     private String grade;
 
-    @OneToOne
-    private ExamInspection examInspection;
-
     /*
      * this is the user who is marked as evaluator of the Exam
      * in WebOodi, or other system
@@ -303,14 +300,6 @@ public class Exam extends SitnetModel {
         this.creditType = creditType;
     }
 
-    public ExamInspection getExamInspection() {
-        return examInspection;
-    }
-
-    public void setExamInspection(ExamInspection examInspection) {
-        this.examInspection = examInspection;
-    }
-
     @Override
     public Object clone() {
 
@@ -335,6 +324,7 @@ public class Exam extends SitnetModel {
         clone.setInstruction(this.getInstruction());
         clone.setShared(this.isShared());
         clone.setGrading(this.getGrading());
+        clone.setParent(this);
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
 

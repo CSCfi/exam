@@ -22,6 +22,8 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
+import util.java.EmailComposer;
+import util.java.EmailSender;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -553,13 +555,20 @@ public class ExamController extends SitnetController {
         Logger.debug("insertInspection()");
 
         ExamInspection inspection = bindForm(ExamInspection.class);
+        User recipient = Ebean.find(User.class, uid);
+        Exam exam = Ebean.find(Exam.class, eid);
 
-        inspection.setExam(Ebean.find(Exam.class, eid));
-        inspection.setUser(Ebean.find(User.class, uid));
+        inspection.setExam(exam);
+        inspection.setUser(recipient);
 
         inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
         inspection.getComment().save();
         inspection.save();
+
+        //TODO: SITNET-295
+        //EmailComposer.composeChangeInspectorNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
+
+
 
         return ok(Json.toJson(inspection));
     }
