@@ -126,6 +126,6 @@ GET           /admin/query                                          controllers.
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()
 GET           /secure                                               controllers.TestController.shibbolethHeaders()
-
+GET           /son                                                  controllers.TestController.son()
 
 GET           /assets/*file                                         controllers.Assets.at(path="/public", file)

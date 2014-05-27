@@ -2,6 +2,10 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
+import models.Course;
+import models.Organisation;
+import models.dto.CourseUnitInfo;
+import models.dto.Record;
 import models.questions.EssayQuestion;
 import play.Logger;
 import play.data.DynamicForm;
@@ -54,7 +58,6 @@ public class TestController extends SitnetController {
         return ok("fail");
     }
 
-
     public static Result shibbolethHeaders()
     {
         String MetadisplayName = request().getHeader("Meta-displayName");
@@ -99,8 +102,20 @@ public class TestController extends SitnetController {
         Logger.debug("##############################");
         Logger.debug("##############################");
 
-
         return ok();
+    }
+
+
+    public static Result son()
+    {
+
+        Course c = new Course();
+        Organisation org = new Organisation();
+        Record r = new Record();
+        CourseUnitInfo ci = new CourseUnitInfo();
+
+
+        return ok(Json.toJson(ci));
     }
 }
 
