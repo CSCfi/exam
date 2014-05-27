@@ -1,8 +1,10 @@
 <div class="section-header">
     <div ng-hide="showDetails">
         <span class="section-header-number">{{section.index}}.</span>
-        <span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i class="fa fa-pencil"></i></span>
-        <span ng-click="section.expanded = !section.expanded; expandSection(section)" class="pull-right fa-stack fa-lg pointer-hand">
+        <span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i
+                class="fa fa-pencil"></i></span>
+        <span ng-click="section.expanded = !section.expanded; expandSection(section)"
+              class="pull-right fa-stack fa-lg pointer-hand">
             <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
             <i ng-class="section.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
                class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
@@ -15,8 +17,10 @@
                 <ul class="dropdown-menu">
                     <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
                     <li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>
-                    <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>
-                    <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>
+                    <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' |
+                        translate}}</a></li>
+                    <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' |
+                        translate}}</a></li>
                 </ul>
         </span>
     </div>
@@ -38,5 +42,18 @@
 </div>
 <div class="exam-question-container" ng-show="section.expanded">
     <div class="question" ng-include="questionPath" ng-repeat="question in section.questions"></div>
-	<span class="create-new"> <i class="fa fa-2x fa-plus-circle"></i> {{'sitnet_add_content'|translate}}</span>
+        <div class="create-new">
+            <a class="dropdown-toggle">
+                <i class="fa fa-2x fa-plus-circle"></i>
+                {{'sitnet_add_content'|translate}}
+            </a>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <a ng-click="createQuestionFromExamView('EssayQuestion', section)">Essee</a>
+                </li>
+                <li>
+                    <a ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">Monivalinta</a>
+                </li>
+            </ul>
+        </div>
 </div>

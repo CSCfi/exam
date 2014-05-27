@@ -32,10 +32,12 @@
             <div class="exam-sections">
                 <div ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>
             </div>
+
+            </div>
             <span ng-click="addNewSection()" class="create-new">
                 <center>
-                <i class="fa fa-2x fa-hand-o-right"></i>
-                {{'sitnet_section_add' | translate}}
+                    <i class="fa fa-2x fa-hand-o-right"></i>
+                    {{'sitnet_section_add' | translate}}
                 </center>
             </span>
             <span><button ng-click="saveExam(); go('/exams')" class="btn btn-primary">{{'sitnet_save' | translate}}</button></span>

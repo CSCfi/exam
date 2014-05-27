@@ -408,26 +408,31 @@
                     }
                     section.questions.push($data);
 
-//                    var newQuestion = $data;
-//                    newQuestion.id = null;
-//
-//                    angular.forEach(newQuestion.options, function (value, index) {
-//                        value.id = null;
-//                    });
-
                     ExamRes.questions.insert({eid: $scope.newExam.id, sid: section.id, qid: $data.id}, function (section) {
                         toastr.info("Kysymys lisätty osioon.");
                     }, function (error) {
                         toastr.error(error.data);
                     });
-                    
-                    
-//                    ExamRes.sections.insertSection({eid: $scope.newExam.id, sid: section.id}, newQuestion, function (section) {
-//                      toastr.info("Kysymys lisätty osioon.");
-//                    }, function (error) {
-//                      toastr.error(error.data);
-//                    });
+
                 };
+
+                //http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
+                $scope.createQuestionFromExamView = function (type, section) {
+                    var newQuestion = {
+                        type: type
+                    }
+
+                    QuestionRes.questions.create(newQuestion,
+                        function (response) {
+                            newQuestion = response;
+
+                            $location.path("/questions/" + response.id + "/exam/" + $scope.newExam.id + "/section/" + section.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+
+
+                }
                 
                 $scope.examFilter = function(item, comparator)
                 {

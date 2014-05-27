@@ -113,9 +113,7 @@
 
                 <p>
                     <!--ng-show="selectedType"-->
-                    <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion(); go('/questions')" type="submit" class="btn btn-success" style="margin-top: 1em">
-                        {{'sitnet_save' | translate}}
-                    </button>
+                    <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion(); go(returnURL)" type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
                 </p>
             </form>
         </div>
