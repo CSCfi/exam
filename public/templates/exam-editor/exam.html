@@ -4,23 +4,26 @@
     </div>
     <div class="col-md-8" ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
         <!-- Exam name -->
-        <div class="exam-name">
+        <div class="row exam-name">
             <div ng-hide="showName">
-                <span class="pull-right fa-stack fa-lg dropdown" ng-click="editExam(section)"></span>
-                <h3>
-                    <span class="editable" ng-click="showName = !showName">
+                <h2 style="margin-bottom: 0em">
+                    <div class="editable col-md-8" ng-click="showName = !showName" style="margin-bottom: 0.5em">
                         {{newExam.name}} <i class="fa fa-pencil"></i>
-                    </span>
-                </h3>
+                    </div>
+                </h2>
             </div>
             <div ng-show="showName">
-                <form class="form-inline" role="form">
-                    <div class="form-group">
-                        <input type="text" class="form-control input-lg" ng-model="newExam.name" autofocus>
-                    </div>
-                    <button class="btn-primary" ng-click="showName = !showName; saveExam(newExam)">
-                        <i class="fa fa-check"></i>
-                    </button>
+                <form class="form col-md-12" role="form">
+                    <h3 style="margin-bottom: 0em">
+                        <div class="row">
+                            <div class="form-group">
+                                <input type="text" class="input-lg col-md-12" ng-model="newExam.name" ui-blur="saveExam()" autofocus ng-blur="showName =! showName">
+
+                                <button class="btn-primary col-md-0" ng-hide="true" ng-click="showName = 'false';">
+                                </button>
+                            </div>
+                        </div>
+                    </h3>
                 </form>
             </div>
         </div>

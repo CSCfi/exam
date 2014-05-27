@@ -14,6 +14,11 @@
 	color: $sitnet-teacher-turquoise-dark-active;
 	border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
 	margin-top: 4em;
+  .input-lg {
+    margin-top: -0.5em;
+    margin-bottom: 0.5em;
+    font-size: 1.3em;
+  }
 }
 
 .exam-general-information-header {
