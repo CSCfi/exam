@@ -128,5 +128,6 @@ GET           /integration/record/:vatIdNumber/:startDate           controllers.
 POST          /test                                                 controllers.TestController.addQuestion()
 GET           /secure                                               controllers.TestController.shibbolethHeaders()
 GET           /son                                                  controllers.TestController.son()
+GET           /org                                                  controllers.TestController.org()
 
 GET           /assets/*file                                         controllers.Assets.at(path="/public", file)

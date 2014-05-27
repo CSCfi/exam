@@ -39,30 +39,29 @@ organisations:
 
     - &OulunYliopisto !!models.Organisation
       name: Oulun Yliopisto
-      nameAbbreviation:
+      nameAbbreviation: OY
       code:
       vatIdNumber: FI0245895-1
+      courseUnitInfoUrl:
+      recordsWhitelistIp:
       organisations:
         - !!models.Organisation
           name: Luonnontieteellinen tiedekunta
-          nameAbbreviation:
+          nameAbbreviation: LUTK
           code:
           vatIdNumber: FI0245895-2
+          courseUnitInfoUrl:
+          recordsWhitelistIp:
           organisations:
                 - !!models.Organisation
                   name: Tietojenkäsittelytieteiden laitos
-                  nameAbbreviation:
+                  nameAbbreviation: TOL
                   code:
                   vatIdNumber: FI0245895-3
                   organisations:
-                  parent: null
-                  root: true
-          parent: null
-          root: true
-      organisations:
-      parent: null
-      root: true
-
+                  courseUnitInfoUrl:
+                  recordsWhitelistIp:
+                  
 ######################################################################
 
 

@@ -1,9 +1,17 @@
 package models;
 
-import play.db.ebean.Model;
-
-import javax.persistence.*;
 import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+
+import play.db.ebean.Model;
 
 // http://tietomalli.csc.fi/Korkeakoulu-kaavio.html
 // http://tietomalli.csc.fi/Sis%C3%A4inen%20organisaatio-kaavio.html
@@ -21,110 +29,100 @@ import java.util.List;
 @Entity
 public class Organisation extends Model {
 
-    @Id
+	@Id
     @GeneratedValue(strategy= GenerationType.AUTO)
+//	@Column(name="ID")
     private Long id;
-
-    // Selkokielinen nimi esim Oulun Yliopisto
-	private String name;
 	
+    private String code;
+	
+	// Selkokielinen nimi esim Oulun Yliopisto
+	private String name;
+
 	//Nimilyhenne   OAMK
 	private String nameAbbreviation;
-	
-	private String code;
-
-	// VAT identification number
-	// Y-tunnus
-	private String vatIdNumber;
 
 
 	// Organisaatiolla on N kappaletta lapsia, joilla voi olla omia lapsia
-    @ManyToOne
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name="organisation_organisation",
+    	      joinColumns=@JoinColumn(name="parent_id"),
+    	      inverseJoinColumns=@JoinColumn(name="child_id"))
 	private List<Organisation> organisations;
-	
-	private Organisation parent;
-	
-	// Ylin organisaatio?
-	private boolean root;
-
-
+		
     private String courseUnitInfoUrl;
 
     private String recordsWhitelistIp;
 
-    public String getRecordsWhitelistIp() {
-        return recordsWhitelistIp;
-    }
+    // VAT identification number
+	// Y-tunnus
+	private String vatIdNumber;
 
-    public void setRecordsWhitelistIp(String recordsWhitelistIp) {
-        this.recordsWhitelistIp = recordsWhitelistIp;
-    }
+    public String getCode() {
+		return code;
+	}
 
     public String getCourseUnitInfoUrl() {
         return courseUnitInfoUrl;
     }
 
-    public void setCourseUnitInfoUrl(String courseUnitInfoUrl) {
-        this.courseUnitInfoUrl = courseUnitInfoUrl;
-    }
-
-	public String getName() {
-		return name;
+    public Long getId() {
+		return id;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+    public String getName() {
+		return name;
 	}
 
 	public String getNameAbbreviation() {
 		return nameAbbreviation;
 	}
 
-	public void setNameAbbreviation(String nameAbbreviation) {
-		this.nameAbbreviation = nameAbbreviation;
+	public List<Organisation> getOrganisations() {
+		return organisations;
 	}
 
-	public String getCode() {
-		return code;
+	public String getRecordsWhitelistIp() {
+        return recordsWhitelistIp;
+    }
+
+	public String getVatIdNumber() {
+		return vatIdNumber;
 	}
 
 	public void setCode(String code) {
 		this.code = code;
 	}
 
-	public String getVatIdNumber() {
-		return vatIdNumber;
+	public void setCourseUnitInfoUrl(String courseUnitInfoUrl) {
+        this.courseUnitInfoUrl = courseUnitInfoUrl;
+    }
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
-	public void setVatIdNumber(String vatIdNumber) {
-		this.vatIdNumber = vatIdNumber;
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public List<Organisation> getOrganisations() {
-		return organisations;
+	public void setNameAbbreviation(String nameAbbreviation) {
+		this.nameAbbreviation = nameAbbreviation;
 	}
 
 	public void setOrganisations(List<Organisation> organisations) {
 		this.organisations = organisations;
 	}
 
-	public Organisation getParent() {
-		return parent;
+	public void setRecordsWhitelistIp(String recordsWhitelistIp) {
+        this.recordsWhitelistIp = recordsWhitelistIp;
+    }
+
+	public void setVatIdNumber(String vatIdNumber) {
+		this.vatIdNumber = vatIdNumber;
 	}
 
-	public void setParent(Organisation parent) {
-		this.parent = parent;
-	}
-
-	public boolean isRoot() {
-		return root;
-	}
-
-	public void setRoot(boolean root) {
-		this.root = root;
-	}
-
-    @Override
+	@Override
     public String toString() {
         return "Organisation{" +
                 "name='" + name + '\'' +
@@ -132,8 +130,6 @@ public class Organisation extends Model {
                 ", code='" + code + '\'' +
                 ", vatIdNumber='" + vatIdNumber + '\'' +
                 ", organisations=" + organisations +
-                ", parent=" + parent +
-                ", root=" + root +
                 '}';
     }
 }

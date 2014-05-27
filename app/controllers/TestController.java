@@ -1,7 +1,9 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
-import com.avaje.ebean.Ebean;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import models.Course;
 import models.CourseType;
 import models.Organisation;
@@ -13,9 +15,9 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import Exceptions.MalformedDataException;
 
-import java.util.Arrays;
-import java.util.Map;
+import com.avaje.ebean.Ebean;
 
 /**
  * Created by avainik on 3/6/14.
@@ -119,6 +121,15 @@ public class TestController extends SitnetController {
 
 
         return ok(Json.toJson(ct));
+    }
+    
+    public static Result org()
+    {
+    	List<Organisation> organisation = Ebean.find(Organisation.class)
+    			.fetch("organisations")
+    			.findList();
+
+        return ok(Json.toJson(organisation));
     }
 }
 
