@@ -5,9 +5,6 @@ import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.SqlQuery;
-import com.avaje.ebean.SqlRow;
-import com.avaje.ebean.SqlUpdate;
 import models.ExamSection;
 import models.SitnetModel;
 import models.User;
@@ -51,7 +48,7 @@ public class QuestionController extends SitnetController {
         List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
                 .where()
                 .eq("creator.id", id)
-                .orderBy("created asc")
+                .orderBy("created desc")
                 .findList();
 
         return ok(Json.toJson(questions));

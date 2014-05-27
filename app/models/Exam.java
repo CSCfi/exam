@@ -303,17 +303,13 @@ public class Exam extends SitnetModel {
     @Override
     public Object clone() {
 
-//        return SitnetUtil.getClone(this);
+//        Exam clone = (Exam)SitnetUtil.getClone(this);
+//        clone.setState("STUDENT_STARTED");
+//        clone.generateHash();
+//        return clone
 
         Exam clone = new Exam();
 
-//        Exam clone = (Exam)SitnetUtil.getClone(this);
-
-//        clone.setState("STUDENT_STARTED");
-//        clone.generateHash();
-
-        // Causes infinite recursion
-//        clone.setStudent(UserController.getLoggedUser());
         clone.setCreated(this.getCreated());
         clone.setCreator(this.getCreator());
         clone.setModified(this.getModified());
@@ -335,6 +331,8 @@ public class Exam extends SitnetModel {
 
             ExamSection examsec_copy = (ExamSection)es._ebean_createCopy();
             examsec_copy.setId(null);
+            examsec_copy.setQuestions(null);
+            examsec_copy.setEbeanTimestamp(null);
 
             for (AbstractQuestion q : es.getQuestions()) {
 
@@ -346,7 +344,6 @@ public class Exam extends SitnetModel {
                         case "MultipleChoiceQuestion": {
                             List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
 
-
                             List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
                             for (MultipleChoiseOption o : options) {
                                 MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
@@ -354,19 +351,24 @@ public class Exam extends SitnetModel {
                                 multipleChoiceOptionCopies.add(m_option_copy);
                             }
                             ((MultipleChoiceQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
-                        }
-                        break;
+                            question_copy.save();
+                        } break;
+
+                        case "EssayQuestion": {
+
+                        } break;
+
                     }
-                examQuestionCopies.add(question_copy);
+                examQuestionCopies.add((MultipleChoiceQuestion)question_copy);
             }
             examsec_copy.setQuestions(examQuestionCopies);
+            examsec_copy.save();
+            examsec_copy.saveManyToManyAssociations("questions");
             examSectionsCopies.add(examsec_copy);
         }
 
         clone.setExamSections(examSectionsCopies);
 
-        clone.generateHash();
-        clone.setState("STUDENT_STARTED");
         clone.generateHash();
 
         return clone;
@@ -382,7 +384,7 @@ public class Exam extends SitnetModel {
         return examQuestionCopies;
     }
 
-    public List<MultipleChoiseOption> createNewMultipleChoiceOptionList() {
+    private List<MultipleChoiseOption> createNewMultipleChoiceOptionList() {
         List<MultipleChoiseOption> multipleChoiceOptionCopies = new ArrayList<MultipleChoiseOption>();
         return multipleChoiceOptionCopies;
     }

@@ -384,8 +384,12 @@ public class ExamController extends SitnetController {
     public static Result removeSection(Long eid, Long sid) {
         Logger.debug("insertQuestion()");
 
-        Ebean.delete(ExamSection.class, sid);
+        Exam exam = Ebean.find(Exam.class, eid);
 
+        ExamSection section = Ebean.find(ExamSection.class, sid);
+        exam.getExamSections().remove(section);
+        exam.save();
+        section.delete();
         return ok();
     }
 
@@ -473,7 +477,15 @@ public class ExamController extends SitnetController {
 
     //  @Authenticate
     public static Result deleteSection(Long sectionId) {
-        Ebean.delete(ExamSection.class, sectionId);
+        Exam exam = Ebean.find(Exam.class)
+                .where()
+                .eq("examSections.id", sectionId)
+                .findUnique();
+
+        ExamSection section = Ebean.find(ExamSection.class, sectionId);
+        exam.getExamSections().remove(section);
+        exam.save();
+        section.delete();
 
         return ok("removed");
     }
