@@ -3,6 +3,7 @@ package controllers;
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
 import models.Course;
+import models.CourseType;
 import models.Organisation;
 import models.dto.CourseUnitInfo;
 import models.dto.Record;
@@ -113,9 +114,11 @@ public class TestController extends SitnetController {
         Organisation org = new Organisation();
         Record r = new Record();
         CourseUnitInfo ci = new CourseUnitInfo();
+        CourseType ct = new CourseType();
 
 
-        return ok(Json.toJson(ci));
+
+        return ok(Json.toJson(ct));
     }
 }
 

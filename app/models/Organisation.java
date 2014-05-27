@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.util.List;
 
 // http://tietomalli.csc.fi/Korkeakoulu-kaavio.html
+// http://tietomalli.csc.fi/Sis%C3%A4inen%20organisaatio-kaavio.html
 /* 
  * Dummy Organisaatio
  * 
@@ -22,8 +23,9 @@ public class Organisation extends Model {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    protected Long id;
+    private Long id;
 
+    // Selkokielinen nimi esim Oulun Yliopisto
 	private String name;
 	
 	//Nimilyhenne   OAMK

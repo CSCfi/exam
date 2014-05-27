@@ -19,13 +19,6 @@ public class CourseType {
 	
 	private String name;
 
-	public CourseType(Long id, String code, String name) {
-		super();
-		this.id = id;
-		this.code = code;
-		this.name = name;
-	}
-
 	public Long getId() {
 		return id;
 	}

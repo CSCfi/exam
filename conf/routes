@@ -121,7 +121,8 @@ GET           /integration/record/:vatIdNumber/:startDate           controllers.
 
 
 ############### SQLinterface ###############
-GET           /admin/query                                          controllers.RawSQLQueryController.executeSQL()
+
+
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()

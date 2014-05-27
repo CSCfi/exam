@@ -1,6 +1,16 @@
 package models.dto;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 public class Record {
+
+    // Pakko tallentaa Siynet tietokantaan, koska osassa organisaatioita suoritukset viedään erä ajona
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
 
     private String StudentId;
     private String Student;

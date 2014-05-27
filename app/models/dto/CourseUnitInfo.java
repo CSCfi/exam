@@ -14,7 +14,7 @@ public class CourseUnitInfo {
     @Id
     private Long id;
     @OneToOne
-    Organisation organisation;
+    private Organisation organisation;
     private String identifier;
     private String courseUnitCode;
     private String courseUnitTitle;
