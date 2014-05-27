@@ -22,10 +22,12 @@ public class ExamEnrolment extends Model {
 	@OneToOne
 	private Exam exam;
 
+    @OneToOne
+    private Reservation reservation;
+
 	@Temporal(TemporalType.TIMESTAMP)
 	private Timestamp enrolledOn;
-	
-	
+
 	
 	public Long getId() {
 		return id;
@@ -58,5 +60,12 @@ public class ExamEnrolment extends Model {
 	public void setExam(Exam exam) {
 		this.exam = exam;
 	}
-	
+
+    public Reservation getReservation() {
+        return reservation;
+    }
+
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
+    }
 }

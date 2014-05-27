@@ -1,3 +1,122 @@
-<div id="sitnet-header" class="header">
-    <h2 class="table-heading">Opiskelijan dashboard</h2>
+<div id="dashboard" ng-controller="SessionCtrl">
+    <div class="container-fluid">
+        <div class="header">
+            <h2 class="table-heading">Tervetuloa, {{getUsername()}}</h2>
+        </div>
+
+        <!-- Title -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="title">
+                    Työpöytä
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="row">
+            <!-- New calendar event icon and text -->
+            <div class="col-md-2 toolbar-item">
+                <span class="fa-stack fa-lg">
+                    <i class="sitnet-dark-blue fa fa-square fa-stack-2x toolbar-square"></i>
+                    <i class="sitnet-white fa fa-calendar fa-stack-1x toolbar-icon"></i>
+                </span>
+                <span style="padding-left: 1em">Varauskalenteri</span>
+            </div>
+
+            <!-- Reviews icon and text -->
+            <div class="col-md-2 toolbar-item">
+                <span class="fa-stack fa-lg">
+                    <i class="sitnet-dark-blue fa fa-square fa-stack-2x toolbar-square"></i>
+                    <i class="sitnet-white fa fa-file-text-o fa-stack-1x toolbar-icon"></i>
+                </span>
+                <span style="padding-left: 1em">Arvioinnit</span>
+            </div>
+
+            <!-- Reviews icon and text -->
+            <div class="col-md-2 toolbar-item">
+                <span class="fa-stack fa-lg">
+                    <i class="sitnet-dark-blue fa fa-square fa-stack-2x toolbar-square"></i>
+                    <i class="sitnet-white fa fa-smile-o fa-stack-1x toolbar-icon"></i>
+                </span>
+                 <span style="padding-left: 1em">Palautteet</span>
+            </div>
+        </div>
+
+        <!-- Enrolled exams list -->
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="sitnet-black exams-list-enrolled-title">{{'sitnet_user_enrolled_exams' | translate}}</h2>
+            </div>
+        </div>
+        <div class="row exam-list-row" ng-repeat="enrolment in userEnrolments">
+            <div class="exams-list-enrolled-content">
+                <div class="exams-list">
+                    <div class="col-md-1">
+                        <span class="fa-stack fa-lg">
+                            <i class="sitnet-light-grey fa fa-square fa-stack-2x"></i>
+                            <i class="sitnet-dark-grey fa fa-stack-1x">{{$index + 1}}</i>
+                        </span>
+                    </div>
+                    <div class="col-md-4" style="border-left-style: inset">
+
+                        <span class="sitnet-info-text">Tentin koodi ja nimi</span>
+                        <br>
+                        <h4>
+                            <span>{{enrolment.exam.course.code}} - {{enrolment.exam.name}}</span>
+                        </h4>
+
+                        <!--<div class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</div>-->
+                    </div>
+                    <div class="col-md-3 list-item-border">
+                        <span class="sitnet-info-text">Tenttimispaikka</span>
+                        <br>
+                        <h4 ng-if="enrolment.reservation">
+                            <span>{{enrolment.reservation.machine.name}}</span>
+                        </h4>
+                        <h4 ng-if="!enrolment.reservation">
+                            <span><a style="color: red">Tee uusi huonevaraus</a></span>
+                        </h4>
+                    </div>
+                    <div class="col-md-4 list-item-border">
+                        <span class="sitnet-info-text">Tenttimisaika</span>
+                        <br>
+                        <h4 ng-if="enrolment.reservation">
+                            <span>{{enrolment.reservation.startAt}}</span>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finished exams list -->
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="sitnet-black exams-list-enrolled-title">{{'sitnet_user_finished_exams' | translate}}</h2>
+            </div>
+        </div>
+
+        <div class="row exam-list-row" ng-repeat="finishedExam in finishedExams">
+            <div class="exams-list-enrolled-content">
+                <div class="exams-list">
+                    <div class="col-md-3">
+                        <h4 ng-if="finishedExam.state === 'REVIEW'" class="review-ongoing">
+                            <span>Tarkastaminen kesken</span>
+                        </h4>
+
+                        <h4 ng-if="finishedExam.state === 'REVIEWED'" class="review-ready">
+                            <span>Tarkastaminen kesken</span>
+                        </h4>
+                    </div>
+
+                    <div class="col-md-4 list-item-border">
+                        <h4 class="exam-list-finished-item">
+                            <span>{{finishedExam.course.code}} - {{finishedExam.name}}</span>
+                        </h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>

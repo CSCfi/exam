@@ -13,6 +13,13 @@
                         params: { id: "@id" }}
                 }),
 
+                finishedExams: $resource("/student/finishedexams/:id",
+                {
+                    id: "@id"
+                },
+                {
+                }),
+
                 exam: $resource("/student/exam/abort/:id",
                 {
                     id: "@id"

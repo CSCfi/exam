@@ -1,5 +1,83 @@
 #dashboard {
 
+  min-height: $sitnet-header-height;
+
+  .header {
+    background-color: $sitnet-light-grey;
+    color: black;
+    padding: 1em;
+  }
+
+  .toolbar-item {
+    margin-top: 2em;
+    margin-left: 4em;
+  }
+
+  .exam-list-row {
+    margin-left: 2em
+  }
+
+  .list-item-border {
+    border-left-style: inset;
+  }
+
+  .exams-list {
+    margin-bottom: 10px;
+  }
+
+  .title {
+    margin-top: 2em;
+    margin-left: 2em;
+    padding-bottom: 1em;
+    border-bottom-style: inset;
+    font-family: sans-serif;
+    font-style: italic;
+    font-weight: bold;
+  }
+
+  .exams-list-enrolled-title {
+    margin-top: 2em;
+    margin-left: 2em;
+    padding-bottom: 1em;
+    border-bottom-style: inset;
+  }
+
+  .exams-list-enrolled-content {
+    margin-left: 1em;
+    margin-right: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 0.4em;
+  }
+
+  .exam-list-finished-item {
+    padding-top: 0.5em;
+  }
+
+  .review-ongoing {
+    border: 2px;
+    border-radius: 25px;
+    background-color: #E1A117;
+    padding: 0.5em 5em;
+  }
+
+  .review-ready {
+    border: 2px;
+    border-radius: 25px;
+    background-color: #6AA33A
+  }
+
+  .toolbar-square {
+    font-size: 3em;
+  }
+
+  .toolbar-icon {
+    font-size: 2em;
+    padding-top: 0.2em;
+    padding-left: 0.2em;
+  }
+
   .tools-block {
     margin: 1em;
   }

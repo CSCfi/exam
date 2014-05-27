@@ -25,7 +25,6 @@ public class Exam extends SitnetModel {
 
     private String name;
 
-
     @ManyToOne
     @NonCloneable
     private Course course;
@@ -77,7 +76,7 @@ public class Exam extends SitnetModel {
     private String otherGrading;
 
     // Exam total score - calculated from all section scores
-    private String totalScore;
+    private Double totalScore;
 
     // Exam language
     private String examLanguage;
@@ -88,6 +87,9 @@ public class Exam extends SitnetModel {
     private String state;
 
     private String grade;
+
+    @OneToOne
+    private ExamInspection examInspection;
 
     /*
      * this is the user who is marked as evaluator of the Exam
@@ -115,7 +117,7 @@ public class Exam extends SitnetModel {
     }
 
     @Transient
-    public double getTotalScore() {
+    public Double getTotalScore() {
         double total = 0;
         if (examSections != null) {
             for (ExamSection section : examSections) {
@@ -225,9 +227,7 @@ public class Exam extends SitnetModel {
 		this.otherGrading = otherGrading;
 	}
 
-//    public String getTotalScore() { return totalScore; }
-
-    public void setTotalScore(String totalScore) {
+    public void setTotalScore(Double totalScore) {
         this.totalScore = totalScore;
     }
 
@@ -300,26 +300,48 @@ public class Exam extends SitnetModel {
         this.creditType = creditType;
     }
 
+    public ExamInspection getExamInspection() {
+        return examInspection;
+    }
+
+    public void setExamInspection(ExamInspection examInspection) {
+        this.examInspection = examInspection;
+    }
+
     @Override
     public Object clone() {
 
-//        Exam clone = (Exam)SitnetUtil.getClone(this);
-//        clone.setState("STUDENT_STARTED");
-//        clone.generateHash();
-//        return clone
+//        return SitnetUtil.getClone(this);
 
         Exam clone = new Exam();
 
+//        Exam clone = (Exam)SitnetUtil.getClone(this);
+
+//        clone.setState("STUDENT_STARTED");
+//        clone.generateHash();
+
+        // Causes infinite recursion
+//        clone.setStudent(UserController.getLoggedUser());
         clone.setCreated(this.getCreated());
         clone.setCreator(this.getCreator());
         clone.setModified(this.getModified());
         clone.setModifier(this.getModifier());
-        clone.setCourse(this.getCourse());
         clone.setName(this.getName());
+        clone.setCourse(this.getCourse());
         clone.setExamType(this.getExamType());
         clone.setInstruction(this.getInstruction());
         clone.setShared(this.isShared());
+        clone.setRoom(this.getRoom());
+        clone.setDuration(this.getDuration());
         clone.setGrading(this.getGrading());
+        clone.setOtherGrading(this.getOtherGrading());
+        clone.setTotalScore(this.getTotalScore());
+        clone.setExamLanguage(this.getExamLanguage());
+        clone.setAnswerLanguage(this.getAnswerLanguage());
+        clone.setGrade(this.getGrade());
+        clone.setExamInspection(this.getExamInspection());
+        clone.setExamFeedback(this.getExamFeedback());
+        clone.setCreditType(this.getCreditType());
         clone.setParent(this);
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
@@ -344,6 +366,7 @@ public class Exam extends SitnetModel {
                         case "MultipleChoiceQuestion": {
                             List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
 
+
                             List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
                             for (MultipleChoiseOption o : options) {
                                 MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
@@ -352,23 +375,25 @@ public class Exam extends SitnetModel {
                             }
                             ((MultipleChoiceQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
                             question_copy.save();
-                        } break;
-
+                        }
                         case "EssayQuestion": {
 
                         } break;
 
                     }
-                examQuestionCopies.add((MultipleChoiceQuestion)question_copy);
+                examQuestionCopies.add(question_copy);
             }
             examsec_copy.setQuestions(examQuestionCopies);
             examsec_copy.save();
             examsec_copy.saveManyToManyAssociations("questions");
+
             examSectionsCopies.add(examsec_copy);
         }
 
         clone.setExamSections(examSectionsCopies);
 
+//        clone.generateHash();
+//        clone.setState("STUDENT_STARTED");
         clone.generateHash();
 
         return clone;
@@ -384,7 +409,7 @@ public class Exam extends SitnetModel {
         return examQuestionCopies;
     }
 
-    private List<MultipleChoiseOption> createNewMultipleChoiceOptionList() {
+    public List<MultipleChoiseOption> createNewMultipleChoiceOptionList() {
         List<MultipleChoiseOption> multipleChoiceOptionCopies = new ArrayList<MultipleChoiseOption>();
         return multipleChoiceOptionCopies;
     }

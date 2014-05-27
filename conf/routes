@@ -35,18 +35,20 @@ DELETE        /exams/:eid/section/:sid                              controllers.
 PUT           /exams/:eid/section/:sid                              controllers.ExamController.updateSection(eid: Long, sid: Long)
 PUT           /exams/:eid/course/:cid                               controllers.ExamController.updateCourse(eid: Long, cid: Long)
 
-GET 		  /exam/:id/inspections									controllers.ExamController.getExamInspections(id: Long)
-POST		  /exams/:eid/inspector/:uid							controllers.ExamController.insertInspection(eid: Long, uid: Long)
-DELETE		  /exams/inspector/:id									controllers.ExamController.deleteInspection(id: Long)
+GET           /exam/:id/inspections                                 controllers.ExamController.getExamInspections(id: Long)
+POST          /exams/:eid/inspector/:uid                            controllers.ExamController.insertInspection(eid: Long, uid: Long)
+DELETE        /exams/inspector/:id                                  controllers.ExamController.deleteInspection(id: Long)
 
 POST          /exams/:eid/section/:sid/question/:qid                controllers.ExamController.insertQuestion(eid: Long, sid: Long, qid: Long)
 DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
 GET           /draft                                                controllers.ExamController.createExamDraft()
 
 GET           /enrolments                                           controllers.ExamController.getEnrolments()
+GET           /enrolments/:uid                                      controllers.ExamController.getEnrolmentsForUser(uid: Long)
 GET           /inspections                                          controllers.ExamController.getInspections()
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
+GET           /student/finishedexams                                controllers.StudentExamController.getFinishedExams()
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
 PUT           /student/exam/abort/:id                               controllers.StudentExamController.abortExam(id: Long)
 GET           /student/doexam/:hash                                 controllers.StudentExamController.startExam(hash: String)

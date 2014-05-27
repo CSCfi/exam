@@ -2,6 +2,7 @@ package controllers;
 
 import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Query;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
@@ -62,6 +63,24 @@ public class StudentExamController extends SitnetController {
 ////                .lt("examEvent.examActiveEndDate", now)
 ////                .eq("examEvent.enrolledStudents.id", user.getId())
 //                .findList();
+
+        return ok(Json.toJson(exams));
+    }
+
+    public static Result getFinishedExams() {
+        Logger.debug("getFinishedExams()");
+
+        String oql = "find exam " +
+                "fetch examSections " +
+                "fetch course " +
+                "where (state=:review or state=:in_review_started or state=:graded) ";
+
+        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
+        query.setParameter("review", "REVIEW");
+        query.setParameter("in_review_started", "IN_REVIEW_STARTED");
+        query.setParameter("graded", "GRADED");
+
+        List<Exam> exams = query.findList();
 
         return ok(Json.toJson(exams));
     }

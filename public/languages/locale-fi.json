@@ -199,6 +199,9 @@
 "sitnet_name": "Nimi",
 "sitnet_add": "Lisää",
 "sitnet_inspector_name": "Tarkastajan nimi",
+
+"sitnet_user_enrolled_exams": "Tentit, joihin olet ilmoittautunut",
+"sitnet_user_finished_exams": "Suoritetut tentit"
 "sitnet_publish_exam_confirm": "Oletko varma, että haluat julkaista tentin? Julkaisun jälkeen opiskelijat voivat ilmoittautua tenttiin.",
 "sitnet_publish_exam_confirm_dialog_title": "Tentin julkaisu",
 "sitnet_default_option_description": "Vastausvaihtoehto"

@@ -539,6 +539,39 @@ public class ExamController extends SitnetController {
         }
     }
 
+    public static Result getEnrolmentsForUser(Long uid) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .fetch("reservation")
+                .where()
+                .eq("user.id", uid)
+                .findList();
+
+//        List<Exam> enrolledExams = new ArrayList<Exam>();
+//
+//        for (ExamEnrolment enrolment : enrolments) {
+//            Exam exam = Ebean.find(Exam.class, enrolment.getExam().getId());
+//            enrolledExams.add(exam);
+//        }
+
+        if (enrolments == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+            options.setPathProperties("user", "id");
+            options.setPathProperties("exam", "id, name, course");
+            options.setPathProperties("exam.course", "code");
+            options.setPathProperties("reservation", "startAt, machine");
+            options.setPathProperties("reservation.machine", "name");
+
+            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+        }
+
+//        return ok(Json.toJson(enrolments));
+    }
+
     public static Result getExamInspections(Long id) {
 
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class).where().eq("exam.id", id).findList();

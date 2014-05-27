@@ -7,6 +7,7 @@ import com.avaje.ebean.Ebean;
 import models.ExamMachine;
 import models.ExamRoom;
 import models.MailAddress;
+import models.Reservation;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import play.Logger;
@@ -44,6 +45,16 @@ public class ReservationController extends SitnetController {
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
 
         return ok(Json.toJson(examRoom));
+    }
+
+    public static Result getReservationForExam(Long uid, Long eid) {
+        Logger.debug("getReservationForExam()");
+
+        Reservation reservation = Ebean.find(Reservation.class).where()
+        .eq("user.id", uid)
+        .findUnique();
+
+        return ok(Json.toJson(reservation));
     }
 
     public static Result createExamRoomDraft() throws MalformedDataException
