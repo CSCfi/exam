@@ -200,5 +200,6 @@
 "sitnet_add": "Lisää",
 "sitnet_inspector_name": "Tarkastajan nimi",
 "sitnet_publish_exam_confirm": "Oletko varma, että haluat julkaista tentin? Julkaisun jälkeen opiskelijat voivat ilmoittautua tenttiin.",
-"sitnet_publish_exam_confirm_dialog_title": "Tentin julkaisu"
+"sitnet_publish_exam_confirm_dialog_title": "Tentin julkaisu",
+"sitnet_default_option_description": "Vastausvaihtoehto"
 }

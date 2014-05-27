@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('QuestionCtrl', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'sessionService', 'SITNET_CONF',
+        .controller('QuestionCtrl', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'ExamRes', 'sessionService', 'SITNET_CONF',
             function ($scope, $routeParams, $location, $translate, QuestionRes, ExamRes, sessionService, SITNET_CONF) {
 
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
@@ -181,8 +181,10 @@
 
                 $scope.addNewOption = function (newQuestion) {
 
+                    var option_description =  $translate('sitnet_default_option_description');
+
                     var option = {
-//                        "option": "Esimerkki vaihtoehto",
+                        "option": option_description,
                         "correctOption": false,
                         "score": 1
                     };

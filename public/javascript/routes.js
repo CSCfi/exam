@@ -8,7 +8,7 @@
 
             /* main navigation */
             $routeProvider.when('/home', { templateUrl: tmpl + 'home.html', controller: 'DashboardCtrl'});
-            $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html'});
+            $routeProvider.when('/questions', { templateUrl: tmpl + 'question-listing/questions.html', controller: 'QuestionListingController'});
             $routeProvider.when('/questions/:id/exam/:examId/section/:sectionId', { templateUrl: tmpl + 'question-editor/question.html'});
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question-editor/question.html'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
@@ -26,7 +26,6 @@
             $routeProvider.when('/login', { templateUrl: tmpl + 'login.html', controller: 'SessionCtrl' });
             $routeProvider.when('/logout', { templateUrl: tmpl + 'logout.html', controller: 'SessionCtrl' });
             $routeProvider.when('/courses', { templateUrl: tmpl + 'courses.html', controller: 'CourseCtrl'});
-            $routeProvider.when('/questions', { templateUrl: tmpl + 'questions.html', controller: 'QuestionCtrl'});
             $routeProvider.when('/machines', { templateUrl: tmpl + 'admin/machine.html', controller: 'RoomCtrl'});
             $routeProvider.when('/softwares', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
             $routeProvider.when('/softwares/update/:id/:name', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
