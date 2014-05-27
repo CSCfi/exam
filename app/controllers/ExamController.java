@@ -577,10 +577,8 @@ public class ExamController extends SitnetController {
         inspection.getComment().save();
         inspection.save();
 
-        //TODO: SITNET-295
-        //EmailComposer.composeChangeInspectorNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
-
-
+        // SITNET-295
+        EmailComposer.composeSimpleInspectionReadyNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
 
         return ok(Json.toJson(inspection));
     }

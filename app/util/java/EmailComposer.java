@@ -133,4 +133,36 @@ public class EmailComposer {
         EmailSender.sendInspectorNotification(recipient, sndr, subject, content);
 
     }
+
+    public static void composeSimpleInspectionReadyNotification(User inspector, User sender, Exam exam, String msg) {
+
+        /*
+        <arvioinnin tehneen opettajan etunimi sukunimi>on tehnyt oman osansa arvioinnista. Arviointi koskee tenttiä <tentin nimi> <opintojaksokoodi>.
+
+        <saateviesti palautekentästä>
+
+        <linkki kyseisen tentin arviointinäkymään>
+         */
+
+        String examData = exam.getName() + "(" + exam.getCourse().getCode() + ")";
+        String subject = examData + " -tentti on annettu arvioitavaksesi";
+        String recipient = inspector.getFirstName() + " " + inspector.getLastName() + " <" + inspector.getEmail() + ">";
+        String sndr = sender.getFirstName() + " " + sender.getLastName() + " <" + sender.getEmail() + ">";
+
+        String content = "<html><body><div>" +
+                sender.getFirstName() + " " + sender.getLastName() +
+                " on merkinnyt sinut arvioijaksi seuraavalle tentille: " +
+                examData + "<br>";
+
+        content += "<div>" + msg + "</div><br><br>";
+
+        final String domain = "localhost:9000";
+
+        String linkToExam = "<a href=\"" + domain +"/#/home/\"" + ">Tenttinäkymään</a>";
+        content += linkToExam;
+        content += "</div></body></html>";
+
+        EmailSender.sendInspectorNotification(recipient, sndr, subject, content);
+
+    }
 }
