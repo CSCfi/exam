@@ -1,0 +1,18 @@
+<div id="sitnet-dialog" ng-controller="StudentExamController">
+    <div class="terms-dialog-header">
+        <h4><i class="sitnet-white">Tentin julkaisu</i></h4>
+    </div>
+    <div class="modal-body">
+        <p>
+            {{'sitnet_publish_exam_confirm' | translate}}
+        </p>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-3">
+            <span ng-click="cancel()" class="sitnet-red pointer"><i class="fa fa-arrow-circle-left fa-stack-2x"></i>{{'sitnet_button_cancel' | translate}}</span>
+        </div>
+        <div class="col-md-3 col-md-offset-5">
+            <span ng-click="ok()" class="sitnet-student-lightgreen pointer"><span>{{'sitnet_button_ok' | translate}}</span><i class="arrow-right-button fa fa-arrow-circle-right fa-stack-2x"></i></span>
+        </div>
+    </div>
+</div>

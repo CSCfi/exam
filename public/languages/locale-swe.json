@@ -189,5 +189,7 @@
 "sitnet_message": "Saateviesti",
 "sitnet_name": "Nimi",
 "sitnet_add": "Lisää",
-"sitnet_inspector_name": "Tarkastajan nimi"
+"sitnet_inspector_name": "Tarkastajan nimi",
+"sitnet_publish_exam_confirm": "Are you sure you want to publish the exam? After publishing exam, students can enroll to it.",
+"sitnet_publish_exam_confirm_dialog_title": "Publishing exam"
 }

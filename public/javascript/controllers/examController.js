@@ -345,9 +345,12 @@
                         "expanded": $scope.newExam.expanded
                     };
                     
-                    ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
+                    ExamRes.exams.update({id: examToSave.id}, examToSave,
+                        function (exam) {
                         toastr.info("Tentti tallennettu.");
+                        go('/exams');
                     }, function (error) {
+
                         toastr.error(error.data);
                     });
 
@@ -359,9 +362,15 @@
 
                 // Called when Save and publish button is clicked
                 $scope.saveAndPublishExam = function () {
-                    if (confirm('Oletko varma että haluat julkaista tentin?\nTämän jälkeen '+
-                            'opeskelijat voivat osallistua tenttiin eikä tenttiä voi enää muokata.')) {
 
+                    var modalInstance = $modal.open({
+                        templateUrl: 'assets/templates/exam-editor/exam_publish_dialog.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: "ModalInstanceCtrl"
+                    });
+
+                    modalInstance.result.then(function () {
                         var examToSave = {
                             "id": $scope.newExam.id,
                             "name": $scope.newExam.name,
@@ -381,10 +390,18 @@
 
                         ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
                             toastr.success("Tentti tallennettu ja julkaistu");
+                                $location.path("/exams");
                         }, function (error) {
                             toastr.error(error.data);
-                        });
-                    }
+                        }
+                        ).
+                            error(function (error) {
+                                console.log('Error happened: ' + error);
+                            });
+                    }, function () {
+                        console.log('Modal dismissed at: ' + new Date());
+                    });
+
                 };
 
                 $scope.deleteExam = function (exam) {

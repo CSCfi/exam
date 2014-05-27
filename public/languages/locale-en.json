@@ -189,5 +189,7 @@
 "sitnet_message": "Message",
 "sitnet_name": "Name",
 "sitnet_add": "Add",
-"sitnet_inspector_name": "Inspector's name"
+"sitnet_inspector_name": "Inspector's name",
+"sitnet_publish_exam_confirm": "Are you sure you want to publish the exam? After publishing exam, students can enroll to it.",
+"sitnet_publish_exam_confirm_dialog_title": "Publishing exam"
 }
