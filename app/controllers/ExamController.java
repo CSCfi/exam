@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.AbstractQuestion;
+import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import play.Logger;
@@ -280,6 +281,7 @@ public class ExamController extends SitnetController {
             return ok(e.getMessage());
         }
         examSection.setExam(exam);
+        examSection.setExpanded(true);
         examSection.save();
 
         exam.getExamSections().add(examSection);
@@ -331,41 +333,51 @@ public class ExamController extends SitnetController {
     public static Result insertQuestion(Long eid, Long sid, Long qid) throws MalformedDataException {
         Logger.debug("insertQuestion()");
 
-        // TODO: Create a clone of the question and add it to section
-        // TODO: should implement AbstractQuestion.clone
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
-
-        MultipleChoiceQuestion q = null;
 
         switch (question.getType()) {
             case "MultipleChoiceQuestion": {
-                q = (MultipleChoiceQuestion) question.clone();
-                q.setParent(question);
+                MultipleChoiceQuestion multiQuestion = Ebean.find(MultipleChoiceQuestion.class, qid);
+                MultipleChoiceQuestion clonedQuestion;
+                clonedQuestion = (MultipleChoiceQuestion)multiQuestion.clone();
+                clonedQuestion.setParent(multiQuestion);
                 try {
-                    q = (MultipleChoiceQuestion) SitnetUtil.setCreator(q);
+                    clonedQuestion = (MultipleChoiceQuestion) SitnetUtil.setCreator(clonedQuestion);
                 } catch (SitnetException e) {
                     e.printStackTrace();
                 }
-                q.setOptions(new ArrayList<MultipleChoiseOption>());
-                q.save();
-                List<MultipleChoiseOption> options = ((MultipleChoiceQuestion)question).getOptions();
+                clonedQuestion.setOptions(new ArrayList<MultipleChoiseOption>());
+                clonedQuestion.save();
+                List<MultipleChoiseOption> options = multiQuestion.getOptions();
                 for (MultipleChoiseOption o : options) {
                     MultipleChoiseOption clonedOpt = (MultipleChoiseOption) o.clone();
-                    clonedOpt.setQuestion(q);
+                    clonedOpt.setQuestion(clonedQuestion);
                     clonedOpt.save();
-                    q.getOptions().add(clonedOpt);
+                    clonedQuestion.getOptions().add(clonedOpt);
                 }
-                break;
+
+                ExamSection section = Ebean.find(ExamSection.class, sid);
+                section.getQuestions().add(clonedQuestion);
+                section.save();
+
+                return ok(Json.toJson(section));
             }
-            case "EssayQuestion":
-                break;
+            case "EssayQuestion": {
+                EssayQuestion essayQuestion = Ebean.find(EssayQuestion.class, qid);
+                EssayQuestion clonedQuestion;
+                clonedQuestion = (EssayQuestion)essayQuestion.clone();
+                clonedQuestion.save();
+
+                ExamSection section = Ebean.find(ExamSection.class, sid);
+                section.getQuestions().add(clonedQuestion);
+                section.save();
+
+                return ok(Json.toJson(section));
+            }
         }
 
-        ExamSection section = Ebean.find(ExamSection.class, sid);
-        section.getQuestions().add(q);
-        section.save();
+        return ok(Json.toJson(null));
 
-        return ok(Json.toJson(section));
     }
 
     public static Result removeQuestion(Long eid, Long sid, Long qid) throws MalformedDataException {

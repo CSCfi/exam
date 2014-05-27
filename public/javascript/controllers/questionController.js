@@ -2,7 +2,7 @@
     'use strict';
     angular.module("sitnet.controllers")
         .controller('QuestionCtrl', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'sessionService', 'SITNET_CONF',
-            function ($scope, $routeParams, $location, $translate, QuestionRes, sessionService, SITNET_CONF) {
+            function ($scope, $routeParams, $location, $translate, QuestionRes, ExamRes, sessionService, SITNET_CONF) {
 
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
@@ -13,6 +13,7 @@
                 $scope.questionListingEssay = SITNET_CONF.TEMPLATES_PATH + "question-listing/essay_questions.html";
 
                 $scope.questionTemplate = null;
+                $scope.returnURL = null;
 
                 $scope.questionTypes = {
                     MultipleChoiceQuestion: 'Monivalinta yksi oikein',
@@ -69,14 +70,26 @@
 //                        question: $translate("sitnet_question_write_name")
                     }
 
-                    QuestionRes.questions.create(newQuestion,
-                        function (response) {
-                            toastr.info("Kysymys lisätty");
-                            $location.path("/questions/" + response.id);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+                    if ($routeParams.examId === undefined) {
+                        QuestionRes.questions.create(newQuestion,
+                            function (response) {
+                                toastr.info("Kysymys lisätty");
+                                $location.path("/questions/" + response.id);
+                            }, function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
+                    else {
+                        QuestionRes.questions.create(newQuestion,
+                            function (response) {
+                                toastr.info("Kysymys lisätty");
+                                $location.path("/exams/" + $routeParams.examId);
+                            }, function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
                 }
 
                 $scope.copyQuestion = function (question) {
@@ -132,12 +145,28 @@
                     }
 
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
-                        function (responce) {
+                        function (response) {
                             toastr.info("Kysymys tallennettu");
                         }, function (error) {
                             toastr.error(error.data);
                         }
+
                     );
+
+                    //Set return URL pointing back to questions main page if we created question there
+                    if($routeParams.examId === undefined) {
+                       $scope.returnURL = "/questions/";
+                    }
+                    //Set return URL to exam, if we created the new question there
+                    //Also bind the question to section of the exam at this point
+                    else {
+                        $scope.returnURL = "/exams/" + $routeParams.examId
+                        ExamRes.questions.insert({eid: $routeParams.examId, sid: $routeParams.sectionId, qid: $scope.newQuestion.id}, function (section) {
+                            toastr.info("Kysymys lisätty osioon.");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        })
+                    }
                 };
 
                 $scope.deleteQuestion = function (question) {
