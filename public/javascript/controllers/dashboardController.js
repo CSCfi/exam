@@ -9,8 +9,6 @@
 
                 $scope.allReviewedExams = ExamRes.examsByState.query({state: 'REVIEW'});
 
-//                $scope.allReviewedExams = examService.allReviewedExams;
-
                 $scope.user = $scope.session.user;
 
                 if ($scope.user != null) {
@@ -19,6 +17,22 @@
                     ExamRes.enrolments.query({uid: $scope.user.id},
                         function (enrolments) {
                             $scope.userEnrolments = enrolments;
+
+//                            angular.forEach($scope.userEnrolments, function (enrolment) {
+//
+//                                if (enrolment.reservation) {
+//                                    var d = new Date(enrolment.reservation.startAt);
+//
+//                                    var curr_date = d.getDate();
+//                                    var curr_month = d.getMonth() + 1; // Months are zero based
+//                                    var curr_year = d.getFullYear();
+//                                    var curr_hour = d.getHours();
+//                                    var curr_min = d.getMinutes();
+////                                    $scope.startAt = curr_date + "." + curr_month + "." + curr_year + " " + curr_hour + ":" + curr_min;
+//
+//                                    enrolment.reservation.startAt = curr_date + "." + curr_month + "." + curr_year + " " + curr_hour + ":" + curr_min;
+//                                }
+//                            });
                         },
                         function (error) {
                             toastr.error(error.data);

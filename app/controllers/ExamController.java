@@ -9,8 +9,6 @@ import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.AbstractQuestion;
@@ -24,8 +22,6 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 import util.java.EmailComposer;
-import util.java.EmailSender;
-
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -548,8 +544,13 @@ public class ExamController extends SitnetController {
                 .findList();
 
 //        List<Exam> enrolledExams = new ArrayList<Exam>();
-//
+
 //        for (ExamEnrolment enrolment : enrolments) {
+//
+//            Timestamp stamp = enrolment.getReservation().getStartAt();
+//
+//            Date date = new Date(stamp.getTime());
+
 //            Exam exam = Ebean.find(Exam.class, enrolment.getExam().getId());
 //            enrolledExams.add(exam);
 //        }

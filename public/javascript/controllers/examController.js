@@ -101,6 +101,9 @@
                         function (exam) {
                             $scope.newExam = exam;
 
+                            $scope.dateService.startDate = exam.examActiveStartDate;
+                            $scope.dateService.endDate = exam.examActiveEndDate;
+
                             $scope.reindexNumbering();
                             getInspectors();
                         },

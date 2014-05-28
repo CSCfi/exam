@@ -204,5 +204,23 @@
 "sitnet_user_finished_exams": "Suoritetut tentit",
 "sitnet_publish_exam_confirm": "Oletko varma, että haluat julkaista tentin? Julkaisun jälkeen opiskelijat voivat ilmoittautua tenttiin.",
 "sitnet_publish_exam_confirm_dialog_title": "Tentin julkaisu",
-"sitnet_default_option_description": "Vastausvaihtoehto"
+"sitnet_default_option_description": "Vastausvaihtoehto",
+
+    "sitnet_examcode_and_name" : "Tentin koodi ja nimi",
+    "sitnet_examcode" : "Koodi",
+    "sitnet_exam_room" : "Tenttimispaikka",
+    "sitnet_exam_time" : "Tenttimisaika",
+    "sitnet_exam_open_until" : "Tentittävissä, saakka",
+    "sitnet_new_reservation" : "Tee uusi huonevaraus",
+
+    "sitnet_toolbar_calendar" : "Varauskalenteri",
+    "sitnet_toolbar_inspections" : "Arvioinnit",
+    "sitnet_toolbar_feedback" : "Palautteet",
+    "sitnet_toolbar_new_question" : "Luo uusi kysymys",
+    "sitnet_toolbar_new_exam" : "Luo uusi tentti",
+    "sitnet_toolbar_new_question_folder" : "Luo uusi kysymyskansio",
+
+    "sitnet_active_exams" : "Aktiiviset tentit",
+    "sitnet_finished_exams" : "Päättyneet tentit",
+    "sitnet_not_published_exams" : "Julkaisemattomat tentit"
 }
