@@ -37,7 +37,7 @@ public class Exam extends SitnetModel {
     private boolean shared;
 
     // An ExamSection may be used only in one Exam
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
+    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "exam")
     @JsonManagedReference
     private List<ExamSection> examSections;
 
@@ -320,8 +320,6 @@ public class Exam extends SitnetModel {
 //        clone.setState("STUDENT_STARTED");
 //        clone.generateHash();
 
-        // Causes infinite recursion
-//        clone.setStudent(UserController.getLoggedUser());
         clone.setCreated(this.getCreated());
         clone.setCreator(this.getCreator());
         clone.setModified(this.getModified());
@@ -343,6 +341,7 @@ public class Exam extends SitnetModel {
         clone.setExamFeedback(this.getExamFeedback());
         clone.setCreditType(this.getCreditType());
         clone.setParent(this);
+        clone.save();
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
 
@@ -353,6 +352,7 @@ public class Exam extends SitnetModel {
 
             ExamSection examsec_copy = (ExamSection)es._ebean_createCopy();
             examsec_copy.setId(null);
+            examsec_copy.setExam(clone);
             examsec_copy.setQuestions(null);
             examsec_copy.setEbeanTimestamp(null);
 

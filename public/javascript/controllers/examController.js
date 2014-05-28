@@ -132,8 +132,11 @@
                     });
 
                     modalInstance.result.then(function (inspectors) {
+                        // OK button clicked
                         getInspectors ()
-                    }, function () {});
+                    }, function () {
+                        // Cancel button clicked
+                    });
                 }
 
                 $scope.newSection = {
@@ -374,6 +377,9 @@
                     });
 
                     modalInstance.result.then(function () {
+
+                        // OK button clicked
+
                         var examToSave = {
                             "id": $scope.newExam.id,
                             "name": $scope.newExam.name,
@@ -393,16 +399,13 @@
 
                         ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
                             toastr.success("Tentti tallennettu ja julkaistu");
-                                $location.path("/exams");
+                            $location.path("/exams");
                         }, function (error) {
                             toastr.error(error.data);
-                        }
-                        ).
-                            error(function (error) {
-                                console.log('Error happened: ' + error);
-                            });
-                    }, function () {
-                        console.log('Modal dismissed at: ' + new Date());
+                        });
+
+                    }, function (error) {
+                        // Cancel button clicked
                     });
 
                 };
