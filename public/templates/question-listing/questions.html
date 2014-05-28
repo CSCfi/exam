@@ -27,13 +27,13 @@
                         {{'sitnet_questions_owners_list' | translate}}
                         <span class="pull-right fa-stack fa-lg">
                             <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-                            <i ng-class="showUsersQuestions ? 'fa-chevron-down' : 'fa-chevron-left'"
-                               ng-click="showUsersQuestions = !showUsersQuestions"
+                            <i ng-class="session.teacherQuestionExpanded ? 'fa-chevron-down' : 'fa-chevron-left'"
+                               ng-click="session.teacherQuestionExpanded = !session.teacherQuestionExpanded"
                                class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
                         </span>
                     </div>
 
-                    <div ng-show="showUsersQuestions">
+                    <div ng-show="session.teacherQuestionExpanded">
                         <div class="exam-general-information" ng-repeat="question in questions                                                                      ">
                             <div class="exam-question-container">
 

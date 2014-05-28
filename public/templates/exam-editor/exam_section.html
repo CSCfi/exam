@@ -1,6 +1,6 @@
 <div class="section-header">
-    <div ng-hide="showDetails">
-        <span class="section-header-number">{{section.index}}.</span>
+    <div class="row" ng-hide="showDetails">
+        <div class="section-header-number col-md-1">{{section.index}}.</div>
         <span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i
                 class="fa fa-pencil"></i></span>
         <span ng-click="section.expanded = !section.expanded; expandSection(section)"
@@ -24,20 +24,19 @@
                 </ul>
         </span>
     </div>
-    <div ng-show="showDetails">
-        <div class="form-inline" role="form">
-            <span class="fa-stack">
-                <i class="fa fa-square-o fa-stack-2x"></i>
-                <i class="fa-stack-1x">{{section.index}}</i>
-            </span>
-
-            <div class="form-group">
-                <input type="text" class="form-control input-lg" ng-model="section.name" autofocus>
-            </div>
-            <button class="btn-primary" ng-click="showDetails = !showDetails; renameSection(section)">
-                <i class="fa fa-check"></i>
-            </button>
+    <div class="row" ng-show="showDetails">
+        <div class="section-header-number col-md-1">
+            <i class="section-header-number col-md-1">{{section.index}}.</i>
         </div>
+        <form class="form col-md-11" role="form">
+                <div class="row">
+                    <div class="form-group">
+                            <input type="text" class="input-lg col-md-12" style="font-size: 0.8em" ng-model="section.name" ui-blur="renameSection()" autofocus ng-blur="showDetails =! showDetails">
+                            <button class="btn-primary col-md-0" ng-hide="true" ng-click="showDetails = 'false'">
+                            </button>
+                    </div>
+                </div>
+        </form>
     </div>
 </div>
 <div class="exam-question-container" ng-show="section.expanded">

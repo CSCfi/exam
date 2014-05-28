@@ -6,6 +6,7 @@
 
             var minimizeLibrary = false;
             var minimizeNavigation = false;
+            var teacherQuestionExpanded = false;
 
             var login = function(/*params*/) {
 

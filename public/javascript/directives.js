@@ -34,8 +34,6 @@
         .directive('uiBlur', function () {
             return function (scope, elem, attrs) {
 
-                var newExam = scope.newExam;
-
                 elem.bind('blur', function () {
                     scope.$apply(attrs.uiBlur);
                 });

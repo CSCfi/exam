@@ -14,7 +14,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="sitnet-info-text">
-                                Kysymyksen lyhyt nimi: <br><input class="col-lg-2 form-control" name="shortname"><br>
+                                Kysymyksen lyhyt nimi: <br><input class="col-md-2 form-control" name="shortname"><br>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -30,7 +30,7 @@
                 </div>
                 <br>
                 <div class="row">
-                    <div class="sitnet-info-text">
+                    <div class="sitnet-info-text col-md-12">
                         {{'sitnet_question_type' | translate}}
                         <select  class="form-control" ng-model="selectedType" ng-change="setQuestionType()"
                                  ng-options="key as value for (key, value) in questionTypes"  >
@@ -38,10 +38,14 @@
                     </div>
                 </div>
 
+                <br>
+
                 <!-- Question header -->
-                <div>
-                    <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question" ui-change="saveQuestion()" placeholder="{{'sitnet_question_write_name' | translate}}">
-                    </textarea>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question" ui-change="saveQuestion()" placeholder="{{'sitnet_question_write_name' | translate}}">
+                        </textarea>
+                    </div>
                 </div>
 
                 <hr>
@@ -56,7 +60,7 @@
                     <div class="sitnet-info-text">
                         {{'sitnet_evaluation_type' | translate}}
                         <div class="row">
-                            <div class="col-lg-2">
+                            <div class="col-md-2">
                                 <select class="form-control" ng-model="newQuestion.evaluationType" ng-change="saveQuestion()">
                                     <option value="Points">{{ 'sitnet_evaluation_points' | translate }}</option>
                                     <option value="Select">{{ 'sitnet_evaluation_select' | translate }}</option>
@@ -69,8 +73,8 @@
                         {{'sitnet_scores' | translate}}
                         <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
                         <div class="row">
-                            <div class="col-lg-2">
-                                <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
+                            <div class="col-md-2">
+                                <input name="maxScore" type="text" class="col-md-2 form-control" ng-model="newQuestion.maxScore"
                                        ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
                             </div>
                         </div>
@@ -89,8 +93,8 @@
                         {{'sitnet_scores' | translate}}
                         <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
                         <div class="row">
-                            <div class="col-lg-2">
-                                <input name="maxScore" type="text" class="col-lg-2 form-control" ng-model="newQuestion.maxScore"
+                            <div class="col-md-2">
+                                <input name="maxScore" type="text" class="col-md-2 form-control" ng-model="newQuestion.maxScore"
                                        ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
                             </div>
                         </div>
