@@ -331,6 +331,36 @@
                     // Todo: Implement this
                 };
 
+                // Called from ui-blur
+                $scope.updateExam = function () {
+
+                    var examToSave = {
+                        "id": $scope.newExam.id,
+                        "name": $scope.newExam.name,
+                        "instruction": $scope.newExam.instruction,
+                        "state": 'SAVED',
+//                        "course": $scope.newExam.course,    // there is no course
+                        "shared": $scope.newExam.shared,
+                        "examActiveStartDate": $scope.dateService.startTimestamp,
+                        "examActiveEndDate": $scope.dateService.endTimestamp,
+                        "room": $scope.newExam.room,
+                        "duration": $scope.newExam.duration,
+                        "grading": $scope.newExam.grading,
+                        "examLanguage": $scope.newExam.examLanguage,
+                        "answerLanguage": $scope.newExam.answerLanguage,
+                        "expanded": $scope.newExam.expanded
+                    };
+
+                    ExamRes.exams.update({id: examToSave.id}, examToSave,
+                        function (exam) {
+                            toastr.info("Tentti tallennettu.");
+                        }, function (error) {
+
+                            toastr.error(error.data);
+                        });
+
+                };
+
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
 
@@ -354,9 +384,8 @@
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function (exam) {
                         toastr.info("Tentti tallennettu.");
-                        go('/exams');
-                    }, function (error) {
-
+                        $location.path("/exams");
+                        }, function (error) {
                         toastr.error(error.data);
                     });
 

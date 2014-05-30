@@ -41,12 +41,13 @@
 </div>
 <div class="exam-question-container" ng-show="section.expanded">
     <div class="question" ng-include="questionPath" ng-repeat="question in section.questions"></div>
-        <div class="create-new">
+        <div class="create-new dropdown">
             <a class="dropdown-toggle">
                 <i class="fa fa-2x fa-plus-circle"></i>
                 {{'sitnet_add_content'|translate}}
+
             </a>
-            <ul class="dropdown-menu" role="menu">
+            <ul class="dropdown-menu">
                 <li>
                     <a ng-click="createQuestionFromExamView('EssayQuestion', section)">Essee</a>
                 </li>

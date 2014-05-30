@@ -17,7 +17,7 @@
                     <h3 style="margin-bottom: 0em">
                         <div class="row">
                             <div class="form-group">
-                                <input type="text" class="input-lg col-md-11" ng-model="newExam.name" ui-blur="saveExam()" autofocus ng-blur="showName =! showName">
+                                <input type="text" class="input-lg col-md-11" ng-model="newExam.name" ui-blur="updateExam()" autofocus ng-blur="showName =! showName">
                                 <button class="btn-primary col-md-1" ng-hide="true" ng-click="showName = 'false'">
                                 </button>
                             </div>
@@ -42,8 +42,12 @@
                     {{'sitnet_section_add' | translate}}
                 </center>
             </span>
-            <span><button ng-click="saveExam(); go('/exams')" class="btn btn-primary">{{'sitnet_save' | translate}}</button></span>
-            <span class="pull-right"><button ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button></span>
+            <span>
+                <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+            </span>
+            <span class="pull-right">
+                <button ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button>
+            </span>
         </div>
 
     </div>
