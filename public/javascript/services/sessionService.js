@@ -22,5 +22,10 @@
                 logout : logout,
                 getUser : sessionUser
             };
+
+            $scope.go = function (location) {
+                $location.path(location);
+            };
+
         });
 }());

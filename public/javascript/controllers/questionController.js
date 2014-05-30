@@ -283,11 +283,30 @@
                     });
 
                     modalInstance.result.then(function () {
-
+                        // OK button
+                        $location.path('/questions/'+ $scope.newQuestion.id);
                     }, function () {
-                        console.log('Modal dismissed at: ' + new Date());
+                        // Cancel button
                     });
                 };
+
+                $scope.submit = function() {
+
+                    $http({
+
+                        url: "attachmet",
+                        data: $scope.form,
+                        method: 'POST',
+                        headers : {'Content-Type':'multipart/form-data'}
+
+                    }).success(function(data){
+
+                        console.log("OK", data)
+
+                    }).error(function(err){"ERR", console.log(err)});
+
+
+                }
 
             }]);
 }());

@@ -7,7 +7,7 @@
             {{'sitnet_select_attachment' | translate}}
 
         </p>
-         <form enctype="multipart/form-data" action="/attachment" method="post">
+         <form enctype="multipart/form-data" ng-submit="submit()"  method="post"> <!-- action="/attachment" -->
             <input type="file" name="attachment">
              <input type="hidden" value={{newQuestion.id}} name="questionId">
             <div class="modal-footer">
@@ -15,7 +15,7 @@
                     <span ng-click="cancel()" class="sitnet-red pointer"><i class="fa fa-arrow-circle-left fa-stack-2x"></i>{{'sitnet_button_cancel' | translate}}</span>
                 </div>
                 <div class="col-md-3 col-md-offset-5">
-                    <input type="submit" class="form-control">{{ sitnet_send_attachment | translate }}</input>
+                    <input ng-click="ok()" type="submit" class="form-control">{{ sitnet_send_attachment | translate }}</input>
                 </div>
             </div>
         </form>
