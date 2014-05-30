@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('QuestionCtrl', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'ExamRes', 'sessionService', 'SITNET_CONF',
-            function ($scope, $routeParams, $location, $translate, QuestionRes, ExamRes, sessionService, SITNET_CONF) {
+        .controller('QuestionCtrl', ['$scope', '$modal', '$routeParams', '$location', '$translate', 'QuestionRes', 'ExamRes', 'sessionService', 'SITNET_CONF',
+            function ($scope, $modal, $routeParams, $location, $translate, QuestionRes, ExamRes, sessionService, SITNET_CONF) {
 
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
@@ -23,9 +23,9 @@
 
                 $scope.answerState = "";
 
-                $scope.user = $scope.session.user;
+//                $scope.user = $scope.session.user;
 
-                console.log($scope.user.id);
+//                console.log($scope.user.id);
 
                 $scope.setQuestionType = function () {
                     switch ($scope.selectedType) {
@@ -272,7 +272,22 @@
 
                     // Save changes to database
 
-                }
+                };
+
+                $scope.selectFile = function () {
+                    var modalInstance = $modal.open({
+                        templateUrl: 'assets/templates/question-editor/dialog_attachment_selection.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: "ModalInstanceCtrl"
+                    });
+
+                    modalInstance.result.then(function () {
+
+                    }, function () {
+                        console.log('Modal dismissed at: ' + new Date());
+                    });
+                };
 
             }]);
 }());

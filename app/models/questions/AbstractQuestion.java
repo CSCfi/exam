@@ -64,7 +64,7 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     //    attachments, images, Videos, documents
     @OneToOne(cascade = CascadeType.ALL)
-    protected Material materials;
+    protected Attachment attachment;
 
     @OneToOne(cascade = CascadeType.ALL)
     protected EvaluationPhrase evaluationPhrases;
@@ -151,12 +151,12 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.evaluationCriterias = evaluationCriterias;
     }
 
-    public Material getMaterials() {
-        return materials;
+    public Attachment getMaterials() {
+        return attachment;
     }
 
-    public void setMaterials(Material materials) {
-        this.materials = materials;
+    public void setAttachment(Attachment attachment) {
+        this.attachment = attachment;
     }
 
     public EvaluationPhrase getEvaluationPhrases() {

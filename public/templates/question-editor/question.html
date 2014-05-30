@@ -115,6 +115,9 @@
                     </textarea>
                 </div>
 
+                <br>
+                <button ng-click="selectFile()"class=form-control">{{'sitnet_attach_file' | translate}}</button>
+
                 <p>
                     <!--ng-show="selectedType"-->
                     <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion(); go(returnURL)" type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>

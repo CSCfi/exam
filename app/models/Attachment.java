@@ -8,18 +8,20 @@ public class Attachment extends SitnetModel {
 
 //	@ManyToOne(cascade = CascadeType.PERSIST)
 //	private AbstractQuestion question;
-/*
-    private File file;
-    private String filePath;
-    private String mime;
-*/
-    private File attachment;
 
-    public void setAttachment(File attachment) {
-        System.out.println("attac " + attachment.getPath());
-        this.attachment = attachment;
+    private String filePath;
+    private String mimeType;
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
     }
-    public File getAttachment() {
-        return this.attachment;
+    public String getFilePath() {
+        return this.filePath;
+    }
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
+    public String getMimeType() {
+        return this.mimeType;
     }
 }

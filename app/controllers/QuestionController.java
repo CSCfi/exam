@@ -5,6 +5,7 @@ import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import models.Attachment;
 import models.ExamSection;
 import models.SitnetModel;
 import models.User;
@@ -18,12 +19,21 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import play.mvc.Http.MultipartFormData;
+import play.mvc.Http.MultipartFormData.FilePart;
 import util.SitnetUtil;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import play.Play;
+import play.Application;
+import play.Configuration;
+
 
 public class QuestionController extends SitnetController {
 
@@ -293,6 +303,48 @@ public class QuestionController extends SitnetController {
 
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
         return ok(Json.toJson(option));
+    }
+
+    public static Result addAttachment() throws MalformedDataException {
+
+
+        MultipartFormData body = request().body().asMultipartFormData();
+
+        FilePart filePart = body.getFile("attachment");
+
+        Map<String,String[]> m = body.asFormUrlEncoded();
+
+        String[] d = m.get("qid");
+        String idstr = d[0];
+        Long id = Long.parseLong(idstr);
+
+        if (filePart != null) {
+            String fileName = filePart.getFilename();
+            String contentType = filePart.getContentType();
+            File file = filePart.getFile();
+
+            String uploadPath = Play.application().configuration().getString("sitnet.attachments.path");
+            String playPath = Play.application().path().getAbsolutePath();
+
+            // TODO Use smarter config
+            String newFile = playPath + "/" + uploadPath + "/" + fileName;
+
+            // TODO What to do if already exists??
+            if (file.renameTo(new File(newFile))) {
+                Attachment attachment = new Attachment();
+                attachment.setFilePath(newFile);
+                attachment.setMimeType(contentType);
+
+                AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+                if (question != null) {
+                    attachment.save();
+                    question.setAttachment(attachment);
+                    Ebean.save(question);
+                    return ok(Json.toJson(question));
+                }
+            }
+        }
+        return ok("Ei ok");
     }
 
     public static enum EssayEvaluationType {

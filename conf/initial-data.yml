@@ -147,7 +147,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    materials:
+   #materials:
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -162,7 +162,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    materials:
+   #materials:
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -177,7 +177,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Select
-    materials:
+   #materials:
     evaluationPhrases:
     evaluationCriterias:
     comments:
@@ -194,7 +194,7 @@ question_mutiple_choice:
     creator: *maika
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
@@ -211,7 +211,7 @@ question_mutiple_choice:
     question: Mikä on ikuisen elämän salaisuus?
     creator: *maika
     created: 2014-01-03 12:40:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
@@ -228,7 +228,7 @@ question_mutiple_choice:
     question: Ruoka ei tartu tefloniin, mikä silloin saa teflonin tarttumaan pannun pintaan?
     creator: *maika
     created: 2014-01-01 12:10:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
@@ -244,7 +244,7 @@ question_mutiple_choice:
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
     creator: *arvo
     created: 2014-01-02 12:50:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
@@ -261,7 +261,7 @@ question_mutiple_choice:
     question: Matkustat autolla valon nopeutta, mitä tapahtuu kun laitat pitkät valot päälle?
     creator: *arvo
     created: 2014-01-06 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
@@ -278,7 +278,7 @@ question_mutiple_choice:
     question:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on
     creator: *maika
     created: 2014-01-07 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
@@ -293,7 +293,7 @@ question_mutiple_choice:
     question:  Auringon fuusioreaktiot tapahtuvat
     creator: *maika
     created: 2014-01-08 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
@@ -308,7 +308,7 @@ question_mutiple_choice:
     question:   AU mittaa
     creator: *maika
     created: 2014-01-09 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
@@ -323,7 +323,7 @@ question_mutiple_choice:
     question:   Ekliptika on
     creator: *maika
     created: 2014-01-10 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
@@ -338,7 +338,7 @@ question_mutiple_choice:
     question:   Tähdenlento eli
     creator: *maika
     created: 2014-01-11 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
@@ -354,7 +354,7 @@ question_mutiple_choice:
     question:   Valitse VÄÄRÄ vaihtoehto, Komeetan pyrstön hehku johtuu
     creator: *maika
     created: 2014-01-12 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
@@ -369,7 +369,7 @@ question_mutiple_choice:
     question:   Aurinkokunnan suurin planeetta halkaisijaltaan on
     creator: *maika
     created: 2014-01-13 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
@@ -385,7 +385,7 @@ question_mutiple_choice:
     question:   The Great Red Spot tarkoittaa
     creator: *maika
     created: 2014-01-14 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
@@ -401,7 +401,7 @@ question_mutiple_choice:
     question:   Vuodenajat aiheutuvat
     creator: *maika
     created: 2014-01-15 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
@@ -417,7 +417,7 @@ question_mutiple_choice:
     question:   Uudenkuun aikaan
     creator: *maika
     created: 2014-01-16 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
@@ -433,7 +433,7 @@ question_mutiple_choice:
     question:   Vuoksen ja luoteen aiheuttavat pääasiassa
     creator: *maika
     created: 2014-01-17 12:30:05.123
-    materials:
+   #materials:
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:  Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.

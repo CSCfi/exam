@@ -77,6 +77,7 @@ PUT           /questions/:id                                        controllers.
 PUT           /questions/option/:oid                                controllers.QuestionController.updateOption(oid: Long)
 POST          /questions                                            controllers.QuestionController.addQuestion()
 POST          /question/:id                                         controllers.QuestionController.copyQuestion(id: Long)
+POST          /attachment                                          controllers.QuestionController.addAttachment()
 POST          /questions/:qid/option                                controllers.QuestionController.addOption(qid: Long)
 DELETE        /questions/:id                                        controllers.QuestionController.deleteQuestion(id: Long)
 DELETE        /questions/option/:oid                                controllers.QuestionController.deleteOption(oid: Long)
