@@ -1,13 +1,22 @@
 #sitnet-header {
 
+  .header-wrapper {
+    height:2em;
+    margin:1em 0;
+    padding:0;
+  }
+  .header-text {
+    font-size: 1.8em;
+    font-family: $sitnet-family-opensans-light;
+    color: $sitnet-text;
+    font-weight: 300;
+    letter-spacing: 1px;
+    padding-left: 1em;
+  }
   min-height: $sitnet-header-height;
-
-  background-color: $sitnet-teacher-turquoise-header;
-  color: white;
-  padding: 1em;
+  background-color: $sitnet-common-light;
 
   .header {
-    background-color: $sitnet-dark;
     position: fixed;
     z-index: 330;
     padding-left: 0;
@@ -18,15 +27,48 @@
   }
 
   .question-header {
-    background-color: $sitnet-light-grey;
+    background-color: $sitnet-common-light;
   }
 
   .header-button {
-    margin-top: 1em;
+    font-family: $sitnet-family-opensans-bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background-color: $sitnet-theme;
+    border:0;
+    color: $sitnet-background;
+    min-width:3em;
+    text-align: center;
+    font-size:0.8em;
+    padding:0.5em 1.2em 0.5em 1.2em;
+    @include border-radius(5px);
+  }
+  .header-button > i {
+    margin-left:0.2em;
   }
 
-  .header-title {
-    padding-top: 0.5em;
-    padding-left: 0.5em;
+  .header-clock {
+
+    height:3em;
+    margin:0.5em 0.3em 0.5em 0;
+
+    .weekday, .date, .clock {
+      width:100%;
+      clear:both;
+      text-align:right;
+      font-size:0.8em;
+    }
+
+    .weekday {
+      font-family: $sitnet-family-opensans-bold;
+      text-transform: uppercase;
+      font-weight:bold;
+    }
+    .date {
+      font-family: $sitnet-family-opensans-light;
+    }
+    .clock {
+      font-family: $sitnet-family-opensans-light;
+    }
   }
 }

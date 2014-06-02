@@ -1,37 +1,155 @@
 <div id="sitnet-header" class="header">
-    <!--<div ng-controller="RoomCtrl">-->
-    <div class="row">
-        <div class="col-md-2">
-            <a ng-click="manageSoftwares()" class="btn btn-primary btn-lg active header-button">{{'sitnet_softwares' | translate}}</a>
-        </div>
-        <div class="col-md-2 col-md-offset-8">
-            <a ng-click="createExamRoom()" class="btn btn-primary btn-lg active header-button">{{'sitnet_create_new' | translate}}</a>
+    <div class="col-md-8 header-wrapper">
+        <span class="header-text">{{'sitnet_exam_rooms' | translate}}</span>
+    </div>
+    <div class="col-md-2 header-wrapper">
+        <!--<a class="btn header-button pull-right">{{'sitnet_create_new' | translate}}<i class="sitnet-white pull-right fa fa-angle-down fa-lg"></i></a>-->
+    </div>
+    <div class="col-md-2 nospace">
+        <!--<span class="header-clock pull-right">
+            <span class="col-md-12 nospace weekday">24. lauantai</span>
+            <span class="col-md-12 nospace date">Toukokuuta 2014</span>
+            <span class="col-md-12 nospace clock"></span>
+        </span>-->
+    </div>
+</div>
+<div id="room" ng-controller="RoomCtrl">
+    <span class="sitnet-horizontal-line col-md-12"></span>
+    <div class="col-md-12 nospace header-top">
+        <div class="col-md-2 pull-left nospace header-top">
+             <span class="pull-left fa-stack fa-lg header-top-icon">
+                <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
+            </span>
+            <a class="header-top-link" ng-click="createExamRoom()">{{ 'sitnet_add_new_room' | translate }}</a>
         </div>
     </div>
-    <!--</div>-->
-</div>
-<div id="room" class="row">
-    <div class="room-list">
-        <h2 class="sitnet-teacher-turquoise-dark-active">{{'sitnet_exam_rooms' | translate}}</h2>
-        <span class="sitnet-info-text">{{'sitnet_room_general_info' | translate}}</span>
-
-        <div>
-            <div class="exam-machine" ng-repeat="room in rooms">
-                <h3>
-                    <a href="#/rooms/{{room.id}}">
-                        <span >{{room.roomCode}} - {{room.name}}</span>
-                    </a>
-                    <div class="dropdown pull-right fa-stack fa-lg pointer-hand">
-                        <a class="dropdown-toggle">
-                            <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a>{{'sitnet_settings' | translate}}</a></li>
-                            <li><a ng-click="removeRoom(room)">{{'sitnet_remove' | translate}}</a></li>
-                        </ul>
-                    </div>
-                </h3>
+    <div ng-repeat="room in rooms" class="room-list col-md-12">
+        <div class="nospace room-header col-md-12">
+            <div class="col-md-9 nospace">
+                <span class="room-name pull-left">{{room.name}}</span>
+            </div>
+            <div class="col-md-3 nospace">
+                <a href="#/rooms/{{room.id}}" class="header-icon pull-right fa-stack fa-lg">
+                    <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+                    <i class="fa fa-wrench fa-stack-1x"></i>
+                </a>
             </div>
         </div>
+        <div class="room-info col-md-12">
+            <div class="room-info-row col-md-12">
+                <div class="room-info-column pull-left"><span class="sitnet-text-medium">{{ 'sitnet_room_code' | translate }}:</span><span class="sitnet-text room-info-span-text">{{ room.roomCode }}</span></div>
+                <div class="room-info-column pull-left"><span class="sitnet-text-medium">{{ 'sitnet_room_building_name' | translate }}:</span><span class="sitnet-text room-info-span-text">{{ room.buildingName }}</span></div>
+                <div class="room-info-column pull-left"><span class="sitnet-text-medium">{{ 'sitnet_room_campus' | translate }}:</span><span class="sitnet-text room-info-span-text">{{ room.campus }}</span></div>
+                <div class="room-info-column pull-left"><span class="sitnet-text-medium">{{ 'sitnet_exam_address' | translate }}:</span><span class="sitnet-text room-info-span-text">{{ room.mailAddress.street }}, {{ room.mailAddress.zip }} {{ room.mailAddress.city }}</span></div>
+                <div class="room-info-column pull-left"><span class="sitnet-text-medium">{{ 'sitnet_room_default_working_hours' | translate }}:</span><span class="sitnet-text room-info-span-text">{{ room.calendarEvent.startTime | date:'HH:mm' }} - {{ room.calendarEvent.endTime | date:'HH:mm' }}</span></div>
+            </div>
+            <div class="room-info-row col-md-12">
+                <div class="col-md-4 pull-left nospace">
+                    <div class="col-md-1 nospace">
+                         <span class="pull-left fa-stack fa-lg">
+                            <i class="fa sitnet-text-medium fa-stop fa-stack-2x"></i>
+                            <i class="fa sitnet-white fa-wheelchair fa-stack-1x"></i>
+                        </span>
+                    </div>
+                    <div class="col-md-11 pull-left room-info-title">{{ 'sitnet_room_accessibility_info' | translate }}</div>
+                    <div class="col-md-11 pull-left room-info-text">{{ room.accessibilityInfo }}</div>
+                </div>
+                <div class="col-md-4 pull-left nospace">
+                    <div class="col-md-1 nospace">
+                         <span class="fa-stack fa-lg">
+                            <i class="fa sitnet-text-medium fa-stop fa-stack-2x"></i>
+                            <i class="fa sitnet-white fa-info fa-stack-1x"></i>
+                        </span>
+                    </div>
+                    <div class="col-md-11 pull-left room-info-title">{{ 'sitnet_room_guidance' | translate }}</div>
+                    <div class="col-md-11 pull-left room-info-text">{{ room.roomInstruction }}</div>
+                </div>
+                <div class="col-md-4 pull-left nospace">
+                    <div class="col-md-1 nospace">
+                         <span class="fa-stack fa-lg">
+                            <i class="fa sitnet-text-medium fa-stop fa-stack-2x"></i>
+                            <i class="fa sitnet-white fa-phone fa-stack-1x"></i>
+                        </span>
+                    </div>
+                    <div class="col-md-11 pull-left room-info-title">{{ 'sitnet_room_contact_person' | translate }}</div>
+                    <div class="col-md-11 pull-left room-info-text">{{ room.contactPerson }}</div>
+                </div>
+            </div>
+
+        </div>
+        <span class="sitnet-horizontal-line col-md-12"></span>
+
+            <div class="col-md-9 nospace">
+                <span class="room-name pull-left">{{ 'sitnet_exam_room_machines' | translate }} <span class="italic">({{ room.examMachines.length }})</span></span>
+            </div>
+        <div class="nospace room-header col-md-12">
+            <div class="col-md-9 nospace">
+                 <span class="fa-stack fa-lg">
+                    <i class="fa icon-alarm fa-square fa-stack-2x"></i>
+                    <span class="fa sitnet-white fa-stack-1x">{{ countMachineAlerts(room) }}</span>
+                 </span>
+                 <span class="room-info-title">{{ 'sitnet_status_inservice' | translate }}</span>
+                 <span class="fa-stack fa-lg">
+                    <i class="fa icon-notice fa-square fa-stack-2x"></i>
+                    <span class="fa sitnet-white fa-stack-1x">{{ countMachineNotices(room) }}</span>
+                 </span>
+                <span class="room-info-title">{{ 'sitnet_status_notice' | translate }}</span>
+            </div>
+            <div class="col-md-3 nospace">
+                <!-- href="#/rooms/{{room.id}}" -->
+                <a ng-init="!toggleMachines" ng-click="toggleMachines = !toggleMachines" class="header-icon pull-right fa-stack fa-lg">
+                    <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+                    <i ng-show="toggleMachines" class="fa fa-angle-up fa-stack-1x"></i>
+                    <i ng-show="!toggleMachines" class="fa fa-angle-down fa-stack-1x"></i>
+                </a>
+                <a class="fa-stack fa-lg header-icon pull-right" ng-click="addNewMachine(room)">
+                    <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+                    <i class="fa fa-plus fa-stack-1x"></i>
+                </a>
+            </div>
+        </div>
+        <div ng-show="toggleMachines" class="room-machines col-md-12">
+            <table class="table table-bordered room-machines-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'sitnet_name' | translate }}</th>
+                        <th>{{ 'sitnet_machine_other_identifier' | translate }}</th>
+                        <th>{{ 'sitnet_room_accessibility_info' | translate }}</th>
+                        <th>{{ 'sitnet_machine_softwares' | translate }}</th>
+                        <th>{{ 'sitnet_status' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="machine in room.examMachines">
+                        <td><a class="room-info-title bold-button" ng-click="modifyMachine(machine)">{{ machine.name }}</a></td>
+                        <td>{{ machine.otherIdentifier }}</td>
+                        <td>{{ machine.accessibilityInfo }}</td>
+                        <td>
+                            <ul>
+                                <li ng-repeat="software in machine.softwareInfo" class="pull-left">{{ software.name }}{{$last ? '' : ',&nbsp;'}}</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <span class="status_red" ng-show="machine.outOfService">{{ 'sitnet_status_inactive' | translate }}</span>
+                            <span class="status_green" ng-show="!machine.outOfService && !machine.statusComment">{{ 'sitnet_status_active' | translate }}</span>
+                            <span class="status_orange" ng-show="!machine.outOfService && machine.statusComment">{{ 'sitnet_status_notice' | translate }}</span>
+                            <span class="status_comment col-md-12">{{ machine.statusComment }}</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--
+            <div class="dropdown pull-right fa-stack fa-lg pointer-hand">
+                <a class="dropdown-toggle">
+                    <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a>{{'sitnet_settings' | translate}}</a></li>
+                    <li><a ng-click="removeRoom(room)">{{'sitnet_remove' | translate}}</a></li>
+                </ul>
+            </div>-->
     </div>
+
 </div>

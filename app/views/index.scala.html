@@ -91,6 +91,7 @@
         <script src="@routes.Assets.at("javascript/controllers/roomController.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/controllers/calendarController.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/controllers/examReviewController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascript/controllers/machineController.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/controllers/examInspectionController.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/controllers/questionListingController.js")" type="text/javascript"></script>
     </head>
@@ -149,8 +150,13 @@
                 </nav>
             </div>
             <div class="container-fluid" ng-class="minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
-                <div class="row" ng-view/>
+                <div ng-view/>
             </div>
         </div>
     </body>
 </html>
+<!--
+<div class="col-md-2">
+    <a ng-click="manageSoftwares()" class="btn btn-primary btn-lg active header-button">{{'sitnet_softwares' | translate}}</a>
+</div>
+-->

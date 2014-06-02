@@ -112,6 +112,7 @@
 "sitnet_new_room": "Creating new room resource",
 "sitnet_exam_room_postal_address": "Postal address",
 "sitnet_exam_room_address_street": "Street",
+"sitnet_exam_address": "Address",
 "sitnet_exam_room_address_zip": "Zip code",
 "sitnet_exam_room_address_city": "City",
 "sitnet_exam_room_machines": "Exam room machines",
@@ -192,5 +193,15 @@
 "sitnet_inspector_name": "Inspector's name",
 "sitnet_publish_exam_confirm": "Are you sure you want to publish the exam? After publishing exam, students can enroll to it.",
 "sitnet_publish_exam_confirm_dialog_title": "Publishing exam",
-"sitnet_default_option_description": "Option"
+"sitnet_default_option_description": "Option",
+"sitnet_status": "Status",
+"sitnet_status_active": "Active",
+"sitnet_status_inactive": "Inactive",
+"sitnet_status_update": "Update",
+"sitnet_status_inservice": "Service advise",
+"sitnet_status_notice": "Notice",
+"sitnet_add_new_room": "Add new room",
+"sitnet_add_new_machine": "Add new machine",
+"sitnet_add_new_software": "Add new software",
+"sitnet_exam_machine": "Exam machine"
 }

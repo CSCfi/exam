@@ -8,6 +8,7 @@
                     id: "@id"
                 },
                 {
+                    "get": {method: "GET"},
                     "update": {method: "PUT"},
                     "insert": {method: "POST"},
                     "remove": {method: "DELETE"}

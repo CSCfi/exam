@@ -1,23 +1,105 @@
 #room {
 
-  .base {
-    background-color: $sitnet-white;
-  }
+  width:98%;
+  float:right;
+  padding-top:2em;
+  background-color: $sitnet-background;
 
   .room-list {
-    padding: 2em;
+    background-color: $sitnet-background;
+    padding:0;
+    margin:2em 0 0 0;
   }
 
   .room-header {
-    background-color: $sitnet-teacher-turquoise-header;
-    color: white;
-    padding: 1em;
+    border-bottom: $sitnet-common-light solid 0.15em;
+    height:4em;
   }
 
   .room-name {
-      color: $sitnet-teacher-turquoise-dark-active;
-      border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
-      margin-top: 4em;
+    font-size: 1.6em;
+    padding:0.8em 0;
+    font-family: $sitnet-family-opensans-semibold;
+    color: $sitnet-text;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .header-icon {
+    margin-top:1.1em;
+    cursor: pointer;
+  }
+
+  .room-info {
+    padding-left:0;
+    margin-left:0;
+    margin-bottom:2em;
+  }
+
+  .room-info-column span {
+    padding-right:0.5em;
+  }
+
+  .room-info-row {
+    margin-top:2em;
+    padding-left:0;
+    margin-left:0;
+  }
+
+  .room-info-row > div {
+    font-size: 0.9em;
+  }
+
+  .room-info-column {
+    padding-right:2em;
+  }
+
+  .room-info-span-text {
+    font: $sitnet-family-opensans-bold;
+    font-weight:bold;
+  }
+
+  .room-info-title {
+    font-weight: bold;
+  }
+
+  .room-info-text {
+
+  }
+
+  .room-machines {
+    border-left: $sitnet-common-light solid 0.15em;
+    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
+  }
+
+  .room-machines-table {
+
+    border:0;
+    margin-top:1em;
+    font-family: $sitnet-family-opensans;
+    font-weight: normal;
+    font-size:0.9em;
+
+    th {
+      background-color: $sitnet-common-light;
+      font-family: $sitnet-family-georgia;
+      font-style: italic;
+      font-weight: normal;
+      border:0;
+    }
+
+    td:first-child {
+      border-left:0;
+    }
+    td:last-child {
+      border-right:0;
+    }
+
+    tr:last-child {
+      td {
+        border-bottom: 0;
+      }
+    }
   }
 
   .exam-machine {

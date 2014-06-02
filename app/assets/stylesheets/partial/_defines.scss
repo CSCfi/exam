@@ -1,5 +1,5 @@
 
-$font: Helvetica, sans-serif;
+$font: "Open Sans", Helvetica, Arial;
 $sitnet-dark-green: #63aa92;
 $sitnet-green: #2bb9a8;
 $sitnet-blue: #27b9ca;
@@ -25,7 +25,7 @@ $sitnet-teacher-blue-light: #d8e6e7;
 $sitnet-teacher-green-dark: #d3e7a8;
 $sitnet-teacher-green-light: #d3e7a8;
 
-$sitnet-header-height: 70px;
+$sitnet-header-height: 4em;
 
 $sitnet-student-lightgreen: #7fb373;
 $sitnet-student-darkgreen: #4a883f;
@@ -35,3 +35,176 @@ $sitnet-student-inactive-turquoise: #8dc1b5;
 $sitnet-student-orange: #ffb129;
 $sitnet-student-inactive-gray: #818181;
 $sitnet-blue-highlight: #66afe9;
+
+// ##### leiskasta fontit ##########################################
+$sitnet-family-opensans-light: $font;
+$sitnet-family-opensans-light-italic: $font;
+$sitnet-family-opensans: $font;
+$sitnet-family-opensans-italic: $font;
+$sitnet-family-opensans-semibold: $font;
+$sitnet-family-opensans-semibold-italic: $font;
+$sitnet-family-opensans-bold: $font;
+$sitnet-family-opensans-bold-italic: $font;
+
+$sitnet-family-georgia: Georgia, Helvetica, Arial;
+
+@font-face {
+    font-family: $sitnet-family-opensans-light;
+    src: url('/assets/fonts/OpenSans-Light.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+@font-face {
+    font-family: $sitnet-family-opensans-light-italic;
+    src: url('/assets/fonts/OpenSans-LightItalic.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+}
+@font-face {
+    font-family: $sitnet-family-opensans;
+    src: url('/assets/fonts/OpenSans-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+@font-face {
+    font-family: $sitnet-family-opensans-italic;
+    src: url('/assets/fonts/OpenSans-Regular.ttf') format('truetype');
+    font-style: italic;
+    font-weight: 400;
+}
+@font-face {
+    font-family: $sitnet-family-opensans-semibold;
+    src: url('/assets/fonts/OpenSans-Semibold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+@font-face {
+    font-family: $sitnet-family-opensans-semibold-italic;
+    src: url('/assets/fonts/OpenSans-SemiboldItalic.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+}
+@font-face {
+    font-family: $sitnet-family-opensans-bold;
+    src: url('/assets/fonts/OpenSans-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+@font-face {
+    font-family: $sitnet-family-opensans-bold-italic;
+    src: url('/assets/fonts/OpenSans-BoldItalic.ttf') format('truetype');
+    font-weight: 700;
+    font-style: italic;
+}
+
+// #### leiskasta värit ############################################
+$sitnet-alarm: #C0001F;
+$sitnet-notice: #E1A117;
+$sitnet-ready: #6AA33A;
+$sitnet-theme: #3FA9F5;
+$sitnet-text: #000000;
+$sitnet-common-dark: rgba(0, 0, 0, 0.65);
+$sitnet-common-medium: rgba(0, 0, 0, 0.30);
+$sitnet-common-light: rgba(0, 0, 0, 0.10);
+$sitnet-background: #ffffff;
+
+.sitnet-common-light { background-color: $sitnet-common-light; }
+.sitnet-common-medium { background-color: $sitnet-common-medium; }
+.sitnet-common-dark { background-color: $sitnet-common-dark; }
+
+.sitnet-text-light { color: $sitnet-common-light; }
+.sitnet-text-medium { color: $sitnet-common-medium; }
+.sitnet-text-dark { color: $sitnet-common-dark; }
+.sitnet-text-theme { color: $sitnet-theme; }
+.sitnet-text { color: $sitnet-text; }
+
+
+
+// #### muuta defined ##############################################
+
+.sitnet-horizontal-line {
+  background-color: $sitnet-common-light;
+  height:0.15em;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.nospace {
+  padding:0;
+  margin:0;
+}
+
+$sitnet-icon-size: 32px;
+
+.sitnet-icon-wrapper {
+  min-width: $sitnet-icon-size;
+  width: $sitnet-icon-size;
+  max-width: $sitnet-icon-size;
+  min-height: $sitnet-icon-size;
+  height: $sitnet-icon-size;
+  max-height: $sitnet-icon-size;
+  display: block;
+  text-align:center;
+}
+
+@mixin border-radius($radius) {
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  -ms-border-radius: $radius;
+  border-radius: $radius;
+}
+
+.status_green, .status_red, .status_orange {
+  font-weight: normal;
+  letter-spacing: 1px;
+  font-size: 0.8em;
+  padding:0.3em 0.6em;
+  color: $sitnet-white;
+  @include border-radius(5px);
+}
+.status_red {
+  background-color: $sitnet-alarm;
+}
+.status_green {
+  background-color: $sitnet-student-darkgreen;
+}
+.status_orange {
+  background-color: $sitnet-student-orange;
+}
+.status_comment {
+  padding:0.5em;
+  font-size: 0.9em;
+  color: $sitnet-common-medium;
+  font-style: italic;
+  font-weight:bold;
+  font-family: $sitnet-family-georgia;
+}
+
+.icon-alarm {
+  color: $sitnet-alarm;
+}
+
+.bold-button {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.icon-notice {
+  color: $sitnet-student-orange;
+}
+.header-top {
+  height:4em;
+}
+.header-top-icon {
+  margin-top:0.4em;
+}
+.header-top-link {
+  margin:0 0.8em;
+  color: $sitnet-text;
+  font-size: 0.9em;
+  line-height:4em;
+  font-weight: bold;
+  cursor: pointer;
+}

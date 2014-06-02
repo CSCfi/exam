@@ -15,10 +15,13 @@
 @import "partial/dashboard";
 @import "partial/form-validation";
 
-body {
-  background-color: $sitnet-white;
-  font-family: "Open Sans Condensed Light";
+html {
+  font-family: $font;
+}
 
+body {
+  background-color: $sitnet-background;
+  font-family: $font;
 }
 
 //.correct-answer {
@@ -34,8 +37,8 @@ body {
 }
 
 .vmenu-on {
-  width: calc(100% - 250px);
-  margin-left: 240px;
+  width: calc(100% - 210px);
+  margin-left: 210px;
 }
 
 .vmenu-off {

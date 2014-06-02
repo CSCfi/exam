@@ -22,11 +22,48 @@
                     );
                 }
 
+                $scope.countMachineAlerts = function (room) {
+
+                    var i = 0;
+                    if(room) {
+                        angular.forEach(room.examMachines, function (machine) {
+                            machine.outOfService ? ++i : "";
+                        });
+                    }
+                    return i;
+                }
+
+                $scope.countMachineNotices = function (room) {
+
+                    var i = 0;
+                    if(room) {
+                        angular.forEach(room.examMachines, function (machine) {
+                            !machine.outOfService && machine.statusComment ? ++i : "";
+                        });
+                    }
+                    return i;
+                }
+
                 // Called when create exam button is clicked
+                $scope.createExamRoom = function () {
+                    RoomResource.draft.get(
+                        function (room) {
+                            $scope.roomInstance = room;
+                            toastr.info("Tenttitilan luonnos tehty.");
+                            $location.path("/rooms/" + room.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
                 $scope.manageSoftwares = function () {
                     $location.path("/softwares");
                 };
 
+                $scope.modifyMachine = function (machine) {
+                    $location.path("/machines/" + machine.id);
+                };
 
                 $scope.updateRoom = function (room) {
                     RoomResource.rooms.update(room,
@@ -145,22 +182,9 @@
                     );
                 };
 
-                $scope.removeMachine = function (machine) {
-                    if (confirm('Koneella voi olla varauksia\nPoistetaanko kone?')) {
-                        ExamMachineResource.remove({id: machine.id},
-                            function () {
-                                $scope.roomInstance.examMachines.splice($scope.roomInstance.examMachines.indexOf(machine), 1);
-                                toastr.info("Tenttikone poistettu");
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
-                    }
-                };
-
+                // Tulevaisuudessä tässä pitää olla joku hieno logiikka
                 $scope.removeRoom = function (room) {
-                    if (confirm('Haluatko poistaa tilan kaikki sen koneet ja varaukset?\nTulevaisuudessä tässä pitää olla joku hieno logiikka')) {
+                    if (confirm('Haluatko poistaa tilan kaikki sen koneet ja varaukset?')) {
                         RoomResource.rooms.remove({id: room.id},
                             function () {
                                 $scope.rooms.splice($scope.rooms.indexOf(room), 1);

@@ -14,7 +14,7 @@
             </div>
 
             <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_exam_room_address_street' | translate}}</div>
+                <div class="sitnet-info-text">{{'sitnet_exam_room_address_zip' | translate}}</div>
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.zip"
                            ui-change="updateAddress(roomInstance.mailAddress)">
@@ -25,8 +25,8 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6 col-md-offset-3">
+        <div class="row pull-left">
+            <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_city' | translate}}</div>
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.city"
