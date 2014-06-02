@@ -92,6 +92,10 @@
                     }
                 }
 
+                $scope.createQuestionLibrary = function () {
+                    toastr.info("Toimintoa ei ole vielä toteutettu");
+                }
+
                 $scope.copyQuestion = function (question) {
                     console.log(question.id);
 

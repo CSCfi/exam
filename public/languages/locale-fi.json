@@ -229,9 +229,15 @@
     "sitnet_toolbar_feedback" : "Palautteet",
     "sitnet_toolbar_new_question" : "Luo uusi kysymys",
     "sitnet_toolbar_new_exam" : "Luo uusi tentti",
+    "sitnet_toolbar_multiplechoice_question" : "Monivalintakysymys",
+    "sitnet_toolbar_essay_question" : "Esseekysymys",
     "sitnet_toolbar_new_question_folder" : "Luo uusi kysymyskansio",
 
     "sitnet_active_exams" : "Aktiiviset tentit",
     "sitnet_finished_exams" : "Päättyneet tentit",
-    "sitnet_not_published_exams" : "Julkaisemattomat tentit"
+    "sitnet_not_published_exams" : "Julkaisemattomat tentit",
+
+    "sitnet_indication_new_participants" : "Uutta tenttiin ilmoittautunutta",
+    "sitnet_indication_new_answers" : "Uutta tenttivastausta",
+    "sitnet_indication_new_feedback" : "Uutta tenttipalautetta"
 }

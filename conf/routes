@@ -22,6 +22,8 @@ DELETE        /users/:id                                            controllers.
 ############### Exam interface ###############
 
 GET           /exams                                                controllers.ExamController.getExams()
+GET           /activeexams                                          controllers.ExamController.getActiveExams()
+GET           /finishedexams                                        controllers.ExamController.getFinishedExams()
 GET           /exams/:id                                            controllers.ExamController.getExam(id: Long)
 DELETE        /exams/:id                                            controllers.ExamController.deleteExam(id: Long)
 PUT           /review/:id                                           controllers.ExamController.reviewExam(id: Long)
@@ -45,6 +47,8 @@ GET           /draft                                                controllers.
 
 GET           /enrolments                                           controllers.ExamController.getEnrolments()
 GET           /enrolments/:uid                                      controllers.ExamController.getEnrolmentsForUser(uid: Long)
+GET           /examenrolments/:eid                                  controllers.ExamController.getEnrolmentsForExam(eid: Long)
+GET           /examparticipations/:eid                              controllers.ExamController.getParticipationsForExam(eid: Long)
 GET           /inspections                                          controllers.ExamController.getInspections()
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()

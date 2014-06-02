@@ -56,7 +56,15 @@
                 {
                     state: "@state"
                 }),
-                
+
+                activeExams: $resource("/activeexams", null,
+                {
+                }),
+
+                finishedExams: $resource("/finishedexams", null,
+                {
+                }),
+
                 draft: $resource("/draft", null,
         		{
         		}),
@@ -111,6 +119,22 @@
                 },
                 {
                     "get": {method: "GET", params: { uid: "@uid" }}
+                }),
+
+                examEnrolments: $resource("/examenrolments/:eid",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "get": {method: "GET", params: { eid: "@eid" }}
+                }),
+
+                examParticipations: $resource("/examparticipations/:eid",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "get": {method: "GET", params: { eid: "@eid" }}
                 })
             }
         }]);

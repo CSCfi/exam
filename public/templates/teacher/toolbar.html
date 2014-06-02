@@ -1,0 +1,42 @@
+<!-- Toolbar -->
+<div class="row">
+    <!-- Create new question icon and text -->
+    <div class="col-md-2 toolbar-item" ng-controller="QuestionCtrl">
+        <span class="fa-stack fa-lg">
+            <i class="sitnet-dark-blue fa fa-square fa-stack-2x toolbar-square"></i>
+            <i class="sitnet-white fa fa-file-text-o fa-stack-1x toolbar-icon"></i>
+        </span>
+        <label class="toolbar-label">
+            <a class="dropdown-toggle sitnet-black" data-toggle="dropdown">{{'sitnet_toolbar_new_question' | translate}}</a>
+
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <a ng-click="createQuestion('MultipleChoiceQuestion')">{{'sitnet_toolbar_multiplechoice_question' | translate}}</a>
+                    <a ng-click="createQuestion('EssayQuestion')">{{'sitnet_toolbar_essay_question' | translate}}</a>
+                </li>
+            </ul>
+        </label>
+    </div>
+
+    <!-- Create new exam icon and text -->
+    <div class="col-md-2 toolbar-item" ng-controller="ExamController">
+            <span class="fa-stack fa-lg">
+                <i class="sitnet-dark-blue fa fa-square fa-stack-2x toolbar-square"></i>
+                <i class="sitnet-white fa fa-files-o fa-stack-1x toolbar-icon"></i>
+            </span>
+        <label class="toolbar-label">
+            <a class="sitnet-black" ng-click="createExam()">{{'sitnet_toolbar_new_exam' | translate}}</a>
+        </label>
+    </div>
+
+    <!-- Create new question folder icon and text -->
+    <div class="col-md-2 toolbar-item" ng-controller="QuestionCtrl">
+            <span class="fa-stack fa-lg">
+                <i class="sitnet-dark-blue fa fa-square fa-stack-2x toolbar-square"></i>
+                <i class="sitnet-white fa fa-folder-open-o fa-stack-1x toolbar-icon"></i>
+            </span>
+        <label class="toolbar-label">
+            <a class="sitnet-black" ng-click="createQuestionLibrary()">{{'sitnet_toolbar_new_question_folder' | translate}}</a>
+        </label>
+    </div>
+</div>

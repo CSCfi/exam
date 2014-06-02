@@ -1,0 +1,117 @@
+<!-- Active exams list -->
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="sitnet-black exams-list-active-title">{{'sitnet_active_exams' | translate}}</h3>
+    </div>
+
+    <!-- Active exams indications bar -->
+    <!-- New participants indication -->
+    <div class="col-md-3 toolbar-item">
+        <span class="fa-stack fa-lg">
+            <i class="sitnet-light-grey fa fa-square fa-stack-2x"></i>
+            <i class="sitnet-dark-grey fa fa-stack-1x">0</i>
+        </span>
+        <label class="toolbar-label">
+            <i class="sitnet-black">{{'sitnet_indication_new_participants' | translate}}</i>
+        </label>
+    </div>
+
+    <!-- New exam answers icon and text -->
+    <div class="col-md-3 toolbar-item">
+            <span class="fa-stack fa-lg">
+                <i class="sitnet-dark-blue fa fa-square fa-stack-2x"></i>
+                <i class="sitnet-white fa fa-stack-1x">0</i>
+            </span>
+        <label class="toolbar-label">
+            <i class="sitnet-black">{{'sitnet_indication_new_answers' | translate}}</i>
+        </label>
+    </div>
+
+    <!-- New exam comments icon and text -->
+    <div class="col-md-3 toolbar-item">
+            <span class="fa-stack fa-lg">
+                <i class="sitnet-dark-blue fa fa-square fa-stack-2x"></i>
+                <i class="sitnet-white fa fa-stack-1x">0</i>
+            </span>
+        <label class="toolbar-label">
+            <i class="sitnet-black">{{'sitnet_indication_new_feedback' | translate}}</i>
+        </label>
+    </div>
+</div>
+
+<!-- Active exams table header row -->
+<div class="row" style="background-color: lightgrey; margin-left: 5em">
+    <div class="col-md-1">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-flag fa-stack-1x"></i>
+            </span>
+    </div>
+
+    <div class="col-md-1">
+            <span class="fa-stack fa-lg">
+                <i class="fa fa-exclamation-triangle fa-stack-1x"></i>
+            </span>
+    </div>
+
+    <div class="col-md-2">
+        <label style="padding-top: 0.6em">{{'sitnet_examcode' | translate}}</label>
+    </div>
+
+    <div class="col-md-3">
+        <label style="padding-top: 0.6em">{{'sitnet_exam_name' | translate}}</label>
+    </div>
+
+    <div class="col-md-3">
+        <label style="padding-top: 0.6em">Vastanneet/Ilmoittautuneet</label>
+    </div>
+
+    <div class="col-md-2">
+        <label style="padding-top: 0.6em">{{'sitnet_exam_open_until' | translate}}</label>
+    </div>
+</div>
+
+<!-- Active exams table content row -->
+<div class="row">
+    <!--href="#/exams/review/{{exam.id}}"-->
+    <div class="row exam-list-row" ng-repeat="activeExam in activeExams">
+        <div class="exams-list-active-content">
+            <div class="exams-list">
+                <div class="col-md-1 table-border-first-item" style="line-height: 3.2em">
+                    <div class="fa-stack fa-lg">
+                        <i class="sitnet-dark-blue fa fa-flag fa-stack-1x"></i>
+                    </div>
+                </div>
+
+                <div class="col-md-1 table-border-first-item" style="line-height: 3.2em">
+                    <div class="fa-stack fa-lg">
+                        <i class="sitnet-red fa fa-flash fa-stack-1x"></i>
+                    </div>
+                </div>
+
+                <div class="col-md-2 table-border-first-item">
+                    <h4 class="list-group-item-heading">
+                        <label style="padding-top: 0.85em">{{activeExam.course.code}}</label>
+                    </h4>
+                </div>
+
+                <div class="col-md-3 table-border-first-item">
+                    <h4 class="list-group-item-heading">
+                        <label style="padding-top: 0.85em"><a href="#/exams/review/{{activeExam.id}}">{{activeExam.name}}</a></label>
+                    </h4>
+                </div>
+
+                <div class="col-md-3 table-border-first-item">
+                    <h4 class="list-group-item-heading">
+                        <label style="padding-top: 0.85em">{{examParticipations.length}}/{{examEnrolments.length}}({{(examParticipations.length/examEnrolments.length)*100 | number : 2}}%)</label>
+                    </h4>
+                </div>
+
+                <div class="col-md-2 table-border-first-item">
+                    <h4>
+                        <label>{{activeExam.examActiveEndDate | date:'dd-MM-yyyy'}}</label>
+                    </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

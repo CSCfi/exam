@@ -23,6 +23,19 @@ import java.util.Random;
 @Entity
 public class Exam extends SitnetModel {
 
+    public enum State {
+        DRAFT,
+        SAVED,
+        PUBLISHED,
+        REVIEW,          // OPISKELIJHA ON PALAUTTANUT TENTIN
+        REVIEW_STARTED,  // OPETTAJA ON ALOITTANUT ARVIOINNIN
+        GRADED,
+        GRADED_LOGGED,   // OPINTOSUORITUS KIRJATTU JOHONKIN JÄRJESTELMÄÄN
+        STUDENT_STARTED,
+        ABORTED,
+        ARCHIVED
+    }
+
     private String name;
 
     @ManyToOne
