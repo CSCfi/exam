@@ -9,10 +9,16 @@ import models.SitnetModel;
 import models.User;
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.FileSystems;
+
 
 /**
  * Created by avainik on 3/19/14.
@@ -55,12 +61,14 @@ public class SitnetUtil {
 
                                         Method method = null;
                                         try {
-                                            method = clazz.getDeclaredMethod("clone", null);
+                                            //method = clazz.getDeclaredMethod("clone", null);
+                                            method = clazz.getDeclaredMethod("clone");
                                             if (method == null) {
                                                 break;
                                             } else {
                                                 if (fields[i].get(object) != null) {
-                                                    Object obo = method.invoke(fields[i].get(object), null);
+                                                    //Object obo = method.invoke(fields[i].get(object), null);
+                                                    Object obo = method.invoke(fields[i].get(object));
                                                     fields[i].set(clone, obo);
                                                 }
                                             }
@@ -170,5 +178,17 @@ public class SitnetUtil {
 
     static public String encodeMD5(String str) {
         return DigestUtils.md5Hex(str);
+    }
+
+    static public void removeAttachmentFile(String filePath) {
+        // Perform disk clean upon attachment removal.
+        Path path = FileSystems.getDefault().getPath(filePath);
+        try {
+            if (!Files.deleteIfExists(path)) {
+                System.err.println("Could not delete " + path + " because it did not exist.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

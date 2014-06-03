@@ -15,20 +15,20 @@ import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import play.Logger;
-import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
-import play.mvc.Http.MultipartFormData;
-import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
 import util.SitnetUtil;
 
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+
 
 
 public class QuestionController extends SitnetController {
@@ -301,49 +301,7 @@ public class QuestionController extends SitnetController {
         return ok(Json.toJson(option));
     }
 
-    public static Result addAttachment() throws MalformedDataException {
-
-
-        MultipartFormData body = request().body().asMultipartFormData();
-
-        FilePart filePart = body.getFile("attachment");
-
-        Map<String,String[]> m = body.asFormUrlEncoded();
-
-        String[] d = m.get("questionId");
-        String idstr = d[0];
-        Long id = Long.parseLong(idstr);
-
-        if (filePart != null) {
-            String fileName = filePart.getFilename();
-            String contentType = filePart.getContentType();
-            File file = filePart.getFile();
-
-            String uploadPath = Play.application().configuration().getString("sitnet.attachments.path");
-            String playPath = Play.application().path().getAbsolutePath();
-
-
-
-            // TODO Use smarter config
-            String newFile = playPath + "/" + uploadPath + "/" + fileName;
-
-            // TODO What to do if already exists??
-            if (file.renameTo(new File(newFile))) {
-                Attachment attachment = new Attachment();
-                attachment.setFilePath(newFile);
-                attachment.setMimeType(contentType);
-
-                AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
-                if (question != null) {
-                    attachment.save();
-                    question.setAttachment(attachment);
-                    Ebean.save(question);
-                    return ok(Json.toJson(question));
-                }
-            }
-        }
-        return ok("Ei ok");
-    }
+  
 
     public static enum EssayEvaluationType {
         POINTS, SELECT;

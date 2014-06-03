@@ -114,7 +114,13 @@
                               placeholder="{{'sitnet_correct_answer_should_have' | translate}}">
                     </textarea>
                 </div>
-
+                <div class="sitnet-info-text">
+                    {{'sitnet_question_attachment' | translate}}
+                </div>
+                <div ng-show="newQuestion.attachment !== null">
+                    {{newQuestion.attachment.fileName}} <a href="/attachment/question/delete/{{newQuestion.id}}"> {{'sitnet_remove_attachment' | translate }} </a>
+                                                        <a href="/attachment/question/download/{{newQuestion.id}}"> {{'sitnet_download_attachment' | translate }} </a>
+                </div>
                 <br>
                 <button ng-click="selectFile()"class=form-control">{{'sitnet_attach_file' | translate}}</button>
 

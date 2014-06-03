@@ -279,6 +279,10 @@
                 };
 
                 $scope.selectFile = function () {
+
+                    // Save question before entering attachment to not lose data.
+                    $scope.saveQuestion()
+
                     var modalInstance = $modal.open({
                         templateUrl: 'assets/templates/question-editor/dialog_attachment_selection.html',
                         backdrop: 'static',

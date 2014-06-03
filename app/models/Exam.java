@@ -122,6 +122,9 @@ public class Exam extends SitnetModel {
     // In UI, section has been expanded
     private Boolean expanded;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    protected Attachment attachment;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -442,6 +445,14 @@ public class Exam extends SitnetModel {
 
     public void setExamActiveEndDate(Timestamp examActiveEndDate) {
         this.examActiveEndDate = examActiveEndDate;
+    }
+
+    public void setAttachment(Attachment attachment) {
+        this.attachment = attachment;
+    }
+
+    public Attachment getAttachment() {
+        return this.attachment;
     }
 
 	@Override

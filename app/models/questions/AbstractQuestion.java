@@ -151,7 +151,7 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.evaluationCriterias = evaluationCriterias;
     }
 
-    public Attachment getMaterials() {
+    public Attachment getAttachment() {
         return attachment;
     }
 

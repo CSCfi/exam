@@ -18,15 +18,18 @@
                        class="sitnet-white fa fa-chevron-left fa-stack-1x section-header-icon-chevron">
                     </i>
                 </span>
-
                 <span class="pull-right sitnet-white">
                     <i class="question-status">{{question.questionStatus}}</i>
                 </span>
-        </div>
+            </div>
         </h4>
 
         <div class="exam-question-container" ng-show="question.expanded">
             <div class="question" ng-include="question.template"></div>
+            <div ng-show="question.attachment !== null">
+                <a href="/attachment/question/download/{{question.id}}"> {{'sitnet_download_attachment' | translate }} </a>
+            </div>
+
         </div>
     </div>
 </form>

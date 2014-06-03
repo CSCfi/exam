@@ -136,6 +136,13 @@ users:
 
 ######################################################################
 
+attachments:
+
+  - &att1 !!models.Attachment
+    fileName: pika.ohje
+    filePath: /weepee/csc/sitnet/data/attachments/question/20/pika.ohje
+    mimeType: shit/turd
+
 question_essay:
 
 # Essay questions
@@ -194,7 +201,7 @@ question_mutiple_choice:
     creator: *maika
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-   #materials:
+    attachment: *att1
     maxScore: 5
     evaluationPhrases:
     evaluationCriterias:
@@ -863,4 +870,3 @@ exam-rooms:
       - *exam-machine2
       - *exam-machine3
     outOfService: false
-

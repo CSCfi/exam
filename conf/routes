@@ -22,12 +22,9 @@ DELETE        /users/:id                                            controllers.
 ############### Exam interface ###############
 
 GET           /exams                                                controllers.ExamController.getExams()
-GET           /activeexams                                          controllers.ExamController.getActiveExams()
-GET           /finishedexams                                        controllers.ExamController.getFinishedExams()
 GET           /exams/:id                                            controllers.ExamController.getExam(id: Long)
 DELETE        /exams/:id                                            controllers.ExamController.deleteExam(id: Long)
 PUT           /review/:id                                           controllers.ExamController.reviewExam(id: Long)
-GET           /reviews/:eid                                         controllers.ExamController.getExamReviews(eid: Long)
 POST          /review/:eid/comment/:cid                             controllers.ExamController.insertComment(eid: Long, cid: Long)
 PUT           /review/:eid/comment/:cid                             controllers.ExamController.updateComment(eid: Long, cid: Long)
 GET           /exams/state/:state                                   controllers.ExamController.getExamsByState(state: String)
@@ -48,12 +45,10 @@ GET           /draft                                                controllers.
 
 GET           /enrolments                                           controllers.ExamController.getEnrolments()
 GET           /enrolments/:uid                                      controllers.ExamController.getEnrolmentsForUser(uid: Long)
-GET           /examenrolments/:eid                                  controllers.ExamController.getEnrolmentsForExam(eid: Long)
-GET           /examparticipations/:eid                              controllers.ExamController.getParticipationsForExam(eid: Long)
 GET           /inspections                                          controllers.ExamController.getInspections()
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
-GET           /student/finishedexams/:uid                           controllers.StudentExamController.getFinishedExams(uid: Long)
+#GET           /student/finishedexams                                controllers.StudentExamController.getFinishedExams()
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
 PUT           /student/exam/abort/:id                               controllers.StudentExamController.abortExam(id: Long)
 GET           /student/doexam/:hash                                 controllers.StudentExamController.startExam(hash: String)
@@ -82,7 +77,6 @@ PUT           /questions/:id                                        controllers.
 PUT           /questions/option/:oid                                controllers.QuestionController.updateOption(oid: Long)
 POST          /questions                                            controllers.QuestionController.addQuestion()
 POST          /question/:id                                         controllers.QuestionController.copyQuestion(id: Long)
-POST          /attachment                                           controllers.QuestionController.addAttachment()
 POST          /questions/:qid/option                                controllers.QuestionController.addOption(qid: Long)
 DELETE        /questions/:id                                        controllers.QuestionController.deleteQuestion(id: Long)
 DELETE        /questions/option/:oid                                controllers.QuestionController.deleteOption(oid: Long)
@@ -119,6 +113,12 @@ DELETE        /softwares/:id                                        controllers.
 POST          /softwares/add/:name                                  controllers.ExamMachineController.addSoftware(name: String)
 PUT           /softwares/update/:id/:name                           controllers.ExamMachineController.updateSoftware(id: Long, name: String)
 
+############## Attachment ############################
+POST          /attachment/question                                  controllers.AttachmentController.addAttachmentToQuestion()
+GET           /attachment/question/delete/:id                       controllers.AttachmentController.deleteQuestionAttachment(id: Long)
+GET           /attachment/question/download/:id                     controllers.AttachmentController.downloadQuestionAttachment(id: Long)
+
+
 #### integration ####
 
 
@@ -128,10 +128,6 @@ GET           /integration/record/:vatIdNumber/:startDate           controllers.
 
 ############### SQLinterface ###############
 
-
-
-################# Calendar interface ##################
-GET           /calendar/:inputDate                                       controllers.CalendarController.getSlots(inputDate: String)
 
 
 ############### test test test test test###############
