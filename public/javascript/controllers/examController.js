@@ -91,7 +91,7 @@
                     "instruction": null,
                     "shared": false,
                     "examSections": [],
-                    "state": "DRAFT"
+                    "state": "SAVED"
                 };
 
                 if ($routeParams.id === undefined)

@@ -39,13 +39,13 @@
                         function (value) {
 
                             if (value.length > 0) {
-                                toastr.success("SULLA ON TENTTI KESKEN!");
+                                toastr.success("Päätä avoin tentti ennen uloskirjautumista");
                             } else {
                                 $scope.dologout();
                             };
                         },
                         function (error) {
-                            toastr.success(error, "SULLA ON TENTTI HUKASSA!");
+                            toastr.success(error, "Jotain odottamatonta tapahtui!");
                         });
                 };
 

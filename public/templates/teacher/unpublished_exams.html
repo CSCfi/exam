@@ -1,0 +1,82 @@
+<div class="col-md-12 nospace exams-table-title-area">
+    <span class="exams-list-title-text pull-left">{{ 'sitnet_not_published_exams' | translate }}</span>
+</div>
+
+<div class="exams-list col-md-12">
+    <div class="exams-table-borders col-md-12">
+        <table class="table table-bordered exams-table">
+            <thead>
+                <tr>
+                    <th class="table-column-flag"><i class="fa fa-flag"></i></th>
+                    <th class="table-column-exclamation"><i class="fa fa-exclamation-triangle"></i></th>
+                    <th class="table-column-examcode">{{ 'sitnet_examcode' | translate }}</th>
+                    <th class="table-column-examname">{{ 'sitnet_exam_name' | translate }}</th>
+                    <th class="table-column-open-until">Tentin aktiivinen aika</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr ng-repeat="unPublishedExam in unPublishedExams">
+                    <td><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
+                    <td><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                    <td>{{unPublishedExam.course.code}}</td>
+                    <td><a href="#/exams/review/{{unPublishedExam.id}}">{{unPublishedExam.name}}</a></td>
+                    <td>{{unPublishedExam.examActiveStartDate | date:'dd-MM-yyyy'}} - {{unPublishedExam.examActiveEndDate | date:'dd-MM-yyyy'}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<!-- Unpublished exams list -->
+<!--<div class="row">-->
+    <!--<div class="col-md-12">-->
+        <!--<h2 class="sitnet-black exams-list-active-title">{{'sitnet_not_published_exams' | translate}}</h2>-->
+    <!--</div>-->
+
+    <!-- Active exams indications bar -->
+    <!-- New participants indication -->
+    <!--<div class="col-md-3 toolbar-item">-->
+                <!--<span class="fa-stack fa-lg">-->
+                    <!--<i class="sitnet-light-grey fa fa-square fa-stack-2x"></i>-->
+                    <!--<i class="sitnet-dark-grey fa fa-stack-1x">0</i>-->
+                <!--</span>-->
+        <!--<label class="toolbar-label">-->
+            <!--<i style="color: black">Julkaisematonta tenttiä</i>-->
+        <!--</label>-->
+    <!--</div>-->
+<!--</div>-->
+<!-- Unpublished exams content row -->
+<!--<div class="row">-->
+    <!--href="#/exams/review/{{exam.id}}"-->
+    <!--<div class="row exam-list-row" ng-repeat="unPublishedExam in unPublishedExams">-->
+        <!--<div class="exams-list-active-content">-->
+            <!--<div class="exams-list">-->
+                <!--<div class="col-md-1 table-border-first-item" style="line-height: 3.2em">-->
+                    <!--<div class="fa-stack fa-lg">-->
+                        <!--<i class="sitnet-dark-blue fa fa-flag fa-stack-1x"></i>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="col-md-1 table-border-first-item" style="line-height: 3.2em">-->
+                    <!--<div class="fa-stack fa-lg">-->
+                        <!--<i class="sitnet-red fa fa-flash fa-stack-1x"></i>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+                <!--<div class="col-md-2 table-border-first-item">-->
+                    <!--<h4 class="list-group-item-heading">-->
+                        <!--<label style="padding-top: 0.85em">{{unPublishedExam.course.code}}</label>-->
+                    <!--</h4>-->
+                <!--</div>-->
+
+                <!--<div class="col-md-4 table-border-first-item">-->
+                    <!--<h4 class="list-group-item-heading">-->
+                        <!--<label style="padding-top: 0.85em"><a href="#/exams/review/{{unPublishedExam.id}}">{{unPublishedExam.name}}</a></label>-->
+                    <!--</h4>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+<!--</div>-->

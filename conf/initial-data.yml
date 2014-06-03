@@ -588,6 +588,8 @@ exams:
     examType:
     instruction: Vastaa kaikkiin tenttikysymyksiin
     shared: true
+    examActiveStartDate: 2014-03-01 08:00:00.123
+    examActiveEndDate: 2014-05-01 16:00:00.123
     grading: Improbatur-Laudatur
     examSections:
     state: PUBLISHED
@@ -602,7 +604,8 @@ exams:
     shared: true
     grading: Hyväksytty/Hylätty
     examSections:
-    state: DRAFT
+    state: SAVED
+    duration: 90
 
   - &ooad !!models.Exam
     creator: *maika
@@ -612,9 +615,12 @@ exams:
     examType:
     instruction: Tentissä saa käyttää vain tilakoneita.
     shared: true
+    examActiveStartDate: 2014-05-01 08:00:00.123
+    examActiveEndDate: 2014-07-01 16:00:00.123
     grading: 0-5
     examSections:
     state: REVIEW
+    duration: 90
     
     
 exam-sections:
@@ -697,7 +703,7 @@ exam-enrolments:
   - !!models.ExamEnrolment
     user: *sauli
     exam: *ooad
-    enrolledOn: 2014-04-03 20:32:04.575
+    enrolledOn: 2014-05-03 20:32:04.575
 
   - !!models.ExamEnrolment
     user: *sauli
@@ -714,6 +720,18 @@ exam-enrolments:
     exam: *astronomianPerusteet
     enrolledOn: 2014-04-03 20:32:04.575
 
+  - !!models.ExamEnrolment
+    user: *orville
+    exam: *ooad
+    enrolledOn: 2014-05-03 20:32:04.575
+
+exam-participations:
+
+  - !!models.ExamParticipation
+    user: *sauli
+    exam: *ooad
+    started: 2014-05-23 08:00:00.575
+    ended: 2014-05-23 10:00:00.575
 
 exam-inspections:
    

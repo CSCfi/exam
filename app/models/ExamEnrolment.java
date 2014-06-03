@@ -17,8 +17,6 @@ public class ExamEnrolment extends Model {
 	@JsonBackReference
 	private User user;
 
-	// Kun opiskelija aloittaa tentin tämä viite setataan kopioon
-    // ja lisätään Userille ExamParticipation
 	@OneToOne
 	private Exam exam;
 

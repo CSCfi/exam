@@ -53,7 +53,7 @@ public class ExamMachine extends Model {
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "machine")
     @JsonManagedReference
-    private Reservation reservation;
+    private List<Reservation> reservation;
 
     // In UI, section has been expanded
     private Boolean expanded;
@@ -95,7 +95,7 @@ public class ExamMachine extends Model {
         this.room = room;
     }
 
-    public Reservation getReservation() {
+    public List<Reservation> getReservation() {
         return reservation;
     }
 
@@ -147,7 +147,7 @@ public class ExamMachine extends Model {
         this.ipAddress = ipAddress;
     }
 
-    public void setReservation(Reservation reservation) {
+    public void setReservation(List<Reservation> reservation) {
         this.reservation = reservation;
     }
 

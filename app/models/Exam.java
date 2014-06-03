@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
+import play.data.validation.Constraints;
 import util.SitnetUtil;
 
 import javax.persistence.*;
@@ -22,6 +23,18 @@ import java.util.Random;
  */
 @Entity
 public class Exam extends SitnetModel {
+
+    public enum State {
+        SAVED,
+        PUBLISHED,
+        REVIEW,          // OPISKELIJHA ON PALAUTTANUT TENTIN
+        REVIEW_STARTED,  // OPETTAJA ON ALOITTANUT ARVIOINNIN
+        GRADED,
+        GRADED_LOGGED,   // OPINTOSUORITUS KIRJATTU JOHONKIN JÄRJESTELMÄÄN
+        STUDENT_STARTED,
+        ABORTED,
+        ARCHIVED
+    }
 
     private String name;
 
@@ -67,6 +80,7 @@ public class Exam extends SitnetModel {
     private String room;
 
     // tentin kesto
+    @Constraints.Required
     private Double duration;
 
     // Exam grading, e.g. 0-5

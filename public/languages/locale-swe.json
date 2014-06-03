@@ -204,5 +204,53 @@
 "sitnet_add_new_machine": "Add new machine",
 "sitnet_add_new_software": "Add new software",
 "sitnet_exam_machine": "Exam machine",
-"sitnet_exam": "Exam"
+"sitnet_exam": "Exam",
+"sitnet_default_option_description": "Vastausvaihtoehto",
+
+"sitnet_examcode_and_name" : "Tentin koodi ja nimi",
+"sitnet_examcode" : "Koodi",
+"sitnet_exam_room" : "Tenttimispaikka",
+"sitnet_exam_time" : "Tenttimisaika",
+"sitnet_exam_open_until" : "Tentittävissä, saakka",
+"sitnet_exam_active_time_ended" : "Tentin aktiivinen aika päättyi",
+"sitnet_new_reservation" : "Tee uusi huonevaraus",
+
+"sitnet_toolbar_calendar" : "Varauskalenteri",
+"sitnet_toolbar_inspections" : "Arvioinnit",
+"sitnet_toolbar_feedback" : "Palautteet",
+"sitnet_toolbar_new_question" : "Luo uusi kysymys",
+"sitnet_toolbar_new_exam" : "Luo uusi tentti",
+"sitnet_toolbar_multiplechoice_question" : "Monivalintakysymys",
+"sitnet_toolbar_essay_question" : "Esseekysymys",
+"sitnet_toolbar_new_question_folder" : "Luo uusi kysymyskansio",
+
+"sitnet_active_exams" : "Aktiiviset tentit",
+"sitnet_finished_exams" : "Päättyneet tentit",
+"sitnet_not_published_exams" : "Julkaisemattomat tentit",
+
+"sitnet_indication_new_participants" : "Uutta tenttiin ilmoittautunutta",
+"sitnet_indication_new_answers" : "Uutta tenttivastausta",
+"sitnet_indication_new_feedback" : "Uutta tenttipalautetta",
+
+"sitnet_participation_enrolled" : "Vastanneet/Ilmoittautuneet",
+
+"sitnet_exam_grade" : "Tentin Arvosana",
+"sitnet_exam_feedback" : "Kirjoita tenttiin liittyvä palaute tähän",
+"sitnet_exam_save_feedback" : "Tallenna kommentti",
+"sitnet_exam_save_review" : "Tallenna tentin arviointi",
+"sitnet_exam_other_evaluation_criteria" : "Muu arviointikriteeri",
+"sitnet_exam_answer" : "Vastaus",
+"sitnet_exam_score" : "pisteet",
+"sitnet_exam_in_review" : "Tarkastaminen kesken",
+"sitnet_exam_reviewed" : "Tarkastettu ja arvioitu",
+"sitnet_default_option_description": "Option",
+
+"sitnet_remove_attachment" : "Remove attachment",
+"sitnet_download_attachment" : "Download attachment",
+"sitnet_attach_file" : "Choose file",
+"sitnet_question_attachment" : "Question attachment",
+"sitnet_exam_attacment" : "Exam attachment",
+"sitnet_attachment_selection" : "Attachment selection",
+"sitnet_select_attachment" : "Choose attachment"
+
 }

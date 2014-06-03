@@ -1,0 +1,32 @@
+<div id="dashboard" class="container-fluid">
+
+    <div class="col-md-12 nospace exams-table-title-area">
+        <span class="exams-list-title-text pull-left">{{'sitnet_exams_to_be_reviewed' | translate}} </span>
+    </div>
+
+    <div class="exams-list col-md-12">
+        <div class="exams-table-borders col-md-12">
+            <table class="table table-bordered exams-table">
+                <thead>
+                    <tr>
+                        <th><i class="fa fa-flag"></i></th>
+                        <th><i class="fa fa-exclamation-triangle"></i></th>
+                        <th>{{ 'sitnet_examcode' | translate }}</th>
+                        <th>{{ 'sitnet_exam_name' | translate }}</th>
+                        <th>Tentin aktiivinen aika</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr ng-repeat="examReview in examReviews">
+                        <td><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
+                        <td><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                        <td>{{examReview.course.code}}</td>
+                        <td><a href="#/exams/review/{{examReview.id}}">{{examReview.name}}</a></td>
+                        <td>{{examReview.examActiveStartDate | date:'dd-MM-yyyy'}} - {{examReview.examActiveEndDate | date:'dd-MM-yyyy'}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

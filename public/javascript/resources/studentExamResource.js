@@ -13,11 +13,12 @@
                         params: { id: "@id" }}
                 }),
 
-                finishedExams: $resource("/student/finishedexams/:id",
+                finishedExams: $resource("/student/finishedexams/:uid",
                 {
-                    id: "@id"
+                    uid: "@uid"
                 },
                 {
+                    "get": {method: "GET", params: { uid: "@uid" }}
                 }),
 
                 exam: $resource("/student/exam/abort/:id",

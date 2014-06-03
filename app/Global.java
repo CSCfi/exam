@@ -87,6 +87,7 @@ public class Global extends GlobalSettings {
                 Ebean.save(all.get("exams"));
                 Ebean.save(all.get("exam-sections"));
                 Ebean.save(all.get("exam-enrolments"));
+                Ebean.save(all.get("exam-participations"));
                 Ebean.save(all.get("exam-inspections"));
                 Ebean.save(all.get("mail-addresses"));
                 Ebean.save(all.get("calendar-events"));

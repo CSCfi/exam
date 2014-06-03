@@ -60,7 +60,7 @@
             <span class="sitnet-info-text">Vedokset ovat tenttejä joita et ole muistanut tallentaa.</span>
 
             <div class="exam-list-draft">
-                <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'DRAFT'}">
+                <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'SAVED'}">
                     <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
                         <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
                     </a>

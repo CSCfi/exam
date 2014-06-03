@@ -1,60 +1,23 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('QuestionCtrl', ['$scope', '$modal', '$routeParams', '$location', '$translate', 'QuestionRes', 'ExamRes', 'sessionService', 'SITNET_CONF',
-            function ($scope, $modal, $routeParams, $location, $translate, QuestionRes, ExamRes, sessionService, SITNET_CONF) {
+        .controller('ReviewListingController', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'sessionService', 'SITNET_CONF', 'ExamRes',
+            function ($scope, $routeParams, $location, $translate, QuestionRes, sessionService, SITNET_CONF, ExamRes) {
 
-                $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
-                $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
-                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
-                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
+//                $scope.questionListingMultipleChoice = SITNET_CONF.TEMPLATES_PATH + "question-listing/multiplechoice_questions.html";
+//                $scope.questionListingEssay = SITNET_CONF.TEMPLATES_PATH + "question-listing/essay_questions.html";
+//                $scope.questionTemplate = null;
 
-                $scope.questionListingMultipleChoice = SITNET_CONF.TEMPLATES_PATH + "question-listing/multiplechoice_questions.html";
-                $scope.questionListingEssay = SITNET_CONF.TEMPLATES_PATH + "question-listing/essay_questions.html";
+                $scope.user = $scope.session.user;
 
-                $scope.questionTemplate = null;
-                $scope.returnURL = null;
-
-                $scope.questionTypes = {
-                    MultipleChoiceQuestion: 'Monivalinta yksi oikein',
-                    EssayQuestion: 'Essee'
-                };
-                $scope.selectedType = false;
-
-                $scope.answerState = "";
-
-//                $scope.user = $scope.session.user;
-
-//                console.log($scope.user.id);
-
-                $scope.setQuestionType = function () {
-                    switch ($scope.selectedType) {
-                        case 'EssayQuestion':
-                            $scope.questionTemplate = $scope.essayQuestionTemplate;
-                            $scope.newQuestion.type = "EssayQuestion";
-                            $scope.newQuestion.evaluationType = "Points";
-                            // Sanan keskimääräinen pituus = 7.5 merkkiä
-                            // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
-                            $scope.newQuestion.maxCharacters = 500;
-                            $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
-                            break;
-
-                        case 'MultipleChoiceQuestion':
-                            $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
-                            $scope.newQuestion.type = "MultipleChoiceQuestion";
-                            break;
-                    }
-                }
+                console.log($scope.user.id);
 
                 if ($routeParams.id === undefined)
-                    $scope.questions = QuestionRes.questions.query();
+                    $scope.examReviews = ExamRes.examsByState.query({state: 'REVIEW'});
                 else {
-                    QuestionRes.questions.get({id: $routeParams.id},
-                        function (value) {
-                            $scope.newQuestion = value;
-
-                            $scope.selectedType = $scope.newQuestion.type;
-                            $scope.setQuestionType();
+                    ExamRes.examReviews.query({eid: $routeParams.id},
+                        function (examReviews) {
+                            $scope.examReviews = examReviews;
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -70,30 +33,14 @@
 //                        question: $translate("sitnet_question_write_name")
                     }
 
-                    if ($routeParams.examId === undefined) {
-                        QuestionRes.questions.create(newQuestion,
-                            function (response) {
-                                toastr.info("Kysymys lisätty");
-                                $location.path("/questions/" + response.id);
-                            }, function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
-                    }
-                    else {
-                        QuestionRes.questions.create(newQuestion,
-                            function (response) {
-                                toastr.info("Kysymys lisätty");
-                                $location.path("/exams/" + $routeParams.examId);
-                            }, function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
-                    }
-                }
-
-                $scope.createQuestionLibrary = function () {
-                    toastr.info("Toimintoa ei ole vielä toteutettu");
+                    QuestionRes.questions.create(newQuestion,
+                        function (response) {
+                            toastr.info("Kysymys lisätty");
+                            $location.path("/questions/" + response.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 }
 
                 $scope.copyQuestion = function (question) {
@@ -149,28 +96,12 @@
                     }
 
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
-                        function (response) {
+                        function (responce) {
                             toastr.info("Kysymys tallennettu");
                         }, function (error) {
                             toastr.error(error.data);
                         }
-
                     );
-
-                    //Set return URL pointing back to questions main page if we created question there
-                    if($routeParams.examId === undefined) {
-                       $scope.returnURL = "/questions/";
-                    }
-                    //Set return URL to exam, if we created the new question there
-                    //Also bind the question to section of the exam at this point
-                    else {
-                        $scope.returnURL = "/exams/" + $routeParams.examId
-                        ExamRes.questions.insert({eid: $routeParams.examId, sid: $routeParams.sectionId, qid: $scope.newQuestion.id}, function (section) {
-                            toastr.info("Kysymys lisätty osioon.");
-                        }, function (error) {
-                            toastr.error(error.data);
-                        })
-                    }
                 };
 
                 $scope.deleteQuestion = function (question) {
@@ -185,10 +116,8 @@
 
                 $scope.addNewOption = function (newQuestion) {
 
-                    var option_description =  $translate('sitnet_default_option_description');
-
                     var option = {
-                        "option": option_description,
+//                        "option": "Esimerkki vaihtoehto",
                         "correctOption": false,
                         "score": 1
                     };
@@ -275,40 +204,6 @@
                     })
 
                     // Save changes to database
-
-                };
-
-                $scope.selectFile = function () {
-                    var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/question-editor/dialog_attachment_selection.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: "ModalInstanceCtrl"
-                    });
-
-                    modalInstance.result.then(function () {
-                        // OK button
-                        $location.path('/questions/'+ $scope.newQuestion.id);
-                    }, function () {
-                        // Cancel button
-                    });
-                };
-
-                $scope.submit = function() {
-
-                    $http({
-
-                        url: "attachmet",
-                        data: $scope.form,
-                        method: 'POST',
-                        headers : {'Content-Type':'multipart/form-data'}
-
-                    }).success(function(data){
-
-                        console.log("OK", data)
-
-                    }).error(function(err){"ERR", console.log(err)});
-
 
                 }
 

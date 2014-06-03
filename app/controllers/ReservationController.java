@@ -64,7 +64,7 @@ public class ReservationController extends SitnetController {
 
         ExamRoom examRoom = new ExamRoom();
         examRoom.setName("Kirjoita tenttitilan nimi tähän");
-        examRoom.setState("DRAFT");
+        examRoom.setState("SAVED");
         examRoom.save();
 
         MailAddress mailAddress = new MailAddress();

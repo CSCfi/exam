@@ -3,6 +3,8 @@ package controllers;
 import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
+import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
@@ -67,22 +69,53 @@ public class StudentExamController extends SitnetController {
         return ok(Json.toJson(exams));
     }
 
-    public static Result getFinishedExams() {
+    public static Result getFinishedExams(Long uid) {
         Logger.debug("getFinishedExams()");
 
-        String oql = "find exam " +
-                "fetch examSections " +
-                "fetch course " +
-                "where (state=:review or state=:in_review_started or state=:graded) ";
+        List<Exam> finishedExams = Ebean.find(Exam.class)
+//                .fetch("creator")
+                .fetch("course")
+                .where()
+                .eq("creator.id", uid)
+                .eq("state", "REVIEW")
+                .findList();
 
-        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
-        query.setParameter("review", "REVIEW");
-        query.setParameter("in_review_started", "IN_REVIEW_STARTED");
-        query.setParameter("graded", "GRADED");
+        if (finishedExams == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, creator, name, course, state");
+            options.setPathProperties("creator", "id");
+            options.setPathProperties("course", "code");
 
-        List<Exam> exams = query.findList();
+            return ok(jsonContext.toJsonString(finishedExams, true, options)).as("application/json");
+        }
 
-        return ok(Json.toJson(exams));
+
+
+//        List<Exam> finishedExams = Ebean.find(Exam.class)
+//                .fetch("exam")
+//                .where()
+//                .eq("creator.id", uid)
+//                .eq("state", "REVIEW")
+//                .eq("state", "IN_REVIEW_STARTED")
+//                .eq("state", "GRADED")
+//                .findList();
+
+//        String oql = "find exam " +
+//                "fetch examSections " +
+//                "fetch course " +
+//                "where (state=:review or state=:in_review_started or state=:graded) ";
+//
+//        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
+//        query.setParameter("review", "REVIEW");
+//        query.setParameter("in_review_started", "IN_REVIEW_STARTED");
+//        query.setParameter("graded", "GRADED");
+//
+//        List<Exam> exams = query.findList();
+
+//        return ok(Json.toJson(finishedExams));
     }
 
     public static Result startExam(String hash) throws UnauthorizedAccessException {
@@ -114,14 +147,14 @@ public class StudentExamController extends SitnetController {
 
             User user = UserController.getLoggedUser();
 
-            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                    .where()
-                    .eq("user.id", user.getId())
-                    .eq("exam.id", blueprint.getId())
-                    .findUnique();
-
-            enrolment.setExam(studentExam);
-            enrolment.save();
+//            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+//                    .where()
+//                    .eq("user.id", user.getId())
+//                    .eq("exam.id", blueprint.getId())
+//                    .findUnique();
+//
+//            enrolment.setExam(studentExam);
+//            enrolment.save();
 
             // 1. might want try Serialization clone approach
             // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
