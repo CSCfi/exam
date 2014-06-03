@@ -223,6 +223,7 @@
 "sitnet_exam_time" : "Tenttimisaika",
 "sitnet_exam_open_until" : "Tentittävissä, saakka",
 "sitnet_exam_active_time_ended" : "Tentin aktiivinen aika päättyi",
+"sitnet_exam_active_time" : "Tentin aktiivinen aika",
 "sitnet_new_reservation" : "Tee uusi huonevaraus",
 
 "sitnet_toolbar_calendar" : "Varauskalenteri",

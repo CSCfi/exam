@@ -139,13 +139,16 @@ public class StudentExamController extends SitnetController {
         }
 
         if (possibleClone == null) {
+            User user = UserController.getLoggedUser();
+
             Exam studentExam = (Exam)blueprint.clone();
             studentExam.setState("STUDENT_STARTED");
+//            studentExam.setCreator(user);
             studentExam.setParent(blueprint);
             studentExam.generateHash();
             studentExam.save();
 
-            User user = UserController.getLoggedUser();
+
 
 //            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
 //                    .where()

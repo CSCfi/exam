@@ -186,6 +186,14 @@
 "sitnet_evaluation_points": "Points",
 "sitnet_evaluation_select": "Approved / Rejected",
 
+"sitnet_exam_choose_credit_type": "Choose exam type",
+"sitnet_exam_credit_type_partial": "Partial",
+"sitnet_exam_credit_type_final": "Final",
+"sitnet_exam_credit_type_maturity": "Maturity",
+
+"sitnet_question_copy": "Use as template",
+"sitnet_questions_owners_list": "My Questions",
+
 "sitnet_message": "Message",
 "sitnet_name": "Name",
 "sitnet_add": "Add",

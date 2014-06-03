@@ -166,14 +166,39 @@ public class ExamController extends SitnetController {
     public static Result getExam(Long id) {
         Logger.debug("getExam(:id)");
 
-        Query<Exam> query = Ebean.createQuery(Exam.class);
-        query.fetch("course");
-        query.fetch("examSections");
-        query.setId(id);
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("examSections")
+                .where()
+                .eq("id", id)
+                .findUnique();
 
-        Exam exam = query.findUnique();
+        if (exam == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, name, course, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
+                    "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded");
+            options.setPathProperties("course", "id, name, code");
+            options.setPathProperties("examSections", "name, questions, exam, totalScore, expanded");
+            options.setPathProperties("examFeedback", "id, comment");
+            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, parent, answer, evaluationCriterias, attachment, evaluationPhrases, comments");
+//            options.setPathProperties("reservation.machine", "name");
+//            options.setPathProperties("reservation.machine", "name");
+            options.setPathProperties("examSections.questions.comments", "id, comment");
 
-        return ok(Json.toJson(exam));
+            return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+        }
+
+//        Query<Exam> query = Ebean.createQuery(Exam.class);
+//        query.fetch("course");
+//        query.fetch("examSections");
+//        query.setId(id);
+//
+//        Exam exam = query.findUnique();
+//
+//        return ok(Json.toJson(exam));
     }
 
     public static Result reviewExam(Long id) {
@@ -213,11 +238,31 @@ public class ExamController extends SitnetController {
                 .fetch("course")
                 .where()
                 .eq("parent.id", eid)
-//                .ne("state", "SAVED")
-//                .betweenProperties("examActiveStartDate", "examActiveEndDate", timestamp)
                 .findList();
 
-        return ok(Json.toJson(examReviews));
+        if (examReviews == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate");
+            options.setPathProperties("course", "code");
+
+            return ok(jsonContext.toJsonString(examReviews, true, options)).as("application/json");
+        }
+
+
+
+        // Todo: Oletetaan että tentin luoja on automaattisesti tentin tarkastaja
+//        List<Exam> examReviews = Ebean.find(Exam.class)
+//                .fetch("course")
+//                .where()
+//                .eq("parent.id", eid)
+//                .ne("state", "SAVED")
+//                .betweenProperties("examActiveStartDate", "examActiveEndDate", timestamp)
+//                .findList();
+
+//        return ok(Json.toJson(examReviews));
     }
 
     public static Result insertComment(Long eid, Long cid) throws MalformedDataException {
