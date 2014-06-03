@@ -266,5 +266,6 @@
 "sitnet_select_attachment" : "Valitse liite",
 
 "sitnet_preview" : "Esikatsele tentti",
-"sitnet_exit_preview" : "Poistu esikatselusta"
+"sitnet_exit_preview" : "Poistu esikatselusta",
+"sitnet_exam": "Tentti"
 }

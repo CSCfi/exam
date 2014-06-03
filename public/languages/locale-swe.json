@@ -254,5 +254,6 @@
 "sitnet_select_attachment" : "Choose attachment",
 
 "sitnet_preview" : "Preview exam",
-"sitnet_exit_preview" : "Exit preview"
+"sitnet_exit_preview" : "Exit preview",
+"sitnet_exam": "Exam"
 }
