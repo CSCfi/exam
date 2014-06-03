@@ -148,12 +148,12 @@
 "sitnet_published_exams": "Julkaistut tentit",
 "sitnet_published": "Julkaistu",
 "sitnet_published_exams_info_main": "Nämä tentit ovat julkaistu, opiskelijat voivat ilmoittautua ja osallistua näihin tentteihin.",
-"sitnet_published_exams_info_other": "Näitä tenttejä EI PYSTY muokkaamaan tai poistaan.",
+"sitnet_published_exams_info_other": "Näitä tenttejä EI PYSTY muokkaamaan tai poistamaan.",
 
 "sitnet_saved_exams": "Tallennetut tentit",
 "sitnet_saved": "Talletettu",
 "sitnet_saved_exams_info_main": "Näitä tenttejä ei ole vielä julkaistu, eivätkä opiskelijat voi ilmoittautua näihin tentteihin.",
-"sitnet_saved_exams_info_other": "Näitä tenttejä PYSTYY muokkaamaan tai poistaan.",
+"sitnet_saved_exams_info_other": "Näitä tenttejä PYSTYY muokkaamaan tai poistamaan.",
 
 "sitnet_draft_exams": "Vedokset",
 "sitnet_draft": "Vedos",
@@ -233,5 +233,6 @@
 
     "sitnet_active_exams" : "Aktiiviset tentit",
     "sitnet_finished_exams" : "Päättyneet tentit",
-    "sitnet_not_published_exams" : "Julkaisemattomat tentit"
+    "sitnet_not_published_exams" : "Julkaisemattomat tentit",
+    "sitnet_exam": "Tentti"
 }
