@@ -25,7 +25,6 @@ GET           /exams                                                controllers.
 GET           /activeexams                                          controllers.ExamController.getActiveExams()
 GET           /finishedexams                                        controllers.ExamController.getFinishedExams()
 GET           /exams/:id                                            controllers.ExamController.getExam(id: Long)
-GET           /exams/preview/:id                                    controllers.ExamController.getExam(id: Long)
 DELETE        /exams/:id                                            controllers.ExamController.deleteExam(id: Long)
 PUT           /review/:id                                           controllers.ExamController.reviewExam(id: Long)
 GET           /reviews/:eid                                         controllers.ExamController.getExamReviews(eid: Long)
