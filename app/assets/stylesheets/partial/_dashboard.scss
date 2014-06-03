@@ -105,6 +105,7 @@
 
   .exams-table-borders {
     border-left: $sitnet-common-light solid 0.15em;
+    border-top: $sitnet-common-light solid 0.15em;
     box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
   }
 
@@ -135,5 +136,10 @@
 
   .indicator-item {
     margin-left: 4em;
+  }
+
+  .exam-header {
+    border-bottom: $sitnet-common-light solid 0.15em;
+    height:4em;
   }
 }

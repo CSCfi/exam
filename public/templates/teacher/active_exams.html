@@ -36,7 +36,26 @@
     <!--</label>-->
 <!--</div>-->
 
+<!-- Todo: It was unclear what actions would be under the wrench in exam listing?
+<!--<div class="col-md-3 col-md-offset-6">-->
+    <!--<a class="header-icon pull-right fa-stack fa-lg">-->
+        <!--<i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>-->
+        <!--<i class="fa fa-wrench fa-stack-1x"></i>-->
+    <!--</a>-->
+<!--</div>-->
+
+<div class="col-md-3 col-md-offset-9">
+    <!-- href="#/rooms/{{room.id}}" -->
+    <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon pull-right fa-stack fa-lg">
+        <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+        <i ng-show="toggleActiveExams" class="fa fa-chevron-left fa-stack-1x"></i>
+        <i ng-show="!toggleActiveExams" class="fa fa-chevron-down fa-stack-1x"></i>
+    </a>
+</div>
+
 <div class="exams-list col-md-12">
+
+
     <div class="exams-table-borders col-md-12">
         <table class="table table-bordered exams-table">
             <thead>
@@ -50,7 +69,7 @@
             </tr>
             </thead>
 
-            <tbody>
+            <tbody ng-show="!toggleActiveExams">
             <tr ng-repeat="activeExam in activeExams">
                 <td><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
                 <td><!--<i class="sitnet-red fa fa-flash"></i>--></td>

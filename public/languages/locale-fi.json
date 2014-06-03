@@ -215,6 +215,7 @@
 "sitnet_add_new_machine": "Lisää uusi kone",
 "sitnet_add_new_software": "Lisää uusi ohjelmisto",
 "sitnet_exam_machine": "Tenttikone",
+"sitnet_exam": "Tentti",
 "sitnet_default_option_description": "Vastausvaihtoehto",
 
 "sitnet_examcode_and_name" : "Tentin koodi ja nimi",
