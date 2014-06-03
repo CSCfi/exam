@@ -25,7 +25,6 @@ import java.util.Random;
 public class Exam extends SitnetModel {
 
     public enum State {
-        DRAFT,
         SAVED,
         PUBLISHED,
         REVIEW,          // OPISKELIJHA ON PALAUTTANUT TENTIN

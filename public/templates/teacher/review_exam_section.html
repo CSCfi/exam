@@ -23,7 +23,6 @@
                 </ul>
         </span>
     </div>
-
 </div>
 
 <div id="question-editor" class="exam-question-container" ng-show="section.expanded">
@@ -32,10 +31,10 @@
             <tr style="background-color: lightgrey">
                 <th style="width: 2%">#</th>
                 <th style="width: 2%"><i class="fa fa-1x fa-tags"></i></th>
-                <th style="width: 23%">Kysymys</th>
-                <th style="width: 25%">Oikein</th>
-                <th style="width: 34%">Vastaus</th>
-                <th style="width: 14%">Pisteet</th>
+                <th style="width: 23%">{{'sitnet_question' | translate}}</th>
+                <th style="width: 25%">{{'sitnet_multiplechoice_question_correct' | translate}}</th>
+                <th style="width: 34%">{{'sitnet_exam_answer' | translate}}</th>
+                <th style="width: 14%">{{'sitnet_exam_score' | translate}}</th>
             </tr>
         </thead>
         <tbody ng-repeat="question in section.questions" style="border:0;">

@@ -212,6 +212,7 @@
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
                         toastr.info("Tentti on tarkastettu.");
+                        $location.path("/home");
                     }, function (error) {
                         toastr.error(error.data);
                     });

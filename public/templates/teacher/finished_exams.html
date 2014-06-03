@@ -1,103 +1,31 @@
-<!-- Finished exams list -->
-<div class="row">
-    <div class="col-md-12">
-        <h2 class="sitnet-black exams-list-active-title">{{'sitnet_finished_exams' | translate}}</h2>
-    </div>
-
-    <!-- Active exams indications bar -->
-    <!-- New participants indication -->
-    <div class="col-md-3 toolbar-item">
-                <span class="fa-stack fa-lg">
-                    <i class="sitnet-light-grey fa fa-square fa-stack-2x"></i>
-                    <i class="sitnet-dark-grey fa fa-stack-1x">0</i>
-                </span>
-        <label class="toolbar-label">
-            <i class="sitnet-black">{{'sitnet_indication_new_participants' | translate}}</i>
-        </label>
-    </div>
-
-    <!-- New exam answers icon and text -->
-    <div class="col-md-3 toolbar-item">
-                <span class="fa-stack fa-lg">
-                    <i class="sitnet-dark-blue fa fa-square fa-stack-2x"></i>
-                    <i class="sitnet-white fa fa-stack-1x">0</i>
-                </span>
-        <label class="toolbar-label">
-            <i class="sitnet-black">{{'sitnet_indication_new_answers' | translate}}</i>
-        </label>
-    </div>
-
-    <!-- New exam comments icon and text -->
-    <div class="col-md-3 toolbar-item">
-                <span class="fa-stack fa-lg">
-                    <i class="sitnet-dark-blue fa fa-square fa-stack-2x"></i>
-                    <i class="sitnet-white fa fa-stack-1x">0</i>
-                </span>
-        <label class="toolbar-label">
-            <i class="sitnet-black">{{'sitnet_indication_new_feedback' | translate}}</i>
-        </label>
-    </div>
+<div class="col-md-12 nospace exams-table-title-area">
+    <span class="exams-list-title-text pull-left">{{ 'sitnet_finished_exams' | translate }}</span>
 </div>
 
-<!-- Finished exams table header row -->
-<div class="row" style="background-color: lightgrey; margin-left: 5em">
-    <div class="col-md-1">
-            <span class="fa-stack fa-lg">
-                <i class="fa fa-flag fa-stack-1x"></i>
-            </span>
-    </div>
+<div class="exams-list col-md-12">
+    <div class="exams-table-borders col-md-12">
+        <table class="table table-bordered exams-table">
+            <thead>
+                <tr>
+                    <th class="table-column-flag"><i class="fa fa-flag"></i></th>
+                    <th class="table-column-exclamation"><i class="fa fa-exclamation-triangle"></i></th>
+                    <th class="table-column-examcode">{{ 'sitnet_examcode' | translate }}</th>
+                    <th class="table-column-examname">{{ 'sitnet_exam_name' | translate }}</th>
+                    <th class="table-column-enroll-participation">{{ 'sitnet_participation_enrolled' | translate }}</th>
+                    <th class="table-column-open-until">{{ 'sitnet_exam_active_time_ended' | translate }}</th>
+                </tr>
+            </thead>
 
-    <div class="col-md-1">
-            <span class="fa-stack fa-lg">
-                <i class="fa fa-exclamation-triangle fa-stack-1x"></i>
-            </span>
-    </div>
-
-    <div class="col-md-2">
-        <label style="padding-top: 0.6em">{{'sitnet_examcode' | translate}}</label>
-    </div>
-
-    <div class="col-md-4">
-        <label style="padding-top: 0.6em">{{'sitnet_exam_name' | translate}}</label>
-    </div>
-</div>
-
-<!-- Finished exams table content row -->
-<div class="row">
-    <!--href="#/exams/review/{{exam.id}}"-->
-    <div class="row exam-list-row" ng-repeat="finishedExam in finishedExams">
-        <div class="exams-list-active-content">
-            <div class="exams-list">
-                <div class="col-md-1 table-bordered-item" style="line-height: 3.2em">
-                    <div class="fa-stack fa-lg">
-                        <i class="sitnet-dark-blue fa fa-flag fa-stack-1x"></i>
-                    </div>
-                </div>
-
-                <div class="col-md-1 table-bordered-item" style="line-height: 3.2em">
-                    <div class="fa-stack fa-lg">
-                        <i class="sitnet-red fa fa-flash fa-stack-1x"></i>
-                    </div>
-                </div>
-
-                <div class="col-md-2 table-bordered-item">
-                    <h4 class="list-group-item-heading">
-                        <label style="padding-top: 0.85em">{{finishedExam.course.code}}</label>
-                    </h4>
-                </div>
-
-                <div class="col-md-4 table-bordered-item">
-                    <h4 class="list-group-item-heading">
-                        <label style="padding-top: 0.85em">{{finishedExam.name}}</label>
-                    </h4>
-                </div>
-
-                <div class="col-md-4 table-bordered-item">
-                    <h4>
-                        <label>{{finishedExam.examActiveEndDate | date:'dd-MM-yyyy'}}</label>
-                    </h4>
-                </div>
-            </div>
-        </div>
+            <tbody>
+            <tr ng-repeat="finishedExam in finishedExams">
+                <td><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
+                <td><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                <td>{{finishedExam.course.code}}</td>
+                <td><a href="#/exams/review/{{finishedExam.id}}">{{finishedExam.name}}</a></td>
+                <td>{{finishedExamParticipations.length}}/{{finishedExamEnrolments.length}}({{(finishedExamParticipations.length/finishedExamEnrolments.length)*100 | number : 2}}%)</td>
+                <td>{{finishedExam.examActiveEndDate | date:'dd-MM-yyyy'}}</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>

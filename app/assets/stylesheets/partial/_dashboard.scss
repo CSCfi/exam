@@ -2,34 +2,6 @@
 
   min-height: $sitnet-header-height;
 
-  .header {
-    background-color: $sitnet-light-grey;
-    color: black;
-    padding: 1em;
-  }
-
-  .toolbar-item {
-    margin-top: 2em;
-    margin-left: 4em;
-  }
-
-  .toolbar-label {
-    padding-left: 1em;
-    vertical-align: bottom;
-  }
-
-  .exam-list-row {
-    margin-left: 2em
-  }
-
-  .list-item-border {
-    border-left-style: inset;
-  }
-
-  .exams-list {
-    margin-bottom: 10px;
-  }
-
   .title {
     margin-top: 2em;
     margin-left: 2em;
@@ -40,39 +12,9 @@
     font-weight: bold;
   }
 
-  .exams-list-enrolled-title {
-    margin-top: 2em;
-    margin-left: 2em;
-    padding-bottom: 1em;
-    border-bottom-style: inset;
-  }
-
-  .exams-list-enrolled-content {
-    margin-left: 1em;
-    margin-right: 1em;
-    padding-top: 1em;
+  .toolbar-label {
     padding-left: 1em;
-    padding-right: 1em;
-    padding-bottom: 0.4em;
-  }
-
-  .exams-list-active-title {
-    margin-top: 2em;
-    margin-left: 2em;
-    padding-bottom: 1em;
-  }
-
-  .exams-list-active-content {
-    margin-left: 1em;
-    margin-right: 1em;
-    padding-top: 1em;
-    padding-left: 3em;
-    padding-right: 1em;
-    padding-bottom: 0.4em;
-  }
-
-  .exam-list-finished-item {
-    padding-top: 0.5em;
+    vertical-align: bottom;
   }
 
   .review-ongoing {
@@ -107,5 +49,91 @@
     border-color: lightgrey;
   }
 
+  .exams-table {
 
+    border:0;
+    margin-top:1em;
+    font-family: $sitnet-family-opensans;
+    font-weight: normal;
+    font-size:0.9em;
+
+    th {
+      background-color: $sitnet-common-light;
+      font-family: $sitnet-family-georgia;
+      font-style: italic;
+      font-weight: normal;
+      border:0;
+    }
+
+    td:first-child {
+      border-left:0;
+    }
+    td:last-child {
+      border-right:0;
+    }
+
+    tr:last-child {
+      td {
+        border-bottom: 0;
+      }
+    }
+  }
+
+  .table-column-flag {
+    width: 2%;
+  }
+
+  .table-column-exclamation {
+    width: 2%;
+  }
+
+  .table-column-examcode {
+    width: 10%;
+  }
+
+  .table-column-examname {
+    width: 20%;
+  }
+
+  .table-column-enroll-participation {
+    width: 10%;
+  }
+
+  .table-column-open-until {
+    width: 20%;
+  }
+
+  .exams-table-borders {
+    border-left: $sitnet-common-light solid 0.15em;
+    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
+  }
+
+  .exams-table-title-area {
+    margin-top: 2em;
+    margin-left: 4em;
+  }
+
+  .exams-list-title-text {
+    font-size: 1.6em;
+    padding:0.8em 0;
+    font-family: $sitnet-family-opensans-semibold;
+    color: $sitnet-text;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .exams-list {
+    background-color: $sitnet-background;
+    margin-left: 3em;
+    padding-right: 5em;
+  }
+
+  .toolbar-item {
+    margin-top: 2em;
+    margin-left: 4em;
+  }
+
+  .indicator-item {
+    margin-left: 4em;
+  }
 }

@@ -37,7 +37,7 @@
 
     <div class="row" style="padding-left: 1em">
         <div class="col-md-6">
-            <div class="sitnet-info-text">Tentin Arvosana:</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_grade' | translate}}:</div>
             <div class="input-group">
                 <div class="input-group-btn">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -54,7 +54,7 @@
         </div>
         <div ng-hide="showOtherGrading">
             <span class="pull-right fa-stack fa-lg dropdown"></span>
-            <div class="sitnet-info-text">Aseta muu arviointikriteeri:</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_other_evaluation_criteria | translate'}}:</div>
             <h3>
                 <span class="editable" ng-click="showOtherGrading = !showOtherGrading">
                     {{examToBeReviewed.otherGrading}} <i class="fa fa-pencil"></i>
@@ -62,7 +62,7 @@
             </h3>
         </div>
         <div ng-show="showOtherGrading">
-            <div class="sitnet-info-text">Muu arviointikriteeri:</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_other_evaluation_criteria | translate'}}:</div>
             <form class="form-inline" role="form">
                 <div class="form-group" style="margin-top: 0.5em">
                     <input type="text" class="form-control input-lg" ng-model="examToBeReviewed.otherGrading" autofocus>
@@ -76,7 +76,7 @@
 
 
     <div style="padding: 1em">
-        <span class="sitnet-info-text"><i>Kirjoita tenttiin liittyvä palaute tähän:</i>
+        <span class="sitnet-info-text"><i>{{'sitnet_exam_feedback' | translate}}:</i>
         </span>
 
         <!--How to get CKEditor text with Angular-->
@@ -84,7 +84,7 @@
         <!--http://stackoverflow.com/questions/18917262/updating-textarea-value-with-ckeditor-content-in-angular-js-->
         <textarea ck-editor rows="10" cols="80" ng-model="examToBeReviewed.examFeedback.comment">
         </textarea>
-        <button ng-click="saveFeedback(examToBeReviewed)" class="btn btn-primary">Tallenna kommentti</button>
+        <button ng-click="saveFeedback(examToBeReviewed)" class="btn btn-primary">{{'sitnet_exam_save_feedback' | translate}}</button>
 
     </div>
 
@@ -92,7 +92,7 @@
     <div class="row">
         <div class="col-md-6">
             <div style="padding-left: 1em">
-                <button ng-click="examReviewReady(examToBeReviewed)" class="btn btn-primary">Tallenna tentin arviointi</button>
+                <button ng-click="examReviewReady(examToBeReviewed)" class="btn btn-primary">{{'sitnet_exam_save_review | translate'}}</button>
             </div>
         </div>
     </div>

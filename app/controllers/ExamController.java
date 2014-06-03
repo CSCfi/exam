@@ -41,14 +41,13 @@ public class ExamController extends SitnetController {
             oql = "find exam " +
                   "fetch examSections " +
                   "fetch course " +
-                  "where (state=:published or state=:saved or state=:draft) " +
+                  "where (state=:published or state=:saved) " +
                   "and (shared=:is_shared or creator.id=:myid)";
 //                  "and (shared:shared or creator.id:myid)";
 
             query = Ebean.createQuery(Exam.class, oql);
             query.setParameter("published", "PUBLISHED");
             query.setParameter("saved", "SAVED");
-            query.setParameter("draft", "DRAFT");
             query.setParameter("is_shared", true);
             query.setParameter("myid", user.getId());
         }
@@ -57,12 +56,11 @@ public class ExamController extends SitnetController {
             oql = "find exam "
                     + " fetch examSections "
                     + " fetch course "
-                    + " where state=:published or state=:saved or state=:draft";
+                    + " where state=:published or state=:saved";
 
             query = Ebean.createQuery(Exam.class, oql);
             query.setParameter("published", "PUBLISHED");
             query.setParameter("saved", "SAVED");
-            query.setParameter("draft", "DRAFT");
         }
 
 
@@ -103,8 +101,10 @@ public class ExamController extends SitnetController {
 
         // Todo: Oletetaan että tentin luoja on automaattisesti tentin tarkastaja
         List<Exam> activeExams = Ebean.find(Exam.class)
+                .fetch("course")
                 .where()
                 .eq("creator.id", user.getId())
+                .ne("state", "SAVED")
                 .betweenProperties("examActiveStartDate", "examActiveEndDate", timestamp)
                 .findList();
 
@@ -113,31 +113,14 @@ public class ExamController extends SitnetController {
 //        List<ExamEnrolment> enrolments =
 
 
-//        JsonContext jsonContext = Ebean.createJsonContext();
-//        JsonWriteOptions options = new JsonWriteOptions();
-//        options.setRootPathProperties("id, name, examActiveEndDate");
-//        options.setPathProperties("course", "code");
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate");
+        options.setPathProperties("course", "code");
 //        options.setPathProperties("reservation", "startAt, machine");
 //        options.setPathProperties("reservation.machine", "name");
 
-//        ObjectNode result = Json.newObject();
-//        result.put("id", user.getId());
-//        result.put("name", name);
-//        result.put("firstname", user.getFirstName());
-//        result.put("lastname", user.getLastName());
-//        result.put("roles", Json.toJson(user.getRoles()));
-
-        for (Exam exam : activeExams) {
-
-            int enrolmentCount = Ebean.find(ExamEnrolment.class)
-                    .where()
-                    .eq("exam.id", exam.getId())
-                    .findRowCount();
-
-            Logger.debug("count");
-        }
-
-//        return ok(jsonContext.toJsonString(activeExams, true, options)).as("application/json");
+        return ok(jsonContext.toJsonString(activeExams, true, options)).as("application/json");
 
         // For some reason conjuction didn't do AND to the lt and gt expressions. Individually both works
 //        Query q = Ebean.createQuery(Exam.class);
@@ -147,7 +130,7 @@ public class ExamController extends SitnetController {
 
 //        List<Exam> activeExams = q.findList();
 
-        return ok(Json.toJson(activeExams));
+//        return ok(Json.toJson(activeExams));
     }
 
     public static Result getFinishedExams() {
@@ -220,6 +203,21 @@ public class ExamController extends SitnetController {
         ex.update();
 
         return ok(Json.toJson(ex));
+    }
+
+    public static Result getExamReviews(Long eid) {
+        Logger.debug("getExamReviews(:eid)");
+
+        // Todo: Oletetaan että tentin luoja on automaattisesti tentin tarkastaja
+        List<Exam> examReviews = Ebean.find(Exam.class)
+                .fetch("course")
+                .where()
+                .eq("parent.id", eid)
+//                .ne("state", "SAVED")
+//                .betweenProperties("examActiveStartDate", "examActiveEndDate", timestamp)
+                .findList();
+
+        return ok(Json.toJson(examReviews));
     }
 
     public static Result insertComment(Long eid, Long cid) throws MalformedDataException {
@@ -324,7 +322,8 @@ public class ExamController extends SitnetController {
 
         Exam exam = new Exam();
         exam.setName("Kirjoita tentin nimi tähän");
-        exam.setState("DRAFT");
+        // Decided to drop the DRAFT state from the whole project
+        exam.setState("SAVED");
         try {
             SitnetUtil.setCreator(exam);
         } catch (SitnetException e) {
@@ -487,7 +486,7 @@ public class ExamController extends SitnetController {
         Exam ex = bindForm(Exam.class);
 
         switch (ex.getState()) {
-            case "DRAFT": {
+            case "SAVED": {
                 ex.setId(null);
                 try {
                     SitnetUtil.setCreator(ex);
@@ -519,19 +518,15 @@ public class ExamController extends SitnetController {
                                 }
                             }
                             break;
-
                         }
                     }
                 }
-
                 Logger.debug(ex.toString());
                 ex.save();
 
                 return ok();
             }
-
             default:
-
         }
 
         return badRequest("Jokin meni pieleen");
@@ -580,10 +575,6 @@ public class ExamController extends SitnetController {
 
     public static Result getEnrolments() {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
-
-
-//        return ok(Json.toJson(enrolments));
-
 
         if (enrolments == null) {
             return notFound();
@@ -649,8 +640,9 @@ public class ExamController extends SitnetController {
     public static Result getParticipationsForExam(Long eid) {
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
+                .fetch("exam.parent")
                 .where()
-                .eq("exam.id", eid)
+                .eq("exam.parent.id", eid)
                 .findList();
 
         if (participations == null) {

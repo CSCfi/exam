@@ -77,6 +77,14 @@
                     "update": {method: "PUT"}
                 }),
 
+                examReviews: $resource("/reviews/:eid",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "get": {method: "GET", params: { eid: "@eid" }}
+                }),
+
                 comment: $resource("/review/:eid/comment/:cid",
                 {
                     id: "@eid", cid: "@cid"
