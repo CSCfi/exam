@@ -18,8 +18,6 @@
 
                 $scope.user = $scope.session.user;
 
-                console.log($scope.user.id);
-
                 $scope.setQuestionType = function () {
                     switch ($scope.selectedType) {
                         case 'EssayQuestion':

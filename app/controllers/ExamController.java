@@ -661,13 +661,20 @@ public class ExamController extends SitnetController {
 
     public static Result getExamInspections(Long id) {
 
-        List<ExamInspection> inspections = Ebean.find(ExamInspection.class).where().eq("exam.id", id).findList();
+        Exam exam = Ebean.find(Exam.class, id);
 
-        Map<String, String> results = new HashMap<>();
+        List<ExamInspection> inspections = null;
+        if(exam.getParent() == null) {
+            inspections = Ebean.find(ExamInspection.class).where().eq("exam.id", id).findList();
+        } else {
+            inspections = Ebean.find(ExamInspection.class).where().eq("exam.id", exam.getParent().getId()).findList();
+        }
+
+        Map<String, User> results = new HashMap<>();
 
         if(inspections != null) {
             for(ExamInspection i : inspections) {
-                results.put("" + i.getId(), i.getUser().getFirstName() + " " + i.getUser().getLastName());
+                results.put("" + i.getId(), i.getUser());
             }
         }
         return ok(Json.toJson(results));
@@ -702,7 +709,11 @@ public class ExamController extends SitnetController {
         User recipient = Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class, eid);
 
-        inspection.setExam(exam);
+        if(exam.getParent() == null) {
+            inspection.setExam(exam);
+        } else {
+            inspection.setExam(exam.getParent());
+        }
         inspection.setUser(recipient);
 
         inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
@@ -710,7 +721,11 @@ public class ExamController extends SitnetController {
         inspection.save();
 
         // SITNET-295
-        EmailComposer.composeSimpleInspectionReadyNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
+        if(exam.getParent() == null) {
+            EmailComposer.composeSimpleInspectionReadyNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
+        }else {
+            EmailComposer.composeSimpleInspectionReadyNotification(recipient, exam.getCreator(), exam.getParent(), inspection.getComment().getComment());
+        }
 
         return ok(Json.toJson(inspection));
     }

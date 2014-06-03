@@ -186,6 +186,14 @@ $sitnet-icon-size: 32px;
   color: $sitnet-alarm;
 }
 
+.icon-ok {
+  color: $sitnet-student-darkgreen;
+}
+
+.icon-theme {
+  color: $sitnet-theme;
+}
+
 .bold-button {
   font-weight: bold;
   cursor: pointer;
@@ -207,4 +215,17 @@ $sitnet-icon-size: 32px;
   line-height:4em;
   font-weight: bold;
   cursor: pointer;
+}
+
+
+.top-padding-2 {
+  padding-top:2em;
+}
+
+.bottom-padding-2 {
+  padding-bottom:2em;
+}
+
+.vertical-padding-2 {
+  padding:2em 0;
 }

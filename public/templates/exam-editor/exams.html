@@ -13,66 +13,94 @@
         </span>-->
     </div>
 </div>
-<div id="exam" class="row">
-    <div class="exam-list">
-        <div class="col-md-8">
-            <h2 class="sitnet-teacher-turquoise-dark-active">Julkaistut tentit</h2>
-            <span class="sitnet-info-text">Nämä tentit ovat julkaistu, opiskelijat voivat ilmoittautua ja osallistua näihin tentteihin.</span>
-            <span class="sitnet-info-text">Näitä tenttejä EI voi muokata tai poista.</span>
+<div id="room" class="col-md-12 nospace">
+    <span class="sitnet-horizontal-line col-md-12"></span>
+    <div class="col-md-12 nospace">
+        <span class="room-name pull-left">{{ 'sitnet_exams' | translate }}</span>
+    </div>
+    <div class="col-md-12 nospace room-header">
+         <span class="fa-stack fa-lg">
+            <i class="fa icon-ok fa-square fa-stack-2x"></i>
+            <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
+         </span>
+         <span class="room-info-title">{{ 'sitnet_published_exams' | translate }}</span>
 
-            <div class="exam-list-published">
-                <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}">
-                    <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
-                        <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
+         <span class="fa-stack fa-lg">
+            <i class="fa icon-notice fa-square fa-stack-2x"></i>
+            <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
+         </span>
+        <span class="room-info-title">{{ 'sitnet_saved_exams' | translate }}</span>
+
+         <span class="fa-stack fa-lg">
+            <i class="fa icon-alarm fa-square fa-stack-2x"></i>
+            <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
+         </span>
+        <span class="room-info-title">{{ 'sitnet_draft_exams' | translate }}</span>
+    </div>
+
+    <div class="room-machines col-md-12">
+
+        <table class="table table-bordered room-machines-table">
+            <thead>
+            <tr>
+                <th>{{ 'sitnet_course_name' | translate }}</th>
+                <th>{{ 'sitnet_course_code' | translate }}</th>
+                <th>{{ 'sitnet_created_by' | translate }}</th>
+                <th>{{ 'sitnet_status' | translate }}</th>
+                <th>{{ 'sitnet_exam_remove' | translate }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}">
+                <td><a class="room-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
+                <td>{{exam.course.code}}</td>
+                <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
+                <td>
+                    <span class="status_green">{{ 'sitnet_published' | translate }}</span>
+                </td>
+                <td>
+                </td>
+            </tr>
+            <tr ng-repeat="exam in exams | filter: {state: 'SAVED'}">
+                <td><a class="room-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
+                <td>{{exam.course.code}}</td>
+                <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
+                <td>
+                    <span class="status_orange">{{ 'sitnet_saved' | translate }}</span>
+                </td>
+                <td class="text-center">
+                    <a ng-click="deleteExam(exam)" class="fa-stack fa-lg">
+                        <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+                        <i class="fa fa-minus fa-stack-1x"></i>
                     </a>
-                    <span class="sitnet-teacher-turquoise-dark-active">
-                        <i title="{{'sitnet_remove' | translate}}" class="pull-right fa fa-times fa-2x pointer" ng-click="deleteExam(exam)"></i>
-                    </span>
-                    <div>
-                        <span class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
-                        <span class="pull-right sitnet-info-text">Julkaistu</span>
-                    </div>
-                </div>
-            </div>
-
-            <hr>
-            <h2 class="sitnet-teacher-turquoise-light-active">Tallennetut tentit</h2>
-            <span class="sitnet-info-text">Näitä tenttejä ei ole vielä julkaistu, eivätkä opiskelijat voi ilmoittautua näihin tentteihin.</span>
-            <span class="sitnet-info-text">Näitä tenttejä voi muokata tai poistaa.</span>
-
-            <div class="exam-list-saved">
-                <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'SAVED'}">
-                    <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
-                        <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
+                </td>
+            </tr>
+            <tr ng-repeat="exam in exams | filter: {state: 'DRAFT'}">
+                <td><a class="room-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
+                <td>{{exam.course.code}}</td>
+                <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
+                <td>
+                    <span class="status_red">{{ 'sitnet_draft' | translate }}</span>
+                </td>
+                <td class="text-center">
+                    <a ng-click="deleteExam(exam)" class="fa-stack fa-lg">
+                        <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+                        <i class="fa fa-minus fa-stack-1x"></i>
                     </a>
-                    <span class="sitnet-teacher-turquoise-dark-active">
-                        <i title="{{'sitnet_remove' | translate}}" class="pull-right fa fa-times fa-2x pointer" ng-click="deleteExam(exam)"></i>
-                    </span>
-                    <div>
-                        <span class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
-                        <span class="pull-right sitnet-info-text">Tallennettu</span>
-                    </div>
-                </div>
-            </div>
-
-            <hr>
-            <h2 class="sitnet-teacher-turquoise-light-inactive">Vedokset</h2>
-            <span class="sitnet-info-text">Vedokset ovat tenttejä joita et ole muistanut tallentaa.</span>
-
-            <div class="exam-list-draft">
-                <div class="sitnet-list-item" ng-repeat="exam in exams | filter: {state: 'SAVED'}">
-                    <a  href="#/exams/{{exam.id}}" class="active-exams-list ">
-                        <span class="sitnet-list-item-heading">{{exam.course.code}} - {{exam.name}}</span>
-                    </a>
-                    <span class="sitnet-teacher-turquoise-dark-active">
-                        <i title="{{'sitnet_remove' | translate}}" class="pull-right fa fa-times fa-2x pointer" ng-click="deleteExam(exam)"></i>
-                    </span>
-                    <div>
-                        <span class="sitnet-info-text">Luonut: {{exam.creator.firstName}} {{exam.creator.lastName}}</span>
-                        <span class="pull-right sitnet-info-text">Vedos</span>
-                    </div>
-                </div>
-            </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-12 nospace" style="margin:2em 0;">
+        <div class="col-md-12">
+            <span class="room-info-title">{{ 'sitnet_published_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_published_exams_info_main' | translate }} {{ 'sitnet_published_exams_info_other' | translate }}</span>
+        </div>
+        <div class="col-md-12">
+            <span class="room-info-title">{{ 'sitnet_saved_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_saved_exams_info_main' | translate }} {{ 'sitnet_saved_exams_info_other' | translate }}</span>
+        </div>
+        <div class="col-md-12">
+            <span class="room-info-title">{{ 'sitnet_draft_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_draft_exams_info_main' | translate }}</span>
         </div>
     </div>
 </div>

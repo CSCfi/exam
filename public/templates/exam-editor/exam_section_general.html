@@ -1,19 +1,9 @@
-<div class="exam-general-information-header">
-    {{'sitnet_exam_basic_information' | translate}}
-    <span class="pull-right fa-stack fa-lg">
-        <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-        <i ng-class="newExam.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
-           ng-click="newExam.expanded = !newExam.expanded"
-           class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-    </span>
-    <span class="pull-right fa-stack fa-lg dropdown">
-        <a class="dropdown-toggle"> <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
-               <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-        </a>
-        <ul class="dropdown-menu">
-            <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-        </ul>
-    </span>
+<div class="nospace room-sub-header col-md-12">
+    <span class="nospace room-sub-name">{{'sitnet_exam_basic_information' | translate}}</span>
+    <a class="sub-header-icon pull-right fa-stack fa-lg" ng-click="newExam.expanded = !newExam.expanded">
+        <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+        <i ng-class="newExam.expanded ? 'fa fa-angle-up fa-stack-1x' : 'fa fa-angle-down fa-stack-1x'"></i>
+    </a>
 </div>
 
 <!-- General info section container -->
@@ -91,7 +81,7 @@
             <div class="input-group">
                 <input type="text" class="form-control ng-pristine ng-valid"
                        ng-model="newExam.course.code"
-                       placeholder="Opintojakson koodi"
+                       placeholder="{{'sitnet_course_code' | translate}}"
                        typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
                        typeahead="c as c.code for c in getCourses('code', $viewValue)"
                        typeahead-loading="loadingCoursesByCode">
@@ -177,9 +167,9 @@
                 <div class="pull-left col-md-2 row">
                     <button class="btn btn-default" ng-click="openInspectorModal()">{{'sitnet_add' | translate}}</button>
                 </div>
-                <div class="pull-left col-md-10" style="margin-left:0.5em;">
+                <div class="pull-left col-md-9 col-md-offset-1">
                     <ul>
-                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="(key, value) in inspectors"><h6>{{ value }} <a ng-click="removeInspector(key)"><i class="fa fa-times" style="cursor: pointer;" title="{{'sitnet_remove' | translate}}"></i></a></h6></li>
+                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="(key, user) in inspectors"><h6>{{ user.firstName }} {{ user.lastName }} <a ng-if="user.id != newExam.creator.id" ng-click="removeInspector(key)"><i class="fa fa-times" style="cursor: pointer;" title="{{'sitnet_remove' | translate}}"></i></a></h6></li>
                     </ul>
                 </div>
             </div>

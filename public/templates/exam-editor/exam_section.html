@@ -1,58 +1,59 @@
-<div class="section-header">
-    <div class="row" ng-hide="showDetails">
-        <div class="section-header-number col-md-1">{{section.index}}.</div>
-        <span class="editable" ng-click="showDetails = !showDetails"> {{section.name}} <i
-                class="fa fa-pencil"></i></span>
-        <span ng-click="section.expanded = !section.expanded; expandSection(section)"
-              class="pull-right fa-stack fa-lg pointer-hand">
-            <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-            <i ng-class="section.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
-               class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-        </span>
-        <span class="pull-right fa-stack fa-lg dropdown pointer-hand" ng-click="editSection(section)">
-            <a class="dropdown-toggle">
-                <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
-                <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-            </a>
-                <ul class="dropdown-menu">
-                    <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-                    <li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>
-                    <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' |
-                        translate}}</a></li>
-                    <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' |
-                        translate}}</a></li>
-                </ul>
-        </span>
-    </div>
-    <div class="row" ng-show="showDetails">
-        <div class="section-header-number col-md-1">
-            <i class="section-header-number col-md-1">{{section.index}}.</i>
+<div class="nospace room-sub-header col-md-12">
+     <span class="pull-left fa-stack fa-lg">
+        <i class="fa icon-theme fa-stop fa-stack-2x"></i>
+        <span class="fa sitnet-white fa-stack-1x">{{section.index}}.</span>
+     </span>
+    <div class="col-md-8" ng-init="showName = true">
+        <div ng-show="showName">
+                <span class="pull-left room-sub-name" ng-click="showName = !showName">
+                    {{section.name}} <i class="fa fa-pencil"></i>
+                </span>
         </div>
-        <form class="form col-md-11" role="form">
-                <div class="row">
-                    <div class="form-group">
-                            <input type="text" class="input-lg col-md-12" style="font-size: 0.8em" ng-model="section.name" ui-blur="renameSection()" autofocus ng-blur="showDetails =! showDetails">
-                            <button class="btn-primary col-md-0" ng-hide="true" ng-click="showDetails = 'false'">
-                            </button>
-                    </div>
+        <div ng-show="!showName">
+            <form class="form-inline" role="form">
+                <div class="form-group">
+                    <input type="text" class="form-control input-lg" ng-model="section.name" autofocus>
                 </div>
-        </form>
+                <button class="btn-primary" ng-click="showName = !showName; renameSection()">
+                    <i class="fa fa-check"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="pull-right">
+        <a class="sub-header-icon pull-right fa-stack fa-lg" ng-click="section.expanded = !section.expanded; expandSection(section)">
+            <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+            <i ng-class="section.expanded ? 'fa fa-angle-up fa-stack-1x' : 'fa fa-angle-down fa-stack-1x'"></i>
+        </a>
+    </div>
+    <div class="dropdown pull-right" ng-click="editSection(section)">
+        <a class="dropdown-toggle sub-header-icon pull-right fa-stack fa-lg">
+            <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+            <i class="fa fa-wrench fa-stack-1x"></i>
+        </a>
+        <ul class="dropdown-menu">
+            <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
+            <li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>
+            <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' |
+                translate}}</a></li>
+            <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' |
+                translate}}</a></li>
+        </ul>
     </div>
 </div>
-<div class="exam-question-container" ng-show="section.expanded">
+<div class="col-md-12 top-padding-2" ng-show="section.expanded">
     <div class="question" ng-include="questionPath" ng-repeat="question in section.questions"></div>
         <div class="create-new dropdown">
             <a class="dropdown-toggle">
                 <i class="fa fa-2x fa-plus-circle"></i>
                 {{'sitnet_add_content'|translate}}
-
             </a>
             <ul class="dropdown-menu">
                 <li>
-                    <a ng-click="createQuestionFromExamView('EssayQuestion', section)">Essee</a>
+                    <a ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
                 </li>
                 <li>
-                    <a ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">Monivalinta</a>
+                    <a ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_question_mc' | translate }}</a>
                 </li>
             </ul>
         </div>
