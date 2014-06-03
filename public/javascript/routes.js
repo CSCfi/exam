@@ -40,6 +40,7 @@
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'teacher/review.html', controller: 'ExamReviewController'});
             $routeProvider.when('/exams/reviews/:id', { templateUrl: tmpl + 'teacher/review_list.html', controller: 'ReviewListingController'});
+            $routeProvider.when('/exams/preview/:id', { templateUrl: tmpl + 'teacher/preview_exam.html', controller: 'TeacherExamController' });
 
             /* Admin */
             $routeProvider.when('/rooms', { templateUrl: tmpl + 'admin/rooms.html', controller: 'RoomCtrl'});

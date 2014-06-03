@@ -251,6 +251,8 @@
 "sitnet_question_attachment" : "Question attachment",
 "sitnet_exam_attacment" : "Exam attachment",
 "sitnet_attachment_selection" : "Attachment selection",
-"sitnet_select_attachment" : "Choose attachment"
+"sitnet_select_attachment" : "Choose attachment",
 
+"sitnet_preview" : "Preview exam",
+"sitnet_exit_preview" : "Exit preview"
 }
