@@ -113,7 +113,6 @@
 "sitnet_exam_room_postal_address": "Postal address",
 "sitnet_exam_room_address_street": "Street",
 "sitnet_exam_room_address_zip": "Zip code",
-"sitnet_exam_address": "Address",
 "sitnet_exam_room_address_city": "City",
 "sitnet_exam_room_machines": "Exam room machines",
 "sitnet_room_code": "Room code",
@@ -242,4 +241,14 @@
 "sitnet_exam_score" : "pisteet",
 "sitnet_exam_in_review" : "Tarkastaminen kesken",
 "sitnet_exam_reviewed" : "Tarkastettu ja arvioitu"
+"sitnet_default_option_description": "Option"
+
+"sitnet_remove_attachment" : "Remove attachment",
+"sitnet_download_attachment" : "Download attachment",
+"sitnet_attach_file" : "Choose file",
+"sitnet_question_attachment" : "Question attachment",
+"sitnet_exam_attacment" : "Exam attachment",
+"sitnet_attachment_selection" : "Attachment selection",
+"sitnet_select_attachment" : "Choose attachment"
+
 }

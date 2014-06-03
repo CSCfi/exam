@@ -253,4 +253,16 @@
 "sitnet_exam_score" : "pisteet",
 "sitnet_exam_in_review" : "Tarkastaminen kesken",
 "sitnet_exam_reviewed" : "Tarkastettu ja arvioitu"
+"sitnet_active_exams" : "Aktiiviset tentit",
+"sitnet_finished_exams" : "Päättyneet tentit",
+"sitnet_not_published_exams" : "Julkaisemattomat tentit",
+
+"sitnet_remove_attachment" : "Poista liite",
+"sitnet_download_attachment" : "Lataa liite",
+"sitnet_attach_file" : "Valitse tiedosto",
+"sitnet_question_attachment" : "Kysymyksen liitetiedosto",
+"sitnet_exam_attacment" : "Tentin liitetiedosto",
+"sitnet_attachment_selection" : "Liitetiedoston valinta",
+"sitnet_select_attachment" : "Valitse liite"
+
 }
