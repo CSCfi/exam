@@ -180,7 +180,8 @@ public class ExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                     "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded");
-            options.setPathProperties("course", "id, name, code");
+            options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded");
             options.setPathProperties("examFeedback", "id, comment");
             options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, parent, answer, evaluationCriterias, attachment, evaluationPhrases, comments");
@@ -328,38 +329,92 @@ public class ExamController extends SitnetController {
 
         DynamicForm df = Form.form().bindFromRequest();
 
-        Long start = new Long(df.get("examActiveStartDate"));
-        Long end = new Long(df.get("examActiveEndDate"));
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("examSections")
+                .where()
+                .eq("id", id)
+                .findUnique();
 
-        Exam ex = Form.form(Exam.class).bindFromRequest(
-                "id",
-                "instruction",
-                "name",
-                "shared",
-                "state",
-                "room",
-                "duration",
-                "grading",
-                "examLanguage",
-                "answerLanguage",
-                "expanded")
-                .get();
+        if (exam == null) {
+            return notFound();
+        } else {
+            exam.setName(df.get("name"));
 
-        if (SitnetUtil.isOwner(ex)) {
-            ex.setExamActiveStartDate(new Timestamp(start));
-            ex.setExamActiveEndDate(new Timestamp(end));
+            Long start = new Long(df.get("examActiveStartDate"));
+            Long end = new Long(df.get("examActiveEndDate"));
 
-            try {
-                SitnetUtil.setModifier(ex);
-            } catch (SitnetException e) {
-                e.printStackTrace();
+            if (start != 0) {
+                exam.setExamActiveStartDate(new Timestamp(start));
             }
-            ex.generateHash();
-            ex.update();
+            if (end != 0) {
+                exam.setExamActiveEndDate(new Timestamp(end));
+            }
 
-            return ok(Json.toJson(ex));
-        } else
-            return notFound("Sinulla ei oikeuksia muokata tätä objektia");
+            if(df.get("course.credits") != null) {
+                Double credits = new Double(df.get("course.credits"));
+
+                exam.getCourse().setCredits(credits);
+                exam.getCourse().save();
+            }
+
+            exam.save();
+
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, name, course, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
+                    "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded");
+            options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded");
+            options.setPathProperties("examFeedback", "id, comment");
+            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, parent, answer, evaluationCriterias, attachment, evaluationPhrases, comments");
+//            options.setPathProperties("reservation.machine", "name");
+//            options.setPathProperties("reservation.machine", "name");
+            options.setPathProperties("examSections.questions.comments", "id, comment");
+
+            return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+        }
+
+//        String instruction = df.get("instruction");
+//        String state = df.get("state");
+//        boolean shared = Boolean.parseBoolean(df.get("shared"));
+//        String room = df.get("room");
+//
+//        String start = df.get("examActiveStartDate");
+
+//        Long start = new Long(df.get("examActiveStartDate"));
+//        Long end = new Long(df.get("examActiveEndDate"));
+
+//        Exam ex = Form.form(Exam.class).bindFromRequest(
+//                "id",
+//                "name",
+//                "instruction",
+//                "examSections",
+//                "state",
+//                "shared",
+//                "room",
+//                "duration",
+//                "grading",
+//                "examLanguage")
+//                "answerLanguage",
+//                "expanded")
+//                .get();
+
+//        if (SitnetUtil.isOwner(ex)) {
+//            ex.setExamActiveStartDate(new Timestamp(start));
+//            ex.setExamActiveEndDate(new Timestamp(end));
+
+//            try {
+//                SitnetUtil.setModifier(ex);
+//            } catch (SitnetException e) {
+//                e.printStackTrace();
+//            }
+//            ex.generateHash();
+//            ex.update();
+
+//            return ok(Json.toJson(ex));
+//        } else
+//            return notFound("Sinulla ei oikeuksia muokata tätä objektia");
     }
 
     public static Result createExamDraft() throws MalformedDataException {
@@ -391,7 +446,6 @@ public class ExamController extends SitnetController {
 
         exam.getExamSections().add(examSection);
         exam.setExamLanguage("fi");
-
         exam.save();
 
         // lisätään tentin luoja tarkastajiin (SITNET-178)
@@ -399,6 +453,9 @@ public class ExamController extends SitnetController {
         inspection.setExam(exam);
         inspection.setUser(UserController.getLoggedUser());
         inspection.save();
+
+        exam.setExamInspection(inspection);
+        exam.save();
 
         ObjectNode part = Json.newObject();
         part.put("id", exam.getId());

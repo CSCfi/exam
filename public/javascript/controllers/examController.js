@@ -332,14 +332,14 @@
                 };
 
                 // Called from ui-blur
-                $scope.updateExam = function () {
+                $scope.updateExam = function (newExam) {
 
                     var examToSave = {
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
+                        "course" : $scope.newExam.course,
                         "instruction": $scope.newExam.instruction,
                         "state": 'SAVED',
-//                        "course": $scope.newExam.course,    // there is no course
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": $scope.dateService.startTimestamp,
                         "examActiveEndDate": $scope.dateService.endTimestamp,
@@ -354,6 +354,7 @@
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function (exam) {
                             toastr.info("Tentti tallennettu.");
+                            $scope.newExam = exam;
                         }, function (error) {
 
                             toastr.error(error.data);

@@ -2,10 +2,7 @@ package models;
 
 import play.db.ebean.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 
 /*
@@ -22,8 +19,8 @@ public class Course extends Model {
 	private Long id;
 	
 	// Tiedekunta/Organisaatio
+    @OneToOne
 	private Organisation organisation;
-
 
 	// Opintojakson koodi, 811380A 	Tietokantojen perusteet 
 	private String code;

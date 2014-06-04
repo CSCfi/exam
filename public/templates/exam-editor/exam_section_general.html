@@ -63,7 +63,7 @@
                 <input type="text" class="form-control ng-pristine ng-valid"
                        ng-model="newExam.course.name" ui-change="updateExam()"
                        placeholder="Opintojakson nimi"
-                       typeahead-on-select="onCourseSelect($item, $model, $label)"
+                       typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
                        typeahead="c as c.name for c in getCourses('name', $viewValue)"
                        typeahead-min-length="2"
                        typeahead-loading="loadingCoursesByName">
@@ -101,7 +101,7 @@
             <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}:</div>
             <div class="input-group">
                 <!-- placeholder="opintopistettä" -->
-                <input disabled type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits"
+                <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits"
                        ui-change="updateExam()">
                     <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
                         <i class="fa fa-question-circle fa-fw"></i>
