@@ -1,6 +1,7 @@
 #vmenu {
 
-  background-color: $sitnet-dark;
+  background-color: $sitnet-light-grey;
+  color: $sitnet-dark-grey;
   top: 0;
   left: 0;
   bottom: 0;
@@ -13,11 +14,12 @@
   }
 
   a {
-    color: $sitnet-grey;
+    color: $sitnet-dark-grey;
   }
 
   .logo {
-    padding: 10px 0;
+    padding: 0px;
+    width: 100%;
 
     img {
       display: block;
@@ -44,14 +46,16 @@
 
   .menu-item {
     display: inline-block;
+    color: $sitnet-dark-grey;
     margin: 0;
-    padding: 0;
+    padding-top: 1em;
+    padding-bottom: 1em;
   }
 
   .selected {
     a {
-      background-color: $sitnet-grey;
-      color: $sitnet-dark;
+      background-color: $sitnet-white;
+      color: $sitnet-blue;
     }
 
     .submenu {
@@ -59,14 +63,29 @@
       font-size: 0.8em;
 
       a {
-        background-color: $sitnet-dark;
-        color: $sitnet-grey;
+        background-color: $sitnet-light-grey;
+        color: $sitnet-dark-grey;
       }
     }
   }
 
   .user {
-    margin: 1em 0;
+    width: 100%;
+  }
+
+  .user-picture {
+    padding: 1em;
+    display: inline-block;
+    position: relative;
+    left: 0px;
+  }
+
+  .user-name {
+    padding: 1em;
+    display: inline-block;
+    padding-top: 1.5em;
+    position: relative;
+    left: 0px;
   }
 
   .minify {
@@ -78,5 +97,31 @@
 
   .minimize .menu-item {
     display: none;
+  }
+
+  .locale-minimized {
+    display: inline-block;
+    position: relative;
+    left: 0px;
+    padding: 0.5em;
+  }
+
+  .locale-bar {
+    margin-left: 1em;
+    margin-right: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .locale-item {
+    padding-left: 1.3em;
+    padding-right: 1.3em;
+    cursor: pointer;
+  }
+
+  .locale-item:hover {
+    a {
+      color: $sitnet-blue-highlight;
+    }
   }
 }

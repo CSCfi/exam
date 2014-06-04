@@ -16,7 +16,7 @@
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
-    margin: 1em;
+    margin: 2em;
   }
 
   .create-new:hover {
@@ -26,7 +26,14 @@
   .question-editor-header {
     background-color: $sitnet-teacher-turquoise-header;
     color: white;
-    padding: 1em;
+    padding: 2em;
+    padding-top: 3em;
+    height: 150px;
+    text-align: left;
+  }
+
+  .question-editor-form {
+    padding: 2em;
   }
 
   .exam-question-container {
