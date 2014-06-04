@@ -121,7 +121,7 @@ public class Interfaces extends SitnetController {
                     record.setExamDate(sdf.format(exam.getModified()));
                     record.setCredits(exam.getCourse().getCredits().toString());
                     record.setCreditLanguage(exam.getExamLanguage());
-                    record.setStudentCredit(exam.getGrade());
+                    record.setStudentGrade(exam.getGrade());
                     record.setGradeScale(exam.getGrading());
                     record.setExamScore(Double.toString(exam.getTotalScore()));
                     record.setCourseUnitLevel(exam.getCourse().getLevel());

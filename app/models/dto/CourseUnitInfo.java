@@ -15,6 +15,7 @@ public class CourseUnitInfo {
     private Long id;
     @OneToOne
     private Organisation organisation;
+
     private String identifier;
     private String courseUnitCode;
     private String courseUnitTitle;
@@ -23,7 +24,7 @@ public class CourseUnitInfo {
     private Collection<String> courseImplementation;
     private String credits;
     private Collection<String> creditsLanguage;
-    private Collection<String> cradeScale;
+    private Collection<String> gradeScale;
     private Collection<String> lecturer;
     private Collection<String> lecturerResponsible;
     private String institutionName;
@@ -90,12 +91,12 @@ public class CourseUnitInfo {
         this.courseUnitType = courseUnitType;
     }
 
-    public Collection<String> getCradeScale() {
-        return cradeScale;
+    public Collection<String> getGradeScale() {
+        return gradeScale;
     }
 
-    public void setCradeScale(Collection<String> cradeScale) {
-        this.cradeScale = cradeScale;
+    public void setGradeScale(Collection<String> gradeScale) {
+        this.gradeScale = gradeScale;
     }
 
     public String getCredits() {

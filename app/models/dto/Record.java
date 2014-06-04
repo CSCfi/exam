@@ -1,13 +1,16 @@
 package models.dto;
 
+import play.db.ebean.Model;
+
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-public class Record {
+@Entity
+public class Record extends Model {
 
-    // Pakko tallentaa Siynet tietokantaan, koska osassa organisaatioita suoritukset viedään erä ajona
-
+    // Tallennetaan Sitnet tietokantaan, koska osassa organisaatioita suoritukset viedään erä-ajona
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
@@ -19,7 +22,7 @@ public class Record {
     private String ExamDate;
     private String Credits;
     private String CreditLanguage;
-    private String StudentCredit;
+    private String StudentGrade;
     private String GradeScale;
     private String ExamScore;
     private String CourseUnitLevel;
@@ -150,12 +153,12 @@ public class Record {
         Student = student;
     }
 
-    public String getStudentCredit() {
-        return StudentCredit;
+    public String getStudentGrade() {
+        return StudentGrade;
     }
 
-    public void setStudentCredit(String studentCredit) {
-        StudentCredit = studentCredit;
+    public void setStudentGrade(String studentGrade) {
+        StudentGrade = studentGrade;
     }
 
     public String getStudentId() {
@@ -164,5 +167,13 @@ public class Record {
 
     public void setStudentId(String studentId) {
         StudentId = studentId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }
