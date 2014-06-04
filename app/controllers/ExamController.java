@@ -181,7 +181,7 @@ public class ExamController extends SitnetController {
             options.setRootPathProperties("id, name, course, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                     "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded");
             options.setPathProperties("course", "id, name, code");
-            options.setPathProperties("examSections", "name, questions, exam, totalScore, expanded");
+            options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded");
             options.setPathProperties("examFeedback", "id, comment");
             options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, parent, answer, evaluationCriterias, attachment, evaluationPhrases, comments");
 //            options.setPathProperties("reservation.machine", "name");
