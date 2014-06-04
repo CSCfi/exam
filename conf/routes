@@ -34,6 +34,11 @@ POST          /exams/:id/section                                    controllers.
 DELETE        /exams/:eid/section/:sid                              controllers.ExamController.removeSection(eid: Long, sid: Long)
 PUT           /exams/:eid/section/:sid                              controllers.ExamController.updateSection(eid: Long, sid: Long)
 PUT           /exams/:eid/course/:cid                               controllers.ExamController.updateCourse(eid: Long, cid: Long)
+GET           /finishedexams                                        controllers.ExamController.getFinishedExams()
+GET           /activeexams                                          controllers.ExamController.getActiveExams()
+GET           /examenrolments/:eid                                  controllers.ExamController.getEnrolmentsForExam(eid: Long)
+GET           /examparticipations/:eid                              controllers.ExamController.getParticipationsForExam(eid: Long)
+
 
 GET           /exam/:id/inspections                                 controllers.ExamController.getExamInspections(id: Long)
 POST          /exams/:eid/inspector/:uid                            controllers.ExamController.insertInspection(eid: Long, uid: Long)
@@ -48,7 +53,7 @@ GET           /enrolments/:uid                                      controllers.
 GET           /inspections                                          controllers.ExamController.getInspections()
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
-#GET           /student/finishedexams                                controllers.StudentExamController.getFinishedExams()
+GET           /student/finishedexams/:uid                           controllers.StudentExamController.getFinishedExams(uid: Long)
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
 PUT           /student/exam/abort/:id                               controllers.StudentExamController.abortExam(id: Long)
 GET           /student/doexam/:hash                                 controllers.StudentExamController.startExam(hash: String)
