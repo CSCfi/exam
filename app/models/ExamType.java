@@ -20,12 +20,7 @@ public class ExamType extends Model {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
-
 	// TDOD: miten erilaiset tenttityypit määritellään?
-
 	// kaikille avoin, vain kutsusta, jne
 	private String type;
 

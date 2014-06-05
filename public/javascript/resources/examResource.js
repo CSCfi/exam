@@ -43,12 +43,12 @@
                     "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}}
                 }),
 
-                examType: $resource("/examtype/:eid",
+                examType: $resource("/exams/:eid/examtype/:etid",
                 {
-                    eid: "@eid"
+                    eid: "@eid", etid: "@etid"
                 },
                 {
-                    "create": {method: "POST", params: { eid: "@eid" }}
+                    "insert": {method: "POST", params: { eid: "@eid", etid: "@etid" }}
                 }),
 
                 section: $resource("/section/:sectionId",

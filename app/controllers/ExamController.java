@@ -401,7 +401,24 @@ public class ExamController extends SitnetController {
                 exam.getCourse().save();
             }
 
+            if(df.get("examType.type") != null) {
+                String examType = df.get("examType.type");
 
+                ExamType eType = Ebean.find(ExamType.class)
+                        .where()
+                        .eq("type", examType)
+                        .findUnique();
+
+                if (eType == null) {
+                    ExamType newType = new ExamType(examType);
+                    newType.save();
+                    exam.setExamType(newType);
+                }
+                else {
+                    exam.setExamType(eType);
+                    exam.save();
+                }
+            }
 
             exam.save();
 
@@ -415,8 +432,6 @@ public class ExamController extends SitnetController {
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded");
             options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, options");
             options.setPathProperties("examSections.questions.options", "id, option" );
-//            options.setPathProperties("reservation.machine", "name");
-//            options.setPathProperties("reservation.machine", "name");
             options.setPathProperties("examSections.questions.comments", "id, comment");
             options.setPathProperties("examFeedback", "id, comment");
 
@@ -540,13 +555,11 @@ public class ExamController extends SitnetController {
         return ok(Json.toJson(exam));
     }
 
-    public static Result createExamType(Long eid) throws MalformedDataException {
+    public static Result insertExamType(Long eid, Long etid) throws MalformedDataException {
         Logger.debug("updateCourse()");
 
         Exam exam = Ebean.find(Exam.class, eid);
-
-        ExamType examType = new ExamType("Loppusuoritus");
-        examType.save();
+        ExamType examType = Ebean.find(ExamType.class, etid);
 
         exam.setExamType(examType);
         exam.save();

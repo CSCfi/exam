@@ -120,20 +120,13 @@
                             }
 
                             if ($scope.newExam.examType === null) {
-
-                                ExamRes.examType.create({eid: $scope.newExam.id}, function (updated_exam) {
+                                // examtype id 2 is Final
+                                ExamRes.examType.insert({eid: $scope.newExam.id, etid: 2}, function (updated_exam) {
                                     toastr.success("Tenttityyppi lisättiin tenttiin.");
                                     $scope.newExam = updated_exam;
                                 }, function (error) {
                                     toastr.error(error.data);
                                 });
-
-//                                var examType = {
-//                                    "id": null,
-//                                    "type" : "Loppusuoritus"
-//                                };
-//
-//                                $scope.newExam.examType = examType;
                             }
 
                             $scope.dateService.startDate = exam.examActiveStartDate;
@@ -263,7 +256,7 @@
                 };
 
                 $scope.setExamType = function (type) {
-                    $scope.newExam.examType = type;
+                    $scope.newExam.examType.type = type;
                     $scope.updateExam($scope.newExam);
                 };
 
@@ -359,8 +352,6 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                        
-                        
                     }
                 };
 
@@ -379,33 +370,34 @@
                 // Called from ui-blur
                 $scope.updateExam = function (newExam) {
 
-                    var examToSave = {
-                        "id": $scope.newExam.id,
-                        "name": $scope.newExam.name,
-                        "course" : $scope.newExam.course,
-                        "examType" : $scope.newExam.examType,
-                        "instruction": $scope.newExam.instruction,
-                        "state": 'SAVED',
-                        "shared": $scope.newExam.shared,
-                        "examActiveStartDate": $scope.dateService.startTimestamp,
-                        "examActiveEndDate": $scope.dateService.endTimestamp,
-                        "room": $scope.newExam.room,
-                        "duration": $scope.newExam.duration,
-                        "grading": $scope.newExam.grading,
-                        "examLanguage": $scope.newExam.examLanguage,
-                        "answerLanguage": $scope.newExam.answerLanguage,
-                        "expanded": $scope.newExam.expanded
-                    };
+                    if (newExam) {
+                        var examToSave = {
+                            "id": $scope.newExam.id,
+                            "name": $scope.newExam.name,
+                            "course": $scope.newExam.course,
+                            "examType": $scope.newExam.examType,
+                            "instruction": $scope.newExam.instruction,
+                            "state": 'SAVED',
+                            "shared": $scope.newExam.shared,
+                            "examActiveStartDate": $scope.dateService.startTimestamp,
+                            "examActiveEndDate": $scope.dateService.endTimestamp,
+                            "room": $scope.newExam.room,
+                            "duration": $scope.newExam.duration,
+                            "grading": $scope.newExam.grading,
+                            "examLanguage": $scope.newExam.examLanguage,
+                            "answerLanguage": $scope.newExam.answerLanguage,
+                            "expanded": $scope.newExam.expanded
+                        };
 
-                    ExamRes.exams.update({id: newExam.id}, examToSave,
-                        function (exam) {
-                            toastr.info("Tentti tallennettu.");
-                            $scope.newExam = exam;
-                        }, function (error) {
+                        ExamRes.exams.update({id: newExam.id}, examToSave,
+                            function (exam) {
+                                toastr.info("Tentti tallennettu.");
+                                $scope.newExam = exam;
+                            }, function (error) {
 
-                            toastr.error(error.data);
-                        });
-
+                                toastr.error(error.data);
+                            });
+                    }
                 };
 
                 //Called when Preview Button is clicked
