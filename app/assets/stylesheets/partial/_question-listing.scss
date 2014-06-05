@@ -6,32 +6,27 @@
   }
 
   .questions-listing-header {
-    background-color: $sitnet-teacher-turquoise-header;
-    color: white;
-    padding: 0em;
-  }
-
-  .questions-list-header {
-    background-color: $sitnet-blue;
-    padding-top: 1em;
-    padding-bottom: 0.1em;
-    color: $sitnet-teacher-turquoise-dark-active;
-    font-size: 2em;
-    border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
+    border-bottom: $sitnet-common-light solid 0.15em;
+    height:4em;
   }
 
   .questions-main-label {
-    background-color: $sitnet-white;
-    padding-left: 1em;
+    font-size: 1.6em;
+    padding: 2em;
+    font-family: $sitnet-family-opensans-semibold;
+    color: $sitnet-text;
+    font-weight: 600;
+    letter-spacing: 1px
   }
 
-  .questions-wrapper {
-    margin-left: 2em;
-    margin-right: 2em;
+  .questions-listing-wrapper {
+    padding: 2em;
   }
 
   .questions-list {
-    padding: 2em;
+    padding: 1em;
+    border-left: $sitnet-common-light solid 0.15em;
+    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;;
   }
 
   .questions-header {
