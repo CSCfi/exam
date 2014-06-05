@@ -262,6 +262,8 @@
 "sitnet_exam_attacment" : "Exam attachment",
 "sitnet_attachment_selection" : "Attachment selection",
 "sitnet_select_attachment" : "Choose attachment",
-"sitnet_exam": "Exam"
-
+"sitnet_exam": "Exam",
+"sitnet_shared": "Shared",
+"sitnet_own": "Own",
+"sitnet_question_short_name": "Short name"
 }

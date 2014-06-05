@@ -263,5 +263,8 @@
 
 "sitnet_preview" : "Preview exam",
 "sitnet_exit_preview" : "Exit preview",
-"sitnet_exam": "Exam"
+"sitnet_exam": "Exam",
+"sitnet_shared": "Shared",
+"sitnet_own": "Own",
+"sitnet_question_short_name": "Short name"
 }

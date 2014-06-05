@@ -6,13 +6,15 @@
                 require: '?ngModel',
                 link: function (scope, elm, attr, ngModel) {
                     var ck = CKEDITOR.replace(elm[0]);
+                    var tmp;
 
                     if (!ngModel) return;
 
                     ck.on('instanceReady', function () {
-                        ck.setData(ngModel.$viewValue);
-//                        console.log(ngModel.$viewValue);
+                        ck.setData(tmp);
+                        //ck.setData(ngModel.$viewValue);
                     });
+
 
                     function updateModel() {
                         scope.$apply(function () {
@@ -25,6 +27,7 @@
                     ck.on('dataReady', updateModel);
 
                     ngModel.$render = function (value) {
+                        tmp = ngModel.$modelValue;
                         ck.setData(ngModel.$viewValue);
                     };
                 }

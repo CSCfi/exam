@@ -72,10 +72,12 @@ public class QuestionController extends SitnetController {
     public static Result copyQuestion(Long id) throws MalformedDataException {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        EssayQuestion essayQuestion = null;
+        MultipleChoiceQuestion multipleChoiceQuestion = null;
 
         switch (question.getType()) {
             case "MultipleChoiceQuestion": {
-                MultipleChoiceQuestion multipleChoiceQuestion = null;
+
                 multipleChoiceQuestion = (MultipleChoiceQuestion) question.clone();
 
                 try {
@@ -96,7 +98,7 @@ public class QuestionController extends SitnetController {
                 break;
             }
             case "EssayQuestion":
-                EssayQuestion essayQuestion = null;
+
                 essayQuestion = (EssayQuestion) question.clone();
 
                 try {
@@ -113,6 +115,11 @@ public class QuestionController extends SitnetController {
         }
 
         Ebean.save(question);
+
+        switch (question.getType()) {
+            case "MultipleChoiceQuestion": return ok(Json.toJson(multipleChoiceQuestion));
+            case "EssayQuestion": return ok(Json.toJson(essayQuestion));
+        }
         return ok(Json.toJson(question));
     }
 

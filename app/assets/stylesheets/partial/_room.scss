@@ -90,6 +90,11 @@
     box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
   }
 
+  .questionTable {
+    max-height:100em;
+    overflow-y: scroll;
+  }
+
   .room-machines-table {
 
     border:0;

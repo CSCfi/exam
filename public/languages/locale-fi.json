@@ -269,5 +269,8 @@
 
 "sitnet_preview" : "Esikatsele tentti",
 "sitnet_exit_preview" : "Poistu esikatselusta",
-"sitnet_exam": "Tentti"
+"sitnet_exam": "Tentti",
+"sitnet_shared": "Jaettu",
+"sitnet_own": "Oma",
+"sitnet_question_short_name": "Kysymyksen lyhyt nimi"
 }

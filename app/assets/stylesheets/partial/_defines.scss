@@ -156,7 +156,7 @@ $sitnet-icon-size: 32px;
   border-radius: $radius;
 }
 
-.status_green, .status_red, .status_orange {
+.status_green, .status_red, .status_orange, .status_theme {
   font-weight: normal;
   letter-spacing: 1px;
   font-size: 0.8em;
@@ -172,6 +172,9 @@ $sitnet-icon-size: 32px;
 }
 .status_orange {
   background-color: $sitnet-student-orange;
+}
+.status_theme {
+  background-color: $sitnet-theme;
 }
 .status_comment {
   padding:0.5em;

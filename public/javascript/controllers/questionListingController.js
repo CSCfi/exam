@@ -37,6 +37,10 @@
                     }
                 }
 
+                $scope.getQuestions = function () {
+                    $scope.questions = QuestionRes.questionlist.query({id: $scope.user.id});
+                }
+
                 if ($routeParams.id === undefined)
                     $scope.questions = QuestionRes.questionlist.query({id: $scope.user.id});
                 else {
@@ -76,6 +80,7 @@
 
                     QuestionRes.question.copy(question,
                         function (questionCopy) {
+                            console.log(questionCopy.id);
                             toastr.info("Kysymys kopioitu");
                             $location.path("/questions/" + questionCopy.id);
                         }, function (error) {

@@ -97,7 +97,7 @@
                 }
 
                 $scope.copyQuestion = function (question) {
-                    console.log(question.id);
+                    //console.log(question.id);
 
                     QuestionRes.question.copy(question,
                         function (questionCopy) {
