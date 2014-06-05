@@ -94,9 +94,20 @@
   .active-exams-list {
     margin-bottom: 10px;
   }
+
+  .exams-info-title {
+    font-weight: bold;
+  }
+
+  .exams-list-header {
+    padding: 0.5em;
+    border-bottom: $sitnet-common-light solid 0.15em;
+    height: 4em;
+  }
   
-  .exam-list {
-  	padding: 2em;
+  .exams-list-table {
+    border-left: $sitnet-common-light solid 0.15em;
+    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
   }
 
   .exam-list-published {

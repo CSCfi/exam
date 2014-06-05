@@ -13,32 +13,29 @@
         </span>-->
     </div>
 </div>
-<div id="room" class="col-md-12 nospace">
+<div id="exam" class="col-md-12 nospace">
     <span class="sitnet-horizontal-line col-md-12"></span>
-    <div class="col-md-12 nospace">
-        <span class="room-name pull-left">{{ 'sitnet_exams' | translate }}</span>
-    </div>
-    <div class="col-md-12 nospace room-header">
+    <div class="col-md-12 nospace exams-list-header">
          <span class="fa-stack fa-lg">
             <i class="fa icon-ok fa-square fa-stack-2x"></i>
             <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
          </span>
-         <span class="room-info-title">{{ 'sitnet_published_exams' | translate }}</span>
+         <span class="exams-info-title">{{ 'sitnet_published_exams' | translate }}</span>
 
          <span class="fa-stack fa-lg">
             <i class="fa icon-notice fa-square fa-stack-2x"></i>
             <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
          </span>
-        <span class="room-info-title">{{ 'sitnet_saved_exams' | translate }}</span>
+        <span class="exams-info-title">{{ 'sitnet_saved_exams' | translate }}</span>
 
          <span class="fa-stack fa-lg">
             <i class="fa icon-alarm fa-square fa-stack-2x"></i>
             <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
          </span>
-        <span class="room-info-title">{{ 'sitnet_draft_exams' | translate }}</span>
+        <span class="exams-info-title">{{ 'sitnet_draft_exams' | translate }}</span>
     </div>
 
-    <div class="room-machines col-md-12">
+    <div class="exams-list-table col-md-12">
 
         <table class="table table-bordered room-machines-table">
             <thead>
@@ -52,7 +49,7 @@
             </thead>
             <tbody>
             <tr ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}">
-                <td><a class="room-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
+                <td><a class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
                 <td>{{exam.course.code}}</td>
                 <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
                 <td>
@@ -62,7 +59,7 @@
                 </td>
             </tr>
             <tr ng-repeat="exam in exams | filter: {state: 'SAVED'}">
-                <td><a class="room-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
+                <td><a class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
                 <td>{{exam.course.code}}</td>
                 <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
                 <td>
@@ -76,7 +73,7 @@
                 </td>
             </tr>
             <tr ng-repeat="exam in exams | filter: {state: 'DRAFT'}">
-                <td><a class="room-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
+                <td><a class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
                 <td>{{exam.course.code}}</td>
                 <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
                 <td>
@@ -94,13 +91,13 @@
     </div>
     <div class="col-md-12 nospace" style="margin:2em 0;">
         <div class="col-md-12">
-            <span class="room-info-title">{{ 'sitnet_published_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_published_exams_info_main' | translate }} {{ 'sitnet_published_exams_info_other' | translate }}</span>
+            <span class="exams-info-title">{{ 'sitnet_published_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_published_exams_info_main' | translate }} {{ 'sitnet_published_exams_info_other' | translate }}</span>
         </div>
         <div class="col-md-12">
-            <span class="room-info-title">{{ 'sitnet_saved_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_saved_exams_info_main' | translate }} {{ 'sitnet_saved_exams_info_other' | translate }}</span>
+            <span class="exams-info-title">{{ 'sitnet_saved_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_saved_exams_info_main' | translate }} {{ 'sitnet_saved_exams_info_other' | translate }}</span>
         </div>
         <div class="col-md-12">
-            <span class="room-info-title">{{ 'sitnet_draft_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_draft_exams_info_main' | translate }}</span>
+            <span class="exams-info-title">{{ 'sitnet_draft_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_draft_exams_info_main' | translate }}</span>
         </div>
     </div>
 </div>
