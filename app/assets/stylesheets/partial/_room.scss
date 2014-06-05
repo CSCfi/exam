@@ -1,13 +1,16 @@
 #room {
 
-  float:right;
-  padding-top:2em;
-  background-color: $sitnet-background;
+  .base {
+    background-color: $sitnet-background;
+    padding: 1em;
+    margin: 0em;
+    float:right;
+  }
+
 
   .room-list {
     background-color: $sitnet-background;
-    padding:0;
-    margin:2em 0 0 0;
+    padding: 1em;
   }
 
   .room-header {

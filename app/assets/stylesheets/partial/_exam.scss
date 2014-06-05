@@ -99,6 +99,14 @@
     font-weight: bold;
   }
 
+  .exams-generic-info-title {
+      font-size: 1.4em;
+      padding:0.25em 0;
+      font-family: $sitnet-family-opensans-semibold;
+      color: $sitnet-text;
+      font-weight: 400;
+  }
+
   .exams-list-header {
     padding: 0.5em;
     border-bottom: $sitnet-common-light solid 0.15em;
