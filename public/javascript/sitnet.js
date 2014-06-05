@@ -38,7 +38,6 @@
         });
 
         $translateProvider.preferredLanguage('fi');
-
         var interceptor = function ($q) {
             return {
                 'request': function (config) {

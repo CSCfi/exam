@@ -14,6 +14,7 @@
 @import "partial/room";
 @import "partial/dashboard";
 @import "partial/form-validation";
+@import "partial/calendar";
 
 html {
   font-family: $font;
@@ -23,14 +24,6 @@ body {
   background-color: $sitnet-background;
   font-family: $font;
 }
-
-//.correct-answer {
-//  background-color: green;
-//}
-//
-//.wrong-answer {
-//  background-color: red;
-//}
 
 .pointer {
   cursor: pointer;
@@ -42,7 +35,7 @@ body {
 }
 
 .vmenu-off {
-  width: 100%;
+  width: calc(100% - 50px);
   margin-left: 50px;
 }
 

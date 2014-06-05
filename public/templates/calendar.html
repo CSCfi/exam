@@ -1,3 +1,7 @@
-<div class="row" style="margin: 0 " ng-controller="CalendarCtrl">
-    <div ui-calendar="uiConfig.calendar" class="col-lg-12" ng-model="eventSources" ></div>
+<div id="sitnet-calendar">
+    <div class="row">
+        <div class="calendar-wrapper col-lg-12" ng-controller="CalendarCtrl">
+            <div ui-calendar="uiConfig.calendar" ng-model="eventSources"></div>
+        </div>
+     </div>
 </div>

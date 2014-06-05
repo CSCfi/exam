@@ -7,7 +7,6 @@
   .exam-header {
     background-color: $sitnet-teacher-turquoise-header;
     color: white;
-    padding: 1em;
   }
 
 .exam-name {
@@ -43,7 +42,7 @@
   }
 
   .exam-wrapper {
-    margin-left: 2em;
+    padding: 2em;
   }
 
   .exam-sections {
@@ -58,6 +57,7 @@
     background-color: $sitnet-white;
     padding-top: 1em;
     padding-bottom: 0.1em;
+    padding-right: 2em;
     color: $sitnet-teacher-turquoise-dark-active;
     font-size: 2em;
     border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
