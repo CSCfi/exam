@@ -2,6 +2,8 @@
 
   .base {
     background-color: $sitnet-white;
+    padding: 1em;
+    margin: 0em;
   }
 
   .exam-header {
@@ -9,15 +11,18 @@
     color: white;
   }
 
-.exam-name {
-	color: $sitnet-teacher-turquoise-dark-active;
-	border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
-	margin-top: 4em;
-  .input-lg {
-    margin-top: -0.5em;
-    margin-bottom: 0.5em;
-    font-size: 1.3em;
-  }
+  .exam-name {
+    font-size: 1.6em;
+    padding:0.8em 0;
+    font-family: $sitnet-family-opensans-semibold;
+    color: $sitnet-text;
+    font-weight: 600;
+    letter-spacing: 1px;
+    .input-lg {
+      margin-top: -0.5em;
+      margin-bottom: 0.5em;
+      font-size: 1.3em;
+    }
 }
 
 .exam-general-information-header {
@@ -49,21 +54,17 @@
     margin-top: 3em;
     margin-left: 2em;
   }
-  .exam-section {
-    margin-top: 0.5em;
-    margin-left: 0.5em;
-  }
+
   .section-header {
-    background-color: $sitnet-white;
-    padding-top: 1em;
-    padding-bottom: 0.1em;
-    padding-right: 2em;
-    color: $sitnet-teacher-turquoise-dark-active;
-    font-size: 2em;
-    border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
+    border-bottom: $sitnet-common-light solid 0.15em;
+    height:2.6em;
   }
-  .section-header span {
-    font-size: 0.75em;
+  .section-header-text{
+    font-size: 1.4em;
+    padding:0.25em 0;
+    font-family: $sitnet-family-opensans-semibold;
+    color: $sitnet-text;
+    font-weight: 400;
   }
   .section-header-number {
     padding-left: 0.5em;

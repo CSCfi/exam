@@ -12,16 +12,16 @@
 </div>
 
 <div id="exam" class="nospace">
-    <div id="room" class="row" style="margin-bottom: 2em">
+    <div class="base row">
         <div class="col-md-12">
             <div class="row">
                 <div ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
                     <div class="row">
-                        <div class="nospace col-md-12">
+                        <div class="col-md-12">
                             <!-- Exam name -->
                             <div ng-init="showName = true">
                                 <div ng-show="showName">
-                                    <span class="pull-left room-name" ng-click="showName = !showName">
+                                    <span class="exam-name" ng-click="showName = !showName">
                                         {{newExam.name}} <i class="fa fa-pencil"></i>
                                     </span>
                                 </div>
@@ -38,7 +38,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" style="padding-bottom: 2em;margin-bottom: 2em">
+                    <div class="base row">
                         <!-- General Information -->
                         <div class="col-md-12 bottom-padding-2" ng-include="generalInfoPath"></div>
                         <div class="col-md-12">
@@ -63,34 +63,5 @@
                 <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
             </div>
         </div>
-        <div class="row" style="padding-bottom: 2em;">
-            <!-- General Information -->
-            <div class="col-md-12 bottom-padding-2" ng-include="generalInfoPath"></div>
-            <div class="col-md-12">
-                <div ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>
-            </div>
-
-            </div>
-            <span ng-click="addNewSection()" class="create-new">
-                <center>
-                    <i class="fa fa-2x fa-hand-o-right"></i>
-                    {{'sitnet_section_add' | translate}}
-                </center>
-            </span>
-            <span>
-                <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
-            </span>
-            <span class="pull-right">
-                <button ng-click="previewExam()" class="btn btn-primary">{{'sitnet_preview' | translate}}</button>
-                <button ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button>
-            </span>
     </div>
-    <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
 </div>
-    </div>
-<!-- Question Library -->
-
-
-    <!-- Question Library-->
-    <!--<div ng-include="libraryTemplate">-->
-    <!--</div>-->
