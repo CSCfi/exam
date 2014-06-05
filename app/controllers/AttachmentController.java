@@ -30,7 +30,10 @@ import play.Configuration;
  */
 public class AttachmentController extends SitnetController {
 
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result addAttachmentToQuestion() throws MalformedDataException {
+
 
         MultipartFormData body = request().body().asMultipartFormData();
 
@@ -80,13 +83,13 @@ public class AttachmentController extends SitnetController {
                     question.setAttachment(attachment);
                     question.save();
                     Ebean.save(question);
-                    String url = "/#/questions/" + String.valueOf(id);
-                    return redirect(url);
                 }
             }
         }
-        return ok("Ei ok");
+        String url = "/#/questions/" + String.valueOf(id);
+        return redirect(url);
     }
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteQuestionAttachment(Long id) {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
@@ -104,7 +107,7 @@ public class AttachmentController extends SitnetController {
 
     }
 
-
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result addAttachmentToExam() throws MalformedDataException {
 
 
@@ -156,13 +159,13 @@ public class AttachmentController extends SitnetController {
                     question.setAttachment(attachment);
                     question.save();
                     Ebean.save(question);
-                    String url = "/#/questions/" + String.valueOf(id);
-                    return redirect(url);
                 }
             }
         }
-        return ok("Ei ok");
+        String url = "/#/questions/" + String.valueOf(id);
+        return redirect(url);
     }
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteExamAttachment(Long id) {
 
         Exam exam = Ebean.find(Exam.class, id);
@@ -180,13 +183,14 @@ public class AttachmentController extends SitnetController {
 
     }
 
-
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result downloadQuestionAttachment(Long id) {
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
         Attachment aa = Ebean.find(Attachment.class, question.getAttachment().getId());
         return ok(new File(aa.getFilePath()));
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result downloadExamAttachment(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
         Attachment aa = Ebean.find(Attachment.class, exam.getAttachment().getId());
