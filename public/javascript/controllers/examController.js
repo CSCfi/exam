@@ -59,40 +59,50 @@
 
                 // Todo: Fill in languages from database for final version
                 $scope.examLanguages = [
-                    "Swedish",
-                    "English",
-                    "German"
+                    "Suomi",
+                    "Ruotsi",
+                    "Englanti",
+                    "Saksa"
                 ];
+
+//                $scope.newExam.examLanguage = $scope.examLanguages[0];
 
                 // Todo: Fill in languages from database for final version
                 $scope.examAnswerLanguages = [
-                    "Swedish",
-                    "English",
-                    "German"
+                    "Suomi",
+                    "Ruotsi",
+                    "Englanti",
+                    "Saksa"
                 ];
 
-                $scope.newExam = {
-                    "created": null,
-                    "creator": null,
-                    "modified": null,
-                    "modifier": null,
-                    "course": {
-                        "organisation": {
-                            "name": null
-                        },
-                        "code": null,
-                        "name": null,
-                        "responsibleTeacher": null,
-                        "type": null,
-                        "credits": null
-                    },
-                    "name": "Kirjoita tentin nimi tähän",
-                    "examType": null,
-                    "instruction": null,
-                    "shared": false,
-                    "examSections": [],
-                    "state": "SAVED"
-                };
+                $scope.examTypes = [
+                    "Osasuoritus",
+                    "Loppusuoritus",
+                    "Kypsyysnäyte",
+                ];
+
+//                $scope.newExam = {
+//                    "created": null,
+//                    "creator": null,
+//                    "modified": null,
+//                    "modifier": null,
+//                    "course": {
+//                        "organisation": {
+//                            "name": null
+//                        },
+//                        "code": null,
+//                        "name": null,
+//                        "responsibleTeacher": null,
+//                        "type": null,
+//                        "credits": null
+//                    },
+//                    "name": "Kirjoita tentin nimi tähän",
+//                    "examType": null,
+//                    "instruction": null,
+//                    "shared": false,
+//                    "examSections": [],
+//                    "state": "SAVED"
+//                };
 
                 if ($routeParams.id === undefined)
                     $scope.exams = ExamRes.exams.query();
@@ -100,6 +110,31 @@
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
                             $scope.newExam = exam;
+
+                            if ($scope.newExam.examLanguage === null) {
+                                $scope.newExam.examLanguage = $scope.examLanguages[0];
+                            }
+
+                            if ($scope.newExam.answerLanguage === null) {
+                                $scope.newExam.answerLanguage = $scope.examAnswerLanguages[0];
+                            }
+
+                            if ($scope.newExam.examType === null) {
+
+                                ExamRes.examType.create({eid: $scope.newExam.id}, function (updated_exam) {
+                                    toastr.success("Tenttityyppi lisättiin tenttiin.");
+                                    $scope.newExam = updated_exam;
+                                }, function (error) {
+                                    toastr.error(error.data);
+                                });
+
+//                                var examType = {
+//                                    "id": null,
+//                                    "type" : "Loppusuoritus"
+//                                };
+//
+//                                $scope.newExam.examType = examType;
+                            }
 
                             $scope.dateService.startDate = exam.examActiveStartDate;
                             $scope.dateService.endDate = exam.examActiveEndDate;
@@ -204,22 +239,32 @@
 
                 $scope.setExamRoom = function (room) {
                     $scope.newExam.room = room;
+                    $scope.updateExam($scope.newExam);
                 };
 
                 $scope.setExamDuration = function (duration) {
                     $scope.newExam.duration = duration;
+                    $scope.updateExam($scope.newExam);
                 };
 
                 $scope.setExamGrading = function (grading) {
                     $scope.newExam.grading = grading;
+                    $scope.updateExam($scope.newExam);
                 };
 
                 $scope.setExamLanguage = function (language) {
                     $scope.newExam.examLanguage = language;
+                    $scope.updateExam($scope.newExam);
                 };
 
                 $scope.setExamAnswerLanguage = function (answerLanguage) {
                     $scope.newExam.answerLanguage = answerLanguage;
+                    $scope.updateExam($scope.newExam);
+                };
+
+                $scope.setExamType = function (type) {
+                    $scope.newExam.examType = type;
+                    $scope.updateExam($scope.newExam);
                 };
 
                 var questions = QuestionRes.questions.query(function () {
@@ -338,6 +383,7 @@
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
                         "course" : $scope.newExam.course,
+                        "examType" : $scope.newExam.examType,
                         "instruction": $scope.newExam.instruction,
                         "state": 'SAVED',
                         "shared": $scope.newExam.shared,
@@ -351,7 +397,7 @@
                         "expanded": $scope.newExam.expanded
                     };
 
-                    ExamRes.exams.update({id: examToSave.id}, examToSave,
+                    ExamRes.exams.update({id: newExam.id}, examToSave,
                         function (exam) {
                             toastr.info("Tentti tallennettu.");
                             $scope.newExam = exam;

@@ -169,6 +169,7 @@ public class ExamController extends SitnetController {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("examSections")
+                .fetch("examSections.questions")
                 .where()
                 .eq("id", id)
                 .findUnique();
@@ -182,12 +183,14 @@ public class ExamController extends SitnetController {
                     "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded");
             options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
             options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
+            options.setPathProperties("examType", "id, type");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded");
-            options.setPathProperties("examFeedback", "id, comment");
-            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, parent, answer, evaluationCriterias, attachment, evaluationPhrases, comments");
+            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, options");
+            options.setPathProperties("examSections.questions.options", "id, option" );
 //            options.setPathProperties("reservation.machine", "name");
 //            options.setPathProperties("reservation.machine", "name");
             options.setPathProperties("examSections.questions.comments", "id, comment");
+            options.setPathProperties("examFeedback", "id, comment");
 
             return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
         }
@@ -339,7 +342,27 @@ public class ExamController extends SitnetController {
         if (exam == null) {
             return notFound();
         } else {
-            exam.setName(df.get("name"));
+
+            String examName = df.get("name");
+            boolean shared = Boolean.parseBoolean(df.get("shared"));
+            String examRoomName = df.get("room");
+            Double duration = Double.valueOf(df.get("duration"));
+            String grading = df.get("grading");
+            String answerLanguage = df.get("answerLanguage");
+            String examLanguage = df.get("examLanguage");
+            String instruction = df.get("instruction");
+
+            if (examName != null) {
+                exam.setName(examName);
+            }
+
+            if (shared) {
+                exam.setShared(shared);
+            }
+
+            if (examRoomName != null) {
+                exam.setRoom(examRoomName);
+            }
 
             Long start = new Long(df.get("examActiveStartDate"));
             Long end = new Long(df.get("examActiveEndDate"));
@@ -351,12 +374,34 @@ public class ExamController extends SitnetController {
                 exam.setExamActiveEndDate(new Timestamp(end));
             }
 
+            if (duration != null) {
+                exam.setDuration(duration);
+            }
+
+            if (grading != null) {
+                exam.setGrading(grading);
+            }
+
+            if (answerLanguage != null) {
+                exam.setAnswerLanguage(answerLanguage);
+            }
+
+            if (examLanguage != null) {
+                exam.setExamLanguage(examLanguage);
+            }
+
+            if (instruction != null) {
+                exam.setInstruction(instruction);
+            }
+
             if(df.get("course.credits") != null) {
                 Double credits = new Double(df.get("course.credits"));
 
                 exam.getCourse().setCredits(credits);
                 exam.getCourse().save();
             }
+
+
 
             exam.save();
 
@@ -365,12 +410,15 @@ public class ExamController extends SitnetController {
             options.setRootPathProperties("id, name, course, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                     "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded");
             options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
+            options.setPathProperties("examType", "id, type");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded");
-            options.setPathProperties("examFeedback", "id, comment");
-            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, parent, answer, evaluationCriterias, attachment, evaluationPhrases, comments");
+            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, options");
+            options.setPathProperties("examSections.questions.options", "id, option" );
 //            options.setPathProperties("reservation.machine", "name");
 //            options.setPathProperties("reservation.machine", "name");
             options.setPathProperties("examSections.questions.comments", "id, comment");
+            options.setPathProperties("examFeedback", "id, comment");
 
             return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
         }
@@ -487,6 +535,20 @@ public class ExamController extends SitnetController {
         Course course = Ebean.find(Course.class, cid);
 
         exam.setCourse(course);
+        exam.save();
+
+        return ok(Json.toJson(exam));
+    }
+
+    public static Result createExamType(Long eid) throws MalformedDataException {
+        Logger.debug("updateCourse()");
+
+        Exam exam = Ebean.find(Exam.class, eid);
+
+        ExamType examType = new ExamType("Loppusuoritus");
+        examType.save();
+
+        exam.setExamType(examType);
         exam.save();
 
         return ok(Json.toJson(exam));

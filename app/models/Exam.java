@@ -42,6 +42,7 @@ public class Exam extends SitnetModel {
     @NonCloneable
     private Course course;
 
+    @OneToOne
     private ExamType examType;
     
     // Opettajan antama ohje Opiskelijalle tentin suorittamista varten
