@@ -27,6 +27,7 @@ DELETE        /exams/:id                                            controllers.
 PUT           /review/:id                                           controllers.ExamController.reviewExam(id: Long)
 POST          /review/:eid/comment/:cid                             controllers.ExamController.insertComment(eid: Long, cid: Long)
 PUT           /review/:eid/comment/:cid                             controllers.ExamController.updateComment(eid: Long, cid: Long)
+GET           /reviews/:eid                                         controllers.ExamController.getExamReviews(eid: Long)
 GET           /exams/state/:state                                   controllers.ExamController.getExamsByState(state: String)
 PUT           /exams/:id                                            controllers.ExamController.updateExam(id: Long)
 POST          /exams                                                controllers.ExamController.createExam()
