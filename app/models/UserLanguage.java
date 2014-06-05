@@ -14,6 +14,9 @@ import javax.persistence.Id;
  * 
  * Language abbreviations
  *  * http://tilastokeskus.fi/meta/luokitukset/kieli/001-2003/index.html
+ *
+ *  Virallinen koodisto
+ *  http://tilastokeskus.fi/meta/luokitukset/kieli/001-2003/index.html
  */
 @Entity
 public class UserLanguage extends Model {

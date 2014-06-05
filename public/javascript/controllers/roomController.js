@@ -104,7 +104,7 @@
                     ExamMachineResource.update({id: machine.id}, machine,
                         function (updated_machine) {
                             machine = updated_machine;
-                            toastr.info("Tenttikone päivitetty.");
+                            toastr.info('<i class="fa fa-save"></i>');
                         },
                         function (error) {
                             toastr.error(error.data);
