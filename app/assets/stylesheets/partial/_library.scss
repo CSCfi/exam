@@ -4,13 +4,13 @@
     padding: 1em;
     min-height: 100%;
     //border: solid 1px $sitnet-grey;
-    background-color: $sitnet-light-grey;
+    background-color: $sitnet-common-light;
     .results {
       margin-top: 1em;
     }
   }
   .library-header {
-    background-color: $sitnet-dark-grey;
+    background-color: $sitnet-common-dark;
     color: white;
     padding: 0.5em;
     margin-top: 1em;
@@ -21,23 +21,21 @@
   
   .library-name {
     padding-bottom: 0.1em;
-    color: $sitnet-teacher-turquoise-dark-active;
+    color: $sitnet-common-medium;
     font-size: 2em;
-    border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
+    border-bottom: 0.15em solid $sitnet-common-light;
     margin-bottom: 1em;
   }
   .single-question-header-inactive {
     color: $sitnet-white;
-    background-color: $sitnet-teacher-turquoise-light-active;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-    min-height: 2.5em;
-    margin-bottom: 0.5em;
-    margin-top: 0.5em;
+    background-color: $sitnet-common-medium;
+    padding: 0.5em;
+    min-height: 0;
+    margin: 0.5em 0;
   }
 
   .single-question-header-inactive:active {
-    background-color: $sitnet-teacher-turquoise-active-question;
+    background-color: $sitnet-notice;
 
   }
 
@@ -45,7 +43,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-right: 1em;
+
   }
 
   .library-main.affix {
@@ -67,8 +65,7 @@
   }
 
   li {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
+    padding:0 0.5em;
   }
 
 }

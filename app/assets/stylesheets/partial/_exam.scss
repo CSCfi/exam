@@ -175,20 +175,13 @@
   .single-question-header-active {
     color: $sitnet-white;
     background-color: $sitnet-teacher-turquoise-active-question;
-    padding-top: 0.5em;
-    padding-bottom: 1em;
-    min-height: 3em;
-    margin-bottom: 0.5em;
-    margin-top: 0.5em;
+    margin: 0.5em 0;
   }
   .single-question-header-inactive {
     color: $sitnet-white;
     background-color: $sitnet-teacher-turquoise-light-active;
-    padding-top: 0.5em;
-    padding-bottom: 1em;
-    min-height: 3em;
-    margin-bottom: 0.5em;
-    margin-top: 0.5em;
+    margin: 0.5em 0;
+    padding:0.5em;
   }
 
   .single-question-icon {

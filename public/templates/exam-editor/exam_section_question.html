@@ -1,15 +1,15 @@
 <div ng-class="question.expand ? 'single-question-header-active' : 'single-question-header-inactive'">
 	<span class="single-question-icon">
-		<i class="fa fa-2x fa-list-ul"></i>
+		<i class="fa fa-1x fa-list-ul"></i>
 	</span>
-    <span class="menu-item" ng-bind-html="question.question"></span>
-  	<span ng-click="question.expanded = !question.expanded; expandQuestion(question)" class="pull-right fa-stack fa-lg pointer-hand">
+    <span ng-bind-html="question.question"></span>
+  	<span style="padding-right: 1em;" ng-click="question.expanded = !question.expanded; expandQuestion(question)" class="pull-right pointer-hand">
             <i ng-class="question.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
-               class="sitnet-white fa fa-stack-1x"></i>
+               class="sitnet-white fa fa-1x"></i>
     </span>
-    <span ng-click="editQuestion(question)" class=" dropdown pull-right fa-stack fa-lg pointer-hand">
+    <span style="padding-right: 1em;" ng-click="editQuestion(question)" class=" dropdown pull-right pointer-hand">
 		<a class="dropdown-toggle">
-			<i class="sitnet-white fa fa-cog fa-stack-1x"></i>
+			<i class="sitnet-white fa fa-cog fa-1x"></i>
 	    </a>
 		<ul class="dropdown-menu">
 			<li><a>{{'sitnet_settings' | translate}}</a></li>
@@ -22,6 +22,6 @@
     <li class="exam-question-option" ng-repeat="option in question.options">
         <input type="radio" name="option.id" ng-value="option" class="list-group-item-text"/>
         {{option.option}}
-        <span class="badge" ng-show="option.correctOption" class="ng-show">TOSI</span>
+        <span class="badge" ng-show="option.correctOption" class="ng-show">{{ 'sitnet_multiplechoice_question_correct' | translate }}</span>
     </li>
 </ol>
