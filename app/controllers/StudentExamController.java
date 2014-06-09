@@ -199,12 +199,12 @@ public class StudentExamController extends SitnetController {
             // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
             // http://avaje.org/topic-112.html
 
-//            ExamParticipation examParticipation = new ExamParticipation();
-//            examParticipation.setUser(user);
-//            examParticipation.setExam(studentExam);
-//            examParticipation.setStarted(new Timestamp(new Date().getTime()));
-//            examParticipation.save();
-//            user.getParticipations().add(examParticipation);
+            ExamParticipation examParticipation = new ExamParticipation();
+            examParticipation.setUser(user);
+            examParticipation.setExam(studentExam);
+            examParticipation.setStarted(new Timestamp(new Date().getTime()));
+            examParticipation.save();
+            user.getParticipations().add(examParticipation);
 
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();

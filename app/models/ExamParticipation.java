@@ -27,6 +27,7 @@ public class ExamParticipation extends Model {
 	private User user;
 
 	@OneToOne
+    @JsonBackReference
 	private Exam exam;
 
 	@Temporal(TemporalType.TIMESTAMP)
