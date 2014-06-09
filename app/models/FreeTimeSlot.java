@@ -1,43 +1,53 @@
 package models;
 
 
-import java.util.Date;
-import java.util.List;
-
 public final class FreeTimeSlot {
 
     private Long room;
-    private List<String> machine;
-    private Date start;
-    private Date end;
+    private String machine;
+    private String start;
+    private String end;
     private String title;
 
 
-    public FreeTimeSlot(Date start, Date end, List<String> machine, Long room, String title) {
-        this.end = end;
-        this.machine = machine;
-        this.room = room;
-        this.start = start;
-        this.title = title;
-    }
-
-    public Date getEnd() {
+    public String getEnd() {
         return end;
     }
 
-    public List<String> getMachine() {
+    public void setEnd(String end) {
+        this.end = end;
+    }
+
+    public String getStart() {
+        return start;
+    }
+
+    public void setStart(String start) {
+        this.start = start;
+    }
+
+    public String getMachine() {
         return machine;
+    }
+
+    public void setMachine(String machine) {
+        this.machine = machine;
     }
 
     public Long getRoom() {
         return room;
     }
 
-    public Date getStart() {
-        return start;
+    public void setRoom(Long room) {
+        this.room = room;
     }
+
 
     public String getTitle() {
         return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

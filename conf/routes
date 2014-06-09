@@ -137,6 +137,11 @@ GET           /integration/record/:vatIdNumber/:startDate           controllers.
 
 
 
+################# Calendar interface ##################
+GET           /calendar/:inputDate                                       controllers.CalendarController.getSlots(inputDate: String)
+POST          /calendar/reservation                                      controllers.CalendarController.createReservation()
+
+
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()
 GET           /secure                                               controllers.TestController.shibbolethHeaders()

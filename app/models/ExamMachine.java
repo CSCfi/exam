@@ -174,4 +174,24 @@ public class ExamMachine extends Model {
     public void setVideoRecordings(String videoRecordings) {
         this.videoRecordings = videoRecordings;
     }
+
+    @Override
+    public String toString() {
+        return "ExamMachine{" +
+                "accessibilityInfo='" + accessibilityInfo + '\'' +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", otherIdentifier='" + otherIdentifier + '\'' +
+                ", accessible=" + accessible +
+                ", softwareInfo=" + softwareInfo +
+                ", ipAddress='" + ipAddress + '\'' +
+                ", surveillanceCamera='" + surveillanceCamera + '\'' +
+                ", videoRecordings='" + videoRecordings + '\'' +
+                ", room=" + room +
+                ", reservation=" + reservation +
+                ", expanded=" + expanded +
+                ", statusComment='" + statusComment + '\'' +
+                ", outOfService=" + outOfService +
+                '}';
+    }
 }

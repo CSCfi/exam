@@ -577,6 +577,7 @@ exams:
     grading: 0-5
     examSections:
     state: PUBLISHED
+    duration: 90
 
   - &alkeidenperusteet !!models.Exam
     creator: *maika
@@ -589,6 +590,7 @@ exams:
     grading: 0-5
     examSections:
     state: PUBLISHED
+    duration: 90
 
   - &tietokannat2013 !!models.Exam
     creator: *maika
@@ -601,6 +603,7 @@ exams:
     grading: 0-5
     examSections:
     state: PUBLISHED
+    duration: 90
 
   - &tietokannat2014 !!models.Exam
     creator: *maika
@@ -615,6 +618,7 @@ exams:
     grading: Improbatur-Laudatur
     examSections:
     state: PUBLISHED
+    duration: 90
 
   - &algoritmit !!models.Exam
     creator: *maika
@@ -642,7 +646,6 @@ exams:
     grading: 0-5
     examSections:
     state: REVIEW
-    duration: 90
     
     
 exam-sections:
