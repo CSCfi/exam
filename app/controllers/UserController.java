@@ -1,7 +1,8 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
-import actions.Authenticate;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.text.json.JsonContext;
@@ -22,14 +23,14 @@ import java.util.List;
 //todo authorization!
 public class UserController extends SitnetController {
 
-//    @Authenticate
+    @Restrict({@Group("ADMIN")})
     public static Result getUsers() {
         List<User> users = Ebean.find(User.class).findList();
         return ok(Json.toJson(users));
 
     }
 
-//    @Authenticate
+    @Restrict({@Group("ADMIN")})
     public static Result getUser(Long id) {
         User user = Ebean.find(User.class, id);
         
@@ -45,7 +46,7 @@ public class UserController extends SitnetController {
 		}
     }
 
-//    @Restrict(@Group({"TEACHER"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getUsersByRole(String role) {
     	  
     	List<User> users = Ebean.find(User.class)
@@ -74,7 +75,7 @@ public class UserController extends SitnetController {
     	return ok(Json.toJson(array));
     }
 
-    //    @Restrict(@Group({"TEACHER"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getUsersByRoleFilter(String role, String criteria) {
 
         List<User> users = Ebean.find(User.class)
@@ -99,7 +100,7 @@ public class UserController extends SitnetController {
         return ok(Json.toJson(array));
     }
 
-    //    @Restrict(@Group({"TEACHER"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
 
         List<User> users = Ebean.find(User.class)
@@ -135,23 +136,23 @@ public class UserController extends SitnetController {
 
         return ok(Json.toJson(array));
     }
-    
-    @Authenticate
+
+    @Restrict({@Group("ADMIN")})
     public static Result addUser() throws MalformedDataException {
         User user = bindForm(User.class);
         Ebean.save(user);
         return ok(Json.toJson(user.getId()));
     }
 
-    @Authenticate
+    @Restrict({@Group("ADMIN")})
     public static Result updateUser(long id) throws MalformedDataException {
         User user = bindForm(User.class);
         user.setId(id);
         Ebean.update(user);
-        return ok("ok");
+        return ok(Json.toJson(user.getId()));
     }
 
-    @Authenticate
+    @Restrict({@Group("ADMIN")})
     public static Result deleteUser(Long id) {
         Logger.debug("Delete user with id {}.", id);
         Ebean.delete(User.class, id);

@@ -2,7 +2,6 @@
     'use strict';
     angular.module("sitnet.controllers")
         .controller('UserCtrl', ['$scope', 'UserRes', function ($scope, UserRes) {
-            $scope.users = UserRes.users.query();
 
             $scope.createUser = function () {
                 UserRes.users.save($scope.user, function (user) {
