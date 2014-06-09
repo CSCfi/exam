@@ -115,6 +115,8 @@ public class SessionController extends SitnetController {
         Session session = new Session();
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
+        user.setAttributes(attributes);
+
         Cache.set(SITNET_CACHE_KEY + token, session);
         ObjectNode result = Json.newObject();
         result.put("token", token);

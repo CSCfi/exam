@@ -38,9 +38,6 @@ public class User extends Model implements Subject {
     // Shibboleth attributes
     Map<String, String[]> attributes;
 
-
-
-
     @OneToOne
     private Organisation organisation;
     

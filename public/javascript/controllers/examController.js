@@ -78,33 +78,10 @@
                 $scope.examTypes = [
                     "Osasuoritus",
                     "Loppusuoritus",
-                    "Kypsyysnäyte",
+                    "Kypsyysnäyte"
                 ];
 
-//                $scope.newExam = {
-//                    "created": null,
-//                    "creator": null,
-//                    "modified": null,
-//                    "modifier": null,
-//                    "course": {
-//                        "organisation": {
-//                            "name": null
-//                        },
-//                        "code": null,
-//                        "name": null,
-//                        "responsibleTeacher": null,
-//                        "type": null,
-//                        "credits": null
-//                    },
-//                    "name": "Kirjoita tentin nimi tähän",
-//                    "examType": null,
-//                    "instruction": null,
-//                    "shared": false,
-//                    "examSections": [],
-//                    "state": "SAVED"
-//                };
-
-                if ($routeParams.id === undefined)
+                if (($routeParams.id === undefined) && !$scope.user.isStudent)
                     $scope.exams = ExamRes.exams.query();
                 else {
                     ExamRes.exams.get({id: $routeParams.id},
@@ -464,11 +441,7 @@
 
                 };
 
-                $scope.saveCourseCode = function() {
-                    //console.log($scope.courseCodeSearch);
-                }
-
-                // Called when Save and publish button is clicked
+                // Called when Save and Publish button is clicked
                 $scope.saveAndPublishExam = function () {
 
                     var modalInstance = $modal.open({
@@ -499,7 +472,8 @@
                             "expanded": $scope.newExam.expanded
                         };
 
-                        ExamRes.exams.update({id: examToSave.id}, examToSave, function (exam) {
+                        ExamRes.exams.update({id: examToSave.id}, examToSave,
+                            function (exam) {
                             toastr.success("Tentti tallennettu ja julkaistu");
                             $location.path("/exams");
                         }, function (error) {

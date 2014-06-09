@@ -18,7 +18,7 @@
                     return [
                         {href: "#/home", visible: (student || admin || teacher), class: "fa-home", name: $translate("sitnet_dashboard")},
                         {href: "#/questions", visible: (admin || teacher), class: "fa-list-ol", name: $translate("sitnet_questions"), sub: []},
-                        {href: "#/exams", visible: (student || admin || teacher), class: "fa-paste", name: $translate("sitnet_exams"), sub: []},
+                        {href: "#/exams", visible: (admin || teacher), class: "fa-paste", name: $translate("sitnet_exams"), sub: []},
                         {href: "#/rooms", visible: (admin), class: "fa-building-o", name: $translate("sitnet_exam_rooms"), sub: []},
                         {href: "#/calendar", visible: (student || admin || teacher), class: "fa-calendar", name: $translate("sitnet_calendar")},
                         {href: "#/logout", visible: (student || admin || teacher), class: "fa-sign-out", name: $translate("sitnet_logout")},

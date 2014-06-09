@@ -9,7 +9,7 @@
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/essay_question.html";
                 $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/section_template.html";
 
-                $scope.exams = StudentExamRes.exams.query();
+//                $scope.exams = StudentExamRes.exams.query();
                 $scope.tempQuestion = null;
 
                 $scope.countCharacters = function (question) {
