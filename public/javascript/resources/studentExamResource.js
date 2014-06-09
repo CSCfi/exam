@@ -21,6 +21,14 @@
                     "get": {method: "GET", params: { uid: "@uid" }}
                 }),
 
+                enrolments: $resource("/enrolments/:uid",
+                {
+                    uid: "@uid"
+                },
+                {
+                    "get": {method: "GET", params: { uid: "@uid" }}
+                }),
+
                 exam: $resource("/student/exam/abort/:id",
                 {
                     id: "@id"

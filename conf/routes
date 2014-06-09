@@ -51,7 +51,6 @@ DELETE        /exams/:eid/section/:sid/question/:qid                controllers.
 GET           /draft                                                controllers.ExamController.createExamDraft()
 
 GET           /enrolments                                           controllers.ExamController.getEnrolments()
-GET           /enrolments/:uid                                      controllers.ExamController.getEnrolmentsForUser(uid: Long)
 GET           /inspections                                          controllers.ExamController.getInspections()
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
@@ -59,6 +58,7 @@ GET           /student/finishedexams/:uid                           controllers.
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
 PUT           /student/exam/abort/:id                               controllers.StudentExamController.abortExam(id: Long)
 GET           /student/doexam/:hash                                 controllers.StudentExamController.startExam(hash: String)
+GET           /enrolments/:uid                                      controllers.StudentExamController.getEnrolmentsForUser(uid: Long)
 
 POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
 POST          /student/exams/:hash/question/:questionId             controllers.StudentExamController.insertEssay(hash: String, questionId: Long)

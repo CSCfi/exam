@@ -722,33 +722,6 @@ exam-sections:
               - *essay2
               - *essay3
     totalScore:
-    
-exam-enrolments:
-  
-  - !!models.ExamEnrolment
-    user: *sauli
-    exam: *ooad
-    enrolledOn: 2014-05-03 20:32:04.575
-
-  - !!models.ExamEnrolment
-    user: *sauli
-    exam: *algoritmit
-    enrolledOn: 2014-04-03 20:32:04.575
-   
-  - !!models.ExamEnrolment
-    user: *sauli
-    exam: *alkeidenperusteet
-    enrolledOn: 2014-04-03 20:32:04.575
-   
-  - !!models.ExamEnrolment
-    user: *sauli
-    exam: *astronomianPerusteet
-    enrolledOn: 2014-04-03 20:32:04.575
-
-  - !!models.ExamEnrolment
-    user: *orville
-    exam: *ooad
-    enrolledOn: 2014-05-03 20:32:04.575
 
 exam-participations:
 
@@ -789,6 +762,17 @@ exam-inspections:
     exam: *ooad
    
 ############### Tilavaraus ###############
+
+mail-addresses:
+  - &oulu-yo !!models.MailAddress
+    street: Yliopistokatu 1
+    zip: 90570
+    city: Oulu
+
+calendar-events:
+  - &cal-event !!models.calendar.DefaultWorkingHours
+    startTime: 2014-05-05 08:00:00.000
+    endTime: 2014-05-05 16:00:00.000
 
 softwares:
   - &Matematica !!models.Software
@@ -856,17 +840,6 @@ exam-machines:
     outOfService: true
     statusComment: Näyttö rikki
 
-mail-addresses:
-  - &oulu-yo !!models.MailAddress
-    street: Yliopistokatu 1
-    zip: 90570
-    city: Oulu
-
-calendar-events:
-  - &cal-event !!models.calendar.DefaultWorkingHours
-    startTime: 2014-05-05 08:00:00.000
-    endTime: 2014-05-05 16:00:00.000
-
 exam-rooms:
 
   - &room-pegasus !!models.ExamRoom
@@ -888,3 +861,61 @@ exam-rooms:
       - *exam-machine2
       - *exam-machine3
     outOfService: false
+
+exam-room-reservations:
+
+  - &reservation1 !!models.Reservation
+    startAt: 2014-06-10 08:00:00.000
+    endAt: 2014-06-10 10:00:00.000
+    machine: *exam-machine1
+
+  - &reservation2 !!models.Reservation
+    startAt: 2014-06-12 12:00:00.000
+    endAt: 2014-06-12 14:00:00.000
+    machine: *exam-machine2
+
+  - &reservation3 !!models.Reservation
+    startAt: 2014-06-16 14:00:00.000
+    endAt: 2014-06-16 16:00:00.000
+    machine: *exam-machine3
+
+exam-enrolments:
+
+  - &enrolment1 !!models.ExamEnrolment
+    user: *sauli
+    exam: *ooad
+    reservation: *reservation1
+    enrolledOn: 2014-05-03 20:32:04.575
+
+  - &enrolment2 !!models.ExamEnrolment
+    user: *sauli
+    exam: *algoritmit
+    reservation: *reservation2
+    enrolledOn: 2014-04-03 20:32:04.575
+
+  - &enrolment3 !!models.ExamEnrolment
+    user: *sauli
+    exam: *alkeidenperusteet
+    reservation: *reservation3
+    enrolledOn: 2014-04-03 20:32:04.575
+
+  - &enrolment4 !!models.ExamEnrolment
+    user: *sauli
+    exam: *astronomianPerusteet
+    enrolledOn: 2014-04-03 20:32:04.575
+
+  - &enrolment5 !!models.ExamEnrolment
+    user: *orville
+    exam: *ooad
+    enrolledOn: 2014-05-03 20:32:04.575
+
+exam-types:
+
+  - &partial !!models.ExamType
+    type: Osasuoritus
+
+  - &final !!models.ExamType
+    type: Loppusuoritus
+
+  - &maturity !!models.ExamType
+    type: Kypsyysnäyte

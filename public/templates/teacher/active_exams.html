@@ -1,6 +1,7 @@
-<div class="col-md-12 nospace exams-table-title-area">
-    <span class="exams-list-title-text pull-left">{{ 'sitnet_active_exams' | translate }}</span>
-</div>
+<div class="row">
+    <div class="col-md-3 exams-table-title-area">
+        <span class="exams-list-title-text pull-left">{{ 'sitnet_active_exams' | translate }}</span>
+    </div>
 
 <!-- Active exams indications bar -->
 <!-- New participants indication -->
@@ -44,18 +45,17 @@
     <!--</a>-->
 <!--</div>-->
 
-<div class="col-md-3 col-md-offset-9">
-    <!-- href="#/rooms/{{room.id}}" -->
-    <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon pull-right fa-stack fa-lg">
-        <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
-        <i ng-show="toggleActiveExams" class="fa fa-chevron-left fa-stack-1x"></i>
-        <i ng-show="!toggleActiveExams" class="fa fa-chevron-down fa-stack-1x"></i>
-    </a>
+    <div class="col-md-3 col-md-offset-5">
+        <!-- href="#/rooms/{{room.id}}" -->
+        <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon pull-right fa-stack fa-lg">
+            <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+            <i ng-show="toggleActiveExams" class="fa fa-chevron-left fa-stack-1x"></i>
+            <i ng-show="!toggleActiveExams" class="fa fa-chevron-down fa-stack-1x"></i>
+        </a>
+    </div>
 </div>
 
 <div class="exams-list col-md-12">
-
-
     <div class="exams-table-borders col-md-12">
         <table class="table table-bordered exams-table">
             <thead>

@@ -351,12 +351,14 @@ public class ExamController extends SitnetController {
             String answerLanguage = df.get("answerLanguage");
             String examLanguage = df.get("examLanguage");
             String instruction = df.get("instruction");
+            String state = df.get("state");
+            boolean expanded = Boolean.parseBoolean(df.get("expanded"));
 
             if (examName != null) {
                 exam.setName(examName);
             }
 
-            if (shared) {
+            if (df.get("shared") != null) {
                 exam.setShared(shared);
             }
 
@@ -420,6 +422,14 @@ public class ExamController extends SitnetController {
                 }
             }
 
+            if (state != null) {
+                exam.setInstruction(instruction);
+            }
+
+            if (df.get("expanded") != null) {
+                exam.setExpanded(expanded);
+            }
+
             exam.save();
 
             JsonContext jsonContext = Ebean.createJsonContext();
@@ -437,31 +447,6 @@ public class ExamController extends SitnetController {
 
             return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
         }
-
-//        String instruction = df.get("instruction");
-//        String state = df.get("state");
-//        boolean shared = Boolean.parseBoolean(df.get("shared"));
-//        String room = df.get("room");
-//
-//        String start = df.get("examActiveStartDate");
-
-//        Long start = new Long(df.get("examActiveStartDate"));
-//        Long end = new Long(df.get("examActiveEndDate"));
-
-//        Exam ex = Form.form(Exam.class).bindFromRequest(
-//                "id",
-//                "name",
-//                "instruction",
-//                "examSections",
-//                "state",
-//                "shared",
-//                "room",
-//                "duration",
-//                "grading",
-//                "examLanguage")
-//                "answerLanguage",
-//                "expanded")
-//                .get();
 
 //        if (SitnetUtil.isOwner(ex)) {
 //            ex.setExamActiveStartDate(new Timestamp(start));
@@ -761,30 +746,6 @@ public class ExamController extends SitnetController {
             options.setRootPathProperties("id, enrolledOn, user, exam");
             options.setPathProperties("user", "id");
             options.setPathProperties("exam", "id");
-
-            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
-        }
-    }
-
-    public static Result getEnrolmentsForUser(Long uid) {
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
-                .fetch("reservation")
-                .where()
-                .eq("user.id", uid)
-                .findList();
-
-        if (enrolments == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
-            options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course");
-            options.setPathProperties("exam.course", "code");
-            options.setPathProperties("reservation", "startAt, machine");
-            options.setPathProperties("reservation.machine", "name");
 
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
         }

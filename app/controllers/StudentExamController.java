@@ -72,13 +72,33 @@ public class StudentExamController extends SitnetController {
     public static Result getFinishedExams(Long uid) {
         Logger.debug("getFinishedExams()");
 
-        List<Exam> finishedExams = Ebean.find(Exam.class)
+//        List<Exam> finishedExams = Ebean.find(Exam.class)
 //                .fetch("creator")
-                .fetch("course")
-                .where()
-                .eq("creator.id", uid)
-                .eq("state", "REVIEW")
-                .findList();
+//                .fetch("course")
+//                .where()
+//                .eq("creator.id", uid)
+//                .eq("state", "REVIEW")
+//                .eq("state", "REVIEWED")
+//                .findList();
+
+        String oql = null;
+        Query<Exam> query = null;
+
+        User user = UserController.getLoggedUser();
+        if(user.hasRole("STUDENT")) {
+            oql = "find exam " +
+                    "fetch examSections " +
+                    "fetch course " +
+                    "where (state=:review or state=:reviewed) " +
+                    "and (creator.id=:userid)";
+
+            query = Ebean.createQuery(Exam.class, oql);
+            query.setParameter("review", "REVIEW");
+            query.setParameter("reviewed", "REVIEWED");
+            query.setParameter("userid", user.getId());
+        }
+
+        List<Exam> finishedExams = query.findList();
 
         if (finishedExams == null) {
             return notFound();
@@ -118,7 +138,37 @@ public class StudentExamController extends SitnetController {
 //        return ok(Json.toJson(finishedExams));
     }
 
+    public static Result getEnrolmentsForUser(Long uid) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .fetch("reservation")
+                .where()
+                .eq("user.id", uid)
+                .findList();
+
+        if (enrolments == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+            options.setPathProperties("user", "id");
+            options.setPathProperties("exam", "id, name, course");
+            options.setPathProperties("exam.course", "code");
+            options.setPathProperties("reservation", "startAt, machine");
+            options.setPathProperties("reservation.machine", "name");
+
+            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+        }
+    }
+
     public static Result startExam(String hash) throws UnauthorizedAccessException {
+
+        Exam possibleClone = Ebean.find(Exam.class)
+                .fetch("examSections")
+                .where()
+                .eq("hash", hash)
+                .eq("state", "STUDENT_STARTED").findUnique();
 
         //todo: check credentials / token
         Exam blueprint = Ebean.find(Exam.class)
@@ -126,12 +176,6 @@ public class StudentExamController extends SitnetController {
                 .where()
                 .eq("hash", hash)
                 .findUnique();
-
-        Exam possibleClone = Ebean.find(Exam.class)
-                .fetch("examSections")
-                .where()
-                .eq("hash", hash)
-                .eq("state", "STUDENT_STARTED").findUnique();
 
         if (blueprint == null) {
             //todo: add proper exception
@@ -142,36 +186,42 @@ public class StudentExamController extends SitnetController {
             User user = UserController.getLoggedUser();
 
             Exam studentExam = (Exam)blueprint.clone();
-            studentExam.setState("STUDENT_STARTED");
-//            studentExam.setCreator(user);
-            studentExam.setParent(blueprint);
-            studentExam.generateHash();
-            studentExam.save();
-
-
-
-//            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-//                    .where()
-//                    .eq("user.id", user.getId())
-//                    .eq("exam.id", blueprint.getId())
-//                    .findUnique();
-//
-//            enrolment.setExam(studentExam);
-//            enrolment.save();
+            if (studentExam == null) {
+                return notFound();
+            } else {
+                studentExam.setState("STUDENT_STARTED");
+                studentExam.setCreator(user);
+                studentExam.setParent(blueprint);
+                studentExam.generateHash();
+                studentExam.save();
 
             // 1. might want try Serialization clone approach
             // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
             // http://avaje.org/topic-112.html
 
+//            ExamParticipation examParticipation = new ExamParticipation();
+//            examParticipation.setUser(user);
+//            examParticipation.setExam(studentExam);
+//            examParticipation.setStarted(new Timestamp(new Date().getTime()));
+//            examParticipation.save();
+//            user.getParticipations().add(examParticipation);
 
-            ExamParticipation examParticipation = new ExamParticipation();
-            examParticipation.setUser(user);
-            examParticipation.setExam(studentExam);
-            examParticipation.setStarted(new Timestamp(new Date().getTime()));
-            examParticipation.save();
-            user.getParticipations().add(examParticipation);
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
 
-            return ok(Json.toJson(studentExam));
+            options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
+                    "duration, examLanguage, answerLanguage, state, expanded");
+            options.setPathProperties("creator", "id");
+            options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
+            options.setPathProperties("examType", "id, type");
+            options.setPathProperties("examSections", "id, name, questions, exam, expanded");
+            options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, options");
+            options.setPathProperties("examSections.questions.options", "id, option" );
+            options.setPathProperties("examSections.questions.comments", "id, comment");
+
+            return ok(jsonContext.toJsonString(studentExam, true, options)).as("application/json");
+            }
         } else {
             return ok(Json.toJson(possibleClone));
         }

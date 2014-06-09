@@ -129,14 +129,6 @@
                     "remove": {method: "DELETE", params: { id: "@id"}}
                 }),
 
-                enrolments: $resource("/enrolments/:uid",
-                {
-                    uid: "@uid"
-                },
-                {
-                    "get": {method: "GET", params: { uid: "@uid" }}
-                }),
-
                 examEnrolments: $resource("/examenrolments/:eid",
                 {
                     eid: "@eid"

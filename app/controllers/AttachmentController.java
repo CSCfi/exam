@@ -32,7 +32,6 @@ public class AttachmentController extends SitnetController {
 
     public static Result addAttachmentToQuestion() throws MalformedDataException {
 
-
         MultipartFormData body = request().body().asMultipartFormData();
 
         FilePart filePart = body.getFile("attachment");
