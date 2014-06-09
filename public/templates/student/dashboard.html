@@ -61,7 +61,7 @@
         <span class="exams-list-title-text pull-left">{{'sitnet_user_enrolled_exams' | translate}}</span>
     </div>
 
-    <div class="exams-list col-md-12">
+    <div class="exams-list col-md-12" ng-controller="StudentExamController">
         <div class="exams-table-borders col-md-12">
             <table class="table table-bordered exams-table">
                 <thead>
@@ -79,7 +79,7 @@
                             <!--<i class="sitnet-light-grey fa fa-square"></i>-->
                             <i class="sitnet-dark-grey fa">{{$index + 1}}</i>
                         </td>
-                        <td>{{enrolment.exam.course.code}} - {{enrolment.exam.name}}</td>
+                        <td><a ng-click="activateExam(enrolment.exam)">{{enrolment.exam.course.code}} - {{enrolment.exam.name}}</a></td>
                         <td ng-if="enrolment.reservation">{{enrolment.reservation.machine.name}}</td>
                         <td ng-if="!enrolment.reservation">
                             <a style="color: red" href="#/calendar">{{'sitnet_new_reservation' | translate}}</a>
