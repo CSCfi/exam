@@ -938,7 +938,7 @@ exams:
     examFeedback: *comment_sauli
     grade: 5
 
-  - &alkeidenperusteetInReview !!models.Exam
+  - &alkeidenperusteetReview !!models.Exam
     creator: *sauli
     created: 2014-01-01 12:30:05.123
     course: *alkeet
@@ -950,7 +950,7 @@ exams:
     examActiveEndDate: 2014-08-01 16:00:00.123
     grading: 0-5
     examSections:
-    state: IN_REVIEW
+    state: REVIEW
     grade: 5
 
   - &astronomianPerusteet !!models.Exam
@@ -1059,7 +1059,7 @@ exam-sections:
 
   - &alkeet_mv_osio1b !!models.ExamSection
     name: Monivalinnat 1
-    exam: *alkeidenperusteetInReview
+    exam: *alkeidenperusteetReview
     questions:
               - *multi1b_sauli
               - *multi2b_sauli
@@ -1067,7 +1067,7 @@ exam-sections:
 
   - &alkeet_mv_osio2b !!models.ExamSection
     name: Monivalinnat 2
-    exam: *alkeidenperusteetInReview
+    exam: *alkeidenperusteetReview
     questions:
               - *avaruus4b_sauli
               - *multi4b_sauli
@@ -1076,7 +1076,7 @@ exam-sections:
 
   - &alkeet_essayb !!models.ExamSection
     name: Essee kysymykset
-    exam: *alkeidenperusteetInReview
+    exam: *alkeidenperusteetReview
     questions:
               - *essay1b_sauli
               - *essay2b_sauli
@@ -1175,7 +1175,7 @@ exam-participations:
 
   - !!models.ExamParticipation
     user: *sauli
-    exam: *alkeidenperusteetInReview
+    exam: *alkeidenperusteetReview
     started: 2014-05-26 08:00:00.575
     ended: 2014-05-26 10:00:00.575
 
@@ -1185,7 +1185,7 @@ exam-inspections:
    
   - !!models.ExamInspection
     user: *maika
-    exam: *alkeidenperusteetInReview
+    exam: *alkeidenperusteetReview
    
   - !!models.ExamInspection
     user: *arvo
