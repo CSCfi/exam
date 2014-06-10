@@ -80,30 +80,28 @@ public class Global extends GlobalSettings {
                 Ebean.save(all.get("user-roles"));
                 Ebean.save(all.get("user_languages"));
                 Ebean.save(all.get("organisations"));
-                Ebean.save(all.get("user_languages"));
                 Ebean.save(all.get("users"));
-//                Ebean.save(all.get("attachments"));
+                Ebean.save(all.get("attachments"));
                 Ebean.save(all.get("question_essay"));
-                Ebean.save(all.get("question_mutiple_choice"));
-                Ebean.save(all.get("comments"));
+                Ebean.save(all.get("question_multiple_choice"));
                 Ebean.save(all.get("courses"));
+                Ebean.save(all.get("comments"));
+                Ebean.save(all.get("exam-types"));
                 Ebean.save(all.get("exams"));
                 Ebean.save(all.get("exam-sections"));
-                Ebean.save(all.get("exam-enrolments"));
                 Ebean.save(all.get("exam-participations"));
                 Ebean.save(all.get("exam-inspections"));
                 Ebean.save(all.get("mail-addresses"));
                 Ebean.save(all.get("calendar-events"));
                 Ebean.save(all.get("softwares"));
-                Ebean.save(all.get("exam-rooms"));
                 Ebean.save(all.get("exam-machines"));
                 Ebean.save(all.get("exam-rooms"));
                 Ebean.save(all.get("exam-room-reservations"));
                 Ebean.save(all.get("exam-enrolments"));
-                Ebean.save(all.get("exam-types"));
+
 
                 // generate hashes for questions
-                List<QuestionInterface> questions = (List) all.get("question_mutiple_choice");
+                List<QuestionInterface> questions = (List) all.get("question_multiple_choice");
                 for (QuestionInterface q : questions) {
                     q.generateHash();
                 }
