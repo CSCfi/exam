@@ -49,7 +49,7 @@ public class User extends Model implements Subject {
     @JsonManagedReference
     private List<ExamParticipation> participations;
     
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
     private List<ExamInspection> inspections;
 

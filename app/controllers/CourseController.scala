@@ -4,6 +4,7 @@ import com.avaje.ebean.Ebean
 import models.Course
 import play.api.mvc.{Controller, Action}
 import util.scala.ScalaHacks
+import be.objectify.deadbolt.java.actions.{Group, Restrict}
 
 object CourseController extends Controller with ScalaHacks {
 
@@ -13,6 +14,7 @@ object CourseController extends Controller with ScalaHacks {
 
   val CriteriaLengthLimiter = 2
 
+  @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
   def getCourses(filterType: Option[FilterType], criteria: Option[String]) =
     Action {
       (filterType, criteria) match {
@@ -33,6 +35,7 @@ object CourseController extends Controller with ScalaHacks {
         }
     }
 
+  @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
   def getCourse(id: Long) = Action {
     Ebean.find(classOf[Course], id)
   }

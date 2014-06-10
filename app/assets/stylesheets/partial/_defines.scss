@@ -133,8 +133,14 @@ $sitnet-background: #ffffff;
 }
 
 .nospace {
-  padding:0;
-  margin:0;
+//  padding:0;
+//  margin:0;
+}
+
+.base {
+  background-color: $sitnet-background;
+  padding: 1em;
+  margin: 0em;
 }
 
 $sitnet-icon-size: 32px;
