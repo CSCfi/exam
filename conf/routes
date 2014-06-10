@@ -138,7 +138,7 @@ GET           /integration/record/:vatIdNumber/:startDate           controllers.
 
 
 ################# Calendar interface ##################
-GET           /calendar/:exam/:room/:date                           controllers.CalendarController.getSlots(exam: String, room:String, date: String)
+GET           /calendar/:examinput/:roominput/:dateinput                           controllers.CalendarController.getSlots(examinput: String, roominput:String, dateinput: String)
 POST          /calendar/reservation                                 controllers.CalendarController.createReservation()
 
 

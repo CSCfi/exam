@@ -1,44 +1,73 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$modal', function ($scope, $http, $modal) {
+        .controller('CalendarCtrl', ['$scope', '$http', '$modal', 'sessionService', 'ExamRes', function ($scope, $http, $modal, $sessionService, $ExamRes) {
 
-            $scope.events = [];
+            $scope.user = $sessionService.user;
 
-            var xhr = $http.get('calendar/01.01.2014');
+            $scope.data = [];
+            $scope.events = [$scope.data];
 
-            xhr.success(function (reply) {
-                var firstDate = undefined;
-                var data = reply.map(function (item) {
-                    var start = moment(item.start, 'DD.MM.YYYY HH:mm').toDate();
-                    var end = moment(item.end, 'DD.MM.YYYY HH:mm').toDate();
-                    if (!firstDate) {
-                        firstDate = start;
-                    }
-                    return  {title: item.title.replace(new RegExp(String.fromCharCode(160), "g"), " "), start: start, end: end, allDay: false}
-                });
+            $scope.refreshData = function (start, end, callback) {
 
-                $scope.events.push(data);
-
-                if (firstDate) {
-                    $scope.cal.fullCalendar('gotoDate', firstDate);
-                    firstDate = undefined;
+                var change = true;
+                if(callback) {
+                    change = false;
                 }
-
-            });
-            xhr.error(function (reply) {
-                $scope.reply = reply;
-            });
-
-            var xhr = $http.get('rooms');
-
-            xhr.success(function (reply) {
+                $scope.data.length = [];
+                if (!$scope.room || !$scope.enrollment) {
+                    return;
+                }
+                var room = $scope.room.id;
+                var exam = $scope.enrollment.exam.id;
+                var day = moment().format("DD.MM.YYYY");
+                if(start) {
+                    day = moment(start).format("DD.MM.YYYY");
+                }
+                var xhr = $http.get('calendar/' + exam + '/' + room + '/' + day);
+                xhr.success(function (reply) {
+                    var firstDate = undefined;
+                    angular.forEach(reply, function (item) {
+                        var start = moment(item.date, 'DD.MM.YYYY HH:mm').toDate();
+                        var end = moment(item.date, 'DD.MM.YYYY HH:mm').toDate();
+                        if (!firstDate) {
+                            firstDate = start;
+                        }
+                        $scope.data.push({
+                            title: item.slots.length + " aikaa vapaana",
+                            start: start,
+                            end: end,
+                            allDay: true
+                        });
+                    });
+                    if (firstDate && change) {
+                        $scope.cal.fullCalendar('gotoDate', firstDate);
+                        firstDate = undefined;
+                    }
+                });
+                xhr.error(function (reply) {
+                    $scope.reply = reply;
+                });
+            };
+            $http.get('rooms').success(function (reply) {
                 $scope.rooms = reply;
-                $scope.room = $scope.rooms[0];
+                if (reply.length > 0) {
+                    $scope.room = $scope.rooms[0];
+                }
+                $scope.refreshData();
             });
-            xhr.error(function (reply) {
-
-            });
+            $ExamRes.enrolments.query({uid: $scope.user.id},
+                function (enrollments) {
+                    $scope.enrollments = enrollments;
+                    if (enrollments.length > 0) {
+                        $scope.enrollment = enrollments[0];
+                    }
+                    $scope.refreshData();
+                },
+                function (error) {
+                    toastr.error(error.data);
+                }
+            );
 
             $scope.alertEventOnClick = function (date, allDay, jsEvent, view) {
                 var modalInstance = $modal.open({
@@ -52,20 +81,25 @@
                         }
                     }
                 });
-
             };
 
             $scope.uiConfig = {
                 calendar: {
-                    editable: true,
+                    editable: false,
                     header: {
-                        left: 'month basicWeek basicDay agendaWeek agendaDay',
+                        left: '',
                         center: 'title',
                         right: 'today prev,next'
                     },
+                    timeFormat: '',
                     eventClick: $scope.alertEventOnClick,
                     eventDrop: $scope.alertOnDrop,
-                    eventResize: $scope.alertOnResize
+                    eventResize: $scope.alertOnResize,
+                    eventSources: [
+                        {
+                            events: $scope.refreshData
+                        }
+                    ]
                 }
             };
         }]);

@@ -1,13 +1,22 @@
 <div id="sitnet-calendar" class="base" ng-controller="CalendarCtrl">
     <div class="row">
-        <div>
+        <div class="col-lg-2">
+
             <h2>select room</h2>
-            <select ng-model="room" ng-options="room.name for room in rooms">
+
+            <select ng-change="refreshData()"  ng-model="room" ng-options="room.name for room in rooms">
             </select>
-        </div>
-    
-        <div class="row" style="margin: 0 ">
-            <div calendar="cal" ui-calendar="uiConfig.calendar" class="col-lg-12" ng-model="events"></div>
-        </div>
+        </diV>
+        <div class="col-lg-2">
+
+            <h2>select exam</h2>
+
+            <select ng-change=" refreshData()" ng-model="enrollment" ng-options="enrollment.exam.name for enrollment in enrollments">
+            </select>
+        </diV>
+    </div>
+
+    <div class="row" style="margin: 0 ">
+        <div calendar="cal" ui-calendar="uiConfig.calendar" class="col-lg-12" ng-model="events"></div>
     </div>
 </div>

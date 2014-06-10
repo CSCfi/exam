@@ -4,7 +4,7 @@ package models;
 public final class FreeTimeSlot {
 
     private Long room;
-    private String machine;
+    private Long machine;
     private String start;
     private String end;
     private String title;
@@ -26,11 +26,11 @@ public final class FreeTimeSlot {
         this.start = start;
     }
 
-    public String getMachine() {
+    public Long getMachine() {
         return machine;
     }
 
-    public void setMachine(String machine) {
+    public void setMachine(Long machine) {
         this.machine = machine;
     }
 
