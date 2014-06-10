@@ -1,10 +1,12 @@
 package controllers;
 
 import Exceptions.UnauthorizedAccessException;
+
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
@@ -242,7 +244,7 @@ public class StudentExamController extends SitnetController {
         Logger.debug(((EssayAnswer) question.getAnswer()).getAnswer());
         return ok("success");
     }
-
+    	
     public static Result insertAnswer(String hash, Long qid, Long oid)  {
 
         // Todo: onko käyttäjällä aikaa jäljellä tehdä koetta?
@@ -295,4 +297,5 @@ public class StudentExamController extends SitnetController {
             return ok(Json.toJson(answer));
         }
     }
+   
 }

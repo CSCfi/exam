@@ -273,5 +273,7 @@
 "sitnet_exam": "Tentti",
 "sitnet_shared": "Jaettu",
 "sitnet_own": "Oma",
-"sitnet_question_short_name": "Kysymyksen lyhyt nimi"
+"sitnet_question_short_name": "Kysymyksen lyhyt nimi",
+"sitnet_teacher": "Opettaja"
+
 }

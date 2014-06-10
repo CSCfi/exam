@@ -5,6 +5,10 @@
 
             var tmpl = SITNET_CONF.TEMPLATES_PATH;
 
+            /* Enrollment */
+            $routeProvider.when('/enroll/:code', { templateUrl: tmpl + 'enroll.html', controller: 'EnrollController'});
+            $routeProvider.when('/enroll/:code/exam/:id', { templateUrl: tmpl + 'student/enrollExam.html', controller: 'EnrollController'});
+
 
             /* main navigation */
             $routeProvider.when('/home', { templateUrl: tmpl + 'home.html', controller: 'DashboardCtrl'});

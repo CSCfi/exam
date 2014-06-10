@@ -1,0 +1,38 @@
+<div id="dashboard">
+
+	<!-- Enrolled exams list -->
+	<div class="col-md-12 exams-table-title-area">
+		<span class="exams-list-title-text pull-left">{{'sitnet_user_enrolled_exams' | translate}}</span>
+	</div>
+
+	<div class="exams-list col-md-12" ng-controller="StudentExamController">
+		<div class="exams-table-borders col-md-12">
+			<table class="table table-bordered exams-table">
+				<thead>
+					<tr>
+						<th class="table-column-flag"></th>
+						<th class="table-column-examname">{{'sitnet_examcode_and_name' | translate}}</th>
+						<th class="table-column-enroll-participation">{{'sitnet_teacher' | translate}}</th>
+						<th class="table-column-open-until">{{'sitnet_exam_time' | translate}}</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="exam in exams">
+						<td>
+							<i class="sitnet-dark-grey fa">{{$index + 1}}</i>
+						</td>
+						<td>
+							<a ng-href="#/enroll/{{exam.course.code}}/exam/{{exam.id}}">{{exam.course.code}} - {{exam.name}}</a>
+						</td>
+						<td>
+							<i>{{exam.creator.firstName}} {{exam.creator.lastName}}</i>
+						</td>
+						<td>{{exam.examActiveStartDate | date:'dd.MM.yyyy HH:mm'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy HH:mm'}}</td>
+						
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+</div>

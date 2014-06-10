@@ -1,0 +1,30 @@
+<div id="dashboard">
+
+	<div class="room-info-row col-md-12">
+		<div class="sitnet-info-text pull-left">
+			<span class="sitnet-text-medium">{{ 'sitnet_room_code' | translate }}:</span>
+			<span class="sitnet-text room-info-span-text">{{ exam.course.code }}</span>
+		</div>
+		<div class="sitnet-info-text pull-left">
+			<span class="sitnet-text-medium">{{ 'sitnet_room_building_name' | translate }}:</span>
+			<span class="sitnet-text room-info-span-text">{{ room.buildingName }}</span>
+		</div>
+		<div class="sitnet-info-text pull-left">
+			<span class="sitnet-text-medium">{{ 'sitnet_room_campus' | translate }}:</span>
+			<span class="sitnet-text room-info-span-text">{{ room.campus }}</span>
+		</div>
+		<div class="sitnet-info-text pull-left">
+			<span class="sitnet-text-medium">{{ 'sitnet_exam_room_address' | translate }}:</span>
+			<span class="sitnet-text room-info-span-text">{{ room.mailAddress.street }}, {{ room.mailAddress.zip }} {{ room.mailAddress.city }}</span>
+		</div>
+		<div class="sitnet-info-text pull-left">
+			<span class="sitnet-text-medium">{{ 'sitnet_room_default_working_hours' | translate }}:</span>
+			<span class="sitnet-text room-info-span-text">{{ room.calendarEvent.startTime | date:'HH:mm' }} - {{ room.calendarEvent.endTime |
+				date:'HH:mm' }}</span>
+		</div>
+	</div>
+	<div>
+		<button ng-click="enrollExam()">Ilmoittaudu</button>
+	</div>
+
+</div>
