@@ -23,6 +23,7 @@
 						</td>
 						<td>
 							<a ng-href="#/enroll/{{exam.course.code}}/exam/{{exam.id}}">{{exam.course.code}} - {{exam.name}}</a>
+							<span><button ng-click="enrollExam(exam)">Ilmoittaudu</button></span>							
 						</td>
 						<td>
 							<i>{{exam.creator.firstName}} {{exam.creator.lastName}}</i>

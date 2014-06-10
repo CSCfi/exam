@@ -36,8 +36,8 @@
                 });
             }
             
-            $scope.enrollExam = function () {
-            	EnrollRes.enroll.create({code: $routeParams.code, id: $routeParams.id}, 
+            $scope.enrollExam = function (exam) {
+            	EnrollRes.enroll.create({code: exam.course.code, id: exam.id}, 
                         function (exam) {
             		
                     		toastr.success("Olet ilmoittautunut tenttiin<br>Muista varata tenttikone");
