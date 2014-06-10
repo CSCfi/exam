@@ -114,6 +114,7 @@
 "sitnet_exam_room_address_street": "Katuosoite",
 "sitnet_exam_room_address_zip": "Postinumero",
 "sitnet_exam_room_address_city": "Postitoimipaikka",
+"sitnet_exam_room_address": "Osoite",
 "sitnet_exam_room_machines": "Tenttitilan koneet",
 "sitnet_room_code": "Huonekoodi",
 "sitnet_room_building_name": "Rakennuksen nimi",

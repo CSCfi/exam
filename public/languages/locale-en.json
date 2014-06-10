@@ -114,6 +114,7 @@
 "sitnet_exam_room_address_street": "Street",
 "sitnet_exam_room_address_zip": "Zip code",
 "sitnet_exam_room_address_city": "City",
+"sitnet_exam_room_address": "Address",
 "sitnet_exam_room_machines": "Exam room machines",
 "sitnet_room_code": "Room code",
 "sitnet_room_building_name": "Building name",
