@@ -40,7 +40,7 @@
             	EnrollRes.enroll.create({code: $routeParams.code, id: $routeParams.id}, 
                         function (exam) {
             		
-                    		toastr.success("Olet ilmoittautunut tenttiin\nMuista varata tenttikone");
+                    		toastr.success("Olet ilmoittautunut tenttiin<br>Muista varata tenttikone");
                     		$location.path('#/home');
                         }, 
                         function (error) {
