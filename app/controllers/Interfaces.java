@@ -9,7 +9,7 @@ import models.ExamParticipation;
 import models.Organisation;
 import models.User;
 import models.dto.CourseUnitInfo;
-import models.dto.Record;
+import models.dto.ExamScore;
 import play.Logger;
 import play.libs.F;
 import play.libs.Json;
@@ -98,7 +98,7 @@ public class Interfaces extends SitnetController {
 
         final List<User> students = Ebean.find(User.class).where().eq("organisation", organisation).eq("roles.name", "STUDENT").findList();
 
-        List<Record> records = new ArrayList<Record>();
+        List<ExamScore> examScores = new ArrayList<ExamScore>();
 
         for (User student : students) {
             for (ExamParticipation participation : student.getParticipations()) {
@@ -114,31 +114,31 @@ public class Interfaces extends SitnetController {
                     }
                     */
 
-                    Record record = new Record();
-                    record.setIdentifier(student.getIdentifier());
-                    record.setCourseUnitCode(exam.getCourse().getCode());
+                    ExamScore examScore = new ExamScore();
+                    examScore.setIdentifier(student.getIdentifier());
+                    examScore.setCourseUnitCode(exam.getCourse().getCode());
                     //todo: see this!
-                    record.setExamDate(sdf.format(exam.getModified()));
-                    record.setCredits(exam.getCourse().getCredits().toString());
-                    record.setCreditLanguage(exam.getExamLanguage());
-                    record.setStudentGrade(exam.getGrade());
-                    record.setGradeScale(exam.getGrading());
-                    record.setExamScore(Double.toString(exam.getTotalScore()));
-                    record.setCourseUnitLevel(exam.getCourse().getLevel());
-                    record.setCourseUnitType(exam.getCourse().getType().getName());
+                    examScore.setExamDate(sdf.format(exam.getModified()));
+                    examScore.setCredits(exam.getCourse().getCredits().toString());
+                    examScore.setCreditLanguage(exam.getExamLanguage());
+                    examScore.setStudentGrade(exam.getGrade());
+                    examScore.setGradeScale(exam.getGrading());
+                    examScore.setExamScore(Double.toString(exam.getTotalScore()));
+                    examScore.setCourseUnitLevel(exam.getCourse().getLevel());
+                    examScore.setCourseUnitType(exam.getCourse().getType().getName());
                     //todo: fix this!
-                    record.setCreditType("");
-                    record.setLecturer("");
-                    record.setLecturerId("");
-                    record.setDate(sdf.format(new Date()));
+                    examScore.setCreditType("");
+                    examScore.setLecturer("");
+                    examScore.setLecturerId("");
+                    examScore.setDate(sdf.format(new Date()));
                     //todo: implementation
-                    record.setCourseImplementation("");
-                    records.add(record);
+                    examScore.setCourseImplementation("");
+                    examScores.add(examScore);
                 }
 
             }
 
         }
-        return ok(Json.toJson(records));
+        return ok(Json.toJson(examScores));
     }
 }

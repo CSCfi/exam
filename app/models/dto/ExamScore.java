@@ -8,7 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
-public class Record extends Model {
+public class ExamScore extends Model {
 
     // Tallennetaan Sitnet tietokantaan, koska osassa organisaatioita suoritukset viedään erä-ajona
     @Id

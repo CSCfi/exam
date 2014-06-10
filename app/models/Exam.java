@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
-import play.data.validation.Constraints;
 import util.SitnetUtil;
 
 import javax.persistence.*;
@@ -51,7 +50,7 @@ public class Exam extends SitnetModel {
     private boolean shared;
 
     // An ExamSection may be used only in one Exam
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "exam")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
     private List<ExamSection> examSections;
 
@@ -81,7 +80,7 @@ public class Exam extends SitnetModel {
     private String room;
 
     // tentin kesto
-    @Constraints.Required
+//    @Constraints.Required
     private Double duration;
 
     // Exam grading, e.g. 0-5
@@ -102,9 +101,6 @@ public class Exam extends SitnetModel {
     private String state;
 
     private String grade;
-
-    @OneToOne
-    private ExamInspection examInspection;
 
     /*
      * this is the user who is marked as evaluator of the Exam
@@ -318,14 +314,6 @@ public class Exam extends SitnetModel {
         this.creditType = creditType;
     }
 
-    public ExamInspection getExamInspection() {
-        return examInspection;
-    }
-
-    public void setExamInspection(ExamInspection examInspection) {
-        this.examInspection = examInspection;
-    }
-
     @Override
     public Object clone() {
 
@@ -355,7 +343,6 @@ public class Exam extends SitnetModel {
         clone.setExamLanguage(this.getExamLanguage());
         clone.setAnswerLanguage(this.getAnswerLanguage());
         clone.setGrade(this.getGrade());
-        clone.setExamInspection(this.getExamInspection());
         clone.setExamFeedback(this.getExamFeedback());
         clone.setCreditType(this.getCreditType());
         clone.setParent(this);

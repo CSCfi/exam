@@ -148,16 +148,72 @@ public class ExamController extends SitnetController {
         Exam exam = Ebean.find(Exam.class, id);
         if(UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isOwner(exam))
         {
-            List<ExamInspection> examInspections = Ebean.find(ExamInspection.class)
+
+            // check if exam has children
+            // if true, we cannot delete it because children exams reference this exam
+            // so we just set it ARCHIVED
+
+            int count = Ebean.find(Exam.class)
                     .where()
-                    .eq("exam.id", id)
-                    .findList();
+                    .eq("parent.id", id)
+                    .findRowCount();
 
-            for(ExamInspection e : examInspections)
-                e.delete();
+            if(count > 0) {
+                exam.setState(Exam.State.ARCHIVED.name());
+                try {
+                    exam = (Exam) SitnetUtil.setModifier(exam);
+                } catch (SitnetException e) {
+                    e.printStackTrace();
+                }
+                exam.save();
+                return ok("Exam archived");
+            }
+            else {
 
-            Ebean.delete(Exam.class, id);
-            return ok("Exam deleted from database!");
+                // If we're here it means, this exam does not have any children.
+                // e.g. this exam has never been cloned
+                // we can safely delete it completely from DB
+
+                // 1. remove enrolments. Though there shouldn't be any
+                List<ExamEnrolment> examEnrolments = Ebean.find(ExamEnrolment.class)
+                        .where()
+                        .eq("exam.id", id)
+                        .findList();
+
+                for(ExamEnrolment e : examEnrolments) {
+                    e.delete();
+                }
+
+                List<ExamInspection> examInspections = Ebean.find(ExamInspection.class)
+                        .where()
+                        .eq("exam.id", id)
+                        .findList();
+
+                // 2. remove inspections
+                for(ExamInspection e : examInspections) {
+                    e.getUser().getInspections().remove(e);
+                    e.delete();
+                }
+
+                for(ExamSection es : exam.getExamSections())
+                {
+                    es.getQuestions().clear();
+                    es.saveManyToManyAssociations("questions");
+                    es.save();
+                }
+
+                exam.getExamSections().clear();
+
+                // yes yes, its weird, but Ebean won't delete relations with ManyToMany on enchaced classes
+                // so we just tell everyone its "deleted"
+                exam.setState("DELETED");
+                exam.save();
+
+//                exam.delete();
+            }
+
+
+            return ok("Exam deleted");
         }
         else
             return forbidden("You don't have the permission to modify this object");
@@ -471,7 +527,6 @@ public class ExamController extends SitnetController {
         inspection.setUser(UserController.getLoggedUser());
         inspection.save();
 
-        exam.setExamInspection(inspection);
         exam.save();
 
         // return only id, its all we need at this point

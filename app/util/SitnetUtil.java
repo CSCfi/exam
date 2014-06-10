@@ -125,13 +125,14 @@ public class SitnetUtil {
         User user = UserController.getLoggedUser();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-        if (object.getCreator() != null) {
-            throw new SitnetException("Object already has creator");
-        } else {
+        if(UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isOwner(object))
+        {
             object.setCreator(user);
             object.setCreated(currentTime);
         }
-
+        else {
+            throw new SitnetException("Object already has creator");
+        }
         return object;
     }
 
@@ -141,11 +142,15 @@ public class SitnetUtil {
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
         // check if user is the owner of this object
-        if (object.getCreator().getId() != user.getId()) {
-            throw new SitnetException("User id:" + user.getId() + " is not owner of this object");
-        } else {
+
+        if(UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isOwner(object))
+        {
             object.setModifier(user);
             object.setModified(currentTime);
+        }
+        else
+        {
+            throw new SitnetException("User id:" + user.getId() + " is not owner of this object");
         }
 
         return object;
@@ -156,7 +161,6 @@ public class SitnetUtil {
     static public boolean isOwner(SitnetModel object) {
 
         User user = UserController.getLoggedUser();
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
         if (object.getCreator() == null) {
             Class<?> clazz = object.getClass();

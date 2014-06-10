@@ -8,7 +8,7 @@ import models.Course;
 import models.CourseType;
 import models.Organisation;
 import models.dto.CourseUnitInfo;
-import models.dto.Record;
+import models.dto.ExamScore;
 import models.questions.EssayQuestion;
 import play.Logger;
 import play.data.DynamicForm;
@@ -114,7 +114,7 @@ public class TestController extends SitnetController {
 
         Course c = new Course();
         Organisation org = new Organisation();
-        Record r = new Record();
+        ExamScore r = new ExamScore();
         CourseUnitInfo ci = new CourseUnitInfo();
         CourseType ct = new CourseType();
 
