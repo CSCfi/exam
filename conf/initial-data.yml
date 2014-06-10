@@ -588,7 +588,7 @@ exams:
 
 
   - &alkeidenperusteet !!models.Exam
-    creator: *maika
+    creator: *sauli
     created: 2014-01-01 12:30:05.123
     course: *alkeet
     name: Johdatus alkeiden perusteisiin

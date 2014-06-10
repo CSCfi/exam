@@ -72,15 +72,6 @@ public class StudentExamController extends SitnetController {
     public static Result getFinishedExams(Long uid) {
         Logger.debug("getFinishedExams()");
 
-//        List<Exam> finishedExams = Ebean.find(Exam.class)
-//                .fetch("creator")
-//                .fetch("course")
-//                .where()
-//                .eq("creator.id", uid)
-//                .eq("state", "REVIEW")
-//                .eq("state", "REVIEWED")
-//                .findList();
-
         String oql = null;
         Query<Exam> query = null;
 
@@ -89,12 +80,13 @@ public class StudentExamController extends SitnetController {
             oql = "find exam " +
                     "fetch examSections " +
                     "fetch course " +
-                    "where (state=:review or state=:reviewed) " +
+                    "where (state=:review or state=:reviewed or state=:graded) " +
                     "and (creator.id=:userid)";
 
             query = Ebean.createQuery(Exam.class, oql);
             query.setParameter("review", "REVIEW");
             query.setParameter("reviewed", "REVIEWED");
+            query.setParameter("graded", "GRADED");
             query.setParameter("userid", user.getId());
         }
 
@@ -111,31 +103,6 @@ public class StudentExamController extends SitnetController {
 
             return ok(jsonContext.toJsonString(finishedExams, true, options)).as("application/json");
         }
-
-
-
-//        List<Exam> finishedExams = Ebean.find(Exam.class)
-//                .fetch("exam")
-//                .where()
-//                .eq("creator.id", uid)
-//                .eq("state", "REVIEW")
-//                .eq("state", "IN_REVIEW_STARTED")
-//                .eq("state", "GRADED")
-//                .findList();
-
-//        String oql = "find exam " +
-//                "fetch examSections " +
-//                "fetch course " +
-//                "where (state=:review or state=:in_review_started or state=:graded) ";
-//
-//        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
-//        query.setParameter("review", "REVIEW");
-//        query.setParameter("in_review_started", "IN_REVIEW_STARTED");
-//        query.setParameter("graded", "GRADED");
-//
-//        List<Exam> exams = query.findList();
-
-//        return ok(Json.toJson(finishedExams));
     }
 
     public static Result getEnrolmentsForUser(Long uid) {
