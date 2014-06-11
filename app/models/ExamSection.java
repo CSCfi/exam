@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.AbstractQuestion;
 import util.SitnetUtil;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.List;
 
 /*
@@ -36,10 +33,12 @@ public class ExamSection extends SitnetModel {
 	private Long totalScore;
 
     // In UI, section has been expanded
-    private Boolean expanded;
+    @Column(columnDefinition="boolean default false")
+    private boolean expanded;
 
     // Are questions in this section lotteried
-    private Boolean lotteryOn;
+    @Column(columnDefinition="boolean default false")
+    private boolean lotteryOn;
 
     private int lotteryItemCount;
 
@@ -75,19 +74,19 @@ public class ExamSection extends SitnetModel {
         this.exam = exam;
     }
 
-    public Boolean getExpanded() {
+    public boolean getExpanded() {
         return expanded;
     }
 
-    public void setExpanded(Boolean expanded) {
+    public void setExpanded(boolean expanded) {
         this.expanded = expanded;
     }
 
-    public Boolean getLotteryOn() {
+    public boolean getLotteryOn() {
         return lotteryOn;
     }
 
-    public void setLotteryOn(Boolean lotteryOn) {
+    public void setLotteryOn(boolean lotteryOn) {
         this.lotteryOn = lotteryOn;
     }
 

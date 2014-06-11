@@ -34,7 +34,8 @@ abstract public class AbstractCalendarEvent extends Model {
     @Temporal(TemporalType.TIMESTAMP)
     protected Timestamp interval;
 
-    protected Boolean reoccurring;
+    @Column(columnDefinition="boolean default false")
+    protected boolean reoccurring;
 
     public String getEvent_type() {
         return event_type;
@@ -84,11 +85,11 @@ abstract public class AbstractCalendarEvent extends Model {
         this.interval = interval;
     }
 
-    public Boolean getReoccurring() {
+    public boolean getReoccurring() {
         return reoccurring;
     }
 
-    public void setReoccurring(Boolean reoccurring) {
+    public void setReoccurring(boolean reoccurring) {
         this.reoccurring = reoccurring;
     }
 }

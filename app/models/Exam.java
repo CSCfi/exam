@@ -118,7 +118,8 @@ public class Exam extends SitnetModel {
     private String creditType;
 
     // In UI, section has been expanded
-    private Boolean expanded;
+    @Column(columnDefinition="boolean default false")
+    private boolean expanded;
 
     @OneToOne(cascade = CascadeType.ALL)
     protected Attachment attachment;
@@ -150,11 +151,11 @@ public class Exam extends SitnetModel {
     }
 
 
-    public Boolean getExpanded() {
+    public boolean getExpanded() {
         return expanded;
     }
 
-    public void setExpanded(Boolean expanded) {
+    public void setExpanded(boolean expanded) {
         this.expanded = expanded;
     }
 

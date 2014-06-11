@@ -35,6 +35,7 @@ public class ExamMachine extends Model {
     private String accessibilityInfo;
 
     // Checkbox indicating is there any accessibility issues concerning the room
+    @Column(columnDefinition="boolean default false")
     private boolean accessible;
 
     // Ohjelmistot
@@ -56,18 +57,19 @@ public class ExamMachine extends Model {
     private List<Reservation> reservation;
 
     // In UI, section has been expanded
-    private Boolean expanded;
+    @Column(columnDefinition="boolean default false")
+    private boolean expanded;
 
     // Machine may be out of service,
     private String statusComment;
 
     private boolean outOfService;
 
-    public Boolean getExpanded() {
+    public boolean getExpanded() {
         return expanded;
     }
 
-    public void setExpanded(Boolean expanded) {
+    public void setExpanded(boolean expanded) {
         this.expanded = expanded;
     }
 
@@ -135,11 +137,11 @@ public class ExamMachine extends Model {
         this.statusComment = statusComment;
     }
 
-    public Boolean getOutOfService() {
+    public boolean getOutOfService() {
         return outOfService;
     }
 
-    public void setOutOfService(Boolean outOfService) {
+    public void setOutOfService(boolean outOfService) {
         this.outOfService = outOfService;
     }
 

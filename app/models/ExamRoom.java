@@ -52,7 +52,8 @@ public class ExamRoom extends Model {
     private String accessibilityInfo;
 
     // Checkbox indicating is there any accessibility issues concerning the room
-    private Boolean accessible;
+    @Column(columnDefinition="boolean default false")
+    private boolean accessible;
 
     // Tilaohjeet
     private String roomInstruction;
@@ -68,7 +69,8 @@ public class ExamRoom extends Model {
     // ExamRoom may be out of service,
     private String statusComment;
 
-    private Boolean outOfService;
+    @Column(columnDefinition="boolean default false")
+    private boolean outOfService;
 
     private String state;
 
@@ -77,13 +79,15 @@ public class ExamRoom extends Model {
     private List<ExamMachine> examMachines;
 
     // In UI, section has been expanded
-    private Boolean expanded;
+    @Column(columnDefinition="boolean default false")
+    private boolean expanded;
 
-    public Boolean getExpanded() {
+    @Column(columnDefinition="boolean default false")
+    public boolean getExpanded() {
         return expanded;
     }
 
-    public void setExpanded(Boolean expanded) {
+    public void setExpanded(boolean expanded) {
         this.expanded = expanded;
     }
 
@@ -183,11 +187,11 @@ public class ExamRoom extends Model {
         this.examMachines = examMachines;
     }
 
-    public Boolean getOutOfService() {
+    public boolean getOutOfService() {
         return outOfService;
     }
 
-    public void setOutOfService(Boolean outOfService) {
+    public void setOutOfService(boolean outOfService) {
         this.outOfService = outOfService;
     }
 
@@ -223,11 +227,11 @@ public class ExamRoom extends Model {
         this.organization = organization;
     }
 
-    public Boolean getAccessible() {
+    public boolean getAccessible() {
         return accessible;
     }
 
-    public void setAccessible(Boolean accessible) {
+    public void setAccessible(boolean accessible) {
         this.accessible = accessible;
     }
 

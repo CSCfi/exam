@@ -92,7 +92,8 @@ abstract public class AbstractQuestion extends SitnetModel {
     protected String hash;
 
     // In UI, section has been expanded
-    private Boolean expanded;
+    @Column(columnDefinition="boolean default false")
+    private boolean expanded;
 
 
     public String getType() {
@@ -183,11 +184,11 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.hash = hash;
     }
 
-    public Boolean getExpanded() {
+    public boolean getExpanded() {
         return expanded;
     }
 
-    public void setExpanded(Boolean expanded) {
+    public void setExpanded(boolean expanded) {
         this.expanded = expanded;
     }
 
