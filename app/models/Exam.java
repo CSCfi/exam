@@ -78,7 +78,8 @@ public class Exam extends SitnetModel {
     private Timestamp examActiveEndDate;
 
     // Akvaario
-    private String room;
+    @OneToOne
+    private ExamRoom room;
 
     // tentin kesto
 //    @Constraints.Required
@@ -159,7 +160,7 @@ public class Exam extends SitnetModel {
         this.expanded = expanded;
     }
 
-    public void setRoom(String room) {
+    public void setRoom(ExamRoom room) {
         this.room = room;
     }
 
@@ -215,7 +216,7 @@ public class Exam extends SitnetModel {
         return hash;
     }
 
-	public String getRoom() {
+	public ExamRoom getRoom() {
 		return room;
 	}
 

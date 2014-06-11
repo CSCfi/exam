@@ -132,11 +132,14 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="room in examRooms" ng-click="setExamRoom(room)"><a class="pointer-hand">{{room}}</a>
+                        <li ng-repeat="room in examRooms" ng-click="setExamRoom(room)"><a class="pointer-hand">{{room.name}}</a>
                         </li>
                     </ul>
                 </div>
-                <input type="text" class="form-control" ng-model="newExam.room" ui-change="updateExam()">
+                   <h6>
+                       {{newExam.room.name}}
+                       <i ng-if="newExam.room" class="fa fa-times" ng-click="removeExamRoom()" style="cursor: pointer;" title="Poista"></i>
+                   </h6>
             </div>
         </div>
 

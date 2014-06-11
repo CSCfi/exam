@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'dateService',
-            function ($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, dateService) {
+        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'RoomResource', 'dateService',
+            function ($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, RoomResource, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
@@ -25,12 +25,15 @@
                 }
 
                 // Todo: Fill in rooms from database for final version
-                $scope.examRooms = [
-                    "Room1",
-                    "Room2",
-                    "Room3",
-                    "Room4"
-                ];
+
+                $scope.examRooms = RoomResource.rooms.query();
+
+//                $scope.examRooms = [
+//                    "Room1",
+//                    "Room2",
+//                    "Room3",
+//                    "Room4"
+//                ];
 
                 // Todo: Fill in durations from database for final version
                 $scope.examDurations = [
@@ -592,6 +595,11 @@
                         // Cancel button
                     });
                 };
+
+                $scope.removeExamRoom = function() {
+                    $scope.newExam.room = null;
+                    $scope.updateExam($scope.newExam);
+                }
 
             }]);
 }());

@@ -240,8 +240,9 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded");
+                    "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, room");
             options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("room", "id, name");
             options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examType", "id, type");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
@@ -378,7 +379,6 @@ public class ExamController extends SitnetController {
 
             String examName = df.get("name");
             boolean shared = Boolean.parseBoolean(df.get("shared"));
-            String examRoomName = df.get("room");
             String duration = df.get("duration");
             String grading = df.get("grading");
             String answerLanguage = df.get("answerLanguage");
@@ -386,6 +386,20 @@ public class ExamController extends SitnetController {
             String instruction = df.get("instruction");
             String state = df.get("state");
             boolean expanded = Boolean.parseBoolean(df.get("expanded"));
+
+            String roomId = df.get("room.id");
+            if(roomId != null)
+            {
+                ExamRoom room = Ebean.find(ExamRoom.class)
+                        .where()
+                        .eq("id", Long.parseLong(roomId))
+                        .findUnique();
+
+                if(room != null)
+                    exam.setRoom(room);
+            }
+            else
+                exam.setRoom(null);
 
 
             if (examName != null) {
@@ -398,10 +412,6 @@ public class ExamController extends SitnetController {
 
             if (shared) {
                 exam.setShared(shared);
-            }
-
-            if (examRoomName != null) {
-                exam.setRoom(examRoomName);
             }
 
             Long start = new Long(df.get("examActiveStartDate"));

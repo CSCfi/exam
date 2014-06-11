@@ -5,7 +5,6 @@ import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.Attachment;
 import models.ExamSection;
 import models.SitnetModel;
 import models.User;
@@ -14,19 +13,15 @@ import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
-import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 
 
@@ -38,12 +33,10 @@ public class QuestionController extends SitnetController {
     public static Result getQuestions() {
 
         List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
+                .fetch("parent")
                 .where()
                 .eq("parent", null)
                 .findList();
-
-        if (questions != null)
-            Logger.debug(questions.toString());
 
         return ok(Json.toJson(questions));
     }
@@ -54,6 +47,7 @@ public class QuestionController extends SitnetController {
         List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
                 .where()
                 .eq("creator.id", id)
+                .eq("parent", null)
                 .orderBy("created desc")
                 .findList();
 
