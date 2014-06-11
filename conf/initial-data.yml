@@ -1186,7 +1186,11 @@ exam-inspections:
   - !!models.ExamInspection
     user: *maika
     exam: *alkeidenperusteetReview
-   
+
+  - !!models.ExamInspection
+    user: *maika
+    exam: *alkeidenperusteetGraded
+
   - !!models.ExamInspection
     user: *arvo
     exam: *astronomianPerusteet

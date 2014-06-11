@@ -267,6 +267,9 @@
 "sitnet_shared": "Shared",
 "sitnet_own": "Own",
 "sitnet_question_short_name": "Short name",
-"sitnet_teacher": "Teacher"
+"sitnet_teacher": "Teacher",
+"sitnet_exam_state": "Exam state"
+"sitnet_exit_feedback": "Exit feedback"
+
 
 }

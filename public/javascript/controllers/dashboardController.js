@@ -90,6 +90,11 @@
                     }
                 }
 
+                //Go to feedback template to show teacher's comments
+                $scope.showFeedback = function (id) {
+                    $location.path("/exams/" + id + "/feedback");
+                }
+
 
                 $scope.getUsername = function() {
                     return $scope.session.user.firstname +" "+ $scope.session.user.lastname;
