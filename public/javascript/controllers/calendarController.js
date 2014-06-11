@@ -1,38 +1,36 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$modal', 'sessionService', 'ExamRes', function ($scope, $http, $modal, $sessionService, $ExamRes) {
+        .controller('CalendarCtrl', ['$scope', '$http', '$modal', 'sessionService', 'StudentExamRes', function ($scope, $http, $modal, $sessionService, StudentExamRes) {
 
             $scope.user = $sessionService.user;
 
             $scope.data = [];
+            $scope.items = [];
             $scope.events = [$scope.data];
 
             $scope.refreshData = function (start, end, callback) {
 
                 var change = true;
-                if(callback) {
+                if (callback) {
                     change = false;
                 }
-                $scope.data.length = [];
+                $scope.data.length = 0;
                 if (!$scope.room || !$scope.enrollment) {
                     return;
                 }
                 var room = $scope.room.id;
                 var exam = $scope.enrollment.exam.id;
                 var day = moment().format("DD.MM.YYYY");
-                if(start) {
+                if (start) {
                     day = moment(start).format("DD.MM.YYYY");
                 }
                 var xhr = $http.get('calendar/' + exam + '/' + room + '/' + day);
                 xhr.success(function (reply) {
-                    var firstDate = undefined;
+                    $scope.items = reply;
                     angular.forEach(reply, function (item) {
                         var start = moment(item.date, 'DD.MM.YYYY HH:mm').toDate();
                         var end = moment(item.date, 'DD.MM.YYYY HH:mm').toDate();
-                        if (!firstDate) {
-                            firstDate = start;
-                        }
                         $scope.data.push({
                             title: item.slots.length + " aikaa vapaana",
                             start: start,
@@ -40,10 +38,6 @@
                             allDay: true
                         });
                     });
-                    if (firstDate && change) {
-                        $scope.cal.fullCalendar('gotoDate', firstDate);
-                        firstDate = undefined;
-                    }
                 });
                 xhr.error(function (reply) {
                     $scope.reply = reply;
@@ -56,7 +50,7 @@
                 }
                 $scope.refreshData();
             });
-            $ExamRes.enrolments.query({uid: $scope.user.id},
+            StudentExamRes.enrolments.query({uid: $scope.user.id},
                 function (enrollments) {
                     $scope.enrollments = enrollments;
                     if (enrollments.length > 0) {
@@ -70,17 +64,68 @@
             );
 
             $scope.alertEventOnClick = function (date, allDay, jsEvent, view) {
-                var modalInstance = $modal.open({
+                var modal = $modal.open({
                     templateUrl: 'assets/templates/calendar_reservation.html',
                     backdrop: 'static',
                     keyboard: true,
-                    controller: "CalendarCtrl",
-                    resolve: {
-                        slot: function () {
-                            return date;
+                    controller: function ($scope, $modalInstance, data, date, room, exam) {
+
+                        var key = moment(date.start).format('DD.MM.YYYY');
+
+                        var times;
+                        if (data[key]) {
+                            times = data[key].slots;
+                            $scope.times = times;
                         }
+
+                        if (times && times.length > 0) {
+                            $scope.time = times[0];
+                        }
+                        $scope.date = key;
+                        $scope.exam = exam;
+                        $scope.room = room;
+
+                        $scope.optionValue = function (item) {
+                            if (!item) {
+                                return;
+                            }
+                            return item.title + " / " + item.start.split(" ")[1] + " - " + item.end.split(" ")[1];
+                        };
+
+                        $scope.save = function () {
+                            var data = $scope.time;
+                            data.exam = $scope.exam.id;
+                            $http.post('calendar/reservation', data).success(function (reply) {
+                                console.log(reply);
+
+                                $modalInstance.close("Reserved");
+                            });
+                        };
+
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('Canceled');
+                        };
+                        $scope.changeTime = function () {
+
+                        };
+                    },
+                    resolve: {
+                        data: function () {
+                            return $scope.items;
+                        },
+                        date: function () {
+                            return date;
+                        },
+                        room: function () {
+                            return $scope.room;
+                        },
+                        exam: function () {
+                            return $scope.enrollment.exam;
+                        }
+
                     }
                 });
+
             };
 
             $scope.uiConfig = {

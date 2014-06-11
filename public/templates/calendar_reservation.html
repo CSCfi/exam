@@ -8,9 +8,8 @@
                 <div class="sitnet-info-text">
                     Aika
                 </div>
-                <div class="input-group">
-                    07.06.2014 klo 2.10
-                </div>
+                {{date}} klo <select ng-change="changeTime()"  ng-model="time" ng-options="optionValue(t) for t in times">
+                </select>
             </div>
         </div>
         <div class="row">
@@ -19,8 +18,11 @@
                     Paikka
                 </div>
                 <div class="input-group">
-                    Tenttiakvaario Pegasus / IT101
-                    Oulun yliopiston päärakennus / Linnanmaa
+                    {{room.name}}
+                    <br>
+                    {{room.buildingName}}
+                    <br>
+                    {{room.campus}}
                 </div>
             </div>
         </div>
@@ -30,7 +32,7 @@
                     Koe
                 </div>
                 <div class="input-group">
-                    Astronomian perusteet
+                    {{ exam.course.code }} - {{exam.name}}
                 </div>
             </div>
         </div>
@@ -41,7 +43,7 @@
         </div>
         <div class="col-md-3 col-md-offset-5">
             <!--{{'sitnet_create_new' | translate}}-->
-            <button ng-click="saveInspector()" class="btn btn-primary">Tee varaus</button>
+            <button ng-click="save()" class="btn btn-primary">Tee varaus</button>
         </div>
     </div>
 </div>

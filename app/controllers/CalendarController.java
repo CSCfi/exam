@@ -2,6 +2,7 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
@@ -11,12 +12,13 @@ import org.joda.time.format.DateTimeFormatter;
 import play.libs.Json;
 import play.mvc.Result;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 
-//I am   so sorry. Really.
+//I am so sorry. Really.
 
 public class CalendarController extends SitnetController {
 
@@ -25,9 +27,38 @@ public class CalendarController extends SitnetController {
 
 
     public static Result createReservation() throws MalformedDataException {
+        JsonNode json = request().body().asJson();
 
-        FreeTimeSlot machine = bindForm(FreeTimeSlot.class);
-        System.out.println(machine);
+        //todo: add more validation, user can make loooon reservations eg.
+        final Integer machineId = json.get("machine").asInt();
+        final Integer examId = json.get("exam").asInt();
+        final DateTime start = DateTime.parse(json.get("start").asText(), format);
+        final DateTime end = DateTime.parse(json.get("end").asText(), format);
+
+        final User user = UserController.getLoggedUser();
+        final ExamMachine machine = Ebean.find(ExamMachine.class, machineId);
+
+        final Reservation reservation = new Reservation();
+        reservation.setEndAt(new Timestamp(end.getMillis()));
+        reservation.setStartAt(new Timestamp(start.getMillis()));
+        reservation.setMachine(machine);
+
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .where()
+                .eq("user.id", user.getId())
+                .eq("exam.id", examId)
+                .findUnique();
+
+        final Reservation oldReservation = enrolment.getReservation();
+
+        Ebean.save(reservation);
+        enrolment.setReservation(reservation);
+        Ebean.save(enrolment);
+
+        if(oldReservation != null) {
+            Ebean.delete(oldReservation);
+        }
+
         return ok("ok");
 
     }
@@ -37,10 +68,7 @@ public class CalendarController extends SitnetController {
 
         final Long selectedExamId = Long.parseLong(examinput);
         final Long examRoomId = Long.parseLong(roominput);
-        //final User loggedUser = UserController.getLoggedUser();
-        final Long userId = 3l; //loggedUser.getId();
-
-        User user = Ebean.find(User.class, userId);//UserController.getLoggedUser();
+        final User user = UserController.getLoggedUser();
 
         ExamEnrolment examEnrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
@@ -80,14 +108,24 @@ public class CalendarController extends SitnetController {
             final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, current);
             current = current.plusDays(1);
             allPossibleFreeTimeSlots.putAll(slots);
+            D("current: " + current);
+            D("slots: " + slots);
         } while (current.minusDays(1).isBefore(examEndDateTime));
 
         return ok(Json.toJson(allPossibleFreeTimeSlots));
     }
 
+    private static void D(Object s) {
+        System.out.println("--");
+        System.out.println(s);
+    }
+
 
     private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay) {
+        D(room.getExamMachines());
         Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<String, DayWithFreeTimes>();
+
+        final DateTime now = DateTime.now();
 
         for (ExamMachine examMachine : room.getExamMachines()) {
 
@@ -99,7 +137,7 @@ public class CalendarController extends SitnetController {
             final DateTime startTime;
             final DateTime endTime;
 
-            if(forDay.toLocalDate().equals(LocalDate.now())) {
+            if (forDay.toLocalDate().equals(now.toLocalDate()) && hours.getStart().isBefore(now)) {
                 startTime = DateTime.now();
             } else {
                 startTime = hours.getStart();
@@ -107,13 +145,13 @@ public class CalendarController extends SitnetController {
 
             final DateTime examEnd = new DateTime(exam.getExamActiveEndDate());
 
-            if(forDay.toLocalDate().equals(examEnd.toLocalDate())) {
+            if (forDay.toLocalDate().equals(examEnd.toLocalDate())) {
                 endTime = examEnd;
             } else {
                 endTime = hours.getEnd();
             }
 
-            if(endTime.isBefore(startTime)) {
+            if (endTime.isBefore(startTime)) {
                 continue;
             }
 
@@ -121,7 +159,7 @@ public class CalendarController extends SitnetController {
 
             final Double examDuration;
 
-            if(exam.getDuration() == null) {
+            if (exam.getDuration() == null) {
                 continue;
             }
 

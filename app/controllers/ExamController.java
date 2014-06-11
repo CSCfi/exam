@@ -820,7 +820,7 @@ public class ExamController extends SitnetController {
         }
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getEnrolmentsForExam(Long eid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
