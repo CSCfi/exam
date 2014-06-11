@@ -235,7 +235,7 @@ public class ExamController extends SitnetController {
         {
             return notFound();
         }
-        else if(exam.isShared() || SitnetUtil.isOwner(exam))
+        else if(exam.isShared() || SitnetUtil.isOwner(exam) || exam.getState().equals("REVIEW") || exam.getState().equals("IN_REVIEW"))
         {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
@@ -245,7 +245,9 @@ public class ExamController extends SitnetController {
             options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examType", "id, type");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
-            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, options");
+            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, options, answer");
+            options.setPathProperties("examSections.questions.answer", "type, option, answer");
+            options.setPathProperties("examSections.questions.answer.option", "id, option, correctOption, score");
             options.setPathProperties("examSections.questions.options", "id, option" );
             options.setPathProperties("examSections.questions.comments", "id, comment");
             options.setPathProperties("examFeedback", "id, comment");

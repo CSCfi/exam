@@ -543,6 +543,10 @@
 
                     ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
                         section = sec;
+
+//                        if( section.lotteryItemCount === undefined )
+//                            section.lotteryItemCount = 1;
+
                     }, function (error) {
                         toastr.error(error.data);
                     });
