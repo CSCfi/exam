@@ -363,7 +363,7 @@
                             "grading": $scope.newExam.grading,
                             "examLanguage": $scope.newExam.examLanguage,
                             "answerLanguage": $scope.newExam.answerLanguage,
-                            "expanded": $scope.newExam.expanded
+                            "expanded": $scope.newExam.expanded,
                         };
 
                         ExamRes.exams.update({id: newExam.id}, examToSave,
@@ -536,6 +536,36 @@
                 $scope.examFilter = function(item, comparator)
                 {
                     return (item.state == comparator);
+                };
+
+                $scope.toggleLottery = function (section) {
+
+                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
+                        section = sec;
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                };
+
+                $scope.updateLotteryCount = function (section) {
+
+                    if (section.lotteryItemCount > section.questions.length) {
+                        toastr.info("Arvonnassa ei voi olla enemmän kysymyksiä kuin osioon on lisättynä.");
+                        section.lotteryItemCount = section.questions.length;
+                    }
+
+                    else if (section.lotteryItemCount < 1) {
+                        toastr.info("Arvonnassa täytyy olla vähintään yksi kysymys.");
+                        section.lotteryItemCount = section.questions.length;
+                    }
+
+                    else {
+                        ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
+                            section = sec;
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    }
                 };
             }]);
 }());

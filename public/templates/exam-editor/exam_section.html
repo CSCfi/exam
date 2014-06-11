@@ -1,9 +1,9 @@
-<div class="nospace section-header col-md-12">
-     <span class="pull-left fa-stack fa-lg">
+<div class="section-header col-md-12">
+    <div class="col-md-1 pull-left fa-stack fa-lg">
         <i class="fa icon-theme fa-stop fa-stack-2x"></i>
         <span class="fa sitnet-white fa-stack-1x">{{$index+1}}.</span>
-     </span>
-    <div class="col-md-8" ng-init="showName = true">
+    </div>
+    <div class="col-md-6" ng-init="showName = true">
         <div ng-show="showName">
                 <span class="pull-left section-header-text" ng-click="showName = !showName">
                     {{section.name}} <i class="fa fa-pencil"></i>
@@ -20,6 +20,7 @@
             </form>
         </div>
     </div>
+
     <div class="pull-right">
         <a class="sub-header-icon pull-right fa-stack fa-lg" ng-click="section.expanded = !section.expanded; expandSection(section)">
             <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
@@ -34,12 +35,31 @@
         <ul class="dropdown-menu">
             <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
             <li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>
-            <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' |
-                translate}}</a></li>
-            <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' |
-                translate}}</a></li>
+            <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>
+            <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>
         </ul>
     </div>
+
+    <div class="col-md-4 pull-right" style="padding-left: 4em">
+        <div ng-show="section.lotteryOn">
+            <div style="padding-right: 1em; margin-top: 0.7em" class="pull-left pointer-hand">
+                <input style="margin-right: 0.3em" type="checkbox" name="On" value="On" ng-click="section.lotteryOn = !section.lotteryOn; toggleLottery(section)"
+                       ng-model="section.lotteryOn">Arvo kysymykset</input>
+            </div>
+            <span>
+                <input style="margin-top: 0.5em; width: 20%" class="pull-left" type="number" name="quantity" min="1" max="{{section.questions.length}}" step="1"
+                       ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)">
+            </span>
+        </div>
+
+        <div ng-show="!section.lotteryOn">
+            <div style="padding-right: 1em; margin-top: 0.7em">
+                <input style="margin-right: 0.3em" type="checkbox" name="Off" value="Off" ng-click="section.lotteryOn = !section.lotteryOn; toggleLottery(section)"
+                        ng-model="section.lotteryOn">Arvo kysymykset</input>
+            </div>
+        </div>
+    </div>
+
 </div>
 <div class="col-md-12 top-padding-2" ng-show="section.expanded">
     <div class="question" ng-include="questionPath" ng-repeat="question in section.questions"></div>

@@ -38,6 +38,11 @@ public class ExamSection extends SitnetModel {
     // In UI, section has been expanded
     private Boolean expanded;
 
+    // Are questions in this section lotteried
+    private Boolean lotteryOn;
+
+    private int lotteryItemCount;
+
 	public List<AbstractQuestion> getQuestions() {
 		return questions;
 	}
@@ -76,6 +81,22 @@ public class ExamSection extends SitnetModel {
 
     public void setExpanded(Boolean expanded) {
         this.expanded = expanded;
+    }
+
+    public Boolean getLotteryOn() {
+        return lotteryOn;
+    }
+
+    public void setLotteryOn(Boolean lotteryOn) {
+        this.lotteryOn = lotteryOn;
+    }
+
+    public int getLotteryItemCount() {
+        return lotteryItemCount;
+    }
+
+    public void setLotteryItemCount(int lotteryItemCount) {
+        this.lotteryItemCount = lotteryItemCount;
     }
 
     @Override

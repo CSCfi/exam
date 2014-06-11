@@ -11,6 +11,7 @@ import util.SitnetUtil;
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -361,11 +362,14 @@ public class Exam extends SitnetModel {
             examsec_copy.setQuestions(null);
             examsec_copy.setEbeanTimestamp(null);
 
-            for (AbstractQuestion q : es.getQuestions()) {
+            if (examsec_copy.getLotteryOn()) {
+                Collections.shuffle(es.getQuestions());
 
-                AbstractQuestion question_copy = (AbstractQuestion)q._ebean_createCopy();
-                question_copy.setId(null);
-                question_copy.setParent(q);
+                for (int i=0; i<es.getLotteryItemCount(); i++) {
+                    AbstractQuestion q = es.getQuestions().get(i);
+                    AbstractQuestion question_copy = (AbstractQuestion)q._ebean_createCopy();
+                    question_copy.setId(null);
+                    question_copy.setParent(q);
 
                     switch (q.getType()) {
                         case "MultipleChoiceQuestion": {
@@ -386,8 +390,42 @@ public class Exam extends SitnetModel {
                         } break;
 
                     }
-                examQuestionCopies.add(question_copy);
+                    examQuestionCopies.add(question_copy);
+                }
             }
+
+            else {
+
+                for (AbstractQuestion q : es.getQuestions()) {
+
+                    AbstractQuestion question_copy = (AbstractQuestion) q._ebean_createCopy();
+                    question_copy.setId(null);
+                    question_copy.setParent(q);
+
+                    switch (q.getType()) {
+                        case "MultipleChoiceQuestion": {
+                            List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
+
+
+                            List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
+                            for (MultipleChoiseOption o : options) {
+                                MultipleChoiseOption m_option_copy = (MultipleChoiseOption) o._ebean_createCopy();
+                                m_option_copy.setId(null);
+                                multipleChoiceOptionCopies.add(m_option_copy);
+                            }
+                            ((MultipleChoiceQuestion) question_copy).setOptions(multipleChoiceOptionCopies);
+                            question_copy.save();
+                        }
+                        case "EssayQuestion": {
+
+                        }
+                        break;
+
+                    }
+                    examQuestionCopies.add(question_copy);
+                }
+            }
+
             examsec_copy.setQuestions(examQuestionCopies);
             examsec_copy.save();
             examsec_copy.saveManyToManyAssociations("questions");

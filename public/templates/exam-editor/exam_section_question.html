@@ -1,13 +1,20 @@
 <div ng-class="question.expand ? 'single-question-header-active' : 'single-question-header-inactive'">
-	<span class="single-question-icon">
+    <!-- Question icon -->
+    <span class="single-question-icon">
 		<i class="fa fa-1x fa-list-ul"></i>
 	</span>
+
+    <!-- Question -->
     <span ng-bind-html="question.question"></span>
-  	<span style="padding-right: 1em;" ng-click="question.expanded = !question.expanded; expandQuestion(question)" class="pull-right pointer-hand">
+
+    <!-- Chevron icon -->
+    <span style="padding-right: 1em;" ng-click="question.expanded = !question.expanded; expandQuestion(question)" class="pull-right pointer-hand">
             <i ng-class="question.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
                class="sitnet-white fa fa-1x"></i>
     </span>
-    <span style="padding-right: 1em;" ng-click="editQuestion(question)" class=" dropdown pull-right pointer-hand">
+
+    <!-- Cog icon -->
+    <span style="padding-right: 1em;" ng-click="editQuestion(question)" class="dropdown pull-right pointer-hand">
 		<a class="dropdown-toggle">
 			<i class="sitnet-white fa fa-cog fa-1x"></i>
 	    </a>
@@ -16,7 +23,6 @@
 			<li><a ng-click="removeQuestion(section, question)">{{'sitnet_remove' | translate}}</a></li>
 		</ul>
 	</span>
-<!--     </div> -->
 </div>
 <ol ng-show="question.expanded">
     <li class="exam-question-option" ng-repeat="option in question.options">
