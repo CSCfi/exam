@@ -33,8 +33,6 @@
             <i class="fa fa-wrench fa-stack-1x"></i>
         </a>
         <ul class="dropdown-menu">
-            <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-            <!--<li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>-->
             <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>
             <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>
         </ul>
@@ -48,7 +46,7 @@
             </div>
             <span>
                 <input style="margin-top: 0.5em; width: 20%" class="pull-left" type="number" name="quantity" min="1" max="{{section.questions.length}}"
-                       ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)" autofocus>
+                       ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)" autofocus> / {{section.questions.length}}
             </span>
         </div>
 

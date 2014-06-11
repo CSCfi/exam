@@ -98,7 +98,7 @@
                 link: function (scope, elem, attrs) {
 
                     var winHeight = $window.innerHeight;
-                    elem.css('height', winHeight - 100);
+                    elem.css('height', winHeight - 15);
                  }
             };
         });

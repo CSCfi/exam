@@ -23,6 +23,6 @@
                         "insert": {method: "POST", params: { id: "@id"}},
                         "remove": {method: "DELETE", params: { id: "@id"}}
                     })
-        }
+            }
         }]);
 }());
