@@ -27,7 +27,7 @@
         <div class="exam-question-container" ng-show="question.expanded">
             <div class="question" ng-include="question.template"></div>
             <div ng-show="question.attachment !== null">
-                <a href="/attachment/question/download/{{question.id}}"> {{'sitnet_download_attachment' | translate }} </a>
+                <a href="/attachment/question/{{question.id}}"> {{'sitnet_download_attachment' | translate }} </a>
             </div>
 
         </div>

@@ -538,7 +538,6 @@
                     return (item.state == comparator);
                 };
 
-<<<<<<< HEAD
                 $scope.toggleLottery = function (section) {
 
                     ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
@@ -571,7 +570,8 @@
                             toastr.error(error.data);
                         });
                     }
-=======
+                }
+
                 $scope.selectFile = function () {
 
 
@@ -591,7 +591,7 @@
                     }, function () {
                         // Cancel button
                     });
->>>>>>> SIT-114 Attachment downloading issues.
                 };
+
             }]);
 }());

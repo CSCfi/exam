@@ -277,7 +277,7 @@
             </div>
             <div ng-show="newExam.attachment !== null" ng-controller="ExamController">
                 {{newExam.attachment.fileName}} <a href="/attachment/exam/delete/{{newExam.id}}"> {{'sitnet_remove_attachment' | translate }} </a>
-                <a href="/attachment/exam/download/{{newExam.id}}"> {{'sitnet_download_attachment' | translate }} </a>
+                <a href="/attachment/exam/{{newExam.id}}"> {{'sitnet_download_attachment' | translate }} </a>
             </div>
             <br>
             <button ng-click="selectFile()"class=form-control">{{'sitnet_attach_file' | translate}}</button>
