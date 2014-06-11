@@ -20,11 +20,6 @@ public class Attachment extends SitnetModel {
     }
     public String getFileName() { return this.fileName; }
     public void setFilePath(String filePath) {
-
-        if (this.filePath != null) {
-            // We're updating an existing attachment, remove old file
-            SitnetUtil.removeAttachmentFile(this.filePath);
-        }
         this.filePath = filePath;
     }
     public String getFilePath() {

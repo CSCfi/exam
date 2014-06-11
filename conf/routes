@@ -129,8 +129,11 @@ PUT           /softwares/update/:id/:name                           controllers.
 
 ############## Attachment ############################
 POST          /attachment/question                                  controllers.AttachmentController.addAttachmentToQuestion()
-GET           /attachment/question/delete/:id                       controllers.AttachmentController.deleteQuestionAttachment(id: Long)
-GET           /attachment/question/download/:id                     controllers.AttachmentController.downloadQuestionAttachment(id: Long)
+DELETE        /attachment/question/:id                              controllers.AttachmentController.deleteQuestionAttachment(id: Long)
+GET           /attachment/question/:id                              controllers.AttachmentController.downloadQuestionAttachment(id: Long)
+POST          /attachment/exam                                      controllers.AttachmentController.addAttachmentToExam()
+DELETE        /attachment/exam/:id                                  controllers.AttachmentController.deleteExamAttachment(id: Long)
+GET           /attachment/exam/:id                                  controllers.AttachmentController.downloadExamAttachment(id: Long)
 
 
 #### integration ####

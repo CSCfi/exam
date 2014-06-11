@@ -538,6 +538,7 @@
                     return (item.state == comparator);
                 };
 
+<<<<<<< HEAD
                 $scope.toggleLottery = function (section) {
 
                     ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
@@ -566,6 +567,27 @@
                             toastr.error(error.data);
                         });
                     }
+=======
+                $scope.selectFile = function () {
+
+
+                    // Save exam first to not lose data.
+                    $scope.saveExam();
+
+                    var modalInstance = $modal.open({
+                        templateUrl: 'assets/templates/exam-editor/dialog_exam_attachment_selection.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: "ModalInstanceCtrl"
+                    });
+
+                    modalInstance.result.then(function () {
+                        // OK button
+                        $location.path('/questions/'+ $scope.newQuestion.id);
+                    }, function () {
+                        // Cancel button
+                    });
+>>>>>>> SIT-114 Attachment downloading issues.
                 };
             }]);
 }());

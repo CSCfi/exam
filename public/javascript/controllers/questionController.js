@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('QuestionCtrl', ['$scope', '$modal', '$routeParams', '$location', '$translate', 'QuestionRes', 'ExamRes', 'sessionService', 'SITNET_CONF',
-            function ($scope, $modal, $routeParams, $location, $translate, QuestionRes, ExamRes, sessionService, SITNET_CONF) {
+        .controller('QuestionCtrl', ['$scope', '$http','$modal', '$routeParams', '$location', '$translate', 'QuestionRes', 'ExamRes', 'sessionService', 'SITNET_CONF',
+            function ($scope, $http, $modal, $routeParams, $location, $translate, QuestionRes, ExamRes, sessionService, SITNET_CONF) {
 
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
@@ -284,7 +284,7 @@
                     $scope.saveQuestion()
 
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/question-editor/dialog_attachment_selection.html',
+                        templateUrl: 'assets/templates/question-editor/dialog_question_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: "ModalInstanceCtrl"
@@ -298,23 +298,52 @@
                     });
                 };
 
-                $scope.submit = function() {
+                $scope.submit = function(question) {
 
-                    $http({
-
-                        url: "attachmet",
-                        data: $scope.form,
-                        method: 'POST',
-                        headers : {'Content-Type':'multipart/form-data'}
-
-                    }).success(function(data){
-
-                        console.log("OK", data)
-
-                    }).error(function(err){"ERR", console.log(err)});
-
-
+                    var file = $scope.attachmentFile;
+                    var url = "attachment/question";
+                    //$scope.fileUpload.uploadAttachment(file, url);
+                    var fd = new FormData();
+                    fd.append('file', file);
+                    fd.append('questionId', question.id);
+                    $http.post(url, fd, {
+                        transformRequest: angular.identity,
+                        headers: {'Content-Type': undefined}
+                    })
+                        .success(function(){
+                        })
+                        .error(function(){
+                        });
                 }
 
-            }]);
+            }])
+        .directive('fileModel', ['$parse', function ($parse) {
+            return {
+                restrict: 'A',
+                link: function(scope, element, attrs) {
+                    var model = $parse(attrs.fileModel);
+                    var modelSetter = model.assign;
+
+                    element.bind('change', function(){
+                        scope.$apply(function(){
+                            modelSetter(scope, element[0].files[0]);
+                        });
+                    });
+                }
+            };
+        }])
+        .service('fileUpload', ['$http', function ($http) {
+            this.uploadAttachment = function(file, url){
+                var fd = new FormData();
+                fd.append('file', file);
+                $http.post(url, fd, {
+                    transformRequest: angular.identity,
+                    headers: {'Content-Type': undefined}
+                })
+                    .success(function(){
+                    })
+                    .error(function(){
+                    });
+            }
+        }]);
 }());

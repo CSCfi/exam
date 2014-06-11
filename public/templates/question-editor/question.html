@@ -109,15 +109,18 @@
                                   placeholder="{{'sitnet_correct_answer_should_have' | translate}}">
                         </textarea>
                     </div>
-                    <div class="sitnet-info-text">
-                        {{'sitnet_question_attachment' | translate}}
+                    <div ng-controller="AttachmentController">
+                        <div class="sitnet-info-text">
+                            {{'sitnet_question_attachment' | translate}}
+                        </div>
+                        <div ng-show="newQuestion.attachment !== null">
+                            {{newQuestion.attachment.fileName}} <a ng-click="removeQuestionAttachment(newQuestion.id)"> {{'sitnet_remove_attachment' | translate }} </a>
+                            <!-- <a ng-href="attachment/question/{{newQuestion.id}}" target="_self"> {{'sitnet_download_attachment' | translate }} </a>-->
+                                                                <a ng-click="downloadQuestionAttachment(newQuestion)"> {{'sitnet_download_attachment' | translate }} </a>
+                        </div>
+                        <br>
+                        <button ng-click="selectFile()"class=form-control">{{'sitnet_attach_file' | translate}}</button>
                     </div>
-                    <div ng-show="newQuestion.attachment !== null">
-                        {{newQuestion.attachment.fileName}} <a href="/attachment/question/delete/{{newQuestion.id}}"> {{'sitnet_remove_attachment' | translate }} </a>
-                                                            <a href="/attachment/question/download/{{newQuestion.id}}"> {{'sitnet_download_attachment' | translate }} </a>
-                    </div>
-                    <br>
-                    <button ng-click="selectFile()"class=form-control">{{'sitnet_attach_file' | translate}}</button>
 
                      <!--ng-show="selectedType"-->
                      <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion(); go(returnURL)" type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
