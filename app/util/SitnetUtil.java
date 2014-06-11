@@ -125,7 +125,7 @@ public class SitnetUtil {
         User user = UserController.getLoggedUser();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-        if(UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isOwner(object))
+        if(object.getCreator() == null)
         {
             object.setCreator(user);
             object.setCreated(currentTime);
@@ -141,22 +141,11 @@ public class SitnetUtil {
         User user = UserController.getLoggedUser();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
-        // check if user is the owner of this object
-
-        if(UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isOwner(object))
-        {
-            object.setModifier(user);
-            object.setModified(currentTime);
-        }
-        else
-        {
-            throw new SitnetException("User id:" + user.getId() + " is not owner of this object");
-        }
+        object.setModifier(user);
+        object.setModified(currentTime);
 
         return object;
     }
-
-
 
     static public boolean isOwner(SitnetModel object) {
 

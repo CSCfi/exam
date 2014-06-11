@@ -377,7 +377,7 @@ public class ExamController extends SitnetController {
             String examName = df.get("name");
             boolean shared = Boolean.parseBoolean(df.get("shared"));
             String examRoomName = df.get("room");
-            Double duration = Double.valueOf(df.get("duration"));
+            String duration = df.get("duration");
             String grading = df.get("grading");
             String answerLanguage = df.get("answerLanguage");
             String examLanguage = df.get("examLanguage");
@@ -413,7 +413,7 @@ public class ExamController extends SitnetController {
             }
 
             if (duration != null) {
-                exam.setDuration(duration);
+                exam.setDuration(Double.valueOf(duration));
             }
 
             if (grading != null) {

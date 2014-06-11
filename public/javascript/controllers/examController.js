@@ -363,7 +363,7 @@
                             "grading": $scope.newExam.grading,
                             "examLanguage": $scope.newExam.examLanguage,
                             "answerLanguage": $scope.newExam.answerLanguage,
-                            "expanded": $scope.newExam.expanded,
+                            "expanded": $scope.newExam.expanded
                         };
 
                         ExamRes.exams.update({id: newExam.id}, examToSave,
