@@ -1,8 +1,13 @@
 <div ng-class="question.expand ? 'single-question-header-active' : 'single-question-header-inactive'">
-    <!-- Question icon -->
-    <span class="single-question-icon">
-		<i class="fa fa-1x fa-list-ul"></i>
-	</span>
+    <!-- Multiple choice question icon -->
+    <span ng-if="question.type === 'MultipleChoiceQuestion'">
+	    <i class="single-question-icon fa fa-1x fa-list-ul"></i>
+    </span>
+
+    <!-- Essay question icon -->
+    <span ng-if="question.type === 'EssayQuestion'">
+        <i class="single-question-icon fa fa-1x fa-edit"></i>
+    </span>
 
     <!-- Question -->
     <span ng-bind-html="question.question"></span>

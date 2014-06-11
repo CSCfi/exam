@@ -319,14 +319,9 @@ public class Exam extends SitnetModel {
     @Override
     public Object clone() {
 
-//        return SitnetUtil.getClone(this);
-
-        Exam clone = new Exam();
-
 //        Exam clone = (Exam)SitnetUtil.getClone(this);
 
-//        clone.setState("STUDENT_STARTED");
-//        clone.generateHash();
+        Exam clone = new Exam();
 
         clone.setCreated(this.getCreated());
         clone.setCreator(this.getCreator());
@@ -387,7 +382,7 @@ public class Exam extends SitnetModel {
                             question_copy.save();
                         }
                         case "EssayQuestion": {
-
+                            // No need to implement because EssayQuestion doesn't have object relations
                         } break;
 
                     }
@@ -418,10 +413,9 @@ public class Exam extends SitnetModel {
                             question_copy.save();
                         }
                         case "EssayQuestion": {
-
+                            // No need to implement because EssayQuestion doesn't have object relations
                         }
                         break;
-
                     }
                     examQuestionCopies.add(question_copy);
                 }
@@ -435,9 +429,6 @@ public class Exam extends SitnetModel {
         }
 
         clone.setExamSections(examSectionsCopies);
-
-//        clone.generateHash();
-//        clone.setState("STUDENT_STARTED");
         clone.generateHash();
 
         return clone;
