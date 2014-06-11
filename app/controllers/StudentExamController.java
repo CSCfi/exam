@@ -107,6 +107,24 @@ public class StudentExamController extends SitnetController {
         }
     }
 
+    //  @Restrict(@Group({"STUDENT"}))
+    public static Result getExamGeneralInfo(Long id)  {
+
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("course")
+                .where()
+                .eq("id", id)
+                .findUnique();
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, grading, room, course, creator");
+        options.setPathProperties("course", "code, name, level, type, credits");
+        options.setPathProperties("creator", "firstName, lastName, email");
+
+        return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+    }
+
     public static Result getEnrolmentsForUser(Long uid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")

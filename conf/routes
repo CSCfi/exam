@@ -55,6 +55,7 @@ GET           /inspections                                          controllers.
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
 GET           /student/finishedexams/:uid                           controllers.StudentExamController.getFinishedExams(uid: Long)
+GET           /student/exams/:eid/feedback                          controllers.StudentExamController.getExamGeneralInfo(eid: Long)
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
 PUT           /student/exam/abort/:id                               controllers.StudentExamController.abortExam(id: Long)
 GET           /student/doexam/:hash                                 controllers.StudentExamController.startExam(hash: String)
@@ -66,10 +67,10 @@ POST          /student/exams/:hash/question/:questionId             controllers.
 
 ############### Enrolment interface ###############
 
-GET           /enroll/:code                                 		controllers.EnrollController.enrollExamList(code: String)
-GET           /enroll/:code/exam/:id                           		controllers.EnrollController.enrollExamInfo(code: String, id: Long)
-POST          /enroll/:code/exam/:id                           		controllers.EnrollController.createEnrolment(code: String, id: Long)
-DELETE        /enroll/:code/exam/:id	                           	controllers.EnrollController.deleteEnrolment(code: String, id: Long)
+GET           /enroll/:code                                         controllers.EnrollController.enrollExamList(code: String)
+GET           /enroll/:code/exam/:id                                controllers.EnrollController.enrollExamInfo(code: String, id: Long)
+POST          /enroll/:code/exam/:id                                controllers.EnrollController.createEnrolment(code: String, id: Long)
+DELETE        /enroll/:code/exam/:id                                controllers.EnrollController.deleteEnrolment(code: String, id: Long)
 
 ############### Section interface ###############
 
@@ -144,7 +145,7 @@ GET           /integration/record/:vatIdNumber/:startDate           controllers.
 
 
 ################# Calendar interface ##################
-GET           /calendar/:examinput/:roominput/:dateinput                           controllers.CalendarController.getSlots(examinput: String, roominput:String, dateinput: String)
+GET           /calendar/:examinput/:roominput/:dateinput            controllers.CalendarController.getSlots(examinput: String, roominput:String, dateinput: String)
 POST          /calendar/reservation                                 controllers.CalendarController.createReservation()
 
 

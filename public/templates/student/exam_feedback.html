@@ -11,15 +11,7 @@
             <div class="exam-general-information" ng-include="generalInfoPath">
             </div>
 
-            <div class="exam-sections">
-                <div ng-include="reviewSectionPath" ng-repeat="section in reviewedExam.examSections"></div>
-            </div>
         </div>
-
-        <div style="margin-top: 3em">
-            Tentin kokonaispisteet: {{getExamTotalScore(reviewedExam)}}
-        </div>
-
         <div>
             <div>
                 <a ng-click="exitPreview(doexam)">
