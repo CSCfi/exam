@@ -116,7 +116,7 @@ public class AttachmentController extends SitnetController {
 
         MultipartFormData body = request().body().asMultipartFormData();
 
-        FilePart filePart = body.getFile("attachment");
+        FilePart filePart = body.getFile("file");
 
         Map<String, String[]> m = body.asFormUrlEncoded();
 
@@ -138,7 +138,8 @@ public class AttachmentController extends SitnetController {
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            String newFile = basePath + "/" + fileName;
+            String rndFileName = UUID.randomUUID().toString();
+            String newFile = basePath + "/" + rndFileName;
 
             if (file.renameTo(new File(newFile))) {
 

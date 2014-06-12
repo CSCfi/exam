@@ -579,7 +579,8 @@
 
 
                     // Save exam first to not lose data.
-                    $scope.saveExam();
+                    // Can't use this, will redirect to exams page.
+                    //$scope.saveExam();
 
                     var modalInstance = $modal.open({
                         templateUrl: 'assets/templates/exam-editor/dialog_exam_attachment_selection.html',
@@ -590,11 +591,29 @@
 
                     modalInstance.result.then(function () {
                         // OK button
-                        $location.path('/questions/'+ $scope.newQuestion.id);
+                        $location.path('/exams/'+ $scope.newExam.id);
                     }, function () {
                         // Cancel button
                     });
                 };
+
+                $scope.submit = function(exam) {
+
+                    var file = $scope.attachmentFile;
+                    var url = "attachment/exam";
+                    //$scope.fileUpload.uploadAttachment(file, url);
+                    var fd = new FormData();
+                    fd.append('file', file);
+                    fd.append('examId', exam.id);
+                    $http.post(url, fd, {
+                        transformRequest: angular.identity,
+                        headers: {'Content-Type': undefined}
+                    })
+                        .success(function(){
+                        })
+                        .error(function(){
+                        });
+                }
 
                 $scope.removeExamRoom = function() {
                     $scope.newExam.room = null;

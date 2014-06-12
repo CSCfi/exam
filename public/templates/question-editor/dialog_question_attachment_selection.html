@@ -7,7 +7,7 @@
             {{'sitnet_select_attachment' | translate}}
 
         </p>
-         <form enctype="multipart/form-data" method="post" ng-submit="submit(newQuestion)">
+         <form enctype="multipart/form-data" method="post" ng-submit="ok(); submit(newQuestion);">
             <input type="file" name="attachment" file-model="attachmentFile">
             <div class="modal-footer">
                 <div class="col-md-3">
