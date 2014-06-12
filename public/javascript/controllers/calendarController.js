@@ -58,6 +58,10 @@
                         }
                     });
 
+                    if($scope.enrollment == null && enrollments && enrollments.length>0) {
+                        $scope.enrollment = enrollments[0];
+                    }
+
                     $scope.refreshData();
                 },
                 function (error) {
