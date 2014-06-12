@@ -276,6 +276,11 @@
 "sitnet_own": "Oma",
 "sitnet_question_short_name": "Kysymyksen lyhyt nimi",
 "sitnet_teacher": "Opettaja",
-"sitnet_exam_state": "Tentin tila"
+"sitnet_exam_state": "Tentin tila",
+"sitnet_exit_feedback": "Poistu palautteesta",
+"sitnet_exam_credit": "Opintopisteet",
+"sitnet_teachers_comment": "Tentin arviointi",
+"sitnet_comments": "Arviointi",
+"sitnet_no_comments": "Ei saatavilla"
 
 }

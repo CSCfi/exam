@@ -3,7 +3,7 @@
     angular.module("sitnet.resources")
         .factory("EnrollRes", ['$resource', function ($resource) {
             return {
-                list: $resource("/enroll/:code",
+                    list: $resource("/enroll/:code",
                     {
                         code: "@code"
                     },
@@ -20,6 +20,7 @@
             			"create": {method: "POST", params: {code: "@code", id: "@id"}},
             			
             		})
+
             }
         }]);
 }());

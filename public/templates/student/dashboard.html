@@ -37,7 +37,7 @@
             <label class="toolbar-label"><a href="#/calendar" style="color: black">{{'sitnet_toolbar_calendar' | translate}}</a></label>
         </div>
 
-        <!-- Reviews icon and text -->
+       <!-- &lt;!&ndash; Reviews icon and text &ndash;&gt;
         <div class="col-md-2 toolbar-item">
             <span class="fa-stack fa-lg">
                 <i class="sitnet-dark-blue fa fa-square fa-stack-2x toolbar-square"></i>
@@ -46,14 +46,14 @@
             <label class="toolbar-label">{{'sitnet_toolbar_inspections' | translate}}</label>
         </div>
 
-        <!-- Feedback icon and text -->
+        &lt;!&ndash; Feedback icon and text &ndash;&gt;
         <div class="col-md-2 toolbar-item">
             <span class="fa-stack fa-lg">
                 <i class="sitnet-dark-blue fa fa-square fa-stack-2x toolbar-square"></i>
                 <i class="sitnet-white fa fa-smile-o fa-stack-1x toolbar-icon"></i>
             </span>
              <label class="toolbar-label">{{'sitnet_toolbar_feedback' | translate}}</label>
-        </div>
+        </div>-->
     </div>
 
     <!-- Enrolled exams list -->
@@ -105,6 +105,7 @@
                 <tr>
                     <th class="table-column-examname">{{'sitnet_examcode_and_name' | translate}}</th>
                     <th class="table-column-flag">{{'sitnet_exam_state'| translate}}</th>
+                    <th class="table-column-flag">{{'sitnet_teachers_comment' | translate}}</th>
                 </tr>
                 </thead>
 
@@ -121,7 +122,19 @@
                     </td>
 
                     <td ng-if="finishedExam.state === 'GRADED'">
-                        <span ng-click="showFeedback(finishedExam.id)" class="status_green">{{'sitnet_exam_reviewed' | translate}}</span>
+                        <span class="status_green">{{'sitnet_exam_reviewed' | translate}}</span>
+                    </td>
+
+                    <td ng-if="finishedExam.state === 'GRADED'">
+                        <span ng-click="showFeedback(finishedExam.id)" class="status_theme">{{'sitnet_comments' | translate}}</span>
+                    </td>
+
+                    <td ng-if="finishedExam.state === 'REVIEW'">
+                        <span class="status_red">{{'sitnet_no_comments' | translate}}</span>
+                    </td>
+
+                    <td ng-if="finishedExam.state === 'IN_REVIEW'">
+                        <span class="status_red">{{'sitnet_no_comments' | translate}}</span>
                     </td>
                 </tr>
                 </tbody>

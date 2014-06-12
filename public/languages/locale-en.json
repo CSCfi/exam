@@ -270,8 +270,10 @@
 "sitnet_own": "Own",
 "sitnet_question_short_name": "Short name",
 "sitnet_teacher": "Teacher",
-"sitnet_exam_state": "Exam state"
-"sitnet_exit_feedback": "Exit feedback"
-
-
+"sitnet_exam_state": "Exam state",
+"sitnet_exit_feedback": "Exit feedback",
+"sitnet_exam_credit": "Study credits",
+"sitnet_teachers_comment": "Exam assessment",
+"sitnet_comments": "Assessment",
+"sitnet_no_comments": "Not available"
 }

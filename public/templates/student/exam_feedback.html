@@ -1,23 +1,35 @@
-<div id="student_exam_feedback" class="header">
-    <div class="col-md-12">
-        <div class="exam-name">
-            <h3>
-                {{reviewedExam.course.code}} - {{reviewedExam.name}}
-            </h3>
-        </div>
+<div id="dashboard">
+    <div id="student_feedback">
+        <div class="base col-md-12">
 
-        <div class="exam-wrapper">
-            <!-- General Information -->
-            <div class="exam-general-information" ng-include="generalInfoPath">
+            <div class="exam-wrapper">
+                <!-- General Information -->
+                <div class="exam-general-information" ng-include="generalInfoPath"></div>
+
+                <div class="exams-table-borders col-md-12">
+                    <table class="table table-bordered exams-table">
+                        <thead>
+                        <tr>
+                            <th class="table-column-examname">{{'sitnet_teachers_comment' | translate}}</th>
+
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr>
+                            <td>{{reviewedExam.examFeedback.comment}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
-        </div>
-        <div>
             <div>
-                <a ng-click="exitPreview(doexam)">
-                    <i class="btn btn-primary btn-lg active fa fa-sign-out exam-signout-button">
-                        <span class="exam-signout-button-text">{{'sitnet_exit_feedback' | translate}}</span></i>
-                </a>
+                <div>
+                    <a ng-click="exitFeedback()">
+                        <i class="btn btn-primary btn-lg active fa fa-sign-out exam-signout-button" style="margin-top: 1em; float: right">
+                            <span class="exam-signout-button-text">{{'sitnet_exit_feedback' | translate}}</span></i>
+                    </a>
+                </div>
             </div>
         </div>
     </div>

@@ -92,7 +92,7 @@
 
                 //Go to feedback template to show teacher's comments
                 $scope.showFeedback = function (id) {
-                    $location.path("/exams/" + id + "/feedback");
+                    $location.path("/feedback/exams/" + id);
                 }
 
 

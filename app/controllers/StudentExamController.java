@@ -16,6 +16,7 @@ import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiseOption;
+import models.Comment;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
@@ -47,26 +48,6 @@ public class StudentExamController extends SitnetController {
         {
             exams.add(e.getExam());
         }
-
-//        String oql = "find  exam "
-//                        +" fetch examSections "
-//                        +" fetch course "
-//                        +" where state=:published or state=:started or state=:returned";
-//
-//        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
-//        query.setParameter("published", "PUBLISHED");
-//        query.setParameter("started", "STUDENT_STARTED");
-//        query.setParameter("returned", "REVIEW");
-//
-//        List<Exam> exams = query.findList();
-
-//        List<Exam> exams = Ebean.find(Exam.class)
-//                .fetch("examSections")
-//                .where()
-//                .eq("state", "PUBLISHED")
-////                .lt("examEvent.examActiveEndDate", now)
-////                .eq("examEvent.enrolledStudents.id", user.getId())
-//                .findList();
 
         return ok(Json.toJson(exams));
     }
@@ -112,15 +93,17 @@ public class StudentExamController extends SitnetController {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
+                .fetch("examFeedback")
                 .where()
                 .eq("id", id)
                 .findUnique();
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, grading, room, course, creator");
+        options.setRootPathProperties("id, name, grade, examActiveStartDate, examActiveEndDate, duration, grading, room, course, creator, examFeedback");
         options.setPathProperties("course", "code, name, level, type, credits");
         options.setPathProperties("creator", "firstName, lastName, email");
+        options.setPathProperties("examFeedback", "comment");
 
         return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }

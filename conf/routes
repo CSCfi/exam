@@ -55,7 +55,7 @@ GET           /inspections                                          controllers.
 
 GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
 GET           /student/finishedexams/:uid                           controllers.StudentExamController.getFinishedExams(uid: Long)
-GET           /student/exams/:eid/feedback                          controllers.StudentExamController.getExamGeneralInfo(eid: Long)
+GET           /feedback/exams/:eid                                  controllers.StudentExamController.getExamGeneralInfo(eid: Long)
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
 PUT           /student/exam/abort/:id                               controllers.StudentExamController.abortExam(id: Long)
 GET           /student/doexam/:hash                                 controllers.StudentExamController.startExam(hash: String)

@@ -38,6 +38,14 @@
                         method: "PUT",
                         params: { id: "@id" }}
                 }),
+
+                feedback: $resource("/feedback/exams/:eid",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "get": {method: "GET", params: { eid: "@eid" }}
+                }),
                 
                 multipleChoiseAnswer: $resource("/student/exams/:hash/question/:qid/option/:oid",
                 {
