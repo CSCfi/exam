@@ -18,7 +18,7 @@
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamController'});
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam-editor/exam.html', controller: 'ExamController'});
-            $routeProvider.when('/calendar', { templateUrl: tmpl + 'calendar.html'});
+            $routeProvider.when('/calendar/:reservation?', { templateUrl: tmpl + 'calendar.html'});
             $routeProvider.when('/notifications', { templateUrl: tmpl + 'notifications.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});
             $routeProvider.when('/tools', { templateUrl: tmpl + 'tools.html'});

@@ -1,8 +1,9 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$modal', 'sessionService', 'StudentExamRes', function ($scope, $http, $modal, $sessionService, StudentExamRes) {
+        .controller('CalendarCtrl', ['$scope', '$http', '$modal', '$routeParams', 'sessionService', 'StudentExamRes', function ($scope, $http, $modal, $routeParams, $sessionService, StudentExamRes) {
 
+            $scope.reservationParam =  $routeParams.reservation;
             $scope.user = $sessionService.user;
 
             $scope.data = [];
@@ -10,11 +11,6 @@
             $scope.events = [$scope.data];
 
             $scope.refreshData = function (start, end, callback) {
-
-                var change = true;
-                if (callback) {
-                    change = false;
-                }
                 $scope.data.length = 0;
                 if (!$scope.room || !$scope.enrollment) {
                     return;
@@ -43,6 +39,7 @@
                     $scope.reply = reply;
                 });
             };
+
             $http.get('rooms').success(function (reply) {
                 $scope.rooms = reply;
                 if (reply.length > 0) {
@@ -50,12 +47,17 @@
                 }
                 $scope.refreshData();
             });
+
             StudentExamRes.enrolments.query({uid: $scope.user.id},
                 function (enrollments) {
                     $scope.enrollments = enrollments;
-                    if (enrollments.length > 0) {
-                        $scope.enrollment = enrollments[0];
-                    }
+
+                    angular.forEach(enrollments, function (roll) {
+                        if(roll.id == $scope.reservationParam) {
+                            $scope.enrollment = roll;
+                        }
+                    });
+
                     $scope.refreshData();
                 },
                 function (error) {
@@ -64,7 +66,7 @@
             );
 
             $scope.alertEventOnClick = function (date, allDay, jsEvent, view) {
-                var modal = $modal.open({
+                $modal.open({
                     templateUrl: 'assets/templates/calendar_reservation.html',
                     backdrop: 'static',
                     keyboard: true,

@@ -82,7 +82,7 @@
                         <td><a ng-click="activateExam(enrolment.exam)">{{enrolment.exam.course.code}} - {{enrolment.exam.name}}</a></td>
                         <td ng-if="enrolment.reservation">{{enrolment.reservation.machine.name}}</td>
                         <td ng-if="!enrolment.reservation">
-                            <a style="color: red" href="#/calendar">{{'sitnet_new_reservation' | translate}}</a>
+                            <a style="color: red" href="#/calendar/{{enrolment.id}}">{{'sitnet_new_reservation' | translate}}</a>
                         </td>
                         <td>{{enrolment.reservation.startAt | date:'dd-MM-yyyy HH:mm'}}</td>
                     </tr>

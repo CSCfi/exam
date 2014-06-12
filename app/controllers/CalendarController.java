@@ -69,7 +69,7 @@ public class CalendarController extends SitnetController {
         final Long selectedExamId = Long.parseLong(examinput);
         final Long examRoomId = Long.parseLong(roominput);
         final User user = UserController.getLoggedUser();
-
+        //final User user = Ebean.find(User.class,3);
         ExamEnrolment examEnrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where().eq("user", user)
@@ -108,8 +108,6 @@ public class CalendarController extends SitnetController {
             final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, current);
             current = current.plusDays(1);
             allPossibleFreeTimeSlots.putAll(slots);
-            D("current: " + current);
-            D("slots: " + slots);
         } while (current.minusDays(1).isBefore(examEndDateTime));
 
         return ok(Json.toJson(allPossibleFreeTimeSlots));
@@ -122,7 +120,6 @@ public class CalendarController extends SitnetController {
 
 
     private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay) {
-        D(room.getExamMachines());
         Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<String, DayWithFreeTimes>();
 
         final DateTime now = DateTime.now();
