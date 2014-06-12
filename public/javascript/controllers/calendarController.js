@@ -3,7 +3,7 @@
     angular.module("sitnet.controllers")
         .controller('CalendarCtrl', ['$scope', '$http', '$modal', '$routeParams', 'sessionService', 'StudentExamRes', function ($scope, $http, $modal, $routeParams, $sessionService, StudentExamRes) {
 
-            $scope.reservationParam =  $routeParams.reservation;
+            $scope.reservationParam = $routeParams.reservation;
             $scope.user = $sessionService.user;
 
             $scope.data = [];
@@ -12,9 +12,13 @@
 
             $scope.refreshData = function (start, end, callback) {
                 $scope.data.length = 0;
+
                 if (!$scope.room || !$scope.enrollment) {
                     return;
                 }
+                $scope.checkReservationData(false);
+
+
                 var room = $scope.room.id;
                 var exam = $scope.enrollment.exam.id;
                 var day = moment().format("DD.MM.YYYY");
@@ -31,7 +35,7 @@
                             title: item.slots.length + " aikaa vapaana",
                             start: start,
                             end: end,
-                            allDay: true
+                            allDay: false
                         });
                     });
                 });
@@ -40,36 +44,62 @@
                 });
             };
 
-            $http.get('rooms').success(function (reply) {
-                $scope.rooms = reply;
-                if (reply.length > 0) {
-                    $scope.room = $scope.rooms[0];
-                }
-                $scope.refreshData();
-            });
 
-            StudentExamRes.enrolments.query({uid: $scope.user.id},
-                function (enrollments) {
-                    $scope.enrollments = enrollments;
-
-                    angular.forEach(enrollments, function (roll) {
-                        if(roll.id == $scope.reservationParam) {
-                            $scope.enrollment = roll;
-                        }
-                    });
-
-                    if($scope.enrollment == null && enrollments && enrollments.length>0) {
-                        $scope.enrollment = enrollments[0];
+            $scope.checkRooms = function () {
+                $http.get('rooms').success(function (reply) {
+                    $scope.rooms = reply;
+                    if (reply.length > 0) {
+                        $scope.room = $scope.rooms[0];
                     }
+                });
+            };
 
-                    $scope.refreshData();
-                },
-                function (error) {
-                    toastr.error(error.data);
-                }
-            );
+            $scope.checkReservationData = function (refresh) {
+                StudentExamRes.enrolments.query({uid: $scope.user.id},
+                    function (enrollments) {
+                        if (refresh) {
+                            $scope.enrollments = enrollments;
+                        }
+
+                        angular.forEach(enrollments, function (roll) {
+                            if (refresh && roll.id == $scope.reservationParam) {
+                                $scope.enrollment = roll;
+                            }
+                            if (roll.reservation) {
+
+                                var start = new Date(roll.reservation.startAt);
+                                var end = new Date(roll.reservation.endAt);
+                                $scope.data.push({
+                                    title: roll.reservation.machine.name,
+                                    start: start,
+                                    end: end,
+                                    allDay: false,
+                                    className: "reservation"
+                                });
+                            }
+
+                        });
+
+                        if (refresh && $scope.enrollment == null && enrollments && enrollments.length > 0) {
+                            $scope.enrollment = enrollments[0];
+                        }
+
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                    }
+                );
+            };
+
+            $scope.checkReservationData(true);
+            $scope.checkRooms();
+
 
             $scope.alertEventOnClick = function (date, allDay, jsEvent, view) {
+                if (date.className && date.className[0] === 'reservation') {
+                    return;
+                }
+
                 $modal.open({
                     templateUrl: 'assets/templates/calendar_reservation.html',
                     backdrop: 'static',
@@ -102,7 +132,6 @@
                             var data = $scope.time;
                             data.exam = $scope.exam.id;
                             $http.post('calendar/reservation', data).success(function (reply) {
-                                console.log(reply);
 
                                 $modalInstance.close("Reserved");
                             });
@@ -130,12 +159,18 @@
                         }
 
                     }
-                });
+                }).result.then(function () {
+                        $scope.refreshData();
+                    });
 
             };
 
             $scope.uiConfig = {
                 calendar: {
+                    dayNames: ["Maanantai", "Tiistai", "Keskiviikko", "Torstai", "Perjantai", "Lauantai", "Sunnuntai"],
+                    dayNamesShort: ["Ma", "Ti", "Ke", "To", "Pe", "La", "Su"],
+                    monthNames: ["Tammikuu", "Helmiikuu", "Maaliskuu", "Huhtikuu", "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu", "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"],
+                    monthNamesShort: ["Tammikuu", "Helmiikuu", "Maaliskuu", "Huhtikuu", "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu", "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"],
                     editable: false,
                     header: {
                         left: '',
