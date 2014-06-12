@@ -51,6 +51,7 @@
                     if (reply.length > 0) {
                         $scope.room = $scope.rooms[0];
                     }
+                    $scope.refreshData();
                 });
             };
 
@@ -82,6 +83,7 @@
 
                         if (refresh && $scope.enrollment == null && enrollments && enrollments.length > 0) {
                             $scope.enrollment = enrollments[0];
+                            $scope.refreshData();
                         }
 
                     },
@@ -91,8 +93,8 @@
                 );
             };
 
-            $scope.checkReservationData(true);
             $scope.checkRooms();
+            $scope.checkReservationData(true);
 
 
             $scope.alertEventOnClick = function (date, allDay, jsEvent, view) {
