@@ -210,7 +210,7 @@ question_essay:
 
 #Answered questions
   - &essay1_sauli !!models.questions.EssayQuestion
-    creator: *maika
+    creator: *sauli
     created: 2014-04-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
@@ -234,7 +234,7 @@ question_essay:
                                                                   Turkey ham hock biltong turducken spare ribs sausage, sirloin beef ribs prosciutto rump jowl. Landjaeger pork chop salami, chicken beef pig tenderloin pancetta ball tip tri-tip tail pork belly andouille cow. Shank tail prosciutto chuck filet mignon, swine short loin beef porchetta sirloin t-bone. Meatloaf tenderloin filet mignon salami flank porchetta, bacon pork loin cow chicken. Landjaeger biltong turducken jerky beef ribs swine shank pork corned beef pork belly tenderloin. Jowl rump pancetta corned beef ball tip chuck ham hock kielbasa meatball andouille."}
 
   - &essay2_sauli !!models.questions.EssayQuestion
-    creator: *maika
+    creator: *sauli
     created: 2014-03-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     instruction:
@@ -281,7 +281,7 @@ question_essay:
 
 
   - &essay1b_sauli !!models.questions.EssayQuestion
-    creator: *maika
+    creator: *sauli
     created: 2014-04-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
     instruction:
@@ -305,7 +305,7 @@ question_essay:
                                                                   Turkey ham hock biltong turducken spare ribs sausage, sirloin beef ribs prosciutto rump jowl. Landjaeger pork chop salami, chicken beef pig tenderloin pancetta ball tip tri-tip tail pork belly andouille cow. Shank tail prosciutto chuck filet mignon, swine short loin beef porchetta sirloin t-bone. Meatloaf tenderloin filet mignon salami flank porchetta, bacon pork loin cow chicken. Landjaeger biltong turducken jerky beef ribs swine shank pork corned beef pork belly tenderloin. Jowl rump pancetta corned beef ball tip chuck ham hock kielbasa meatball andouille."}
 
   - &essay2b_sauli !!models.questions.EssayQuestion
-    creator: *maika
+    creator: *sauli
     created: 2014-03-01 12:30:05.123
     question: Mitä tarkoitetaan "oliolla" ohjelmistokehityksessä?
     instruction:
@@ -611,7 +611,7 @@ question_multiple_choice:
 #Multiple choice questions with answers
 
   - &multi1_sauli !!models.questions.MultipleChoiceQuestion
-    creator: *maika
+    creator: *sauli
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     attachment: *att1
@@ -631,7 +631,7 @@ question_multiple_choice:
 
   - &multi2_sauli !!models.questions.MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
-    creator: *maika
+    creator: *sauli
     created: 2014-01-03 12:40:05.123
     maxScore: 5
     evaluationPhrases:
@@ -667,7 +667,7 @@ question_multiple_choice:
 
   - &avaruus4_sauli !!models.questions.MultipleChoiceQuestion
     question:   Ekliptika on
-    creator: *maika
+    creator: *sauli
     created: 2014-01-10 12:30:05.123
     maxScore: 5
     evaluationPhrases:
@@ -683,7 +683,7 @@ question_multiple_choice:
 
   - &avaruus5_sauli !!models.questions.MultipleChoiceQuestion
     question:   Tähdenlento eli
-    creator: *maika
+    creator: *sauli
     created: 2014-01-11 12:30:05.123
     maxScore: 5
     evaluationPhrases:
@@ -700,7 +700,7 @@ question_multiple_choice:
 
 
   - &multi1b_sauli !!models.questions.MultipleChoiceQuestion
-    creator: *maika
+    creator: *sauli
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     attachment: *att1
@@ -720,7 +720,7 @@ question_multiple_choice:
 
   - &multi2b_sauli !!models.questions.MultipleChoiceQuestion
     question: Mikä on ikuisen elämän salaisuus?
-    creator: *maika
+    creator: *sauli
     created: 2014-01-03 12:40:05.123
     maxScore: 5
     evaluationPhrases:
@@ -756,7 +756,7 @@ question_multiple_choice:
 
   - &avaruus4b_sauli !!models.questions.MultipleChoiceQuestion
     question:   Ekliptika on
-    creator: *maika
+    creator: *sauli
     created: 2014-01-10 12:30:05.123
     maxScore: 5
     evaluationPhrases:
@@ -772,7 +772,7 @@ question_multiple_choice:
 
   - &avaruus5b_sauli !!models.questions.MultipleChoiceQuestion
     question:   Tähdenlento eli
-    creator: *maika
+    creator: *sauli
     created: 2014-01-11 12:30:05.123
     maxScore: 5
     evaluationPhrases:
