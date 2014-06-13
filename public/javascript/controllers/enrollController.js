@@ -5,6 +5,7 @@
                                  function ($scope, EnrollRes, $routeParams, SITNET_CONF, $location) {
         	
             $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "student/enroll.html";
+            $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "student/review_exam_section_general.html";
 
         	
         	
