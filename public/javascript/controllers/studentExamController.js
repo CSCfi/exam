@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('StudentExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes',
-            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, QuestionRes) {
+        .controller('StudentExamController', ['$scope', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes',
+            function ($scope, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, QuestionRes) {
 
                 $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
@@ -11,6 +11,14 @@
 
 //                $scope.exams = StudentExamRes.exams.query();
                 $scope.tempQuestion = null;
+
+//                $scope.autoSaver = $interval(function(){
+//
+//                    find all Essay questions
+//                    loop and save all Essay answers
+//
+//
+//                }, 10000)
 
                 $scope.countCharacters = function (question) {
                     question.answer.answerLength = question.answer.answer.length;
