@@ -1,12 +1,10 @@
 package controllers;
 
 import Exceptions.UnauthorizedAccessException;
-
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
-
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
@@ -16,7 +14,6 @@ import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiseOption;
-import models.Comment;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
@@ -125,7 +122,7 @@ public class StudentExamController extends SitnetController {
             options.setPathProperties("user", "id");
             options.setPathProperties("exam", "id, name, course, hash");
             options.setPathProperties("exam.course", "code");
-            options.setPathProperties("reservation", "startAt, endAt, machine");
+            options.setPathProperties("reservation", "id, startAt, endAt, machine");
             options.setPathProperties("reservation.machine", "name");
 
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");

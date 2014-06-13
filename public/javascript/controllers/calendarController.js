@@ -72,6 +72,7 @@
                                 var end = new Date(roll.reservation.endAt);
                                 $scope.data.push({
                                     title: roll.reservation.machine.name,
+                                    enrollment: roll,
                                     start: start,
                                     end: end,
                                     allDay: false,
@@ -99,71 +100,115 @@
 
             $scope.alertEventOnClick = function (date, allDay, jsEvent, view) {
                 if (date.className && date.className[0] === 'reservation') {
-                    return;
-                }
+                    $modal.open({
+                        templateUrl: 'assets/templates/calendar_remove.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: function ($scope, $modalInstance, date, room, exam) {
 
-                $modal.open({
-                    templateUrl: 'assets/templates/calendar_reservation.html',
-                    backdrop: 'static',
-                    keyboard: true,
-                    controller: function ($scope, $modalInstance, data, date, room, exam) {
+                            $scope.date = date;
+                            $scope.exam = exam;
+                            $scope.room = room;
 
-                        var key = moment(date.start).format('DD.MM.YYYY');
+                            $scope.getDate = function (enrollment) {
+                                if (enrollment && enrollment.enrollment.reservation && enrollment.enrollment.reservation.startAt) {
+                                    return  moment(enrollment.enrollment.reservation.startAt).format('DD.MM.YYYY HH:mm') + " - " +
+                                        moment(enrollment.enrollment.reservation.endAt).format('DD.MM.YYYY HH:mm');
+                                }
+                                return "";
+                            };
 
-                        var times;
-                        if (data[key]) {
-                            times = data[key].slots;
-                            $scope.times = times;
-                        }
+                            $scope.delete = function () {
+                                var id = $scope.date.enrollment.reservation.id;
+                                $http.delete('calendar/reservation/' + id).success(function (reply) {
+                                    $modalInstance.close("removed");
+                                });
+                            };
 
-                        if (times && times.length > 0) {
-                            $scope.time = times[0];
-                        }
-                        $scope.date = key;
-                        $scope.exam = exam;
-                        $scope.room = room;
-
-                        $scope.optionValue = function (item) {
-                            if (!item) {
-                                return;
+                            $scope.cancel = function () {
+                                $modalInstance.dismiss('canceled');
+                            };
+                        },
+                        resolve: {
+                            date: function () {
+                                return date;
+                            },
+                            room: function () {
+                                return $scope.room;
+                            },
+                            exam: function () {
+                                return $scope.enrollment.exam;
                             }
-                            return item.title + " / " + item.start.split(" ")[1] + " - " + item.end.split(" ")[1];
-                        };
 
-                        $scope.save = function () {
-                            var data = $scope.time;
-                            data.exam = $scope.exam.id;
-                            $http.post('calendar/reservation', data).success(function (reply) {
-
-                                $modalInstance.close("Reserved");
-                            });
-                        };
-
-                        $scope.cancel = function () {
-                            $modalInstance.dismiss('Canceled');
-                        };
-                        $scope.changeTime = function () {
-
-                        };
-                    },
-                    resolve: {
-                        data: function () {
-                            return $scope.items;
-                        },
-                        date: function () {
-                            return date;
-                        },
-                        room: function () {
-                            return $scope.room;
-                        },
-                        exam: function () {
-                            return $scope.enrollment.exam;
                         }
+                    }).result.then(function () {
+                            $scope.refreshData();
+                        });
+                } else {
 
-                    }
-                }).result.then(function () {
-                        $scope.refreshData();
-                    });
+                    $modal.open({
+                        templateUrl: 'assets/templates/calendar_reservation.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: function ($scope, $modalInstance, data, date, room, exam) {
+
+                            var key = moment(date.start).format('DD.MM.YYYY');
+
+                            var times;
+                            if (data[key]) {
+                                times = data[key].slots;
+                                $scope.times = times;
+                            }
+
+                            if (times && times.length > 0) {
+                                $scope.time = times[0];
+                            }
+                            $scope.date = key;
+                            $scope.exam = exam;
+                            $scope.room = room;
+
+                            $scope.optionValue = function (item) {
+                                if (!item) {
+                                    return;
+                                }
+                                return item.title + " / " + item.start.split(" ")[1] + " - " + item.end.split(" ")[1];
+                            };
+
+                            $scope.save = function () {
+                                var data = $scope.time;
+                                data.exam = $scope.exam.id;
+                                $http.post('calendar/reservation', data).success(function (reply) {
+
+                                    $modalInstance.close("Reserved");
+                                });
+                            };
+
+                            $scope.cancel = function () {
+                                $modalInstance.dismiss('Canceled');
+                            };
+                            $scope.changeTime = function () {
+
+                            };
+                        },
+                        resolve: {
+                            data: function () {
+                                return $scope.items;
+                            },
+                            date: function () {
+                                return date;
+                            },
+                            room: function () {
+                                return $scope.room;
+                            },
+                            exam: function () {
+                                return $scope.enrollment.exam;
+                            }
+
+                        }
+                    }).result.then(function () {
+                            $scope.refreshData();
+                        });
+                }
 
             };
 

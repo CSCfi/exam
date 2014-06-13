@@ -1,6 +1,7 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
+import Exceptions.NotFoundException;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
@@ -22,18 +23,32 @@ import java.util.Map;
 
 public class CalendarController extends SitnetController {
 
-    private static DateTimeFormatter format = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
-    private static final DateTimeFormatter dayFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
+    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
 
-
+    public static Result removeReservation(long id) throws MalformedDataException, NotFoundException {
+        final User user = UserController.getLoggedUser();
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .where()
+                .eq("user.id", user.getId())
+                .eq("reservation.id", id)
+                .findUnique();
+        if(enrolment == null) {
+            throw new NotFoundException(String.format("No reservation with id  {} for current user.", id));
+        }
+        enrolment.setReservation(null);
+        Ebean.save(enrolment);
+        Ebean.delete(Reservation.class, id);
+        return ok("removed");
+    }
     public static Result createReservation() throws MalformedDataException {
         JsonNode json = request().body().asJson();
 
         //todo: add more validation, user can make loooon reservations eg.
         final Integer machineId = json.get("machine").asInt();
         final Integer examId = json.get("exam").asInt();
-        final DateTime start = DateTime.parse(json.get("start").asText(), format);
-        final DateTime end = DateTime.parse(json.get("end").asText(), format);
+        final DateTime start = DateTime.parse(json.get("start").asText(), dateTimeFormat);
+        final DateTime end = DateTime.parse(json.get("end").asText(), dateTimeFormat);
 
         final User user = UserController.getLoggedUser();
         final ExamMachine machine = Ebean.find(ExamMachine.class, machineId);
@@ -91,7 +106,7 @@ public class CalendarController extends SitnetController {
 
         Exam exam = examEnrolment.getExam();
         DateTime examEndDateTime = new DateTime(exam.getExamActiveEndDate());
-        DateTime searchDate = LocalDate.parse(dateinput, dayFormat).toDateTime(LocalTime.now());
+        DateTime searchDate = LocalDate.parse(dateinput, dateFormat).toDateTime(LocalTime.now());
 
         if (searchDate.isAfter(examEndDateTime)) {
             throw new MalformedDataException(String.format("Given date (%s) is after active exam(%s) date(%s)", searchDate, exam.getId(), examEndDateTime));
@@ -124,7 +139,10 @@ public class CalendarController extends SitnetController {
 
         final DateTime now = DateTime.now();
 
+        D(room.getExamMachines().size());
+
         for (ExamMachine examMachine : room.getExamMachines()) {
+
 
             if (examMachine.getOutOfService()) {
                 continue;
@@ -160,6 +178,7 @@ public class CalendarController extends SitnetController {
                 continue;
             }
 
+
             examDuration = exam.getDuration();
 
             int transitionTime = 0;
@@ -176,7 +195,7 @@ public class CalendarController extends SitnetController {
                 continue;
             }
 
-            final String theDay = dayFormat.print(startTime);
+            final String theDay = dateFormat.print(startTime);
 
             final ArrayList<DayWithFreeTimes> possibleFreeSlots = new ArrayList<DayWithFreeTimes>(numberOfPossibleFreeSlots);
 
@@ -187,8 +206,8 @@ public class CalendarController extends SitnetController {
                 DateTime freeTimeSlotStartTime = startTime.plusMinutes(i * shift);
                 DateTime freeTimeSlotEndTime = freeTimeSlotStartTime.plusMinutes(shift);
                 FreeTimeSlot possibleTimeSlot = new FreeTimeSlot();
-                possibleTimeSlot.setStart(format.print(freeTimeSlotStartTime));
-                possibleTimeSlot.setEnd(format.print(freeTimeSlotEndTime));
+                possibleTimeSlot.setStart(dateTimeFormat.print(freeTimeSlotStartTime));
+                possibleTimeSlot.setEnd(dateTimeFormat.print(freeTimeSlotEndTime));
                 possibleTimeSlot.setTitle(examMachine.getName());
                 possibleTimeSlot.setRoom(room.getId());
                 possibleTimeSlot.setMachine(examMachine.getId());
@@ -196,10 +215,15 @@ public class CalendarController extends SitnetController {
             }
 
             for (FreeTimeSlot possibleFreeTimeSlot : day.getSlots()) {
+
                 for (Reservation reservation : examMachine.getReservation()) {
 
+
                     final Interval reservationDuration = new Interval(reservation.getStartAt().getTime(), reservation.getEndAt().getTime());
-                    final Interval possibleFreeTimeSlotDuration = new Interval(format.parseDateTime(possibleFreeTimeSlot.getStart()), format.parseDateTime(possibleFreeTimeSlot.getEnd()));
+
+                    D(reservation.getId() + " res at machine: "+ examMachine.getId() + " at " + reservationDuration );
+
+                    final Interval possibleFreeTimeSlotDuration = new Interval(dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getStart()), dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getEnd()));
 
                     //remove if intersects
                     if (possibleFreeTimeSlotDuration.overlaps(reservationDuration)) {

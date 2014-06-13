@@ -1,0 +1,47 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4><i class="sitnet-white">Poista varaus</i></h4>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">
+                    Aika
+                </div>
+                {{getDate(date)}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">
+                    Paikka
+                </div>
+                <div class="input-group">
+                    {{room.name}}
+                    <br>
+                    {{room.buildingName}}
+                    <br>
+                    {{room.campus}}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">
+                    Koe
+                </div>
+                <div class="input-group">
+                    {{ exam.course.code }} - {{exam.name}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-3">
+            <button ng-click="cancel()" class="btn btn-primary">{{'sitnet_button_cancel' | translate}}</button>
+        </div>
+        <div class="col-md-3 col-md-offset-5">
+            <button ng-click="delete()" class="btn btn-danger">Poista varaus</button>
+        </div>
+    </div>
+</div>
