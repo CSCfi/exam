@@ -8,6 +8,7 @@ import models.ExamMachine;
 import models.ExamRoom;
 import models.Software;
 import play.Logger;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -19,28 +20,42 @@ import java.util.List;
 public class ExamMachineController extends SitnetController {
 
 
-//    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getExamMachines() {
         List<ExamMachine> machines = Ebean.find(ExamMachine.class).findList();
 
         return ok(Json.toJson(machines));
     }
 
-    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getExamMachine(Long id) {
         ExamMachine machine = Ebean.find(ExamMachine.class, id);
 
         return ok(Json.toJson(machine));
     }
 
-    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict({@Group("ADMIN")})
     public static Result updateExamMachine(Long id) throws MalformedDataException {
-        ExamMachine machine = bindForm(ExamMachine.class);
+        ExamMachine machine =  Form.form(ExamMachine.class).bindFromRequest(
+                "id",
+                "name",
+                "otherIdentifier",
+                "accessibilityInfo",
+                "accessible",
+                "ipAddress",
+                "surveillanceCamera",
+                "videoRecordings",
+                "expanded",
+                "statusComment",
+                "outOfService"
+        ).get();
+
         machine.update();
 
         return ok(Json.toJson(machine));
     }
 
+    @Restrict({@Group("ADMIN")})
     public static Result insertExamMachine(Long id) throws MalformedDataException {
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
@@ -64,6 +79,7 @@ public class ExamMachineController extends SitnetController {
         return ok();
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSoftwares() {
         Logger.debug("getting software list");
         List<Software> softwares = Ebean.find(Software.class).orderBy("name").findList();
@@ -71,7 +87,7 @@ public class ExamMachineController extends SitnetController {
         return ok(Json.toJson(softwares));
     }
 
-    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSoftware(Long id) {
         Software software = Ebean.find(Software.class, id);
 

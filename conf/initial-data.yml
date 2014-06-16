@@ -1250,58 +1250,6 @@ softwares:
 
 ################################################################
 
-exam-machines:
-
-  - &exam-machine1 !!models.ExamMachine
-    name: Pegasus 01
-    otherIdentifier: Huone, jonka tunnus on 1
-    surveillanceCamera: CAM-001
-    accessibilityInfo: Nostettava sähköpöytä
-    accessible: true
-    softwareInfo:
-        - *Matematica
-        - *Firefox
-    ipAddress: 123.456.789.123
-    videoRecordings: www.utu.fi/examroom/1/recordings
-#    room: *room-pegasus
-    reservation:
-    outOfService: false
-
-  - &exam-machine2 !!models.ExamMachine
-    name: Pegasus 02
-    otherIdentifier: Huone, jonka tunnus on 2
-    surveillanceCamera: CAM-002
-    accessibilityInfo: Automaattisesti avautuvat ovet
-    accessible: true
-    softwareInfo:
-        - *Matematica
-        - *Firefox
-        - *Notepad
-    ipAddress: 123.456.789.321
-    videoRecordings: www.utu.fi/examroom/2/recordings
-#    room: *room-pegasus
-    reservation:
-    outOfService: false
-
-  - &exam-machine3 !!models.ExamMachine
-    name: Pegasus 03
-    otherIdentifier: Huone, jonka tunnus on 3
-    surveillanceCamera: CAM-003
-    accessibilityInfo: Pistekirjoitus alusta
-    accessible: true
-    softwareInfo:
-        - *Matematica
-        - *Firefox
-        - *Notepad
-    ipAddress: 123.456.789.132
-    videoRecordings: www.utu.fi/examroom/3/recordings
-#    room: *room-pegasus
-    reservation:
-    outOfService: true
-    statusComment: Näyttö rikki
-
-################################################################
-
 exam-rooms:
   - &room-pegasus !!models.ExamRoom
     name: Tenttiakvaario Pegasus
@@ -1317,11 +1265,62 @@ exam-rooms:
     roomInstruction: Tilaan ei saa tuoda juomia tai ruokia.
     contactPerson: Kiinteistöinsinööri Timppa Vaksi. puh. 040 123 4567
     videoRecordingsURL: www.utu.fi/videot
-    examMachines:
-      - *exam-machine1
-      - *exam-machine2
-      - *exam-machine3
+#    examMachines:
+#      - *exam-machine1
+#      - *exam-machine2
+#      - *exam-machine3
     outOfService: false
+################################################################
+
+exam-machines:
+
+  - &exam-machine1 !!models.ExamMachine
+    name: Pegasus 01
+    otherIdentifier: Huone, jonka tunnus on 1
+    surveillanceCamera: CAM-001
+    accessibilityInfo: Nostettava sähköpöytä
+    accessible: true
+    softwareInfo:
+        - *Matematica
+        - *Firefox
+    ipAddress: 123.456.789.123
+    videoRecordings: www.utu.fi/examroom/1/recordings
+    room: *room-pegasus
+    reservation:
+    outOfService: false
+
+  - &exam-machine2 !!models.ExamMachine
+    name: Pegasus 02
+    otherIdentifier: Huone, jonka tunnus on 2
+    surveillanceCamera: CAM-002
+    accessibilityInfo: Automaattisesti avautuvat ovet
+    accessible: true
+    softwareInfo:
+        - *Matematica
+        - *Firefox
+        - *Notepad
+    ipAddress: 123.456.789.321
+    videoRecordings: www.utu.fi/examroom/2/recordings
+    room: *room-pegasus
+    reservation:
+    outOfService: false
+
+  - &exam-machine3 !!models.ExamMachine
+    name: Pegasus 03
+    otherIdentifier: Huone, jonka tunnus on 3
+    surveillanceCamera: CAM-003
+    accessibilityInfo: Pistekirjoitus alusta
+    accessible: true
+    softwareInfo:
+        - *Matematica
+        - *Firefox
+        - *Notepad
+    ipAddress: 123.456.789.132
+    videoRecordings: www.utu.fi/examroom/3/recordings
+    room: *room-pegasus
+    reservation:
+    outOfService: true
+    statusComment: Näyttö rikki
 
 ################################################################
 

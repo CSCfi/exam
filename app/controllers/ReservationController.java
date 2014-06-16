@@ -25,29 +25,22 @@ import java.util.List;
  */
 public class ReservationController extends SitnetController {
 
-
-    @Restrict(@Group({"TEACHER", "ADMIN", "STUDENT"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getExamRooms() {
-        List<ExamRoom> rooms = Ebean.find(ExamRoom.class).findList();
+        List<ExamRoom> rooms = Ebean.find(ExamRoom.class)
+                .fetch("examMachines")
+                .findList();
         return ok(Json.toJson(rooms));
     }
 
     public static Result getExamRoom(Long id) {
         Logger.debug("getExamRoomid)");
-
-//        Query<ExamRoom> query = Ebean.createQuery(ExamRoom.class);
-//        query.fetch("course");
-//        query.fetch("examSections");
-//        query.setId(id);
-
-//        Exam exam = query.findUnique();
-
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
 
         return ok(Json.toJson(examRoom));
     }
 
-    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getReservationForExam(Long uid, Long eid) {
         Logger.debug("getReservationForExam()");
 
