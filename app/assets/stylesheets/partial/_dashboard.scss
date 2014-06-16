@@ -1,7 +1,6 @@
 #dashboard {
 
   min-height: $sitnet-header-height;
-  padding-left: 3em;
 
   .title {
     margin-top: 2em;
@@ -111,8 +110,6 @@
   }
 
   .exams-table-title-area {
-    margin-top: 2em;
-    margin-left: 4em;
   }
 
   .exams-list-title-text {
@@ -126,8 +123,6 @@
 
   .exams-list {
     background-color: $sitnet-background;
-    margin-left: 3em;
-    padding-right: 5em;
   }
 
   .toolbar-item {

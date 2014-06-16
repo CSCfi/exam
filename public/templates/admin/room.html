@@ -3,30 +3,32 @@
         <span class="header-text">{{'sitnet_examination_location' | translate}}</span>
     </div>
 </div>
-<div id="room" class="">
-    <div class="nospace room-header col-md-12">
-        <div class="col-md-9 nospace" ng-init="showName = true">
-            <div ng-show="showName">
-                    <span class="pull-left room-name" ng-click="showName = !showName">
-                        {{roomInstance.name}} <i class="fa fa-pencil"></i>
-                    </span>
+<div id="room" class="base">
+    <div class="room-header col-md-12">
+        <div class="row">
+            <div class="col-md-9 " ng-init="showName = true">
+                <div ng-show="showName">
+                        <span class="pull-left room-name" ng-click="showName = !showName">
+                            {{roomInstance.name}} <i class="fa fa-pencil"></i>
+                        </span>
+                </div>
+                <div ng-show="!showName">
+                    <form class="form-inline" role="form">
+                        <div class="form-group">
+                            <input type="text" class="form-control input-lg" ng-model="roomInstance.name" autofocus>
+                        </div>
+                        <button class="btn-primary" ng-click="showName = !showName; updateRoom(roomInstance)">
+                            <i class="fa fa-check"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div ng-show="!showName">
-                <form class="form-inline" role="form">
-                    <div class="form-group">
-                        <input type="text" class="form-control input-lg" ng-model="roomInstance.name" autofocus>
-                    </div>
-                    <button class="btn-primary" ng-click="showName = !showName; updateRoom(roomInstance)">
-                        <i class="fa fa-check"></i>
-                    </button>
-                </form>
+            <div class="col-md-3 ">
+                <a ng-click="removeRoom(roomInstance)" class="header-icon pull-right fa-stack fa-lg">
+                    <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+                    <i class="fa fa-minus fa-stack-1x"></i>
+                </a>
             </div>
-        </div>
-        <div class="col-md-3 nospace">
-            <a ng-click="removeRoom(roomInstance)" class="header-icon pull-right fa-stack fa-lg">
-                <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
-                <i class="fa fa-minus fa-stack-1x"></i>
-            </a>
         </div>
     </div>
         <!-- Room Code & Building name -->
@@ -103,7 +105,7 @@
                 </div>
 
                 <div>
-                    <button ng-click="saveWorkingHours(roomInstance.calendarEvent)" class="btn btn-primary" style="margin-top: 5.4em">{{'sitnet_save' | translate}}</button>
+                    <button ng-click="saveWorkingHours(roomInstance.calendarEvent)" class="btn btn-primary" style="margin-top: 3.4em; margin-bottom: 1em">{{'sitnet_save' | translate}}</button>
                 </div>
 
                 <div>

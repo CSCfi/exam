@@ -7,8 +7,7 @@
             $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "student/enroll.html";
             $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "student/review_exam_section_general.html";
 
-        	
-        	
+
         	$scope.exams;
         	
             if($routeParams.code === undefined) {
@@ -47,6 +46,10 @@
                         function (error) {
                             toastr.error(error.data);
                         });
+            }
+
+            $scope.enrollList = function() {
+                $location.path('enroll/' + $routeParams.code);
             }
             
         }]);

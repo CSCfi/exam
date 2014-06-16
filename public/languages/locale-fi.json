@@ -269,8 +269,8 @@
     "sitnet_attachment_selection": "Liitetiedoston valinta",
     "sitnet_select_attachment": "Valitse liite",
 
-    "sitnet_preview": "Esikatsele tentti",
-    "sitnet_exit_preview": "Poistu esikatselusta",
+    "sitnet_preview" : "Esikatsele tentti",
+    "sitnet_exit_preview" : "Poistu esikatselusta",
     "sitnet_exam": "Tentti",
     "sitnet_shared": "Jaettu",
     "sitnet_own": "Oma",
@@ -282,6 +282,6 @@
     "sitnet_teachers_comment": "Tentin arviointi",
     "sitnet_comments": "Arviointi",
     "sitnet_no_comments": "Ei saatavilla",
-    "sitnet_logging_out": "Uloskirjautuminen"
-
+    "sitnet_logging_out": "Uloskirjautuminen",
+    "sitnet_enroll": "Ilmoittautuminen"
 }

@@ -40,22 +40,25 @@ public class EnrollController extends Controller {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public static Result enrollExamInfo(String code, Long id) {
+    public static Result enrollExamInfo(String code, Long id)  {
+  	
+    	Exam exam = Ebean.find(Exam.class)
+    			.fetch("course")
+    			.where()
+    			.eq("course.code", code)
+    			.eq("id", id)
+    			.findUnique();
 
-        Exam exam = Ebean.find(Exam.class)
-                .fetch("course")
-                .where()
-                .eq("course.code", code)
-                .eq("id", id)
-                .findUnique();
+        //Set general info visible
+        exam.setExpanded(true);
 
-        JsonContext jsonContext = Ebean.createJsonContext();
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, grading, room, course, creator");
+    	JsonContext jsonContext = Ebean.createJsonContext();
+    	JsonWriteOptions options = new JsonWriteOptions();
+    	options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, grading, room, course, creator, expanded");
         options.setPathProperties("course", "code, name, level, type, credits");
-        options.setPathProperties("creator", "firstName, lastName, email");
-
-        return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+    	options.setPathProperties("creator", "firstName, lastName, email");
+    	
+    	return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})

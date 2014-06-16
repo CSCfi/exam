@@ -94,6 +94,13 @@ public class ExamController extends SitnetController {
         Date date = new Date();
         Timestamp timestamp = new Timestamp(date.getTime());
 
+        //Get list of exams that user is assigned to inspect
+        List<ExamInspection> examInspections = Ebean.find(ExamInspection.class)
+                .fetch("exam")
+                .where()
+                .eq("user.id", user.getId())
+                .findList();
+
         // Todo: Oletetaan että tentin luoja on automaattisesti tentin tarkastaja
         List<Exam> activeExams = Ebean.find(Exam.class)
                 .fetch("course")
