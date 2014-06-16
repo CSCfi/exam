@@ -29,7 +29,7 @@ import java.util.List;
 public class QuestionController extends SitnetController {
 
 
-    //  @Authenticate
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getQuestions() {
 
         List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
@@ -41,15 +41,30 @@ public class QuestionController extends SitnetController {
         return ok(Json.toJson(questions));
     }
 
-    //  @Authenticate
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getQuestionsForUser(Long id) {
 
-        List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
-                .where()
-                .eq("creator.id", id)
-                .eq("parent", null)
-                .orderBy("created desc")
-                .findList();
+        List<AbstractQuestion> questions = null;
+
+        if(UserController.getLoggedUser().hasRole("TEACHER"))
+        {
+            // TODO: should use SELECT LIMIT from to
+            questions = Ebean.find(AbstractQuestion.class)
+                    .where()
+                    .eq("creator.id", id)
+                    .eq("parent", null)
+                    .orderBy("created desc")
+                    .findList();
+        }
+        else if(UserController.getLoggedUser().hasRole("ADMIN"))
+        {
+            // TODO: should use SELECT LIMIT from to
+            questions = Ebean.find(AbstractQuestion.class)
+                    .where()
+                    .eq("parent", null)
+                    .orderBy("created desc")
+                    .findList();
+        }
 
         return ok(Json.toJson(questions));
     }
