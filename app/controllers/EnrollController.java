@@ -17,7 +17,7 @@ import java.util.List;
 
 public class EnrollController extends Controller {
 
-    @Restrict(@Group({"STUDENT"}))
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result enrollExamList(String code) {
 
         Timestamp now = new Timestamp(new Date().getTime());
@@ -39,7 +39,7 @@ public class EnrollController extends Controller {
         return ok(jsonContext.toJsonString(activeExams, true, options)).as("application/json");
     }
 
-    @Restrict(@Group({"STUDENT"}))
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result enrollExamInfo(String code, Long id) {
 
         Exam exam = Ebean.find(Exam.class)
@@ -58,7 +58,7 @@ public class EnrollController extends Controller {
         return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }
 
-    @Restrict(@Group({"STUDENT"}))
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result createEnrolment(String code, Long id) {
 
         Timestamp now = new Timestamp(new Date().getTime());
@@ -94,7 +94,7 @@ public class EnrollController extends Controller {
         }
     }
 
-    @Restrict(@Group({"STUDENT"}))
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result deleteEnrolment(String code, Long id) {
 
         Timestamp now = new Timestamp(new Date().getTime());

@@ -1,25 +1,34 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('RoomCtrl', ['$scope', '$routeParams', '$location', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService',
-            function ($scope, $routeParams, $location, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService) {
+        .controller('RoomCtrl', ['$scope', '$routeParams', 'sessionService', '$location', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService',
+            function ($scope, $routeParams, sessionService, $location, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService) {
 
                 $scope.dateService = dateService;
+                $scope.session = sessionService;
 
                 $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/machine.html";
                 $scope.addressTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/address.html";
+                $scope.user = $scope.session.user;
 
-                if ($routeParams.id === undefined) {
-                    $scope.rooms = RoomResource.rooms.query();
-                } else {
-                    RoomResource.rooms.get({id: $routeParams.id},
-                        function (room) {
-                            $scope.roomInstance = room;
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+
+                if ($scope.user.isAdmin || $scope.user.isTeacher) {
+                    if ($routeParams.id === undefined) {
+                        $scope.rooms = RoomResource.rooms.query();
+                    } else {
+                        RoomResource.rooms.get({id: $routeParams.id},
+                            function (room) {
+                                $scope.roomInstance = room;
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
+                }
+                else
+                {
+                    $location.path("/home");
                 }
 
                 $scope.countMachineAlerts = function (room) {
