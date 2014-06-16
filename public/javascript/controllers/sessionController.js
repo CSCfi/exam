@@ -119,5 +119,23 @@
                     $location.path(location);
                 };
 
+
+                $scope.logoutDialog = function () {
+
+                    var modalInstance = $modal.open({
+                        templateUrl: 'assets/templates/logout/dialog_logout.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: "ModalInstanceCtrl"
+                    });
+
+                    modalInstance.result.then(function () {
+                        // OK button
+                        dologout();
+                    }, function () {
+                        // Cancel button
+                    });
+                };
+
             }]);
 }());

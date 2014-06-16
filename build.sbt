@@ -14,6 +14,11 @@ libraryDependencies ++= Seq(
   "com.typesafe" %% "play-plugins-mailer" % "2.2.0"
 )
 
+libraryDependencies ++= Seq(
+  "org.avaje.ebeanorm" % "avaje-ebeanorm" % "3.3.3",
+  "com.typesafe.play" % "play-ebean-33-compat" % "1.0.0"
+)
+
 resolvers += Resolver.url("Objectify Play Repository", url("http://schaloner.github.com/releases/"))(Resolver.ivyStylePatterns)
 
 resolvers += Resolver.url("Objectify Play Snapshot Repository", url("http://schaloner.github.com/snapshots/"))(Resolver.ivyStylePatterns)

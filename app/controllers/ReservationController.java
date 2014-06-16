@@ -26,7 +26,7 @@ import java.util.List;
 public class ReservationController extends SitnetController {
 
 
-    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict(@Group({"TEACHER", "ADMIN", "STUDENT"}))
     public static Result getExamRooms() {
         List<ExamRoom> rooms = Ebean.find(ExamRoom.class).findList();
         return ok(Json.toJson(rooms));
@@ -47,6 +47,7 @@ public class ReservationController extends SitnetController {
         return ok(Json.toJson(examRoom));
     }
 
+    @Restrict(@Group({"TEACHER", "ADMIN"}))
     public static Result getReservationForExam(Long uid, Long eid) {
         Logger.debug("getReservationForExam()");
 
@@ -57,6 +58,7 @@ public class ReservationController extends SitnetController {
         return ok(Json.toJson(reservation));
     }
 
+    @Restrict(@Group({"ADMIN"}))
     public static Result createExamRoomDraft() throws MalformedDataException
 
     {
@@ -88,12 +90,8 @@ public class ReservationController extends SitnetController {
         return ok(Json.toJson(examRoom));
     }
 
-    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict(@Group({"ADMIN"}))
     public static Result updateExamRoom(Long id) throws MalformedDataException {
-//        DynamicForm df = Form.form().bindFromRequest();
-//
-//        Long start = new Long(df.get("examActiveStartDate"));
-//        Long end = new Long(df.get("examActiveEndDate"));
 
         ExamRoom room = Form.form(ExamRoom.class).bindFromRequest(
                 "id",
@@ -119,7 +117,7 @@ public class ReservationController extends SitnetController {
         return ok(Json.toJson(room));
     }
 
-    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict(@Group({"ADMIN"}))
     public static Result updateExamRoomAddress(Long id) throws MalformedDataException {
         MailAddress address = bindForm(MailAddress.class);
         address.update();
@@ -127,7 +125,7 @@ public class ReservationController extends SitnetController {
         return ok(Json.toJson(address));
     }
 
-    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict(@Group({"ADMIN"}))
     public static Result updateExamRoomWorkingHours(Long id) throws MalformedDataException {
         DynamicForm df = Form.form().bindFromRequest();
 
@@ -146,7 +144,7 @@ public class ReservationController extends SitnetController {
         return ok(Json.toJson(defaultHours));
     }
 
-    //    @Restrict(@Group({"TEACHER", "ADMIN"}))
+    @Restrict(@Group({"ADMIN"}))
     public static Result updateExamRoomExceptionWorkingHours(Long id) throws MalformedDataException {
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
 

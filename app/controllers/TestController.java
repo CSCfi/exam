@@ -1,11 +1,10 @@
 package controllers;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
+import Exceptions.MalformedDataException;
+import com.avaje.ebean.Ebean;
 import models.Course;
 import models.CourseType;
+import models.Exam;
 import models.Organisation;
 import models.dto.CourseUnitInfo;
 import models.dto.ExamScore;
@@ -15,9 +14,10 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
-import Exceptions.MalformedDataException;
 
-import com.avaje.ebean.Ebean;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by avainik on 3/6/14.
@@ -130,6 +130,16 @@ public class TestController extends SitnetController {
     			.findList();
 
         return ok(Json.toJson(organisation));
+    }
+
+
+    public static Result asd()
+    {
+        List<Exam> list = Ebean.find(Exam.class)
+                .fetch("details")
+                .findList();
+
+        return ok(Json.toJson(list));
     }
 }
 
