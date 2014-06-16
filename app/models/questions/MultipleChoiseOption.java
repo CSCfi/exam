@@ -20,7 +20,7 @@ public class MultipleChoiseOption extends Model {
 
     private Double score;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JsonBackReference
     private MultipleChoiceQuestion question;
 

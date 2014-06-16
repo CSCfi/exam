@@ -69,7 +69,7 @@ public class QuestionController extends SitnetController {
         return ok(Json.toJson(questions));
     }
 
-    //  @Authenticate
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getQuestion(Long id) {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
@@ -194,7 +194,7 @@ public class QuestionController extends SitnetController {
         return ok("fail");
     }
 
-   @Restrict(@Group({"TEACHER"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateQuestion(Long id) throws MalformedDataException {
 
        DynamicForm df = Form.form().bindFromRequest();
@@ -217,7 +217,7 @@ public class QuestionController extends SitnetController {
        return ok("fail");
     }
 
-    @Restrict(@Group({"TEACHER"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateOption(Long oid) throws MalformedDataException {
 
         MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
@@ -227,7 +227,7 @@ public class QuestionController extends SitnetController {
 
     }
 
-    @Restrict(@Group({"TEACHER"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteQuestion(Long id) {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
@@ -240,7 +240,6 @@ public class QuestionController extends SitnetController {
         for(AbstractQuestion a : children) {
             a.setParent(null);
             a.save();
-//            question.save();
         }
 
         List<MultipleChoiseOption> options = Ebean.find(MultipleChoiseOption.class)
@@ -280,7 +279,7 @@ public class QuestionController extends SitnetController {
         return ok("Question deleted from database!");
     }
 
-    @Restrict(@Group({"TEACHER"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteOption(Long oid) {
 
         Ebean.delete(MultipleChoiseOption.class, oid);
@@ -288,7 +287,7 @@ public class QuestionController extends SitnetController {
         return ok("Option deleted from database!");
     }
 
-    @Restrict(@Group({"TEACHER"}))
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result addOption(Long qid) throws MalformedDataException {
 
         MultipleChoiceQuestion question = Ebean.find(MultipleChoiceQuestion.class, qid);
@@ -301,6 +300,7 @@ public class QuestionController extends SitnetController {
     }
 
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result createOption() throws MalformedDataException {
 
         MultipleChoiseOption option = new MultipleChoiseOption();
@@ -311,6 +311,7 @@ public class QuestionController extends SitnetController {
         return ok(Json.toJson(option));
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getOption(Long id) throws MalformedDataException {
 
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
