@@ -1,7 +1,7 @@
 <div class=" exam-general-information-header">
     <span class=" exams-generic-info-title">{{'sitnet_exam_basic_information' | translate}}</span>
     <a class="sub-header-icon pull-right fa-stack fa-lg" ng-click="newExam.expanded = !newExam.expanded">
-        <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+        <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
         <i ng-class="newExam.expanded ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-left fa-stack-1x'"></i>
     </a>
 </div>
@@ -92,7 +92,6 @@
                        </span>
             </div>
         </div>
-
     </div>
 
     <!-- Course scope and organization name input elements -->
@@ -256,14 +255,12 @@
         </div>
 
         <!-- Exam material and quidance input elements -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" ng-model="newExam.shared" ui-blur="updateExam()"> {{'sitnet_share_this_exam' |
-                        translate}}
-                    </label>
-                </div>
+        <div class="row base">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="newExam.shared" ui-blur="updateExam()"> {{'sitnet_share_this_exam' |
+                    translate}}
+                </label>
             </div>
         </div>
 
