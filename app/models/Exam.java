@@ -43,6 +43,7 @@ public class Exam extends SitnetModel {
     private Course course;
 
     @OneToOne
+    @NonCloneable
     private ExamType examType;
     
     // Opettajan antama ohje Opiskelijalle tentin suorittamista varten
@@ -325,7 +326,7 @@ public class Exam extends SitnetModel {
         Exam clone = new Exam();
 
         clone.setCreated(this.getCreated());
-        clone.setCreator(this.getCreator());
+//        clone.setCreator(this.getCreator());
         clone.setModified(this.getModified());
         clone.setModifier(this.getModifier());
         clone.setName(this.getName());

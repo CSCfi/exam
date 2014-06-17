@@ -10,8 +10,8 @@
             <div class="exam-wrapper">
                 <!-- General Information -->
                 <div class="exam-general-information" ng-include="generalInfoPath"></div>
-
-                <div class="exams-table-borders col-md-12">
+	
+                <div class="exams-table-borders col-md-12" style="margin-top: 1em;">
                     <table class="table table-bordered exams-table">
                         <thead>
                         <tr>
@@ -22,7 +22,7 @@
 
                         <tbody>
                         <tr>
-                            <td>{{reviewedExam.examFeedback.comment}}</td>
+                            <td ng-bind-html="reviewedExam.examFeedback.comment"></td>
                         </tr>
                         </tbody>
                     </table>

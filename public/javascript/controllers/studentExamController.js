@@ -215,7 +215,7 @@
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
                     StudentExamRes.exams.update({id: doexam.id}, function () {
-                        toastr.info("Tentti lähetettiin tarkastettavaksi.");
+                        toastr.info("Tentti palautettu");
                         $location.path("/home/");
 
                     }, function () {
@@ -226,7 +226,7 @@
                 // Called when the abort button is clicked
                 $scope.abortExam = function (doexam) {
                     StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
-                        toastr.info("Tentti keskeytettiin.");
+                        toastr.info("Tentti keskeytetty.");
                         $location.path("/home/");
 
                     }, function () {

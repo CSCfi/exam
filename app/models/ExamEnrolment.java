@@ -18,6 +18,7 @@ public class ExamEnrolment extends Model {
 	private User user;
 
 	@OneToOne
+	@JsonBackReference
 	private Exam exam;
 
     @OneToOne

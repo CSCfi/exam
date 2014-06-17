@@ -23,7 +23,7 @@
                 console.log(exam);
 
                 ExamRes.course.update({eid: exam.id, cid: $item.id}, function (updated_exam) {
-                    toastr.success("Kurssi lisättiin tenttiin.");
+                    toastr.success("Kurssi lisätty tenttiin.");
                     $scope.newExam = updated_exam;
                 }, function (error) {
                     toastr.error(error.data);

@@ -2,9 +2,11 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+
 import models.Exam;
 import models.ExamEnrolment;
 import models.User;
@@ -44,6 +46,7 @@ public class EnrollController extends Controller {
   	
     	Exam exam = Ebean.find(Exam.class)
     			.fetch("course")
+    			.fetch("room")
     			.where()
     			.eq("course.code", code)
     			.eq("id", id)
@@ -54,10 +57,13 @@ public class EnrollController extends Controller {
 
     	JsonContext jsonContext = Ebean.createJsonContext();
     	JsonWriteOptions options = new JsonWriteOptions();
-    	options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, grading, room, course, creator, expanded");
+    	options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
+    			+ "grading, room, course, creator, expanded, examType, instruction, examLanguage, answerLanguage");
+        options.setPathProperties("room", "name, roomCode, buildingName, campus");
+        options.setPathProperties("examType", "type");
         options.setPathProperties("course", "code, name, level, type, credits");
     	options.setPathProperties("creator", "firstName, lastName, email");
-    	
+        
     	return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }
 

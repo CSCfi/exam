@@ -160,6 +160,9 @@
     "sitnet_draft": "Draft",
     "sitnet_draft_exams_info_main": "Drafts are exams that haven't been published.",
 
+    "sitnet_user_enrolled_exams": "Enrolled exams",
+    "sitnet_user_finished_exams": "Finished exams",
+    
     "sitnet_started_exams": "Exams in progress",
     "sitnet_in_progress": "In progress",
     "sitnet_started_exams_info_main": "Only for demo purpose.",
@@ -188,6 +191,7 @@
     "sitnet_evaluation_select": "Approved / Rejected",
 
     "sitnet_exam_choose_credit_type": "Choose exam type",
+    "sitnet_exam_credit_type": "Suoritustyyppi",
     "sitnet_exam_credit_type_partial": "Partial",
     "sitnet_exam_credit_type_final": "Final",
     "sitnet_exam_credit_type_maturity": "Maturity",
@@ -273,7 +277,7 @@
     "sitnet_exam_state": "Exam state",
     "sitnet_exit_feedback": "Exit feedback",
     "sitnet_exam_credit": "Study credits",
-    "sitnet_teachers_comment": "Exam assessment",
+    "sitnet_teachers_comment": "Exam feedback",
     "sitnet_comments": "Assessment",
     "sitnet_no_comments": "Not available",
     "sitnet_enroll": "Enrollment",

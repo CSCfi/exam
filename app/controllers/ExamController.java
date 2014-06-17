@@ -242,7 +242,7 @@ public class ExamController extends SitnetController {
         {
             return notFound();
         }
-        else if(exam.isShared() || SitnetUtil.isOwner(exam) || exam.getState().equals("REVIEW") || exam.getState().equals("REVIEWED") || exam.getState().equals("IN_REVIEW"))
+        else if(exam.isShared() || SitnetUtil.isOwner(exam) || exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED"))
         {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();

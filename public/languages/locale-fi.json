@@ -189,6 +189,7 @@
     "sitnet_evaluation_select": "Hyväksytty / Hylätty",
 
     "sitnet_exam_choose_credit_type": "Valitse tentin suoritustyyppi",
+    "sitnet_exam_credit_type": "Suoritustyyppi",
     "sitnet_exam_credit_type_partial": "Osasuoritus",
     "sitnet_exam_credit_type_final": "Loppusuoritus",
     "sitnet_exam_credit_type_maturity": "Kypsyysnäyte",
@@ -279,7 +280,7 @@
     "sitnet_exam_state": "Tentin tila",
     "sitnet_exit_feedback": "Poistu palautteesta",
     "sitnet_exam_credit": "Opintopisteet",
-    "sitnet_teachers_comment": "Tentin arviointi",
+    "sitnet_teachers_comment": "Tentin palaute",
     "sitnet_comments": "Arviointi",
     "sitnet_no_comments": "Ei saatavilla",
     "sitnet_logging_out": "Uloskirjautuminen",

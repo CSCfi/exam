@@ -164,7 +164,7 @@
 
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
-                        toastr.info("Tarkastettavaa tenttiä päivitettiin.");
+                        toastr.info("Tentti päivitetty.");
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -184,14 +184,14 @@
                     // Update comment
                     if (exam.examFeedback.id) {
                         ExamRes.comment.update({eid: exam.id, cid: exam.examFeedback.id}, examFeedback, function (exam) {
-                            toastr.info("Tentin kommentti on päivitetty.");
+                            toastr.info("Tentin kommentti päivitetty.");
                         }, function (error) {
                             toastr.error(error.data);
                         });
                     // Insert new comment
                     } else {
                         ExamRes.comment.insert({eid: exam.id, cid: 0}, examFeedback, function (comment) {
-                            toastr.info("Uusi kommentti lisättiin tenttiin.");
+                            toastr.info("Kommentti lisätty tenttiin.");
                             exam.examFeedback = comment;
                         }, function (error) {
                             toastr.error(error.data);

@@ -105,7 +105,7 @@ public class Interfaces extends SitnetController {
 
                 final Exam exam = participation.getExam();
                 Logger.info(exam.toString());
-                if (exam.getState().equals("REVIEWED")) {
+                if (exam.getState().equals("GRADED")) {
 
                     /*
                     //todo:

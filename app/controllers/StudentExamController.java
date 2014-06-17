@@ -63,12 +63,11 @@ public class StudentExamController extends SitnetController {
             oql = "find exam " +
                     "fetch examSections " +
                     "fetch course " +
-                    "where (state=:review or state=:reviewed or state=:graded) " +
+                    "where (state=:review or state=:graded) " +
                     "and (creator.id=:userid)";
 
             query = Ebean.createQuery(Exam.class, oql);
             query.setParameter("review", "REVIEW");
-            query.setParameter("reviewed", "REVIEWED");
             query.setParameter("graded", "GRADED");
             query.setParameter("userid", user.getId());
         }
@@ -115,6 +114,7 @@ public class StudentExamController extends SitnetController {
                 .fetch("reservation")
                 .where()
                 .eq("user.id", uid)
+                .eq("exam.state", "PUBLISHED")
                 .findList();
 
         if (enrolments == null) {
@@ -170,29 +170,38 @@ public class StudentExamController extends SitnetController {
             // 1. might want try Serialization clone approach
             // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
             // http://avaje.org/topic-112.html
+                
+                ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                		.where()
+                		.eq("user.id", user.getId())
+                		.eq("exam.id", blueprint.getId())
+                		.findUnique();
+                
+                enrolment.setExam(studentExam);
+                enrolment.save();
+                		
+                ExamParticipation examParticipation = new ExamParticipation();
+                examParticipation.setUser(user);
+                examParticipation.setExam(studentExam);
+                examParticipation.setStarted(new Timestamp(new Date().getTime()));
+                examParticipation.save();
+                user.getParticipations().add(examParticipation);
 
-            ExamParticipation examParticipation = new ExamParticipation();
-            examParticipation.setUser(user);
-            examParticipation.setExam(studentExam);
-            examParticipation.setStarted(new Timestamp(new Date().getTime()));
-            examParticipation.save();
-            user.getParticipations().add(examParticipation);
+                JsonContext jsonContext = Ebean.createJsonContext();
+                JsonWriteOptions options = new JsonWriteOptions();
 
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
+                options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
+                		"duration, examLanguage, answerLanguage, state, expanded");
+                options.setPathProperties("creator", "id");
+                options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+                options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
+                options.setPathProperties("examType", "id, type");
+                options.setPathProperties("examSections", "id, name, questions, exam, expanded");
+                options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, options");
+                options.setPathProperties("examSections.questions.options", "id, option" );
+                options.setPathProperties("examSections.questions.comments", "id, comment");
 
-            options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, examLanguage, answerLanguage, state, expanded");
-            options.setPathProperties("creator", "id");
-            options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
-            options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
-            options.setPathProperties("examType", "id, type");
-            options.setPathProperties("examSections", "id, name, questions, exam, expanded");
-            options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, options");
-            options.setPathProperties("examSections.questions.options", "id, option" );
-            options.setPathProperties("examSections.questions.comments", "id, comment");
-
-            return ok(jsonContext.toJsonString(studentExam, true, options)).as("application/json");
+                return ok(jsonContext.toJsonString(studentExam, true, options)).as("application/json");
             }
         } else {
             return ok(Json.toJson(possibleClone));
