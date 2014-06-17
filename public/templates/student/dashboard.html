@@ -78,7 +78,7 @@
                             <td ng-if="!enrolment.reservation">
                                 <a style="color: red" href="#/calendar/{{enrolment.id}}">{{'sitnet_new_reservation' | translate}}</a>
                             </td>
-                            <td>{{enrolment.reservation.startAt | date:'dd-MM-yyyy HH:mm'}}</td>
+                            <td>{{enrolment.reservation.startAt | date:'dd.MM.yyyy HH:mm'}}</td>
                         </tr>
                     </tbody>
                 </table>

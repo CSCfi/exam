@@ -76,7 +76,7 @@
                     <td>{{activeExam.course.code}}</td>
                     <td><a href="#/exams/reviews/{{activeExam.id}}">{{activeExam.name}}</a></td>
                     <td>{{activeExam.examParticipations.length}}/{{activeExam.activeExamEnrolments.length}}({{(activeExam.examParticipations.length/activeExam.activeExamEnrolments.length)*100 | number : 2}}%)</td>
-                    <td>{{activeExam.examActiveEndDate | date:'dd-MM-yyyy'}}</td>
+                    <td>{{activeExam.examActiveEndDate | date:'dd.MM.yyyy'}}</td>
                 </tr>
                 </tbody>
             </table>
