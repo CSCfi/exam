@@ -174,13 +174,8 @@
                 }
 
                 // Called when the exit button is clicked
-                $scope.exitPreview = function (doexam) {
-                    StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
-                        $location.path("/exams/" + $routeParams.id);
-
-                    }, function () {
-                        toastr.error(error.data);
-                    });
+                $scope.exitPreview = function () {
+                    $location.path("/exams/" + $routeParams.id);
                 };
 
                 // Called when a radiobutton is selected
