@@ -283,5 +283,8 @@
     "sitnet_comments": "Arviointi",
     "sitnet_no_comments": "Ei saatavilla",
     "sitnet_logging_out": "Uloskirjautuminen",
-    "sitnet_enroll": "Ilmoittautuminen"
+    "sitnet_enroll": "Ilmoittautuminen",
+    "sitnet_select_room": "Tenttitila",
+    "sitnet_select_exam": "Tentti",
+    "sitnet_calendar": "Varauskalenteri"
 }

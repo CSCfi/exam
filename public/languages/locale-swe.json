@@ -275,5 +275,8 @@
     "sitnet_comments": "Assessment",
     "sitnet_no_comments": "Not available",
     "sitnet_logging_out": "Logging out",
-    "sitnet_enroll": "Enrollment"
+    "sitnet_enroll": "Enrollment",
+    "sitnet_select_room": "Exam room",
+    "sitnet_select_exam": "Exam",
+    "sitnet_calendar": "Reservation calendar"
 }

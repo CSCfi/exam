@@ -13,8 +13,8 @@
   }
 
   .toolbar-label {
+    margin-top: 1em;
     padding-left: 1em;
-    vertical-align: bottom;
   }
 
   .review-ongoing {
@@ -126,6 +126,11 @@
   }
 
   .toolbar-item {
+  }
+
+  .toolbar {
+    margin-top: 1em;
+    margin-bottom: 1em;
   }
 
   .indicator-item {
