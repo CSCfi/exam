@@ -45,6 +45,41 @@
     padding-top: 0.5em;
   }
 
+  .questions-table-borders {
+    border-left: $sitnet-common-light solid 0.15em;
+    border-top: $sitnet-common-light solid 0.15em;
+    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
+  }
+
+  .questions-table {
+
+    border: 0;
+    font-family: $sitnet-family-opensans;
+    font-weight: normal;
+    font-size:0.9em;
+
+    th {
+      background-color: $sitnet-common-light;
+      font-family: $sitnet-family-georgia;
+      font-style: italic;
+      font-weight: normal;
+      border:0;
+    }
+
+    td:first-child {
+      border-left:0;
+    }
+    td:last-child {
+      border-right:0;
+    }
+
+    tr:last-child {
+      td {
+        border-bottom: 0;
+      }
+    }
+  }
+
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;

@@ -1,38 +1,43 @@
-<div ng-class="question.expand ? 'single-question-header-active' : 'single-question-header-inactive'">
-    <!-- Multiple choice question icon -->
-    <span ng-if="question.type === 'MultipleChoiceQuestion'">
-	    <i class="single-question-icon fa fa-1x fa-list-ul"></i>
-    </span>
+<div id="exam" class="row">
+    <div ng-class="question.expand ? 'single-question-header-active' : 'single-question-header-inactive'" class="col-md-12">
+        <!-- Multiple choice question icon -->
+        <div ng-if="question.type === 'MultipleChoiceQuestion'" class="single-question-icon">
+            <i class="single-question-icon fa fa-1x fa-list-ul"></i>
+        </div>
 
-    <!-- Essay question icon -->
-    <span ng-if="question.type === 'EssayQuestion'">
-        <i class="single-question-icon fa fa-1x fa-edit"></i>
-    </span>
+        <!-- Essay question icon -->
+        <div ng-if="question.type === 'EssayQuestion'" class="single-question-icon">
+            <i class="single-question-icon fa fa-1x fa-edit"></i>
+        </div>
 
-    <!-- Question -->
-    <span ng-bind-html="question.question"></span>
+        <!-- Question -->
+        <div ng-bind-html="question.question" class="single-question-icon"></div>
 
-    <!-- Chevron icon -->
-    <span style="padding-right: 1em;" ng-click="question.expanded = !question.expanded; expandQuestion(question)" class="pull-right pointer-hand">
-            <i ng-class="question.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
-               class="sitnet-white fa fa-1x"></i>
-    </span>
+        <!-- Chevron icon -->
+        <div ng-click="question.expanded = !question.expanded; expandQuestion(question)" class="pull-right pointer-hand single-question-icon">
+            <i ng-class="question.expanded ? 'fa-chevron-down' : 'fa-chevron-left'" class="sitnet-white fa fa-1x"></i>
+        </div>
 
-    <!-- Cog icon -->
-    <span style="padding-right: 1em;" ng-click="editQuestion(question)" class="dropdown pull-right pointer-hand">
-		<a class="dropdown-toggle">
-			<i class="sitnet-white fa fa-cog fa-1x"></i>
-	    </a>
-		<ul class="dropdown-menu">
-			<li><a>{{'sitnet_settings' | translate}}</a></li>
-			<li><a ng-click="removeQuestion(section, question)">{{'sitnet_remove' | translate}}</a></li>
-		</ul>
-	</span>
+        <!-- Cog icon -->
+        <div ng-click="editQuestion(question)" class="pull-right dropdown pointer-hand single-question-icon">
+            <a class="dropdown-toggle">
+                <i class="sitnet-white fa fa-cog fa-1x"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a>{{'sitnet_settings' | translate}}</a></li>
+                <li><a ng-click="removeQuestion(section, question)">{{'sitnet_remove' | translate}}</a></li>
+            </ul>
+        </div>
+    </div>
+    <ol ng-show="question.expanded" class="exam-question-expanded row">
+        <li class="exam-question-option" ng-repeat="option in question.options">
+            <input type="radio" name="option.id" ng-value="option" class="list-group-item-text"/>
+            {{option.option}}
+            <span class="badge" ng-show="option.correctOption" class="ng-show">
+                {{ 'sitnet_multiplechoice_question_correct' | translate }}
+            </span>
+        </li>
+    </ol>
 </div>
-<ol ng-show="question.expanded">
-    <li class="exam-question-option" ng-repeat="option in question.options">
-        <input type="radio" name="option.id" ng-value="option" class="list-group-item-text"/>
-        {{option.option}}
-        <span class="badge" ng-show="option.correctOption" class="ng-show">{{ 'sitnet_multiplechoice_question_correct' | translate }}</span>
-    </li>
-</ol>
+
+

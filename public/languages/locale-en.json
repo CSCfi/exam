@@ -231,8 +231,8 @@
     "sitnet_toolbar_calendar": "Varauskalenteri",
     "sitnet_toolbar_inspections": "Arvioinnit",
     "sitnet_toolbar_feedback": "Palautteet",
-    "sitnet_toolbar_new_question": "Luo uusi kysymys",
-    "sitnet_toolbar_new_exam": "Luo uusi tentti",
+    "sitnet_toolbar_new_question": "Create new question",
+    "sitnet_toolbar_new_exam": "Create new exam",
     "sitnet_toolbar_multiplechoice_question": "Monivalintakysymys",
     "sitnet_toolbar_essay_question": "Esseekysymys",
     "sitnet_toolbar_new_question_folder": "Luo uusi kysymyskansio",
@@ -280,5 +280,6 @@
     "sitnet_logging_out": "Logging out",
     "sitnet_select_room": "Exam room",
     "sitnet_select_exam": "Exam",
-    "sitnet_calendar": "Reservation calendar"
+    "sitnet_calendar": "Reservation calendar",
+    "sitnet_randomize_questions": "Randomize questions"
 }

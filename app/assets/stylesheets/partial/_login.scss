@@ -9,5 +9,12 @@
   label {
     display: block;
   }
+  .control-label {
+    font-size: 1.4em;
+    font-family: $sitnet-family-opensans-light;
+    color: $sitnet-text;
+    font-weight: 300;
+    letter-spacing: 1px;
+  }
 
 }

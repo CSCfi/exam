@@ -278,5 +278,6 @@
     "sitnet_enroll": "Enrollment",
     "sitnet_select_room": "Exam room",
     "sitnet_select_exam": "Exam",
-    "sitnet_calendar": "Reservation calendar"
+    "sitnet_calendar": "Reservation calendar",
+    "sitnet_randomize_questions": "Randomize questions"
 }

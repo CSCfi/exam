@@ -12,11 +12,6 @@
     font-weight: bold;
   }
 
-  .toolbar-label {
-    margin-top: 1em;
-    padding-left: 1em;
-  }
-
   .review-ongoing {
     border: 2px;
     border-radius: 25px;
@@ -51,8 +46,7 @@
 
   .exams-table {
 
-    border:0;
-    margin-top:1em;
+    border: 0;
     font-family: $sitnet-family-opensans;
     font-weight: normal;
     font-size:0.9em;
@@ -113,24 +107,39 @@
   }
 
   .exams-list-title-text {
-    font-size: 1.6em;
-    padding:0.8em 0;
-    font-family: $sitnet-family-opensans-semibold;
+    font-size: 1.4em;
+    font-family: $sitnet-family-opensans-light;
     color: $sitnet-text;
-    font-weight: 600;
+    font-weight: 300;
     letter-spacing: 1px;
+    margin-top: 1em;
+    margin-bottom: 1em;
   }
 
   .exams-list {
     background-color: $sitnet-background;
   }
 
-  .toolbar-item {
-  }
-
   .toolbar {
     margin-top: 1em;
     margin-bottom: 1em;
+  }
+
+  .toolbar-item {
+    margin: 1em;
+  }
+
+  .toolbar-label {
+    vertical-align: middle;
+    vertical-position: middle;
+    font-size: 1em;
+    font-family: $sitnet-family-opensans-light;
+    color: $sitnet-text;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-top: 1em;
+    padding-top: 1em;
+    padding-left: 1em;
   }
 
   .indicator-item {

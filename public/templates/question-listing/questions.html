@@ -24,10 +24,9 @@
         </div>
     </div>
 
-    <div id="question-listing" class="questions-listing-wrapper">
-        <div class="questions-list col-md-12">
-
-            <table class="table table-bordered table-condensed room-machines-table">
+    <div id="question-listing" class="questions-listing-wrapper row base">
+        <div class="questions-table-borders">
+            <table class="table table-bordered table-condensed questions-table">
                 <thead>
                 <tr>
                     <th>{{ 'sitnet_question' | translate }}</th>
@@ -50,7 +49,7 @@
                         <span class="status_theme" ng-if="!question.shared">{{ 'sitnet_own' | translate }}</span>
                     </td>
                     <td class="text-center">
-                        <a class="bold-button" ng-click="deleteQuestion(question)"><i class="fa fa-times"></i></a>
+                        <a class="bold-button" ng-click="deleteQuestion(question)"><i class="fa fa-2x fa-times sitnet-red"></i></a>
                     </td>
                 </tr>
                 </tbody>

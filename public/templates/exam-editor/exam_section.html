@@ -1,4 +1,4 @@
-<div class="section-header col-md-12">
+<div class="section-header row">
     <div class="col-md-1 pull-left fa-stack fa-lg">
         <i class="fa icon-theme fa-stop fa-stack-2x"></i>
         <span class="fa sitnet-white fa-stack-1x">{{$index+1}}.</span>
@@ -53,7 +53,7 @@
         <div ng-show="!section.lotteryOn">
             <div style="padding-right: 1em; margin-top: 0.7em">
                 <input style="margin-right: 0.3em" type="checkbox" name="Off" value="Off" ng-click="section.lotteryOn = !section.lotteryOn; toggleLottery(section)"
-                        ng-model="section.lotteryOn">Arvo kysymykset</input>
+                        ng-model="section.lotteryOn">{{'sitnet_randomize_questions' | translate}}</input>
             </div>
         </div>
     </div>

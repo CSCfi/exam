@@ -35,9 +35,8 @@
         <span class="exams-info-title">{{ 'sitnet_draft_exams' | translate }}</span>
     </div>
 
-    <div class="exams-list-table col-md-12">
-
-        <table class="table table-bordered room-machines-table">
+    <div class="exams-table-borders">
+        <table class="table table-bordered exams-table">
             <thead>
             <tr>
                 <th>{{ 'sitnet_course_name' | translate }}</th>
@@ -67,8 +66,7 @@
                 </td>
                 <td class="text-center">
                     <a ng-click="deleteExam(exam)" class="fa-stack fa-lg">
-                        <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
-                        <i class="fa fa-minus fa-stack-1x"></i>
+                        <i class="fa fa-times fa-stack-2x sitnet-red"></i>
                     </a>
                 </td>
             </tr>
@@ -81,8 +79,7 @@
                 </td>
                 <td class="text-center">
                     <a ng-click="deleteExam(exam)" class="fa-stack fa-lg">
-                        <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
-                        <i class="fa fa-minus fa-stack-1x"></i>
+                        <i class="fa fa-times fa-2x sitnet-red"></i>
                     </a>
                 </td>
             </tr>
