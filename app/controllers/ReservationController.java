@@ -33,6 +33,7 @@ public class ReservationController extends SitnetController {
         return ok(Json.toJson(rooms));
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getExamRoom(Long id) {
         Logger.debug("getExamRoomid)");
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);

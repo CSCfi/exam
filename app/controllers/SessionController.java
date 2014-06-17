@@ -2,7 +2,8 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
-import actions.Authenticate;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
@@ -193,7 +194,7 @@ public class SessionController extends SitnetController {
         return ok("Successfully logged out!");
     }
 
-    @Authenticate
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result ping() {
         return ok("pong");
     }

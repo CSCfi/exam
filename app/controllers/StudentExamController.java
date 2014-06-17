@@ -1,6 +1,8 @@
 package controllers;
 
 import Exceptions.UnauthorizedAccessException;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
@@ -28,7 +30,7 @@ import java.util.List;
  */
 public class StudentExamController extends SitnetController {
 
-//    @Restrict(@Group({"STUDENT"}))
+    @Restrict({@Group("STUDENT")})
     public static Result listActiveExams() {
 
         User user = UserController.getLoggedUser();
@@ -49,6 +51,7 @@ public class StudentExamController extends SitnetController {
         return ok(Json.toJson(exams));
     }
 
+    @Restrict({@Group("STUDENT")})
     public static Result getFinishedExams(Long uid) {
         Logger.debug("getFinishedExams()");
 
@@ -85,7 +88,7 @@ public class StudentExamController extends SitnetController {
         }
     }
 
-    //  @Restrict(@Group({"STUDENT"}))
+    @Restrict({@Group("STUDENT")})
     public static Result getExamGeneralInfo(Long id)  {
 
         Exam exam = Ebean.find(Exam.class)
@@ -105,6 +108,7 @@ public class StudentExamController extends SitnetController {
         return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }
 
+    @Restrict({@Group("STUDENT")})
     public static Result getEnrolmentsForUser(Long uid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
@@ -129,6 +133,7 @@ public class StudentExamController extends SitnetController {
         }
     }
 
+    @Restrict({@Group("STUDENT")})
     public static Result startExam(String hash) throws UnauthorizedAccessException {
 
         Exam possibleClone = Ebean.find(Exam.class)
@@ -194,6 +199,7 @@ public class StudentExamController extends SitnetController {
         }
     }
 
+    @Restrict({@Group("STUDENT")})
     public static Result saveAnswersAndExit(Long id) {
         Logger.debug("saveAnswersAndExit()");
 
@@ -204,6 +210,7 @@ public class StudentExamController extends SitnetController {
         return ok("Exam send for review");
     }
 
+    @Restrict({@Group("STUDENT")})
     public static Result abortExam(Long id) {
         Logger.debug("saveAnswersAndExit()");
 
@@ -214,6 +221,7 @@ public class StudentExamController extends SitnetController {
         return ok("Exam aborted");
     }
 
+    @Restrict({@Group("STUDENT")})
     public static Result insertEssay(String hash, Long questionId) {
         String answerString = request().body().asJson().get("answer").toString();
 
@@ -242,7 +250,8 @@ public class StudentExamController extends SitnetController {
         Logger.debug(((EssayAnswer) question.getAnswer()).getAnswer());
         return ok("success");
     }
-    	
+
+    @Restrict({@Group("STUDENT")})
     public static Result insertAnswer(String hash, Long qid, Long oid)  {
 
         // Todo: onko käyttäjällä aikaa jäljellä tehdä koetta?

@@ -53,9 +53,6 @@ public class UserController extends SitnetController {
     			.where()
     			.eq("roles.name", role)
     			.findList();
-
-        // didnt work, lazy loading still initializes the object
-//        List<User> immutableUsers = Collections.unmodifiableList(users);
         
     	List<User> filteredUsers =
     			Ebean.filter(User.class) 

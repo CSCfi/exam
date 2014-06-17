@@ -263,18 +263,7 @@ public class QuestionController extends SitnetController {
             section.save();
         }
 
-//        String sql = " delete from exam_section_question "
-//                + " where question_id = :id1 ";
-//
-//        SqlQuery sqlQuery = Ebean.createSqlQuery(sql);
-//        sqlQuery.setParameter("id1", id);
-//        List<SqlRow> list = sqlQuery.findList();
-//
-//        Logger.debug("SQL lause vaikutti näin moineen riviin: "+ list);
-//
         Ebean.delete(AbstractQuestion.class, id);
-
-//        question.delete();
 
         return ok("Question deleted from database!");
     }
@@ -316,12 +305,6 @@ public class QuestionController extends SitnetController {
 
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
         return ok(Json.toJson(option));
-    }
-
-  
-
-    public static enum EssayEvaluationType {
-        POINTS, SELECT;
     }
 
 }

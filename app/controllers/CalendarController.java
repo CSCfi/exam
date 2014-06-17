@@ -2,6 +2,8 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import Exceptions.NotFoundException;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
@@ -26,6 +28,7 @@ public class CalendarController extends SitnetController {
     private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws MalformedDataException, NotFoundException {
         final User user = UserController.getLoggedUser();
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
@@ -41,6 +44,8 @@ public class CalendarController extends SitnetController {
         Ebean.delete(Reservation.class, id);
         return ok("removed");
     }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result createReservation() throws MalformedDataException {
         JsonNode json = request().body().asJson();
 
@@ -78,6 +83,7 @@ public class CalendarController extends SitnetController {
 
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSlots(String examinput, String roominput, String dateinput) throws MalformedDataException {
 
 
