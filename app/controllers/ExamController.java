@@ -650,6 +650,7 @@ public class ExamController extends SitnetController {
                     EssayQuestion essayQuestion = Ebean.find(EssayQuestion.class, qid);
                     EssayQuestion clonedQuestion;
                     clonedQuestion = (EssayQuestion)essayQuestion.clone();
+                    clonedQuestion.setParent(essayQuestion);
                     clonedQuestion.save();
 
                     ExamSection section = Ebean.find(ExamSection.class, sid);
