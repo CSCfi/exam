@@ -1,8 +1,10 @@
 package models.questions;
 
 import annotations.NonCloneable;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import models.*;
+import models.Attachment;
+import models.Comment;
+import models.EvaluationPhrase;
+import models.SitnetModel;
 import models.answers.AbstractAnswer;
 import util.SitnetUtil;
 
@@ -47,7 +49,7 @@ abstract public class AbstractQuestion extends SitnetModel {
      * track of different versions.
      * This attribute might have use in statistics.
      */
-    @OneToOne (cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.PERSIST) // do not delete parent question
     @NonCloneable
     protected AbstractQuestion parent;
 

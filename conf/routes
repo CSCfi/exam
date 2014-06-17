@@ -76,6 +76,7 @@ DELETE        /enroll/:code/exam/:id                                controllers.
 
 GET           /sections/:id                                         controllers.ExamController.getExamSections(id: Long)
 DELETE        /section/:sectionId                                   controllers.ExamController.deleteSection(sectionId: Long)
+DELETE        /clearsection/:sid                                    controllers.ExamController.clearQuestions(sid: Long)
 
 
 ############### Courses interface ###############

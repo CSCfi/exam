@@ -675,6 +675,27 @@ public class ExamController extends SitnetController {
             ExamSection section = Ebean.find(ExamSection.class, sid);
             section.getQuestions().remove(question);
             section.save();
+            question.delete();
+            return ok(Json.toJson(section));
+        }
+        else {
+            return forbidden("You don't have the permission to modify this object");
+        }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result clearQuestions(Long sid) throws MalformedDataException {
+        ExamSection section = Ebean.find(ExamSection.class, sid);
+
+        if(SitnetUtil.isOwner(section) || UserController.getLoggedUser().hasRole("ADMIN")) {
+
+            for(AbstractQuestion q : section.getQuestions())
+            {
+                section.getQuestions().remove(q);
+                q.delete();
+            }
+            Ebean.deleteManyToManyAssociations(section, "questions");
+            section.save();
             return ok(Json.toJson(section));
         }
         else {

@@ -23,7 +23,7 @@
                     "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}},
                     "remove": {method: "DELETE", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}}
                 }),
-                
+
                 sections: $resource("/exams/:eid/section/:sid",
                 {
                     eid: "@eid", sid: "@sid"
@@ -33,6 +33,14 @@
                 	"remove": {method: "DELETE", params: { eid: "@eid" , sid: "@sid"}},
                     "update": {method: "PUT", params: { eid: "@eid" , sid: "@sid"}}
 
+                }),
+
+                clearsection: $resource("/clearsection/:sid",
+                {
+                    sid: "@sid"
+                },
+                {
+                	"clear": {method: "DELETE", params: {sid: "@sid"}}
                 }),
 
                 course: $resource("/exams/:eid/course/:cid",
@@ -57,7 +65,6 @@
                 },
                 {
                     "deleteSection": {method: "DELETE", params: { sectionId: "@sectionId"}}
-
                 }),
 
                 examsByState: $resource("/exams/state/:state",

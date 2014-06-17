@@ -28,13 +28,6 @@
 
                 $scope.examRooms = RoomResource.rooms.query();
 
-//                $scope.examRooms = [
-//                    "Room1",
-//                    "Room2",
-//                    "Room3",
-//                    "Room4"
-//                ];
-
                 // Todo: Fill in durations from database for final version
                 $scope.examDurations = [
                     "0.5",
@@ -67,8 +60,6 @@
                     "Englanti",
                     "Saksa"
                 ];
-
-//                $scope.newExam.examLanguage = $scope.examLanguages[0];
 
                 // Todo: Fill in languages from database for final version
                 $scope.examAnswerLanguages = [
@@ -212,32 +203,32 @@
 
                 $scope.setExamRoom = function (room) {
                     $scope.newExam.room = room;
-                    $scope.updateExam($scope.newExam);
+                    $scope.updateExam(); 
                 };
 
                 $scope.setExamDuration = function (duration) {
                     $scope.newExam.duration = duration;
-                    $scope.updateExam($scope.newExam);
+                    $scope.updateExam();
                 };
 
                 $scope.setExamGrading = function (grading) {
                     $scope.newExam.grading = grading;
-                    $scope.updateExam($scope.newExam);
+                    $scope.updateExam();
                 };
 
                 $scope.setExamLanguage = function (language) {
                     $scope.newExam.examLanguage = language;
-                    $scope.updateExam($scope.newExam);
+                    $scope.updateExam();
                 };
 
                 $scope.setExamAnswerLanguage = function (answerLanguage) {
                     $scope.newExam.answerLanguage = answerLanguage;
-                    $scope.updateExam($scope.newExam);
+                    $scope.updateExam();
                 };
 
                 $scope.setExamType = function (type) {
                     $scope.newExam.examType.type = type;
-                    $scope.updateExam($scope.newExam);
+                    $scope.updateExam();
                 };
 
                 var questions = QuestionRes.questions.query(function () {
@@ -318,7 +309,15 @@
 
                 $scope.clearAllQuestions = function (section) {
                     if (confirm('Poistetaanko kaikki kysymykset?')) {
-                        section.questions.splice(0, questions.length);
+//                        section.questions.splice(0, questions.length);
+
+                        ExamRes.clearsection.clear({sid: section.id}, function (sec) {
+                            section = sec;
+                            toastr.info("Kysymykset poistettu.");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+
                     }
                 };
 
@@ -350,7 +349,7 @@
                 // Called from ui-blur
                 $scope.updateExam = function (newExam) {
 
-                    if (newExam) {
+//                    if (newExam) {
                         var examToSave = {
                             "id": $scope.newExam.id,
                             "name": $scope.newExam.name,
@@ -369,7 +368,7 @@
                             "expanded": $scope.newExam.expanded
                         };
 
-                        ExamRes.exams.update({id: newExam.id}, examToSave,
+                        ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                             function (exam) {
                                 toastr.info("Tentti tallennettu.");
                                 $scope.newExam = exam;
@@ -377,7 +376,7 @@
 
                                 toastr.error(error.data);
                             });
-                    }
+//                    }
                 };
 
                 //Called when Preview Button is clicked
@@ -422,11 +421,9 @@
                         "name": $scope.newExam.name,
                         "instruction": $scope.newExam.instruction,
                         "state": 'SAVED',
-//                        "course": $scope.newExam.course,    // there is no course
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": $scope.dateService.startTimestamp,
                         "examActiveEndDate": $scope.dateService.endTimestamp,
-                        "room": $scope.newExam.room,
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.grading,
                         "examLanguage": $scope.newExam.examLanguage,
