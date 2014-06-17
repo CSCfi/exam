@@ -39,23 +39,15 @@
     </div>
 
     <div class="col-md-4 pull-right" style="padding-left: 4em">
-        <div ng-show="section.lotteryOn">
-            <div style="padding-right: 1em; margin-top: 0.7em" class="pull-left pointer-hand">
-                <input style="margin-right: 0.3em" type="checkbox" name="On" value="On" ng-click="section.lotteryOn = !section.lotteryOn; toggleLottery(section)"
-                       ng-model="section.lotteryOn">Arvo kysymykset</input>
-            </div>
-            <span>
-                <input style="margin-top: 0.5em; width: 20%" class="pull-left" type="number" name="quantity" min="1" max="{{section.questions.length}}"
-                       ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)" autofocus> / {{section.questions.length}}
-            </span>
-        </div>
-
-        <div ng-show="!section.lotteryOn">
-            <div style="padding-right: 1em; margin-top: 0.7em">
-                <input style="margin-right: 0.3em" type="checkbox" name="Off" value="Off" ng-click="section.lotteryOn = !section.lotteryOn; toggleLottery(section)"
-                        ng-model="section.lotteryOn">{{'sitnet_randomize_questions' | translate}}</input>
-            </div>
-        </div>
+	    <span style="padding-right: 1em; " class="pointer-hand">
+	        <input style="margin-right: 1em" type="checkbox" name="On" value="On" ng-click="section.lotteryOn = !section.lotteryOn; toggleLottery(section)"
+	               ng-model="section.lotteryOn">Arvo kysymykset</input>
+	    </span>
+	    <span ng-show="section.lotteryOn">
+	        <input style="margin-right: 1em; width: 20%" type="number" name="quantity" min="1" max="{{section.questions.length}}"
+	               ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)" autofocus>
+	    </span>
+	    <span>/ {{section.questions.length}}</span>
     </div>
 
 </div>
