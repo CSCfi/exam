@@ -93,7 +93,7 @@
                             if ($scope.newExam.examType === null) {
                                 // examtype id 2 is Final
                                 ExamRes.examType.insert({eid: $scope.newExam.id, etid: 2}, function (updated_exam) {
-                                    toastr.success("Tenttityyppi lisättiin tenttiin.");
+                                	toastr.info("Tentti päivitetty.");
                                     $scope.newExam = updated_exam;
                                 }, function (error) {
                                     toastr.error(error.data);
@@ -194,7 +194,7 @@
 
                     ExamRes.draft.get(
                         function (response) {
-                            toastr.info("Tenttiluonnos tehty.");
+                            toastr.info("Uusi tentti luotu.");
                             $location.path("/exams/" + response.id);
                         }, function (error) {
                             toastr.error(error.data);
@@ -202,8 +202,13 @@
                 };
 
                 $scope.setExamRoom = function (room) {
-                    $scope.newExam.room = room;
-                    $scope.updateExam(); 
+                	
+                    ExamRes.room.update({eid: $scope.newExam.id, rid: room.id}, function (exam) {
+                    	$scope.newExam.room = room;
+                    	toastr.info("Tentti päivitetty.");
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
                 };
 
                 $scope.setExamDuration = function (duration) {
@@ -349,18 +354,17 @@
                 // Called from ui-blur
                 $scope.updateExam = function (newExam) {
 
-//                    if (newExam) {
                         var examToSave = {
                             "id": $scope.newExam.id,
                             "name": $scope.newExam.name,
-                            "course": $scope.newExam.course,
+//                            "course": $scope.newExam.course,
                             "examType": $scope.newExam.examType,
                             "instruction": $scope.newExam.instruction,
                             "state": 'SAVED',
                             "shared": $scope.newExam.shared,
                             "examActiveStartDate": $scope.dateService.startTimestamp,
                             "examActiveEndDate": $scope.dateService.endTimestamp,
-                            "room": $scope.newExam.room,
+//                            "room": $scope.newExam.room,
                             "duration": $scope.newExam.duration,
                             "grading": $scope.newExam.grading,
                             "examLanguage": $scope.newExam.examLanguage,
@@ -376,7 +380,6 @@
 
                                 toastr.error(error.data);
                             });
-//                    }
                 };
 
                 //Called when Preview Button is clicked
@@ -394,7 +397,7 @@
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": $scope.dateService.startTimestamp,
                         "examActiveEndDate": $scope.dateService.endTimestamp,
-                        "room": $scope.newExam.room,
+//                        "room": $scope.newExam.room,
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.grading,
                         "examLanguage": $scope.newExam.examLanguage,
@@ -460,11 +463,11 @@
                             "name": $scope.newExam.name,
                             "instruction": $scope.newExam.instruction,
                             "state": 'PUBLISHED',
-                            "course": $scope.newExam.course,    // there is no course
+//                            "course": $scope.newExam.course,    // there is no course
                             "shared": $scope.newExam.shared,
                             "examActiveStartDate": $scope.dateService.startTimestamp,
                             "examActiveEndDate": $scope.dateService.endTimestamp,
-                            "room": $scope.newExam.room,
+//                            "room": $scope.newExam.room,
                             "duration": $scope.newExam.duration,
                             "grading": $scope.newExam.grading,
                             "examLanguage": $scope.newExam.examLanguage,

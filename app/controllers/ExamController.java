@@ -376,6 +376,7 @@ public class ExamController extends SitnetController {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("examSections")
+                .fetch("room")
                 .where()
                 .eq("id", id)
                 .findUnique();
@@ -394,21 +395,6 @@ public class ExamController extends SitnetController {
             String instruction = df.get("instruction");
             String state = df.get("state");
             boolean expanded = Boolean.parseBoolean(df.get("expanded"));
-
-            String roomId = df.get("room.id");
-            if(roomId != null)
-            {
-                ExamRoom room = Ebean.find(ExamRoom.class)
-                        .where()
-                        .eq("id", Long.parseLong(roomId))
-                        .findUnique();
-
-                if(room != null)
-                    exam.setRoom(room);
-            }
-            else
-                exam.setRoom(null);
-
 
             if (examName != null) {
                 exam.setName(examName);
@@ -592,6 +578,21 @@ public class ExamController extends SitnetController {
         else {
             return forbidden("You don't have the permission to modify this object");
         }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result updateRoom(Long eid, Long rid) throws MalformedDataException {
+    	
+    	Exam exam = Ebean.find(Exam.class, eid);
+    	if(SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
+    		ExamRoom room = Ebean.find(ExamRoom.class, rid);
+    		exam.setRoom(room);
+    		exam.save();
+    		return ok(Json.toJson(exam));
+    	}
+    	else {
+    		return forbidden("You don't have the permission to modify this object");
+    	}
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

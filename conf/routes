@@ -35,6 +35,7 @@ POST          /exams/:id/section                                    controllers.
 DELETE        /exams/:eid/section/:sid                              controllers.ExamController.removeSection(eid: Long, sid: Long)
 PUT           /exams/:eid/section/:sid                              controllers.ExamController.updateSection(eid: Long, sid: Long)
 PUT           /exams/:eid/course/:cid                               controllers.ExamController.updateCourse(eid: Long, cid: Long)
+PUT           /exams/:eid/room/:rid		                            controllers.ExamController.updateRoom(eid: Long, rid: Long)
 GET           /finishedexams                                        controllers.ExamController.getFinishedExams()
 GET           /activeexams                                          controllers.ExamController.getActiveExams()
 GET           /examenrolments/:eid                                  controllers.ExamController.getEnrolmentsForExam(eid: Long)

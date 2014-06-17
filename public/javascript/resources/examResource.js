@@ -51,6 +51,14 @@
                     "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}}
                 }),
 
+                room: $resource("/exams/:eid/room/:rid",
+                {
+                    eid: "@eid", rid: "@rid"
+                },
+                {
+                    "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}}
+                }),
+
                 examType: $resource("/exams/:eid/examtype/:etid",
                 {
                     eid: "@eid", etid: "@etid"

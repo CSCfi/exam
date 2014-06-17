@@ -90,7 +90,7 @@
                     'starting-day': 1
                 };
 
-                $scope.formats = ['dd-MM-yyyy', 'yyyy/MM/dd', 'shortDate'];
+                $scope.formats = ['dd.MM.yyyy', 'yyyy/MM/dd', 'shortDate'];
                 $scope.format = $scope.formats[0];
             }])
 }());
