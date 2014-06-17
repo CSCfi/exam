@@ -191,7 +191,7 @@ public class SessionController extends SitnetController {
     public static Result logout() {
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
         Cache.remove(SITNET_CACHE_KEY + token);
-        return ok("Successfully logged out!");
+        return ok();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})

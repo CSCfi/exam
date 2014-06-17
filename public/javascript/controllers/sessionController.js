@@ -1,10 +1,36 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'ExamRes', 'SITNET_CONF',
-            function ($scope, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, ExamRes, SITNET_CONF) {
+        .controller('SessionCtrl', ['$scope', '$routeParams', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'ExamRes', 'SITNET_CONF',
+            function ($scope, $routeParams, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, ExamRes, SITNET_CONF) {
 
                 $scope.session = sessionService;
+
+//                $scope.logoutDialog = function () {
+//
+//                    var modalInstance = $modal.open({
+//                        templateUrl: 'assets/templates/logout/dialog_logout.html',
+//                        backdrop: 'static',
+//                        keyboard: true,
+//                        controller: "ModalInstanceCtrl"
+//                    });
+//
+//                    modalInstance.result.then(function () {
+//                        // OK button
+//                        $scope.dologout();
+//                    }, function () {
+//                        // Cancel button
+//                    });
+//                };
+
+                if($location.url() == "/logout")
+                {
+                    if($scope.session.user != undefined)
+                    {
+                        $scope.dologout();
+                    }
+                }
+
 
                 $scope.switchLanguage = function (key) {
                     $translate.uses(key);
@@ -13,14 +39,14 @@
                 var dialog;
 
                 $scope.$on('event:auth-loginRequired', function () {
-//                    dialog = $modal.open({
-//                        templateUrl: 'assets/templates/login.html',
-//                        backdrop: 'static',
-//                        keyboard: false,
-//                        controller: "SessionCtrl"
-//                    });
+                    dialog = $modal.open({
+                        templateUrl: 'assets/templates/login.html',
+                        backdrop: 'static',
+                        keyboard: false,
+                        controller: "SessionCtrl"
+                    });
 
-                    $scope.login();
+//                    $scope.login();
                 });
 
                 $scope.$on('event:auth-loginConfirmed', function () {
@@ -50,10 +76,10 @@
                 };
 
                 $scope.dologout = function () {
-//                    var xhr = $http.post('/logout');
+                    var asd = $http.post('/logout');
                     var xhr = $http.get('https://testidp.funet.fi/logout_dummy.jsp');
 
-                    xhr.success(function (message) {
+                    asd.success(function (message) {
 
                         // This could be how the service is called if we could use it to handle logout
 //                        sessionService.logout();
@@ -119,23 +145,6 @@
                     $location.path(location);
                 };
 
-
-                $scope.logoutDialog = function () {
-
-                    var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/logout/dialog_logout.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: "ModalInstanceCtrl"
-                    });
-
-                    modalInstance.result.then(function () {
-                        // OK button
-                        dologout();
-                    }, function () {
-                        // Cancel button
-                    });
-                };
 
             }]);
 }());

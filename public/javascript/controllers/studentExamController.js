@@ -92,7 +92,7 @@
                 $scope.activateExam = function (exam) {
                     $scope.doexam = exam;
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/terms_of_use.html',
+                        templateUrl: 'assets/templates/dialog_terms_of_use.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: "ModalInstanceCtrl"
