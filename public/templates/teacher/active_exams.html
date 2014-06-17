@@ -1,7 +1,3 @@
-<div class="col-md-3 exams-table-title-area">
-    <span class="exams-list-title-text pull-left">{{ 'sitnet_active_exams' | translate }}</span>
-</div>
-
 <!-- Active exams indications bar -->
 <!-- New participants indication -->
 <!--<div class="col-md-2  indicator-item">-->
@@ -44,39 +40,46 @@
     <!--</a>-->
 <!--</div>-->
 
-<div class="col-md-3 col-md-offset-5" style="margin-top: 4em">
-    <!-- href="#/rooms/{{room.id}}" -->
-    <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon pull-right fa-stack fa-lg">
-        <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
-        <i ng-show="toggleActiveExams" class="fa fa-chevron-left fa-stack-1x"></i>
-        <i ng-show="!toggleActiveExams" class="fa fa-chevron-down fa-stack-1x"></i>
-    </a>
+<div class="row">
+    <div class="col-md-3 exams-table-title-area">
+        <span class="exams-list-title-text pull-left">{{ 'sitnet_active_exams' | translate }}</span>
+    </div>
+
+    <div class="col-md-9">
+        <!-- href="#/rooms/{{room.id}}" -->
+        <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon pull-right fa-stack fa-lg">
+            <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+            <i ng-show="toggleActiveExams" class="fa fa-chevron-left fa-stack-1x"></i>
+            <i ng-show="!toggleActiveExams" class="fa fa-chevron-down fa-stack-1x"></i>
+        </a>
+    </div>
 </div>
+<div class="row">
+    <div class="exams-list col-md-12">
+        <div class="exams-table-borders col-md-12">
+            <table class="table table-bordered exams-table">
+                <thead>
+                <tr>
+                    <th class="table-column-flag"><i class="fa fa-flag"></i></th>
+                    <th class="table-column-exclamation"><i class="fa fa-exclamation-triangle"></i></th>
+                    <th class="table-column-examcode">{{ 'sitnet_examcode' | translate }}</th>
+                    <th class="table-column-examname">{{ 'sitnet_exam_name' | translate }}</th>
+                    <th class="table-column-enroll-participation">{{ 'sitnet_participation_enrolled' | translate }}</th>
+                    <th class="table-column-open-until">{{'sitnet_exam_open_until' | translate}}</th>
+                </tr>
+                </thead>
 
-<div class="exams-list col-md-12">
-    <div class="exams-table-borders col-md-12">
-        <table class="table table-bordered exams-table">
-            <thead>
-            <tr>
-                <th class="table-column-flag"><i class="fa fa-flag"></i></th>
-                <th class="table-column-exclamation"><i class="fa fa-exclamation-triangle"></i></th>
-                <th class="table-column-examcode">{{ 'sitnet_examcode' | translate }}</th>
-                <th class="table-column-examname">{{ 'sitnet_exam_name' | translate }}</th>
-                <th class="table-column-enroll-participation">{{ 'sitnet_participation_enrolled' | translate }}</th>
-                <th class="table-column-open-until">{{'sitnet_exam_open_until' | translate}}</th>
-            </tr>
-            </thead>
-
-            <tbody ng-show="!toggleActiveExams">
-            <tr ng-repeat="activeExam in activeExams">
-                <td><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                <td><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                <td>{{activeExam.course.code}}</td>
-                <td><a href="#/exams/reviews/{{activeExam.id}}">{{activeExam.name}}</a></td>
-                <td>{{activeExam.examParticipations.length}}/{{activeExam.activeExamEnrolments.length}}({{(activeExam.examParticipations.length/activeExam.activeExamEnrolments.length)*100 | number : 2}}%)</td>
-                <td>{{activeExam.examActiveEndDate | date:'dd-MM-yyyy'}}</td>
-            </tr>
-            </tbody>
-        </table>
+                <tbody ng-show="!toggleActiveExams">
+                <tr ng-repeat="activeExam in activeExams">
+                    <td><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
+                    <td><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                    <td>{{activeExam.course.code}}</td>
+                    <td><a href="#/exams/reviews/{{activeExam.id}}">{{activeExam.name}}</a></td>
+                    <td>{{activeExam.examParticipations.length}}/{{activeExam.activeExamEnrolments.length}}({{(activeExam.examParticipations.length/activeExam.activeExamEnrolments.length)*100 | number : 2}}%)</td>
+                    <td>{{activeExam.examActiveEndDate | date:'dd-MM-yyyy'}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

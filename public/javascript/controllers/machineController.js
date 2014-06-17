@@ -25,9 +25,11 @@
                             },
                             function (error) {
                                 toastr.error(error.data);
+
                             }
                         );
                     }
+                    $location.path("/rooms/");
                 };
 
                 $scope.updateMachine = function (machine) {
@@ -41,5 +43,11 @@
                         }
                     );
                 };
+
+                $scope.updateMachineAndExit = function (machine) {
+                    $scope.updateMachine(machine);
+                    $location.path("/rooms/");
+                }
+
         }]);
 }());

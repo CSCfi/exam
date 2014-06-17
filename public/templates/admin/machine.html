@@ -10,8 +10,8 @@
         </span>-->
     </div>
 </div>
-<div id="room">
-    <div class=" room-header col-md-12">
+<div id="room" class="base">
+    <div class="row room-header">
         <div class="col-md-9 " ng-init="showMachineName = true">
             <div ng-show="showMachineName">
                 <span class="pull-left room-name" ng-click="showMachineName = !showMachineName">
@@ -123,7 +123,7 @@
     </div>
     <div class="row" style="padding:2em 0;">
         <div class="col-md-6 col-md-offset-5">
-            <button ng-click="updateMachine(machine)" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+            <button ng-click="updateMachineAndExit(machine)" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
         </div>
     </div>
 </div>

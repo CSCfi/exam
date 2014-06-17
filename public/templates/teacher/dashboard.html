@@ -14,24 +14,21 @@
     </div>
 </div>
 
-<div id="dashboard" class="container-fluid">
+<div id="dashboard">
 
-    <!-- Title -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="title">
-                {{'sitnet_dashboard' | translate}}
-            </div>
-        </div>
+    <div class="row base">
+        <div ng-include="dashboardToolbarPath"></div>
+    </div>
+    <div class="row base">
+        <div ng-include="dashboardActiveExamsPath"></div>
+    </div>
+    <div class="row base">
+        <div ng-include="dashboardFinishedExamsPath"></div>
+    </div>
+    <div class="row base">
+        <div ng-include="dashboardUnPublishedExamsPath"></div>
     </div>
 
-    <div ng-include="dashboardToolbarPath"></div>
-
-    <div ng-include="dashboardActiveExamsPath"></div>
-
-    <div ng-include="dashboardFinishedExamsPath"></div>
-
-    <div ng-include="dashboardUnPublishedExamsPath"></div>
 </div>
 
 

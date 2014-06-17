@@ -126,8 +126,6 @@
   }
 
   .toolbar-item {
-    margin-top: 2em;
-    margin-left: 4em;
   }
 
   .indicator-item {
@@ -137,5 +135,10 @@
   .exam-header {
     border-bottom: $sitnet-common-light solid 0.15em;
     height:4em;
+  }
+
+  .header-icon {
+    margin-top: 1em;
+    cursor: pointer;
   }
 }
