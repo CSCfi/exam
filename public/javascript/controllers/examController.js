@@ -212,7 +212,8 @@
                 };
 
                 $scope.setExamDuration = function (duration) {
-                    $scope.newExam.duration = duration;
+                    // Todo: should make proper time selector in UI
+                    $scope.newExam.duration = duration * 60;
                     $scope.updateExam();
                 };
 

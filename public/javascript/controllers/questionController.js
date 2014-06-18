@@ -173,6 +173,41 @@
                     }
                 };
 
+                $scope.updateQuestion = function () {
+
+                    // common to all type of questions
+                    var questionToUpdate = {
+                        "id": $scope.newQuestion.id,
+                        "type": $scope.newQuestion.type,
+                        "score": $scope.newQuestion.score,
+                        "question": $scope.newQuestion.question,
+                        "shared": $scope.newQuestion.shared,
+                        "instruction": $scope.newQuestion.instruction,
+                        "evaluationCriterias": $scope.newQuestion.evaluationCriterias
+                    }
+
+                    // update question specific attributes
+                    switch (questionToUpdate.type) {
+                        case 'EssayQuestion':
+                            questionToUpdate.maxCharacters = $scope.newQuestion.maxCharacters;
+                            questionToUpdate.evaluationType =  $scope.newQuestion.evaluationType;
+                            break;
+
+                        case 'MultipleChoiceQuestion':
+
+                            break;
+                    }
+
+                    QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
+                        function (response) {
+                            toastr.info("Kysymys tallennettu");
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+
+                    );
+                };
+
                 $scope.deleteQuestion = function (question) {
                     if (confirm('Poistetaanko kysymys?')) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);

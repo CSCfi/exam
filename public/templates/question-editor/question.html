@@ -17,7 +17,7 @@
                                 <div class="checkbox">
                                     <label>
                                         <br>
-                                        <input type="checkbox" ng-model="newQuestion.shared" ui-change="saveQuestion()"> {{'sitnet_share_this_question' | translate}}
+                                        <input type="checkbox" ng-model="newQuestion.shared" ui-change="updateQuestion()"> {{'sitnet_share_this_question' | translate}}
                                     </label>
                                 </div>
                             </div>
@@ -38,7 +38,7 @@
                     <!-- Question header -->
                     <div class="row">
                         <div class="col-md-12">
-                            <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question" ui-change="saveQuestion()" placeholder="{{'sitnet_question_write_name' | translate}}">
+                            <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question" ui-change="updateQuestion()" placeholder="{{'sitnet_question_write_name' | translate}}">
                             </textarea>
                         </div>
                     </div>
@@ -56,7 +56,7 @@
                             {{'sitnet_evaluation_type' | translate}}
                             <div class="row">
                                 <div class="col-md-2">
-                                    <select class="form-control" ng-model="newQuestion.evaluationType" ng-change="saveQuestion()">
+                                    <select class="form-control" ng-model="newQuestion.evaluationType" ng-change="updateQuestion()">
                                         <option value="Points">{{ 'sitnet_evaluation_points' | translate }}</option>
                                         <option value="Select">{{ 'sitnet_evaluation_select' | translate }}</option>
                                     </select>
@@ -70,7 +70,7 @@
                             <div class="row">
                                 <div class="col-md-2">
                                     <input name="maxScore" type="text" class="col-md-2 form-control" ng-model="newQuestion.maxScore"
-                                           ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                                           ui-change="questionForm.maxScore.$valid ? updateQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
                                 </div>
                             </div>
                         </div>
@@ -90,7 +90,7 @@
                             <div class="row">
                                 <div class="col-md-2">
                                     <input name="maxScore" type="text" class="col-md-2 form-control" ng-model="newQuestion.maxScore"
-                                           ui-change="questionForm.maxScore.$valid ? saveQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                                           ui-change="questionForm.maxScore.$valid ? updateQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
                                 </div>
                             </div>
                         </div>
@@ -98,14 +98,14 @@
 
                     <div class="sitnet-info-text">
                         {{'sitnet_instruction' | translate}}
-                        <textarea class="form-control" rows="3" ng-model="newQuestion.instruction" ui-change="saveQuestion()"
+                        <textarea class="form-control" rows="3" ng-model="newQuestion.instruction" ui-change="updateQuestion()"
                                placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
                     </div>
 
                     <div class="sitnet-info-text">
                         {{'sitnet_exam_evaluation_criteria' | translate}}
-                        <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias" ui-change="saveQuestion()"
+                        <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias" ui-change="updateQuestion()"
                                   placeholder="{{'sitnet_correct_answer_should_have' | translate}}">
                         </textarea>
                     </div>
