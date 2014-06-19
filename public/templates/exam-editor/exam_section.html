@@ -23,13 +23,13 @@
 
     <div class="pull-right">
         <a class="sub-header-icon pull-right fa-stack fa-lg" ng-click="section.expanded = !section.expanded; expandSection(section)">
-            <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
             <i ng-class="section.expanded ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-left fa-stack-1x'"></i>
         </a>
     </div>
     <div class="dropdown pull-right" ng-click="editSection(section)">
         <a class="dropdown-toggle sub-header-icon pull-right fa-stack fa-lg">
-            <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
+            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
             <i class="fa fa-wrench fa-stack-1x"></i>
         </a>
         <ul class="dropdown-menu">
@@ -51,8 +51,9 @@
     </div>
 
 </div>
-<div class="col-md-12 top-padding-2" ng-show="section.expanded">
-    <div class="question" ng-include="questionPath" ng-repeat="question in section.questions"></div>
+<div class="row">
+    <div class="col-md-12 top-padding-2" ng-show="section.expanded">
+        <div class="question" ng-include="questionPath" ng-repeat="question in section.questions"/>
         <div class="create-new dropdown">
             <a class="dropdown-toggle">
                 <i class="fa fa-2x fa-plus-circle"></i>
@@ -67,4 +68,5 @@
                 </li>
             </ul>
         </div>
+    </div>
 </div>

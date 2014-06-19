@@ -165,7 +165,7 @@
                                 question.selectedAnsweredState = 'question-unanswered-header';
                                 question.questionStatus = $translate("sitnet_question_unanswered");
                             } else {
-                                // When question is folded and has not been answered it's status color is set to green
+                                // When question is folded and has been answered it's status color is set to green
                                 question.selectedAnsweredState = 'question-answered-header';
                                 question.questionStatus = $translate("sitnet_question_answered");
                             }
