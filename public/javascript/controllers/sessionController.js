@@ -56,10 +56,6 @@
                 });
 
                 $scope.logout = function () {
-                    // Todo: Fix the backend query to only return this user exams
-//                   var userexams = ExamRes.exams.query({state: 'STUDENT_STARTED'},
-//
-//                   );
 
                     ExamRes.examsByState.query({state: 'STUDENT_STARTED'},
                         function (value) {

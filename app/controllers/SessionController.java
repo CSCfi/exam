@@ -7,10 +7,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
-import models.Credentials;
-import models.Session;
-import models.SitnetRole;
-import models.User;
+import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.cache.Cache;
@@ -53,7 +50,7 @@ public class SessionController extends SitnetController {
                     .eq("email", eppn)
                     .findUnique();
 
-            // First login -> create user
+            // First login -> crea
             if(user == null)
             {
                 user = new User();
@@ -62,6 +59,29 @@ public class SessionController extends SitnetController {
                 user.setEmail(request().getHeader("eppn"));
                 user.setLastName(request().getHeader("sn"));
                 user.setFirstName(request().getHeader("displayName"));
+
+                String language = request().getHeader("preferredLanguage");
+                if(language != null && (language.length() > 0)) {
+                    user.getUserLanguage().setNativeLanguageCode(language);
+                    user.getUserLanguage().setUILanguageCode(language);
+                }
+                else
+                {
+                    UserLanguage lang = Ebean.find(UserLanguage.class)
+                            .where()
+                            .eq("nativeLanguageCode", "en")
+                            .findUnique();
+
+                    user.setUserLanguage(lang);
+                }
+
+                String shibRole = request().getHeader("unscoped-affiliation");
+                SitnetRole srole = getRole(shibRole);
+                if(srole == null)
+                    return notFound("Cannot assign role "+ shibRole);
+                else
+                    ((List<SitnetRole>)user.getRoles()).add(srole);
+
                 user.save();
             }
         }

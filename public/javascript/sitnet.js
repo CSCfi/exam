@@ -38,24 +38,24 @@
         });
 
         $translateProvider.preferredLanguage('fi');
-        var interceptor = function ($q) {
-            return {
-                'request': function (config) {
-                    return config || $q.when(config);
-                },
-                'response': function (config) {
-                    return config || $q.when(config);
-                },
-                'responseError': function (rejection) {
-                    return $q.reject(rejection);
-                }
-            };
-        };
-        $httpProvider.interceptors.push(interceptor);
+//        var interceptor = function ($q) {
+//            return {
+//                'request': function (config) {
+//                    return config || $q.when(config);
+//                },
+//                'response': function (config) {
+//                    return config || $q.when(config);
+//                },
+//                'responseError': function (rejection) {
+//                    return $q.reject(rejection);
+//                }
+//            };
+//        };
+//        $httpProvider.interceptors.push(interceptor);
 
     }]);
-    sitnet.run(['$http', '$localStorage', 'sessionService', 'SITNET_CONF',
-        function ($http, $localStorage, sessionService, SITNET_CONF) {
+    sitnet.run(['$http', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location',
+        function ($http, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location) {
             var user = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
             if (user) {
                 var header = {};
@@ -64,6 +64,50 @@
                 $http.defaults.headers.common = header;
                 sessionService.user = user;
             }
+            var login = function () {
+                var credentials = {
+                    username: '',
+                    password: ''
+                };
+                var xhr = $http.post('/login', credentials, {
+                    ignoreAuthModule: true
+                });
+                xhr.success(function (user) {
+
+                    var hasRole = function (user, role) {
+                            if (!user || !user.roles) {
+                                return false;
+                            }
+                            var i = user.roles.length;
+                            while (i--) {
+                                if (user.roles[i].name === role) {
+                                    return true;
+                                }
+                            }
+                            return false;
+                        },
+                        header = {};
+                    header[SITNET_CONF.AUTH_HEADER] = user.token;
+                    $http.defaults.headers.common = header;
+                    var sessionUser = {
+                        id: user.id,
+                        firstname: user.firstname,
+                        lastname: user.lastname,
+                        isAdmin: (hasRole(user, 'ADMIN')),
+                        isStudent: (hasRole(user, 'STUDENT')),
+                        isTeacher: (hasRole(user, 'TEACHER')),
+                        token: user.token
+                    };
+                    $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = sessionUser;
+                    sessionService.user = sessionUser;
+                    authService.loginConfirmed();
+                    $rootScope.$broadcast('userUpdated');
+                    toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
+                    $location.path("/home");
+                });
+            };
+            login();
+
             $http.get('/ping');
         }]);
 }());

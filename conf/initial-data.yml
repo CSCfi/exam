@@ -39,8 +39,20 @@ user_languages:
     - &suomi !!models.UserLanguage
       nativeLanguageCode: fi
       nativeLanguageName: Suomi
-      UILanguageCode: FI_fi
+      UILanguageCode: fi
       UILanguageName: Suomi
+
+    - &englanti !!models.UserLanguage
+      nativeLanguageCode: en
+      nativeLanguageName: Englanti
+      UILanguageCode: en
+      UILanguageName: Englanti
+
+    - &ruotsi !!models.UserLanguage
+      nativeLanguageCode: sv
+      nativeLanguageName: ruotsi
+      UILanguageCode: sv
+      UILanguageName: ruotsi
 
 ######################################################################
 
