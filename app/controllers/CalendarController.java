@@ -30,6 +30,7 @@ public class CalendarController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws MalformedDataException, NotFoundException {
+       //todo: email trigger: remove reservation
         final User user = UserController.getLoggedUser();
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
@@ -47,6 +48,9 @@ public class CalendarController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result createReservation() throws MalformedDataException {
+
+	//todo: email trigger: create reservation
+
         JsonNode json = request().body().asJson();
 
         //todo: add more validation, user can make loooon reservations eg.
