@@ -36,7 +36,7 @@ public class EmailComposer {
      * This notification is sent when teacher assigns another as inspector for an exam
      *
      * @param inspector The new inspector for the exam.
-     * @param sender    The teacher who assigned the inspector.
+     * @param assigner    The teacher who assigned the inspector.
      * @param exam      The exam to be inspected.
      */
 
@@ -106,7 +106,7 @@ public class EmailComposer {
         template = replaceAll(template, tagOpen, tagClosed, stringValues);
 
         //Send notification
-        EmailSender.sendInspectorNotification(inspector.getEmail(), sender.getEmail(), subject, template);
+        EmailSender.sendInspectorNotification(inspector.getEmail(), assigner.getEmail(), subject, template);
     }
 
     /**
