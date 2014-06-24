@@ -25,7 +25,7 @@ public class UserLanguage extends Model {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-	// käyttäjänä äidinkieli
+	// käyttäjän äidinkieli
 	private String nativeLanguageCode;
 
 	private String nativeLanguageName;

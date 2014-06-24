@@ -965,6 +965,7 @@ public class ExamController extends SitnetController {
             inspection.setExam(exam.getParent());
         }
         inspection.setUser(recipient);
+        inspection.setAssignedBy(UserController.getLoggedUser());
 
         inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
         inspection.getComment().save();
@@ -972,9 +973,9 @@ public class ExamController extends SitnetController {
 
         // SITNET-295
         if(exam.getParent() == null) {
-            EmailComposer.composeSimpleInspectionReadyNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
-        }else {
-            EmailComposer.composeSimpleInspectionReadyNotification(recipient, exam.getCreator(), exam.getParent(), inspection.getComment().getComment());
+            EmailComposer.composeChangeInspectorNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
+        } else {
+            EmailComposer.composeChangeInspectorNotification(recipient, exam.getCreator(), exam.getParent(), inspection.getComment().getComment());
         }
 
         return ok(Json.toJson(inspection));
