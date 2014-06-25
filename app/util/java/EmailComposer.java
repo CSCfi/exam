@@ -1,20 +1,21 @@
 package util.java;
 
-import models.*;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
+import models.Exam;
+import models.ExamInspection;
+import models.Reservation;
+import models.User;
 import play.Play;
 
 import java.io.IOException;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.HashMap;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Created by alahtinen on 21.5.2014.
@@ -120,9 +121,9 @@ public class EmailComposer {
      */
     public static void composeInspectionReadyNotification(User inspector, User sender, Exam exam, String msg) {
 
-        String templatePath = Play.application().path().getAbsolutePath() + "/assets/template/email/inspectionReady/inspectionReady.html";
+        String templatePath = Play.application().path().getAbsolutePath() + "/app/assets/template/email/inspectionReady/inspectionReady.html";
 
-        String subject = "Foobar"; //TODO!!
+        String subject = "Exam"; //TODO!!
         String teacher_name = sender.getFirstName() + " " + sender.getLastName() + " <" + sender.getEmail() + ">";
         String exam_info = exam.getName() + ", (" + exam.getCourse().getName() + ")";
         String linkToInspection =  domain + "/#/exams/review/" + exam.getName();
@@ -261,7 +262,12 @@ public class EmailComposer {
     private static String replaceAll(String original, String beginTag, String endTag, Map<String, String> stringValues) {
 
         for (Entry<String, String> entry : stringValues.entrySet()){
-            original.replaceAll("(&" + beginTag +"=)[^&]" + entry.getKey() + "(&"+ endTag + "=)", entry.getValue());
+            if(original.contains( entry.getKey()))
+            {
+                original = original.replace(beginTag + entry.getKey() + endTag, entry.getValue());
+            }
+
+//                original.replaceAll("(&" + beginTag +"=)[^&]" + entry.getKey() + "(&"+ endTag + "=)", entry.getValue());
         }
 
         return original;

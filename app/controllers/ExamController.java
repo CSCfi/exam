@@ -17,6 +17,7 @@ import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
@@ -955,9 +956,9 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result insertInspection(Long eid, Long uid) throws SitnetException {
 
-        ExamInspection inspection = bindForm(ExamInspection.class);
-        User recipient = Ebean.find(User.class, uid);
-        Exam exam = Ebean.find(Exam.class, eid);
+        final ExamInspection inspection = bindForm(ExamInspection.class);
+        final User recipient = Ebean.find(User.class, uid);
+        final Exam exam = Ebean.find(Exam.class, eid);
 
         if(exam.getParent() == null) {
             inspection.setExam(exam);
@@ -972,10 +973,10 @@ public class ExamController extends SitnetController {
         inspection.save();
 
         // SITNET-295
-        if(exam.getParent() == null) {
-            EmailComposer.composeChangeInspectorNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
+        if (exam.getParent() == null) {
+            EmailComposer.composeInspectionReadyNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
         } else {
-            EmailComposer.composeChangeInspectorNotification(recipient, exam.getCreator(), exam.getParent(), inspection.getComment().getComment());
+            EmailComposer.composeInspectionReadyNotification(recipient, exam.getCreator(), exam.getParent(), inspection.getComment().getComment());
         }
 
         return ok(Json.toJson(inspection));
