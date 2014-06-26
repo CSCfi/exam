@@ -26,9 +26,6 @@ public class Reservation extends Model {
     @Temporal(TemporalType.TIMESTAMP)
     private Timestamp endAt;
 
-//    @OneToOne
-    //User user;
-
     @OneToOne
     @JsonBackReference
     ExamMachine machine;
@@ -56,14 +53,6 @@ public class Reservation extends Model {
     public void setEndAt(Timestamp endAt) {
         this.endAt = endAt;
     }
-
-//    public User getUser() {
-//        return user;
-//    }
-//
-//    public void setUser(User user) {
-//        this.user = user;
-//    }
 
     public ExamMachine getMachine() {
         return machine;

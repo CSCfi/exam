@@ -17,7 +17,6 @@ import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import play.data.DynamicForm;
 import play.data.Form;
-import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
@@ -974,9 +973,9 @@ public class ExamController extends SitnetController {
 
         // SITNET-295
         if (exam.getParent() == null) {
-            EmailComposer.composeInspectionReadyNotification(recipient, exam.getCreator(), exam, inspection.getComment().getComment());
+            EmailComposer.composeExamReviewedRequest(recipient, UserController.getLoggedUser(), exam, inspection.getComment().getComment());
         } else {
-            EmailComposer.composeInspectionReadyNotification(recipient, exam.getCreator(), exam.getParent(), inspection.getComment().getComment());
+            EmailComposer.composeExamReviewedRequest(recipient, UserController.getLoggedUser(), exam.getParent(), inspection.getComment().getComment());
         }
 
         return ok(Json.toJson(inspection));

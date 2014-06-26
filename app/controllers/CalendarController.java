@@ -14,6 +14,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.libs.Json;
 import play.mvc.Result;
+import util.java.EmailComposer;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -78,6 +79,9 @@ public class CalendarController extends SitnetController {
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
         Ebean.save(enrolment);
+
+        EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
+
 
         if(oldReservation != null) {
             Ebean.delete(oldReservation);

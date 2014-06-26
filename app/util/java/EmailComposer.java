@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +26,13 @@ public class EmailComposer {
     /**
      * General template strings
      */
-    private static String tagOpen = "{{";
-    private static String tagClosed = "}}";
+    private final static String tagOpen = "{{";
+    private final static String tagClosed = "}}";
 
-    private static String domain = "localhost:9000";
-    private static Charset encoding = Charset.defaultCharset();
+    private static String domain = "http://localhost:9000";
+    private final static Charset ENCODING = Charset.defaultCharset();
+    private final static String TEMPLATES_ROOT = Play.application().path().getAbsolutePath() + "/app/assets/template/email/";
+
 
 
     /**
@@ -56,7 +59,7 @@ public class EmailComposer {
 
 
         try {
-            template = readFile(templatePath, encoding);
+            template = readFile(templatePath, ENCODING);
         }
         catch(IOException exception) {
             //TODO!!
@@ -133,7 +136,7 @@ public class EmailComposer {
 
 
         try {
-            template = readFile(templatePath, encoding);
+            template = readFile(templatePath, ENCODING);
         }
         catch(IOException exception) {
             //TODO!!
@@ -180,21 +183,21 @@ public class EmailComposer {
         Map<String, String> stringValues = new HashMap<String, String>();
 
         try {
-            template = readFile(templatePath, encoding);
+            template = readFile(templatePath, ENCODING);
         }
         catch(IOException exception) {
             //TODO!!
         }
 
         try {
-            enrollmentTemplate = readFile(enrollmentTemplatePath, encoding);
+            enrollmentTemplate = readFile(enrollmentTemplatePath, ENCODING);
         }
         catch(IOException exception) {
             //TODO!!
         }
 
         try {
-            inspectionTemplate = readFile(inspectionTemplatePath, encoding);
+            inspectionTemplate = readFile(inspectionTemplatePath, ENCODING);
         }
         catch(IOException exception) {
             //TODO!!
@@ -206,15 +209,71 @@ public class EmailComposer {
     /**
      *
      * @param student           The student who reserved exam room.
-     * @param sender            The teacher who inspected the exam.
      * @param reservation       The reservation
      *
      */
-    public static void composeReservationNotification(User student, User sender, Reservation reservation) {
-        String subject = "Foobar"; //TODO!!
-        String content = new String();
+    public static void composeReservationNotification(User student, Reservation reservation, Exam exam) {
+/*
+        <!DOCTYPE html >
+        <html>
+        <head lang="en">
+        <meta charset="UTF-8">
+        <title>Reservation confirmation</title>
+        </head>
+        <body>
+        <p>Olet varannut tenttipaikan tenttiakvaariosta. Tässä varauksesi tiedot: </p>
+        <p>Tentti: {{exam_info}}</p>
+        <p>Opettaja: {{teacher_name}}</p>
+        <p>Tenttiaika: {{reservation_date}}</p>
+        <p>Tentin kesto: {{exam_duration}}</p>
+        <p>Rakennus: {{building_info}}</p>
+        <p>Luokka: {{room_name}}</p>
+        <p>Kone: {{machine_name}}
+        <p>{{room_instructions}}</p>
+        <p>Peruthan ilmoittautumisesi, jos tenttisuunnitelmasi muuttuvat. <a href="{{cancelation_link}}">Varauksen peruminen</a></p>
+        </body>
+        </html>
+                */
 
-        EmailSender.sendInspectorNotification(student.getEmail(), sender.getEmail(), subject, content);
+        String templatePath = TEMPLATES_ROOT + "reservationConfirmation/reservationConfirmed.html";
+        String subject = "Tenttitilavaraus";
+
+        String exam_info = exam.getName() +" "+ exam.getCourse().getCode();
+        String teacher_name = exam.getCreator().getFirstName() + " "+ exam.getCreator().getLastName();
+
+        String start = new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(reservation.getEndAt());
+        String end = new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(reservation.getStartAt());
+
+        String reservation_date = start +" - "+ end;
+        String exam_duration = ((int)(exam.getDuration()/60)) +"h "+ ((int)(exam.getDuration()%60)) +"min";
+        String building_info = reservation.getMachine().getRoom().getBuildingName();
+        String room_name = reservation.getMachine().getRoom().getName();
+        String machine_name = reservation.getMachine().getName();
+        String room_instructions = reservation.getMachine().getRoom().getRoomInstruction();
+
+
+        Map<String, String> stringValues = new HashMap<String, String>();
+
+        String template = null;
+        try {
+            template = readFile(templatePath, ENCODING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        stringValues.put("exam_info", exam_info);
+        stringValues.put("teacher_name", teacher_name);
+        stringValues.put("reservation_date", reservation_date);
+        stringValues.put("exam_duration", ""+exam_duration);
+        stringValues.put("building_info", ""+building_info);
+        stringValues.put("room_name", ""+room_name);
+        stringValues.put("machine_name", ""+machine_name);
+        stringValues.put("room_instructions", room_instructions);
+
+
+        //Replace template strings
+        template = replaceAll(template, tagOpen, tagClosed, stringValues);
+        EmailSender.send(student.getEmail(), "noreply@exam.fi", subject, template);
     }
 
     /**
@@ -229,6 +288,63 @@ public class EmailComposer {
         String content = new String();
 
         EmailSender.sendInspectorNotification(student.getEmail(), sender.getEmail(), subject, content);
+    }
+
+   /**
+     *
+     * @param fromUser  request sent by this user
+     * @param toUser    request goes to this user
+     * @param exam      exam to review
+     * @param message   optional message from: fromUser
+     */
+    public static void composeExamReviewedRequest(User toUser, User fromUser, Exam exam, String message) {
+
+        String templatePath = TEMPLATES_ROOT + "inspectorChanged/inspectorChanged.html";
+        String subject = "Exam-tentti on annettu arvioitavaksesi";
+
+        String teacher_name = fromUser.getFirstName() + " " + fromUser.getLastName() + " <" + fromUser.getEmail() + ">";
+        String exam_info = exam.getName() + ", " + exam.getCourse().getCode() + "";
+        String linkToInspection =  domain + "/#/exams/reviews/" + exam.getId();
+
+        Map<String, String> stringValues = new HashMap<String, String>();
+
+        String template = null;
+        try {
+            template = readFile(templatePath, ENCODING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        List<Exam> exams = Ebean.find(Exam.class)
+                .where()
+                .eq("parent.id", exam.getId())
+                .eq("state", "REVIEW")
+                .findList();
+
+        int uninspected_count = exams.size();
+
+        if(uninspected_count > 0 && uninspected_count < 6)
+        {
+            String student_list = "<ul>";
+            for(Exam ex : exams)
+            {
+                student_list += "<li>"+ ex.getCreator().getFirstName() +" "+ ex.getCreator().getLastName() +"</li>";
+            }
+            student_list += "</ul>";
+            stringValues.put("student_list", student_list);
+        }
+        else
+            template = template.replace("<p>{{student_list}}</p>", "");
+
+        stringValues.put("teacher_name", teacher_name);
+        stringValues.put("exam_info", exam_info);
+        stringValues.put("exam_link", linkToInspection);
+        stringValues.put("uninspected_count", ""+uninspected_count);
+        stringValues.put("comment_from_assigner", message);
+
+        //Replace template strings
+        template = replaceAll(template, tagOpen, tagClosed, stringValues);
+        EmailSender.send(toUser.getEmail(), fromUser.getEmail(), subject, template);
     }
 
     /**
@@ -277,7 +393,7 @@ public class EmailComposer {
      * Reads file content
      *
      * @param path          The file path
-     * @param encoding      The encoding in use
+     * @param encoding      The ENCODING in use
      * @return String       The file contents
      *
      */
