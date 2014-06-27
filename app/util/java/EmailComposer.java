@@ -2,6 +2,8 @@ package util.java;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
+import com.typesafe.config.ConfigFactory;
+import controllers.UserController;
 import models.Exam;
 import models.ExamInspection;
 import models.Reservation;
@@ -30,9 +32,47 @@ public class EmailComposer {
     private final static String tagClosed = "}}";
 
     private static String domain = "http://localhost:9000";
+    private final static String baseSystemURL= ConfigFactory.load().getString("sitnet.baseSystemURL");
+
     private final static Charset ENCODING = Charset.defaultCharset();
     private final static String TEMPLATES_ROOT = Play.application().path().getAbsolutePath() + "/app/assets/template/email/";
 
+
+
+
+    /**
+     *
+     * This notification is sent to student, when teacher has reviewed the exam
+     */
+
+    public static void composeInspectionReady(User student, User reviewer, Exam exam) {
+
+        String templatePath = TEMPLATES_ROOT + "reviewReady/reviewReady.html";
+
+        String subject = "Tenttivastauksesi on arvioitu";
+        String teacher_name = reviewer.getFirstName() + " " + reviewer.getLastName() + " <" + reviewer.getEmail() + ">";
+        String exam_info = exam.getName() + ", " + exam.getCourse().getCode();
+        String review_link =  domain + "/#/feedback/exams/" + exam.getId();
+
+        String template = new String();
+        try {
+            template = readFile(templatePath, ENCODING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Map<String, String> stringValues = new HashMap<String, String>();
+        stringValues.put("teacher_name", teacher_name);
+        stringValues.put("exam_info", exam_info);
+        stringValues.put("review_link", review_link);
+        stringValues.put("main_system_name", baseSystemURL);
+
+        //Replace template strings
+        template = replaceAll(template, tagOpen, tagClosed, stringValues);
+
+        //Send notification
+        EmailSender.send(student.getEmail(), reviewer.getEmail(), subject, template);
+    }
 
 
     /**
@@ -124,7 +164,7 @@ public class EmailComposer {
      */
     public static void composeInspectionReadyNotification(User inspector, User sender, Exam exam, String msg) {
 
-        String templatePath = Play.application().path().getAbsolutePath() + "/app/assets/template/email/inspectionReady/inspectionReady.html";
+        String templatePath = TEMPLATES_ROOT + "inspectionReady/inspectionReady.html";
 
         String subject = "Exam"; //TODO!!
         String teacher_name = sender.getFirstName() + " " + sender.getLastName() + " <" + sender.getEmail() + ">";
@@ -141,7 +181,6 @@ public class EmailComposer {
         catch(IOException exception) {
             //TODO!!
         }
-
 
         stringValues.put("teacher_name", teacher_name);
         stringValues.put("exam_info", exam_info);
@@ -166,21 +205,16 @@ public class EmailComposer {
      */
     public static void composeWeeklySummary(User teacher, User sender) {
 
-        String templatePath = Play.application().path().getAbsolutePath() + "/assets/template/email/weeklySummary/weeklySummary.html";
-        String enrollmentTemplatePath = Play.application().path().getAbsolutePath() + "/assets/template/email/weeklySummary/enrollmentInfo.html";
-        String inspectionTemplatePath = Play.application().path().getAbsolutePath() + "/assets/template/email/weeklySummary/inspectionInfo.html";
+        String templatePath = TEMPLATES_ROOT + "weeklySummary/weeklySummary.html";
+        String enrollmentTemplatePath = TEMPLATES_ROOT + "weeklySummary/enrollmentInfo.html";
+        String inspectionTemplatePath = TEMPLATES_ROOT + "weeklySummary/inspectionInfo.html";
 
-        String subject = "Foobar"; //TODO!!
+        String subject = "EXAM viikkokooste";
         String teacher_name = teacher.getFirstName() + " " + sender.getLastName() + " <" + teacher.getEmail() + ">";
         String admin_name = sender.getFirstName() + " " + sender.getLastName() + " <" + sender.getEmail() + ">";
         String template = new String();
         String enrollmentTemplate = new String();
         String inspectionTemplate = new String();
-
-        List<User> listOfTeachersWhoAssignedInspections;
-        Map<User, List<ExamInspection>> assignedInspectionsPerAssigner = new HashMap();
-
-        Map<String, String> stringValues = new HashMap<String, String>();
 
         try {
             template = readFile(templatePath, ENCODING);
@@ -203,7 +237,24 @@ public class EmailComposer {
             //TODO!!
         }
 
-        EmailSender.sendInspectorNotification(teacher.getEmail(), sender.getEmail(), subject, template);
+        List<User> listOfTeachersWhoAssignedInspections;
+        Map<User, List<ExamInspection>> assignedInspectionsPerAssigner = new HashMap();
+
+        List<Exam> exams = Ebean.find(Exam.class)
+                .select("id")
+                .where()
+                .eq("creator.id", UserController.getLoggedUser())
+                .findList();
+
+
+
+        Map<String, String> stringValues = new HashMap<String, String>();
+//        stringValues.put("teacher_name", teacher_name);
+//        stringValues.put("exam_info", exam_info);
+//        stringValues.put("inspection_link", linkToInspection);
+//        stringValues.put("inspection_comment", msg);
+
+        EmailSender.send(teacher.getEmail(), sender.getEmail(), subject, template);
     }
 
     /**
@@ -213,27 +264,6 @@ public class EmailComposer {
      *
      */
     public static void composeReservationNotification(User student, Reservation reservation, Exam exam) {
-/*
-        <!DOCTYPE html >
-        <html>
-        <head lang="en">
-        <meta charset="UTF-8">
-        <title>Reservation confirmation</title>
-        </head>
-        <body>
-        <p>Olet varannut tenttipaikan tenttiakvaariosta. Tässä varauksesi tiedot: </p>
-        <p>Tentti: {{exam_info}}</p>
-        <p>Opettaja: {{teacher_name}}</p>
-        <p>Tenttiaika: {{reservation_date}}</p>
-        <p>Tentin kesto: {{exam_duration}}</p>
-        <p>Rakennus: {{building_info}}</p>
-        <p>Luokka: {{room_name}}</p>
-        <p>Kone: {{machine_name}}
-        <p>{{room_instructions}}</p>
-        <p>Peruthan ilmoittautumisesi, jos tenttisuunnitelmasi muuttuvat. <a href="{{cancelation_link}}">Varauksen peruminen</a></p>
-        </body>
-        </html>
-                */
 
         String templatePath = TEMPLATES_ROOT + "reservationConfirmation/reservationConfirmed.html";
         String subject = "Tenttitilavaraus";
@@ -274,20 +304,6 @@ public class EmailComposer {
         //Replace template strings
         template = replaceAll(template, tagOpen, tagClosed, stringValues);
         EmailSender.send(student.getEmail(), "noreply@exam.fi", subject, template);
-    }
-
-    /**
-     *
-     * @param student   Student who participated to exam
-     * @param sender    Admin
-     * @param exam      The exam that has been reviewed.
-     *
-     */
-    public static void composeExamReviewedNotification(User student, User sender, Exam exam) {
-        String subject = "Foobar"; //TODO!!
-        String content = new String();
-
-        EmailSender.sendInspectorNotification(student.getEmail(), sender.getEmail(), subject, content);
     }
 
    /**
@@ -365,7 +381,7 @@ public class EmailComposer {
 
     /**
      *
-     * Replaces all occurances of key, between beginTag and endTag in the original string
+     * Replaces all occurrences of key, between beginTag and endTag in the original string
      * with the associated value in stringValues map
      *
      * @param original      The original template string
@@ -382,10 +398,7 @@ public class EmailComposer {
             {
                 original = original.replace(beginTag + entry.getKey() + endTag, entry.getValue());
             }
-
-//                original.replaceAll("(&" + beginTag +"=)[^&]" + entry.getKey() + "(&"+ endTag + "=)", entry.getValue());
         }
-
         return original;
     }
 

@@ -293,6 +293,10 @@ public class ExamController extends SitnetController {
         ex.generateHash();
         ex.update();
 
+
+
+        EmailComposer.composeInspectionReady(ex.getCreator(), UserController.getLoggedUser(), ex);
+
         return ok(Json.toJson(ex));
     }
 
