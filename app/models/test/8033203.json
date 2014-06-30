@@ -1,0 +1,53 @@
+{
+  "CourseUnitInfo": {
+    "identifier": "30745006",
+    "courseUnitCode": "8033203",
+    "courseUnitTitle": "Akateeminen opetussuunnitelmatyö",
+    "courseUnitLevel": "12",
+    "courseUnitType": "1",
+    "courseImplementation": {},
+    "credits": "2",
+    "creditsLanguage": {
+      "name": "fi"
+    },
+    "gradeScale": {
+      "name": "HYL-HYV"
+    },
+    "lecturer": {
+      "name": "Karhu Kirsi Maarit"
+    },
+    "lecturerResponsible": {},
+    "institutionName": "Itä-Suomen yliopisto",
+    "department": [
+      {
+        "name": "Opintopalvelut yhteiset"
+      },
+      {
+        "name": "Opintopalvelut (J,K)"
+      },
+      {
+        "name": "Opintopalvelut yhteiset"
+      }
+    ],
+    "degreeProgramme": {
+      "name": "Määrittelemätön"
+    },
+    "campus": [
+      {
+        "name": "Kuopio"
+      },
+      {
+        "name": "Kuopio"
+      },
+      {
+        "name": "Kuopio"
+      },
+      {
+        "name": "Kuopio"
+      }
+    ],
+    "startDate": "01012011"
+  },
+  "status": "OK",
+  "description": ""
+}

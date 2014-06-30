@@ -123,7 +123,13 @@ public class Interfaces extends SitnetController {
                     examScore.setCreditLanguage(exam.getExamLanguage());
                     examScore.setStudentGrade(exam.getGrade());
                     examScore.setGradeScale(exam.getGrading());
-                    examScore.setExamScore(Double.toString(exam.getTotalScore()));
+
+                    List<String> scores = examScore.getExamScore();
+                    if(scores == null)
+                        scores = new ArrayList<String>();
+                    scores.add(exam.getTotalScore().toString());
+
+                    examScore.setExamScore(scores);
                     examScore.setCourseUnitLevel(exam.getCourse().getLevel());
                     examScore.setCourseUnitType(exam.getCourse().getType().getName());
                     //todo: fix this!

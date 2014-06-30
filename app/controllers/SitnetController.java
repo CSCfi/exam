@@ -10,7 +10,7 @@ public class SitnetController extends Controller {
     public static final String SITNET_CACHE_KEY = "user.session.";
     public static final int SITNET_TIMEOUT_MINUTES = 30;
 
-    static <T> T bindForm(final Class<T> clazz) throws MalformedDataException {
+    public static <T> T bindForm(final Class<T> clazz) throws MalformedDataException {
         final Form<T> form = Form.form(clazz);
         if (form.hasErrors()) {
             throw new MalformedDataException(form.errorsAsJson().asText());

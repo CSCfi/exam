@@ -1,0 +1,45 @@
+{ 
+  "CourseUnitInfo" : { 
+   "identifier" : "36931303",
+   "courseUnitCode" : "3513122",
+   "courseUnitTitle" : "Intensiivinen metsänhoito ja metsäbiomassan tuotanto",
+   "courseUnitLevel" : "3",
+   "courseUnitType" : "1",
+   "courseImplementation" : { 
+  },
+   "credits" : "5",
+   "creditsLanguage" : { 
+    "name" : "fi"
+  },
+   "gradeScale" : { 
+    "name" : "0-5"
+  },
+   "lecturer" : { 
+    "name" : "Piiparinen Senni Annika"
+  },
+   "lecturerResponsible" : { 
+  },
+   "institutionName" : "Itä-Suomen yliopisto",
+   "department" : { 
+    "name" : "Metsätieteet (J)"
+  },
+   "department" : { 
+    "name" : "Metsätieteet (J)"
+  },
+   "degreeProgramme" : { 
+    "name" : "Metsätiede"
+  },
+   "campus" : { 
+    "name" : "Joensuu"
+  },
+   "campus" : { 
+    "name" : "Joensuu"
+  },
+   "startDate" : "30012013",
+   "courseMaterial" : { 
+    "name" : "Sustainable use of forest biomass for energy a synthesis with focus on the Baltic and Nordic region"
+  }
+ },
+  "status" : "OK",
+  "description" : ""
+}

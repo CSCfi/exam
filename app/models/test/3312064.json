@@ -1,0 +1,45 @@
+ {
+  "CourseUnitInfo" : { 
+   "identifier" : "37281619",
+   "courseUnitCode" : "3312064",
+   "courseUnitTitle" : "Optinen suunnittelu I: geometrinen optiikka",
+   "courseUnitLevel" : "3",
+   "courseUnitType" : "1",
+   "courseImplementation" : { 
+  },
+   "credits" : "4",
+   "creditsLanguage" : { 
+    "name" : "fi"
+  },
+   "gradeScale" : { 
+    "name" : "0-5"
+  },
+   "lecturer" : { 
+    "name" : "Paganuzzi Antero Yrj�"
+  },
+   "lecturer" : { 
+    "name" : "Lamponen Gianpietro"
+  },
+   "lecturerResponsible" : { 
+  },
+   "institutionName" : "It�-Suomen yliopisto",
+   "department" : { 
+    "name" : "Fysiikka ja matematiikka (J)"
+  },
+   "department" : { 
+    "name" : "Fysiikka ja matematiikka (J)"
+  },
+   "degreeProgramme" : { 
+    "name" : "Fysiikka"
+  },
+   "campus" : { 
+    "name" : "Kuopio"
+  },
+   "campus" : { 
+    "name" : "Kuopio"
+  },
+   "startDate" : "01012013"
+ },
+  "status" : "OK",
+  "description" : ""
+}

@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.List;
 
 @Entity
 public class ExamScore extends Model {
@@ -24,7 +25,7 @@ public class ExamScore extends Model {
     private String CreditLanguage;
     private String StudentGrade;
     private String GradeScale;
-    private String ExamScore;
+    private List<String> ExamScore;
     private String CourseUnitLevel;
     private String CourseUnitType;
     private String CreditType;
@@ -105,11 +106,11 @@ public class ExamScore extends Model {
         ExamDate = examDate;
     }
 
-    public String getExamScore() {
+    public List<String> getExamScore() {
         return ExamScore;
     }
 
-    public void setExamScore(String examScore) {
+    public void setExamScore(List<String> examScore) {
         ExamScore = examScore;
     }
 

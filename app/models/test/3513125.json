@@ -1,0 +1,48 @@
+{ 
+  "CourseUnitInfo" : { 
+   "identifier" : "37104549",
+   "courseUnitCode" : "3513125",
+   "courseUnitTitle" : "Metsämaan hiilidynamiikka",
+   "courseUnitLevel" : "3",
+   "courseUnitType" : "1",
+   "courseImplementation" : { 
+  },
+   "credits" : "3",
+   "creditsLanguage" : { 
+    "name" : "fi"
+  },
+   "gradeScale" : { 
+    "name" : "0-5"
+  },
+   "lecturer" : { 
+    "name" : "Kirkkala Maija Anuliina"
+  },
+   "lecturerResponsible" : { 
+  },
+   "institutionName" : "Itä-Suomen yliopisto",
+   "department" : { 
+    "name" : "Metsätieteet (J)"
+  },
+   "department" : { 
+    "name" : "Metsätieteet (J)"
+  },
+   "degreeProgramme" : { 
+    "name" : "Metsätiede"
+  },
+   "campus" : { 
+    "name" : "Joensuu"
+  },
+   "campus" : { 
+    "name" : "Joensuu"
+  },
+   "startDate" : "30012013",
+   "courseMaterial" : { 
+    "name" : "Carbon Cycling in Northern Peatlands"
+  },
+   "courseMaterial" : { 
+    "name" : "Physical and Physiological Forest Ecology"
+  }
+ },
+  "status" : "OK",
+  "description" : ""
+}
