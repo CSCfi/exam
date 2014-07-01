@@ -288,5 +288,6 @@
     "sitnet_select_room": "Tenttitila",
     "sitnet_select_exam": "Tentti",
     "sitnet_calendar": "Varauskalenteri",
-    "sitnet_randomize_questions": "Arvo kysymykset"
+    "sitnet_randomize_questions": "Arvo kysymykset",
+    "sitnet_edit": "Muokkaa"
 }

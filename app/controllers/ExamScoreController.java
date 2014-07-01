@@ -2,8 +2,8 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.dto.CourseUnitInfo;
 import models.dto.ExamScore;
+import models.dto.InfoMessage;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -93,7 +93,11 @@ public class ExamScoreController extends SitnetController {
     public static Result examScoreDynamic() throws MalformedDataException {
 
         DynamicForm info = Form.form().bindFromRequest();
-        CourseUnitInfo infox = bindForm(CourseUnitInfo.class);
+        InfoMessage infox = bindForm(InfoMessage.class);
+
+        String asd1 = info.get("status");
+        String asd2 = info.get("description");
+
 
 
         ExamScore score = new ExamScore();
