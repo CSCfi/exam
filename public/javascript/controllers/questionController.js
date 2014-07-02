@@ -23,10 +23,6 @@
 
                 $scope.answerState = "";
 
-//                $scope.user = $scope.session.user;
-
-//                console.log($scope.user.id);
-
                 $scope.setQuestionType = function () {
                     switch ($scope.selectedType) {
                         case 'EssayQuestion':
@@ -48,7 +44,7 @@
 
                 if ($routeParams.id === undefined)
                     $scope.questions = QuestionRes.questions.query();
-                else {
+                else if($routeParams.examId != undefined && $routeParams.id != undefined ){
                     QuestionRes.questions.get({id: $routeParams.id},
                         function (value) {
                             $scope.newQuestion = value;
