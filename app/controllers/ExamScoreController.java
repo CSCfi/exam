@@ -3,7 +3,6 @@ package controllers;
 import Exceptions.MalformedDataException;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.dto.ExamScore;
-import models.dto.InfoMessage;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -93,22 +92,16 @@ public class ExamScoreController extends SitnetController {
     public static Result examScoreDynamic() throws MalformedDataException {
 
         DynamicForm info = Form.form().bindFromRequest();
-        InfoMessage infox = bindForm(InfoMessage.class);
-
-        String asd1 = info.get("status");
-        String asd2 = info.get("description");
-
-
 
         ExamScore score = new ExamScore();
-        score.setCreditType(info.get("courseUnitType"));
-        score.setCredits(info.get("credits"));
-        score.setIdentifier(info.get("identifier"));
-        score.setCourseImplementation(info.get("courseImplementation"));
-        score.setCourseUnitCode(info.get("courseUnitCode"));
-        score.setCourseUnitLevel(info.get("courseUnitLevel"));
-        score.setCourseUnitType(info.get("courseUnitType"));
-        score.setCreditLanguage(info.field("creditsLanguage").sub("name").toString());
+        score.setCreditType(info.get("CourseUnitInfo.courseUnitType"));
+        score.setCredits(info.get("CourseUnitInfo.credits"));
+        score.setIdentifier(info.get("CourseUnitInfo.identifier"));
+        score.setCourseImplementation(info.get("CourseUnitInfo.courseImplementation"));
+        score.setCourseUnitCode(info.get("CourseUnitInfo.courseUnitCode"));
+        score.setCourseUnitLevel(info.get("CourseUnitInfo.courseUnitLevel"));
+        score.setCourseUnitType(info.get("CourseUnitInfo.courseUnitType"));
+        score.setCreditLanguage(info.get("CourseUnitInfo.creditsLanguage.name"));
         score.setExamDate(new Timestamp(new Date().getTime()).toString());
 
         List<String> examScore = new ArrayList<String>();
@@ -116,8 +109,8 @@ public class ExamScoreController extends SitnetController {
         examScore.add(new String("13"));
         score.setExamScore(examScore);
 
-        score.setGradeScale(info.get("gradeScale"));
-        score.setLecturer(info.field("lecturer").sub("name").toString());
+        score.setGradeScale(info.get("CourseUnitInfo.gradeScale.name"));
+        score.setLecturer(info.get("CourseUnitInfo.lecturer.name"));
         score.setLecturerId("maikaope@funet.fi");
         score.setStudent("Sauli Student");
         score.setStudentGrade("4");

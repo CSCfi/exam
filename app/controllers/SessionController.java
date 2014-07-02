@@ -76,6 +76,7 @@ public class SessionController extends SitnetController {
                 }
 
                 String shibRole = request().getHeader("unscoped-affiliation");
+                Logger.debug("unscoped-affiliation: "+ shibRole);
                 SitnetRole srole = getRole(shibRole);
                 if(srole == null)
                     return notFound("Cannot assign role "+ shibRole);

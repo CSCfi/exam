@@ -29,7 +29,8 @@ public class EnrollController extends Controller {
                 .where()
                 .eq("course.code", code)
                 .eq("state", "PUBLISHED")
-                .betweenProperties("examActiveStartDate", "examActiveEndDate", now)
+//                .betweenProperties("examActiveStartDate", "examActiveEndDate", now)
+                .gt("examActiveEndDate", now)   // Students should be able to enroll, before exam starts.
                 .findList();
 
         JsonContext jsonContext = Ebean.createJsonContext();

@@ -785,7 +785,7 @@ public class ExamController extends SitnetController {
             default:
         }
 
-        return badRequest("Jokin meni pieleen");
+        return badRequest("Unrecognized exam state "+ ex.getState());
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
