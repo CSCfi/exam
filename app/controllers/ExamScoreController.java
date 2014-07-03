@@ -89,9 +89,18 @@ public class ExamScoreController extends SitnetController {
     }
 
 
-    public static Result examScoreDynamic() throws MalformedDataException {
+    public static Result examScoreTest() throws MalformedDataException {
 
         DynamicForm info = Form.form().bindFromRequest();
+
+/*        String asd = info.field("CourseUnitInfo").value();
+
+        JsonNode json = request().body().asJson();
+        if(json == null) {
+            return badRequest("Expecting Json data");
+        } else {
+            String name = json.findPath("InfoMessage").getTextValue();
+        }*/
 
         ExamScore score = new ExamScore();
         score.setCreditType(info.get("CourseUnitInfo.courseUnitType"));

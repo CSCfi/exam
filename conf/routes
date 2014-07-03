@@ -161,6 +161,6 @@ GET           /secure                                               controllers.
 GET           /son                                                  controllers.TestController.son()
 GET           /org                                                  controllers.TestController.org()
 GET           /exam-score-static/:code                              controllers.ExamScoreController.examScoreStatic(code: String)
-POST           /exam-score-test/                                    controllers.ExamScoreController.examScoreDynamic()
+POST          /exam-score-test                                      controllers.ExamScoreController.examScoreTest()
 
 GET           /assets/*file                                         controllers.Assets.at(path="/public", file)

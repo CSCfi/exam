@@ -1,10 +1,9 @@
 package models.dto;
 
-import models.Organisation;
-
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import java.util.Collection;
 
 
@@ -12,17 +11,17 @@ import java.util.Collection;
 public class CourseUnitInfo {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
-    private Organisation organisation;
 
     private String identifier;
     private String courseUnitCode;
     private String courseUnitTitle;
     private String courseUnitLevel;
     private String courseUnitType;
-    private Collection<String> courseImplementation;
     private String credits;
+    private String startDate;
+    private Collection<String> courseImplementation;
     private Collection<String> creditsLanguage;
     private Collection<String> gradeScale;
     private Collection<String> lecturer;
@@ -31,7 +30,6 @@ public class CourseUnitInfo {
     private Collection<String> department;
     private Collection<String> degreeProgramme;
     private Collection<String> campus;
-    private String startDate;
     private Collection<String> courseMaterial;
 
 
@@ -170,15 +168,6 @@ public class CourseUnitInfo {
     public void setLecturerResponsible(Collection<String> lecturerResponsible) {
         this.lecturerResponsible = lecturerResponsible;
     }
-
-    public Organisation getOrganisation() {
-        return organisation;
-    }
-
-    public void setOrganisation(Organisation organisation) {
-        this.organisation = organisation;
-    }
-
     public String getStartDate() {
         return startDate;
     }
