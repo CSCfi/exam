@@ -109,7 +109,7 @@
                     var questionToUpdate = {
                         "id": $scope.newQuestion.id,
                         "type": $scope.newQuestion.type,
-                        "score": $scope.newQuestion.score,
+                        "maxScore": $scope.newQuestion.maxScore,
                         "question": $scope.newQuestion.question,
                         "shared": $scope.newQuestion.shared,
                         "instruction": $scope.newQuestion.instruction,
