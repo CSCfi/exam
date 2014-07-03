@@ -57,7 +57,8 @@
                             {{'sitnet_evaluation_type' | translate}}
                             <div class="row">
                                 <div class="col-md-3">
-                                    <select class="form-control" ng-model="newQuestion.evaluationType" ng-change="updateQuestion()">
+                                    <select class="form-control" ng-model="newQuestion.evaluationType"
+                                        ui-change="updateQuestion(); questionForm.evaluationType.$valid ? updateQuestion() : false" required ng-pattern="/^(?!\s*$).+/">
                                         <option value="Points">{{ 'sitnet_evaluation_points' | translate }}</option>
                                         <option value="Select">{{ 'sitnet_evaluation_select' | translate }}</option>
                                     </select>

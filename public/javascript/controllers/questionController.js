@@ -32,16 +32,17 @@
                         case 'EssayQuestion':
                             $scope.questionTemplate = $scope.essayQuestionTemplate;
                             $scope.newQuestion.type = "EssayQuestion";
-                            $scope.newQuestion.evaluationType = "Points";
+                            //$scope.newQuestion.evaluationType = "Points";
                             // Sanan keskimääräinen pituus = 7.5 merkkiä
                             // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
-                            $scope.newQuestion.maxCharacters = 500;
-                            $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
+                            //$scope.newQuestion.maxCharacters = 500;
+                            //$scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
                             break;
 
                         case 'MultipleChoiceQuestion':
                             $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
                             $scope.newQuestion.type = "MultipleChoiceQuestion";
+                            $scope.newQuestion.evaluationType = "Points";
                             break;
                     }
                 }
