@@ -180,6 +180,7 @@ public class QuestionController extends SitnetController {
 
             }
 
+            ((AbstractQuestion)question).setState("NEW");
             Ebean.save(question);
             return ok(Json.toJson(question));
 
@@ -199,15 +200,18 @@ public class QuestionController extends SitnetController {
 
        DynamicForm df = Form.form().bindFromRequest();
 
+
        switch (df.get("type")) {
            case "MultipleChoiceQuestion": {
                MultipleChoiceQuestion question = bindForm(MultipleChoiceQuestion.class);
+               question.setState("SAVED");
                question.update();
                return ok(Json.toJson(question));
            }
 
            case "EssayQuestion": {
                EssayQuestion question = bindForm(EssayQuestion.class);
+               question.setState("SAVED");
                question.update();
                return ok(Json.toJson(question));
            }

@@ -35,6 +35,8 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     protected String instruction;
 
+    protected String state;
+
     @Column(columnDefinition="numeric default 0")
     protected Double maxScore = 0.0;
 
@@ -98,9 +100,13 @@ abstract public class AbstractQuestion extends SitnetModel {
     private boolean expanded;
 
 
-    public String getType() {
-        return type;
+    public String getState() { return state; }
+
+    public void setState(String state) {
+        this.state = state;
     }
+
+    public String getType() { return type; }
 
     public void setType(String type) {
         this.type = type;
