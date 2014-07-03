@@ -53,7 +53,7 @@
             </span>
             <span class="pull-right">
                 <button ng-click="previewExam()" class="btn btn-primary">{{'sitnet_preview' | translate}}</button>
-                <button ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button>
+                <button ng-hide="newExam.state == 'PUBLISHED' ? true : false" ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button>
             </span>
     </div>
     <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
