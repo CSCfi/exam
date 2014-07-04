@@ -621,5 +621,10 @@
                     $scope.updateExam($scope.newExam);
                 }
 
+                $scope.getSectionId = function (id) {
+
+                    return document.getElementById(id).select();
+                }
+
             }]);
 }());
