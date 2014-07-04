@@ -33,7 +33,6 @@ public class ExamScore extends Model {
     private String LecturerId;
     private String Date;
     private String CourseImplementation;
-    private String checksum;
 
     public String getCourseImplementation() {
         return CourseImplementation;
@@ -179,12 +178,4 @@ public class ExamScore extends Model {
         this.id = id;
     }
 
-    public String getChecksum() {
-
-        return checksum;
-    }
-
-    public void setChecksum(String checksum) {
-        this.checksum = checksum;
-    }
 }

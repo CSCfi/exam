@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by avainik on 30.6.2014.
@@ -88,91 +89,118 @@ public class ExamScoreController extends SitnetController {
         return ok(Json.toJson(score));
     }
 
-
     public static Result examScoreTest() throws MalformedDataException {
 
         DynamicForm info = Form.form().bindFromRequest();
-
-/*        String asd = info.field("CourseUnitInfo").value();
-
         JsonNode json = request().body().asJson();
-        if(json == null) {
-            return badRequest("Expecting Json data");
-        } else {
-            String name = json.findPath("InfoMessage").getTextValue();
-        }*/
 
-        ExamScore score = new ExamScore();
-        score.setCreditType(info.get("CourseUnitInfo.courseUnitType"));
-        score.setCredits(info.get("CourseUnitInfo.credits"));
-        score.setIdentifier(info.get("CourseUnitInfo.identifier"));
-        score.setCourseImplementation(info.get("CourseUnitInfo.courseImplementation"));
-        score.setCourseUnitCode(info.get("CourseUnitInfo.courseUnitCode"));
-        score.setCourseUnitLevel(info.get("CourseUnitInfo.courseUnitLevel"));
-        score.setCourseUnitType(info.get("CourseUnitInfo.courseUnitType"));
-        score.setCreditLanguage(info.get("CourseUnitInfo.creditsLanguage.name"));
-        score.setExamDate(new Timestamp(new Date().getTime()).toString());
+        ExamScore examScore = new ExamScore();
+        Random rand = new Random();
 
-        List<String> examScore = new ArrayList<String>();
-        examScore.add(new String("25"));
-        examScore.add(new String("13"));
-        score.setExamScore(examScore);
+        examScore.setIdentifier(json.findValue("identifier").textValue());
+        examScore.setCourseUnitCode(json.findValue("courseUnitCode").textValue());
+//        courseUnitTitle
+        examScore.setCourseUnitLevel(json.findValue("courseUnitLevel").textValue());
+        examScore.setCourseUnitType(json.findValue("courseUnitType").textValue());
+        examScore.setCredits(json.findValue("credits").textValue());
+        examScore.setCreditType("loppusuoritus");
+//        institutionName
 
-        score.setGradeScale(info.get("CourseUnitInfo.gradeScale.name"));
-        score.setLecturer(info.get("CourseUnitInfo.lecturer.name"));
-        score.setLecturerId("maikaope@funet.fi");
-        score.setStudent("Sauli Student");
-        score.setStudentGrade("4");
-        score.setStudentId("1961863");       // TODO: should be username
-        score.setStudent("saulistu@funet.fi");
-        score.setDate(new Timestamp(new Date().getTime()).toString());
 
-/*    {
-"courseImplementation" : {
-  },
-   "credits" : "5",
-   "creditsLanguage" : {
-    "name" : "fi"
-  },
-   "gradeScale" : {
-    "name" : "0-5"
-  },
-   "lecturer" : {
-    "name" : "Piiparinen Senni Annika"
-  },
-   "lecturerResponsible" : {
-  },
-   "institutionName" : "Itä-Suomen yliopisto",
-   "department" : [
-   {
-     "name" : "Metsätieteet (K)"
-   },
-   {
-     "name" : "Metsätieteet (J)"
-   }
-  ],
-   "degreeProgramme" : {
-    "name" : "Metsätiede"
-  },
-   "campus" : [
-   {
-     "name" : "Kuopio"
-   },
-   {
-     "name" : "Joensuu"
-   }
-  ],
-   "startDate" : "30012013",
-   "courseMaterial" : {
-    "name" : "Sustainable use of forest biomass for energy a synthesis with focus on the Baltic and Nordic region"
-  }
- },
-  "status" : "OK",
-  "description" : "
+        if(! json.findValue("courseImplementation").isArray())
+            return badRequest("courseImplementation should be array");
 
-    }*/
-        return ok(Json.toJson(score));
+        if(! json.findValue("creditsLanguage").isArray())
+            return badRequest("creditsLanguage should be array");
+
+
+//        lecturerResponsible
+        if(! json.findValue("lecturerResponsible").isArray())
+            return badRequest("lecturerResponsible should be array");
+
+
+//        gradeScale
+        if(! json.findValue("gradeScale").isArray())
+            return badRequest("gradeScale should be array");
+
+//        gradeScale
+        if(! json.findValue("lecturer").isArray())
+            return badRequest("lecturer should be array");
+
+
+//        Department
+        if(! json.findValue("department").isArray())
+            return badRequest("department should be array");
+
+//        DegreeProgramme
+        if(! json.findValue("degreeProgramme").isArray())
+            return badRequest("degreeProgramme should be array");
+
+
+//        Campus
+        if(! json.findValue("campus").isArray())
+            return badRequest("campus should be array");
+
+
+//        CourseMaterial
+        if(! json.findValue("courseMaterial").isArray())
+            return badRequest("courseMaterial should be array");
+
+
+//        CreditsLanguage
+        JsonNode language = json.findValue("creditsLanguage");
+        if(language.size() > 0)
+        {
+            int l = language.size();
+            int i = rand.nextInt(language.size() );
+            String value = language.get( i).findValue("name").textValue();
+            examScore.setCreditLanguage(value);
+        }
+
+//        GradeScale
+        JsonNode scale = json.findValue("gradeScale");
+        if(scale.size() > 0)
+        {
+            int i = rand.nextInt(scale.size() );
+            String value = scale.get( i).findValue("name").textValue();
+            examScore.setGradeScale(value);
+        }
+
+//        Lecturer
+        JsonNode lecturers = json.findValue("lecturer");
+        if(lecturers.size() > 0)
+        {
+            int i = rand.nextInt(lecturers.size() );
+            String value = lecturers.get(i).findValue("name").textValue();
+            examScore.setLecturer(value);
+            examScore.setLecturerId(value.replace(" ", ".") + "@fake.fi");
+        }
+
+        JsonNode courseImplementation = json.findValue("courseImplementation");
+        if(courseImplementation.size() > 0)
+        {
+            int i = rand.nextInt(courseImplementation.size() );
+            String value = courseImplementation.get( i).findValue("name").textValue();
+            examScore.setCourseImplementation(value);
+        }
+
+
+        List<String> scores = new ArrayList<String>();
+        scores.add(new String("25"));
+        scores.add(new String("13"));
+        examScore.setExamScore(scores);
+
+        examScore.setStudent("Sauli Student");
+        examScore.setStudentGrade("4");
+        examScore.setStudentId("1961863");       // TODO: should be username
+        examScore.setStudent("saulistu@funet.fi");
+        examScore.setDate(new Timestamp(new Date().getTime()).toString());
+        examScore.setExamDate(new Timestamp(new Date().getTime() - 7*24*60*60*1000).toString());    // minus one week
+
+        return ok(Json.toJson(examScore));
     }
+
+
     static String readFile(String path) throws IOException {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded);
