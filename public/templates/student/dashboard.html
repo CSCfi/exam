@@ -109,11 +109,11 @@
                     <tr ng-repeat="finishedExam in studentFinishedExams">
                         <td>{{finishedExam.course.code}} - {{finishedExam.name}}</td>
 
-                        <td ng-if="finishedExam.state === 'REVIEW'">
+                        <td ng-if="finishedExam.state === 'REVIEW_STARTED'">
                             <span class="status_orange">{{'sitnet_exam_in_review' | translate}}</span>
                         </td>
 
-                        <td ng-if="finishedExam.state ==='REVIEWED'">
+                        <td ng-if="finishedExam.state ==='REVIEW'">
                             <span class="status_orange">{{'sitnet_exam_in_review' | translate}}</span>
                         </td>
 
@@ -125,11 +125,11 @@
                             <span ng-click="showFeedback(finishedExam.id)" class="status_theme">{{'sitnet_comments' | translate}}</span>
                         </td>
 
-                        <td ng-if="finishedExam.state === 'REVIEW'">
+                        <td ng-if="finishedExam.state === 'REVIEW_STARTED'">
                             <span class="status_red">{{'sitnet_no_comments' | translate}}</span>
                         </td>
 
-                        <td ng-if="finishedExam.state === 'REVIEWED'">
+                        <td ng-if="finishedExam.state === 'REVIEW'">
                             <span class="status_red">{{'sitnet_no_comments' | translate}}</span>
                         </td>
                     </tr>

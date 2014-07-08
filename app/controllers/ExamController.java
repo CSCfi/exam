@@ -242,7 +242,8 @@ public class ExamController extends SitnetController {
         {
             return notFound();
         }
-        else if(exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") || exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED"))
+        else if(exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") ||
+                exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED"))
         {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
@@ -623,6 +624,10 @@ public class ExamController extends SitnetController {
         if(SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
 
+            ExamSection section = Ebean.find(ExamSection.class, sid);
+            if(section.getQuestions().contains(question))
+                return ok("Tämä kysymys on jo lisätty aihealueeseen.");
+
             switch (question.getType()) {
                 case "MultipleChoiceQuestion": {
                     MultipleChoiceQuestion multiQuestion = Ebean.find(MultipleChoiceQuestion.class, qid);
@@ -644,7 +649,6 @@ public class ExamController extends SitnetController {
                         clonedQuestion.getOptions().add(clonedOpt);
                     }
 
-                    ExamSection section = Ebean.find(ExamSection.class, sid);
                     section.getQuestions().add(clonedQuestion);
                     section.save();
 
@@ -657,7 +661,6 @@ public class ExamController extends SitnetController {
                     clonedQuestion.setParent(essayQuestion);
                     clonedQuestion.save();
 
-                    ExamSection section = Ebean.find(ExamSection.class, sid);
                     section.getQuestions().add(clonedQuestion);
                     section.save();
 
@@ -679,6 +682,7 @@ public class ExamController extends SitnetController {
         if(SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
             ExamSection section = Ebean.find(ExamSection.class, sid);
+            question.setParent(null);
             section.getQuestions().remove(question);
             section.save();
             question.delete();

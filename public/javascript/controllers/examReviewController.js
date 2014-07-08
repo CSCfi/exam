@@ -125,14 +125,10 @@
                         var total = 0;
                         angular.forEach(exam.examSections, function(section) {
                             total += $scope.getSectionTotalScore(section);
-                        })
+                        });
                         $scope.examToBeReviewed.totalScore = total;
                         return total;
                     }
-                }
-
-                // Called when the cog is clicked
-                $scope.cogChecked = function () {
                 };
 
                 // Called when the chevron is clicked
@@ -160,7 +156,7 @@
                     var examToReview = {
                         "id": exam.id,
                         "creditType": $scope.examToBeReviewed.creditType
-                    }
+                    };
 
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
@@ -179,7 +175,7 @@
 
                     var examFeedback = {
                         "comment": exam.examFeedback.comment
-                    }
+                    };
 
                     // Update comment
                     if (exam.examFeedback.id) {
