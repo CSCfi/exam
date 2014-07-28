@@ -1,14 +1,8 @@
 <div>
-    <span class="sitnet-info-text"><i>merkkejä: {{question.answer.answerLength}} / {{question.maxCharacters}}
-        <br>
-        sanoja: {{question.words}}</i>
-    </span>
-
     <!--How to get CKEditor text with Angular-->
     <!--http://jsfiddle.net/TheSharpieOne/cPTr7/-->
     <!--http://stackoverflow.com/questions/18917262/updating-textarea-value-with-ckeditor-content-in-angular-js-->
     <textarea ck-editor rows="10" cols="80" ng-model="question.answer.answer">
     </textarea>
     <button ng-click="saveEssay(question, question.answer.answer)" class="btn btn-primary">Tallenna</button>
-
 </div>
