@@ -20,11 +20,6 @@
 //
 //                }, 10000)
 
-                $scope.countCharacters = function (question) {
-                    question.answer.answerLength = question.answer.answer.length;
-                    question.words = question.answer.answer.split(" ").length;
-                };
-
                 $scope.doExam = function (hash) {
                     $http.get('/student/doexam/' + $routeParams.hash)
                         .success(function (data, status, headers, config) {

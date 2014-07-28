@@ -34,6 +34,19 @@ CKEDITOR.editorConfig = function( config ) {
 	];
 	
 	config.extraPlugins='confighelper'; 
+	config.extraPlugins = 'wordcount';
+
+	config.wordcount = {
+
+	    // Whether or not you want to show the Word Count
+	    showWordCount: true,
+
+	    // Whether or not you want to show the Char Count
+	    showCharCount: true,
+
+	    // Whether or not to include Html chars in the Char Count
+	    countHTML: false
+	};
 
 	// Remove some buttons, provided by the standard plugins, which we don't
 	// need to have in the Standard(s) toolbar.

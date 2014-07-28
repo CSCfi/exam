@@ -12,11 +12,6 @@
                 //$scope.exams = StudentExamRes.exams.query();
                 $scope.tempQuestion = null;
 
-                $scope.countCharacters = function (question) {
-                    question.answer.answerLength = question.answer.answer.length;
-                    question.words = question.answer.answer.split(" ").length;
-                };
-
                 $scope.previewExam = function () {
 
                     $http.get('/exams/' + $routeParams.id)
