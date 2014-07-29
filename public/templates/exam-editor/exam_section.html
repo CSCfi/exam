@@ -44,15 +44,15 @@
 	               ng-model="section.lotteryOn">Arvo kysymykset</input>
 	    </span>
 	    <span ng-show="section.lotteryOn">
-	        <input style="margin-right: 1em; width: 20%" type="number" name="quantity" min="1" max="{{section.questions.length}}"
+	        <input type="number" name="" min="0" value="1" max="{{section.questions.length}}"
 	               ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)" autofocus>
 	    </span>
-	    <span>/ {{section.questions.length}}</span>
+	    <span ng-show="section.lotteryOn">/ {{section.questions.length}}</span>
     </div>
 
 </div>
 <div class="row">
-    <div class="col-md-12 top-padding-2" ng-show="section.expanded">
+    <div class="col-md-12" ng-show="section.expanded">
         <div class="question" ng-include="questionPath" ng-repeat="question in section.questions"/>
         <div class="create-new dropdown">
             <a class="dropdown-toggle">
