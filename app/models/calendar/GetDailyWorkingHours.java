@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface GetDailyWorkingHours {
 
-    List<GetDailyWorkingHours> getDateTimeForDay(LocalDate)
+    List<GetDailyWorkingHours> getDateTimeForDay(LocalDate date);
 
-    :
+
 }
