@@ -19,7 +19,7 @@
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamController'});
             $routeProvider.when('/exams/:examId/edit/:id', { templateUrl: tmpl + 'question-editor/question.html'});
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam-editor/exam.html', controller: 'ExamController'});
-            $routeProvider.when('/calendar/:reservation?', { templateUrl: tmpl + 'calendar.html'});
+            $routeProvider.when('/calendar/:enrolment?', { templateUrl: tmpl + 'calendar.html'});
             $routeProvider.when('/notifications', { templateUrl: tmpl + 'notifications.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});
             $routeProvider.when('/tools', { templateUrl: tmpl + 'tools.html'});
@@ -48,6 +48,9 @@
             /* Admin */
             $routeProvider.when('/rooms', { templateUrl: tmpl + 'admin/rooms.html', controller: 'RoomCtrl'});
             $routeProvider.when('/rooms/:id', { templateUrl: tmpl + 'admin/room.html', controller: 'RoomCtrl'});
+
+            $routeProvider.when('/test', { templateUrl: tmpl + 'open_hours.html', controller: 'TestCtrl'});
+
 
             $routeProvider.otherwise({redirectTo: '/home'});
         }]);
