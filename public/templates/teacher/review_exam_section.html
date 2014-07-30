@@ -1,28 +1,14 @@
 <div class="section-header">
         <!-- $index gives the ng-repeat loop items index starting from 0 -->
         <span class="section-header-number">{{$index + 1}}.</span>
-        <span> {{section.name}} </span>
-        <span ng-click="section.expanded = !section.expanded; expandSection(section)" class="pull-right fa-stack fa-lg pointer-hand">
-            <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-            <i ng-class="section.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
-               class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-        </span>
-
-        <!--<span><button ng-click="examReviewReady()" class="btn btn-primary">Kuittaa tarkistetuksi</button></span>-->
-
-        <span class="pull-right fa-stack fa-lg dropdown pointer-hand" ng-click="editSection(section)">
-            <a class="dropdown-toggle">
-                <i class="sitnet-blue fa fa-square fa-stack-2x"></i>
-                <i class="sitnet-white fa fa-cog fa-stack-1x"></i>
-            </a>
-            <ul class="dropdown-menu">
-<!--                 <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li> -->
-                <li><a class="pointer-hand">{{'sitnet_exam_draw_questions' | translate}}</a></li>
-                <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>
-                <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>
-            </ul>
-        </span>
-    </div>
+    <span> {{section.name}} </span>
+    <span ng-click="section.expanded = !section.expanded; expandSection(section)" class="pull-right fa-stack fa-lg pointer-hand">
+        <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
+        <i ng-class="section.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
+           class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
+    </span>
+    <span class="pull-right">score: {{getSectionTotalScore(section)}} / {{getSectionMaxScore(section)}} </span>
+</div>
 </div>
 
 <div id="question-editor" class="exam-question-container" ng-show="section.expanded">
@@ -41,7 +27,7 @@
             <tr ng-if="question.type === 'MultipleChoiceQuestion'" style="background-color: {{question.backgroundColor}}" ng-include="multiplechoiceQuestionPath">
             </tr>
 
-            <tr ng-if="question.type === 'EssayQuestion'" style="background-color: {{question.backgroundColor}}" ng-include="essayQuestionPath">
+            <tr ng-if="question.type == 'EssayQuestion'" style="background-color: {{question.backgroundColor}}" ng-include="essayQuestionPath">
             </tr>
         </tbody>
     </table>

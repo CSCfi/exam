@@ -119,6 +119,32 @@
                     return score;
                 };
 
+                $scope.getSectionMaxScore = function(section) {
+                    var score = 0;
+
+                    angular.forEach(section.questions, function(question, index) {
+
+                        switch (question.type) {
+                            case "MultipleChoiceQuestion":
+                                score = score + question.maxScore;
+                                break;
+
+                            case "EssayQuestion":
+                                if (question.evaluationType == 'Points')
+                                        score = score + question.maxScore;
+                                else if (question.evaluationType == 'Select')
+                                        // hyväksytty == 1.0 ja hylätty == 0
+                                        score = score + 1;
+                                break;
+
+                            default:
+                                toastr.error("Unknown question type: "+ question.type);
+                                break;
+                        }
+                    });
+                    return score;
+                };
+
                 $scope.getExamTotalScore = function(exam) {
 
                     if (exam) {
@@ -140,7 +166,9 @@
                         "id": question.id,
                         "type": question.type,
                         "expanded": question.expanded,
-                        "evaluatedScore": question.evaluatedScore
+                        "evaluatedScore": question.evaluatedScore,
+                        "maxScore": question.maxScore                   // workaround for     @Column(columnDefinition="numeric default 0")
+                                                                        // without this question will be updated with default value
                     };
 
                     QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function (q) {
