@@ -1,40 +1,43 @@
-<div id="sitnet-header" class="header">
-    <div class="col-md-8 header-wrapper">
-        <span class="header-text">{{'sitnet_calendar' | translate}}</span>
-    </div>
-
-    <div class="col-md-2 header-wrapper">
-        <!--<a class="btn header-button pull-right">{{'sitnet_create_new' | translate}}<i class="sitnet-white pull-right fa fa-angle-down fa-lg"></i></a>-->
-    </div>
-    <div class="col-md-2 ">
-        <!--<span class="header-clock pull-right">
-            <span class="col-md-12  weekday">24. lauantai</span>
-            <span class="col-md-12  date">Toukokuuta 2014</span>
-            <span class="col-md-12  clock"></span>
-        </span>-->
+<div id='sitnet-header' class='header'>
+    <div class='col-md-8 header-wrapper'>
+        <span class='header-text'>{{'sitnet_calendar' | translate}}</span>
     </div>
 </div>
 
-<div id="sitnet-calendar" class="base" ng-controller="CalendarCtrl">
-    <div class="row">
-        <div class="col-lg-2">
 
-            <h3>{{'sitnet_select_room' | translate}}</h3>
+<div id='sitnet-calendar' class='base' ng-controller='CalendarCtrl'>
 
-            <select ng-change="refreshData()"  ng-model="room" ng-options="room.name for room in rooms">
-            </select>
-        </diV>
+    <div class='row'>
 
-        <div ng-hide="reservationParam" class="col-lg-2">
+        <div class="col-md-1"><i ng-click="prevMonth()" class="fa fa-2x fa-caret-square-o-left"></i></div>
+        <div class="col-md-2">{{selectedMonth.display}}</div>
+        <div class="col-md-1"><i ng-click="nextMonth()" class="fa fa-2x fa-caret-square-o-right"></i></div>
 
-            <h3>{{'sitnet_select_exam' | translate}}</h3>
-
-            <select ng-change="refreshData()" ng-model="enrollment" ng-options="enrollment.exam.name for enrollment in enrollments">
-            </select>
-        </diV>
     </div>
 
     <div class="row">
-        <div calendar="cal" ui-calendar="uiConfig.calendar" class="col-lg-12" ng-model="events"></div>
+
+        <ul class="inline-list">
+            <li>
+                <button ng-repeat='room in rooms' type='button' ng-click="selectRoom(room)"
+                        ng-class="{ 'selected' : room.selected }" class='btn btn-white btn-xs'>{{room.name}}
+                </button>
+            </li>
+        </ul>
     </div>
+
+    <p class="note">{{'sitnet_display_free_time_slots' | translate}} {{selectedRoomsString}}</p>
+
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="reservationRow">
+                <li ng-repeat='(date, day) in daySlots'>
+                    <span class="date">{{formatDate(date)}}</span>
+                    <span ng-repeat='slot in day.slots' class="freeTime"><a ng-click="createReservation(slot)">{{formatTime(slot.start)}} - {{formatTime(slot.end)}}</a></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
 </div>

@@ -56,7 +56,7 @@ public class CalendarController extends SitnetController {
 
         //todo: add more validation, user can make loooon reservations eg.
         final Integer machineId = json.get("machine").asInt();
-        final Integer examId = json.get("exam").asInt();
+        final Integer enrolmentId = json.get("exam").asInt();
         final DateTime start = DateTime.parse(json.get("start").asText(), dateTimeFormat);
         final DateTime end = DateTime.parse(json.get("end").asText(), dateTimeFormat);
 
@@ -71,7 +71,7 @@ public class CalendarController extends SitnetController {
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("user.id", user.getId())
-                .eq("exam.id", examId)
+                .eq("id", enrolmentId)
                 .findUnique();
 
         final Reservation oldReservation = enrolment.getReservation();
@@ -276,7 +276,8 @@ public class CalendarController extends SitnetController {
     }
 
     private static WorkingHours calculateWorkingHours(ExamRoom room, DateTime date) {
-        final DefaultWorkingHours roomWorkingHours = room.getCalendarEvent();
+        //todo: miikka
+        final DefaultWorkingHours roomWorkingHours = room.getCalendarEvent(); //room.getWorkingHoursForDate(date.toLocalDate());
         final WorkingHours hours = new WorkingHours();
         for (ExceptionWorkingHours exception : room.getCalendarExceptionEvents()) {
             Interval exceptionDates = new Interval(new LocalDate(exception.getExceptionStartDate()).toDateMidnight(), new LocalDate(exception.getExceptionEndDate()).toDateMidnight());

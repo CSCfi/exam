@@ -290,5 +290,7 @@
     "sitnet_select_exam": "Tentti",
     "sitnet_calendar": "Varauskalenteri",
     "sitnet_randomize_questions": "Arvo kysymykset",
-    "sitnet_edit": "Muokkaa"
+    "sitnet_edit": "Muokkaa",
+    "sitnet_display_free_time_slots" : "Näytetään vapaat ajat tilasta:"
+
 }

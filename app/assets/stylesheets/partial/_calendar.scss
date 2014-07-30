@@ -1,11 +1,60 @@
 #sitnet-calendar {
 
-  .calendar-wrapper {
-    padding: 2em;
+  .inline-list {
+    border-bottom: solid 1px $sitnet-grey;
+    padding: 0;
+    padding-bottom: 1em;
+
+    li {
+      list-style-type: none;
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+    }
+
+    button {
+      margin: 0.2em;
+    }
+
+    .btn-white {
+      background-color: white;
+      border: solid 1px black;
+    }
+
+    .selected {
+      background-color: black;
+      color: white;
+      border: solid 1px black;
+    }
+
   }
 
-  .reservation {
-    background-color: $sitnet-student-lightgreen;
+  .reservationRow {
+    padding: 0;
+
+    li {
+      background-color: $sitnet-teacher-green-light;
+      list-style-type: none;
+      margin-bottom: 0.5em;
+    }
+
+    span {
+      display: inline-block;
+      padding: 1em;
+    }
+
+    .date {
+      font-weight: bold;
+    }
+
+    .freeTime {
+      border-left: solid 1px $sitnet-dark-grey;
+    }
   }
 
+  .note {
+    color: $sitnet-grey;
+    font-weight: 100;
+    font-style: italic;
+  }
 }
