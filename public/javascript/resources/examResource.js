@@ -158,6 +158,11 @@
                 },
                 {
                     "get": {method: "GET", params: { eid: "@eid" }}
+                }),
+
+                studentInfo: $resource("/review/info/:id",
+                {
+                    id: "@id"
                 })
             }
         }]);

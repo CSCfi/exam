@@ -26,6 +26,7 @@
     "sitnet_essay_length_recommendation": "Vastauksen suosituspituus (merkkeinä)",
     "sitnet_exam_answer_language": "Vastauskieli",
     "sitnet_exam_basic_information": "Tentin perustiedot",
+    "sitnet_student_basic_information": "Opiskelijan perustiedot",
     "sitnet_exam_clear": "Tyhjennä",
     "sitnet_exam_draw_questions": "Kysymysten arvonta",
     "sitnet_exam_duration": "Tentin kesto",
@@ -90,7 +91,10 @@
     "sitnet_user_preferences": "Käyttäjän profiiliasetukset",
     "sitnet_username": "Käyttäjätunnus",
     "sitnet_welcome": "Tervetuloa",
-    "sitnet_words": "sanaa",
+    "sitnet_student": "Opiskelija",
+    "sitnet_grade": "Arvosana",
+    "sitnet_graded": "Tarkistettu",
+    "sitnet_email": "Email",
 
     "sitnet_placeholder_write_instruction": "Kirjoita ohjeet tähän",
 
@@ -105,6 +109,8 @@
     "sitnet_exam_review": "Tentin arviointi",
     "sitnet_exams_to_be_reviewed": "Tarkastettavana olevat tentit",
     "sitnet_exams_to_be_reviewed_by_you": "Tentit, joissa olet tarkastajana",
+    "sitnet_exams_waiting_for_review": "Odottaa tarkistusta",
+    "sitnet_exams_reviewed": "Tarkistetut tentit",
 
     "sitnet_multiplechoice_question_correct": "Oikein",
     "sitnet_multiplechoice_question_incorrect": "Väärin",

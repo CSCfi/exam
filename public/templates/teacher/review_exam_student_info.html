@@ -1,0 +1,60 @@
+<div class=" exam-general-information-header">
+    <span class=" exams-generic-info-title">{{'sitnet_student_basic_information' | translate}}</span>
+    <!--<a class="sub-header-icon pull-right fa-stack fa-lg" ng-click="examToBeReviewed.expanded = !examToBeReviewed.expanded">-->
+        <!--<i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>-->
+        <!--<i ng-class="examToBeReviewed.expanded ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-left fa-stack-1x'"></i>-->
+    <!--</a>-->
+</div>
+
+<!-- General info section container -->
+<!--<div ng-show="examToBeReviewed.expanded">-->
+
+    <div class="row">
+        <!-- Student name -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_student' | translate}}</div>
+            <div class="input-group">
+                <a href="mailto:{{userInfo.user.email}}">{{userInfo.user.firstName}} {{userInfo.user.lastName}}</a>
+            </div>
+        </div>
+
+        <!-- Student email -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_email' | translate}}</div>
+            <div class="input-group">
+                <div>{{userInfo.user.email}}</div>
+            </div>
+        </div>
+
+        <!-- Exam started at -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_room_default_working_hours_start' | translate}}</div>
+            <div class="input-group">
+                <div>{{userInfo.started | date:'HH:mm:ss'}}</div>
+            </div>
+        </div>
+
+        <!-- Course scope field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_room_default_working_hours_end' | translate}}</div>
+            <div class="input-group">
+                <div>{{userInfo.ended | date:'HH:mm:ss'}}</div>
+            </div>
+        </div>
+
+        <!-- Duration of exam -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_exam_duration' | translate}}</div>
+            <div class="input-group">
+                <div>{{userInfo.duration | date: 'HH:mm:ss'}}</div>
+            </div>
+        </div>
+
+        <!-- Faculty name field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}</div>
+            <div class="input-group">
+                <div></div>
+            </div>
+        </div>
+    </div>

@@ -114,6 +114,9 @@ public class Exam extends SitnetModel {
     @OneToOne
     private User gradedByUser;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private Timestamp gradedTime;
+
     @OneToOne
     private Comment examFeedback;
 
@@ -152,6 +155,13 @@ public class Exam extends SitnetModel {
         return total;
     }
 
+    public Timestamp getGradedTime() {
+        return gradedTime;
+    }
+
+    public void setGradedTime(Timestamp gradedTime) {
+        this.gradedTime = gradedTime;
+    }
 
     public boolean getExpanded() {
         return expanded;

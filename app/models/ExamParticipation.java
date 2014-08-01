@@ -35,8 +35,9 @@ public class ExamParticipation extends Model {
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Timestamp ended;
-	
-	
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private Timestamp duration;
 
 	public Long getId() {
 		return id;
@@ -77,5 +78,12 @@ public class ExamParticipation extends Model {
 	public void setEnded(Timestamp ended) {
 		this.ended = ended;
 	}
-	
+
+    public Timestamp getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Timestamp duration) {
+        this.duration = duration;
+    }
 }

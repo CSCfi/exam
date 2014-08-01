@@ -8,6 +8,7 @@ import controllers.UserController;
 import models.SitnetModel;
 import models.User;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -18,6 +19,7 @@ import java.sql.Timestamp;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.FileSystems;
+import java.util.Date;
 
 
 /**
@@ -183,5 +185,9 @@ public class SitnetUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    static public Timestamp getTime() {
+        return new Timestamp(new Date().getTime());
     }
 }

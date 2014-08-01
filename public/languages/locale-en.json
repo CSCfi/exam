@@ -26,6 +26,7 @@
     "sitnet_essay_length_recommendation": "Response length in characters (recommendation)",
     "sitnet_exam_answer_language": "Response language",
     "sitnet_exam_basic_information": "Exam basic information",
+    "sitnet_student_basic_information": "Opiskelijan perustiedot",
     "sitnet_exam_clear": "Clear",
     "sitnet_exam_draw_questions": "Draw questions",
     "sitnet_exam_duration": "Exam duration",
@@ -91,6 +92,10 @@
     "sitnet_username": "Username",
     "sitnet_welcome": "Welcome",
     "sitnet_words": "words",
+    "sitnet_student": "Student",
+    "sitnet_grade": "Grade",
+    "sitnet_graded": "Graded",
+    "sitnet_email": "Email",
 
     "sitnet_placeholder_write_instruction": "Write instructions here",
 
@@ -105,6 +110,8 @@
     "sitnet_exam_review": "Exam review",
     "sitnet_exams_to_be_reviewed": "Exams to be reviewed",
     "sitnet_exams_to_be_reviewed_by_you": "Exams to be reviewed by you",
+    "sitnet_exams_waiting_for_review": "Waiting for review",
+    "sitnet_exams_reviewed": "Graded exams",
 
     "sitnet_multiplechoice_question_correct": "Correct",
     "sitnet_multiplechoice_question_incorrect": "Incorrect",

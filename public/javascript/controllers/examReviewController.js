@@ -8,6 +8,7 @@
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section.html";
                 $scope.multiplechoiceQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_multiplechoice_question.html";
                 $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_essay_question.html";
+                $scope.studentInfoTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_student_info.html";
 
                 $scope.examGrading = [];
 
@@ -47,6 +48,16 @@
                             toastr.error(error.data);
                         }
                     );
+
+                    ExamRes.studentInfo.get({id: $routeParams.id},
+                        function (info) {
+                            $scope.userInfo = info;
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+
                 }
 
                 $scope.scoreMultipleChoiceAnswer = function (question) {
@@ -226,6 +237,8 @@
                 // Called when the review ready button is clicked
                 $scope.examReviewReady = function (reviewed_exam) {
 
+                    $scope.saveFeedback(reviewed_exam);
+
                     var examToReview = {
                         "id": reviewed_exam.id,
                         "state": 'GRADED',
@@ -236,10 +249,11 @@
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
                         toastr.info("Tentti on tarkastettu.");
-                        $location.path("/home");
+                        $location.path("/exams/reviews/"+ reviewed_exam.parent.id);
                     }, function (error) {
                         toastr.error(error.data);
                     });
                 };
+
             }]);
 }());

@@ -247,8 +247,9 @@ public class ExamController extends SitnetController {
         {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, name, course, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
+            options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                     "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
+            options.setPathProperties("parent", "id");
             options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
             options.setPathProperties("room", "id, name");
             options.setPathProperties("attachment", "id, fileName");
@@ -292,9 +293,9 @@ public class ExamController extends SitnetController {
                 .get();
 
         ex.generateHash();
+        ex.setGradedByUser(UserController.getLoggedUser());
+        ex.setGradedTime(SitnetUtil.getTime());
         ex.update();
-
-
 
         EmailComposer.composeInspectionReady(ex.getCreator(), UserController.getLoggedUser(), ex);
 
@@ -305,21 +306,48 @@ public class ExamController extends SitnetController {
     public static Result getExamReviews(Long eid) {
 
         // Todo: Assume that exam creator is also exam inspector
-        List<Exam> examReviews = Ebean.find(Exam.class)
-                .fetch("course")
+        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+                .fetch("user")
+                .fetch("exam")
                 .where()
-                .eq("parent.id", eid)
+                .eq("exam.parent.id", eid)
                 .findList();
 
-        if (examReviews == null) {
+        if (participations == null) {
             return notFound();
         } else {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate");
-            options.setPathProperties("course", "code");
+            options.setRootPathProperties("user, exam, ended");
+            options.setPathProperties("user", "id, firstName, lastName, email");
+            options.setPathProperties("exam", "id, name, course, examActiveStartDate, examActiveEndDate, " +
+                    "state, grade, gradedTime");
+            options.setPathProperties("exam.course", "code");
 
-            return ok(jsonContext.toJsonString(examReviews, true, options)).as("application/json");
+            return ok(jsonContext.toJsonString(participations, true, options)).as("application/json");
+        }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExamStudentInfo(Long eid) {
+
+        ExamParticipation participation = Ebean.find(ExamParticipation.class)
+                .fetch("user")
+                .where()
+                .eq("exam.id", eid)
+                .findUnique();
+
+        if (participation == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("user, started, ended, duration");
+
+            // Todo: tähän mahd paljon infoa opiskelijasta, HAKAsta jne
+            options.setPathProperties("user", "id, firstName, lastName, email");
+
+            return ok(jsonContext.toJsonString(participation, true, options)).as("application/json");
         }
     }
 

@@ -19,6 +19,7 @@ import models.questions.MultipleChoiseOption;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -213,6 +214,18 @@ public class StudentExamController extends SitnetController {
         Logger.debug("saveAnswersAndExit()");
 
         Exam exam = Ebean.find(Exam.class, id);
+
+        ExamParticipation p = Ebean.find(ExamParticipation.class)
+                .where()
+                .eq("exam.id", id)
+                .findUnique();
+
+        if(p != null) {
+            p.setEnded(SitnetUtil.getTime());
+            p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
+            p.save();
+        }
+
         exam.setState("REVIEW");
         exam.update();
 

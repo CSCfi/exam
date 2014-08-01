@@ -10,7 +10,7 @@
 
                 $scope.user = $scope.session.user;
 
-                console.log($scope.user.id);
+//                console.log($scope.user.id);
 
                 if ($routeParams.id === undefined)
                     $scope.examReviews = ExamRes.examsByState.query({state: 'REVIEW'});
@@ -26,6 +26,11 @@
                 }
 
 
+                $scope.byState = function(state) {
+                    return function(examReview) {
+                        return examReview.exam.state === state;
+                    }
+                };
 
             }]);
 }());
