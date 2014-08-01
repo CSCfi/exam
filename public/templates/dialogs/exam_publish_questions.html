@@ -1,0 +1,16 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4><i class="sitnet-white">Ole hyvä, ja tarkista seuraavat tiedot:</i></h4>
+    </div>
+    <div class="modal-body">
+        <p ng-repeat="error in errors">{{error}}</p>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-12 text-center">
+            <span ng-click="ok()" class="sitnet_red pointer">
+                <span><b>OK</b></span>
+            </span>
+        </div>
+    </div>
+</div>
+

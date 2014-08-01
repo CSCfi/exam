@@ -448,6 +448,30 @@
                 // Called when Save and Publish button is clicked
                 $scope.saveAndPublishExam = function () {
 
+                    var err = $scope.publishSanityCheck($scope.newExam);
+                    $scope.errors = err;
+                    if(Object.getOwnPropertyNames(err).length != 0) {
+
+                        var modalInstance = $modal.open({
+                            templateUrl: 'assets/templates/dialogs/exam_publish_questions.html',
+                            backdrop: 'static',
+                            keyboard: true,
+                            controller: function($scope, $modalInstance, errors){
+                                 $scope.errors = errors;
+                                $scope.ok = function(){
+                                    $modalInstance.dismiss();
+                                };
+                            },
+                            resolve: {
+                                errors: function () {
+                                    return $scope.errors;
+                                }
+                            }
+                        });
+
+                        return;
+                    }
+
                     var modalInstance = $modal.open({
                         templateUrl: 'assets/templates/exam-editor/exam_publish_dialog.html',
                         backdrop: 'static',
@@ -490,7 +514,47 @@
 
                 };
 
-                $scope.deleteExam = function (exam) {
+                $scope.countQuestions = function(exam) {
+
+                    var count = 0;
+                    angular.forEach(exam.examSections, function (section, index) {
+                        count += section.questions.length;
+                    });
+                    return count;
+                };
+
+                $scope.publishSanityCheck = function(exam) {
+
+                    var errors = {};
+
+                    if(exam.course == null)
+                        errors.course = "Opintojakso puuttuu";
+
+                    if(exam.name == null || exam.name.length < 2)
+                        errors.name = "Tentin nimi puuttuu, tai on liian lyhyt";
+
+                    if($scope.dateService.startTimestamp == 0)
+                        errors.examActiveStartDate = "Alkuaika puuttuu";
+
+                    if($scope.dateService.endTimestamp == 0)
+                        errors.examActiveEndDate = "Loppuaika puuttuu";
+
+                    if($scope.countQuestions < 1)
+                        errors.questions = "Tentissä ei ole yhtään kysymystä";
+
+                    if(exam.duration == null || exam.duration < 1)
+                        errors.duration = "Tentin kestoa ei ole määritelty";
+
+                    if(exam.grading == null)
+                        errors.grading = "Tentin arvosana-asteikkoa ei ole määritelty";
+
+                    if(exam.examType == null)
+                        errors.examType = "Tentin suoritustyyppiä ei ole määritelty";
+
+                    return errors;
+                }
+
+                    $scope.deleteExam = function (exam) {
                     if (confirm('Haluatko poistaa tentin lopullisesti?')) {
 
                         ExamRes.exams.remove({id: exam.id}, function (ex) {

@@ -20,6 +20,9 @@
                     <span class="exam-name" ng-click="showName = !showName">
                         {{newExam.name}} <i class="fa fa-pencil"></i>
                     </span>
+                    <span class="pull-right">
+                        <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+                    </span>
                 </div>
                 <div ng-show="!showName">
                     <form class="form-inline" role="form">
