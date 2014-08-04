@@ -210,6 +210,10 @@
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
                     StudentExamRes.exams.update({id: doexam.id}, function () {
+
+                        // Todo: tässä vaiheessa pitäisi tehdä paljon muitakin tarkistuksia
+
+
                         toastr.info("Tentti palautettu");
                         $location.path("/home/");
 

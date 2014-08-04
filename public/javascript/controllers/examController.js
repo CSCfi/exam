@@ -438,7 +438,7 @@
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function (exam) {
                         toastr.info("Tentti tallennettu.");
-                        $location.path("/exams");
+//                        $location.path("/exams");
                         }, function (error) {
                         toastr.error(error.data);
                     });
