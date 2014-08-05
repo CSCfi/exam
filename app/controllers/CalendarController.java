@@ -50,8 +50,6 @@ public class CalendarController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result createReservation() throws MalformedDataException {
 
-	//todo: email trigger: create reservation
-
         JsonNode json = request().body().asJson();
 
         //todo: add more validation, user can make loooon reservations eg.
@@ -71,7 +69,7 @@ public class CalendarController extends SitnetController {
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("user.id", user.getId())
-                .eq("id", enrolmentId)
+                .eq("exam.id", enrolmentId)
                 .findUnique();
 
         final Reservation oldReservation = enrolment.getReservation();
@@ -80,15 +78,14 @@ public class CalendarController extends SitnetController {
         enrolment.setReservation(reservation);
         Ebean.save(enrolment);
 
+        //todo: email trigger: create reservation
         EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
-
 
         if(oldReservation != null) {
             Ebean.delete(oldReservation);
         }
 
         return ok("ok");
-
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
