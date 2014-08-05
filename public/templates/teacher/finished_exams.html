@@ -34,7 +34,7 @@
                     <td><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                     <td>{{finishedExam.course.code}}</td>
                     <td><a href="#/exams/review/{{finishedExam.id}}">{{finishedExam.name}}</a></td>
-                    <td>{{finishedExamParticipations.length}}/{{finishedExamEnrolments.length}}({{(finishedExamParticipations.length/finishedExamEnrolments.length)*100 | number : 2}}%)</td>
+                    <td>{{finishedExamParticipations.length}}/{{finishedExamEnrolments.length}} ({{(finishedExamParticipations.length/finishedExamEnrolments.length)*100 | number : 2}}%)</td>
                     <td>{{finishedExam.examActiveEndDate | date:'dd.MM.yyyy'}}</td>
                 </tr>
                 </tbody>

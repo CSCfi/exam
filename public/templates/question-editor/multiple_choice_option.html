@@ -2,7 +2,7 @@
 <div class="question-editor-option">
     <div class="row">
         <div class="col-md-1">
-            <div class="form-group" ng-click="radioChecked(option)">
+            <div class="form-group" ng-click="radioChecked(option)" ng-show="showName" >
                 <div id={{option.id}} name={{newQuestion.question}} class="list-group-item-text">
                     <i class="fa fa-arrows fa-2x"></i>
                 </div>
@@ -10,7 +10,7 @@
         </div>
         <div class="col-md-8">
             <input type="text" name="option.option" class="form-group editable multiplechoice-question-input"
-                ng-model="option.option" ui-blur="updateOption(option)" placeholder="{{'sitnet_question_new_option' | translate}}">
+                ng-model="option.option" ui-blur="updateOption(option)" placeholder="{{'sitnet_question_new_option' | translate}}" onclick="select();">
         </div>
 
         <div class="col-md-2">

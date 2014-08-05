@@ -903,9 +903,10 @@ public class ExamController extends SitnetController {
     public static Result getEnrolmentsForExam(Long eid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
+                .fetch("exam.parent")
                 .fetch("reservation")
                 .where()
-                .eq("exam.id", eid)
+                .eq("exam.parent.id", eid)
                 .findList();
 
         if (enrolments == null) {

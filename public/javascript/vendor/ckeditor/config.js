@@ -57,4 +57,9 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// Make dialogs simpler.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
+
+    // SIT-361
+    // Disable scandic characters converting
+    config.htmlEncodeOutput = false;
+    config.entities = false;
 };

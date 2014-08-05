@@ -943,7 +943,7 @@ exams:
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-01 16:00:00.123
+    examActiveEndDate: 2014-08-29 16:00:00.123
     grading: 0-5
     examSections:
     state: GRADED
@@ -959,7 +959,7 @@ exams:
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-01 16:00:00.123
+    examActiveEndDate: 2014-08-29 16:00:00.123
     grading: 0-5
     examSections:
     state: REVIEW
@@ -974,7 +974,7 @@ exams:
     instruction:
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-01 16:00:00.123
+    examActiveEndDate: 2014-08-29 16:00:00.123
     grading: 0-5
     examSections:
     state: PUBLISHED
