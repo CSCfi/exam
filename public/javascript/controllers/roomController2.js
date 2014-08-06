@@ -123,7 +123,6 @@
                         e.type = 'accepted';
                     } else if (e.type === 'selected') {
                         clear(e.day);
-                        $scope.updateWorkingHours($scope.roomInstance, selectable);
                         return;
                     } else {
                         e.type = '';
@@ -138,7 +137,6 @@
                             return;
                         }
                         markRange(e.day, previous, e.time);
-                        $scope.updateWorkingHours($scope.roomInstance, selectable);
                     }
                 };
 
@@ -347,76 +345,6 @@
                     }
                 };
 
-                $scope.updateWorkingHours = function (room, hours) {
-                    var h = {};
-                    var rows = [];
-
-                    hours.forEach(function (row) {
-                        var cells = [];
-                        row.forEach(function (cell) {
-                            if (cell.type === 'selected') {
-                                cells.push(cell);
-                            }
-                        });
-                        if (cells.length > 0) {
-                            rows.push(cells);
-                        }
-                    });
-
-                    h.hours = rows;
-                    h.startHour = startHour;
-                    h.endHour = endHour;
-
-                    RoomResource.workinghours.update({id: $scope.roomInstance.id}, h,
-                        function (workingHours) {
-                            toastr.info("Tenttitilan oletusajat päivitetty.");
-                            console.log('Updated hours:');
-                            console.log(workingHours);
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
-                };
-
-
-                var remove = function (arr, item) {
-                    var index = arr.indexOf(item);
-                    arr.splice(index, 1);
-                };
-
-
-                $scope.deleteException = function (exception) {
-                    RoomResource.exception.remove({id: exception.id},
-                        function (saveException) {
-                            toastr.info("Tenttitilan poikkeusaika poistettu.");
-                            remove($scope.roomInstance.calendarExceptionEvents, exception);
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
-                };
-
-                $scope.formatDate = function (exception) {
-                    var fmt = 'DD.MM.YYYY';
-                    var formatted = moment(exception.startDate).format(fmt);
-                    if (exception.endDate) {
-                        formatted += ' - ';
-                        formatted += moment(exception.endDate).format(fmt);
-                    }
-                    return formatted;
-                };
-                $scope.formatTime = function (exception) {
-                    var fmt = 'HH.mm';
-                    if (!exception.startTime) {
-                        return 'poissa käytöstä';
-                    }
-                    var formatted = moment(exception.startTime).format(fmt);
-                    formatted += ' - ';
-                    formatted += moment(exception.endTime).format(fmt)
-                    return formatted;
-                };
 
                 $scope.addException = function () {
 
@@ -427,48 +355,38 @@
                         keyboard: true,
                         controller: function ($scope, $modalInstance) {
 
-
-                            $scope.selectStartDate = function (date) {
-                                $scope.startDate = date;
-                            };
-
-                            $scope.selectEndDate = function (date) {
-                                $scope.endDate = date;
-                            };
-
-                            $scope.selectStartTime = function (time) {
-                                $scope.startTime = time;
-                            };
-
-                            $scope.selectEndTime = function (time) {
-                                $scope.endTime = time;
-                            };
-
-
                             $scope.format = 'dd.MM.yyyy';
 
+                            $scope.startOpen = false;
                             $scope.endOpen = false;
 
                             $scope.timeRange = false;
                             $scope.outOfService = false;
 
-                            $scope.startDate = new Date();
-                            $scope.endDate = new Date();
 
-                            $scope.startTime = new Date();
-                            $scope.startTime.setHours(startHour);
-                            $scope.startTime.setMinutes(0);
-
-                            $scope.endTime = new Date();
-                            $scope.endTime.setHours(endHour);
-                            $scope.endTime.setMinutes(0);
+                            var startDate = new Date();
+                            $scope.startDate = startDate;
 
 
-                            $scope.setOutOfService = function (oos) {
+                            var endDate = new Date();
+                            $scope.endDate = endDate;
+
+                            var startTime = new Date();
+                            startTime.setHours(8);
+                            startTime.setMinutes(0);
+                            $scope.startTime = startTime;
+
+                            var endTime = new Date();
+                            endTime.setHours(16);
+                            endTime.setMinutes(0);
+                            $scope.endTime = endTime;
+
+
+                            $scope.setOutOfService = function(oos){
                                 $scope.outOfService = !oos;
                             };
 
-                            $scope.setRange = function (range) {
+                            $scope.setRange = function(range){
                                 $scope.timeRange = !range;
                             };
 
@@ -476,12 +394,11 @@
 
                                 var range = $scope.timeRange;
                                 var oos = $scope.outOfService;
-
                                 $modalInstance.close({
-                                    "startDate": $scope.startDate,
-                                    "endDate": range ? $scope.endDate : undefined,
-                                    "startTime": oos ? undefined : $scope.startTime,
-                                    "endTime": oos ? undefined : $scope.endTime
+                                    "startDate": startDate,
+                                    "endDate": range ? endDate : undefined,
+                                    "startTime": oos ? undefined : startTime,
+                                    "endTime": oos ? undefined : endTime
                                 });
                             };
 
@@ -492,12 +409,13 @@
                     });
 
                     modalInstance.result.then(function (exception) {
+                        $scope.roomInstance.calendarExceptionEvents.push();
 
-                        RoomResource.exception.update({id: $scope.roomInstance.id}, exception,
-                            function (saveException) {
+                        RoomResource.exception.update({id: room.id}, exception,
+                            function (exceptionEvent) {
                                 toastr.info("Tenttitilan poikkeusaika lisätty.");
-                                exception.id = saveException.id;
-                                $scope.roomInstance.calendarExceptionEvents.push(exception);
+
+                                $scope.roomInstance.calendarExceptionEvents.push(exceptionEvent);
                             },
                             function (error) {
                                 toastr.error(error.data);

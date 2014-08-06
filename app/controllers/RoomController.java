@@ -4,26 +4,29 @@ import Exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.ExamMachine;
 import models.ExamRoom;
 import models.MailAddress;
 import models.Reservation;
+import models.calendar.DefaultWorkingHourDTO;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
-import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.Date;
 import java.sql.Timestamp;
+import java.util.Iterator;
 import java.util.List;
 
 /**
  * Created by avainik on 4/9/14.
  */
-public class ReservationController extends SitnetController {
+public class RoomController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getExamRooms() {
@@ -46,16 +49,14 @@ public class ReservationController extends SitnetController {
         Logger.debug("getReservationForExam()");
 
         Reservation reservation = Ebean.find(Reservation.class).where()
-        .eq("user.id", uid)
-        .findUnique();
+                .eq("user.id", uid)
+                .findUnique();
 
         return ok(Json.toJson(reservation));
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result createExamRoomDraft() throws MalformedDataException
-
-    {
+    public static Result createExamRoomDraft() throws MalformedDataException {
         Logger.debug("createExamRoomDraft()");
 
         ExamRoom examRoom = new ExamRoom();
@@ -66,13 +67,6 @@ public class ReservationController extends SitnetController {
         MailAddress mailAddress = new MailAddress();
         mailAddress.save();
         examRoom.setMailAddress(mailAddress);
-
-        DefaultWorkingHours workingHours = new DefaultWorkingHours();
-        Date date = new Date();
-        workingHours.setStartTime(new Timestamp(date.getTime()));
-        workingHours.setEndTime(new Timestamp(date.getTime()));
-        workingHours.save();
-        examRoom.setCalendarEvent(workingHours);
 
         ExamMachine examMachine = new ExamMachine();
         examMachine.setName("Kone");
@@ -121,50 +115,91 @@ public class ReservationController extends SitnetController {
 
     @Restrict(@Group({"ADMIN"}))
     public static Result updateExamRoomWorkingHours(Long id) throws MalformedDataException {
-        DynamicForm df = Form.form().bindFromRequest();
 
-        DefaultWorkingHours defaultHours = Ebean.find(DefaultWorkingHours.class, id);
+        final DefaultWorkingHourDTO defaults = bindForm(DefaultWorkingHourDTO.class);
 
-        Long startTime = Long.parseLong(df.get("startTime"));
-        Long endTime = Long.parseLong(df.get("endTime"));
+        final List<DefaultWorkingHours> defaultWorkingHours = defaults.getDefaultWorkingHours();
 
-        Timestamp start = new Timestamp(startTime);
-        Timestamp end = new Timestamp(endTime);
+        final ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
 
-        defaultHours.setStartTime(start);
-        defaultHours.setEndTime(end);
 
-        defaultHours.update();
-        return ok(Json.toJson(defaultHours));
+        final Iterator<DefaultWorkingHours> iterator = examRoom.getDefaultWorkingHourses().iterator();
+
+        while (iterator.hasNext()) {
+            DefaultWorkingHours next =  iterator.next();
+            next.delete();
+        }
+
+        for(DefaultWorkingHours hour : defaultWorkingHours){
+            hour.setRoom(examRoom);
+            hour.save();
+        }
+
+        examRoom.setDefaultWorkingHourses(defaultWorkingHours);
+        examRoom.save();
+
+        return ok(Json.toJson(defaultWorkingHours));
+    }
+
+    private static DateTime fromJS(JsonNode root, String field) {
+        try {
+            return ISODateTimeFormat.dateTime().parseDateTime(root.get(field).asText());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result updateExamRoomExceptionWorkingHours(Long id) throws MalformedDataException {
+    public static Result addRoomExceptionHour(Long id) throws MalformedDataException {
+
+        final JsonNode root = request().body().asJson();
+
+
+        DateTime startDate = fromJS(root, "startDate");
+        DateTime startTime = fromJS(root, "startTime");
+        DateTime endDate = fromJS(root, "endDate");
+        DateTime endTime = fromJS(root, "endTime");
+
+
+        final ExceptionWorkingHours hours = new ExceptionWorkingHours();
+
+        if (startDate != null) {
+            hours.setStartDate(new Timestamp(startDate.getMillis()));
+        }
+
+        if (startTime != null) {
+            hours.setStartTime(new Timestamp(startTime.getMillis()));
+        }
+
+        if (endDate != null) {
+            hours.setEndDate(new Timestamp(endDate.getMillis()));
+        }
+
+        if (endTime != null) {
+            hours.setEndTime(new Timestamp(endTime.getMillis()));
+        }
+
+
+        hours.save();
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
+        hours.setRoom(examRoom);
+        examRoom.getCalendarExceptionEvents().add(hours);
 
-        DynamicForm df = Form.form().bindFromRequest();
+        examRoom.save();
 
-        Long exceptionStartDate = Long.parseLong(df.get("exceptionStartDate"));
-        Long exceptionStartTime = Long.parseLong(df.get("exceptionStartTime"));
-        Long exceptionEndDate = Long.parseLong(df.get("exceptionEndDate"));
-        Long exceptionEndTime = Long.parseLong(df.get("exceptionEndTime"));
-
-        Timestamp exceptionStartDateTimestamp = new Timestamp(exceptionStartDate);
-        Timestamp exceptionStartTimeTimestamp = new Timestamp(exceptionStartTime);
-        Timestamp exceptionEndDateTimestamp = new Timestamp(exceptionEndDate);
-        Timestamp exceptionEndTimeTimestamp = new Timestamp(exceptionEndTime);
-
-        ExceptionWorkingHours exceptionHours = new ExceptionWorkingHours();
-
-        exceptionHours.setExceptionStartDate(exceptionStartDateTimestamp);
-        exceptionHours.setExceptionStartTime(exceptionStartTimeTimestamp);
-        exceptionHours.setExceptionEndDate(exceptionEndDateTimestamp);
-        exceptionHours.setExceptionEndTime(exceptionEndTimeTimestamp);
-        exceptionHours.setRoom(examRoom);
-
-        exceptionHours.save();
-        return ok(Json.toJson(exceptionHours));
+        return ok(Json.toJson(hours));
     }
+
+
+    @Restrict(@Group({"ADMIN"}))
+    public static Result removeRoomExceptionHour(Long id) throws MalformedDataException {
+        ExceptionWorkingHours exception = Ebean.find(ExceptionWorkingHours.class, id);
+
+        exception.delete();
+
+        return ok();
+    }
+
 
     @Restrict(@Group({"ADMIN"}))
     public static Result removeExamRoom(Long id) throws MalformedDataException {

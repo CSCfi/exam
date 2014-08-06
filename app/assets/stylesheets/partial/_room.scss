@@ -1,4 +1,53 @@
+
 #room {
+
+  table td {
+    text-align:center;
+  }
+
+  .selectable {
+    border: solid 1px $sitnet-common-light;
+    padding: 0px;
+    margin: 1px;
+  }
+
+  .selected {
+    background-color: $sitnet-teacher-green-light;
+    border-top: none;
+    border-bottom: none;
+  }
+
+  .accepted {
+    background-color: $sitnet-teacher-blue-light;
+    border-top: none;
+    border-bottom: none;
+  }
+
+  .first {
+    background-color: red;
+  }
+  .last {
+    background-color: yellow;
+  }
+
+  td, tr, th {
+    height: 2.1em;
+  }
+
+  .light {
+    font-weight: 100;
+  }
+
+  th {
+    width: 80px;
+    text-align: center;
+  }
+
+  .fullsize {
+    height: 2em;
+    width: 80px;
+  }
+
 
   .room-list {
     background-color: $sitnet-background;

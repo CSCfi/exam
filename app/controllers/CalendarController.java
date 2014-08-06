@@ -19,6 +19,7 @@ import util.java.EmailComposer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -274,25 +275,25 @@ public class CalendarController extends SitnetController {
 
     private static WorkingHours calculateWorkingHours(ExamRoom room, DateTime date) {
         //todo: miikka
-        final DefaultWorkingHours roomWorkingHours = room.getCalendarEvent(); //room.getWorkingHoursForDate(date.toLocalDate());
+        final List<DefaultWorkingHours> roomWorkingHours = room.getDefaultWorkingHourses(); //room.getWorkingHoursForDate(date.toLocalDate());
         final WorkingHours hours = new WorkingHours();
         for (ExceptionWorkingHours exception : room.getCalendarExceptionEvents()) {
-            Interval exceptionDates = new Interval(new LocalDate(exception.getExceptionStartDate()).toDateMidnight(), new LocalDate(exception.getExceptionEndDate()).toDateMidnight());
+            Interval exceptionDates = new Interval(new LocalDate(exception.getStartDate()).toDateMidnight(), new LocalDate(exception.getEndDate()).toDateMidnight());
             if (exceptionDates.contains(date.toDateMidnight())) {
                 //ugh...
-                LocalTime endTime = new LocalTime(exception.getExceptionEndTime().getTime());
+                LocalTime endTime = new LocalTime(exception.getEndTime().getTime());
                 DateTime end = date.toLocalDate().toDateTime(endTime);
-                LocalTime startTime = new LocalTime(exception.getExceptionStartTime().getTime());
+                LocalTime startTime = new LocalTime(exception.getStartTime().getTime());
                 DateTime start = date.toLocalDate().toDateTime(startTime);
                 hours.setEnd(end);
                 hours.setStart(start);
                 return hours;
             }
         }
-
+        /*
         hours.setStart(date.toLocalDate().toDateTime(new LocalTime(roomWorkingHours.getStartTime())));
         hours.setEnd(date.toLocalDate().toDateTime(new LocalTime(roomWorkingHours.getEndTime())));
-
+          */
         return hours;
     }
 }

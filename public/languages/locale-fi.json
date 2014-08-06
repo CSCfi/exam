@@ -40,6 +40,8 @@
     "sitnet_exam_question_attachment": "Tehtävänantoon liittyvä liitetiedosto",
     "sitnet_exam_quide": "Tenttiohje",
     "sitnet_exam_remove": "Poista",
+    "sitnet_out_of_service" : "Poissa käytöstä",
+
     "sitnet_exam_score": "Arvosana / Maksimipisteet",
     "sitnet_exam_scoring_of_the_right_answer": "Pisteet oikeasta vastauksesta",
     "sitnet_exam_section_default_name": "Aihealue",
@@ -95,6 +97,9 @@
     "sitnet_grade": "Arvosana",
     "sitnet_graded": "Tarkistettu",
     "sitnet_email": "Email",
+    "sitnet_words": "sanaa",
+    "sitnet_time_range": "Ajanjakso",
+    "sitnet_remove_exception_time" : "Poista poikkeusaika",
 
     "sitnet_placeholder_write_instruction": "Kirjoita ohjeet tähän",
 
@@ -137,6 +142,7 @@
     "sitnet_room_contact_person": "Yhteyshenkilö",
     "sitnet_room_videorecordings_url": "Linkki videotallenteisiin",
     "sitnet_room_general_info": "Luodut tentittilat",
+    "sitnet_exception_datetimes": "Poikkeus aukioloajat",
 
     "sitnet_save_and_publish": "Tallenna ja julkaise",
 
@@ -182,7 +188,8 @@
     "sitnet_state_inspect": "Tarkista",
 
     "sitnet_add_exception_time": "Lisää uusi poikkeus",
-
+    "sitnet_exception_time": "Poikkeus aika",
+    "sitnet_exception_date": "Poikkeus päivämäärä",
     "sitnet_select": "Valitse",
     "sitnet_close": "Sulje",
     "sitnet_softwares": "Ohjelmistot",

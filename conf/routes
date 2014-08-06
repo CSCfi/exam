@@ -104,16 +104,19 @@ GET           /options/:id                                          controllers.
 
 ############### Reservation interface ###############
 
-GET           /rooms                                                controllers.ReservationController.getExamRooms()
-GET           /rooms/:id                                            controllers.ReservationController.getExamRoom(id: Long)
-PUT           /rooms/:id                                            controllers.ReservationController.updateExamRoom(id: Long)
-DELETE        /rooms/:id                                            controllers.ReservationController.removeExamRoom(id: Long)
-PUT           /address/:id                                          controllers.ReservationController.updateExamRoomAddress(id: Long)
-PUT           /workinghours/:id                                     controllers.ReservationController.updateExamRoomWorkingHours(id: Long)
-PUT           /exception/:id                                        controllers.ReservationController.updateExamRoomExceptionWorkingHours(id: Long)
-#POST          /exception                                           controllers.ReservationController.createExceptionCalendarEvent()
-GET           /draft/rooms                                          controllers.ReservationController.createExamRoomDraft()
+GET           /rooms                                                controllers.RoomController.getExamRooms()
+GET           /rooms/:id                                            controllers.RoomController.getExamRoom(id: Long)
+PUT           /rooms/:id                                            controllers.RoomController.updateExamRoom(id: Long)
+DELETE        /rooms/:id                                            controllers.RoomController.removeExamRoom(id: Long)
+PUT           /address/:id                                          controllers.RoomController.updateExamRoomAddress(id: Long)
 
+PUT           /workinghours/:id                                     controllers.RoomController.updateExamRoomWorkingHours(id: Long)
+PUT           /exception/:id                                        controllers.RoomController.addRoomExceptionHour(id: Long)
+DELETE        /exception/:id                                        controllers.RoomController.removeRoomExceptionHour(id: Long)
+
+
+
+GET           /draft/rooms                                          controllers.RoomController.createExamRoomDraft()
 
 ############### ExamMachines interface ###############
 
@@ -144,6 +147,11 @@ GET           /attachment/exam/:id                                  controllers.
 
 GET           /integration/info/:organisationId/:id                 controllers.Interfaces.getInfo(organisationId: String, id: String)
 GET           /integration/record/:vatIdNumber/:startDate           controllers.Interfaces.getRecords(vatIdNumber: String, startDate: String)
+
+
+
+GET           /time                                                 controllers.TimeController.getTime()
+GET           /time/:id                                             controllers.TimeController.getExamRemainingTime(id: Long)
 
 
 ############### SQLinterface ###############

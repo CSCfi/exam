@@ -19,16 +19,16 @@ public class ExceptionWorkingHours extends Model {
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp exceptionStartDate;
+    private Timestamp startDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp exceptionEndDate;
+    private Timestamp endDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp exceptionStartTime;
+    private Timestamp startTime;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp exceptionEndTime;
+    private Timestamp endTime;
 
     @ManyToOne
     @JsonBackReference
@@ -42,36 +42,20 @@ public class ExceptionWorkingHours extends Model {
         this.id = id;
     }
 
-    public Timestamp getExceptionStartDate() {
-        return exceptionStartDate;
+    public Timestamp getEndDate() {
+        return endDate;
     }
 
-    public void setExceptionStartDate(Timestamp exceptionStartDate) {
-        this.exceptionStartDate = exceptionStartDate;
+    public void setEndDate(Timestamp endDate) {
+        this.endDate = endDate;
     }
 
-    public Timestamp getExceptionEndDate() {
-        return exceptionEndDate;
+    public Timestamp getEndTime() {
+        return endTime;
     }
 
-    public void setExceptionEndDate(Timestamp exceptionEndDate) {
-        this.exceptionEndDate = exceptionEndDate;
-    }
-
-    public Timestamp getExceptionStartTime() {
-        return exceptionStartTime;
-    }
-
-    public void setExceptionStartTime(Timestamp exceptionStartTime) {
-        this.exceptionStartTime = exceptionStartTime;
-    }
-
-    public Timestamp getExceptionEndTime() {
-        return exceptionEndTime;
-    }
-
-    public void setExceptionEndTime(Timestamp exceptionEndTime) {
-        this.exceptionEndTime = exceptionEndTime;
+    public void setEndTime(Timestamp endTime) {
+        this.endTime = endTime;
     }
 
     public ExamRoom getRoom() {
@@ -81,4 +65,21 @@ public class ExceptionWorkingHours extends Model {
     public void setRoom(ExamRoom room) {
         this.room = room;
     }
+
+    public Timestamp getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Timestamp startDate) {
+        this.startDate = startDate;
+    }
+
+    public Timestamp getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Timestamp startTime) {
+        this.startTime = startTime;
+    }
+
 }

@@ -24,7 +24,7 @@
         <tbody>
             <tr ng-repeat="row in table">
                 <td ng-repeat="cell in row" class='selectable {{cell.type}}' ng-click='select(cell)'>
-                    <div class="fullsize" tooltip-placement="right" tooltip-animation="false" tooltip-popup-delay='10' tooltip="{{calculateTime(cell)}}"></div>
+                    <div class="fullsize" tooltip-placement="right" tooltip-animation="false" tooltip-popup-delay="50" tooltip="{{calculateTime(cell)}}"></div>
                 </td>
             </tr>
         </tbody>

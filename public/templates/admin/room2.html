@@ -106,13 +106,9 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat='exception in roomInstance.calendarExceptionEvents'>
-                    <td>{{formatDate(exception)}}</td>
-                    <td>{{formatTime(exception)}}</td>
-                    <td>
-                        <button ng-click="deleteException(exception)" class="btn btn-sm btn-danger">
-                            {{'sitnet_remove_exception_time' | translate}}
-                        </button>
-                    </td>
+                    <td>{{exception.startDate}} - {{exception.endDate}}</td>
+                    <td>{{exception.startTime}} - {{exception.endTime}}</td>
+                    <td>delete</td>
                 </tr>
                 </tbody>
             </table>
@@ -140,6 +136,92 @@
         </div>
     </div>
 </div>
+<!-- Working hours & Exam transition time -->
+<!--div class="row base">
+    <div class="col-md-6" ng-controller="TimepickerController">
+        <div class="sitnet-info-text">{{'sitnet_room_default_working_hours' | translate}}</div>
+
+        <div class="col-md-3">
+            <h4>{{'sitnet_room_default_working_hours_start' | translate}}</h4>
+            <div ng-model="startTime" ng-change="startTimeChanged()" style="display:inline-block;">
+                <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <h4>{{'sitnet_room_default_working_hours_end' | translate}}</h4>
+            <div ng-model="endTime" ng-change="endTimeChanged()" style="display:inline-block;">
+                <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
+            </div>
+        </div>
+
+        <div>
+            <button ng-click="saveWorkingHours(roomInstance.calendarEvent)" class="btn btn-primary" style="margin-top: 3.4em; margin-bottom: 1em">{{'sitnet_save' | translate}}</button>
+        </div>
+
+        <div>
+            <button ng-click="showExceptionTimes = !showExceptionTimes" class="btn btn-primary">{{'sitnet_add_exception_time' | translate}}</button>
+        </div>
+
+            <Creating a new exception calendar event>
+            <div ng-show="showExceptionTimes" ng-controller="DatepickerCtrl">
+
+                <div class="col-md-12">
+                    <h4>Poikkeusajan alkupäivä</h4>
+
+                    <p class="input-group">
+                        <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.exceptionStartDate"
+                               is-open="startDateOpened" min="minDate"
+                               max="'2215-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                               ng-required="true" close-text="Close">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" ng-click="openStartDate($event)">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+                    </span>
+                    </p>
+                </div>
+
+                <div class="col-md-12">
+                    <h4>Poikkeusajan loppupäivä</h4>
+
+                    <p class="input-group">
+                        <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.exceptionEndDate"
+                               is-open="endDateOpened" min="dateService.exceptionStartDate"
+                               max="'2215-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                               ng-required="true" close-text="Close">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" ng-click="openEndDate($event)">
+                                <i class="fa fa-calendar"></i>
+                            </button>
+                    </span>
+                    </p>
+                </div>
+
+                <div ng-controller="TimepickerController">
+                    <div class="col-md-3">
+                        <h4>Poikkeusajan alkuaika</h4>
+                        <div ng-model="exceptionStartTime" ng-change="exceptionStartTimeChanged()" style="display:inline-block;">
+                            <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <h4>Poikkeusajan loppupäivä</h4>
+                        <div ng-model="exceptionEndTime" ng-change="exceptionEndTimeChanged()" style="display:inline-block;">
+                            <timepicker hour-step="hourstep" minute-step="minutestep" show-meridian="ismeridian"></timepicker>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <button ng-click="createNewException(roomInstance)" class="btn btn-primary">Tallenna poikkeus</button>
+                </div>
+        </div>
+    </div>
+
+
+</div -->
 
 <!-- Accessibility information -->
 <div class="row base">

@@ -56,6 +56,7 @@
     "sitnet_login": "Log in",
     "sitnet_logout": "Log out",
     "sitnet_material": "Material",
+    "sitnet_exception_datetimes": "Exception working hours",
     "sitnet_messages": "Messages",
     "sitnet_name": "Name",
     "sitnet_new_exam": "Creating new exam",
@@ -96,6 +97,8 @@
     "sitnet_grade": "Grade",
     "sitnet_graded": "Graded",
     "sitnet_email": "Email",
+    "sitnet_remove_exception_time" : "Remove exception time",
+
 
     "sitnet_placeholder_write_instruction": "Write instructions here",
 
@@ -191,6 +194,9 @@
     "sitnet_state_inspect": "Tarkista",
 
     "sitnet_add_exception_time": "Add new exception",
+    "sitnet_exception_time": "Exception time",
+    "sitnet_exception_date": "Exception date",
+
     "sitnet_approved": "Approved",
     "sitnet_rejected": "Rejected",
 
@@ -229,6 +235,7 @@
     "sitnet_exam_machine": "Exam machine",
     "sitnet_exam": "Exam",
     "sitnet_default_option_description": "Vastausvaihtoehto",
+    "sitnet_out_of_service" : "Out of Service",
 
     "sitnet_examcode_and_name": "Tentin koodi ja nimi",
     "sitnet_examcode": "Koodi",
@@ -270,6 +277,7 @@
     "sitnet_exam_in_review": "Tarkastaminen kesken",
     "sitnet_exam_reviewed": "Tarkastettu ja arvioitu",
     "sitnet_default_option_description": "Option",
+    "sitnet_time_range": "Time range",
 
     "sitnet_remove_attachment" : "Remove attachment",
     "sitnet_download_attachment" : "Download attachment",
@@ -295,6 +303,7 @@
     "sitnet_select_exam": "Exam",
     "sitnet_calendar": "Reservation calendar",
     "sitnet_randomize_questions": "Randomize questions",
-    "sitnet_edit": "Edit"
+    "sitnet_edit": "Edit" ,
+    "sitnet_display_free_time_slots" : "Displaying available times for following rooms:"
 
 }

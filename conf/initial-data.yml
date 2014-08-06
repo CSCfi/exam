@@ -1270,7 +1270,6 @@ exam-rooms:
     campus: Linnanmaa
     organization:
     mailAddress: *oulu-yo
-    calendarEvent: *cal-event
     transitionTime: 5
     accessibilityInfo: Tilassa on pyörätuoliramppi
     accessible: true

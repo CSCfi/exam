@@ -34,7 +34,7 @@
                 },
                 {
                     "update": {method: "PUT"},
-                    "insert": {method: "POST"}
+                    "remove": {method: "DELETE"}
                 }),
 
                 draft: $resource("draft/rooms", null,

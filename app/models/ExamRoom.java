@@ -1,9 +1,9 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import models.calendar.AbstractCalendarEvent;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
+import org.joda.time.LocalDate;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -21,10 +21,10 @@ import java.util.List;
 public class ExamRoom extends Model {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-	private String name;
+    private String name;
 
     private String roomCode;
 
@@ -38,8 +38,8 @@ public class ExamRoom extends Model {
     @OneToOne
     private MailAddress mailAddress;
 
-    @OneToOne
-    private DefaultWorkingHours calendarEvent;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "room", fetch = FetchType.EAGER)
+    private List<DefaultWorkingHours> defaultWorkingHourses;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
     @JsonManagedReference
@@ -52,7 +52,7 @@ public class ExamRoom extends Model {
     private String accessibilityInfo;
 
     // Checkbox indicating is there any accessibility issues concerning the room
-    @Column(columnDefinition="boolean default false")
+    @Column(columnDefinition = "boolean default false")
     private boolean accessible;
 
     // Tilaohjeet
@@ -69,7 +69,7 @@ public class ExamRoom extends Model {
     // ExamRoom may be out of service,
     private String statusComment;
 
-    @Column(columnDefinition="boolean default false")
+    @Column(columnDefinition = "boolean default false")
     private boolean outOfService;
 
     private String state;
@@ -79,10 +79,10 @@ public class ExamRoom extends Model {
     private List<ExamMachine> examMachines;
 
     // In UI, section has been expanded
-    @Column(columnDefinition="boolean default false")
+    @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
-    @Column(columnDefinition="boolean default false")
+    @Column(columnDefinition = "boolean default false")
     public boolean getExpanded() {
         return expanded;
     }
@@ -107,16 +107,16 @@ public class ExamRoom extends Model {
         this.mailAddress = mailAddress;
     }
 
-    public DefaultWorkingHours getCalendarEvent() {
-        return calendarEvent;
+    public List<DefaultWorkingHours> getDefaultWorkingHourses() {
+        return defaultWorkingHourses;
     }
 
-    public void setCalendarEvent(DefaultWorkingHours calendarEvent) {
-        this.calendarEvent = calendarEvent;
+    public void setDefaultWorkingHourses(List<DefaultWorkingHours> defaultWorkingHourses) {
+        this.defaultWorkingHourses = defaultWorkingHourses;
     }
 
     public List<ExceptionWorkingHours> getCalendarExceptionEvents() {
-        if(calendarExceptionEvents == null) {
+        if (calendarExceptionEvents == null) {
             calendarExceptionEvents = new ArrayList<ExceptionWorkingHours>();
         }
         return calendarExceptionEvents;
@@ -249,5 +249,28 @@ public class ExamRoom extends Model {
 
     public void setVideoRecordingsURL(String videoRecordingsURL) {
         this.videoRecordingsURL = videoRecordingsURL;
+    }
+
+
+    @Transient
+    public DefaultWorkingHours getWorkingHoursForDate(LocalDate localDate) {
+        /*
+        for (DefaultWorkingHours defaultHours : defaultWorkingHourses) {
+
+            if (defaultHours.getDateTimeForDay(localDate).isEmpty()) {
+                continue;
+            }
+
+            //todo: miikka
+
+        }
+
+        for (ExceptionWorkingHours exceptionHours : calendarExceptionEvents) {
+
+        }
+
+          */
+        return null;
+
     }
 }

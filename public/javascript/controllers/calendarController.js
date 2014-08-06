@@ -48,12 +48,12 @@
             $scope.createReservation = function (slot) {
 
                 slot.exam = enrolmentId;
+
                 $http.post('calendar/reservation', slot).then(function (success) {
                     toastr.success(success.data);
                 }, function (error) {
                     toastr.error(error.data);
                 });
-
             };
 
             $scope.formatTime = function (stamp) {
