@@ -17,6 +17,7 @@
                     times = [],
                     startHour = 8,
                     endHour = 16,
+                    timeStep = '30',
                     rows = 0,
                     days = 7,
                     i,
@@ -26,8 +27,8 @@
                     x;
 
                 for (i = startHour; i <= endHour; i++) {
-                    times.push(i + '.00');
-                    times.push(i + '.30');
+                    times.push(i + ".00");
+                    times.push(i + "." + timeStep);
                     rows += 2;
                 }
 
@@ -113,10 +114,6 @@
                     return has;
                 };
 
-                $scope.times = times;
-
-                $scope.table = selectable;
-
                 $scope.select = function (e) {
 
                     if (e.type === '') {
@@ -149,9 +146,56 @@
                     if (halfHour) {
                         time += '.00';
                     } else {
-                        time += '.30';
+                        time += '.' + timeStep;
                     }
                     return time;
+                };
+
+                var setSelected = function (times, day) {
+                    var start = times[0];
+                    var end = times[times.length - 1];
+
+                    for (var i = start; i <= end; i++) {
+                        var cell = selectable[i][day];
+                        cell.type = 'selected';
+                        cell.day = day;
+                        cell.time = i;
+                    }
+                };
+
+                var resolveDay = function (day) {
+                    switch (day) {
+                        case "MONDAY":
+                            return 0;
+                        case "TUESDAY":
+                            return 1;
+                        case "WEDNESDAY":
+                            return 2;
+                        case "THURSDAY":
+                            return 3;
+                        case "FRIDAY":
+                            return 4;
+                        case "SATURDAY":
+                            return 5;
+                        case "SUNDAY":
+                            return 6;
+                    }
+                    return -1;
+                };
+
+                var slotToTimes = function (slot) {
+                    var arr = [];
+                    var startKey = moment.utc(slot.startTime).format("H.mm");
+                    var endKey = moment.utc(slot.endTime).format("H.mm");
+                    var start = times.indexOf(startKey);
+
+                    for (var i = start; i < times.length; i++) {
+                        arr.push(i);
+                        if (times[i] === endKey) {
+                            break;
+                        }
+                    }
+                    return arr;
                 };
 
                 if ($scope.user.isAdmin || $scope.user.isTeacher) {
@@ -160,6 +204,17 @@
                     } else {
                         RoomResource.rooms.get({id: $routeParams.id},
                             function (room) {
+                                $scope.times = times;
+
+
+                                room.defaultWorkingHours.forEach(function (slot) {
+                                    var s = slotToTimes(slot);
+                                    var day = resolveDay(slot.day);
+                                    setSelected(s, day);
+                                });
+
+                                $scope.table = selectable;
+
                                 $scope.roomInstance = room;
                             },
                             function (error) {
@@ -274,7 +329,8 @@
                         }
                     }
                     return str;
-                }
+                };
+
                 $scope.softwares = SoftwareResource.softwares.query();
 
                 $scope.addNewMachine = function (room) {

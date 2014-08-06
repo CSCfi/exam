@@ -275,7 +275,7 @@ public class CalendarController extends SitnetController {
 
     private static WorkingHours calculateWorkingHours(ExamRoom room, DateTime date) {
         //todo: miikka
-        final List<DefaultWorkingHours> roomWorkingHours = room.getDefaultWorkingHourses(); //room.getWorkingHoursForDate(date.toLocalDate());
+        final List<DefaultWorkingHours> roomWorkingHours = room.getDefaultWorkingHours(); //room.getWorkingHoursForDate(date.toLocalDate());
         final WorkingHours hours = new WorkingHours();
         for (ExceptionWorkingHours exception : room.getCalendarExceptionEvents()) {
             Interval exceptionDates = new Interval(new LocalDate(exception.getStartDate()).toDateMidnight(), new LocalDate(exception.getEndDate()).toDateMidnight());

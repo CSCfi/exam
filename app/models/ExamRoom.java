@@ -39,7 +39,7 @@ public class ExamRoom extends Model {
     private MailAddress mailAddress;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room", fetch = FetchType.EAGER)
-    private List<DefaultWorkingHours> defaultWorkingHourses;
+    private List<DefaultWorkingHours> defaultWorkingHours;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
     @JsonManagedReference
@@ -107,12 +107,12 @@ public class ExamRoom extends Model {
         this.mailAddress = mailAddress;
     }
 
-    public List<DefaultWorkingHours> getDefaultWorkingHourses() {
-        return defaultWorkingHourses;
+    public List<DefaultWorkingHours> getDefaultWorkingHours() {
+        return defaultWorkingHours;
     }
 
-    public void setDefaultWorkingHourses(List<DefaultWorkingHours> defaultWorkingHourses) {
-        this.defaultWorkingHourses = defaultWorkingHourses;
+    public void setDefaultWorkingHours(List<DefaultWorkingHours> defaultWorkingHours) {
+        this.defaultWorkingHours = defaultWorkingHours;
     }
 
     public List<ExceptionWorkingHours> getCalendarExceptionEvents() {

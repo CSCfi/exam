@@ -123,7 +123,7 @@ public class RoomController extends SitnetController {
         final ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
 
 
-        final Iterator<DefaultWorkingHours> iterator = examRoom.getDefaultWorkingHourses().iterator();
+        final Iterator<DefaultWorkingHours> iterator = examRoom.getDefaultWorkingHours().iterator();
 
         while (iterator.hasNext()) {
             DefaultWorkingHours next =  iterator.next();
@@ -135,7 +135,7 @@ public class RoomController extends SitnetController {
             hour.save();
         }
 
-        examRoom.setDefaultWorkingHourses(defaultWorkingHours);
+        examRoom.setDefaultWorkingHours(defaultWorkingHours);
         examRoom.save();
 
         return ok(Json.toJson(defaultWorkingHours));
