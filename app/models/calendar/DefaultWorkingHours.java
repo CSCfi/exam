@@ -11,8 +11,7 @@ import java.sql.Timestamp;
 @DiscriminatorValue("DefaultWorkingHours")
 public class DefaultWorkingHours extends Model {
 
-    enum Day {
-
+    public enum Day {
         MONDAY,
         TUESDAY,
         WEDNESDAY,

@@ -7,8 +7,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
-import models.calendar.DefaultWorkingHours;
-import models.calendar.ExceptionWorkingHours;
 import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -32,14 +30,14 @@ public class CalendarController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws MalformedDataException, NotFoundException {
-       //todo: email trigger: remove reservation
+        //todo: email trigger: remove reservation
         final User user = UserController.getLoggedUser();
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("user.id", user.getId())
                 .eq("reservation.id", id)
                 .findUnique();
-        if(enrolment == null) {
+        if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id  {} for current user.", id));
         }
         enrolment.setReservation(null);
@@ -82,7 +80,7 @@ public class CalendarController extends SitnetController {
         //todo: email trigger: create reservation
         EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
 
-        if(oldReservation != null) {
+        if (oldReservation != null) {
             Ebean.delete(oldReservation);
         }
 
@@ -160,93 +158,96 @@ public class CalendarController extends SitnetController {
                 continue;
             }
 
-            final WorkingHours hours = calculateWorkingHours(room, forDay);
-            final DateTime startTime;
-            final DateTime endTime;
+            final List<WorkingHours> allHoursForDay = calculateWorkingHours(room, forDay.toLocalDate());
 
-            if (forDay.toLocalDate().equals(now.toLocalDate()) && hours.getStart().isBefore(now)) {
-                startTime = DateTime.now();
-            } else {
-                startTime = hours.getStart();
-            }
+            for (WorkingHours hours : allHoursForDay) {
 
-            final DateTime examEnd = new DateTime(exam.getExamActiveEndDate());
+                final DateTime startTime;
+                final DateTime endTime;
 
-            if (forDay.toLocalDate().equals(examEnd.toLocalDate())) {
-                endTime = examEnd;
-            } else {
-                endTime = hours.getEnd();
-            }
+                if (forDay.toLocalDate().equals(now.toLocalDate()) && hours.getStart().isBefore(now)) {
+                    startTime = DateTime.now();
+                } else {
+                    startTime = hours.getStart();
+                }
 
-            if (endTime.isBefore(startTime)) {
-                continue;
-            }
+                final DateTime examEnd = new DateTime(exam.getExamActiveEndDate());
 
-            final Duration machineOpenDuration = new Duration(startTime, endTime);
+                if (forDay.toLocalDate().equals(examEnd.toLocalDate())) {
+                    endTime = examEnd;
+                } else {
+                    endTime = hours.getEnd();
+                }
 
-            final Double examDuration;
+                if (endTime.isBefore(startTime)) {
+                    continue;
+                }
 
-            if (exam.getDuration() == null) {
-                continue;
-            }
+                final Duration machineOpenDuration = new Duration(startTime, endTime);
+
+                final Double examDuration;
+
+                if (exam.getDuration() == null) {
+                    continue;
+                }
+
+                examDuration = exam.getDuration();
+
+                int transitionTime = 0;
+                try {
+                    transitionTime = Integer.parseInt(room.getTransitionTime());
+                } catch (Throwable t) {
+                }
+
+                int timeForSingleExam = examDuration.intValue() + transitionTime;
+
+                int numberOfPossibleFreeSlots = (int) Math.floor(machineOpenDuration.getStandardMinutes() / timeForSingleExam);
+
+                if (numberOfPossibleFreeSlots <= 0) {
+                    continue;
+                }
+
+                final String theDay = dateFormat.print(startTime);
+
+                final ArrayList<DayWithFreeTimes> possibleFreeSlots = new ArrayList<DayWithFreeTimes>(numberOfPossibleFreeSlots);
+
+                final DayWithFreeTimes day = new DayWithFreeTimes();
+                day.setDate(theDay);
+                for (int i = 0; i <= (numberOfPossibleFreeSlots - 1); i++) {
+                    final int shift = examDuration.intValue() + transitionTime;
+                    DateTime freeTimeSlotStartTime = startTime.plusMinutes(i * shift);
+                    DateTime freeTimeSlotEndTime = freeTimeSlotStartTime.plusMinutes(shift);
+                    FreeTimeSlot possibleTimeSlot = new FreeTimeSlot();
+                    possibleTimeSlot.setStart(dateTimeFormat.print(freeTimeSlotStartTime));
+                    possibleTimeSlot.setEnd(dateTimeFormat.print(freeTimeSlotEndTime));
+                    possibleTimeSlot.setTitle(examMachine.getName());
+                    possibleTimeSlot.setRoom(room.getId());
+                    possibleTimeSlot.setMachine(examMachine.getId());
+                    day.getSlots().add(possibleTimeSlot);
+                }
+
+                for (FreeTimeSlot possibleFreeTimeSlot : day.getSlots()) {
+
+                    for (Reservation reservation : examMachine.getReservation()) {
 
 
-            examDuration = exam.getDuration();
+                        final Interval reservationDuration = new Interval(reservation.getStartAt().getTime(), reservation.getEndAt().getTime());
 
-            int transitionTime = 0;
-            try {
-                transitionTime = Integer.parseInt(room.getTransitionTime());
-            } catch (Throwable t) {
-            }
+                        D(reservation.getId() + " res at machine: " + examMachine.getId() + " at " + reservationDuration);
 
-            int timeForSingleExam = examDuration.intValue() + transitionTime;
+                        final Interval possibleFreeTimeSlotDuration = new Interval(dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getStart()), dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getEnd()));
 
-            int numberOfPossibleFreeSlots = (int) Math.floor(machineOpenDuration.getStandardMinutes() / timeForSingleExam);
-
-            if (numberOfPossibleFreeSlots <= 0) {
-                continue;
-            }
-
-            final String theDay = dateFormat.print(startTime);
-
-            final ArrayList<DayWithFreeTimes> possibleFreeSlots = new ArrayList<DayWithFreeTimes>(numberOfPossibleFreeSlots);
-
-            final DayWithFreeTimes day = new DayWithFreeTimes();
-            day.setDate(theDay);
-            for (int i = 0; i <= (numberOfPossibleFreeSlots - 1); i++) {
-                final int shift = examDuration.intValue() + transitionTime;
-                DateTime freeTimeSlotStartTime = startTime.plusMinutes(i * shift);
-                DateTime freeTimeSlotEndTime = freeTimeSlotStartTime.plusMinutes(shift);
-                FreeTimeSlot possibleTimeSlot = new FreeTimeSlot();
-                possibleTimeSlot.setStart(dateTimeFormat.print(freeTimeSlotStartTime));
-                possibleTimeSlot.setEnd(dateTimeFormat.print(freeTimeSlotEndTime));
-                possibleTimeSlot.setTitle(examMachine.getName());
-                possibleTimeSlot.setRoom(room.getId());
-                possibleTimeSlot.setMachine(examMachine.getId());
-                day.getSlots().add(possibleTimeSlot);
-            }
-
-            for (FreeTimeSlot possibleFreeTimeSlot : day.getSlots()) {
-
-                for (Reservation reservation : examMachine.getReservation()) {
-
-
-                    final Interval reservationDuration = new Interval(reservation.getStartAt().getTime(), reservation.getEndAt().getTime());
-
-                    D(reservation.getId() + " res at machine: "+ examMachine.getId() + " at " + reservationDuration );
-
-                    final Interval possibleFreeTimeSlotDuration = new Interval(dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getStart()), dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getEnd()));
-
-                    //remove if intersects
-                    if (possibleFreeTimeSlotDuration.overlaps(reservationDuration)) {
-                        possibleFreeSlots.remove(possibleFreeTimeSlot);
+                        //remove if intersects
+                        if (possibleFreeTimeSlotDuration.overlaps(reservationDuration)) {
+                            possibleFreeSlots.remove(possibleFreeTimeSlot);
+                        }
                     }
                 }
-            }
 
 
-            if (allPossibleFreeTimeSlots.get(theDay) == null) {
-                allPossibleFreeTimeSlots.put(theDay, day);
+                if (allPossibleFreeTimeSlots.get(theDay) == null) {
+                    allPossibleFreeTimeSlots.put(theDay, day);
+                }
             }
         }
         return allPossibleFreeTimeSlots;
@@ -273,27 +274,24 @@ public class CalendarController extends SitnetController {
         }
     }
 
-    private static WorkingHours calculateWorkingHours(ExamRoom room, DateTime date) {
-        //todo: miikka
-        final List<DefaultWorkingHours> roomWorkingHours = room.getDefaultWorkingHours(); //room.getWorkingHoursForDate(date.toLocalDate());
-        final WorkingHours hours = new WorkingHours();
-        for (ExceptionWorkingHours exception : room.getCalendarExceptionEvents()) {
-            Interval exceptionDates = new Interval(new LocalDate(exception.getStartDate()).toDateMidnight(), new LocalDate(exception.getEndDate()).toDateMidnight());
-            if (exceptionDates.contains(date.toDateMidnight())) {
-                //ugh...
-                LocalTime endTime = new LocalTime(exception.getEndTime().getTime());
-                DateTime end = date.toLocalDate().toDateTime(endTime);
-                LocalTime startTime = new LocalTime(exception.getStartTime().getTime());
-                DateTime start = date.toLocalDate().toDateTime(startTime);
-                hours.setEnd(end);
-                hours.setStart(start);
-                return hours;
-            }
+
+    private static List<WorkingHours> calculateWorkingHours(ExamRoom room, LocalDate date) {
+
+
+        final List<Interval> roomWorkingHours = room.getWorkingHoursForDate(date);
+        final List<WorkingHours> workingHoursList = new ArrayList<WorkingHours>();
+
+        if (roomWorkingHours == null || roomWorkingHours.isEmpty()) {
+            return workingHoursList;
         }
-        /*
-        hours.setStart(date.toLocalDate().toDateTime(new LocalTime(roomWorkingHours.getStartTime())));
-        hours.setEnd(date.toLocalDate().toDateTime(new LocalTime(roomWorkingHours.getEndTime())));
-          */
-        return hours;
+
+        for (Interval roomHours : roomWorkingHours) {
+            WorkingHours hours = new WorkingHours();
+            hours.setStart(roomHours.getStart());
+            hours.setEnd(roomHours.getEnd());
+            workingHoursList.add(hours);
+        }
+
+        return workingHoursList;
     }
 }

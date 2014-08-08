@@ -3,11 +3,17 @@ package models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /*
@@ -81,6 +87,8 @@ public class ExamRoom extends Model {
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
+
+    private static DateTimeFormatter format = DateTimeFormat.forPattern("HHmm");
 
     @Column(columnDefinition = "boolean default false")
     public boolean getExpanded() {
@@ -253,24 +261,85 @@ public class ExamRoom extends Model {
 
 
     @Transient
-    public DefaultWorkingHours getWorkingHoursForDate(LocalDate localDate) {
-        /*
-        for (DefaultWorkingHours defaultHours : defaultWorkingHourses) {
+    private String getWeekDay(LocalDate date) {
+        switch (date.getDayOfWeek()) {
+            case DateTimeConstants.MONDAY:
+                return DefaultWorkingHours.Day.MONDAY.toString();
+            case DateTimeConstants.TUESDAY:
+                return DefaultWorkingHours.Day.TUESDAY.toString();
+            case DateTimeConstants.WEDNESDAY:
+                return DefaultWorkingHours.Day.WEDNESDAY.toString();
+            case DateTimeConstants.THURSDAY:
+                return DefaultWorkingHours.Day.THURSDAY.toString();
+            case DateTimeConstants.FRIDAY:
+                return DefaultWorkingHours.Day.FRIDAY.toString();
+            case DateTimeConstants.SATURDAY:
+                return DefaultWorkingHours.Day.SATURDAY.toString();
+            case DateTimeConstants.SUNDAY:
+                return DefaultWorkingHours.Day.SUNDAY.toString();
+        }
+        return "";
+    }
 
-            if (defaultHours.getDateTimeForDay(localDate).isEmpty()) {
-                continue;
+    @Transient
+    private Interval getFromExceptionEvents(LocalDate date) {
+
+        for (ExceptionWorkingHours exception : calendarExceptionEvents) {
+            final LocalDate startDate = new LocalDate(exception.getStartDate());
+            final LocalTime start;
+            final LocalTime end;
+
+            if (exception.getEndDate() == null) {
+                if (startDate.equals(date)) {
+                    if (exception.getStartTime() == null) {
+                        start = new LocalTime(exception.getStartTime());
+                        end = new LocalTime(exception.getEndTime());
+                    } else {
+                        start = LocalTime.fromMillisOfDay(0);
+                        end = LocalTime.MIDNIGHT;
+                    }
+                    return new Interval(date.toDateTime(start), date.toDateTime(end));
+                }
+            } else {
+                final LocalDate endDate = new LocalDate(exception.getEndDate());
+                if (startDate.equals(date)) {
+                    if (exception.getStartTime() == null) {
+                        start = new LocalTime(exception.getStartTime());
+                        end = new LocalTime(exception.getEndTime());
+                    } else {
+                        start = LocalTime.fromMillisOfDay(0);
+                        end = LocalTime.MIDNIGHT;
+                    }
+                    return new Interval(startDate.toDateTime(start), endDate.toDateTime(end));
+                }
             }
-
-            //todo: miikka
-
         }
-
-        for (ExceptionWorkingHours exceptionHours : calendarExceptionEvents) {
-
-        }
-
-          */
         return null;
+    }
 
+    @Transient
+    private List<Interval> getFromDefaultHours(LocalDate date) {
+        String day = getWeekDay(date);
+        final List<Interval> intervals = new ArrayList<Interval>();
+        for(DefaultWorkingHours defaultHour : this.defaultWorkingHours) {
+            if(defaultHour.getDay().equals(day)) {
+                final LocalTime start = new LocalTime(defaultHour.getStartTime());
+                final LocalTime end = new LocalTime(defaultHour.getEndTime());
+                Interval interval = new Interval(date.toDateTime(start),date.toDateTime(end));
+                intervals.add(interval);
+
+            }
+        }
+        return intervals;
+    }
+
+    @Transient
+    public List<Interval> getWorkingHoursForDate(LocalDate date) {
+        final Interval exceptionEvents = getFromExceptionEvents(date);
+
+        if(exceptionEvents != null) {
+            return Arrays.asList(exceptionEvents);
+        }
+        return getFromDefaultHours(date);
     }
 }
