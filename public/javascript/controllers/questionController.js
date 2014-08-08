@@ -23,9 +23,7 @@
 
                 $scope.answerState = "";
 
-//                $scope.user = $scope.session.user;
-
-//                console.log($scope.user.id);
+                console.log("Hello its me again");
 
                 $scope.setQuestionType = function () {
                     switch ($scope.selectedType) {
@@ -160,7 +158,7 @@
 
                     //Set return URL pointing back to questions main page if we created question there
                     if($routeParams.examId === undefined) {
-                       $scope.returnURL = "/questions/";
+                        $scope.returnURL = "/questions/";
                     }
                     //Set return URL to exam, if we created the new question there
                     //Also bind the question to section of the exam at this point
@@ -317,16 +315,45 @@
                 $scope.selectFile = function () {
 
                     // Save question before entering attachment to not lose data.
-                    $scope.saveQuestion()
+                    $scope.saveQuestion();
+
+                    var question = $scope.newQuestion;
+
+                    var ctrl = function ($scope, $modalInstance) {
+
+                        $scope.newQuestion = question;
+
+                        $scope.submit = function (question) {
+
+                            var file = $scope.attachmentFile;
+                            var url = "attachment/question";
+                            //$scope.fileUpload.uploadAttachment(file, url);
+                            var fd = new FormData();
+                            fd.append('file', file);
+                            fd.append('questionId', question.id);
+                            $http.post(url, fd, {
+                                transformRequest: angular.identity,
+                                headers: {'Content-Type': undefined}
+                            })
+                                .success(function (attachment) {
+                                    $modalInstance.dismiss();
+                                    question.attachment = attachment;
+                                })
+                                .error(function (error) {
+                                    $modalInstance.dismiss();
+                                    toastr.error(error);
+                                });
+                        }
+                    };
 
                     var modalInstance = $modal.open({
                         templateUrl: 'assets/templates/question-editor/dialog_question_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
-                        controller: "ModalInstanceCtrl"
+                        controller: ctrl
                     });
 
-                    modalInstance.result.then(function () {
+                    modalInstance.result.then(function (resp) {
                         // OK button
                         $location.path('/questions/'+ $scope.newQuestion.id);
                     }, function () {
@@ -334,52 +361,7 @@
                     });
                 };
 
-                $scope.submit = function(question) {
 
-                    var file = $scope.attachmentFile;
-                    var url = "attachment/question";
-                    //$scope.fileUpload.uploadAttachment(file, url);
-                    var fd = new FormData();
-                    fd.append('file', file);
-                    fd.append('questionId', question.id);
-                    $http.post(url, fd, {
-                        transformRequest: angular.identity,
-                        headers: {'Content-Type': undefined}
-                    })
-                        .success(function(){
-                        })
-                        .error(function(){
-                        });
-                }
 
-            }])
-        .directive('fileModel', ['$parse', function ($parse) {
-            return {
-                restrict: 'A',
-                link: function(scope, element, attrs) {
-                    var model = $parse(attrs.fileModel);
-                    var modelSetter = model.assign;
-
-                    element.bind('change', function(){
-                        scope.$apply(function(){
-                            modelSetter(scope, element[0].files[0]);
-                        });
-                    });
-                }
-            };
-        }])
-        .service('fileUpload', ['$http', function ($http) {
-            this.uploadAttachment = function(file, url){
-                var fd = new FormData();
-                fd.append('file', file);
-                $http.post(url, fd, {
-                    transformRequest: angular.identity,
-                    headers: {'Content-Type': undefined}
-                })
-                    .success(function(){
-                    })
-                    .error(function(){
-                    });
-            }
-        }]);
+            }]);
 }());

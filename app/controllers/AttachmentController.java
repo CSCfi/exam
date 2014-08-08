@@ -6,12 +6,15 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 
 import Exceptions.MalformedDataException;
+import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.Attachment;
 import models.Exam;
 import models.User;
 import models.questions.AbstractQuestion;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
@@ -35,7 +38,6 @@ public class AttachmentController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result addAttachmentToQuestion() throws MalformedDataException {
-
 
         MultipartFormData body = request().body().asMultipartFormData();
 
@@ -63,35 +65,54 @@ public class AttachmentController extends SitnetController {
             }
             String rndFileName = UUID.randomUUID().toString();
             String newFile = basePath + "/" + rndFileName;
+            Attachment attachment = null;
 
-            if (file.renameTo(new File(newFile))) {
+            try {
+                if(SitnetUtil.copyFile(file, new File(newFile))) {
 
-                AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+                    AbstractQuestion question = Ebean.find(AbstractQuestion.class)
+                            .fetch("attachment")
+                            .where()
+                            .eq("id", id)
+                            .findUnique();
 
-                if (question != null) {
+                    if (question != null) {
 
-                    Attachment attachment = question.getAttachment();
+                        attachment = question.getAttachment();
 
-                    // If the question didn't have an attachment before, it does now.
-                    if (attachment == null) {
-                        attachment = new Attachment();
+                        // If the question didn't have an attachment before, it does now.
+                        if (attachment == null) {
+                            attachment = new Attachment();
+                        }
+
+                        attachment.setFileName(fileName);
+                        attachment.setFilePath(newFile);
+                        attachment.setMimeType(contentType);
+
+                        attachment.save();
+
+                        question.setAttachment(attachment);
+                        question.save();
+                        Ebean.save(question);
                     }
-
-                    attachment.setFileName(fileName);
-                    attachment.setFilePath(newFile);
-                    attachment.setMimeType(contentType);
-
-                    attachment.save();
-
-                    question.setAttachment(attachment);
-                    question.save();
-                    Ebean.save(question);
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (attachment == null) {
+                return notFound("Error creating attachment");
+            } else {
+                JsonContext jsonContext = Ebean.createJsonContext();
+                JsonWriteOptions options = new JsonWriteOptions();
+                options.setRootPathProperties("id, fileName");
+
+                return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
             }
         }
-        String url = "/#/questions/" + String.valueOf(id);
-        return redirect(url);
+        return notFound();
     }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteQuestionAttachment(Long id) {
 
@@ -107,12 +128,10 @@ public class AttachmentController extends SitnetController {
         Ebean.delete(Attachment.class, aId);
 
         return redirect("/#/questions/" + String.valueOf(id));
-
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result addAttachmentToExam() throws MalformedDataException {
-
 
         MultipartFormData body = request().body().asMultipartFormData();
 
@@ -140,35 +159,54 @@ public class AttachmentController extends SitnetController {
             }
             String rndFileName = UUID.randomUUID().toString();
             String newFile = basePath + "/" + rndFileName;
+            Attachment attachment = null;
 
-            if (file.renameTo(new File(newFile))) {
+            try {
+                if(SitnetUtil.copyFile(file, new File(newFile))) {
 
-                Exam exam = Ebean.find(Exam.class, id);
+                    Exam exam = Ebean.find(Exam.class)
+                            .fetch("attachment")
+                            .where()
+                            .eq("id", id)
+                            .findUnique();
 
-                if (exam != null) {
+                    if (exam != null) {
 
-                    Attachment attachment = exam.getAttachment();
+                        attachment = exam.getAttachment();
 
-                    // If the question didn't have an attachment before, it does now.
-                    if (attachment == null) {
-                        attachment = new Attachment();
+                        // If the question didn't have an attachment before, it does now.
+                        if (attachment == null) {
+                            attachment = new Attachment();
+                        }
+
+                        attachment.setFileName(fileName);
+                        attachment.setFilePath(newFile);
+                        attachment.setMimeType(contentType);
+
+                        attachment.save();
+
+                        exam.setAttachment(attachment);
+                        exam.save();
+                        Ebean.save(exam);
                     }
-
-                    attachment.setFileName(fileName);
-                    attachment.setFilePath(newFile);
-                    attachment.setMimeType(contentType);
-
-                    attachment.save();
-
-                    exam.setAttachment(attachment);
-                    exam.save();
-                    Ebean.save(exam);
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (attachment == null) {
+                return notFound("Error creating attachment");
+            } else {
+                JsonContext jsonContext = Ebean.createJsonContext();
+                JsonWriteOptions options = new JsonWriteOptions();
+                options.setRootPathProperties("id, fileName");
+
+                return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
             }
         }
-        String url = "/#/exams/" + String.valueOf(id);
-        return redirect(url);
+        return notFound();
     }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteExamAttachment(Long id) {
 
@@ -186,10 +224,16 @@ public class AttachmentController extends SitnetController {
         return redirect("/#/exams/" + String.valueOf(id));
 
     }
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+
+//    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result downloadQuestionAttachment(Long id) {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class)
+                .fetch("attachment")
+                .where()
+                .eq("id", id)
+                .findUnique();
+
         Attachment aa = Ebean.find(Attachment.class, question.getAttachment().getId());
         File af = new File(aa.getFilePath());
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
@@ -198,8 +242,15 @@ public class AttachmentController extends SitnetController {
 
     public static Result downloadExamAttachment(Long id) {
 
-        Exam exam = Ebean.find(Exam.class, id);
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("attachment")
+                .where()
+                .eq("id", id)
+                .findUnique();
+
         Attachment aa = Ebean.find(Attachment.class, exam.getAttachment().getId());
-        return ok(new File(aa.getFilePath()));
+        File af = new File(aa.getFilePath());
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
+        return ok(af);
     }
 }

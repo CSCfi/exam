@@ -658,7 +658,12 @@ public class ExamController extends SitnetController {
 
             switch (question.getType()) {
                 case "MultipleChoiceQuestion": {
-                    MultipleChoiceQuestion multiQuestion = Ebean.find(MultipleChoiceQuestion.class, qid);
+                    MultipleChoiceQuestion multiQuestion = Ebean.find(MultipleChoiceQuestion.class)
+                            .fetch("attachment")
+                            .where()
+                            .eq("id", qid)
+                            .findUnique();
+
                     MultipleChoiceQuestion clonedQuestion;
                     clonedQuestion = (MultipleChoiceQuestion)multiQuestion.clone();
                     clonedQuestion.setParent(multiQuestion);
@@ -683,7 +688,12 @@ public class ExamController extends SitnetController {
                     return ok(Json.toJson(section));
                 }
                 case "EssayQuestion": {
-                    EssayQuestion essayQuestion = Ebean.find(EssayQuestion.class, qid);
+                    EssayQuestion essayQuestion = Ebean.find(EssayQuestion.class)
+                            .fetch("attachment")
+                            .where()
+                            .eq("id", qid)
+                            .findUnique();
+
                     EssayQuestion clonedQuestion;
                     clonedQuestion = (EssayQuestion)essayQuestion.clone();
                     clonedQuestion.setParent(essayQuestion);

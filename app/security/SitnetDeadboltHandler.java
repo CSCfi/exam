@@ -35,7 +35,7 @@ public class SitnetDeadboltHandler  extends AbstractDeadboltHandler {
         {
             @Override
             public SimpleResult apply() throws Throwable {
-                return forbidden("Athentication failure");
+                return forbidden("Authentication failure");
             }
         });
     }

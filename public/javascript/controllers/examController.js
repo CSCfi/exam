@@ -639,22 +639,48 @@
                         });
                     }
                 }
-
                 $scope.selectFile = function () {
 
+                    // Save question before entering attachment to not lose data.
+//                    $scope.saveQuestion();
 
-                    // Save exam first to not lose data.
-                    // Can't use this, will redirect to exams page.
-                    //$scope.saveExam();
+                    var exam = $scope.newExam;
+
+                    var ctrl = function ($scope, $modalInstance) {
+
+                        $scope.newExam = exam;
+
+                        $scope.submit = function (exam) {
+
+                            var file = $scope.attachmentFile;
+                            var url = "attachment/exam";
+                            //$scope.fileUpload.uploadAttachment(file, url);
+                            var fd = new FormData();
+                            fd.append('file', file);
+                            fd.append('examId', exam.id);
+                            $http.post(url, fd, {
+                                transformRequest: angular.identity,
+                                headers: {'Content-Type': undefined}
+                            })
+                                .success(function (attachment) {
+                                    $modalInstance.dismiss();
+                                    exam.attachment = attachment;
+                                })
+                                .error(function (error) {
+                                    $modalInstance.dismiss();
+                                    toastr.error(error);
+                                });
+                        }
+                    };
 
                     var modalInstance = $modal.open({
                         templateUrl: 'assets/templates/exam-editor/dialog_exam_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
-                        controller: "ModalInstanceCtrl"
+                        controller: ctrl
                     });
 
-                    modalInstance.result.then(function () {
+                    modalInstance.result.then(function (resp) {
                         // OK button
                         $location.path('/exams/'+ $scope.newExam.id);
                     }, function () {
@@ -662,28 +688,10 @@
                     });
                 };
 
-                $scope.submit = function(exam) {
-
-                    var file = $scope.attachmentFile;
-                    var url = "attachment/exam";
-                    //$scope.fileUpload.uploadAttachment(file, url);
-                    var fd = new FormData();
-                    fd.append('file', file);
-                    fd.append('examId', exam.id);
-                    $http.post(url, fd, {
-                        transformRequest: angular.identity,
-                        headers: {'Content-Type': undefined}
-                    })
-                        .success(function(){
-                        })
-                        .error(function(){
-                        });
-                }
-
                 $scope.removeExamRoom = function() {
                     $scope.newExam.room = null;
                     $scope.updateExam($scope.newExam);
-                }
+                };
 
                 $scope.getSectionId = function (id) {
 

@@ -31,4 +31,9 @@ public class Attachment extends SitnetModel {
     public String getMimeType() {
         return this.mimeType;
     }
+    @Override
+    public Object clone() {
+
+        return SitnetUtil.getClone(this);
+    }
 }

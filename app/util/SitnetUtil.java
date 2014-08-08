@@ -10,10 +10,14 @@ import models.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.channels.FileChannel;
 import java.sql.Timestamp;
 
 import java.nio.file.Files;
@@ -189,5 +193,34 @@ public class SitnetUtil {
 
     static public Timestamp getTime() {
         return new Timestamp(new Date().getTime());
+    }
+
+    public static boolean copyFile(File sourceFile, File destFile) throws IOException {
+        if(!destFile.exists()) {
+            destFile.createNewFile();
+        }
+
+        FileChannel source = null;
+        FileChannel destination = null;
+        boolean status = false;
+
+        try {
+            source = new FileInputStream(sourceFile).getChannel();
+            destination = new FileOutputStream(destFile).getChannel();
+            destination.transferFrom(source, 0, source.size());
+
+            if(destination.size() == source.size())
+                status = true;
+        }
+        finally {
+            if(source != null) {
+                source.close();
+            }
+            if(destination != null) {
+                destination.close();
+            }
+        }
+
+        return status;
     }
 }

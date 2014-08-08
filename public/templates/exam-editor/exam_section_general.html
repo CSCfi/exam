@@ -271,10 +271,9 @@
             <div class="sitnet-info-text">
                 {{'sitnet_exam_attacment' | translate}}
             </div>
-
             <div ng-show="newExam.attachment !== null" ng-controller="AttachmentController">
-                {{newExam.attachment.fileName}} <a ng-click="removeExamAttachment(newExam.id)"> {{'sitnet_remove_attachment' | translate }} </a>
-
+                <a href="/attachment/exam/{{newExam.id}}">{{newExam.attachment.fileName}}  </a>
+                <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
             </div>
             <br>
             <button ng-click="selectFile()"class=form-control">{{'sitnet_attach_file' | translate}}</button>
