@@ -134,7 +134,7 @@ public class StudentExamController extends SitnetController {
         }
     }
 
-    //@Restrict({@Group("STUDENT")})
+    @Restrict({@Group("STUDENT")})
     public static Result startExam(String hash) throws UnauthorizedAccessException {
 
         Exam possibleClone = Ebean.find(Exam.class)
