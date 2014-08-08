@@ -20,13 +20,48 @@
 //
 //                }, 10000)
 
+                // section back / forward buttons
+                $scope.guide = false;
+                $scope.switchToGuide = function(b) {
+                    $scope.guide = b;
+                }
+                $scope.previousButton = false;
+                $scope.previousButtonText = "";
+
+                $scope.nextButton = false;
+                $scope.nextButtonText = "";
+
+                $scope.switchButtons = function(section) {
+
+                    var i = section.index - 1;
+
+                    if ($scope.doexam.examSections[i-1]) {
+                        $scope.previousButton = true;
+                        $scope.previousButtonText = $scope.doexam.examSections[i-1].index + ". " + $scope.doexam.examSections[i-1].name;
+                    } else {
+                        $scope.previousButton = true;
+                        $scope.previousButtonText = $translate("sitnet_exam_quide");
+                    }
+
+                    if(i == 0 && $scope.guide) {
+                        $scope.nextButton = true;
+                        $scope.nextButtonText = $scope.doexam.examSections[0].index + ". " + $scope.doexam.examSections[0].name;
+                    } else if (!$scope.guide && $scope.doexam.examSections[i+1]) {
+                        $scope.nextButton = true;
+                        $scope.nextButtonText = $scope.doexam.examSections[i+1].index + ". " + $scope.doexam.examSections[i+1].name;
+                    } else {
+                        $scope.nextButton = false;
+                        $scope.nextButtonText = "";
+                    }
+                }
+
                 $scope.doExam = function (hash) {
                     $http.get('/student/doexam/' + $routeParams.hash)
                         .success(function (data, status, headers, config) {
                             $scope.doexam = data;
                             $scope.activeSection = $scope.doexam.examSections[0];
 
-                            // set sections and question nubering
+                            // set sections and question numbering
                             angular.forEach($scope.doexam.examSections, function (section, index) {
                                 section.index = index +1;
 
@@ -75,6 +110,8 @@
                                     }
                                 }
                             })
+                            $scope.switchToGuide(true);
+                            $scope.switchButtons($scope.doexam.examSections[0]);
                         }).
                         error(function (data, status, headers, config) {
                             // called asynchronously if an error occurs
@@ -120,6 +157,7 @@
 
                 $scope.setActiveSection = function (section) {
                     $scope.activeSection = section;
+                    $scope.switchButtons(section);
 
                     // Loop through all questions in the active section
                     angular.forEach($scope.activeSection.questions, function (question, index) {
@@ -169,42 +207,45 @@
                 };
 
                 $scope.setPreviousSection = function (exam, active_section) {
-                    var sectionCount = exam.examSections.length;
+//                    var sectionCount = exam.examSections.length;
 
-                    // Loop through all sections in the exam
-                    angular.forEach(exam.examSections, function (section, index) {
-                        // If section is same as the active_section
-                        if (angular.equals(section, active_section)) {
-                            // If this is the first element in the array
-                            if (index == 0) {
-                                var section = exam.examSections[sectionCount-1];
-//                                $scope.setActiveSection(exam.examSections[sectionCount]);
-                                $scope.setActiveSection(section);
+                    if(!$scope.guide) {
+                        // Loop through all sections in the exam
+                        angular.forEach(exam.examSections, function (section, index) {
+                            // If section is same as the active_section
+                            if (angular.equals(section, active_section)) {
+                                // If this is the first element in the array
+                                if (index == 0) {
+                                    $scope.switchToGuide(true);
+                                    $scope.setActiveSection(exam.examSections[0]);
+                                }
+                                else {
+                                    $scope.setActiveSection(exam.examSections[index - 1]);
+                                }
                             }
-                            else {
-                                $scope.setActiveSection(exam.examSections[index-1]);
-                            }
-                        }
-                    })
+                        })
+                    }
                 }
 
                 $scope.setNextSection = function (exam, active_section) {
                     var sectionCount = exam.examSections.length;
 
-                    // Loop through all sections in the exam
-                    angular.forEach(exam.examSections, function (section, index) {
-                        // If section is same as the active_section
-                        if (angular.equals(section, active_section)) {
-                            // If this is the last element in the array
-                            if (index == sectionCount-1) {
-                                // Jump to the beginning of the array
-                                var section = exam.examSections[0];
-                                $scope.setActiveSection(section);
-                            } else {
-                                $scope.setActiveSection(exam.examSections[index+1]);
+                    if($scope.guide) {
+                        $scope.switchToGuide(false);
+                        $scope.setActiveSection(exam.examSections[0]);
+                    } else {
+                        // Loop through all sections in the exam
+                        angular.forEach(exam.examSections, function (section, index) {
+                            // If section is same as the active_section
+                            if (angular.equals(section, active_section)) {
+                                // If this is the last element in the array
+                                if (index == sectionCount - 1) {
+                                } else {
+                                    $scope.setActiveSection(exam.examSections[index + 1]);
+                                }
                             }
-                        }
-                    })
+                        })
+                    }
                 }
 
                 // Called when the save and exit button is clicked

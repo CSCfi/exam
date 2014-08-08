@@ -1,4 +1,20 @@
 #studentexam {
+
+  .sidebutton {
+    color: $sitnet-common-dark;
+    cursor: pointer;
+    padding-top:0.3em;
+
+    :hover {
+      color: $sitnet-theme;
+    }
+  }
+
+  .sidebutton-alarm {
+    color: $sitnet-alarm;
+    cursor: pointer;
+  }
+
   padding: 1em;
 
   li {
@@ -7,7 +23,6 @@
   }
 
   li:hover {
-    background-color: $sitnet-grey;
     list-style: none;
     cursor: pointer;
   }
@@ -26,33 +41,57 @@
 //  }
 
   .studentexam-header {
-    background-color: $sitnet-green;
     padding: 0.5em;
-    margin-top: 1em;
+    margin-top: 0.5em;
+    font-size: 1.2em;
+  }
+  .question-header,
+  .question-active-header,
+  .question-unanswered-header,
+  .question-answered-header {
+    padding: 1px;
+    margin-top: 0.2em;
+    background-color: $sitnet-white;
+    font-weight: bold;
   }
 
   .question-header {
-    background-color: $sitnet-student-lightgreen;
-    padding: 1px;
-    margin-top: 1em;
   }
 
   .question-active-header {
-    background-color: $sitnet-student-orange;
-    padding: 1px;
-    margin-top: 1em;
+    .question-text {
+      color: $sitnet-text;
+    }
+    .question-icon-bg {
+      color: $sitnet-notice;
+    }
+    .question-icon {
+      color: $sitnet-text;
+    }
   }
 
   .question-unanswered-header {
-     background-color: $sitnet-student-inactive-gray;
-     padding: 1px;
-     margin-top: 1em;
+    .question-text {
+      color: $sitnet-common-medium;
+    }
+    .question-icon-bg {
+        color: $sitnet-common-light;
+    }
+    .question-icon {
+      color: $sitnet-white;
+    }
    }
 
   .question-answered-header {
-    background-color: $sitnet-student-lightgreen;
-    padding: 1px;
-    margin-top: 1em;
+    .question-text {
+      color: $sitnet-common-medium;
+    }
+    .question-icon-bg {
+      color: $sitnet-ready;
+    }
+    .question-icon {
+      color: $sitnet-white;
+    }
   }
 
   .question-status {
@@ -63,7 +102,7 @@
 
   .exam-question-container {
     background-color: $sitnet-white;
-    padding: 2em;
+    padding: 1.2em;
   }
 
   .exam-question-option {
@@ -76,8 +115,23 @@
     min-height: 3em;
   }
 
+  .guide-instruction {
+    font-weight: normal;
+    padding: 0.5em 0;
+    font-size: 0.9em;
+    line-height: 1.8em;
+  }
+
   .exam-answer-options {
-    margin-bottom: 1em;
+    font-weight: normal;
+    padding:0.5em 0;
+    font-size: 0.9em;
+    line-height: 1.8em;
+    border-bottom:1px solid $sitnet-common-light;
+
+    input[type=radio] {
+      margin-right:0.3em;
+    }
   }
 
   .active-exams-list {
@@ -103,15 +157,6 @@
 
   }
 
-  .exam-info-round {
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    border: 2px solid $sitnet-grey;
-    background-color: $sitnet-beige;
-    padding: 1em;
-  }
-
   .section-container {
     padding: 1em;
     padding-bottom: 2em;
@@ -126,11 +171,11 @@
   }
 
   .selected {
-    background-color: $sitnet-white;
+    background-color: $sitnet-notice;
   }
 
   .inactive {
-    background-color: lightgray;
+    background-color: $sitnet-white;
   }
 
   .pointer-hand {
@@ -141,51 +186,27 @@
     background-color: $sitnet-white;
     line-height: 0.8em;
   }
+  .blue_button_left, .blue_button_right {
 
-  .section-header-icon-chevron {
-    line-height: 1.6em;
-  }
+    cursor: pointer;
+    font-size: 0.8em;
+    text-decoration: none;
 
-  .section-header-time-left-text {
-    padding-left: 5px;
-    line-height: 2.5em;
-  }
-
-  .section-header-time-left-clock {
-    line-height: 2.5em;
-  }
-
-  .section-navigation-left-button {
-    text-align: left;
-    padding-left: 1.3em;
-  }
-  .section-navigation-left-text {
-    padding-left: 4em;
-  }
-
-  .section-navigation-right-button {
-    margin-left: 1em;
-  }
-  .section-navigation-right-text {
-    margin-right: 6em;
-  }
-
-  .exam-signout-button {
-    background-color: blue;
-    color: #ffffff;
-  }
-
-  .exam-signout-button-text {
-    margin-left: 1em;
-  }
-
-  .exam-abort-button {
-    background-color: red;
-    color: #ffffff;
-  }
-
-  .exam-abort-button-text {
-    margin-left: 1em;
+    span {
+      font-style: italic;
+      text-decoration: none;
+      margin: 1em;
+      padding:0.5em 1em;
+      background-color: $sitnet-theme;
+      color: $sitnet-white;
+      font-size: 0.9em;
+    }
+    i {
+      line-height: 2em;
+    }
+    :hover {
+      text-decoration: none;
+    }
   }
 
   -webkit-touch-callout: none;

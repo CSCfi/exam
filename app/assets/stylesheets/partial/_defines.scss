@@ -117,6 +117,8 @@ $sitnet-background: #ffffff;
 .sitnet-text-medium { color: $sitnet-common-medium; }
 .sitnet-text-dark { color: $sitnet-common-dark; }
 .sitnet-text-theme { color: $sitnet-theme; }
+.sitnet-text-notice { color: $sitnet-notice; }
+.sitnet-text-ready { color: $sitnet-ready; }
 .sitnet-text { color: $sitnet-text; }
 
 
@@ -209,6 +211,10 @@ $sitnet-icon-size: 32px;
   cursor: pointer;
 }
 
+.bold {
+  font-weight: bold;
+}
+
 .icon-notice {
   color: $sitnet-student-orange;
 }
@@ -239,4 +245,54 @@ $sitnet-icon-size: 32px;
 
 .vertical-padding-2 {
   padding:2em 0;
+}
+
+.info {
+  padding-left:0;
+  margin-left:0;
+  margin-bottom:1em;
+}
+
+.info-row {
+  padding-left:0;
+  margin-left:0;
+}
+
+.info-column {
+  padding-right:1em;
+  font-size: 0.8em;
+  font: $sitnet-family-opensans-bold;
+  width:100%;
+
+  .header {
+    padding-right:0.5em;
+    width:50%;
+    float:left;
+    color: $sitnet-common-medium;
+  }
+  .text {
+    font-weight:bold;
+    width:50%;
+    float:left;
+    display: inline;
+    color: $sitnet-text;
+  }
+}
+
+.info-header-bolditalic {
+  font-size: 1.2em;
+  font-weight: bold;
+  font-style: italic;
+}
+.info-header-bold {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.info-header-normal {
+  font-size: 1.2em;
+  font-weight: normal;
+}
+.icon_fix {
+  margin-left:0.2em;
+  line-height:1.8em;
 }

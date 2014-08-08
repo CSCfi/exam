@@ -52,11 +52,25 @@
     height:3em;
     margin:0.5em 0.3em 0.5em 0;
 
-    .weekday, .date, .clock {
+    .weekday,
+    .date,
+    .clock {
       width:100%;
       clear:both;
       text-align:right;
       font-size:0.8em;
+    }
+
+    .exam,
+    .exam-clock {
+      width:50%;
+      height:100%;
+    }
+    .exam {
+      font-size: 1em;
+      font-style: italic;
+      font-family: $sitnet-family-opensans-bold;
+      color: $sitnet-common-medium;
     }
 
     .weekday {
@@ -64,10 +78,9 @@
       text-transform: uppercase;
       font-weight:bold;
     }
-    .date {
-      font-family: $sitnet-family-opensans-light;
-    }
-    .clock {
+    .date,
+    .clock,
+    .exam-clock {
       font-family: $sitnet-family-opensans-light;
     }
   }

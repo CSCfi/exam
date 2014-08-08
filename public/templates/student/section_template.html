@@ -1,31 +1,34 @@
 <form class="form-inline" role="form">
-    <div class="{{question.selectedAnsweredState}}" ng-repeat="question in activeSection.questions">
-        <h4>
+    <div ng-show="guide">
+        <div class="guide-instruction col-md-12">{{ doexam.instruction }}</div>
+    </div>
+    <div ng-show="!guide">
+        <div class="{{question.selectedAnsweredState}}" ng-repeat="question in activeSection.questions">
+
             <div ng-model="question">
-                <span class="fa-stack">
-                    <i class="fa-stack-1x sitnet-white">{{question.index}}.</i>
+                <span class="fa-stack fa-lg">
+                  <i class="fa fa-stop fa-stack-2x question-icon-bg"></i>
+                  <i class="fa fa-list-ul fa-stack-1x question-icon"></i>
                 </span>
 
-            <span class="sitnet-white" ng-bind-html="question.question"></span>
+                <span ng-click="chevronClicked(question); question.expanded = !question.expanded;" class="question-text pointer" ng-bind-html="question.question"></span>
 
-                <span ng-click="question.expanded = !question.expanded" class="pull-right fa-stack fa-lg">
+                <span ng-click="question.expanded = !question.expanded" class="pull-right fa-stack fa-lg pointer">
                     <i ng-click="chevronClicked(question)"
-                       ng-class="question.expanded ? 'fa-chevron-down sitnet-student-darkgreen' : 'fa-chevron-left'"
-                       class="sitnet-white fa fa-chevron-left fa-stack-1x section-header-icon-chevron">
+                       ng-class="question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-left sitnet-text-medium'"
+                       class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
                     </i>
                 </span>
-                <span class="pull-right sitnet-white">
-                    <i class="question-status">{{question.questionStatus}}</i>
-                </span>
-            </div>
-        </h4>
-
-        <div class="exam-question-container" ng-show="question.expanded">
-            <div class="question" ng-include="question.template"></div>
-            <div ng-show="question.attachment !== null">
-                <a href="/attachment/question/{{question.id}}"> {{'sitnet_download_attachment' | translate }} </a>
             </div>
 
+
+            <div class="exam-question-container" ng-show="question.expanded">
+                <div class="question" ng-include="question.template"></div>
+                <div ng-show="question.attachment !== null">
+                    <a href="/attachment/question/{{question.id}}"> {{'sitnet_download_attachment' | translate }} </a>
+                </div>
+
+            </div>
         </div>
     </div>
 </form>

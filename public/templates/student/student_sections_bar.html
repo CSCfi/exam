@@ -1,15 +1,25 @@
 <div>
     <ul>
-        <li ng-class="showQuestion ? 'selected' : 'inactive' " ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section);  showQuestion = ! showQuestion">
+        <li class="info-row col-md-12" ng-click="switchToGuide(true); setActiveSection(doexam.examSections[0])">
+            <a class="col-md-12 fa-stack">
+                <i ng-class="guide ? 'sitnet-text-notice' : 'sitnet-text-light'" class="fa fa-stop fa-stack-2x"></i>
+                <i ng-class="guide ? 'sitnet-text' : 'sitnet-white'" class="fa fa-info-circle fa-stack-1x"></i>
+            </a>
+            <span ng-class="guide ? 'sitnet-text' : 'sitnet-text-medium'" class="icon_fix">{{'sitnet_exam_quide' | translate}}</span>
+        </li>
+        <li ng-repeat="section in doexam.examSections" ng-click="switchToGuide(false); setActiveSection(section)">
             <span class="fa-stack">
-                <i class="fa fa-square fa-stack-2x"></i>
-                <i class="fa-stack-1x sitnet-white">{{section.index}}</i>
+                <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text-notice' : 'sitnet-text-light'" class="fa fa-stop fa-stack-2x"></i>
+                <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-white' " class="fa-stack-1x">{{section.index}}.</i>
             </span>
-
-            <span>
-                <i class="fa fa-2x fa-fw"></i>
-                <span class="sitnet-text-dark">{{section.name}}</span>
-            </span>
+            <span ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-medium'">{{section.name}}</span>
+        </li>
+        <li class="info-row col-md-12">
+            <a class="col-md-12 fa-stack" ng-click="saveExam(doexam)">
+                <i class="fa fa-stop fa-stack-2x sitnet-text-light"></i>
+                <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
+            </a>
+            <span class="sitnet-text-medium icon_fix" ng-click="saveExam(doexam)">{{'sitnet_save_and_return_exam' | translate}}</span>
         </li>
     </ul>
 </div>
