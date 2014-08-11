@@ -424,7 +424,9 @@
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
                         "instruction": $scope.newExam.instruction,
-                        "state": 'SAVED',
+
+                        // if exam is already PUBLISHED save it as PUBLISHED
+                        "state": ($scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED': 'SAVED'),
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": $scope.dateService.startTimestamp,
                         "examActiveEndDate": $scope.dateService.endTimestamp,
