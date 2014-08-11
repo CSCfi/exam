@@ -45,6 +45,7 @@ public class QuestionController extends SitnetController {
     public static Result getQuestionsForUser(Long id) {
 
         List<AbstractQuestion> questions = null;
+        List<AbstractQuestion> shared = null;
 
         if(UserController.getLoggedUser().hasRole("TEACHER"))
         {
@@ -55,6 +56,16 @@ public class QuestionController extends SitnetController {
                     .eq("parent", null)
                     .orderBy("created desc")
                     .findList();
+
+            shared = Ebean.find(AbstractQuestion.class)
+                    .where()
+                    .ne("creator.id", id)
+                    .eq("parent", null)
+                    .eq("shared", true)
+                    .orderBy("created desc")
+                    .findList();
+
+            questions.addAll(shared);
         }
         else if(UserController.getLoggedUser().hasRole("ADMIN"))
         {

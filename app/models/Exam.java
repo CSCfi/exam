@@ -414,7 +414,6 @@ public class Exam extends SitnetModel {
                         case "MultipleChoiceQuestion": {
                             List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
 
-
                             List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
                             for (MultipleChoiseOption o : options) {
                                 MultipleChoiseOption m_option_copy = (MultipleChoiseOption) o._ebean_createCopy();
@@ -426,6 +425,8 @@ public class Exam extends SitnetModel {
                         }
                         case "EssayQuestion": {
                             // No need to implement because EssayQuestion doesn't have object relations
+                            // just save it
+                            question_copy.save();
                         }
                         break;
                     }

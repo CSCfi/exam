@@ -225,6 +225,7 @@ question_essay:
     creator: *sauli
     created: 2014-04-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
+    parent: *essay1
     instruction:
     maxScore: 5
     evaluationType: Points
@@ -273,6 +274,7 @@ question_essay:
     creator: *arvo
     created: 2014-02-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
+    parent: *essay3
     instruction:
     maxScore: 5
     evaluationType: Select
@@ -296,6 +298,7 @@ question_essay:
     creator: *sauli
     created: 2014-04-01 12:30:05.123
     question: <u>Kerro toiseen maailmansotaan johtaneista syistä.</u>
+    parent: *essay1
     instruction:
     maxScore: 5
     evaluationType: Points
@@ -344,6 +347,7 @@ question_essay:
     creator: *arvo
     created: 2014-02-01 12:30:05.123
     question: Luettele <i>kaikki</i> Java system luokan <u>metodit</u>.
+    parent: *essay3
     instruction:
     maxScore: 5
     evaluationType: Select
@@ -371,6 +375,7 @@ question_multiple_choice:
     creator: *maika
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
+    parent: *multi1
     attachment: *att1
     maxScore: 5
     evaluationPhrases:
@@ -419,6 +424,7 @@ question_multiple_choice:
 
   - &multi4 !!models.questions.MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
+    parent: *multi4
     creator: *arvo
     created: 2014-01-02 12:50:05.123
    #materials:
@@ -626,6 +632,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
+    parent: *multi1
     attachment: *att1
     maxScore: 5
     evaluationPhrases:
@@ -661,6 +668,7 @@ question_multiple_choice:
 
   - &multi4_sauli !!models.questions.MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
+    parent: *multi4
     creator: *arvo
     created: 2014-01-02 12:50:05.123
     maxScore: 5
@@ -715,6 +723,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
+    parent: *multi1
     attachment: *att1
     maxScore: 5
     evaluationPhrases:
@@ -750,6 +759,7 @@ question_multiple_choice:
 
   - &multi4b_sauli !!models.questions.MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
+    parent: *multi4
     creator: *arvo
     created: 2014-01-02 12:50:05.123
     maxScore: 5
