@@ -375,7 +375,6 @@ question_multiple_choice:
     creator: *maika
     created: 2014-01-04 12:30:05.123
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
-    parent: *multi1
     attachment: *att1
     maxScore: 5
     evaluationPhrases:
@@ -424,7 +423,6 @@ question_multiple_choice:
 
   - &multi4 !!models.questions.MultipleChoiceQuestion
     question: Mitä lampaat laskevat jotta ne nukahtaisivat?
-    parent: *multi4
     creator: *arvo
     created: 2014-01-02 12:50:05.123
    #materials:
