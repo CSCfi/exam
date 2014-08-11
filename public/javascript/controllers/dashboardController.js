@@ -8,6 +8,7 @@
                 $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/active_exams.html";
                 $scope.dashboardFinishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/finished_exams.html";
                 $scope.dashboardUnPublishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/unpublished_exams.html";
+                $scope.dashboardReviewerExamsTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/reviewer_exams.html";
 
                 $scope.session = sessionService;
                 $scope.user = $scope.session.user;
@@ -35,6 +36,14 @@
                     }
                     else if ($scope.user.isTeacher) {
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/dashboard.html";
+
+                        ExamRes.reviewerExams.query(function (reviewerExams) {
+                                $scope.reviewerExams = reviewerExams;
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            });
+
 
                         ExamRes.activeExams.query(function (activeExams) {
                             $scope.activeExams = activeExams;

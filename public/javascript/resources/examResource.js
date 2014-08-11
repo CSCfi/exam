@@ -84,6 +84,10 @@
                 {
                 }),
 
+                reviewerExams: $resource("/reviewerexams", null,
+                {
+                }),
+
                 finishedExams: $resource("/finishedexams", null,
                 {
                 }),

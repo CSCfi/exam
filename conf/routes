@@ -39,6 +39,7 @@ PUT           /exams/:eid/course/:cid                               controllers.
 PUT           /exams/:eid/room/:rid                                 controllers.ExamController.updateRoom(eid: Long, rid: Long)
 GET           /finishedexams                                        controllers.ExamController.getFinishedExams()
 GET           /activeexams                                          controllers.ExamController.getActiveExams()
+GET           /reviewerexams                                        controllers.ExamController.getReviewerExams()
 GET           /examenrolments/:eid                                  controllers.ExamController.getEnrolmentsForExam(eid: Long)
 GET           /examparticipations/:eid                              controllers.ExamController.getParticipationsForExam(eid: Long)
 POST          /exams/:eid/examtype/:etid                            controllers.ExamController.insertExamType(eid: Long, etid: Long)

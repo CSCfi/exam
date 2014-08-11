@@ -123,16 +123,44 @@ public class ExamController extends SitnetController {
 //        options.setPathProperties("reservation.machine", "name");
 
         return ok(jsonContext.toJsonString(activeExams, true, options)).as("application/json");
+    }
 
-        // For some reason conjuction didn't do AND to the lt and gt expressions. Individually both works
-//        Query q = Ebean.createQuery(Exam.class);
-//        q.where().conjunction()
-//                .add(Expr.lt("examActiveStartDate", timestamp))
-//                .add(Expr.gt("examActiveEndDate", timestamp));
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getReviewerExams() {
 
-//        List<Exam> activeExams = q.findList();
+        User user = UserController.getLoggedUser();
 
-//        return ok(Json.toJson(activeExams));
+        Date date = new Date();
+        Timestamp timestamp = new Timestamp(date.getTime());
+
+        //Get list of exams that user is assigned to inspect
+        List<ExamInspection> examInspections = Ebean.find(ExamInspection.class)
+                .fetch("exam")
+                .where()
+                .eq("user.id", user.getId())
+                .findList();
+
+        List<Exam> examsToReview = new ArrayList<Exam>();
+
+        for (ExamInspection inspection : examInspections) {
+
+            List<Exam> temp = Ebean.find(Exam.class)
+                    .fetch("parent")
+                    .where()
+                    .eq("parent.id", inspection.getExam().getId())
+                    .eq("state", "REVIEW")
+                    .findList();
+
+            examsToReview.addAll(temp);
+        }
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, parent");
+        options.setPathProperties("course", "code");
+        options.setPathProperties("parent", "id");
+
+        return ok(jsonContext.toJsonString(examsToReview, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

@@ -23,8 +23,6 @@
 
                 $scope.answerState = "";
 
-                console.log("Hello its me again");
-
                 $scope.setQuestionType = function () {
                     switch ($scope.selectedType) {
                         case 'EssayQuestion':
