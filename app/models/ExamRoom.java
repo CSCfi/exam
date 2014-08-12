@@ -62,6 +62,7 @@ public class ExamRoom extends Model {
     private boolean accessible;
 
     // Tilaohjeet
+    @Column(columnDefinition = "TEXT")
     private String roomInstruction;
 
     // Vahtimestari tai muu yhteystieto esim. virkailija: (vapaaehtoinen)

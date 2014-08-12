@@ -47,6 +47,7 @@ public class Exam extends SitnetModel {
     private ExamType examType;
     
     // Opettajan antama ohje Opiskelijalle tentin suorittamista varten
+    @Column(columnDefinition = "TEXT")
     private String instruction;
 
     private boolean shared;

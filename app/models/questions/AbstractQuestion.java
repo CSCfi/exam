@@ -33,6 +33,7 @@ abstract public class AbstractQuestion extends SitnetModel {
 
     protected boolean shared;
 
+    @Column(columnDefinition = "TEXT")
     protected String instruction;
 
     protected String state;
