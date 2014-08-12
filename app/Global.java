@@ -2,13 +2,14 @@ import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
-import models.ApiError;
-import models.Exam;
-import models.User;
+import controllers.StudentExamController;
+import models.*;
 import models.questions.QuestionInterface;
+import org.joda.time.DateTime;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
+import play.cache.Cache;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.Json;
@@ -20,10 +21,15 @@ import play.mvc.Results;
 import play.mvc.SimpleResult;
 
 import java.lang.reflect.Method;
+import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Global extends GlobalSettings {
+
+    public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
+    public static final String SITNET_CACHE_KEY = "user.session.";
 
     @Override
     public void onStart(Application app) {
@@ -63,14 +69,106 @@ public class Global extends GlobalSettings {
         });
     }
 
-    @Override
-    public Action onRequest(Request request, Method actionMethod) {
-        Logger.debug(request.path());
+    private class AddHeader extends Action {
+        private HashMap<String, String> headers;
+        public AddHeader(Action action, HashMap<String, String> headers) {
+            this.headers = headers;
+            this.delegate = action;
+        }
 
+        @Override
+        public Promise<SimpleResult> call(Http.Context context) throws Throwable {
+            final Promise promise = this.delegate.call(context);
+            Http.Response response = context.response();
 
-        return super.onRequest(request, actionMethod);
+            for(String key : headers.keySet()){
+                response.setHeader(key, headers.get(key));
+            }
+            return promise;
+        }
     }
 
+    @Override
+    public Action onRequest(Request request, Method actionMethod) {
+
+        Logger.debug(request.path());
+
+        String token = request.getHeader(SITNET_TOKEN_HEADER_KEY);
+        Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
+        if(session == null) {
+            return super.onRequest(request, actionMethod);
+        }
+
+        if(session.getUserId() == null) {
+            return super.onRequest(request, actionMethod);
+        }
+
+        User user = Ebean.find(User.class, session.getUserId());
+        if (user == null || !user.hasRole("STUDENT")) {
+            return super.onRequest(request, actionMethod);
+        }
+
+        Timestamp now = new Timestamp(DateTime.now().getMillis());
+
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("exam")
+                .where()
+                .eq("user.id", user.getId())
+                .le("reservation.startAt", now)
+                .gt("reservation.endAt", now)
+                //there should be no overlapping reservations, right?
+                .findUnique();
+
+        if(enrolment == null) {
+            return super.onRequest(request, actionMethod);
+        }
+
+        String machineIp = enrolment.getReservation().getMachine().getIpAddress();
+        String remoteIp = request.remoteAddress();
+
+        HashMap<String, String> headers = new HashMap<>();
+
+        Logger.debug("User   ip: " + remoteIp + "\nRemote ip: " + machineIp);
+        //todo: is there another way to identify/match machines?
+        //todo: eg. some transparent proxy that add id header etc.
+        if(!remoteIp.equals(machineIp)) {
+            headers.put("x-hello-world", "foo-bar-baz");
+            //todo: add note, about wrong machine?
+            return new AddHeader( super.onRequest(request, actionMethod), headers);
+        }
+
+        String hash = enrolment.getExam().getHash();
+        try {
+            StudentExamController.createExam(hash, user);
+        } catch (UnauthorizedAccessException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        headers.put("x-hello-world", "Special-case");
+        return new AddHeader( super.onRequest(request, actionMethod), headers);
+    }
+
+    /*
+    private class doExam extends Action {
+
+        private String hash;
+
+        public doExam(String hash) {
+            this.hash = hash;
+        }
+
+        @Override
+        public Promise<SimpleResult> call(Http.Context context) throws Throwable {
+            F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
+                public SimpleResult apply() {
+                    return Action.temporaryRedirect("#/doexam/" + hash);
+                }
+            });
+            return promise;
+        }
+    };
+     */
     private static class InitialData {
         public static void insert(Application app) {
             if (Ebean.find(User.class).findRowCount() == 0) {
@@ -78,7 +176,7 @@ public class Global extends GlobalSettings {
                  @SuppressWarnings("unchecked")
                  Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
 
-                // HUOM, järjestyksellä on väliä 
+                // HUOM, järjestyksellä on väliä
                 Ebean.save(all.get("user-roles"));
                 Ebean.save(all.get("user_languages"));
                 Ebean.save(all.get("organisations"));

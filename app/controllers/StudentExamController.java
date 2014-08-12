@@ -134,9 +134,7 @@ public class StudentExamController extends SitnetController {
         }
     }
 
-    @Restrict({@Group("STUDENT")})
-    public static Result startExam(String hash) throws UnauthorizedAccessException {
-
+    public static Result createExam(String hash, User user) throws UnauthorizedAccessException {
         Exam possibleClone = Ebean.find(Exam.class)
                 .fetch("examSections")
                 .where()
@@ -156,31 +154,30 @@ public class StudentExamController extends SitnetController {
         }
 
         if (possibleClone == null) {
-            User user = UserController.getLoggedUser();
 
             Exam studentExam = (Exam)blueprint.clone();
             if (studentExam == null) {
                 return notFound();
             } else {
                 studentExam.setState("STUDENT_STARTED");
-                studentExam.setCreator(user);
+                studentExam.setCreator(  user );
                 studentExam.setParent(blueprint);
                 studentExam.generateHash();
                 studentExam.save();
 
-            // 1. might want try Serialization clone approach
-            // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
-            // http://avaje.org/topic-112.html
-                
+                // 1. might want try Serialization clone approach
+                // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
+                // http://avaje.org/topic-112.html
+
                 ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                		.where()
-                		.eq("user.id", user.getId())
-                		.eq("exam.id", blueprint.getId())
-                		.findUnique();
-                
+                        .where()
+                        .eq("user.id", user.getId())
+                        .eq("exam.id", blueprint.getId())
+                        .findUnique();
+
                 enrolment.setExam(studentExam);
                 enrolment.save();
-                		
+
                 ExamParticipation examParticipation = new ExamParticipation();
                 examParticipation.setUser(user);
                 examParticipation.setExam(studentExam);
@@ -192,7 +189,7 @@ public class StudentExamController extends SitnetController {
                 JsonWriteOptions options = new JsonWriteOptions();
 
                 options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
-                		"duration, examLanguage, answerLanguage, state, expanded");
+                        "duration, examLanguage, answerLanguage, state, expanded");
                 options.setPathProperties("creator", "id");
                 options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
                 options.setPathProperties("room", "roomInstruction");
@@ -208,6 +205,12 @@ public class StudentExamController extends SitnetController {
         } else {
             return ok(Json.toJson(possibleClone));
         }
+    }
+
+    @Restrict({@Group("STUDENT")})
+    public static Result startExam(String hash) throws UnauthorizedAccessException {
+        User user = UserController.getLoggedUser();
+        return createExam(hash, user );
     }
 
     @Restrict({@Group("STUDENT")})
