@@ -16,8 +16,7 @@
             <p class="input-group">
                 <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
                        is-open="startDateOpened" min="minDate"
-                       max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
-                       ng-required="true" close-text="Close" ui-change="updateExam()">
+                       max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="Close" ui-change="updateExam()">
                        
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
