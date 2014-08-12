@@ -185,7 +185,7 @@ public class CalendarController extends SitnetController {
 
                 final Duration machineOpenDuration = new Duration(startTime, endTime);
 
-                final Double examDuration;
+                final Integer examDuration;
 
                 if (exam.getDuration() == null) {
                     continue;
@@ -199,7 +199,7 @@ public class CalendarController extends SitnetController {
                 } catch (Throwable t) {
                 }
 
-                int timeForSingleExam = examDuration.intValue() + transitionTime;
+                int timeForSingleExam = examDuration + transitionTime;
 
                 int numberOfPossibleFreeSlots = (int) Math.floor(machineOpenDuration.getStandardMinutes() / timeForSingleExam);
 
@@ -214,7 +214,7 @@ public class CalendarController extends SitnetController {
                 final DayWithFreeTimes day = new DayWithFreeTimes();
                 day.setDate(theDay);
                 for (int i = 0; i <= (numberOfPossibleFreeSlots - 1); i++) {
-                    final int shift = examDuration.intValue() + transitionTime;
+                    final int shift = examDuration + transitionTime;
                     DateTime freeTimeSlotStartTime = startTime.plusMinutes(i * shift);
                     DateTime freeTimeSlotEndTime = freeTimeSlotStartTime.plusMinutes(shift);
                     FreeTimeSlot possibleTimeSlot = new FreeTimeSlot();

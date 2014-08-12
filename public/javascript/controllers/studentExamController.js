@@ -24,7 +24,7 @@
                 $scope.guide = false;
                 $scope.switchToGuide = function(b) {
                     $scope.guide = b;
-                }
+                };
                 $scope.previousButton = false;
                 $scope.previousButtonText = "";
 
@@ -53,12 +53,21 @@
                         $scope.nextButton = false;
                         $scope.nextButtonText = "";
                     }
-                }
+                };
 
                 $scope.doExam = function (hash) {
                     $http.get('/student/doexam/' + $routeParams.hash)
                         .success(function (data, status, headers, config) {
                             $scope.doexam = data;
+
+                            if($scope.doexam && $scope.doexam.state === 'STUDENT_STARTED'){
+                                var req = $http.get('/time/' + $scope.doexam.id);
+                                req.success(function (reply) {
+                                    $scope.remainingTime = reply;
+                                });
+                                $timeout(count, 1000);
+                            }
+
                             $scope.activeSection = $scope.doexam.examSections[0];
 
                             // set sections and question numbering
@@ -109,7 +118,7 @@
                                         question.questionStatus = $translate("sitnet_question_answered");
                                     }
                                 }
-                            })
+                            });
                             $scope.switchToGuide(true);
                             $scope.switchButtons($scope.doexam.examSections[0]);
                         }).
@@ -117,9 +126,11 @@
                             // called asynchronously if an error occurs
                             // or server returns response with an error status.
                         });
-                }
-                if ($routeParams.hash != undefined)
+                };
+
+                if ($routeParams.hash != undefined) {
                     $scope.doExam();
+                }
 
                 $scope.activateExam = function (exam) {
                     $scope.doexam = exam;
@@ -153,7 +164,7 @@
                         error(function (error) {
                             console.log('Error happened: ' + error);
                         });
-                }
+                };
 
                 $scope.setActiveSection = function (section) {
                     $scope.activeSection = section;
@@ -225,7 +236,7 @@
                             }
                         })
                     }
-                }
+                };
 
                 $scope.setNextSection = function (exam, active_section) {
                     var sectionCount = exam.examSections.length;
@@ -246,7 +257,7 @@
                             }
                         })
                     }
-                }
+                };
 
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
@@ -305,20 +316,44 @@
                     });
                 };
 
+                $scope.formatRemainingTime = function(time){
 
+                    var remaining = 0;
+                    var minutes = time / 60;
+                    if(minutes > 1) {
+                        minutes = (minutes|0);
+                        var seconds = time - ( minutes * 60 );
+                        remaining = minutes + "m " + seconds + 's';
+                    } else {
+                        remaining = time + 's';
+                    }
 
-                $scope.remainingTime = 0;
-                $scope.onTimeout = function(){
-                    $scope.remainingTime++;
-                    $timeout($scope.onTimeout,1000);
-                }
-                $timeout($scope.onTimeout,1000);
+                    return remaining;
 
+                };
+
+                $scope.remainingTime = '';
+                var updateCheck = 30;
+                var updateInterval = 0;
+                var count = function () {
+                    updateInterval++;
+                    $timeout(count, 1000);
+                    if (updateInterval >= updateCheck) {
+                        updateInterval = 0;
+                        var req = $http.get('/time/' + $scope.doexam.id);
+                        req.success(function (reply) {
+                            $scope.remainingTime = reply;
+                        });
+                    } else {
+                        $scope.remainingTime--;
+                        return;
+                    }
+                };
 
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
 
-                    if (question.type == "EssayQuestion") {
+                    if (question.type == "EssayQuestioen") {
 
                     }
 

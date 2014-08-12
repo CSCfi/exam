@@ -1,9 +1,12 @@
 package controllers;
 
 import com.avaje.ebean.Ebean;
-import models.ExamInspection;
+import models.Exam;
+import models.ExamParticipation;
 import models.User;
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
+import org.joda.time.Seconds;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.mvc.Controller;
@@ -21,19 +24,24 @@ public class TimeController extends Controller {
 
 
     public static Result getExamRemainingTime(Long examId) {
-
-
-        Ebean.find(ExamInspection.class);
         User user = UserController.getLoggedUser();
+
+        ExamParticipation participation = Ebean.find(ExamParticipation.class)
+                .fetch("user")
+                .fetch("exam")
+                .where()
+                .eq("exam.id", examId)
+                .eq("user.id", user.getId())
+                .findUnique();
+
+        Exam exam = participation.getExam();
+
+        final Seconds examDuration = Minutes.minutes(exam.getDuration()).toStandardSeconds();
         final DateTime now = DateTime.now();
+        final DateTime started = new DateTime(participation.getStarted());
+        final Seconds tau = Seconds.secondsBetween(started, now);
 
-
-
-
-
-        return ok();
-
-
+        return ok(String.valueOf(examDuration.minus(tau).getSeconds()));
     }
 
 }

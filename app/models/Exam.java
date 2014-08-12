@@ -84,7 +84,7 @@ public class Exam extends SitnetModel {
 
     // tentin kesto
 //    @Constraints.Required
-    private Double duration;
+    private Integer duration;
 
     // Exam grading, e.g. 0-5
     private String grading;
@@ -231,11 +231,11 @@ public class Exam extends SitnetModel {
 		return room;
 	}
 
-	public Double getDuration() {
+	public Integer getDuration() {
 		return duration;
 	}
 
-	public void setDuration(Double duration) {
+	public void setDuration(Integer duration) {
 		this.duration = duration;
 	}
 

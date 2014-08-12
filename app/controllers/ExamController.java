@@ -479,8 +479,9 @@ public class ExamController extends SitnetController {
                 exam.setExamActiveEndDate(new Timestamp(end));
             }
 
+
             if (duration != null) {
-                exam.setDuration(Double.valueOf(duration));
+                exam.setDuration(Integer.valueOf(duration));
             }
 
             if (grading != null) {
