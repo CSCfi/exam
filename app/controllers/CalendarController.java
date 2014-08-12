@@ -77,11 +77,14 @@ public class CalendarController extends SitnetController {
         enrolment.setReservation(reservation);
         Ebean.save(enrolment);
 
-        //todo: email trigger: create reservation
-        EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
-
         if (oldReservation != null) {
             Ebean.delete(oldReservation);
+        }
+
+        try {
+            EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
 
         return ok("ok");
