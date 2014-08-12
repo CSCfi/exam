@@ -4,13 +4,49 @@
         .controller('TeacherExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes',
             function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, QuestionRes) {
 
-                $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/essay_question.html";
                 $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/section_template.html";
 
                 //$scope.exams = StudentExamRes.exams.query();
                 $scope.tempQuestion = null;
+
+                // section back / forward buttons
+                $scope.guide = false;
+                $scope.switchToGuide = function(b) {
+                    $scope.guide = b;
+                }
+                $scope.previousButton = false;
+                $scope.previousButtonText = "";
+
+                $scope.nextButton = false;
+                $scope.nextButtonText = "";
+
+                $scope.previewSwitch = true;
+
+                $scope.switchButtons = function(section) {
+
+                    var i = section.index - 1;
+
+                    if ($scope.doexam.examSections[i-1]) {
+                        $scope.previousButton = true;
+                        $scope.previousButtonText = $scope.doexam.examSections[i-1].index + ". " + $scope.doexam.examSections[i-1].name;
+                    } else {
+                        $scope.previousButton = true;
+                        $scope.previousButtonText = $translate("sitnet_exam_quide");
+                    }
+
+                    if(i == 0 && $scope.guide) {
+                        $scope.nextButton = true;
+                        $scope.nextButtonText = $scope.doexam.examSections[0].index + ". " + $scope.doexam.examSections[0].name;
+                    } else if (!$scope.guide && $scope.doexam.examSections[i+1]) {
+                        $scope.nextButton = true;
+                        $scope.nextButtonText = $scope.doexam.examSections[i+1].index + ". " + $scope.doexam.examSections[i+1].name;
+                    } else {
+                        $scope.nextButton = false;
+                        $scope.nextButtonText = "";
+                    }
+                }
 
                 $scope.previewExam = function () {
 
@@ -31,6 +67,7 @@
                             // Loop through all questions in the active section
                             angular.forEach($scope.activeSection.questions, function (question, index) {
                                 var template = "";
+
                                 switch (question.type) {
                                     case "MultipleChoiceQuestion":
                                         template = $scope.multipleChoiseOptionTemplate;
@@ -44,30 +81,11 @@
                                 }
                                 question.template = template;
 
-                                if (question.expanded == null) {
-                                    question.expanded = true;
-                                }
-                                if (question.expanded) {
-                                    question.selectedAnsweredState = 'question-active-header';
-
-                                    if (!question.answer) {
-                                        question.questionStatus = $translate("sitnet_question_unanswered");
-                                    } else {
-                                        question.questionStatus = $translate("sitnet_question_answered");
-                                    }
-                                }
-                                else {
-                                    if (!question.answer) {
-                                        // When question is folded and has not been answered it's status color is set to gray
-                                        question.selectedAnsweredState = 'question-unanswered-header';
-                                        question.questionStatus = $translate("sitnet_question_unanswered");
-                                    } else {
-                                        // When question is folded and has not been answered it's status color is set to green
-                                        question.selectedAnsweredState = 'question-answered-header';
-                                        question.questionStatus = $translate("sitnet_question_answered");
-                                    }
-                                }
+                                question.expanded = false;
+                                $scope.setQuestionColors(question);
                             })
+                            $scope.switchToGuide(true);
+                            $scope.switchButtons($scope.doexam.examSections[0]);
                         }).
                         error(function (data, status, headers, config) {
                             // called asynchronously if an error occurs
@@ -81,6 +99,7 @@
 
                 $scope.setActiveSection = function (section) {
                     $scope.activeSection = section;
+                    $scope.switchButtons(section);
 
                     // Loop through all questions in the active section
                     angular.forEach($scope.activeSection.questions, function (question, index) {
@@ -102,70 +121,53 @@
                         }
                         question.template = template;
 
-                        if (question.expanded == null) {
-                            question.expanded = true;
+                        if(!question.expanded) {
+                            question.expanded = false;
                         }
-
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-active-header';
-
-                            if (!question.answer) {
-                                question.questionStatus = $translate("sitnet_question_unanswered");
-                            } else {
-                                question.questionStatus = $translate("sitnet_question_answered");
-                            }
-                        }
-                        else {
-                            if (!question.answer) {
-                                // When question is folded and has not been answered it's status color is set to gray
-                                question.selectedAnsweredState = 'question-unanswered-header';
-                                question.questionStatus = $translate("sitnet_question_unanswered");
-                            } else {
-                                // When question is folded and has not been answered it's status color is set to green
-                                question.selectedAnsweredState = 'question-answered-header';
-                                question.questionStatus = $translate("sitnet_question_answered");
-                            }
-                        }
+                        $scope.setQuestionColors(question);
                     })
                 };
 
                 $scope.setPreviousSection = function (exam, active_section) {
-                    var sectionCount = exam.examSections.length;
+//                    var sectionCount = exam.examSections.length;
 
-                    // Loop through all sections in the exam
-                    angular.forEach(exam.examSections, function (section, index) {
-                        // If section is same as the active_section
-                        if (angular.equals(section, active_section)) {
-                            // If this is the first element in the array
-                            if (index == 0) {
-                                var section = exam.examSections[sectionCount-1];
-//                                $scope.setActiveSection(exam.examSections[sectionCount]);
-                                $scope.setActiveSection(section);
+                    if(!$scope.guide) {
+                        // Loop through all sections in the exam
+                        angular.forEach(exam.examSections, function (section, index) {
+                            // If section is same as the active_section
+                            if (angular.equals(section, active_section)) {
+                                // If this is the first element in the array
+                                if (index == 0) {
+                                    $scope.switchToGuide(true);
+                                    $scope.setActiveSection(exam.examSections[0]);
+                                }
+                                else {
+                                    $scope.setActiveSection(exam.examSections[index - 1]);
+                                }
                             }
-                            else {
-                                $scope.setActiveSection(exam.examSections[index-1]);
-                            }
-                        }
-                    })
+                        })
+                    }
                 }
 
                 $scope.setNextSection = function (exam, active_section) {
                     var sectionCount = exam.examSections.length;
 
-                    // Loop through all sections in the exam
-                    angular.forEach(exam.examSections, function (section, index) {
-                        // If section is same as the active_section
-                        if (angular.equals(section, active_section)) {
-                            // If this is the last element in the array
-                            if (index == sectionCount-1) {
-                                // Jump to the beginning of the array
-                                var section = exam.examSections[0];
-                                $scope.setActiveSection(section);
-                            } else {
-                                $scope.setActiveSection(exam.examSections[index+1]);
+                    if($scope.guide) {
+                        $scope.switchToGuide(false);
+                        $scope.setActiveSection(exam.examSections[0]);
+                    } else {
+                        // Loop through all sections in the exam
+                        angular.forEach(exam.examSections, function (section, index) {
+                            // If section is same as the active_section
+                            if (angular.equals(section, active_section)) {
+                                // If this is the last element in the array
+                                if (index == sectionCount - 1) {
+                                } else {
+                                    $scope.setActiveSection(exam.examSections[index + 1]);
+                                }
                             }
-                        }
-                    })
+                        })
+                    }
                 }
 
                 // Called when the exit button is clicked
@@ -178,13 +180,7 @@
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
 
-                    StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id},
-                        function (updated_answer) {
-                        question.answer = updated_answer;
-                        toastr.info("Vastaus lisätty kysymykseen.");
-                    }, function () {
-                        toastr.error(error.data);
-                    });
+
                 };
 
                 $scope.remainingTime = 0;
@@ -202,20 +198,7 @@
 
                     }
 
-                    // State machine for resolving how the question header is drawn
-                    if (question.answered) {
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-answered-header';
-                        } else {
-                            question.selectedAnsweredState = 'question-active-header';
-                        }
-                    } else {
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-unanswered-header';
-                        } else {
-                            question.selectedAnsweredState = 'question-active-header';
-                        }
-                    }
+                    $scope.setQuestionColors(question);
                 };
 
                 $scope.isAnswer = function (question, option) {
@@ -228,5 +211,27 @@
                         return true;
                 };
 
+                $scope.setQuestionColors = function(question) {
+                    // State machine for resolving how the question header is drawn
+                    if (question.answered) {
+
+                        question.questionStatus = $translate("sitnet_question_answered");
+
+                        if (question.expanded) {
+                            question.selectedAnsweredState = 'question-active-header';
+                        } else {
+                            question.selectedAnsweredState = 'question-answered-header';
+                        }
+                    } else {
+
+                        question.questionStatus = $translate("sitnet_question_unanswered");
+
+                        if (question.expanded) {
+                            question.selectedAnsweredState = 'question-active-header';
+                        } else {
+                            question.selectedAnsweredState = 'question-unanswered-header';
+                        }
+                    }
+                }
             }]);
 }());

@@ -59,15 +59,6 @@
                     $http.get('/student/doexam/' + $routeParams.hash)
                         .success(function (data, status, headers, config) {
                             $scope.doexam = data;
-
-                            if($scope.doexam && $scope.doexam.state === 'STUDENT_STARTED'){
-                                var req = $http.get('/time/' + $scope.doexam.id);
-                                req.success(function (reply) {
-                                    $scope.remainingTime = reply;
-                                });
-                                $timeout(count, 1000);
-                            }
-
                             $scope.activeSection = $scope.doexam.examSections[0];
 
                             // set sections and question numbering
@@ -95,30 +86,10 @@
                                 }
                                 question.template = template;
 
-                                if (question.expanded == null) {
-                                    question.expanded = true;
-                                }
-                                if (question.expanded) {
-                                    question.selectedAnsweredState = 'question-active-header';
+                                question.expanded = false;
 
-                                    if (!question.answer) {
-                                        question.questionStatus = $translate("sitnet_question_unanswered");
-                                    } else {
-                                        question.questionStatus = $translate("sitnet_question_answered");
-                                    }
-                                }
-                                else {
-                                    if (!question.answer) {
-                                        // When question is folded and has not been answered it's status color is set to gray
-                                        question.selectedAnsweredState = 'question-unanswered-header';
-                                        question.questionStatus = $translate("sitnet_question_unanswered");
-                                    } else {
-                                        // When question is folded and has not been answered it's status color is set to green
-                                        question.selectedAnsweredState = 'question-answered-header';
-                                        question.questionStatus = $translate("sitnet_question_answered");
-                                    }
-                                }
-                            });
+                                $scope.setQuestionColors(question);
+                            })
                             $scope.switchToGuide(true);
                             $scope.switchButtons($scope.doexam.examSections[0]);
                         }).
@@ -194,26 +165,7 @@
                             question.expanded = true;
                         }
 
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-active-header';
-
-                            if (!question.answer) {
-                                question.questionStatus = $translate("sitnet_question_unanswered");
-                            } else {
-                                question.questionStatus = $translate("sitnet_question_answered");
-                            }
-                        }
-                        else {
-                            if (!question.answer) {
-                                // When question is folded and has not been answered it's status color is set to gray
-                                question.selectedAnsweredState = 'question-unanswered-header';
-                                question.questionStatus = $translate("sitnet_question_unanswered");
-                            } else {
-                                // When question is folded and has been answered it's status color is set to green
-                                question.selectedAnsweredState = 'question-answered-header';
-                                question.questionStatus = $translate("sitnet_question_answered");
-                            }
-                        }
+                        $scope.setQuestionColors(question);
                     })
                 };
 
@@ -353,24 +305,10 @@
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
 
-                    if (question.type == "EssayQuestioen") {
+                    if (question.type == "EssayQuestion") {
 
                     }
-
-                    // State machine for resolving how the question header is drawn
-                    if (question.answered) {
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-answered-header';
-                        } else {
-                            question.selectedAnsweredState = 'question-active-header';
-                        }
-                    } else {
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-unanswered-header';
-                        } else {
-                            question.selectedAnsweredState = 'question-active-header';
-                        }
-                    }
+                    $scope.setQuestionColors(question);
                 };
 
                 $scope.isAnswer = function (question, option) {
@@ -383,5 +321,27 @@
                         return true;
                 };
 
+                $scope.setQuestionColors = function(question) {
+                    // State machine for resolving how the question header is drawn
+                    if (question.answered) {
+
+                        question.questionStatus = $translate("sitnet_question_answered");
+
+                        if (question.expanded) {
+                            question.selectedAnsweredState = 'question-active-header';
+                        } else {
+                            question.selectedAnsweredState = 'question-answered-header';
+                        }
+                    } else {
+
+                        question.questionStatus = $translate("sitnet_question_unanswered");
+
+                        if (question.expanded) {
+                            question.selectedAnsweredState = 'question-active-header';
+                        } else {
+                            question.selectedAnsweredState = 'question-unanswered-header';
+                        }
+                    }
+                }
             }]);
 }());

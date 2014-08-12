@@ -8,14 +8,13 @@
             <div ng-model="question">
                 <span class="fa-stack fa-lg">
                   <i class="fa fa-stop fa-stack-2x question-icon-bg"></i>
-                  <i class="fa fa-list-ul fa-stack-1x question-icon"></i>
+                  <i class="fa fa-stack-1x question-icon" ng-class="question.type === 'MultipleChoiceQuestion' ? 'fa-list-ul' : 'fa-pencil-square-o'"></i>
                 </span>
 
-                <span ng-click="chevronClicked(question); question.expanded = !question.expanded;" class="question-text pointer" ng-bind-html="question.question"></span>
+                <span ng-click="question.expanded = !question.expanded; chevronClicked(question);" class="question-text pointer" ng-bind-html="question.question"></span>
 
-                <span ng-click="question.expanded = !question.expanded" class="pull-right fa-stack fa-lg pointer">
-                    <i ng-click="chevronClicked(question)"
-                       ng-class="question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-left sitnet-text-medium'"
+                <span ng-click="question.expanded = !question.expanded; chevronClicked(question);" class="pull-right fa-stack fa-lg pointer">
+                    <i ng-class="question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-left sitnet-text-medium'"
                        class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
                     </i>
                 </span>
@@ -24,7 +23,7 @@
 
             <div class="exam-question-container" ng-show="question.expanded">
                 <div class="question" ng-include="question.template"></div>
-                <div ng-show="question.attachment !== null">
+                <div ng-show="question.attachment !== null && !previewSwitch">
                     <a href="/attachment/question/{{question.id}}"> {{'sitnet_download_attachment' | translate }} </a>
                 </div>
 

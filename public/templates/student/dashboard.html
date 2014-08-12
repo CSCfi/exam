@@ -24,37 +24,47 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="exams-list col-md-12" ng-controller="StudentExamController">
-            <div class="exams-table-borders">
-                <table class="table table-bordered exams-table">
-                    <thead>
-                        <tr>
-                            <th class="table-column-flag"></th>
-                            <th class="table-column-examname">{{'sitnet_examcode_and_name' | translate}}</th>
-                            <th class="table-column-enroll-participation">{{'sitnet_exam_room' | translate}}</th>
-                            <th class="table-column-open-until">{{'sitnet_exam_time' | translate}}</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr ng-repeat="enrolment in userEnrolments">
-                            <td>
-                                <!--<i class="sitnet-light-grey fa fa-square"></i>-->
-                                <i class="sitnet-dark-grey fa">{{$index + 1}}</i>
-                            </td>
-                            <td><a ng-click="activateExam(enrolment.exam)">{{enrolment.exam.course.code}} - {{enrolment.exam.name}}</a></td>
-                            <td ng-if="enrolment.reservation">
-                                {{enrolment.reservation.machine.name}} <br/> <a style="color: red" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation' | translate}}</a>
-                            </td>
-                            <td ng-if="!enrolment.reservation">
-                                <a style="color: red" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation' | translate}}</a>
-                            </td>
-                            <td><h4>{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}}</h4> <h3>klo {{enrolment.reservation.startAt | date:'HH:mm'}} -
-                                {{enrolment.reservation.endAt | date:'HH:mm'}}</h3></td>
-                        </tr>
-                    </tbody>
-                </table>
+    <div class="row" ng-controller="StudentExamController">
+        <div ng-repeat="enrolment in userEnrolments">
+            <div class="col-md-11 pull-left bottom-padding-2">
+                <div class="col-md-1 pull-left">
+                    <a class="info-column-large-icon col-md-12 fa-stack fa-2x pointer" ng-click="activateExam(enrolment.exam);">
+                        <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
+                        <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
+                    </a>
+                </div>
+                <div class="col-md-5 pull-left">
+                    <div class="info-row col-md-12 pull-left">
+                        <div class="info-row col-md-12 info-column info-header-bolditalic">{{enrolment.exam.name}} - {{enrolment.exam.course.code}}</div>
+                        <div class="info-row col-md-12 info-column">
+                            <span class="header col-md-4">{{ 'sitnet_course_name' | translate }}:</span>
+                            <span class="text col-md-8">{{ enrolment.exam.course.name }}</span>
+                        </div>
+                        <div class="info-row col-md-12 info-column">
+                            <span class="header col-md-4">{{ 'sitnet_exam_time' | translate }}:</span>
+                            <span class="text col-md-8">{{ enrolment.exam.duration / 60 }} h</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5 pull-left">
+                    <div class="info-row col-md-12 info-column" ng-show="enrolment.reservation.machine.name">
+                        <span class="header col-md-4">{{ 'sitnet_exam_room' | translate }}:</span>
+                        <span class="text col-md-8">
+                            <span ng-if="enrolment.reservation" class="sitnet-text">{{enrolment.reservation.machine.name}}</span><br/>
+                        </span>
+                    </div>
+                    <div class="info-row col-md-12 info-column" ng-show="enrolment.reservation.startAt">
+                        <span class="header col-md-4">{{ 'sitnet_exam_time' | translate }}:</span>
+                        <span class="text col-md-8 sitnet-text-alarm">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} klo {{enrolment.reservation.startAt | date:'HH:mm'}} - {{enrolment.reservation.endAt | date:'HH:mm'}}</span>
+                    </div>
+                    <div class="info-row col-md-12 info-column">
+                        <span class="header col-md-4">{{ 'sitnet_toolbar_calendar' | translate }}:</span>
+                        <span class="text col-md-8">
+                            <a ng-if="enrolment.reservation" class="sitnet-text-alarm" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation' | translate}}</a>
+                            <a ng-if="!enrolment.reservation" class="sitnet-text-alarm" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation' | translate}}</a>
+                        </span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -66,49 +76,32 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="exams-list col-md-12">
-            <div class="exams-table-borders">
-                <table class="table table-bordered exams-table">
-                    <thead>
-                    <tr>
-                        <th class="table-column-examname">{{'sitnet_examcode_and_name' | translate}}</th>
-                        <th class="table-column-flag">{{'sitnet_exam_state'| translate}}</th>
-                        <th class="table-column-flag">{{'sitnet_teachers_comment' | translate}}</th>
-                    </tr>
-                    </thead>
-
-                    <tbody>
-                    <tr ng-repeat="finishedExam in studentFinishedExams">
-                        <td>{{finishedExam.course.code}} - {{finishedExam.name}}</td>
-
-                        <td ng-if="finishedExam.state === 'REVIEW_STARTED'">
-                            <span class="status_orange">{{'sitnet_exam_in_review' | translate}}</span>
-                        </td>
-
-                        <td ng-if="finishedExam.state ==='REVIEW'">
-                            <span class="status_orange">{{'sitnet_exam_in_review' | translate}}</span>
-                        </td>
-
-                        <td ng-if="finishedExam.state === 'GRADED'">
-                            <span class="status_green">{{'sitnet_exam_reviewed' | translate}}</span>
-                        </td>
-
-                        <td ng-if="finishedExam.state === 'GRADED'">
-                            <span ng-click="showFeedback(finishedExam.id)" class="status_theme">{{'sitnet_comments' | translate}}</span>
-                        </td>
-
-                        <td ng-if="finishedExam.state === 'REVIEW_STARTED'">
-                            <span class="status_red">{{'sitnet_no_comments' | translate}}</span>
-                        </td>
-
-                        <td ng-if="finishedExam.state === 'REVIEW'">
-                            <span class="status_red">{{'sitnet_no_comments' | translate}}</span>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="row col-md-12">
+        <table class="light-table col-md-8">
+            <tbody>
+            <tr ng-repeat="finishedExam in studentFinishedExams">
+                <td>
+                    <span ng-if="finishedExam.state ==='REVIEW'" class="status_orange">{{'sitnet_exam_in_review' | translate}}</span>
+                    <span ng-if="finishedExam.state === 'GRADED'" class="status_green">{{'sitnet_exam_reviewed' | translate}}</span>
+                    <span ng-if="finishedExam.state === 'REVIEW_STARTED'"class="status_orange">{{'sitnet_exam_in_review' | translate}}</span>
+                </td>
+                <td>
+                    <div class="info-column col-md-12">
+                        <span class="header col-md-12">{{ 'sitnet_examcode_and_name' | translate }}:</span><br/>
+                        <span class="text col-md-12">{{finishedExam.course.code}} - {{finishedExam.name}}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="info-column col-md-12">
+                        <span class="header col-md-12">{{'sitnet_teachers_comment' | translate}}:</span><br/>
+                        <span class="text col-md-12">
+                            <span ng-if="finishedExam.state === 'GRADED'" ng-click="showFeedback(finishedExam.id)" class="pointer sitnet-text-theme">{{'sitnet_comments' | translate}}</span>
+                            <span ng-if="finishedExam.state === 'REVIEW' || finishedExam.state === 'REVIEW_STARTED'" class="sitnet-text-alarm">{{'sitnet_no_comments' | translate}}</span>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>

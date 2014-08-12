@@ -7,8 +7,6 @@
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
 
-                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "student/exam_feedback_general_info.html";
-
                 $scope.user = $scope.session.user;
                 if ($scope.user.isStudent) {
                     $scope.feedbackTemplate = SITNET_CONF.TEMPLATES_PATH + "student/exam_feedback.html";

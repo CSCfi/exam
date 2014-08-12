@@ -67,16 +67,16 @@
     <div class="col-md-4">
         <div class="col-md-12">
             <div class="info-column">
-                <span class="header">{{ 'sitnet_course_name' | translate }}:</span>
-                <span class="text">{{ doexam.course.name }}</span>
+                <span class="header col-md-6">{{ 'sitnet_course_name' | translate }}:</span>
+                <span class="text col-md-6">{{ doexam.course.name }}</span>
             </div>
             <div class="info-column">
-                <span class="header">{{ 'sitnet_course_code' | translate }}:</span>
-                <span class="text">{{ doexam.course.code }}</span>
+                <span class="header col-md-6">{{ 'sitnet_course_code' | translate }}:</span>
+                <span class="text col-md-6">{{ doexam.course.code }}</span>
             </div>
             <div class="info-column">
-                <span class="header">{{ 'sitnet_exam_time' | translate }}:</span>
-                <span class="text">{{ doexam.duration / 60 }} h</span>
+                <span class="header col-md-6">{{ 'sitnet_exam_time' | translate }}:</span>
+                <span class="text col-md-6">{{ doexam.duration / 60 }} h</span>
             </div>
         </div>
         <div class="col-md-12 top-padding-2 bottom-padding-2" ng-include="sectionsBar"></div>

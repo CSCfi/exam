@@ -4,38 +4,39 @@
     </div>
 </div>
 <div id="dashboard">
-    <div id="student_feedback">
-        <div class="base col-md-12">
 
-            <div class="exam-wrapper">
-                <!-- General Information -->
-                <div class="exam-general-information" ng-include="generalInfoPath"></div>
-	
-                <div class="exams-table-borders col-md-12" style="margin-top: 1em;">
-                    <table class="table table-bordered exams-table">
-                        <thead>
-                        <tr>
-                            <th class="table-column-examname">{{'sitnet_teachers_comment' | translate}}</th>
-
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        <tr>
-                            <td ng-bind-html="reviewedExam.examFeedback.comment"></td>
-                        </tr>
-                        </tbody>
-                    </table>
+    <div class="col-md-12 pull-left bottom-padding-2 top-padding-2" id="student_feedback">
+        <div class="col-md-7 pull-left">
+            <div class="info-row col-md-12 pull-left">
+                <!--<div class="info-row col-md-12 info-column info-header-bolditalic">{{ reviewedExam.course.code }} - {{ reviewedExam.name }}</div>-->
+                <div class="info-row col-md-12 info-column">
+                    <span class="header col-md-4">{{ 'sitnet_course_name' | translate }}:</span>
+                    <span class="text col-md-8">{{ reviewedExam.name }}</span>
+                </div>
+                <div class="info-row col-md-12 info-column">
+                    <span class="header col-md-4">{{ 'sitnet_course_code' | translate }}:</span>
+                    <span class="text col-md-8">{{ reviewedExam.course.code }}</span>
+                </div>
+                <div class="info-row col-md-12 info-column">
+                    <span class="header col-md-4">{{'sitnet_exam_credit' | translate}}:</span>
+                    <span class="text col-md-8">{{ reviewedExam.course.credits }}</span>
+                </div>
+                <div class="info-row col-md-12 info-column">
+                    <span class="header col-md-4">{{'sitnet_exam_grade' | translate}}:</span>
+                    <span class="text col-md-8">{{ reviewedExam.grade }}</span>
+                </div>
+                <div class="top-padding-2 info-row col-md-12 info-column">
+                    <span class="header col-md-4">{{'sitnet_teachers_comment' | translate}}:</span>
+                    <span class="text col-md-8" ng-bind-html="reviewedExam.examFeedback.comment"></span>
                 </div>
             </div>
-            <div>
-                <div>
-                    <a ng-click="exitFeedback()">
-                        <i class="btn btn-primary btn-lg active fa fa-sign-out exam-signout-button" style="margin-top: 1em; float: right">
-                            <span class="exam-signout-button-text">{{'sitnet_exit_feedback' | translate}}</span></i>
-                    </a>
-                </div>
-            </div>
+        </div>
+        <div class="top-padding-2 col-md-5 pull-right">
+            <a class="col-md-12 fa-stack pointer" ng-click="exitFeedback()">
+                <i class="fa fa-stop fa-stack-2x sitnet-text-theme"></i>
+                <i class="fa fa-sign-out sitnet-white fa-stack-1x"></i>
+            </a>
+            <span class="sitnet-text-theme icon_fix pointer" ng-click="exitFeedback()">{{'sitnet_exit_feedback' | translate}}</span>
         </div>
     </div>
 </div>
