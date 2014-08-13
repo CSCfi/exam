@@ -393,7 +393,7 @@
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
                         "instruction": $scope.newExam.instruction,
-                        "state": 'SAVED',
+//                        "state": 'SAVED',
 //                        "course": $scope.newExam.course,    // there is no course
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": $scope.dateService.startTimestamp,
