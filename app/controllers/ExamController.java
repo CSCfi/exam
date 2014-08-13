@@ -24,6 +24,7 @@ import util.java.EmailComposer;
 
 import java.sql.Timestamp;
 import java.util.*;
+import java.util.Collections;
 
 public class ExamController extends SitnetController {
 
@@ -297,6 +298,60 @@ public class ExamController extends SitnetController {
             return forbidden("You are not allowed to modify this object");
         }
     }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExamPreview(Long id) {
+
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("examSections")
+                .fetch("examSections.questions")
+                .where()
+                .eq("id", id)
+                .findUnique();
+
+        for (ExamSection es : exam.getExamSections()) {
+
+            if (es.getLotteryOn()) {
+
+                Collections.shuffle(es.getQuestions());
+
+                es.setQuestions(es.getQuestions().subList(0, es.getLotteryItemCount()));
+            }
+        }
+
+        if (exam == null)
+        {
+            return notFound();
+        }
+        else if(exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") ||
+                exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED"))
+        {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
+                    "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
+            options.setPathProperties("parent", "id");
+            options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("room", "id, name");
+            options.setPathProperties("attachment", "id, fileName");
+            options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
+            options.setPathProperties("examType", "id, type");
+            options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
+            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
+            options.setPathProperties("examSections.questions.answer", "type, option, answer");
+            options.setPathProperties("examSections.questions.answer.option", "id, option, correctOption, score");
+            options.setPathProperties("examSections.questions.options", "id, option" );
+            options.setPathProperties("examSections.questions.comments", "id, comment");
+            options.setPathProperties("examFeedback", "id, comment");
+
+            return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+        }
+        else {
+            return forbidden("You are not allowed to modify this object");
+        }
+    }
+
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result reviewExam(Long id) {

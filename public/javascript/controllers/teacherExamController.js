@@ -50,7 +50,7 @@
 
                 $scope.previewExam = function () {
 
-                    $http.get('/exams/' + $routeParams.id)
+                    $http.get('/exampreview/' + $routeParams.id)
                         .success(function (data, status, headers, config) {
                             $scope.doexam = data;
                             $scope.activeSection = $scope.doexam.examSections[0];
