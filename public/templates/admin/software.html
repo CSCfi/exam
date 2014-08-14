@@ -65,9 +65,10 @@
                             </a>
                         </td>
                         <td class="col-md-1 text-center">
-                            <a class="fa-stack fa-lg" ng-click="removeSoftware(software)">
-                                <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
-                                <i class="fa fa-times fa-stack-1x"></i>
+                            <a class="fa-stack fa-lg" ng-click="removeSoftware(software)"
+                               popover-placement="top" popover-trigger="mouseenter" popover="Poista ohjelmisto">
+                                <!--<i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>-->
+                                <i class="sitnet-red fa fa-times fa-stack-1x"></i>
                             </a>
                         </td>
                     </tr>
