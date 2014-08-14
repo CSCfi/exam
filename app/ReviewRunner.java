@@ -10,21 +10,18 @@ import java.util.List;
 public class ReviewRunner extends Controller implements Runnable {
     @Override
     public void run() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Running exam participation clean up ..");
+        Logger.info("Running exam participation clean up ..");
         try {
             final List<ExamParticipation> participations = getNotEndedParticipations();
 
             if (participations == null || participations.isEmpty()) {
-                sb.append("\n .. no \"dirty participations\" found. Shutting down.");
+                Logger.info(" .. no \"dirty participations\" found. Shutting down.");
                 return;
             }
-            Logger.info(".. found \"dirty {} participations\", running clean up.", participations.size());
+            Logger.info(" .. found \"dirty {} participations\", running clean up.", participations.size());
             markEnded(participations);
         } catch (Exception ex) {
             ex.printStackTrace();
-        } finally {
-            Logger.info(sb.toString());
         }
     }
 
