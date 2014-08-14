@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Controller;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public class ReviewRunner extends Controller implements Runnable {
@@ -39,6 +40,8 @@ public class ReviewRunner extends Controller implements Runnable {
                     .plusMinutes(15);
 
             if (participationTimeLimit.isBeforeNow()) {
+                participation.setEnded(new Timestamp(DateTime.now().getMillis()));
+                participation.save();
                 String state = Exam.State.REVIEW.toString();
                 Logger.info("Setting exam ({}) state to {}", exam.getId(), state);
                 exam.setState(state);
