@@ -10,6 +10,7 @@ import play.Application;
 import play.GlobalSettings;
 import play.Logger;
 import play.cache.Cache;
+import play.libs.Akka;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.Json;
@@ -19,20 +20,32 @@ import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Results;
 import play.mvc.SimpleResult;
+import scala.concurrent.duration.Duration;
 
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Global extends GlobalSettings {
 
     public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
     public static final String SITNET_CACHE_KEY = "user.session.";
+    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 0;
+    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 10;
 
     @Override
     public void onStart(Application app) {
+
+        Akka.system().scheduler().schedule(
+                Duration.create(SITNET_EXAM_REVIEWER_START_AFTER_MINUTES, TimeUnit.MINUTES),
+                Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.SECONDS),
+                new ReviewRunner(),
+                Akka.system().dispatcher()
+        );
+
         InitialData.insert(app);
     }
 
