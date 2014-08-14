@@ -12,7 +12,6 @@
                 $scope.hoursTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/open_hours.html";
                 $scope.user = $scope.session.user;
 
-
                 var selectable = [],
                     times = [],
                     startHour = 8,
@@ -45,6 +44,26 @@
                     }
                     selectable.push(week);
                 }
+
+                var isAnyExamMachines = function() {
+                    if($scope.roomInstance.examMachines === undefined || $scope.roomInstance.examMachines == null || $scope.roomInstance.examMachines.length == 0)
+                        return false;
+                    else
+                        return true;
+                };
+
+                var thereIsAnyDefaultTimesAtAll = function(){
+                    //todo: optimize!
+                    var has = false;
+                    selectable.forEach(function (row) {
+                        row.forEach(function (cell) {
+                            if(cell.type === 'selected') {
+                                has = true;
+                            }
+                        });
+                    });
+                    return has;
+                };
 
                 var clear = function (day) {
                     selectable.forEach(function (row) {
@@ -206,7 +225,6 @@
                             function (room) {
                                 $scope.times = times;
 
-
                                 room.defaultWorkingHours.forEach(function (slot) {
                                     var s = slotToTimes(slot);
                                     var day = resolveDay(slot.day);
@@ -216,6 +234,9 @@
                                 $scope.table = selectable;
 
                                 $scope.roomInstance = room;
+
+                                if(!isAnyExamMachines())
+                                    toastr.error("HUOM! Tenttitilassa ei ole vielä yhtään tenttikonetta.");
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -282,6 +303,16 @@
                 };
 
                 $scope.saveRoom = function (room) {
+
+                    if(!thereIsAnyDefaultTimesAtAll())
+                    {
+                        toastr.error("Tenttitilalla on oltava vakioaukioloajat." );
+                        return;
+                    }
+
+                    if(!isAnyExamMachines())
+                        toastr.error("Muista lisätä tenttikoneita tilaan "+ $scope.roomInstance.name);
+
                     RoomResource.rooms.update(room,
                         function (updated_room) {
                             toastr.info("Tenttitila tallennettu.");

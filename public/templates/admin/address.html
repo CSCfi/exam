@@ -4,8 +4,8 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_street' | translate}}</div>
                 <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.street"
-                           ui-change="updateAddress(roomInstance.mailAddress)">
+                    <input type="text" name="street" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.street"
+                           required ng-pattern="/^(?!\s*$).+/" ui-change="showName = !showName; roomForm.street.$valid ? updateAddress(roomInstance.mailAddress) : false">
                     <span class="input-group-addon"
                           ng-click="toaster.info('Tenttitilan osoite');">
                         <i class="fa fa-question-circle fa-fw"></i>
@@ -16,8 +16,8 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_zip' | translate}}</div>
                 <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.zip"
-                           ui-change="updateAddress(roomInstance.mailAddress)">
+                    <input type="text" name="zip" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.zip"
+                           required ng-pattern="/^\d*(\.\d+)?$/" ui-change="showName = !showName; roomForm.zip.$valid ? updateAddress(roomInstance.mailAddress) : false">
                         <span class="input-group-addon"
                               ng-click="toaster.info('Tenttitilan postinumero');">
                             <i class="fa fa-question-circle fa-fw"></i>
@@ -29,8 +29,8 @@
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_exam_room_address_city' | translate}}</div>
                 <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.city"
-                           ui-change="updateAddress(roomInstance.mailAddress)">
+                    <input type="text" name="city" class="form-control ng-pristine ng-valid" ng-model="roomInstance.mailAddress.city"
+                           required ng-pattern="/^(?!\s*$).+/" ui-change="showName = !showName; roomForm.city.$valid ? updateAddress(roomInstance.mailAddress) : false">
                     <span class="input-group-addon"
                           ng-click="toaster.info('Tenttitilan postitoimipaikka');">
                         <i class="fa fa-question-circle fa-fw"></i>

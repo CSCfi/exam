@@ -304,6 +304,9 @@
     "sitnet_calendar": "Reservation calendar",
     "sitnet_randomize_questions": "Randomize questions",
     "sitnet_edit": "Edit" ,
-    "sitnet_display_free_time_slots" : "Displaying available times for following rooms:"
+    "sitnet_display_free_time_slots" : "Displaying available times for following rooms:",
+
+    "sitnet_minutes": "minutes",
+    "sitnet_hours": "hours"
 
 }

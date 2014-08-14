@@ -304,6 +304,10 @@
     "sitnet_calendar": "Varauskalenteri",
     "sitnet_randomize_questions": "Arvo kysymykset",
     "sitnet_edit": "Muokkaa",
-    "sitnet_display_free_time_slots" : "Näytetään vapaat ajat tilasta:"
+    "sitnet_display_free_time_slots" : "Näytetään vapaat ajat tilasta:",
+
+    "sitnet_minutes": "minuuttia",
+    "sitnet_hours": "tuntia"
+
 
 }

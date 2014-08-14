@@ -24,9 +24,8 @@
                     $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exams.html";
                 }
 
-                // Todo: Fill in rooms from database for final version
-
-                $scope.examRooms = RoomResource.rooms.query();
+                // SIT-367, temporarily removed Room selection from exam
+//                $scope.examRooms = RoomResource.rooms.query();
 
                 // Todo: Fill in durations from database for final version
                 $scope.examDurations = [
