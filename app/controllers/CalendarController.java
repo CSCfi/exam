@@ -141,21 +141,12 @@ public class CalendarController extends SitnetController {
         return ok(Json.toJson(allPossibleFreeTimeSlots));
     }
 
-    private static void D(Object s) {
-        System.out.println("--");
-        System.out.println(s);
-    }
-
-
     private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay) {
         Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<String, DayWithFreeTimes>();
 
         final DateTime now = DateTime.now();
 
-        D(room.getExamMachines().size());
-
         for (ExamMachine examMachine : room.getExamMachines()) {
-
 
             if (examMachine.getOutOfService()) {
                 continue;
@@ -216,6 +207,7 @@ public class CalendarController extends SitnetController {
 
                 final DayWithFreeTimes day = new DayWithFreeTimes();
                 day.setDate(theDay);
+
                 for (int i = 0; i <= (numberOfPossibleFreeSlots - 1); i++) {
                     final int shift = examDuration + transitionTime;
                     DateTime freeTimeSlotStartTime = startTime.plusMinutes(i * shift);
@@ -233,10 +225,7 @@ public class CalendarController extends SitnetController {
 
                     for (Reservation reservation : examMachine.getReservation()) {
 
-
                         final Interval reservationDuration = new Interval(reservation.getStartAt().getTime(), reservation.getEndAt().getTime());
-
-                        D(reservation.getId() + " res at machine: " + examMachine.getId() + " at " + reservationDuration);
 
                         final Interval possibleFreeTimeSlotDuration = new Interval(dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getStart()), dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getEnd()));
 
@@ -246,7 +235,6 @@ public class CalendarController extends SitnetController {
                         }
                     }
                 }
-
 
                 if (allPossibleFreeTimeSlots.get(theDay) == null) {
                     allPossibleFreeTimeSlots.put(theDay, day);
