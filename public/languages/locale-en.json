@@ -307,6 +307,7 @@
     "sitnet_display_free_time_slots" : "Displaying available times for following rooms:",
 
     "sitnet_minutes": "minutes",
-    "sitnet_hours": "hours"
+    "sitnet_hours": "hours",
+    "sitnet_start_exam": "Start exam"
 
 }

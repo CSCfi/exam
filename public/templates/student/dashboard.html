@@ -28,7 +28,8 @@
         <div ng-repeat="enrolment in userEnrolments">
             <div class="col-md-11 pull-left bottom-padding-2">
                 <div class="col-md-1 pull-left">
-                    <a class="info-column-large-icon col-md-12 fa-stack fa-2x pointer" ng-click="activateExam(enrolment.exam);">
+                    <a class="info-column-large-icon col-md-12 fa-stack fa-2x pointer" ng-click="activateExam(enrolment.exam);"
+                       popover-placement="top" popover-trigger="mouseenter" popover="{{'sitnet_start_exam' | translate}}">
                         <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                         <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
                     </a>
