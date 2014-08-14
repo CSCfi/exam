@@ -19,7 +19,7 @@ public class ReviewRunner extends Controller implements Runnable {
                 Logger.info(" .. no \"dirty participations\" found. Shutting down.");
                 return;
             }
-            Logger.info(" .. found \"dirty {} participations\", running clean up.", participations.size());
+            Logger.info(" .. found {} \"dirty participations\", running clean up.", participations.size());
             markEnded(participations);
         } catch (Exception ex) {
             ex.printStackTrace();
