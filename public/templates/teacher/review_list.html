@@ -1,7 +1,10 @@
 <div id="dashboard" class="container-fluid">
 
     <div class="col-md-12  exams-table-title-area">
-        <span class="exams-list-title-text pull-left">{{'sitnet_exams_to_be_reviewed' | translate}} </span>
+        <!--<span class="exams-list-title-text pull-left">{{'sitnet_exams_to_be_reviewed' | translate}} </span>-->
+        <!--<span class="exams-list-title-text ">{{examReviews[1].course.code}} {{examReviews[1].name}}-->
+            <!--{{[1].exam.examActiveStartDate | filter dd.MM.vvvf}}--></span>
+        <span class="exams-list-title-text pull-left">{{getExamInfo()}}</span>
     </div>
 
     <!--Odottaa tarkastusta-->
@@ -16,9 +19,10 @@
                         <tr>
                             <th><i class="fa fa-flag"></i></th>
                             <th><i class="fa fa-exclamation-triangle"></i></th>
-                            <th>{{ 'sitnet_examcode' | translate }}</th>
-                            <th>{{ 'sitnet_exam_name' | translate }}</th>
-                            <th>Tentin tila</th>
+                            <th>{{'sitnet_student' | translate }}</th>
+                            <th>{{'sitnet_review_deadline' | translate }}</th>
+                            <th>{{'sitnet_exam_duration' | translate}}</th>
+                            <th>{{'sitnet_exam_state' | translate}}</th>
                         </tr>
                     </thead>
 
@@ -26,9 +30,10 @@
                         <tr ng-repeat="examReview in examReviews | filter: byState('REVIEW')">
                             <td><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
                             <td><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                            <td>{{examReview.exam.course.code}}</td>
-                            <td><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.exam.name}}</a></td>
-                            <td>{{examReview.exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{examReview.exam.examActiveEndDate | date:'dd.MM.yyyy'}}</td>
+                            <td><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
+                            <td>{{examReview.deadline  | date:'dd.MM.yyyy'}}</td>
+                            <td>{{examReview.duration | date: 'HH:mm'}}</td>
+                            <td>{{examReview.exam.state}}</td>
                         </tr>
                     </tbody>
                 </table>

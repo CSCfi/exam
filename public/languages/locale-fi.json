@@ -308,7 +308,9 @@
 
     "sitnet_minutes": "minuuttia",
     "sitnet_hours": "tuntia",
-    "sitnet_start_exam": "Aloita tentti"
+    "sitnet_start_exam": "Aloita tentti",
+    "sitnet_review_deadline": "Arvioinnin takaraja"
+
 
 
 }

@@ -7,6 +7,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.typesafe.config.ConfigFactory;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
@@ -227,6 +228,11 @@ public class StudentExamController extends SitnetController {
         if(p != null) {
             p.setEnded(SitnetUtil.getTime());
             p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
+
+            // Todo: should not read from application.conf, come up with a better idea
+            long deadline = ConfigFactory.load().getLong("sitnet.deadline");
+            p.setDeadline(new Timestamp(p.getEnded().getTime() + deadline));
+
             p.save();
         }
 

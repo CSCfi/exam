@@ -39,7 +39,19 @@ public class ExamParticipation extends Model {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Timestamp duration;
 
-	public Long getId() {
+    // tentin arvioinnin takaraja
+	@Temporal(TemporalType.TIMESTAMP)
+	private Timestamp deadline;
+
+    public Timestamp getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Timestamp deadline) {
+        this.deadline = deadline;
+    }
+
+    public Long getId() {
 		return id;
 	}
 

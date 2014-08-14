@@ -10,7 +10,16 @@
 
                 $scope.user = $scope.session.user;
 
-//                console.log($scope.user.id);
+
+                $scope.getExamInfo = function() {
+                    if($scope.examReviews.length > 0){
+                        var info = $scope.examReviews[0].exam.course.code +" "+ $scope.examReviews[0].exam.name;
+                        return info;
+                    }
+                    else
+                        return "Tentillä ei ole yhtään vastausta";
+                }
+
 
                 if ($routeParams.id === undefined)
                     $scope.examReviews = ExamRes.examsByState.query({state: 'REVIEW'});

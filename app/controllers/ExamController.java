@@ -10,6 +10,7 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
@@ -388,6 +389,8 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamReviews(Long eid) {
 
+        long deadline = ConfigFactory.load().getLong("sitnet.deadline");
+
         // Todo: Assume that exam creator is also exam inspector
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user")
@@ -401,10 +404,9 @@ public class ExamController extends SitnetController {
         } else {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("user, exam, ended");
+            options.setRootPathProperties("user, exam, ended, duration, deadline");
             options.setPathProperties("user", "id, firstName, lastName, email");
-            options.setPathProperties("exam", "id, name, course, examActiveStartDate, examActiveEndDate, " +
-                    "state, grade, gradedTime");
+            options.setPathProperties("exam", "id, name, course, state, grade, gradedTime");
             options.setPathProperties("exam.course", "code");
 
             return ok(jsonContext.toJsonString(participations, true, options)).as("application/json");
