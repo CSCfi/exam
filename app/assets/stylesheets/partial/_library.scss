@@ -34,6 +34,11 @@
     margin: 0.5em 0;
   }
 
+.library-question-header-inactive:hover {
+    background-color: $sitnet-theme;
+
+  }
+
   .single-question-header-inactive:active {
     background-color: $sitnet-notice;
 

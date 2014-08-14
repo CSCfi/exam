@@ -53,6 +53,16 @@ public class User extends Model implements Subject {
     @JsonManagedReference
     private List<ExamInspection> inspections;
 
+    @Column(columnDefinition="BIT DEFAULT 0", length = 1)
+    private boolean hasAcceptedUserAgreament = false;
+
+    public boolean isHasAcceptedUserAgreament() {
+        return hasAcceptedUserAgreament;
+    }
+
+    public void setHasAcceptedUserAgreament(boolean hasAcceptedUserAgreament) {
+        this.hasAcceptedUserAgreament = hasAcceptedUserAgreament;
+    }
 
     public Organisation getOrganisation() {
         return organisation;
