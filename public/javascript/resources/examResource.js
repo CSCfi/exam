@@ -24,6 +24,14 @@
                     "remove": {method: "DELETE", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}}
                 }),
 
+                question: $resource("/exam/:eid/section/:sid/question/:qid",
+                    {
+                        eid: "@eid", sid: "@sid", qid: "@qid"
+                    },
+                    {
+                        "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}}
+                    }),
+
                 sections: $resource("/exams/:eid/section/:sid",
                 {
                     eid: "@eid", sid: "@sid"

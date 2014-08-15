@@ -309,6 +309,7 @@
     "sitnet_minutes": "minutes",
     "sitnet_hours": "hours",
     "sitnet_start_exam": "Start exam",
-    "sitnet_review_deadline": "Review deadline"
+    "sitnet_review_deadline": "Review deadline",
+    "sitnet_lottery_questions" : "Random questions"
 
 }

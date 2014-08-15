@@ -53,6 +53,7 @@
     margin-top: 0.2em;
     background-color: $sitnet-white;
     font-weight: bold;
+    line-height:2.4em;
   }
 
   .question-header {
@@ -94,6 +95,27 @@
     }
   }
 
+  .question {
+    clear:both;
+  }
+
+  .question-text {
+    display: inline;
+    margin: 0;
+    padding: 0.7em 0 0 0.5em;
+    line-height: 1.5em;
+    font-size: 0.9em;
+
+    p {
+      margin:0;
+      padding:0;
+    }
+  }
+
+  .exam-navigation {
+    padding-top:1em;
+  }
+
   .question-status {
     font-style: normal;
     font-size: 14px;
@@ -102,7 +124,8 @@
 
   .exam-question-container {
     background-color: $sitnet-white;
-    padding: 1.2em;
+    padding: 1.6em 1.2em 1.6em;
+    clear:both;
   }
 
   .exam-question-option {

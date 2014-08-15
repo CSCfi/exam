@@ -43,9 +43,21 @@
                     }
                 }
 
-                if ($routeParams.id === undefined)
+                if($routeParams.editId) {
+                    QuestionRes.questions.get({id: $routeParams.editId},
+                        function (question) {
+                            $scope.newQuestion = question;
+
+                            $scope.selectedType = $scope.newQuestion.type;
+                            $scope.setQuestionType();
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                }else if ($routeParams.id === undefined) {
                     $scope.questions = QuestionRes.questions.query();
-                else {
+                } else {
                     QuestionRes.questions.get({id: $routeParams.id},
                         function (value) {
                             $scope.newQuestion = value;
@@ -94,7 +106,6 @@
                 }
 
                 $scope.copyQuestion = function (question) {
-                    //console.log(question.id);
 
                     QuestionRes.question.copy(question,
                         function (questionCopy) {
@@ -145,22 +156,34 @@
                             break;
                     }
 
-                    QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
-                        function (response) {
-                            toastr.info("Kysymys tallennettu");
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-
-                    );
-
                     //Set return URL pointing back to questions main page if we created question there
                     if($routeParams.examId === undefined) {
                         $scope.returnURL = "/questions/";
+                        QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
+                            function (response) {
+                                toastr.info("Kysymys tallennettu");
+                            }, function (error) {
+                                toastr.error(error.data);
+                            }
+
+                        );
                     }
                     //Set return URL to exam, if we created the new question there
                     //Also bind the question to section of the exam at this point
-                    else {
+                    else if($routeParams.editId) {
+                        QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
+                            function (response) {
+                                toastr.info("Kysymys tallennettu");
+                            }, function (error) {
+                                toastr.error(error.data);
+                            }
+
+                        );
+                        $scope.returnURL = "/exams/" + $routeParams.examId
+                    }
+                    //Set return URL to exam, if we created the new question there
+                    //Also bind the question to section of the exam at this point
+                    else  {
                         $scope.returnURL = "/exams/" + $routeParams.examId
                         ExamRes.questions.insert({eid: $routeParams.examId, sid: $routeParams.sectionId, qid: $scope.newQuestion.id}, function (section) {
                             toastr.info("Kysymys lisätty osioon.");
@@ -193,7 +216,7 @@
                         case 'MultipleChoiceQuestion':
 
                             break;
-                    }
+                    };
 
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
                         function (response) {

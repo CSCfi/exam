@@ -64,10 +64,8 @@
                 </div>
                 <ul class="list-group results">
                     <li class="library-question-header-inactive" ui-draggable="true" ng-repeat="question in questions | filter:selected" drag="question">
-                        <div class="row">
-                            <div class="col-md-1"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i></div>
-                            <div class="short-text col-md-11" >{{stripHtml(question.question)}}</div>
-                        </div>
+                        <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i></div>
+                        <div class="library-row-text" >{{stripHtml(question.question)}}</div>
                     </li>
                     <li>
                         <div class="menu-item">

@@ -577,12 +577,14 @@
                     section.questions.push($data);
 
                     ExamRes.questions.insert({eid: $scope.newExam.id, sid: section.id, qid: $data.id}, function (section) {
-                        toastr.info("Kysymys lisätty osioon.");
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
+                            $scope.updateExam();
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
 
-                };
+
+                }
 
                 //http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
                 $scope.createQuestionFromExamView = function (type, section) {

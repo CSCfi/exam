@@ -50,6 +50,7 @@ GET           /exam/:id/inspections                                 controllers.
 POST          /exams/:eid/inspector/:uid                            controllers.ExamController.insertInspection(eid: Long, uid: Long)
 DELETE        /exams/inspector/:id                                  controllers.ExamController.deleteInspection(id: Long)
 
+POST          /exam/:eid/section/:sid/question/:qid                	controllers.ExamController.insertExamQuestion(eid: Long, sid: Long, qid: Long)
 POST          /exams/:eid/section/:sid/question/:qid                controllers.ExamController.insertQuestion(eid: Long, sid: Long, qid: Long)
 DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
 GET           /draft                                                controllers.ExamController.createExamDraft()
