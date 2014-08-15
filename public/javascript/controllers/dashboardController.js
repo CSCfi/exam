@@ -65,7 +65,7 @@
                                         toastr.error(error.data);
                                     });
                             })
-                        })
+                        });
 
                         ExamRes.finishedExams.query(function (finishedExams) {
                             $scope.finishedExams = finishedExams;
@@ -87,7 +87,7 @@
                                         toastr.error(error.data);
                                     });
                             })
-                        })
+                        });
 
                         ExamRes.examsByState.query({state: 'SAVED'},
                             function (unPublishedExams) {
@@ -97,16 +97,20 @@
                             }
                         );
                     }
-                }
+                    else if ($scope.user.isAdmin) {
+                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/dashboard.html";
+
+                    }
+                };
 
                 //Go to feedback template to show teacher's comments
                 $scope.showFeedback = function (id) {
                     $location.path("/feedback/exams/" + id);
-                }
+                };
 
 
                 $scope.getUsername = function() {
                     return $scope.session.user.firstname +" "+ $scope.session.user.lastname;
-                }
+                };
         }]);
 }());

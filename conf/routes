@@ -166,6 +166,14 @@ POST          /calendar/reservation                                 controllers.
 DELETE        /calendar/reservation/:id                             controllers.CalendarController.removeReservation(id: Long)
 
 
+################# General Settings interface ##################
+
+GET        /agreament                                               controllers.SettingsController.getUserAgreament()
+GET        /agreament/:id                                           controllers.SettingsController.getUserAgreamentX(id: Long)
+PUT        /agreament/:id                                           controllers.SettingsController.updateUserAgreament(id: Long)
+
+
+
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()
 GET           /secure                                               controllers.TestController.shibbolethHeaders()

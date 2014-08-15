@@ -15,6 +15,7 @@
 @import "partial/dashboard";
 @import "partial/form-validation";
 @import "partial/calendar";
+@import "partial/settings";
 
 html {
   font-family: $font;
@@ -163,4 +164,8 @@ body {
 .generic-header {
   padding-left: 30px;
   border-bottom: solid 1px $sitnet-common-light;
+}
+
+.top-margin {
+  mmargin-top: 1em;
 }

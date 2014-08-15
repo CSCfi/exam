@@ -261,7 +261,7 @@
     "sitnet_indication_new_answers": "Uutta tenttivastausta",
     "sitnet_indication_new_feedback": "Uutta tenttipalautetta",
 
-    "sitnet_participation_enrolled": "Vastanneet/Ilmoittautuneet",
+    "sitnet_participation_enrolled": "Vastanneet/Ilmoittautpäiväuneet",
 
     "sitnet_exam_grade": "Tentin Arvosana",
     "sitnet_exam_feedback": "Kirjoita tenttiin liittyvä palaute tähän",
@@ -309,8 +309,11 @@
     "sitnet_minutes": "minuuttia",
     "sitnet_hours": "tuntia",
     "sitnet_start_exam": "Aloita tentti",
-    "sitnet_review_deadline": "Arvioinnin takaraja"
-
+    "sitnet_review_deadline": "Arvioinnin takaraja",
+    "sitnet_user_agreament": "Käyttöehdot",
+    "sitnet_updated": "päivitetty",
+    "sitnet_days": "päivää",
+    "sitnet_info_deadline": "Kuinka monta päivää opettajalla on aikaa tarkastaa palautettu tentti"
 
 
 }
