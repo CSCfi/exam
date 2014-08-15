@@ -33,15 +33,15 @@ public class Global extends GlobalSettings {
 
     public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
     public static final String SITNET_CACHE_KEY = "user.session.";
-    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 0;
-    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 10;
+    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 15;
+    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
 
     @Override
     public void onStart(Application app) {
 
         Akka.system().scheduler().schedule(
                 Duration.create(SITNET_EXAM_REVIEWER_START_AFTER_MINUTES, TimeUnit.MINUTES),
-                Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.SECONDS),
+                Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                 new ReviewRunner(),
                 Akka.system().dispatcher()
         );
