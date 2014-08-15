@@ -309,7 +309,13 @@
     "sitnet_minutes": "minutes",
     "sitnet_hours": "hours",
     "sitnet_start_exam": "Start exam",
+    "sitnet_lottery_questions" : "Random questions",
     "sitnet_review_deadline": "Review deadline",
-    "sitnet_lottery_questions" : "Random questions"
+    "sitnet_user_agreament": "User agreament",
+    "sitnet_updated": "updated",
+    "sitnet_days": "days",
+    "sitnet_info_deadline": "How many days teacher has, to review an exam"
+
+
 
 }

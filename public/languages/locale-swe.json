@@ -297,7 +297,12 @@
     "sitnet_minutes": "minutes",
     "sitnet_hours": "hours",
     "sitnet_start_exam": "Börjä tentten",
+    "sitnet_lottery_questions" : "Random questions",
     "sitnet_review_deadline": "Review deadline",
-    "sitnet_lottery_questions" : "Random questions"
+    "sitnet_user_agreament": "Käyttöehdot",
+    "sitnet_updated": "päivitetty",
+    "sitnet_days": "dagar",
+    "sitnet_info_deadline": "Kuinka monta päivää opettajalla on aikaa tarkastaa palautettu tentti"
+
 
 }

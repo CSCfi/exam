@@ -211,6 +211,7 @@ public class Global extends GlobalSettings {
                 Ebean.save(all.get("exam-machines"));
                 Ebean.save(all.get("exam-room-reservations"));
                 Ebean.save(all.get("exam-enrolments"));
+                Ebean.save(all.get("user-agreament"));
 
 
                 // generate hashes for questions

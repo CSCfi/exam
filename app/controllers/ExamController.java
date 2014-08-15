@@ -391,8 +391,6 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamReviews(Long eid) {
 
-        long deadline = ConfigFactory.load().getLong("sitnet.deadline");
-
         // Todo: Assume that exam creator is also exam inspector
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user")
