@@ -173,7 +173,9 @@ GET        /agreament                                               controllers.
 GET        /agreament/:id                                           controllers.SettingsController.getUserAgreamentX(id: Long)
 PUT        /agreament/:id                                           controllers.SettingsController.updateUserAgreament(id: Long)
 
+################# Statistics interface ##################
 
+GET     /statistics/resbydate/:roomId/:from/:to                   controllers.StatisticsController.getReservationsByDateForRoom(roomId: Long, from: String, to: String)
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()
