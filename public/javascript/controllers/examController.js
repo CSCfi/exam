@@ -360,7 +360,7 @@
 //                            "course": $scope.newExam.course,
                             "examType": $scope.newExam.examType,
                             "instruction": $scope.newExam.instruction,
-                            "state": 'SAVED',
+                            "state": ($scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED': 'SAVED'),
                             "shared": $scope.newExam.shared,
                             "examActiveStartDate": $scope.dateService.startTimestamp,
                             "examActiveEndDate": $scope.dateService.endTimestamp,

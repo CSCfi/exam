@@ -602,7 +602,7 @@ public class ExamController extends SitnetController {
             options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
             options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examType", "id, type");
-            options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded");
+            options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
             options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, options");
             options.setPathProperties("examSections.questions.options", "id, option" );
             options.setPathProperties("examSections.questions.comments", "id, comment");
