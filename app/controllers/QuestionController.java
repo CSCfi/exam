@@ -5,6 +5,8 @@ import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.ExamSection;
 import models.SitnetModel;
 import models.User;
@@ -77,7 +79,21 @@ public class QuestionController extends SitnetController {
                     .findList();
         }
 
-        return ok(Json.toJson(questions));
+        if (questions == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
+                    "evaluatedScore, parent, evaluationCriterias, attachment, evaluationPhrases, hash, " +
+                    "expanded, maxCharacters, evaluationType, options");
+            options.setPathProperties("creator", "id");
+            options.setPathProperties("parent", "id");
+            options.setPathProperties("attachment", "id, fileName");
+            options.setPathProperties("options", "id, option, correctOption, score");
+            return ok(jsonContext.toJsonString(questions, true, options)).as("application/json");
+        }
+//        return ok(Json.toJson(questions));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})

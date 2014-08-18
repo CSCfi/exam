@@ -34,7 +34,7 @@
                 };
             };
 
-            QuestionRes.questions.query(function (data) {
+            QuestionRes.questionlist.query({id: $scope.session.user.id}, function (data) {
                 data.map(function (item) {
                     var icon = "";
                     switch (item.type) {

@@ -21,8 +21,6 @@ public class EssayQuestion extends AbstractQuestion implements QuestionInterface
     // not really max length, Just a recommendation
     private Long maxCharacters;
 
-    //private Double evaluatedScore;
-
     // Points, Select
     private String evaluationType;
 
