@@ -3,6 +3,7 @@ package controllers;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import models.Attachment;
 import models.ExamEnrolment;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -156,20 +157,25 @@ public class StatisticsController extends SitnetController {
             e.printStackTrace();
         }
 
-        if (enrolments == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
-            options.setPathProperties("user", "id, firstName, lastName");
-            options.setPathProperties("exam", "id, name");
-            options.setPathProperties("reservation", "id, startAt, endAt, machine");
-            options.setPathProperties("reservation.machine", "id, name, ipAddress, room");
-            options.setPathProperties("reservation.machine.room", "id, name, roomCode");
+        File af = new File(file.getAbsolutePath());
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getAbsolutePath() + "\"");
+        return ok(af);
 
-            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
-        }
+
+//        if (enrolments == null) {
+//            return notFound();
+//        } else {
+//            JsonContext jsonContext = Ebean.createJsonContext();
+//            JsonWriteOptions options = new JsonWriteOptions();
+//            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+//            options.setPathProperties("user", "id, firstName, lastName");
+//            options.setPathProperties("exam", "id, name");
+//            options.setPathProperties("reservation", "id, startAt, endAt, machine");
+//            options.setPathProperties("reservation.machine", "id, name, ipAddress, room");
+//            options.setPathProperties("reservation.machine.room", "id, name, roomCode");
+//
+//            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+//        }
     }
 
 }
