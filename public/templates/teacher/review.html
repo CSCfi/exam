@@ -66,28 +66,29 @@
             </div>
         </div>
 
-        <div class="row">
-                <div class="col-md-6" ng-hide="showOtherGrading">
-                    <span class="pull-right fa-stack fa-lg dropdown"></span>
-                    <div class="sitnet-info-text">{{'sitnet_exam_other_evaluation_criteria' | translate}}:</div>
-                    <h3>
-                        <span class="editable" ng-click="showOtherGrading = !showOtherGrading">
-                            {{examToBeReviewed.otherGrading}} <i class="fa fa-pencil"></i>
-                        </span>
-                    </h3>
-                </div>
-                <div class="col-md-6" ng-show="showOtherGrading">
-                    <div class="sitnet-info-text">{{'sitnet_exam_other_evaluation_criteria' | translate}}:</div>
-                    <form class="form-inline" role="form">
-                        <div class="form-group">
-                            <input type="text" class="form-control input-lg" ng-model="examToBeReviewed.otherGrading" autofocus>
-                        </div>
-                        <button class="btn-primary" ng-click="showOtherGrading = !showOtherGrading">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
+        <!--Commented out from UI on: 18.08.2014 ProRy-->
+        <!--<div class="row">-->
+                <!--<div class="col-md-6" ng-hide="showOtherGrading">-->
+                    <!--<span class="pull-right fa-stack fa-lg dropdown"></span>-->
+                    <!--<div class="sitnet-info-text">{{'sitnet_exam_other_evaluation_criteria' | translate}}:</div>-->
+                    <!--<h3>-->
+                        <!--<span class="editable" ng-click="showOtherGrading = !showOtherGrading">-->
+                            <!--{{examToBeReviewed.otherGrading}} <i class="fa fa-pencil"></i>-->
+                        <!--</span>-->
+                    <!--</h3>-->
+                <!--</div>-->
+                <!--<div class="col-md-6" ng-show="showOtherGrading">-->
+                    <!--<div class="sitnet-info-text">{{'sitnet_exam_other_evaluation_criteria' | translate}}:</div>-->
+                    <!--<form class="form-inline" role="form">-->
+                        <!--<div class="form-group">-->
+                            <!--<input type="text" class="form-control input-lg" ng-model="examToBeReviewed.otherGrading" autofocus>-->
+                        <!--</div>-->
+                        <!--<button class="btn-primary" ng-click="showOtherGrading = !showOtherGrading">-->
+                            <!--<i class="fa fa-check"></i>-->
+                        <!--</button>-->
+                    <!--</form>-->
+                <!--</div>-->
+        <!--</div>-->
 
         <div>
             <span class="sitnet-info-text"><i>{{'sitnet_exam_feedback' | translate}}:</i>

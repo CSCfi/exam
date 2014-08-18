@@ -90,6 +90,7 @@ public class Exam extends SitnetModel {
     // Exam grading, e.g. 0-5
     private String grading;
 
+    // Commented out from UI on: 18.08.2014 ProRy
     // Free text for exam grading
     private String otherGrading;
 
