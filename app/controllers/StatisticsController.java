@@ -1,9 +1,6 @@
 package controllers;
 
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.text.json.JsonContext;
-import com.avaje.ebean.text.json.JsonWriteOptions;
-import models.Attachment;
 import models.ExamEnrolment;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -17,6 +14,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,7 +26,7 @@ SIT-349
 
 Hakulausekkeita:
 
-Hae kaikki akvaariovaraukset tällä aikavälillä tästä akvaariosta: palautettavat tiedot ainakin opiskelija/varausaika/tenttikone/tentti mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
+* Hae kaikki akvaariovaraukset tällä aikavälillä tästä akvaariosta: palautettavat tiedot ainakin opiskelija/varausaika/tenttikone/tentti mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
 
 Hae tämän tentin tiedot: palautettavat tiedot ainakin tentin nimi/opettaja/luontiaika/tentin kesto/status/voimassaoloaika/opintopistee/opintojakson tunnus/opettaja/arvosana-asteikko/ohjeteksti/kysymykset/kysymysten pistemäärä/liitteet mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
 
@@ -49,6 +47,10 @@ Muuta tämän tentin statukseksi ei julkinen (tavoitteena ottaa joku tentti pois
  */
 public class StatisticsController extends SitnetController {
 
+    private static final String reportsPath = Play.application().configuration().getString("sitnet.reports.path");
+    private static final String playPath = Play.application().path().getAbsolutePath();
+    private static final String basePath = playPath + "/" + reportsPath +"/";
+
     private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
 
@@ -57,7 +59,7 @@ public class StatisticsController extends SitnetController {
     // palautettavat tiedot ainakin opiskelija/varausaika/tenttikone/tentti
     // mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
     //    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getReservationsByDateForRoom(Long roomId, String from, String to) {
+    public static Result getReservationsForRoomByDate(Long roomId, String from, String to) {
 
         final DateTime start = DateTime.parse(from, dateFormat);
         final DateTime end = DateTime.parse(to, dateFormat);
@@ -74,21 +76,9 @@ public class StatisticsController extends SitnetController {
                 .eq("reservation.machine.room.id", roomId)
                 .findList();
 
-
-        String reportsPath = Play.application().configuration().getString("sitnet.reports.path");
-        String playPath = Play.application().path().getAbsolutePath();
-
-        // TODO move to Global.java   or some other initialization code
-        // TODO Use smarter config
-        String basePath = playPath + "/" + reportsPath +"/";
-        File dir = new File(basePath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-
-
+        // Excel examples see:
         // http://stackoverflow.com/questions/17470597/generate-export-excel-file-from-java-play-framework-2-0-listobject
+        // https://svn.apache.org/repos/asf/poi/trunk/src/examples/src/org/apache/poi/xssf/usermodel/examples/CreateCell.java
 
         File file = new File(basePath+"tilavaraukset_"+from.replace(".", "-") +"_"+to.replace(".", "-") +".xlsx");
         FileOutputStream fileOut = null;
@@ -102,52 +92,63 @@ public class StatisticsController extends SitnetController {
         CreationHelper creationHelper = wb.getCreationHelper();
         Sheet sheet = wb.createSheet("tilavaraukset");
 
-        Row row = sheet.createRow(0);
-        row.createCell(1).setCellValue("Ilmoittautuminen id");
-        row.createCell(2).setCellValue("Ilmoittautunut");
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("Ilmoittautuminen id");
+        headerRow.createCell(1).setCellValue("Ilmoittautunut");
 
-        row.createCell(3).setCellValue("Käyttäjä id");
-        row.createCell(4).setCellValue("etunimi");
-        row.createCell(5).setCellValue("sukunimi");
+        headerRow.createCell(2).setCellValue("Käyttäjä id");
+        headerRow.createCell(3).setCellValue("Etunimi");
+        headerRow.createCell(4).setCellValue("Sukunimi");
 
-        row.createCell(6).setCellValue("Tentti id");
-        row.createCell(7).setCellValue("nimi");
+        headerRow.createCell(5).setCellValue("Tentti id");
+        headerRow.createCell(6).setCellValue("Nimi");
 
-        row.createCell(8).setCellValue("Varaus id");
-        row.createCell(9).setCellValue("alkuaika");
-        row.createCell(10).setCellValue("loppuaika");
+        headerRow.createCell(7).setCellValue("Varaus id");
+        headerRow.createCell(8).setCellValue("Alkuaika");
+        headerRow.createCell(9).setCellValue("loppuaika");
 
-        row.createCell(11).setCellValue("Tenttikone id");
-        row.createCell(12).setCellValue("nimi");
-        row.createCell(13).setCellValue("IP-osoite");
+        headerRow.createCell(10).setCellValue("Tenttikone id");
+        headerRow.createCell(11).setCellValue("Nimi");
+        headerRow.createCell(12).setCellValue("IP-osoite");
 
-        row.createCell(14).setCellValue("Tenttitila id");
-        row.createCell(15).setCellValue("nimi");
-        row.createCell(16).setCellValue("tunnus");
+        headerRow.createCell(13).setCellValue("Tenttitila id");
+        headerRow.createCell(14).setCellValue("Nimi");
+        headerRow.createCell(15).setCellValue("Tunnus");
 
         for(ExamEnrolment e: enrolments) {
             Row dataRow = sheet.createRow(enrolments.indexOf(e)+1);
-            dataRow.createCell(1).setCellValue(e.getId());
-            dataRow.createCell(2).setCellValue(e.getEnrolledOn());
+            dataRow.createCell(0).setCellValue(e.getId());
+            //date
+            CellStyle style = wb.createCellStyle();
+            style.setDataFormat(creationHelper.createDataFormat().getFormat("dd.MM.yyyy"));
+            Cell cell = dataRow.createCell(1);
+            cell.setCellValue(new Date(e.getEnrolledOn().getTime()));
+            cell.setCellStyle(style);
 
-            dataRow.createCell(3).setCellValue(e.getUser().getId());
-            dataRow.createCell(4).setCellValue(e.getUser().getFirstName());
-            dataRow.createCell(5).setCellValue(e.getUser().getLastName());
+            dataRow.createCell(2).setCellValue(e.getUser().getId());
+            dataRow.createCell(3).setCellValue(e.getUser().getFirstName());
+            dataRow.createCell(4).setCellValue(e.getUser().getLastName());
 
-            dataRow.createCell(6).setCellValue(e.getExam().getId());
-            dataRow.createCell(7).setCellValue(e.getExam().getName());
+            dataRow.createCell(5).setCellValue(e.getExam().getId());
+            dataRow.createCell(6).setCellValue(e.getExam().getName());
 
-            dataRow.createCell(8).setCellValue(e.getReservation().getId());
-            dataRow.createCell(9).setCellValue(e.getReservation().getStartAt());
-            dataRow.createCell(10).setCellValue(e.getReservation().getEndAt());
+            dataRow.createCell(7).setCellValue(e.getReservation().getId());
 
-            dataRow.createCell(11).setCellValue(e.getReservation().getMachine().getId());
-            dataRow.createCell(12).setCellValue(e.getReservation().getMachine().getName());
-            dataRow.createCell(13).setCellValue(e.getReservation().getMachine().getIpAddress());
+            cell = dataRow.createCell(8);
+            cell.setCellValue(new Date(e.getReservation().getStartAt().getTime()));
+            cell.setCellStyle(style);
 
-            dataRow.createCell(14).setCellValue(e.getReservation().getMachine().getRoom().getId());
-            dataRow.createCell(15).setCellValue(e.getReservation().getMachine().getRoom().getName());
-            dataRow.createCell(16).setCellValue(e.getReservation().getMachine().getRoom().getRoomCode());
+            cell = dataRow.createCell(9);
+            cell.setCellValue(new Date(e.getReservation().getStartAt().getTime()));
+            cell.setCellStyle(style);
+
+            dataRow.createCell(10).setCellValue(e.getReservation().getMachine().getId());
+            dataRow.createCell(11).setCellValue(e.getReservation().getMachine().getName());
+            dataRow.createCell(12).setCellValue(e.getReservation().getMachine().getIpAddress());
+
+            dataRow.createCell(13).setCellValue(e.getReservation().getMachine().getRoom().getId());
+            dataRow.createCell(14).setCellValue(e.getReservation().getMachine().getRoom().getName());
+            dataRow.createCell(15).setCellValue(e.getReservation().getMachine().getRoom().getRoomCode());
         }
 
         try {
@@ -161,7 +162,8 @@ public class StatisticsController extends SitnetController {
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getAbsolutePath() + "\"");
         return ok(af);
 
-
+//        Do not remove this! Really handy for debugging
+//
 //        if (enrolments == null) {
 //            return notFound();
 //        } else {
@@ -178,4 +180,14 @@ public class StatisticsController extends SitnetController {
 //        }
     }
 
+    public static void createRaportDirectory() {
+        String reportsPath = Play.application().configuration().getString("sitnet.reports.path");
+        String playPath = Play.application().path().getAbsolutePath();
+        String basePath = playPath + "/" + reportsPath +"/";
+
+        File dir = new File(basePath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+    }
 }

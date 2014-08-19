@@ -2,6 +2,7 @@ import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
+import controllers.StatisticsController;
 import controllers.StudentExamController;
 import models.*;
 import models.questions.QuestionInterface;
@@ -47,6 +48,7 @@ public class Global extends GlobalSettings {
         );
 
         InitialData.insert(app);
+        StatisticsController.createRaportDirectory();
     }
 
     @Override
