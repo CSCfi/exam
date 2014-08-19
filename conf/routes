@@ -2,7 +2,7 @@
 GET           /                                                     controllers.Index.index()
 
 POST          /login                                                controllers.SessionController.login()
-POST          /shiblogin                                            controllers.SessionController.shiblogin()
+#POST          /shiblogin                                            controllers.SessionController.shiblogin()
 POST          /logout                                               controllers.SessionController.logout()
 GET           /ping                                                 controllers.SessionController.ping()
 

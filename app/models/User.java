@@ -23,6 +23,9 @@ public class User extends Model implements Subject {
 
     private String email;
 
+    // used identify user
+    private String eppn;
+
     private String lastName;
 
     private String firstName;
@@ -62,6 +65,14 @@ public class User extends Model implements Subject {
 
     public void setHasAcceptedUserAgreament(boolean hasAcceptedUserAgreament) {
         this.hasAcceptedUserAgreament = hasAcceptedUserAgreament;
+    }
+
+    public String getEppn() {
+        return eppn;
+    }
+
+    public void setEppn(String eppn) {
+        this.eppn = eppn;
     }
 
     public Organisation getOrganisation() {

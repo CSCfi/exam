@@ -27,13 +27,13 @@ public class SessionController extends SitnetController {
         if(loginType.equals("DEBUG"))
         {
             Credentials credentials = bindForm(Credentials.class);
-            Logger.debug("User login with username: {} and password: ***", credentials.getUsername());
+            Logger.debug("User login with username: {} and password: ***", credentials.getUsername() +"@funet.fi");
             String md5psswd = SitnetUtil.encodeMD5(credentials.getPassword());
 
 
             user = Ebean.find(User.class)
-                    .select("id, email, firstName, lastName, userLanguage")
-                    .where().eq("email", credentials.getUsername() + "@funet.fi")
+                    .select("id, eppn, email, firstName, lastName, userLanguage")
+                    .where().eq("eppn", credentials.getUsername())
                     .eq("password", md5psswd).findUnique();
 
             if (user == null) {
@@ -47,7 +47,7 @@ public class SessionController extends SitnetController {
 
             user = Ebean.find(User.class)
                     .where()
-                    .eq("email", eppn)
+                    .eq("eppn", eppn)
                     .findUnique();
 
             // First login -> crea
@@ -56,7 +56,12 @@ public class SessionController extends SitnetController {
                 user = new User();
 
                 user.setAttributes(attributes);
-                user.setEmail(request().getHeader("eppn"));
+                user.setEppn(request().getHeader("eppn"));
+
+                String email = request().getHeader("mail");
+//                String email = (request().getHeader("mail") == null ? request().getHeader("SHIB_mail") : request().getHeader("mail"));
+
+                user.setEmail(email);
                 user.setLastName(request().getHeader("sn"));
                 user.setFirstName(request().getHeader("displayName"));
 
@@ -102,51 +107,51 @@ public class SessionController extends SitnetController {
         return ok(result);
     }
 
-  public static Result shiblogin() throws MalformedDataException, UnauthorizedAccessException {
-
-        Map<String, String[]> attributes = request().headers();
-        String eppn = request().getHeader("eppn");
-
-        User user = Ebean.find(User.class)
-                .where()
-                .eq("email", eppn)
-                .findUnique();
-
-        // First login -> create user
-        if(user == null)
-        {
-            user = new User();
-
-            user.setAttributes(attributes);
-            user.setEmail(request().getHeader("eppn"));
-            user.setLastName(request().getHeader("sn"));
-            user.setFirstName(request().getHeader("displayName"));
-
-            String shibRole = request().getHeader("unscoped-affiliation");
-            SitnetRole srole = getRole(shibRole);
-            if(srole == null)
-                return notFound("Cannot assign role "+ shibRole);
-            else
-                ((List<SitnetRole>)user.getRoles()).add(srole);
-
-            user.save();
-        }
-
-        // User exists in the system -> log in
-        String token = UUID.randomUUID().toString();
-        Session session = new Session();
-        session.setSince(DateTime.now());
-        session.setUserId(user.getId());
-        user.setAttributes(attributes);
-
-        Cache.set(SITNET_CACHE_KEY + token, session);
-        ObjectNode result = Json.newObject();
-        result.put("token", token);
-        result.put("firstname", user.getFirstName());
-        result.put("lastname", user.getLastName());
-        result.put("roles", Json.toJson(user.getRoles()));
-        return ok(result);
-    }
+//  public static Result shiblogin() throws MalformedDataException, UnauthorizedAccessException {
+//
+//        Map<String, String[]> attributes = request().headers();
+//        String eppn = request().getHeader("eppn");
+//
+//        User user = Ebean.find(User.class)
+//                .where()
+//                .eq("email", eppn)
+//                .findUnique();
+//
+//        // First login -> create user
+//        if(user == null)
+//        {
+//            user = new User();
+//
+//            user.setAttributes(attributes);
+//            user.setEmail(request().getHeader("eppn"));
+//            user.setLastName(request().getHeader("sn"));
+//            user.setFirstName(request().getHeader("displayName"));
+//
+//            String shibRole = request().getHeader("unscoped-affiliation");
+//            SitnetRole srole = getRole(shibRole);
+//            if(srole == null)
+//                return notFound("Cannot assign role "+ shibRole);
+//            else
+//                ((List<SitnetRole>)user.getRoles()).add(srole);
+//
+//            user.save();
+//        }
+//
+//        // User exists in the system -> log in
+//        String token = UUID.randomUUID().toString();
+//        Session session = new Session();
+//        session.setSince(DateTime.now());
+//        session.setUserId(user.getId());
+//        user.setAttributes(attributes);
+//
+//        Cache.set(SITNET_CACHE_KEY + token, session);
+//        ObjectNode result = Json.newObject();
+//        result.put("token", token);
+//        result.put("firstname", user.getFirstName());
+//        result.put("lastname", user.getLastName());
+//        result.put("roles", Json.toJson(user.getRoles()));
+//        return ok(result);
+//    }
 
     static private SitnetRole getRole(String affiliation) {
 
