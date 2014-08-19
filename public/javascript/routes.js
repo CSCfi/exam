@@ -49,6 +49,7 @@
             /* Admin */
             $routeProvider.when('/rooms', { templateUrl: tmpl + 'admin/rooms.html', controller: 'RoomCtrl'});
             $routeProvider.when('/rooms/:id', { templateUrl: tmpl + 'admin/room.html', controller: 'RoomCtrl'});
+            $routeProvider.when('/reports', { templateUrl: tmpl + 'reports/reports.html', controller: 'ReportController'});
 
             $routeProvider.when('/test', { templateUrl: tmpl + 'open_hours.html', controller: 'TestCtrl'});
 

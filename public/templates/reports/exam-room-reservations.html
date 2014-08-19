@@ -1,0 +1,40 @@
+<div ng-controller="DatepickerCtrl">
+
+    <!-- Start & End time datepickers -->
+    <div class="row">
+        <div class="col-md-4">
+            <h4>{{'sitnet_start_time' | translate}}</h4>
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                       is-open="startDateOpened" min="minDate"
+                       max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="Close" ui-change="updateExam()">
+                       
+                <span class="input-group-btn">
+                    <button class="btn btn-default" ng-click="openStartDate($event)">
+                        <i class="fa fa-calendar"></i>
+                    </button>
+                </span>
+            </p>
+        </div>
+
+        <div class="col-md-4">
+            <h4>{{'sitnet_end_time' | translate}}</h4>
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                       is-open="endDateOpened" min="dateService.startDate"
+                       max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                       ng-required="true" close-text="Close">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" ng-click="openEndDate($event)">
+                        <i class="fa fa-calendar"></i>
+                    </button>
+                </span>
+            </p>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary" ng-click="getReservations()">Lataa</button>
+            <a target="_self" href="{{ file.downloadUrl + '/' + order.OrderId + '/' + fileName }}" download="{{fileName}}">{{fileName}}</a>
+
+        </div>
+    </div>
+</div>

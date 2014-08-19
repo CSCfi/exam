@@ -48,7 +48,7 @@ public class Global extends GlobalSettings {
         );
 
         InitialData.insert(app);
-        StatisticsController.createRaportDirectory();
+        StatisticsController.createReportDirectory();
     }
 
     @Override

@@ -1282,7 +1282,7 @@ exam-rooms:
     roomCode: IT101
     buildingName: Oulun yliopiston päärakennus
     campus: Linnanmaa
-    organization:
+    organization: *OulunYliopisto
     mailAddress: *oulu-yo
     transitionTime: 5
     accessibilityInfo: Tilassa on pyörätuoliramppi

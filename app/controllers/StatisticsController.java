@@ -180,7 +180,7 @@ public class StatisticsController extends SitnetController {
 //        }
     }
 
-    public static void createRaportDirectory() {
+    public static void createReportDirectory() {
         String reportsPath = Play.application().configuration().getString("sitnet.reports.path");
         String playPath = Play.application().path().getAbsolutePath();
         String basePath = playPath + "/" + reportsPath +"/";
