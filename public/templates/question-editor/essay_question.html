@@ -4,6 +4,6 @@
         <input type="text" class="form-control" ng-model="newQuestion.maxCharacters"
                ui-change="estimateWords(); questionForm.maxCharacters.$valid ? updateQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
         <span class="input-group-addon" title="Suomen kielessä sanan keskimääräinen pituus on: 7.5 merkkiä">
-            {{'sitnet_approximately' | translate}} {{newQuestion.words}} {{'sitnet_words' | translate}}</span>
+            {{'sitnet_approximately' | translate}} {{estimateWords()}} {{'sitnet_words' | translate}}</span>
     </div>
 </div>

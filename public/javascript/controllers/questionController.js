@@ -129,6 +129,7 @@
 
                 $scope.estimateWords = function () {
                     $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
+                    return $scope.newQuestion.words;
                 };
 
                 $scope.saveQuestion = function () {
