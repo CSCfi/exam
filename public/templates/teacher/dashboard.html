@@ -3,12 +3,9 @@
         <span class="header-text">{{'sitnet_dashboard' | translate}}</span>
     </div>
 </div>
-
+<div ng-include="dashboardToolbarPath"></div>
 <div id="dashboard" class="row base">
 
-    <div class="row">
-        <div ng-include="dashboardToolbarPath"></div>
-    </div>
     <div class="">
         <div ng-include="dashboardActiveExamsPath"></div>
     </div>

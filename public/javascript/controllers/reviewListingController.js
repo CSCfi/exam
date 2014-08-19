@@ -12,7 +12,7 @@
 
 
                 $scope.getExamInfo = function() {
-                    if($scope.examReviews.length > 0){
+                    if($scope.examReviews && $scope.examReviews.length > 0){
                         var info = $scope.examReviews[0].exam.course.code +" "+ $scope.examReviews[0].exam.name;
                         return info;
                     }

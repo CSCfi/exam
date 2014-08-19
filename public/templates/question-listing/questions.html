@@ -4,16 +4,7 @@
             <span class="header-text ng-binding">{{'sitnet_questions_all' | translate}}</span>
         </div>
         <div class="header-wrapper col-md-2">
-            <div class="btn-group pull-right">
-                <button type="button" class="btn header-button pull-right dropdown-toggle" data-toggle="dropdown" style="margin-top: 0.5em; margin-right: 1em">
-                    {{'sitnet_questions_new' | translate}} <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                    <li ng-repeat='(key, value) in questionTypes'>
-                        <a ng-click="createQuestion(key)">{{value}}</a>
-                    </li>
-                </ul>
-            </div>
+
         </div>
         <div class="col-md-2 ">
             <!--<span class="header-clock pull-right">
@@ -23,8 +14,23 @@
             </span>-->
         </div>
     </div>
-
-    <div id="question-listing" class="questions-listing-wrapper row base">
+    <div class="col-md-12 bottom-padding-2" ng-controller="QuestionCtrl">
+        <div class="col-md-3 pull-left header-top">
+            <a class="header-top-link dropdown-toggle" data-toggle="dropdown">
+         <span class="pull-left fa-stack fa-lg header-top-icon">
+            <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+            <i class="fa sitnet-white fa-list-ol fa-stack-1x"></i>
+        </span>
+            {{'sitnet_toolbar_new_question' | translate}}</a>
+            <ul class="dropdown-menu" role="menu">
+                <li>
+                    <a ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question' | translate}}</a>
+                    <a ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' | translate}}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="question-listing" class="questions-listing-wrapper row base top-padding-2">
         <div class="questions-table-borders">
             <table class="table table-bordered table-condensed questions-table">
                 <thead>
@@ -49,7 +55,7 @@
                         <span class="status_theme" ng-if="!question.shared">{{ 'sitnet_own' | translate }}</span>
                     </td>
                     <td class="text-center">
-                        <a class="bold-button" ng-click="deleteQuestion(question)"><i class="fa fa-2x fa-times sitnet-red"></i></a>
+                        <a class="bold-button" ng-click="deleteQuestion(question)"><i class="fa fa-lg fa-times sitnet-red"></i></a>
                     </td>
                 </tr>
                 </tbody>

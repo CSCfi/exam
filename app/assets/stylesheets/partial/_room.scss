@@ -82,8 +82,7 @@
   }
 
   .header-icon {
-    background-color: $sitnet-white;
-    margin-top: 1em;
+    margin-top: 1.1em;
     cursor: pointer;
   }
 
@@ -124,10 +123,11 @@
 
   .room-info-title {
     font-weight: bold;
+    padding-left: 0.5em;
   }
 
   .room-info-text {
-
+    padding-left: 0.5em;
   }
 
   .room-machines {

@@ -302,7 +302,9 @@
     "sitnet_user_agreament": "Käyttöehdot",
     "sitnet_updated": "päivitetty",
     "sitnet_days": "dagar",
-    "sitnet_info_deadline": "Kuinka monta päivää opettajalla on aikaa tarkastaa palautettu tentti"
+    "sitnet_info_deadline": "Kuinka monta päivää opettajalla on aikaa tarkastaa palautettu tentti",
+    "sitnet_show": "Show",
+    "sitnet_hide": "Hide"
 
 
 }

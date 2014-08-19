@@ -1,10 +1,10 @@
 <div id="question-editor" ng-controller="QuestionCtrl">
     <div id="sitnet-header" class="header">
-        <div class="header-wrapper col-md-10">
+        <div class="header-wrapper col-md-9">
                 <span ng-show="newQuestion.state == 'NEW' ? true : false" class="header-text">{{'sitnet_questions_new' | translate}}</span>
                 <span ng-hide="newQuestion.state == 'NEW' ? true : false" class="header-text">{{'sitnet_questions_edit' | translate}}</span>
         </div>
-        <div class="header-wrapper col-md-2">
+        <div class="header-wrapper col-md-3">
                 <a ng-click="copyQuestion(newQuestion)" class="btn btn-primary btn-lg active header-button"> {{'sitnet_question_copy' | translate}} </a>
         </div>
     </div>
@@ -121,8 +121,11 @@
                     </div>
 
                      <!--ng-show="selectedType"-->
-                     <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion(); go(returnURL)" type="submit" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
-                     <br>
+                    <div class="row base bottom-padding-2" style="padding:2em 0;">
+                        <div class="col-md-4 col-md-offset-4">
+                     <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion(); go(returnURL)" type="submit" class="btn btn-success">{{'sitnet_save' | translate}}</button>
+                            </div>
+                    </div>
                 </form>
             </div>
         </div>

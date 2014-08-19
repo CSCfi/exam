@@ -3,7 +3,7 @@
         <span class="header-text">{{'sitnet_exams' | translate}}</span>
     </div>
     <div class="col-md-1 header-wrapper" ng-controller="ExamController">
-        <a ng-click="createExam()" class="btn btn-primary btn-lg active header-button"> {{'sitnet_create_new' | translate}} </a>
+
     </div>
     <div class="col-md-1 ">
         <!--<span class="header-clock pull-right">
@@ -13,8 +13,19 @@
         </span>-->
     </div>
 </div>
+<div class="col-md-12" ng-controller="QuestionCtrl">
+    <div class="col-md-3 pull-left header-top" ng-controller="ExamController">
+        <a class="header-top-link" ng-click="createExam()">
+        <span class="pull-left fa-stack fa-lg header-top-icon">
+            <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+            <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
+        </span>
+        {{'sitnet_toolbar_new_exam' | translate}}</a>
+    </div>
+</div>
+
 <div id="exam" class="base col-md-12">
-    <span class="sitnet-horizontal-line col-md-12"></span>
+
     <div class="col-md-12  exams-list-header">
          <span class="fa-stack fa-lg">
             <i class="fa icon-ok fa-square fa-stack-2x"></i>

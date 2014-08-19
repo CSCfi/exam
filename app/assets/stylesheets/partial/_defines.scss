@@ -139,7 +139,10 @@ $sitnet-background: #ffffff;
 //  padding:0;
 //  margin:0;
 }
-
+.popover {
+  font-size: 11px;
+  color: $sitnet-text;
+}
 .base {
   background-color: $sitnet-background;
   padding: 1em;
@@ -258,10 +261,14 @@ $sitnet-icon-size: 32px;
   padding-left:0;
   margin-left:0;
 }
+.info-row-space {
+  padding:0;
+  margin:0;
+}
 
 .info-column {
   padding-right:1em;
-  font-size: 0.8em;
+  font-size: 1em;
   font: $sitnet-family-opensans-bold;
   padding-left:0;
   margin-left:0;

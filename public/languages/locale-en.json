@@ -314,7 +314,9 @@
     "sitnet_user_agreament": "User agreament",
     "sitnet_updated": "updated",
     "sitnet_days": "days",
-    "sitnet_info_deadline": "How many days teacher has, to review an exam"
+    "sitnet_info_deadline": "How many days teacher has, to review an exam",
+    "sitnet_show": "Show",
+    "sitnet_hide": "Hide"
 
 
 
