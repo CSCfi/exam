@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class Global extends GlobalSettings {
 
     public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
+    public static final String SITNET_FAILURE_HEADER_KEY = "x-sitnet-token-failure";
     public static final String SITNET_CACHE_KEY = "user.session.";
     public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 15;
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
@@ -114,6 +115,12 @@ public class Global extends GlobalSettings {
             return super.onRequest(request, actionMethod);
         }
 
+        if (!session.isValid()) {
+            HashMap<String, String> headers = new HashMap<>();
+            headers.put(SITNET_FAILURE_HEADER_KEY, "Invalid token");
+            return new AddHeader(new InvalidTokenAction(), headers);
+        }
+
         if(session.getUserId() == null) {
             return super.onRequest(request, actionMethod);
         }
@@ -164,26 +171,18 @@ public class Global extends GlobalSettings {
         return new AddHeader( super.onRequest(request, actionMethod), headers);
     }
 
-    /*
-    private class doExam extends Action {
-
-        private String hash;
-
-        public doExam(String hash) {
-            this.hash = hash;
-        }
-
+    private class InvalidTokenAction extends Action {
         @Override
         public Promise<SimpleResult> call(Http.Context context) throws Throwable {
             F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
                 public SimpleResult apply() {
-                    return Action.temporaryRedirect("#/doexam/" + hash);
+                    return Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.");
                 }
             });
             return promise;
         }
-    };
-     */
+    }
+
     private static class InitialData {
         public static void insert(Application app) {
             if (Ebean.find(User.class).findRowCount() == 0) {
