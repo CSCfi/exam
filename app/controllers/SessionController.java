@@ -216,7 +216,15 @@ public class SessionController extends SitnetController {
 
     public static Result logout() {
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
-        Cache.remove(SITNET_CACHE_KEY + token);
+        String key = SITNET_CACHE_KEY + token;
+        String loginType = ConfigFactory.load().getString("sitnet.login");
+        if (loginType.equals("HAKA")) {
+            Session session = (Session) Cache.get(key);
+            session.setValid(false);
+            Cache.set(key, session);
+        } else {
+            Cache.remove(key);
+        }
         return ok();
     }
 
