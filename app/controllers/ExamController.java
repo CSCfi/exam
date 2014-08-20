@@ -266,6 +266,7 @@ public class ExamController extends SitnetController {
                 .fetch("examSections.questions")
                 .where()
                 .eq("id", id)
+                .orderBy("examSections.id, id desc")
                 .findUnique();
 
         if (exam == null)
