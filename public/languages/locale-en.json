@@ -317,8 +317,9 @@
     "sitnet_info_deadline": "How many days teacher has, to review an exam",
     "sitnet_show": "Show",
     "sitnet_hide": "Hide",
-    "sitnet_download": "Download"
+    "sitnet_download": "Download",
 
 
+    "sitnet_logged_out": "You have logged out. Please close the browser."
 
 }

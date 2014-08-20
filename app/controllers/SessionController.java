@@ -97,6 +97,7 @@ public class SessionController extends SitnetController {
         Session session = new Session();
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
+        session.setValid(true);
         Cache.set(SITNET_CACHE_KEY + token, session);
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
@@ -218,13 +219,13 @@ public class SessionController extends SitnetController {
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
         String key = SITNET_CACHE_KEY + token;
         String loginType = ConfigFactory.load().getString("sitnet.login");
-        if (loginType.equals("HAKA")) {
+        //if (loginType.equals("HAKA")) {
             Session session = (Session) Cache.get(key);
             session.setValid(false);
             Cache.set(key, session);
-        } else {
-            Cache.remove(key);
-        }
+        //} else {
+        //    Cache.remove(key);
+        //}
         return ok();
     }
 

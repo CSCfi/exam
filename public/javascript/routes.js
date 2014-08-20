@@ -25,6 +25,8 @@
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});
             $routeProvider.when('/tools', { templateUrl: tmpl + 'tools.html'});
 
+            $routeProvider.when('/invalid_session', { templateUrl: tmpl + 'invalid_session.html'});
+
             /* extra */
             $routeProvider.when('/user', { templateUrl: tmpl + 'user.html', controller: 'UserCtrl'});
             $routeProvider.when('/login', { templateUrl: tmpl + 'login.html', controller: 'SessionCtrl' });

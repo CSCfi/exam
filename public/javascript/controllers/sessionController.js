@@ -123,6 +123,7 @@
                             isAdmin: (hasRole(user, 'ADMIN')),
                             isStudent: (hasRole(user, 'STUDENT')),
                             isTeacher: (hasRole(user, 'TEACHER')),
+                            isLoggedOut : false,
                             token: user.token
                         };
                         $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = sessionUser;

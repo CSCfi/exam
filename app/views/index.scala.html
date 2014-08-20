@@ -63,6 +63,7 @@
         <script src="@routes.Assets.at("javascript/services/sessionService.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/services/dateService.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascript/services/examService.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascript/services/httpInterceptor.js")" type="text/javascript"></script>
 
             <!-- resources -->
         <script src="@routes.Assets.at("javascript/resources/userResource.js")" type="text/javascript"></script>
@@ -111,7 +112,7 @@
 
     <body ng-controller="SessionCtrl">
         <div ng-controller="NavigationCtrl">
-            <div id="vmenu">
+            <div ng-hide="loggedOut" id="vmenu">
                 @*Logo*@
                 <div class="logo">
                     <div ng-hide="minimizeNavigation">

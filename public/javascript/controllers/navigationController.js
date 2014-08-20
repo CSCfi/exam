@@ -8,7 +8,14 @@
                     return link.href === "#" + $location.path();
                 };
 
+                $scope.loggedOut = false;
+
                 var links = function () {
+
+                    if(sessionService.user && sessionService.user.isLoggedOut) {
+                        $scope.loggedOut = true;
+                        return [];
+                    }
 
                     var user = sessionService.user || {},
                         admin = user.isAdmin || false,
@@ -47,6 +54,12 @@
 
                 $scope.$on('userUpdated', function () {
                     $scope.links = links();
+                });
+
+                $scope.$on('invalidToken', function () {
+                    $scope.links = links();
+                    sessionService.user.isLoggedOut = true;
+                    $location.path("/invalid_session");
                 });
 
             }]);

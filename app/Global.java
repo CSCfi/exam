@@ -115,10 +115,19 @@ public class Global extends GlobalSettings {
             return super.onRequest(request, actionMethod);
         }
 
+        //ugh, this works, apparently. I don't like play.
         if (!session.isValid()) {
-            HashMap<String, String> headers = new HashMap<>();
-            headers.put(SITNET_FAILURE_HEADER_KEY, "Invalid token");
-            return new AddHeader(new InvalidTokenAction(), headers);
+            return new Action.Simple() {
+                public Promise<SimpleResult> call(final Http.Context ctx) throws Throwable {
+                    F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
+                        public SimpleResult apply() {
+                            ctx.response().getHeaders().put(SITNET_FAILURE_HEADER_KEY, "Invalid token");
+                            return Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.");
+                        }
+                    });
+                    return promise;
+                }
+            };
         }
 
         if(session.getUserId() == null) {

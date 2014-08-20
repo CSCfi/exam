@@ -317,6 +317,9 @@
     "sitnet_info_deadline": "Kuinka monta päivää opettajalla on aikaa tarkastaa palautettu tentti",
     "sitnet_show": "Näytä",
     "sitnet_hide": "Piilota",
-    "sitnet_download": "Lataa"
+    "sitnet_download": "Lataa",
 
+
+
+    "sitnet_logged_out": "Olet kirjautunut ulos. Ole hyvä ja sulje selain."
 }
