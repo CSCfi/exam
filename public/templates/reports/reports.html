@@ -1,4 +1,4 @@
-<div id="sitnet-header" class="header row">
+<div id="sitnet-header" class="header">
     <div class="col-md-10 header-wrapper">
         <span class="header-text">{{'sitnet_reports' | translate}}</span>
     </div>
@@ -6,10 +6,7 @@
     </div>
 
 </div>
-<div id="report" class="row">
-    <div class="row" ng-include="examRoomReservations">
-
+<div id="report" class="base">
+    <div ng-include="examRoomReservations" ng-controller="DatepickerCtrl">
     </div>
-
-
 </div>

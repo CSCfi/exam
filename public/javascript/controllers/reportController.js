@@ -1,26 +1,28 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ReportController', ['$scope', '$translate', '$location', '$http', 'SITNET_CONF', 'ReportResource', 'dateService',
-            function ($scope, $translate, $location, $http, SITNET_CONF, ReportResource, dateService) {
+        .controller('ReportController', ['$scope', '$translate', '$location', '$http', 'SITNET_CONF', 'ReportResource', 'RoomResource', 'dateService',
+            function ($scope, $translate, $location, $http, SITNET_CONF, ReportResource, RoomResource, dateService) {
 
                 $scope.dateService = dateService;
 
                 $scope.examRoomReservations = SITNET_CONF.TEMPLATES_PATH + "reports/exam-room-reservations.html";
 
+                $scope.selectedRoom = {
+                    name: $translate("sitnet_choose")
+                }
 
+                $scope.rooms = RoomResource.rooms.query();
 
+                $scope.setRoom = function (room) {
+                    $scope.selectedRoom = room;
+                }
 
                 $scope.getReservations = function() {
 
-                    ReportResource.resbydate.get({roomId: 1, from: '01.01.2014', to: '29.08.2014'},
-                    function (data, status, headers, config) {
-                        var element = angular.element('<a/>');
-                        element.attr({
-                            href: 'data:attachment/' + encodeURI(data),
-                            target: '_blank',
-                            download: 'filename.xlsx'
-                        })[0].click();
+                    ReportResource.resbydate.get({roomId: $scope.selectedRoom.id, from: '01.01.2014', to: '29.08.2014'},
+                    function (data) {
+
                     }, function (error) {
                         toastr.error(error.data);
                     });

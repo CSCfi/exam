@@ -1,40 +1,61 @@
-<div ng-controller="DatepickerCtrl">
+<div class="row">
+    <div class="col-md-12 sitnet-info-text">
+        Hae kaikki varaukset akvaariosta X aikavälillä pp.kk.vvvv - pp.kk.vvvv
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-md-2">
+        <h4>{{'sitnet_select_room' | translate}}</h4>
+        <div class="btn-group" dropdown >
+            <button type="button" class="btn btn-primary dropdown-toggle">
+                {{selectedRoom.name}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li ng-repeat="room in rooms" ng-click="setRoom(room)"><a class="pointer-hand">{{room.name}}</a></li>
+            </ul>
+        </div>
+    </div>
 
     <!-- Start & End time datepickers -->
-    <div class="row">
-        <div class="col-md-4">
-            <h4>{{'sitnet_start_time' | translate}}</h4>
-            <p class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
-                       is-open="startDateOpened" min="minDate"
-                       max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="Close" ui-change="updateExam()">
+    <div class="col-md-4">
+        <h4>{{'sitnet_start_time' | translate}}</h4>
+        <p class="input-group">
+            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                   is-open="startDateOpened"
+                   max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="Close" ui-change="updateExam()">
                        
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
                         <i class="fa fa-calendar"></i>
                     </button>
                 </span>
-            </p>
-        </div>
+        </p>
+    </div>
 
-        <div class="col-md-4">
-            <h4>{{'sitnet_end_time' | translate}}</h4>
-            <p class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
-                       is-open="endDateOpened" min="dateService.startDate"
-                       max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
-                       ng-required="true" close-text="Close">
+    <div class="col-md-4">
+        <h4>{{'sitnet_end_time' | translate}}</h4>
+        <p class="input-group">
+            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                   is-open="endDateOpened" min="dateService.startDate"
+                   max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
+                   ng-required="true" close-text="Close">
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openEndDate($event)">
                         <i class="fa fa-calendar"></i>
                     </button>
                 </span>
-            </p>
-        </div>
-        <div class="col-md-4">
-            <button class="btn btn-primary" ng-click="getReservations()">Lataa</button>
-            <a target="_self" href="{{ file.downloadUrl + '/' + order.OrderId + '/' + fileName }}" download="{{fileName}}">{{fileName}}</a>
+        </p>
+    </div>
 
-        </div>
+    <div class="col-md-2 load-link">
+        <h2>
+            <a href="statistics/resbydate/{{selectedRoom.id}}/{{dateService.startTimestamp | date: 'dd.MM.yyyy'}}/{{dateService.endTimestamp | date: 'dd.MM.yyyy'}}"
+               download popover-trigger="mouseenter"  popover="{{'sitnet_download' | translate}}">
+                <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
+                <i class="fa fa-file-word-o fa-stack-1x sitnet-white"></i>
+            </a>
+        </h2>
     </div>
 </div>

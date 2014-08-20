@@ -316,5 +316,7 @@
     "sitnet_days": "päivää",
     "sitnet_info_deadline": "Kuinka monta päivää opettajalla on aikaa tarkastaa palautettu tentti",
     "sitnet_show": "Näytä",
-    "sitnet_hide": "Piilota"
+    "sitnet_hide": "Piilota",
+    "sitnet_download": "Lataa"
+
 }

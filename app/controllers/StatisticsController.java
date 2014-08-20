@@ -159,7 +159,7 @@ public class StatisticsController extends SitnetController {
         }
 
         File af = new File(file.getAbsolutePath());
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getAbsolutePath() + "\"");
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
         return ok(af);
 
 //        Do not remove this! Really handy for debugging

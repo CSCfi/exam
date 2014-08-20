@@ -1,6 +1,12 @@
 
 #report {
 
+  .load-link {
+    background-color: $sitnet-teacher-blue-light;
+    color: white;
+    margin: 1em;
+  }
+
   table td {
     text-align:center;
   }
