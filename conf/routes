@@ -177,7 +177,9 @@ PUT        /agreament/:id                                           controllers.
 
 ################# Statistics interface ##################
 
-GET     /statistics/resbydate/:roomId/:from/:to                   controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
+GET     /statistics/resbydate/:roomId/:from/:to                     controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
+GET     /statistics/examnames                                       controllers.StatisticsController.getExamNames()
+GET     /statistics/examnames/:id                                   controllers.StatisticsController.getExam(id: Long)
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()

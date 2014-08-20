@@ -7,13 +7,19 @@
                 $scope.dateService = dateService;
 
                 $scope.examRoomReservations = SITNET_CONF.TEMPLATES_PATH + "reports/exam-room-reservations.html";
+                $scope.examReport = SITNET_CONF.TEMPLATES_PATH + "reports/exam-report.html";
 
                 $scope.selectedRoom = {
                     name: $translate("sitnet_choose")
-                }
+                };
 
                 $scope.rooms = RoomResource.rooms.query();
+                $scope.examnames = ReportResource.examnames.query();
 
+
+                $scope.setExam = function (exam) {
+                    $scope.selectedExam = exam;
+                }
                 $scope.setRoom = function (room) {
                     $scope.selectedRoom = room;
                 }

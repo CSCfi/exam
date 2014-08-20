@@ -17,7 +17,8 @@
         'mgcrea.jquery',
         'mgcrea.bootstrap.affix',
         'ui.calendar',
-        'ui.multiselect'
+        'ui.multiselect',
+        'acute.select'
     ]);
     sitnet.constant('SITNET_CONF', (function () {
         var context_path = '/';

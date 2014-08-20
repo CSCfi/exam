@@ -1,6 +1,9 @@
 package controllers;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.text.json.JsonWriteOptions;
+import models.Exam;
 import models.ExamEnrolment;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -8,12 +11,14 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Play;
+import play.libs.Json;
 import play.mvc.Result;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -53,6 +58,131 @@ public class StatisticsController extends SitnetController {
 
     private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
+
+    public static Result getExamNames() {
+
+        List<Exam> exams = Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("parent")
+                .where()
+                .eq("parent", null) // only Exam prototypes
+                .findList();
+
+        if (exams == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, name, course");
+            options.setPathProperties("course", "id, code, name");
+
+            return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
+        }
+    }
+
+    private static Cell dateCell(Workbook wb, Row row, int count, Timestamp timestamp, String format) {
+        CellStyle style = wb.createCellStyle();
+        CreationHelper creationHelper = wb.getCreationHelper();
+        style.setDataFormat(creationHelper.createDataFormat().getFormat(format));
+
+        Cell cell = row.createCell(count);
+        cell.setCellValue(new Date(timestamp.getTime()));
+        cell.setCellStyle(style);
+        return cell;
+    }
+
+    /**
+     *     Hae tämän tentin tiedot:
+     *     nimi/opettaja/luontiaika/tentin kesto/status/voimassaoloaika/
+     *     opintopistee/opintojakson tunnus/opettaja/arvosana-asteikko/
+     *     ohjeteksti/kysymykset/kysymysten pistemäärä/liitteet
+     *
+     * @param id
+     * @return
+     */
+    public static Result getExam(Long id) {
+
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("creator")
+                .fetch("course")
+//                .fetch("course")
+                .where()
+                .eq("id", id)
+                .findUnique();
+
+        File file = new File(basePath+"tentti_"+ exam.getName().toLowerCase().replace(" ", "-") +".xlsx");
+        FileOutputStream fileOut = null;
+        try {
+            fileOut = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        Workbook wb = new XSSFWorkbook();
+        CreationHelper creationHelper = wb.getCreationHelper();
+        Sheet sheet = wb.createSheet(exam.getName());
+        CellStyle style = wb.createCellStyle();
+
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("Omistaja id");
+        headerRow.createCell(1).setCellValue("Etunimi");
+        headerRow.createCell(2).setCellValue("Sukunimi");
+
+        headerRow.createCell(3).setCellValue("Opintojakso id");
+        headerRow.createCell(4).setCellValue("Nimi");
+        headerRow.createCell(5).setCellValue("Opintipisteet");
+        headerRow.createCell(6).setCellValue("Tyyppi");
+        headerRow.createCell(7).setCellValue("Taso");
+
+        headerRow.createCell(8).setCellValue("luotu pvm");
+        headerRow.createCell(9).setCellValue("alkaa");
+        headerRow.createCell(10).setCellValue("loppuu");
+        headerRow.createCell(11).setCellValue("kesto");
+        headerRow.createCell(12).setCellValue("Arvosteluasteikko");
+        headerRow.createCell(13).setCellValue("status");
+        headerRow.createCell(14).setCellValue("liitetiedosto");
+        headerRow.createCell(15).setCellValue("ohjeet");
+        headerRow.createCell(16).setCellValue("jaettu");
+
+        Row dataRow = sheet.createRow(1);
+        dataRow.createCell(0).setCellValue(exam.getCreator().getId());
+        dataRow.createCell(1).setCellValue(exam.getCreator().getFirstName());
+        dataRow.createCell(2).setCellValue(exam.getCreator().getLastName());
+
+        dataRow.createCell(3).setCellValue(exam.getCourse().getId());
+        dataRow.createCell(4).setCellValue(exam.getCourse().getName());
+        dataRow.createCell(5).setCellValue(exam.getCourse().getCredits());
+        dataRow.createCell(6).setCellValue(exam.getCourse().getType() == null ? "NULL" : exam.getCourse().getType().getCode());   // what is this, after integratio ?
+        dataRow.createCell(7).setCellValue(exam.getCourse().getLevel());
+
+        dateCell(wb, dataRow, 8, exam.getCreated(), "dd.MM.yyyy");
+        dateCell(wb, dataRow, 9, exam.getExamActiveStartDate(), "dd.MM.yyyy");
+        dateCell(wb, dataRow, 10, exam.getExamActiveEndDate(), "dd.MM.yyyy");
+
+        dataRow.createCell(11).setCellValue(exam.getDuration() == null ? "NULL" : exam.getDuration().toString());
+        dataRow.createCell(12).setCellValue(exam.getGrading());
+        dataRow.createCell(13).setCellValue(exam.getState());
+
+        if(exam.getAttachment() == null)
+            dataRow.createCell(14).setCellValue("");
+        else
+            dataRow.createCell(14).setCellValue(exam.getAttachment().getFilePath() + exam.getAttachment().getFileName());
+        dataRow.createCell(15).setCellValue(exam.getInstruction());
+        dataRow.createCell(16).setCellValue(exam.isShared());
+
+        try {
+            wb.write(fileOut);
+            fileOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        File af = new File(file.getAbsolutePath());
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        return ok(af);
+
+//        return ok(Json.toJson(exam));
+    }
 
 
     // Hae kaikki akvaariovaraukset tällä aikavälillä tästä akvaariosta:
