@@ -75,15 +75,15 @@
     </div>
     <!-- Softwares & IP-address information -->
     <div class="row">
-        <div class="col-md-6" ng-controller="RoomCtrl">
+        <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
             <multiselect class="input-xlarge"
-                         multiple="true"
-                         ng-model="machine.softwareInfo"
-                         header="{{'sitnet_select' | translate}}"
-                         multiheader="selectedSoftwares(machine)"
-                         options="software.name for software in softwares"
-                         change="updateMachineSoftware(machine)" ></multiselect>
+                 multiple="true"
+                 ng-model="machine.softwareInfo"
+                 header="{{'sitnet_select' | translate}}"
+                 multiheader="selectedSoftwares(machine)"
+                 options="software.name for software in softwares"
+                 change="updateSoftwareInfo(machine)" ></multiselect>
         </div>
 
         <div class="col-md-6">

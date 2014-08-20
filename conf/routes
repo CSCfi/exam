@@ -129,6 +129,8 @@ PUT           /machines/:id                                         controllers.
 POST          /machines/:id                                         controllers.ExamMachineController.insertExamMachine(id: Long)
 DELETE        /machines/:id                                         controllers.ExamMachineController.removeExamMachine(id: Long)
 
+PUT			  /machine/:mid/software/:sid							controllers.ExamMachineController.updateExamMachineSoftwareInfo(mid: Long, sid: Long)
+PUT			  /software_machine/:mid								controllers.ExamMachineController.resetExamMachineSoftwareInfo(mid: Long)
 
 GET           /softwares                                            controllers.ExamMachineController.getSoftwares()
 GET           /softwares/:id                                        controllers.ExamMachineController.getSoftware(id: Long)

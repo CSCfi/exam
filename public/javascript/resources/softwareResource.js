@@ -3,6 +3,23 @@
     angular.module("sitnet.resources")
         .factory("SoftwareResource", ['$resource', function ($resource) {
             return {
+                machines: $resource("/software_machine/:mid",
+                    {
+                        mid: "@mid"
+                    },
+                    {
+                        "reset": {method: "PUT"}
+                    }),
+
+                machine: $resource("/machine/:mid/software/:sid",
+                    {
+                        mid: "@mid",
+                        sid: "@sid"
+                    },
+                    {
+                        "add": {method: "PUT"}
+                    }),
+
                 softwares: $resource("/softwares",
                     {
                     },

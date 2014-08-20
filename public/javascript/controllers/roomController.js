@@ -349,17 +349,9 @@
                 };
 
                 $scope.selectedSoftwares = function (machine) {
-                    var softwares = [], str = "";
-                    angular.forEach(machine.softwareInfo, function (software, index) {
-                        softwares.push(software.name)
-                    });
-                    for (var i = 0; i < softwares.length; i++) {
-                        str += softwares[i]
-                        if (i + 1 != softwares.length) {
-                            str += ", "
-                        }
-                    }
-                    return str;
+                    return machine.softwareInfo.map(function (software) {
+                        return software.name;
+                    }).join(", ");
                 };
 
                 $scope.softwares = SoftwareResource.softwares.query();

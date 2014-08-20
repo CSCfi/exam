@@ -56,12 +56,32 @@ public class ExamMachineController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
+    public static Result resetExamMachineSoftwareInfo(Long mid) throws MalformedDataException {
+        ExamMachine machine = Ebean.find(ExamMachine.class, mid);
+
+        machine.setSoftwareInfo(null);
+        machine.update();
+
+        return ok(Json.toJson(machine));
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public static Result updateExamMachineSoftwareInfo(Long mid, Long sid) throws MalformedDataException {
+        ExamMachine machine = Ebean.find(ExamMachine.class, mid);
+        Software software = Ebean.find(Software.class, sid);
+
+        machine.getSoftwareInfo().add(software);
+
+        return ok(Json.toJson(machine));
+    }
+
+    @Restrict({@Group("ADMIN")})
     public static Result insertExamMachine(Long id) throws MalformedDataException {
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
 
         ExamMachine machine = bindForm(ExamMachine.class);
-        Logger.debug("softwares: " + machine.getSoftwareInfo().toString());
+        //Logger.debug("softwares: " + machine.getSoftwareInfo().toString());
         room.getExamMachines().add(machine);
         room.save();
 
