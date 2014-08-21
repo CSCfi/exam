@@ -13,6 +13,7 @@ import org.joda.time.format.DateTimeFormatter;
 import play.Play;
 import play.libs.Json;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -100,7 +101,7 @@ public class StatisticsController extends SitnetController {
      * @param id
      * @return
      */
-    public static Result getExam(Long id) {
+    public static Result getExam(Long id, String type) {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("creator")
@@ -110,78 +111,104 @@ public class StatisticsController extends SitnetController {
                 .eq("id", id)
                 .findUnique();
 
-        File file = new File(basePath+"tentti_"+ exam.getName().toLowerCase().replace(" ", "-") +".xlsx");
-        FileOutputStream fileOut = null;
-        try {
-            fileOut = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        if(type.equals("xlsx")) {
+            File file = new File(basePath + "tentti_" + exam.getName().toLowerCase().replace(" ", "-") + ".xlsx");
+            FileOutputStream fileOut = null;
+            try {
+                fileOut = new FileOutputStream(file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            Workbook wb = new XSSFWorkbook();
+            CreationHelper creationHelper = wb.getCreationHelper();
+            Sheet sheet = wb.createSheet(exam.getName());
+            CellStyle style = wb.createCellStyle();
+
+            Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("Omistaja id");
+            headerRow.createCell(1).setCellValue("Etunimi");
+            headerRow.createCell(2).setCellValue("Sukunimi");
+
+            headerRow.createCell(3).setCellValue("Opintojakso id");
+            headerRow.createCell(4).setCellValue("Nimi");
+            headerRow.createCell(5).setCellValue("Opintipisteet");
+            headerRow.createCell(6).setCellValue("Tyyppi");
+            headerRow.createCell(7).setCellValue("Taso");
+
+            headerRow.createCell(8).setCellValue("luotu pvm");
+            headerRow.createCell(9).setCellValue("alkaa");
+            headerRow.createCell(10).setCellValue("loppuu");
+            headerRow.createCell(11).setCellValue("kesto");
+            headerRow.createCell(12).setCellValue("Arvosteluasteikko");
+            headerRow.createCell(13).setCellValue("status");
+            headerRow.createCell(14).setCellValue("liitetiedosto");
+            headerRow.createCell(15).setCellValue("ohjeet");
+            headerRow.createCell(16).setCellValue("jaettu");
+
+            Row dataRow = sheet.createRow(1);
+            dataRow.createCell(0).setCellValue(exam.getCreator().getId());
+            dataRow.createCell(1).setCellValue(exam.getCreator().getFirstName());
+            dataRow.createCell(2).setCellValue(exam.getCreator().getLastName());
+
+            dataRow.createCell(3).setCellValue(exam.getCourse().getId());
+            dataRow.createCell(4).setCellValue(exam.getCourse().getName());
+            dataRow.createCell(5).setCellValue(exam.getCourse().getCredits());
+            dataRow.createCell(6).setCellValue(exam.getCourse().getType() == null ? "NULL" : exam.getCourse().getType().getCode());   // what is this, after integratio ?
+            dataRow.createCell(7).setCellValue(exam.getCourse().getLevel());
+
+            dateCell(wb, dataRow, 8, exam.getCreated(), "dd.MM.yyyy");
+            dateCell(wb, dataRow, 9, exam.getExamActiveStartDate(), "dd.MM.yyyy");
+            dateCell(wb, dataRow, 10, exam.getExamActiveEndDate(), "dd.MM.yyyy");
+
+            dataRow.createCell(11).setCellValue(exam.getDuration() == null ? "NULL" : exam.getDuration().toString());
+            dataRow.createCell(12).setCellValue(exam.getGrading());
+            dataRow.createCell(13).setCellValue(exam.getState());
+
+            if (exam.getAttachment() == null)
+                dataRow.createCell(14).setCellValue("");
+            else
+                dataRow.createCell(14).setCellValue(exam.getAttachment().getFilePath() + exam.getAttachment().getFileName());
+            dataRow.createCell(15).setCellValue(exam.getInstruction());
+            dataRow.createCell(16).setCellValue(exam.isShared());
+
+            try {
+                wb.write(fileOut);
+                fileOut.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            File af = new File(file.getAbsolutePath());
+            response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+            return ok(af);
         }
+        else if(type.equals("json")) {
+            if (exam == null) {
+                return notFound();
+            }
+                JsonContext jsonContext = Ebean.createJsonContext();
+                JsonWriteOptions options = new JsonWriteOptions();
+                options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
+                        "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
+                options.setPathProperties("parent", "id");
+                options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+                options.setPathProperties("room", "id, name");
+                options.setPathProperties("attachment", "id, fileName");
+                options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
+                options.setPathProperties("examType", "id, type");
+                options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
+                options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
+                options.setPathProperties("examSections.questions.answer", "type, option, answer");
+                options.setPathProperties("examSections.questions.answer.option", "id, option, correctOption, score");
+                options.setPathProperties("examSections.questions.options", "id, option" );
+                options.setPathProperties("examSections.questions.comments", "id, comment");
+                options.setPathProperties("examFeedback", "id, comment");
 
-        Workbook wb = new XSSFWorkbook();
-        CreationHelper creationHelper = wb.getCreationHelper();
-        Sheet sheet = wb.createSheet(exam.getName());
-        CellStyle style = wb.createCellStyle();
-
-        Row headerRow = sheet.createRow(0);
-        headerRow.createCell(0).setCellValue("Omistaja id");
-        headerRow.createCell(1).setCellValue("Etunimi");
-        headerRow.createCell(2).setCellValue("Sukunimi");
-
-        headerRow.createCell(3).setCellValue("Opintojakso id");
-        headerRow.createCell(4).setCellValue("Nimi");
-        headerRow.createCell(5).setCellValue("Opintipisteet");
-        headerRow.createCell(6).setCellValue("Tyyppi");
-        headerRow.createCell(7).setCellValue("Taso");
-
-        headerRow.createCell(8).setCellValue("luotu pvm");
-        headerRow.createCell(9).setCellValue("alkaa");
-        headerRow.createCell(10).setCellValue("loppuu");
-        headerRow.createCell(11).setCellValue("kesto");
-        headerRow.createCell(12).setCellValue("Arvosteluasteikko");
-        headerRow.createCell(13).setCellValue("status");
-        headerRow.createCell(14).setCellValue("liitetiedosto");
-        headerRow.createCell(15).setCellValue("ohjeet");
-        headerRow.createCell(16).setCellValue("jaettu");
-
-        Row dataRow = sheet.createRow(1);
-        dataRow.createCell(0).setCellValue(exam.getCreator().getId());
-        dataRow.createCell(1).setCellValue(exam.getCreator().getFirstName());
-        dataRow.createCell(2).setCellValue(exam.getCreator().getLastName());
-
-        dataRow.createCell(3).setCellValue(exam.getCourse().getId());
-        dataRow.createCell(4).setCellValue(exam.getCourse().getName());
-        dataRow.createCell(5).setCellValue(exam.getCourse().getCredits());
-        dataRow.createCell(6).setCellValue(exam.getCourse().getType() == null ? "NULL" : exam.getCourse().getType().getCode());   // what is this, after integratio ?
-        dataRow.createCell(7).setCellValue(exam.getCourse().getLevel());
-
-        dateCell(wb, dataRow, 8, exam.getCreated(), "dd.MM.yyyy");
-        dateCell(wb, dataRow, 9, exam.getExamActiveStartDate(), "dd.MM.yyyy");
-        dateCell(wb, dataRow, 10, exam.getExamActiveEndDate(), "dd.MM.yyyy");
-
-        dataRow.createCell(11).setCellValue(exam.getDuration() == null ? "NULL" : exam.getDuration().toString());
-        dataRow.createCell(12).setCellValue(exam.getGrading());
-        dataRow.createCell(13).setCellValue(exam.getState());
-
-        if(exam.getAttachment() == null)
-            dataRow.createCell(14).setCellValue("");
+                return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+        }
         else
-            dataRow.createCell(14).setCellValue(exam.getAttachment().getFilePath() + exam.getAttachment().getFileName());
-        dataRow.createCell(15).setCellValue(exam.getInstruction());
-        dataRow.createCell(16).setCellValue(exam.isShared());
-
-        try {
-            wb.write(fileOut);
-            fileOut.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        File af = new File(file.getAbsolutePath());
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(af);
-
-//        return ok(Json.toJson(exam));
+            return ok("invalid type: "+ type);
     }
 
 

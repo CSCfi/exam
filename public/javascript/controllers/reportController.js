@@ -8,6 +8,7 @@
 
                 $scope.examRoomReservations = SITNET_CONF.TEMPLATES_PATH + "reports/exam-room-reservations.html";
                 $scope.examReport = SITNET_CONF.TEMPLATES_PATH + "reports/exam-report.html";
+                $scope.examReportJson = SITNET_CONF.TEMPLATES_PATH + "reports/exam-report-json.html";
 
                 $scope.selectedRoom = {
                     name: $translate("sitnet_choose")
