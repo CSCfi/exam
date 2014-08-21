@@ -318,8 +318,7 @@
     "sitnet_show": "Show",
     "sitnet_hide": "Hide",
     "sitnet_download": "Download",
-
-
+    "sitnet_exam_graded_by": "Inspected by",
     "sitnet_logged_out": "You have logged out. Please close the browser."
 
 }
