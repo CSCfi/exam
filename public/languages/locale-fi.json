@@ -304,7 +304,7 @@
     "sitnet_calendar": "Varauskalenteri",
     "sitnet_randomize_questions": "Arvo kysymykset",
     "sitnet_edit": "Muokkaa",
-    "sitnet_display_free_time_slots" : "Näytetään vapaat ajat tilasta:",
+    "sitnet_display_free_time_slots" : "Näytetään vapaat ajat tilasta",
 
     "sitnet_minutes": "minuuttia",
     "sitnet_hours": "tuntia",
@@ -319,5 +319,6 @@
     "sitnet_hide": "Piilota",
     "sitnet_download": "Lataa",
     "sitnet_exam_graded_by": "Arvioija",
-    "sitnet_logged_out": "Olet kirjautunut ulos. Ole hyvä ja sulje selain."
+    "sitnet_logged_out": "Olet kirjautunut ulos. Ole hyvä ja sulje selain.",
+    "sitnet_room_out_of_service": "Tila on pois käytöstä"
 }

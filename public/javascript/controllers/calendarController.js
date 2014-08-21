@@ -1,7 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$modal', '$routeParams', 'sessionService', 'StudentExamRes', function ($scope, $http, $modal, $routeParams, $sessionService, StudentExamRes) {
+        .controller('CalendarCtrl', ['$scope', '$http', '$translate', '$modal', '$routeParams', 'sessionService', 'StudentExamRes',
+            function ($scope, $http, $translate, $modal, $routeParams, $sessionService, StudentExamRes) {
 
             var enrolmentId = $routeParams.enrolment;
             $scope.user = $sessionService.user;
@@ -78,7 +79,11 @@
                 });
                 room.selected = true;
                 $scope.selectedRoom = room;
-                $scope.selectedRoomsString = room.name;
+
+                if(room.outOfService)
+                    $scope.selectedRoomsString = $translate("sitnet_room_out_of_service")+": " + room.statusComment;
+                else
+                    $scope.selectedRoomsString = $translate("sitnet_display_free_time_slots")+": " +room.name;
                 refresh();
             }
         }]);

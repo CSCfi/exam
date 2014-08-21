@@ -109,7 +109,9 @@ public class CalendarController extends SitnetController {
 
         ExamRoom room = Ebean.find(ExamRoom.class)
                 .fetch("examMachines")
-                .where().eq("id", examRoomId)
+                .where()
+                .eq("id", examRoomId)
+                .eq("outOfService", false)
                         //todo: other restrictions for accessibility person
                 .findUnique();
 

@@ -20,13 +20,14 @@
         <ul class="inline-list">
             <li>
                 <button ng-repeat='room in rooms' type='button' ng-click="selectRoom(room)"
-                        ng-class="{ 'selected' : room.selected }" class='btn btn-white btn-xs'>{{room.name}}
+                        ng-class="room.selected ? 'selected' : '' " class='btn btn-white btn-xs'>{{room.name}}
                 </button>
+                    <p ng-show="room.outOfService" class="note">{{'sitnet_room_out_of_service' | translate}} {{room.statusComment}}</p>
             </li>
         </ul>
     </div>
 
-    <p class="note">{{'sitnet_display_free_time_slots' | translate}} {{selectedRoomsString}}</p>
+    <p >{{selectedRoomsString}}</p>
 
     <div class="row">
         <div class="col-md-12">

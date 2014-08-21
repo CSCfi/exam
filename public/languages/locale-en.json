@@ -319,6 +319,8 @@
     "sitnet_hide": "Hide",
     "sitnet_download": "Download",
     "sitnet_exam_graded_by": "Inspected by",
-    "sitnet_logged_out": "You have logged out. Please close the browser."
+    "sitnet_logged_out": "You have logged out. Please close the browser.",
+    "sitnet_room_out_of_service": "Room is out of service"
+
 
 }

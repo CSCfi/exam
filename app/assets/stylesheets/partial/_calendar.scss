@@ -1,5 +1,11 @@
 #sitnet-calendar {
 
+  .out-of-service {
+    color: black;
+    font-weight: 100;
+    font-style: bold;
+  }
+
   .inline-list {
     border-bottom: solid 1px $sitnet-grey;
     padding: 0;
