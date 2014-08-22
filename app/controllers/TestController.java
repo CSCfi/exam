@@ -2,10 +2,7 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
-import models.Course;
-import models.CourseType;
-import models.Exam;
-import models.Organisation;
+import models.*;
 import models.dto.CourseUnitInfo;
 import models.dto.ExamScore;
 import models.questions.EssayQuestion;
@@ -14,8 +11,11 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import util.java.EmailComposer;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +23,30 @@ import java.util.Map;
  * Created by avainik on 3/6/14.
  */
 public class TestController extends SitnetController {
+
+
+    public static Result getSummary() {
+
+        User teacher = Ebean.find(User.class, 2);
+
+        Timestamp now = new Timestamp(new Date().getTime());
+
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .fetch("exam.course")
+                .select("exam.name, exam.course.code")
+                .where()
+                .eq("exam.creator.id", teacher.getId())
+                .eq("exam.state", "PUBLISHED")
+                .gt("exam.examActiveEndDate", now)
+                .orderBy("exam.id, id desc")
+                .findList();
+
+
+        EmailComposer.composeWeeklySummary(teacher);
+        return ok(Json.toJson(enrolments));
+    }
+
 
 
     //  @Authenticate

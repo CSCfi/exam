@@ -187,6 +187,7 @@ GET           /statistics/resbydate/:roomId/:from/:to               controllers.
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()
+GET           /summary                                              controllers.TestController.getSummary()
 GET           /secure                                               controllers.TestController.shibbolethHeaders()
 GET           /son                                                  controllers.TestController.son()
 GET           /org                                                  controllers.TestController.org()

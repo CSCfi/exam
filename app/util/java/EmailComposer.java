@@ -4,20 +4,18 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.typesafe.config.ConfigFactory;
 import controllers.UserController;
-import models.Exam;
-import models.ExamInspection;
-import models.Reservation;
-import models.User;
+import models.*;
 import play.Play;
+import play.mvc.Http;
+import util.SitnetUtil;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 /**
@@ -31,7 +29,7 @@ public class EmailComposer {
     private final static String tagOpen = "{{";
     private final static String tagClosed = "}}";
 
-    private static String domain = "http://localhost:9000";
+    private static String hostname = SitnetUtil.getHostName();
     private final static String baseSystemURL= ConfigFactory.load().getString("sitnet.baseSystemURL");
 
     private final static Charset ENCODING = Charset.defaultCharset();
@@ -52,7 +50,7 @@ public class EmailComposer {
         String subject = "Tenttivastauksesi on arvioitu";
         String teacher_name = reviewer.getFirstName() + " " + reviewer.getLastName() + " <" + reviewer.getEmail() + ">";
         String exam_info = exam.getName() + ", " + exam.getCourse().getCode();
-        String review_link =  domain + "/#/feedback/exams/" + exam.getId();
+        String review_link =  hostname + "/#/feedback/exams/" + exam.getId();
 
         String template = new String();
         try {
@@ -91,7 +89,7 @@ public class EmailComposer {
         String subject = "Foobar"; //TODO!!
         String teacher_name = assigner.getFirstName() + " " + assigner.getLastName() + " <" + assigner.getEmail() + ">";
         String exam_info = exam.getName() + ", (" + exam.getCourse().getName() + ")";
-        String linkToExam =  domain + "/#/home/\"";
+        String linkToExam =  hostname + "/#/home/\"";
         String student_list = new String ();
         String template = new String();
 
@@ -169,7 +167,7 @@ public class EmailComposer {
         String subject = "Exam"; //TODO!!
         String teacher_name = sender.getFirstName() + " " + sender.getLastName() + " <" + sender.getEmail() + ">";
         String exam_info = exam.getName() + ", (" + exam.getCourse().getName() + ")";
-        String linkToInspection =  domain + "/#/exams/review/" + exam.getName();
+        String linkToInspection =  hostname + "/#/exams/review/" + exam.getName();
         String template = new String();
 
         Map<String, String> stringValues = new HashMap<String, String>();
@@ -200,61 +198,148 @@ public class EmailComposer {
      * This notification is sent to teachers weekly
      *
      * @param teacher Teacher that this summary is made for
-     * @param sender  Admin / main user
      *
      */
-    public static void composeWeeklySummary(User teacher, User sender) {
+    public static void composeWeeklySummary(User teacher) {
+
+//        $ /path/to/bin/<project-name> -Dconfig.resource=prod.conf
+
 
         String templatePath = TEMPLATES_ROOT + "weeklySummary/weeklySummary.html";
         String enrollmentTemplatePath = TEMPLATES_ROOT + "weeklySummary/enrollmentInfo.html";
         String inspectionTemplatePath = TEMPLATES_ROOT + "weeklySummary/inspectionInfo.html";
 
         String subject = "EXAM viikkokooste";
-        String teacher_name = teacher.getFirstName() + " " + sender.getLastName() + " <" + teacher.getEmail() + ">";
-        String admin_name = sender.getFirstName() + " " + sender.getLastName() + " <" + sender.getEmail() + ">";
+        String teacher_name = teacher.getFirstName() + " " + teacher.getLastName() + " <" + teacher.getEmail() + ">";
         String template = new String();
         String enrollmentTemplate = new String();
         String inspectionTemplate = new String();
 
         try {
             template = readFile(templatePath, ENCODING);
-        }
-        catch(IOException exception) {
-            //TODO!!
-        }
-
-        try {
             enrollmentTemplate = readFile(enrollmentTemplatePath, ENCODING);
-        }
-        catch(IOException exception) {
-            //TODO!!
-        }
-
-        try {
             inspectionTemplate = readFile(inspectionTemplatePath, ENCODING);
         }
-        catch(IOException exception) {
-            //TODO!!
+        catch (IOException e) {
+            e.printStackTrace();
         }
 
-        List<User> listOfTeachersWhoAssignedInspections;
-        Map<User, List<ExamInspection>> assignedInspectionsPerAssigner = new HashMap();
-
-        List<Exam> exams = Ebean.find(Exam.class)
+        // get all active exams created by this teachers
+        Timestamp now = new Timestamp(new Date().getTime());
+        List<Exam> activeExams = Ebean.find(Exam.class)
                 .select("id")
                 .where()
-                .eq("creator.id", UserController.getLoggedUser())
+                .eq("state", "PUBLISHED")
+                .gt("examActiveEndDate", now)
                 .findList();
 
+        String enrollmentBlock = new String();
 
+        for(Exam exam : activeExams) {
+            // TODO: oops theres a bug, this will list ALL exams, answered and unanswered
+            // get all enrolments for this exam
+            List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                    .fetch("exam")
+                    .fetch("exam.course")
+                    .select("exam.name, exam.course.code")
+                    .where()
+                    .eq("exam.id", exam.getId())
+                    .eq("exam.state", "PUBLISHED")
+                    .gt("exam.examActiveEndDate", now)
+                    .orderBy("exam.id, id desc")
+                    .findList();
+
+            for(ExamEnrolment enrolment : enrolments) {
+//                <p><a href="{{exam_link}}">{{exam_name}}</a>, {{course_code}}: {{enrollments}} kpl, joista ensimmäinen on tulossa {{first_exam_date}}</p>                Map<String, String> stringValues = new HashMap<String, String>();
+                String row = new String(enrollmentTemplate);
+
+                Map<String, String> stringValues = new HashMap<String, String>();
+                stringValues.put("exam_link", hostname+ "/#/home/");
+                stringValues.put("exam_name", enrolment.getExam().getName());
+                stringValues.put("course_code", enrolment.getExam().getCourse().getCode());
+                stringValues.put("enrollments", enrolments.size() +"");
+
+                // TODO: calculate this
+                stringValues.put("first_exam_date", enrolments.size() +"");
+
+                row = replaceAll(row, tagOpen, tagClosed, stringValues);
+                enrollmentBlock += row;
+            }
+        }
+
+        List<ExamParticipation> ownExams = Ebean.find(ExamParticipation.class)
+                .select("id, exam.id")
+                .fetch("exam")
+                .where()
+                .eq("exam.grade", null)     // Owh, should check if exam graded, somehow better
+                .eq("exam.creator.id", teacher.getId())
+                .findList();
+
+        // motako tarkastus-pyyntö arvioimatonta tenttiä
+        List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
+                .select("exam.id, user.id")
+                .fetch("exam")
+                .fetch("user")
+                .where()
+                .eq("exam.parent", null)
+                .eq("user.id", teacher.getId())
+                .findList();
+
+        List<ExamParticipation> reviewExams = new ArrayList<ExamParticipation>(0);
+
+        for(ExamInspection insp : inspections) {
+            List<ExamParticipation> temp = Ebean.find(ExamParticipation.class)
+                    .select("id")
+                    .fetch("exam")
+                    .fetch("exam.course")
+                    .where()
+                    .eq("exam.id", insp.getExam().getId())
+                    .eq("exam.grade", null) // Owh, should check if exam graded, somehow better
+                    .findList();
+
+            reviewExams.addAll(temp);
+        }
+
+        int totalUngradedExams = ownExams.size() + reviewExams.size();
+
+        String inspectionBlock = new String();
+
+        for(ExamParticipation review : reviewExams) {
+
+//          <p>{{exam_name}}, {{course_code}}: {{answer_count_exam}} kpl, joista ensimmäinen erääntyy {{inspection_due_date}}</p>
+            String row = new String(inspectionTemplate);
+
+            Map<String, String> stringValues = new HashMap<String, String>();
+            stringValues.put("exam_link", hostname+ "/#/exams/reviews/"+ review.getExam().getId());
+            stringValues.put("exam_name", review.getExam().getName());
+            stringValues.put("course_code", review.getExam().getCourse().getCode());
+//            stringValues.put("enrollments", enrolments.size() +"");
+
+            // TODO: calculate this
+//            stringValues.put("first_exam_date", enrolments.size() +"");
+
+            row = replaceAll(row, tagOpen, tagClosed, stringValues);
+            inspectionBlock += row;
+        }
+
+/*
+        <p><h3>Ilmoittautumiset</h3></p>
+        <p>Opiskelijoita on ilmoittautunut tentteihisi seuraavasti:</p>
+                {{enrollment_info}}
+                <p><h3>Arvioinnit</h3></p>
+        <p>Sinulla on arvioimattomia vastauksia {{answer_count_total}} kpl näissä tenteissä:</p>
+                {{inspection_info_own}}
+                <p>{{inspection_info_assigner}}</p>
+        <p>{{inspection_info_other}}</p>*/
 
         Map<String, String> stringValues = new HashMap<String, String>();
-//        stringValues.put("teacher_name", teacher_name);
-//        stringValues.put("exam_info", exam_info);
-//        stringValues.put("inspection_link", linkToInspection);
+        stringValues.put("enrollment_info", enrollmentBlock);
+        stringValues.put("answer_count_total", totalUngradedExams + "");
+        stringValues.put("inspection_info_own", inspectionBlock);
 //        stringValues.put("inspection_comment", msg);
+        template = replaceAll(template, tagOpen, tagClosed, stringValues);
 
-        EmailSender.send(teacher.getEmail(), sender.getEmail(), subject, template);
+        EmailSender.send(teacher.getEmail(), "sitnet@arcusys.fi", subject, template);
     }
 
     /**
@@ -320,7 +405,7 @@ public class EmailComposer {
 
         String teacher_name = fromUser.getFirstName() + " " + fromUser.getLastName() + " <" + fromUser.getEmail() + ">";
         String exam_info = exam.getName() + ", " + exam.getCourse().getCode() + "";
-        String linkToInspection =  domain + "/#/exams/reviews/" + exam.getId();
+        String linkToInspection =  hostname + "/#/exams/reviews/" + exam.getId();
 
         Map<String, String> stringValues = new HashMap<String, String>();
 

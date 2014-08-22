@@ -4,6 +4,7 @@ import Exceptions.SitnetException;
 import annotations.NonCloneable;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.typesafe.config.ConfigFactory;
 import controllers.UserController;
 import models.SitnetModel;
 import models.User;
@@ -31,6 +32,9 @@ import java.util.Date;
  */
 public class SitnetUtil {
 
+    public static String getHostName() {
+        return ConfigFactory.load().getString("sitnet.application.hostname");
+    }
 
     public static Object getClone(Object object) {
         Object clone = null;
