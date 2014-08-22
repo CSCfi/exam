@@ -973,7 +973,7 @@ exams:
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-29 16:00:00.123
+    examActiveEndDate: 2014-08-01 16:00:00.123
     grading: 0-5
     examSections:
     state: REVIEW
@@ -1398,3 +1398,110 @@ user-agreament:
     id: 1
     text: "Lorem ipsum dolor sit amet, an duo iisque tritani gloriatur, meis theophrastus no vim. No per conceptam signiferumque, nam ut aeque exerci explicari. Hinc brute justo ad mel, quod eripuit dolores ut mei. Fugit praesent iudicabit ex has, te albucius pertinacia neglegentur eos, ex iisque omittam efficiendi cum. Ad qui equidem ullamcorper, ei velit habemus vis. Clita suavitate referrentur sed ut, errem liberavisse ut vix. Cu delenit commune efficiendi sea, ex pri quot admodum electram, vis omnis viris ne."
     reviewDeadline: 14
+
+################################################################
+
+grades:
+
+    # viisiportainen
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: HYV
+    description: hyväksytty
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 1
+    description:
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 2
+    description:
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 3
+    description:
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 4
+    description:
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 5
+    description:
+
+    # hyväksytty
+  - !!models.Grade
+    scale: Hyväksytty
+    grade: HYV
+    description: hyväksytty
+
+    # toinen kotimainen
+  - !!models.Grade
+    scale: Toinen kotimainen
+    grade: TT
+    description: tyydyttävät tiedot
+
+  - !!models.Grade
+    scale: Toinen kotimainen
+    grade: HT
+    description: hyvät tiedot
+
+    #näytetyö
+  - !!models.Grade
+    scale: Näytetyö
+    grade: HYV
+    description: hyväksytty
+
+  - !!models.Grade
+    scale: Näytetyö
+    grade: KH
+    description: kiittäen hyväksytty
+
+    #tutkielma
+  - !!models.Grade
+    scale: Tutkielma
+    grade: A
+    description: approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: B
+    description: lubenter approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: N
+    description: non sine laude approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: C
+    description: cum laude approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: M
+    description: magna cum laude approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: E
+    description: eximia cum laude approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: L
+    description: laudatur
+
+    #ei käytössä - asteikko
+  - !!models.Grade
+    scale: EiKaytossa
+    grade: Arvosana ei kaytossa
+    description: Arvosana ei käytössä
+
+################################################################

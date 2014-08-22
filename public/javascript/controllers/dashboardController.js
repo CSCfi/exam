@@ -6,9 +6,8 @@
 
                 $scope.dashboardToolbarPath = SITNET_CONF.TEMPLATES_PATH + "teacher/toolbar.html";
                 $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/active_exams.html";
-                $scope.dashboardFinishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/finished_exams.html";
                 $scope.dashboardUnPublishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/unpublished_exams.html";
-                $scope.dashboardReviewerExamsTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/reviewer_exams.html";
+                $scope.dashboardFinishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/finished_exams.html";
 
                 $scope.session = sessionService;
                 $scope.user = $scope.session.user;
@@ -38,50 +37,39 @@
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/dashboard.html";
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
-                                $scope.reviewerExams = reviewerExams;
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            });
 
+                            $scope.reviewerExams = reviewerExams;
 
-                        ExamRes.activeExams.query(function (activeExams) {
-                            $scope.activeExams = activeExams;
-
-                            angular.forEach($scope.activeExams, function (exam, index) {
-                                ExamRes.examEnrolments.query({eid: exam.id},
+                            angular.forEach($scope.reviewerExams, function (review, index) {
+                                ExamRes.examEnrolments.query({eid: review.exam.id},
                                     function (activeExamEnrolments) {
-                                        exam.activeExamEnrolments = activeExamEnrolments;
+                                        review.activeExamEnrolments = activeExamEnrolments;
                                     },
                                     function (error) {
                                         toastr.error(error.data);
                                     });
 
-                                ExamRes.examParticipations.query({eid: exam.id},
+                                ExamRes.examParticipations.query({eid: review.exam.id},
                                     function (examParticipations) {
-                                        exam.examParticipations = examParticipations;
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    });
-                            })
-                        });
-
-                        ExamRes.finishedExams.query(function (finishedExams) {
-                            $scope.finishedExams = finishedExams;
-
-                            angular.forEach($scope.finishedExams, function (exam, index) {
-                                ExamRes.examEnrolments.query({eid: exam.id},
-                                    function (finishedExamEnrolments) {
-                                        $scope.finishedExamEnrolments = finishedExamEnrolments;
+                                        review.examParticipations = examParticipations;
                                     },
                                     function (error) {
                                         toastr.error(error.data);
                                     });
 
-                                ExamRes.examParticipations.query({eid: exam.id},
-                                    function (finishedExamParticipations) {
-                                        $scope.finishedExamParticipations = finishedExamParticipations;
+                                ExamRes.examParticipationsAndReviews.query({eid: review.exam.id},
+                                    function (examParticipationsAndReviews) {
+                                        review.examParticipationsAndReviews = examParticipationsAndReviews;
+                                    },
+                                    function (error) {
+                                        toastr.error(error.data);
+                                    });
+
+                                ExamRes.inspections.get({id: review.exam.id},
+                                    function (inspections) {
+                                        review.examInspections = inspections.map(function (inspection) {
+                                            return inspection.user.firstName + " " + inspection.user.lastName;
+                                        }).join(", ");
                                     },
                                     function (error) {
                                         toastr.error(error.data);
@@ -102,6 +90,14 @@
 
                     }
                 };
+
+                $scope.beforeDate = function(date) {
+                    return Date.now() <= new Date(date);
+                }
+
+                $scope.afterDate = function(date) {
+                    return Date.now() >= new Date(date);
+                }
 
                 //Go to feedback template to show teacher's comments
                 $scope.showFeedback = function (id) {

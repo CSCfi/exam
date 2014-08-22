@@ -1,44 +1,46 @@
-<div class="row">
+<div class="col-md-12 row">
     <div class="col-md-3 exams-table-title-area">
-        <span class="exams-list-title-text pull-left">{{ 'sitnet_finished_exams' | translate }}</span>
+        <span ng-click="toggleFinishedExams = !toggleFinishedExams" class="exams-list-title-text pull-left pointer">{{ 'sitnet_finished_exams' | translate }}</span>
     </div>
 
-    <div class="col-md-9">
+    <div class="col-md-9" ng-init="toggleFinishedExams = true">
         <!-- href="#/rooms/{{room.id}}" -->
         <a ng-click="toggleFinishedExams = !toggleFinishedExams" class="header-icon pull-right fa-stack fa-lg">
             <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i ng-show="toggleFinishedExams" class="fa fa-chevron-left fa-stack-1x"></i>
-            <i ng-show="!toggleFinishedExams" class="fa fa-chevron-down fa-stack-1x"></i>
+            <i ng-show="!toggleFinishedExams" class="fa fa-chevron-left fa-stack-1x"></i>
+            <i ng-show="toggleFinishedExams" class="fa fa-chevron-down fa-stack-1x"></i>
         </a>
     </div>
 </div>
 
-<div class="row">
-    <div class="exams-list col-md-12">
-        <div class="exams-table-borders">
-            <table class="table table-bordered exams-table">
-                <thead>
-                    <tr>
-                        <th class="table-column-flag"><i class="fa fa-flag"></i></th>
-                        <th class="table-column-exclamation"><i class="fa fa-exclamation-triangle"></i></th>
-                        <th class="table-column-examcode">{{ 'sitnet_examcode' | translate }}</th>
-                        <th class="table-column-examname">{{ 'sitnet_exam_name' | translate }}</th>
-                        <th class="table-column-enroll-participation">{{ 'sitnet_participation_enrolled' | translate }}</th>
-                        <th class="table-column-open-until">{{ 'sitnet_exam_active_time_ended' | translate }}</th>
-                    </tr>
-                </thead>
+<div class="col-md-12" ng-show="toggleFinishedExams">
+    <div class="exams-table-borders">
+        <table class="table table-bordered exams-table">
+            <thead>
+            <tr>
+                <th><i class="fa fa-flag"></i></th>
+                <th><i class="fa fa-exclamation-triangle"></i></th>
+                <th>{{ 'sitnet_examcode' | translate }}</th>
+                <th>{{ 'sitnet_exam_name' | translate }}</th>
+                <th>{{ 'sitnet_participation_enrolled' | translate }}</th>
+                <th>{{ 'sitnet_participation_reviewed' | translate }}</th>
+                <th>{{'sitnet_exam_open_until' | translate}}</th>
+                <th>{{'sitnet_teachers' | translate}}</th>
+            </tr>
+            </thead>
 
-                <tbody ng-show="!toggleFinishedExams">
-                <tr ng-repeat="finishedExam in finishedExams">
-                    <td><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                    <td><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                    <td>{{finishedExam.course.code}}</td>
-                    <td><a href="#/exams/review/{{finishedExam.id}}">{{finishedExam.name}}</a></td>
-                    <td>{{finishedExamParticipations.length}}/{{finishedExamEnrolments.length}} ({{(finishedExamParticipations.length/finishedExamEnrolments.length)*100 | number : 2}}%)</td>
-                    <td>{{finishedExam.examActiveEndDate | date:'dd.MM.yyyy'}}</td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+            <tbody>
+            <tr ng-repeat="activeExam in reviewerExams" ng-show="afterDate(activeExam.exam.examActiveEndDate)">
+                <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
+                <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                <td class="table-column-examcode">{{ activeExam.exam.course.code }}</td>
+                <td class="table-column-examname"><a href="#/exams/reviews/{{activeExam.exam.id}}">{{ activeExam.exam.name }}</a></td>
+                <td class="table-column-enroll-participation">{{ activeExam.examParticipations.length }} / {{ activeExam.activeExamEnrolments.length }} <span>({{ (activeExam.examParticipations.length/activeExam.activeExamEnrolments.length)*100 | number : 2 }}%)</span></td>
+                <td class="table-column-enroll-participation">{{ activeExam.examParticipationsAndReviews.length }} / {{ activeExam.examParticipations.length }} <span>({{ (activeExam.examParticipationsAndReviews.length/activeExam.examParticipations.length)*100 | number : 2 }}%)</span></td>
+                <td class="table-column-open-until">{{ activeExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}</td>
+                <td class="table-column-teachers">{{ activeExam.examInspections }}</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>

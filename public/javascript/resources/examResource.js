@@ -135,7 +135,7 @@
                     id: "@id"
                 },
                 {
-                    "get": {method: "GET", params: { id: "@id" }}
+                    "get": {method: "GET", isArray: true, params: { id: "@id" }}
                 }),
 
                 inspection: $resource("/exams/:eid/inspector/:uid",
@@ -171,6 +171,14 @@
                 {
                     "get": {method: "GET", params: { eid: "@eid" }}
                 }),
+
+                examParticipationsAndReviews: $resource("/examparticipationsandreviews/:eid",
+                    {
+                        eid: "@eid"
+                    },
+                    {
+                        "get": {method: "GET", params: { eid: "@eid" }}
+                    }),
 
                 studentInfo: $resource("/review/info/:id",
                 {

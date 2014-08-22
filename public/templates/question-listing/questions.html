@@ -31,35 +31,37 @@
         </div>
     </div>
     <div id="question-listing" class="questions-listing-wrapper row base top-padding-2">
-        <div class="questions-table-borders">
-            <table class="table table-bordered table-condensed questions-table">
-                <thead>
-                <tr>
-                    <th>{{ 'sitnet_question' | translate }}</th>
-                    <th>{{ 'sitnet_question_type' | translate }}</th>
-                    <th>{{ 'sitnet_status' | translate }}</th>
-                    <th>{{ 'sitnet_exam_remove' | translate }}</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat="question in questions">
-                    <td>
-                        <a class="room-info-title bold-button" href="#/questions/{{question.id}}" ng-bind-html="question.question"></a>
-                    </td>
-                    <td>
-                        <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
-                        <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
-                    </td>
-                    <td>
-                        <span class="status_green" ng-if="question.shared">{{ 'sitnet_shared' | translate }}</span>
-                        <span class="status_theme" ng-if="!question.shared">{{ 'sitnet_own' | translate }}</span>
-                    </td>
-                    <td class="text-center">
-                        <a class="bold-button" ng-click="deleteQuestion(question)"><i class="fa fa-lg fa-times sitnet-red"></i></a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="col-md-12">
+            <div class="questions-table-borders">
+                <table class="table table-bordered table-condensed questions-table">
+                    <thead>
+                    <tr>
+                        <th>{{ 'sitnet_question' | translate }}</th>
+                        <th>{{ 'sitnet_question_type' | translate }}</th>
+                        <th>{{ 'sitnet_status' | translate }}</th>
+                        <th>{{ 'sitnet_exam_remove' | translate }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="question in questions">
+                        <td>
+                            <a class="room-info-title bold-button" href="#/questions/{{question.id}}" ng-bind-html="question.question"></a>
+                        </td>
+                        <td>
+                            <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
+                            <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
+                        </td>
+                        <td>
+                            <span class="status_green" ng-if="question.shared">{{ 'sitnet_shared' | translate }}</span>
+                            <span class="status_theme" ng-if="!question.shared">{{ 'sitnet_own' | translate }}</span>
+                        </td>
+                        <td class="text-center">
+                            <a class="bold-button" ng-click="deleteQuestion(question)"><i class="fa fa-lg fa-times sitnet-red"></i></a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

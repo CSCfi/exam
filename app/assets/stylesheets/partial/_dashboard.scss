@@ -54,10 +54,12 @@
     th {
       background-color: $sitnet-common-light;
       font-family: $sitnet-family-georgia;
+      color: $sitnet-common-medium;
       font-style: italic;
       font-weight: normal;
       border:0;
     }
+
 
     td:first-child {
       border-left:0;
@@ -82,19 +84,33 @@
   }
 
   .table-column-examcode {
-    width: 10%;
+    width: 6%;
+    text-align: center;
+    font-weight: bold;
   }
 
   .table-column-examname {
-    width: 20%;
+    width: 35%;
+    font-weight: bold;
   }
 
   .table-column-enroll-participation {
     width: 10%;
+    font-weight: bold;
+    font-size: 1.2em;
+
+    span {
+      font-size: 0.8em;
+      color:$sitnet-common-medium;
+    }
   }
 
   .table-column-open-until {
-    width: 20%;
+    width: 10%;
+  }
+
+  .table-column-teachers {
+    width: 25%;
   }
 
   .exams-table-borders {
@@ -104,13 +120,14 @@
   }
 
   .exams-table-title-area {
+
   }
 
   .exams-list-title-text {
     font-size: 1.4em;
     font-family: $sitnet-family-opensans-light;
     color: $sitnet-text;
-    font-weight: 300;
+    font-weight: 600;
     letter-spacing: 1px;
     margin-top: 1em;
     margin-bottom: 1em;

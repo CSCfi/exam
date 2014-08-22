@@ -63,7 +63,17 @@ public class ExamMachine extends Model {
     // Machine may be out of service,
     private String statusComment;
 
+    private boolean archived;
+
     private boolean outOfService;
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
 
     public boolean getExpanded() {
         return expanded;

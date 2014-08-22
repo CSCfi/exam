@@ -172,8 +172,8 @@ $sitnet-icon-size: 32px;
 .status_green, .status_red, .status_orange, .status_theme {
   font-weight: normal;
   letter-spacing: 1px;
-  font-size: 1.1em;
-  padding:0.3em 0.6em;
+  font-size: 0.9em;
+  padding:0.2em 0.5em;
   color: $sitnet-white;
   @include border-radius(5px);
 }

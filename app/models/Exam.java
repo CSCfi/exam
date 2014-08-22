@@ -122,6 +122,9 @@ public class Exam extends SitnetModel {
     @OneToOne
     private Comment examFeedback;
 
+    @OneToOne
+    private Grade examGrade;
+
     private String creditType;
 
     // In UI, section has been expanded
@@ -155,6 +158,14 @@ public class Exam extends SitnetModel {
             }
         }
         return total;
+    }
+
+    public Grade getExamGrade() {
+        return examGrade;
+    }
+
+    public void setExamGrade(Grade examGrade) {
+        this.examGrade = examGrade;
     }
 
     public Timestamp getGradedTime() {

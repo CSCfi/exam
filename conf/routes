@@ -40,9 +40,10 @@ PUT           /exams/:eid/course/:cid                               controllers.
 PUT           /exams/:eid/room/:rid                                 controllers.ExamController.updateRoom(eid: Long, rid: Long)
 GET           /finishedexams                                        controllers.ExamController.getFinishedExams()
 GET           /activeexams                                          controllers.ExamController.getActiveExams()
-GET           /reviewerexams                                        controllers.ExamController.getReviewerExams()
+GET           /reviewerexams                                        controllers.ExamController.getTeachersExams()
 GET           /examenrolments/:eid                                  controllers.ExamController.getEnrolmentsForExam(eid: Long)
 GET           /examparticipations/:eid                              controllers.ExamController.getParticipationsForExam(eid: Long)
+GET           /examparticipationsandreviews/:eid                    controllers.ExamController.getParticipationsAndReviewedForExam(eid: Long)
 POST          /exams/:eid/examtype/:etid                            controllers.ExamController.insertExamType(eid: Long, etid: Long)
 
 
@@ -50,7 +51,7 @@ GET           /exam/:id/inspections                                 controllers.
 POST          /exams/:eid/inspector/:uid                            controllers.ExamController.insertInspection(eid: Long, uid: Long)
 DELETE        /exams/inspector/:id                                  controllers.ExamController.deleteInspection(id: Long)
 
-POST          /exam/:eid/section/:sid/question/:qid                	controllers.ExamController.insertExamQuestion(eid: Long, sid: Long, qid: Long)
+POST          /exam/:eid/section/:sid/question/:qid                 controllers.ExamController.insertExamQuestion(eid: Long, sid: Long, qid: Long)
 POST          /exams/:eid/section/:sid/question/:qid                controllers.ExamController.insertQuestion(eid: Long, sid: Long, qid: Long)
 DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
 GET           /draft                                                controllers.ExamController.createExamDraft()
@@ -129,8 +130,8 @@ PUT           /machines/:id                                         controllers.
 POST          /machines/:id                                         controllers.ExamMachineController.insertExamMachine(id: Long)
 DELETE        /machines/:id                                         controllers.ExamMachineController.removeExamMachine(id: Long)
 
-PUT			  /machine/:mid/software/:sid							controllers.ExamMachineController.updateExamMachineSoftwareInfo(mid: Long, sid: Long)
-PUT			  /software_machine/:mid								controllers.ExamMachineController.resetExamMachineSoftwareInfo(mid: Long)
+PUT           /machine/:mid/software/:sid                           controllers.ExamMachineController.updateExamMachineSoftwareInfo(mid: Long, sid: Long)
+PUT           /software_machine/:mid                                controllers.ExamMachineController.resetExamMachineSoftwareInfo(mid: Long)
 
 GET           /softwares                                            controllers.ExamMachineController.getSoftwares()
 GET           /softwares/:id                                        controllers.ExamMachineController.getSoftware(id: Long)
@@ -171,15 +172,19 @@ DELETE        /calendar/reservation/:id                             controllers.
 
 ################# General Settings interface ##################
 
-GET        /agreament                                               controllers.SettingsController.getUserAgreament()
-GET        /agreament/:id                                           controllers.SettingsController.getUserAgreamentX(id: Long)
-PUT        /agreament/:id                                           controllers.SettingsController.updateUserAgreament(id: Long)
+GET           /agreament                                            controllers.SettingsController.getUserAgreament()
+GET           /agreament/:id                                        controllers.SettingsController.getUserAgreamentX(id: Long)
+PUT           /agreament/:id                                        controllers.SettingsController.updateUserAgreament(id: Long)
 
 ################# Statistics interface ##################
 
+<<<<<<< HEAD
 GET     /statistics/resbydate/:roomId/:from/:to                     controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
 GET     /statistics/examnames                                       controllers.StatisticsController.getExamNames()
 GET     /statistics/examnames/:id/:type                             controllers.StatisticsController.getExam(id: Long, type: String)
+=======
+GET           /statistics/resbydate/:roomId/:from/:to               controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
+>>>>>>> ad0b75e... 401, 177, 369, 403
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()

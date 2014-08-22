@@ -165,7 +165,7 @@
                 </div>
                 <div class="pull-left col-md-9">
                     <ul>
-                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="(key, user) in inspectors"><h6>{{ user.firstName }} {{ user.lastName }} <a ng-if="user.id != newExam.creator.id" ng-click="removeInspector(key)"><i class="fa fa-times" style="cursor: pointer;" title="{{'sitnet_remove' | translate}}"></i></a></h6></li>
+                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="inspection in inspectors"><h6>{{ inspection.user.firstName }} {{ inspection.user.lastName }} <a ng-show="inspection.user.id != newExam.creator.id" ng-click="removeInspector(inspection.id)"><i class="fa fa-times pointer" title="{{'sitnet_remove' | translate}}"></i></a></h6></li>
                     </ul>
                 </div>
             </div>

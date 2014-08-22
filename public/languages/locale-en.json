@@ -317,10 +317,16 @@
     "sitnet_info_deadline": "How many days teacher has, to review an exam",
     "sitnet_show": "Show",
     "sitnet_hide": "Hide",
+<<<<<<< HEAD
     "sitnet_download": "Download",
     "sitnet_exam_graded_by": "Inspected by",
     "sitnet_logged_out": "You have logged out. Please close the browser.",
     "sitnet_room_out_of_service": "Room is out of service"
+=======
+    "sitnet_participation_reviewed": "Reviewed/Answered",
+    "sitnet_teachers": "Teachers"
+
+>>>>>>> ad0b75e... 401, 177, 369, 403
 
 
 }
