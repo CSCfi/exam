@@ -305,15 +305,11 @@
     "sitnet_info_deadline": "Kuinka monta päivää opettajalla on aikaa tarkastaa palautettu tentti",
     "sitnet_show": "Show",
     "sitnet_hide": "Hide",
-<<<<<<< HEAD
     "sitnet_download": "Ladda ner",
     "sitnet_exam_graded_by": "Inspected by",
     "sitnet_logged_out": "Och samma på svenska..",
-    "sitnet_room_out_of_service": "Room is out of service"
-=======
+    "sitnet_room_out_of_service": "Room is out of service",
     "sitnet_participation_reviewed": "Reviewed/Answered",
     "sitnet_teachers": "Opettajat"
-
->>>>>>> ad0b75e... 401, 177, 369, 403
 
 }

@@ -317,13 +317,10 @@
     "sitnet_info_deadline": "Kuinka monta päivää opettajalla on aikaa tarkastaa palautettu tentti",
     "sitnet_show": "Näytä",
     "sitnet_hide": "Piilota",
-<<<<<<< HEAD
     "sitnet_download": "Lataa",
     "sitnet_exam_graded_by": "Arvioija",
     "sitnet_logged_out": "Olet kirjautunut ulos. Ole hyvä ja sulje selain.",
-    "sitnet_room_out_of_service": "Tila on pois käytöstä"
-=======
+    "sitnet_room_out_of_service": "Tila on pois käytöstä",
     "sitnet_participation_reviewed": "Tarkastetut/Vastanneet",
     "sitnet_teachers": "Opettajat"
->>>>>>> ad0b75e... 401, 177, 369, 403
 }
