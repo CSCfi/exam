@@ -10,6 +10,7 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Sets;
 import models.*;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
@@ -24,10 +25,7 @@ import util.SitnetUtil;
 import util.java.EmailComposer;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ExamController extends SitnetController {
 
@@ -155,12 +153,17 @@ public class ExamController extends SitnetController {
         // distinct fix ->
         if(!CollectionUtils.isEmpty(examInspections)) {
 
-            List<Exam> exams = new ArrayList<>();
+//            List<Exam> exams = new ArrayList<>();
+//
+//            examInspections.stream().filter(e -> !exams.contains(e.getExam())).forEach(e -> {
+//                exams.add(e.getExam());
+//                distinctList.add(e);
+//            });
 
-            examInspections.stream().filter(e -> !exams.contains(e.getExam())).forEach(e -> {
-                exams.add(e.getExam());
-                distinctList.add(e);
-            });
+            // not sure if this does the same thing as ^, or anything at all?
+            // but some of us actually still use Java 1.6
+            Set<ExamInspection> set = Sets.newHashSet(examInspections);
+            distinctList.addAll(set);
         }
         // -- fix end
 
