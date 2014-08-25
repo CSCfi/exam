@@ -322,7 +322,8 @@
     "sitnet_logged_out": "You have logged out. Please close the browser.",
     "sitnet_room_out_of_service": "Room is out of service",
     "sitnet_participation_reviewed": "Reviewed/Answered",
-    "sitnet_teachers": "Teachers"
+    "sitnet_teachers": "Teachers",
 
 
+    "sitnet_remove_reservation" : "Remove reservation"
 }

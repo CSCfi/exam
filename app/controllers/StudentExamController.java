@@ -7,7 +7,6 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
-import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.answers.EssayAnswer;
 import models.answers.MultipleChoiseAnswer;
@@ -112,6 +111,8 @@ public class StudentExamController extends SitnetController {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", uid)
                 .eq("exam.state", "PUBLISHED")
@@ -128,6 +129,9 @@ public class StudentExamController extends SitnetController {
             options.setPathProperties("exam.course", "name, code");
             options.setPathProperties("reservation", "id, startAt, endAt, machine");
             options.setPathProperties("reservation.machine", "name");
+            options.setPathProperties("reservation.machine", "name, room");
+            options.setPathProperties("reservation.machine.room", "name, roomCode");
+
 
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
         }

@@ -310,6 +310,9 @@
     "sitnet_logged_out": "Och samma på svenska..",
     "sitnet_room_out_of_service": "Room is out of service",
     "sitnet_participation_reviewed": "Reviewed/Answered",
-    "sitnet_teachers": "Opettajat"
+    "sitnet_teachers": "Opettajat",
+
+    "sitnet_change_reservation" : "Vaihda huonevarausta",
+    "sitnet_remove_reservation" : "Poista huonevaraus"
 
 }

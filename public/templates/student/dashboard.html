@@ -51,7 +51,7 @@
                     <div class="info-row col-md-12 info-column" ng-show="enrolment.reservation.machine.name">
                         <span class="header col-md-4">{{ 'sitnet_exam_room' | translate }}:</span>
                         <span class="text col-md-8">
-                            <span ng-if="enrolment.reservation" class="sitnet-text">{{enrolment.reservation.machine.name}}</span><br/>
+                            <span ng-if="enrolment.reservation" class="sitnet-text">{{enrolment.reservation.machine.name}} <br /> {{enrolment.reservation.machine.room.name}}({{enrolment.reservation.machine.room.roomCode}})</span><br/>
                         </span>
                     </div>
                     <div class="info-row col-md-12 info-column" ng-show="enrolment.reservation.startAt">
@@ -62,6 +62,8 @@
                         <span class="header col-md-4">{{ 'sitnet_toolbar_calendar' | translate }}:</span>
                         <span class="text col-md-8">
                             <a ng-if="enrolment.reservation" class="sitnet-text-alarm" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation' | translate}}</a>
+                            <br ng-if="enrolment.reservation"/>
+                            <a ng-if="enrolment.reservation" class="sitnet-text-alarm" ng-click="removeReservation(enrolment)">{{'sitnet_remove_reservation' | translate}}</a>
                             <a ng-if="!enrolment.reservation" class="sitnet-text-alarm" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation' | translate}}</a>
                         </span>
                     </div>
