@@ -18,7 +18,8 @@
         'mgcrea.ngStrap.helpers.debounce',
         'mgcrea.ngStrap.affix',
         'ui.calendar',
-        'ui.multiselect'
+        'ui.multiselect',
+        'ui.select2'
     ]);
     sitnet.constant('SITNET_CONF', (function () {
         var context_path = '/';

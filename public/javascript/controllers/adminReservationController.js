@@ -8,11 +8,7 @@
 
                 $scope.examReservations = SITNET_CONF.TEMPLATES_PATH + "admin/reservations.html";
 
-                $scope.selectedStudent = {
-                    id: 1,
-                    firstName: "Test",
-                    lastName: "Student"
-                };
+                $scope.selectedStudent;
 
                 AdminReservationResource.students.query(null,
                     function (students) {

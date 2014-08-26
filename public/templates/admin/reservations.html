@@ -7,19 +7,19 @@
 
     <div class="row">
         <div class="col-md-4">
-            <select ui-select2="{ allowClear: true}" ng-model="students" data-placeholder="Pick a number">
+            <select ui-select2="{ allowClear: true}" ng-model="selectedStudent" data-placeholder="Pick a number">
                 <option value=""></option>
                 <option ng-repeat="student in students" value="{{student.id}}">{{student.firstName}} {{student.lastName}}</option>
             </select>
         </div>
         <div class="col-md-4">
-            <select ui-select2="{ allowClear: true}" ng-model="examnames" data-placeholder="Pick a number">
+            <select ui-select2="{ allowClear: true}" ng-model="selectedExam" data-placeholder="Pick a number">
                 <option value=""></option>
                 <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.name}}</option>
             </select>
         </div>
         <div class="col-md-4">
-            <select ui-select2="{ allowClear: true}" ng-model="examnames" data-placeholder="Pick a number">
+            <select ui-select2="{ allowClear: true}" ng-model="selectedExam" data-placeholder="Pick a number">
                 <option value=""></option>
                 <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.name}}</option>
             </select>
