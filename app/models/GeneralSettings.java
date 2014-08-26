@@ -15,7 +15,7 @@ public class GeneralSettings extends Model {
     protected Long id;
 
     @Column(columnDefinition = "TEXT")
-    private String text;
+    private String eula;
 
     // Opettajalla on näin monta päivää tarkastaa tentti
     @Column(columnDefinition="numeric default 14")
@@ -37,11 +37,11 @@ public class GeneralSettings extends Model {
         this.id = id;
     }
 
-    public String getText() {
-        return text;
+    public String getEula() {
+        return eula;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setEula(String text) {
+        this.eula = text;
     }
 }

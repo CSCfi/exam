@@ -31,7 +31,17 @@
                 {
                     eid: "@eid",
                     role: "@role"
-                })
+                }),
+
+                updateAgreementAccepted: $resource("/users/agreement/:id",
+                 {
+                     id: "@id"
+                 },
+                 {
+                     "update": {
+                         method: "PUT", params: {id: "@id"}
+                     }
+                 })
             }
         }]);
 }());

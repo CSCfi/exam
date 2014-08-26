@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$routeParams', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'ExamRes', 'SITNET_CONF',
-            function ($scope, $routeParams, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, ExamRes, SITNET_CONF) {
+        .controller('SessionCtrl', ['$scope', '$routeParams', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'ExamRes', 'UserRes', 'SITNET_CONF',
+            function ($scope, $routeParams, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, ExamRes, UserRes, SITNET_CONF) {
 
                 $scope.session = sessionService;
 
@@ -124,14 +124,49 @@
                             isStudent: (hasRole(user, 'STUDENT')),
                             isTeacher: (hasRole(user, 'TEACHER')),
                             isLoggedOut : false,
-                            token: user.token
+                            token: user.token,
+                            eulaAccepted: user.eulaAccepted
                         };
                         $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = sessionUser;
                         $scope.session.user = sessionUser;
                         authService.loginConfirmed();
                         $rootScope.$broadcast('userUpdated');
                         toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
-                        $location.path("/home");
+                        if (sessionUser.isStudent) {
+
+                            if (!sessionUser.eulaAccepted) {
+
+                                var modalInstance = $modal.open({
+
+                                    templateUrl: 'assets/templates/dialogs/show_eula.html',
+                                    backdrop: 'static',
+                                    keyboard: false,
+                                    controller: function($scope, $modalInstance) {
+
+                                        $scope.ok = function(){
+                                            console.log("ok")
+                                            // OK button
+                                            UserRes.updateAgreementAccepted.update({id: sessionUser.id}, function (user) {
+                                                $scope.session.user = user;
+                                            }, function (error) {
+                                                toastr.error(error.data);
+                                            });
+                                            $modalInstance.dismiss();
+                                            $location.path("/home");
+                                        };
+                                        $scope.cancel = function () {
+                                            console.log("cancel")
+                                            $modalInstance.dismiss('cancel');
+                                            $location.path("/logout");
+                                        };
+                                    }
+                                });
+
+
+                            } else {
+                                $location.path("/home");
+                            }
+                        }
                     });
                     xhr.error(function (message) {
                         toastr.error(message, "Kirjautuminen epäonnistui!");
@@ -141,7 +176,5 @@
                 $scope.go = function (location) {
                     $location.path(location);
                 };
-
-
             }]);
 }());

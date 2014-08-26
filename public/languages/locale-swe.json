@@ -313,6 +313,10 @@
     "sitnet_teachers": "Opettajat",
 
     "sitnet_change_reservation" : "Vaihda huonevarausta",
-    "sitnet_remove_reservation" : "Poista huonevaraus"
+    "sitnet_remove_reservation" : "Poista huonevaraus",
 
+    "sitnet_logged_out": "Och samma på svenska..",
+    "sitnet_accept_useragreement": "Accept user agreement",
+    "sitnet_button_decline": "Accept",
+    "sitnet_button_accept": "Decline"
 }

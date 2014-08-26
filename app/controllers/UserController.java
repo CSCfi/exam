@@ -156,11 +156,28 @@ public class UserController extends SitnetController {
         return ok("success");
     }
     
-    public static User getLoggedUser()
-    {
+    public static User getLoggedUser() {
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
         User user = Ebean.find(User.class, session.getUserId());
         return user;
+    }
+    @Restrict({@Group("STUDENT")})
+    public static Result updateUserAgreementAccepted(Long id) {
+
+        User user = Ebean.find(User.class, id);
+        if (user != null) {
+            user.setHasAcceptedUserAgreament(true);
+            user.save();
+            Ebean.update(user);
+
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, email, firstName, lastName, roles, userLanguage");
+            options.setPathProperties("roles", "name");
+
+            return ok(jsonContext.toJsonString(user, true, options)).as("application/json");
+            }
+        return notFound();
     }
 }

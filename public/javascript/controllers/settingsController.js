@@ -4,13 +4,11 @@
         .controller('SettingsController', ['$scope', '$translate', '$location', '$http', 'SettingsResource',
             function ($scope, $translate, $location, $http, SettingsResource) {
 
-                $scope.settings = SettingsResource.settings.query();
+                $scope.settings = SettingsResource.agreement.query();
 
+                $scope.updateAgreement = function (settings) {
 
-
-                $scope.updateSettings = function (settings) {
-
-                    SettingsResource.settings.update({id: settings.id}, settings,
+                    SettingsResource.agreement.update({id: settings.id}, settings,
                         function (responce) {
                             toastr.info($translate("sitnet_user_agreament") +" "+ $translate("sitnet_updated"));
                             $scope.settings = responce;
@@ -19,8 +17,17 @@
                         });
                 };
 
+                $scope.updateGeneralSettings = function (settings) {
 
+                    SettingsResource.settings.update(settings,
 
+                        function(response) {
 
+                            toastr.info($translate("sitnet_settings") + " " + $translate("sitnet_updated"));
+                                $scope.settings = response;
+                            }, function (error) {
+                                toastr.error(error.data);
+                        });
+                }
             }]);
 }());

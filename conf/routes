@@ -14,6 +14,7 @@ GET           /users/byrole/:role                                   controllers.
 GET           /users/filter/:role                                   controllers.UserController.getUsersByRoleFilter(role: String, q: String)
 GET           /users/filter/:role/:eid                              controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
 PUT           /users/:id                                            controllers.UserController.updateUser(id: Long)
+PUT           /users/agreement/:id                                  controllers.UserController.updateUserAgreementAccepted(id: Long)
 POST          /users                                                controllers.UserController.addUser()
 DELETE        /users/:id                                            controllers.UserController.deleteUser(id: Long)
 
@@ -180,9 +181,9 @@ DELETE        /calendar/reservation/:id                             controllers.
 
 ################# General Settings interface ##################
 
-GET           /agreament                                            controllers.SettingsController.getUserAgreament()
-GET           /agreament/:id                                        controllers.SettingsController.getUserAgreamentX(id: Long)
-PUT           /agreament/:id                                        controllers.SettingsController.updateUserAgreament(id: Long)
+GET        /agreement                                               controllers.SettingsController.getUserAgreement()
+PUT        /agreement                                               controllers.SettingsController.updateUserAgreement()
+PUT        /settings                                                controllers.SettingsController.updateSettings()
 
 ################# Statistics interface ##################
 

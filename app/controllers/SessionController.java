@@ -105,6 +105,7 @@ public class SessionController extends SitnetController {
         result.put("firstname", user.getFirstName());
         result.put("lastname", user.getLastName());
         result.put("roles", Json.toJson(user.getRoles()));
+        result.put("eulaAccepted", user.isHasAcceptedUserAgreament());
         return ok(result);
     }
 

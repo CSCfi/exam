@@ -323,6 +323,10 @@
     "sitnet_room_out_of_service": "Tila on pois käytöstä",
     "sitnet_participation_reviewed": "Tarkastetut/Vastanneet",
     "sitnet_teachers": "Opettajat",
-    "sitnet_remove_reservation" : "Poista huonevaraus"
+    "sitnet_remove_reservation" : "Poista huonevaraus",
 
+    "sitnet_logged_out": "Olet kirjautunut ulos. Ole hyvä ja sulje selain.",
+    "sitnet_accept_useragreement": "Käyttäjäehton hyväksyminen.",
+    "sitnet_button_decline": "Hylkää",
+    "sitnet_button_accept": "Hyväksy"
 }
