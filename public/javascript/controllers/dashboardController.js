@@ -89,6 +89,13 @@
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/dashboard.html";
 
                     }
+                }
+
+                $scope.removeReservation = function(enrolment){
+                    $http.delete('calendar/reservation/' +enrolment.reservation.id).success(function(){
+                        delete enrolment.reservation;
+                        toastr.success("ok");
+                    });
                 };
 
                 $scope.beforeDate = function(date) {
