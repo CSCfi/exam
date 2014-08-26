@@ -14,10 +14,11 @@
         'pascalprecht.translate',
         'ngDragDrop',
         'ngSanitize',
-        'mgcrea.jquery',
-        'mgcrea.bootstrap.affix',
+//        'mgcrea.jquery',
+//        'mgcrea.bootstrap.affix',
         'ui.calendar',
         'ui.multiselect',
+        'ui.select2',
         'acute.select'
     ]);
     sitnet.constant('SITNET_CONF', (function () {

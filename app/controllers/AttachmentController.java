@@ -225,7 +225,7 @@ public class AttachmentController extends SitnetController {
 
     }
 
-//    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result downloadQuestionAttachment(Long id) {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class)

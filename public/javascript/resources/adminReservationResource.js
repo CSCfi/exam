@@ -25,6 +25,11 @@
                     "/admin/students", null,
                     {
 
+                    }),
+                exams: $resource(
+                    "/admin/exams", null,
+                    {
+
                     })
             }
         }]);

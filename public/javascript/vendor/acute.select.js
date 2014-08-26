@@ -25,8 +25,21 @@ angular.module("acute.select", [])
         },
         replace: true,
         templateUrl: defaultSettings.templatePath + "acute.select.htm",
-        link: function(scope, element, attrs) {
+        priority: -1000,
+        link: function(scope, element, attrs, ngModel) {
             scope.initialise();
+
+
+//            scope.$on('ac-select-close-all', updateModel);
+
+            function updateModel() {
+//                scope.$apply(function () {
+//                    scope.ngModel.$viewValue(scope.allItems);
+//                });
+            }
+
+
+
         },
         // **************************************************************
         //                          CONTROLLER
@@ -904,7 +917,7 @@ angular.module("acute.select", [])
         "templatePath": "assets/stylesheets/vendor/acute/template",
         "noItemsText": "No items found.",
         "placeholderText": "Please select...",
-        "itemHeight": 24,
+        "itemHeight": 28,
         "itemsInView": 10,
         "pageSize": null,
         "minWidth": "100px",

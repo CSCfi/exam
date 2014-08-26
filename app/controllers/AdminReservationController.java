@@ -11,6 +11,7 @@ import models.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Play;
+import play.libs.Json;
 import play.mvc.Result;
 
 import java.io.File;
@@ -31,6 +32,7 @@ public class AdminReservationController extends SitnetController {
     private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
 
+    @Restrict({@Group("ADMIN")})
     public static Result getExams() {
 
         Timestamp now = new Timestamp(new Date().getTime());
@@ -55,6 +57,7 @@ public class AdminReservationController extends SitnetController {
         }
     }
 
+    @Restrict({@Group("ADMIN")})
     public static Result getExamRooms() {
 
         List<ExamRoom> examRooms = Ebean.find(ExamRoom.class)
@@ -71,6 +74,7 @@ public class AdminReservationController extends SitnetController {
         }
     }
 
+    @Restrict({@Group("ADMIN")})
     public static Result getStudents() {
 
         List<User> students = Ebean.find(User.class)

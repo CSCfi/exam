@@ -270,7 +270,7 @@
             <div class="sitnet-info-text">
                 {{'sitnet_exam_attacment' | translate}}
             </div>
-            <div ng-show="newExam.attachment !== null" ng-controller="AttachmentController">
+            <div ng-show="newExam.attachment !== null && newExam.attachment !== undefined" ng-controller="AttachmentController">
                 <a href="/attachment/exam/{{newExam.id}}">{{newExam.attachment.fileName}}  </a>
                 <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
             </div>

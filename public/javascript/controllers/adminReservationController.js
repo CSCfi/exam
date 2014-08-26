@@ -8,18 +8,47 @@
 
                 $scope.examReservations = SITNET_CONF.TEMPLATES_PATH + "admin/reservations.html";
 
-                $scope.selectedRoom = {
-                    name: $translate("sitnet_choose")
+                $scope.selectedStudent = {
+                    id: 1,
+                    firstName: "Test",
+                    lastName: "Student"
                 };
 
-                //$scope.rooms = AdminReservationResource.rooms.query();
-                $scope.students = AdminReservationResource.students.query();
-                //$scope.examnames = ReportResource.examnames.query();
+                AdminReservationResource.students.query(null,
+                    function (students) {
+                        $scope.students = students;
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                    },
+                    function(update) {
+                        toastr.info(update.data);
+                    }
+                );
+
+                $scope.examnames = AdminReservationResource.exams.query(null,
+                    function (exams) {
+                        $scope.examnames = exams;
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                    },
+                    function(update) {
+                        toastr.info(update.data);
+                    }
+                );
 
 
-//                $scope.setExam = function (exam) {
-//                    $scope.selectedExam = exam;
-//                }
+                $scope.getStudents = function (callback) {
+
+                    callback( $scope.themStudents);
+                };
+
+
+
+                $scope.setExam = function (value) {
+                    $scope.selectedExam = value;
+                }
 //                $scope.setRoom = function (room) {
 //                    $scope.selectedRoom = room;
 //                }
