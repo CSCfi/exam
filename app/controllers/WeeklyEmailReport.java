@@ -21,7 +21,7 @@ public class WeeklyEmailReport extends Controller implements Runnable {
             List<User> teachers = Ebean.find(User.class)
                     .fetch("roles")
                     .where()
-                    .eq("roles", "TEACHER")
+                    .eq("roles.name", "TEACHER")
                     .findList();
 
             for( User teacher : teachers) {
