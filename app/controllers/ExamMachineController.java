@@ -14,6 +14,7 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -120,18 +121,20 @@ public class ExamMachineController extends SitnetController {
         List<Reservation> reservations = Ebean.find(Reservation.class).where().eq("machine.id", id).gt("endAt", DateTime.now()).findList();
 
         if(!CollectionUtils.isEmpty(reservations)) {
-            reservations.stream().forEach(reservation -> {
+            Iterator i = reservations.iterator();
+            while(i.hasNext()) {
+                Reservation reservation = (Reservation) i.next();
 
                 List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).where().eq("reservation.id", reservation.getId()).findList();
 
-                if(!CollectionUtils.isEmpty(reservations)) {
-                       enrolments.stream().forEach(enrollment -> {
+                if(!CollectionUtils.isEmpty(enrolments)) {
+                       for(ExamEnrolment enrollment : enrolments) {
                            enrollment.setReservation(null);
                            enrollment.update();
-                       });
+                       }
                 }
                 reservation.delete();
-            });
+            }
         }
 
         machine.setArchived(true);
