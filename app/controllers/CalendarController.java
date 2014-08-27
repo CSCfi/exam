@@ -40,9 +40,14 @@ public class CalendarController extends SitnetController {
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id  {} for current user.", id));
         }
+        Reservation reservation = enrolment.getReservation();
         enrolment.setReservation(null);
         Ebean.save(enrolment);
         Ebean.delete(Reservation.class, id);
+
+        // All done, notify student
+        EmailComposer.composeReservationCancelationNotification(user, reservation, "");
+
         return ok("removed");
     }
 

@@ -511,11 +511,39 @@ public class EmailComposer {
      * @param message           Cancelation message
      *
      */
-    public static void composeReservationCancelationNotification(User student, User sender, Reservation reservation, String message) {
-        String subject = "Foobar"; //TODO!!
-        String content = new String();
+    public static void composeReservationCancelationNotification(User student, Reservation reservation, String message) {
+        String subject = "Tekemäsi varaus EXAM-tenttiin on peruttu";
+        String templatePath = TEMPLATES_ROOT + "reservationCanceled/reservationCanceled.html";
 
-        EmailSender.sendInspectorNotification(student.getEmail(), sender.getEmail(), subject, content);
+        /**
+         * <p>Varauksesi EXAM-tenttiin {{reservation_date}} klo {{reservation_time}} tilassa {{room_name}} on jouduttu perumaan. Lisätietoja:
+         * <p>{{cancelation_information}}</p>
+         *
+         */
+
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/m/yyyy HH:mm:ss");
+        String dateTime = sdf.format(reservation.getStartAt());
+        String[] dta = dateTime.split(" ");
+        String date = dta[0];
+        String time = dta[1];
+        String room = reservation.getMachine().getRoom().getName();
+
+        Map<String, String> stringValues = new HashMap<String, String>();
+        stringValues.put("reservation_date", date);
+        stringValues.put("reservation_time", time);
+        stringValues.put("room_name", room);
+        stringValues.put("cancellation_information", message);
+
+        String template = null;
+        try {
+            template = readFile(templatePath, ENCODING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        template = replaceAll(template, tagOpen, tagClosed, stringValues);
+
+        EmailSender.send(student.getEmail(), "noreply@exam.fi", subject, template);
     }
 
 

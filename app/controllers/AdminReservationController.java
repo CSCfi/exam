@@ -13,6 +13,7 @@ import org.joda.time.format.DateTimeFormatter;
 import play.Play;
 import play.libs.Json;
 import play.mvc.Result;
+import util.java.EmailComposer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -104,10 +105,15 @@ public class AdminReservationController extends SitnetController {
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id  {} for current user.", id));
         }
+        Reservation reservation = enrolment.getReservation();
+        User student = enrolment.getUser();
+        EmailComposer.composeReservationCancelationNotification(student, reservation, "");
+
         enrolment.setReservation(null);
         Ebean.save(enrolment);
         Ebean.delete(Reservation.class, id);
         Ebean.delete(enrolment);
+
         return ok("removed");
     }
 
