@@ -5,6 +5,9 @@ import com.avaje.ebean.Query;
 import com.typesafe.config.ConfigFactory;
 import controllers.UserController;
 import models.*;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import play.Play;
 import play.mvc.Http;
 import util.SitnetUtil;
@@ -13,6 +16,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -35,8 +39,7 @@ public class EmailComposer {
     private final static Charset ENCODING = Charset.defaultCharset();
     private final static String TEMPLATES_ROOT = Play.application().path().getAbsolutePath() + "/app/assets/template/email/";
 
-
-
+    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
 
     /**
      *
@@ -207,7 +210,7 @@ public class EmailComposer {
 
         String templatePath = TEMPLATES_ROOT + "weeklySummary/weeklySummary.html";
         String enrollmentTemplatePath = TEMPLATES_ROOT + "weeklySummary/enrollmentInfo.html";
-        String inspectionTemplatePath = TEMPLATES_ROOT + "weeklySummary/inspectionInfo.html";
+        String inspectionTemplatePath = TEMPLATES_ROOT + "weeklySummary/inspectionInfoSimple.html";
 
         String subject = "EXAM viikkokooste";
         String teacher_name = teacher.getFirstName() + " " + teacher.getLastName() + " <" + teacher.getEmail() + ">";
@@ -227,10 +230,11 @@ public class EmailComposer {
         // get all active exams created by this teachers
         Timestamp now = new Timestamp(new Date().getTime());
         List<Exam> activeExams = Ebean.find(Exam.class)
-                .select("id")
+                .select("id, creator.id")
                 .where()
                 .eq("state", "PUBLISHED")
                 .gt("examActiveEndDate", now)
+                .eq("creator.id", teacher.getId())
                 .findList();
 
         String enrollmentBlock = new String();
@@ -249,39 +253,87 @@ public class EmailComposer {
                     .orderBy("exam.id, id desc")
                     .findList();
 
-            for(ExamEnrolment enrolment : enrolments) {
-//                <p><a href="{{exam_link}}">{{exam_name}}</a>, {{course_code}}: {{enrollments}} kpl, joista ensimmäinen on tulossa {{first_exam_date}}</p>                Map<String, String> stringValues = new HashMap<String, String>();
-                String row = new String(enrollmentTemplate);
+            String row = new String(enrollmentTemplate);
+
+            if(enrolments.size() > 0) {
+
+                // sort enrolments by date
+                Collections.sort(enrolments, new Comparator<ExamEnrolment>() {
+                    public int compare(ExamEnrolment o1, ExamEnrolment o2) {
+                        return o1.getEnrolledOn().compareTo(o2.getEnrolledOn());
+                    }
+                });
+
+//          <p><a href="{{exam_link}}">{{exam_name}}</a>, {{course_code}}: {{enrollments}} kpl, joista ensimmäinen on tulossa {{first_exam_date}}</p>
 
                 Map<String, String> stringValues = new HashMap<String, String>();
-                stringValues.put("exam_link", hostname+ "/#/home/");
-                stringValues.put("exam_name", enrolment.getExam().getName());
-                stringValues.put("course_code", enrolment.getExam().getCourse().getCode());
-                stringValues.put("enrollments", enrolments.size() +"");
+                stringValues.put("exam_link", hostname + "/#/home/");
+                stringValues.put("exam_name", exam.getName());
+                stringValues.put("course_code", exam.getCourse().getCode());
+                stringValues.put("enrollments", enrolments.size() + "");
 
-                // TODO: calculate this
-                stringValues.put("first_exam_date", enrolments.size() +"");
-
+                // TODO: there should not be enrolments without machine reservations
+                if (enrolments.get(0).getReservation() != null) {
+                    DateTime date = new DateTime(enrolments.get(0).getReservation().getStartAt());
+                    stringValues.put("first_exam_date", dateTimeFormat.print(date));
+                }
                 row = replaceAll(row, tagOpen, tagClosed, stringValues);
+                enrollmentBlock += row;
+            }
+            else {
+                Map<String, String> svalues = new HashMap<String, String>();
+                row += "<p><a href=\"{{exam_link}}\">{{exam_name}}</a>, {{course_code}} - ei ilmoittautumisia</p>";
+                svalues.put("exam_link", hostname+ "/#/home/");
+                svalues.put("exam_name", exam.getName());
+                svalues.put("course_code", exam.getCourse().getCode());
+                row = replaceAll(row, tagOpen, tagClosed, svalues);
                 enrollmentBlock += row;
             }
         }
 
-        List<ExamParticipation> ownExams = Ebean.find(ExamParticipation.class)
-                .select("id, exam.id")
+//        List<ExamParticipation> ownExams = Ebean.find(ExamParticipation.class)
+//                .select("id, exam.id")
+//                .fetch("exam")
+//                .where()
+//                .eq("exam.grade", null)     // Owh, should check if exam graded, somehow better
+//                .eq("exam.creator.id", teacher.getId())
+//                .findList();
+
+        List<ExamInspection> ownInspections = Ebean.find(ExamInspection.class)
+                .select("exam.id, user.id")
                 .fetch("exam")
+                .fetch("user")
+                .fetch("assignedBy")
                 .where()
                 .eq("exam.grade", null)     // Owh, should check if exam graded, somehow better
                 .eq("exam.creator.id", teacher.getId())
                 .findList();
+
+        List<ExamParticipation> ownExams = new ArrayList<ExamParticipation>(0);
+
+        for(ExamInspection insp : ownInspections) {
+            List<ExamParticipation> temp = Ebean.find(ExamParticipation.class)
+                    .select("id")
+                    .fetch("exam")
+                    .fetch("exam.parent")
+                    .fetch("exam.course")
+                    .where()
+                    .eq("exam.parent.id", insp.getExam().getId())
+                    .eq("exam.grade", null) // Owh, should check if exam graded, somehow better
+                    .findList();
+
+            ownExams.addAll(temp);
+        }
 
         // motako tarkastus-pyyntö arvioimatonta tenttiä
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .select("exam.id, user.id")
                 .fetch("exam")
                 .fetch("user")
+                .fetch("assignedBy")
                 .where()
                 .eq("exam.parent", null)
+                .ne("assignedBy", null)     // this is stupid, should check somehow better
                 .eq("user.id", teacher.getId())
                 .findList();
 
@@ -291,32 +343,35 @@ public class EmailComposer {
             List<ExamParticipation> temp = Ebean.find(ExamParticipation.class)
                     .select("id")
                     .fetch("exam")
+                    .fetch("exam.parent")
                     .fetch("exam.course")
                     .where()
-                    .eq("exam.id", insp.getExam().getId())
+                    .eq("exam.parent.id", insp.getExam().getId())
                     .eq("exam.grade", null) // Owh, should check if exam graded, somehow better
                     .findList();
 
             reviewExams.addAll(temp);
         }
 
-        int totalUngradedExams = ownExams.size() + reviewExams.size();
+        reviewExams.addAll(ownExams);
+
+        int totalUngradedExams = reviewExams.size();
 
         String inspectionBlock = new String();
 
         for(ExamParticipation review : reviewExams) {
+            // Todo: should use this template  inspectionInfo.html
+            // now uses inspectionInfoSimple.html
 
-//          <p>{{exam_name}}, {{course_code}}: {{answer_count_exam}} kpl, joista ensimmäinen erääntyy {{inspection_due_date}}</p>
+//            <p><a href="{{exam_link}}">{{student_name}}</a>, {{exam_name}} - {{course_code}}</p>
             String row = new String(inspectionTemplate);
 
             Map<String, String> stringValues = new HashMap<String, String>();
             stringValues.put("exam_link", hostname+ "/#/exams/reviews/"+ review.getExam().getId());
+            stringValues.put("student_name", review.getUser().getFirstName() +" "+ review.getUser().getLastName());
             stringValues.put("exam_name", review.getExam().getName());
             stringValues.put("course_code", review.getExam().getCourse().getCode());
-//            stringValues.put("enrollments", enrolments.size() +"");
 
-            // TODO: calculate this
-//            stringValues.put("first_exam_date", enrolments.size() +"");
 
             row = replaceAll(row, tagOpen, tagClosed, stringValues);
             inspectionBlock += row;
