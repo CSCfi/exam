@@ -159,19 +159,19 @@ public class ExamController extends SitnetController {
 
                 List<Exam> exams = new ArrayList<>();
                 // java 1.7 ->
-                /*for(ExamInspection e : examInspections) {
+                for(ExamInspection e : examInspections) {
                     if(!exams.contains(e.getExam())) {
                         exams.add(e.getExam());
                         distinctList.add(e);
                     }
-                }*/
+                }
 
 //              java 1.8 ->
-
+/*
                 examInspections.stream().filter(e -> !exams.contains(e.getExam())).forEach(e -> {
                    exams.add(e.getExam());
                    distinctList.add(e);
-                });
+                });*/
             }
         }
         // -- fix end
