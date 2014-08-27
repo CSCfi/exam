@@ -4,6 +4,7 @@ import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
 import controllers.StatisticsController;
 import controllers.StudentExamController;
+import controllers.WeeklyEmailReport;
 import models.*;
 import models.questions.QuestionInterface;
 import org.joda.time.DateTime;
@@ -11,20 +12,20 @@ import play.Application;
 import play.GlobalSettings;
 import play.Logger;
 import play.cache.Cache;
-import play.libs.Akka;
-import play.libs.F;
+import play.libs.*;
 import play.libs.F.Promise;
-import play.libs.Json;
-import play.libs.Yaml;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Results;
 import play.mvc.SimpleResult;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
 
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ public class Global extends GlobalSettings {
     public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 15;
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
 
+
+
     @Override
     public void onStart(Application app) {
 
@@ -45,6 +48,14 @@ public class Global extends GlobalSettings {
                 Duration.create(SITNET_EXAM_REVIEWER_START_AFTER_MINUTES, TimeUnit.MINUTES),
                 Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                 new ReviewRunner(),
+                Akka.system().dispatcher()
+        );
+
+// Todo: in production should use 7 DAYS
+        Akka.system().scheduler().schedule(
+                Duration.create(1, TimeUnit.MINUTES),
+                Duration.create(1, TimeUnit.DAYS),
+                new WeeklyEmailReport(),
                 Akka.system().dispatcher()
         );
 
