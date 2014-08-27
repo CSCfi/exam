@@ -4,17 +4,43 @@
         .factory("AdminReservationResource", ['$resource', function ($resource) {
             return {
                 reservationListing: $resource(
-                    "/reservations/list/:userId/:roomId/:examId",
+                    "/admin/reservations/list/:userId/:roomId/:examId",
                     {
                         userId: "@userId",
                         roomId: "@roomId",
                         examId: "@examId"
                     },
                     {
-                        "get": {method: "GET", params: {userId: "userId", roomId: "roomId", examId: "examId"}}
+                        "query": {method: "GET", isArray:true, params: {userId: "userId", roomId: "roomId", examId: "examId"}}
                     }),
+                reservationListingByStudent: $resource(
+                    "/admin/reservations/list/student/:userId/",
+                    {
+                        userId: "@userId"
+                    },
+                    {
+                        "query": {method: "GET", isArray:true, params: {userId: "userId"}}
+                    }),
+                reservationListingByRoom: $resource(
+                    "/admin/reservations/list/room/:roomId/",
+                    {
+                        roomId: "@roomId"
+                    },
+                    {
+                        "query": {method: "GET", isArray:true, params: {roomId: "roomId"}}
+                    }),
+                reservationListingByExam: $resource(
+                    "/admin/reservations/list/exam/:examId/",
+                    {
+                        examId: "@examId"
+                    },
+                    {
+                        "query": {method: "GET", isArray:true, params: {examId: "examId"}}
+                    }),
+
+
                 reservationDeletion: $resource(
-                    "/reservations/delete/:reservationid",
+                    "/admin/reservations/delete/:reservationid",
                     {
                         id: "@reservationId"
                     },
@@ -28,6 +54,11 @@
                     }),
                 exams: $resource(
                     "/admin/exams", null,
+                    {
+
+                    }),
+                examrooms: $resource(
+                    "/admin/examrooms", null,
                     {
 
                     })

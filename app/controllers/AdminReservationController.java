@@ -141,4 +141,94 @@ public class AdminReservationController extends SitnetController {
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
         }
     }
+
+    @Restrict({@Group("ADMIN")})
+    public static Result getReservationsByStudent(Long studentId) {
+
+
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("user")
+                .fetch("exam")
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .eq("user.id", studentId)
+                .findList();
+
+        if (enrolments == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+            options.setPathProperties("user", "id, firstName, lastName");
+            options.setPathProperties("exam", "id, name");
+            options.setPathProperties("reservation", "id, startAt, endAt, machine");
+            options.setPathProperties("reservation.machine", "id, name, ipAddress, room");
+            options.setPathProperties("reservation.machine.room", "id, name, roomCode");
+
+            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+        }
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public static Result getReservationsByRoom(Long roomId) {
+
+
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("user")
+                .fetch("exam")
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .eq("reservation.machine.room.id", roomId)
+                .findList();
+
+        if (enrolments == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+            options.setPathProperties("user", "id, firstName, lastName");
+            options.setPathProperties("exam", "id, name");
+            options.setPathProperties("reservation", "id, startAt, endAt, machine");
+            options.setPathProperties("reservation.machine", "id, name, ipAddress, room");
+            options.setPathProperties("reservation.machine.room", "id, name, roomCode");
+
+            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+        }
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public static Result getReservationsByExam(Long examId ) {
+
+
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("user")
+                .fetch("exam")
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .eq("exam.id", examId)
+                .findList();
+
+        if (enrolments == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+            options.setPathProperties("user", "id, firstName, lastName");
+            options.setPathProperties("exam", "id, name");
+            options.setPathProperties("reservation", "id, startAt, endAt, machine");
+            options.setPathProperties("reservation.machine", "id, name, ipAddress, room");
+            options.setPathProperties("reservation.machine.room", "id, name, roomCode");
+
+            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+        }
+    }
 }

@@ -128,7 +128,11 @@ GET           /admin/students                                       controllers.
 GET           /admin/examrooms                                      controllers.AdminReservationController.getExamRooms()
 GET           /admin/exams                                          controllers.AdminReservationController.getExams()
 
-DELETE        /admin/resevation/:id                                 controllers.AdminReservationController.removeReservation(id: Long)
+GET           /admin/reservations/list/student/:id                  controllers.AdminReservationController.getReservationsByStudent(id: Long)
+GET           /admin/reservations/list/room/:id                     controllers.AdminReservationController.getReservationsByRoom(id: Long)
+GET           /admin/reservations/list/exam/:id                     controllers.AdminReservationController.getReservationsByExam(id: Long)
+GET           /admin/reservations/list/student/:sid/room/:rid/exam/:eid  controllers.AdminReservationController.getReservations(sid: Long, rid: Long, eid: Long)
+DELETE        /admin/resevations/delete/:id                          controllers.AdminReservationController.removeReservation(id: Long)
 
 
 

@@ -1,0 +1,24 @@
+<div id='reservation_details'>
+    <div class="col-md-12">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Opiskelija</th>
+                <th>Tenttitila</th>
+                <th>Tentti</th>
+                <th>Päivämäärä</th>
+                <th>Poista varaus</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="enrolment in enrolments">
+                    <td>{{enrolment.user.firstName}} {{enrollment.user.lastName}}</td>
+                    <td>{{enrolment.reservation.machine.room.name}}</td>
+                    <td>{{enrolment.exam.name}}</td>
+                    <td>{{enrolment.reservation.startAt}}</td>
+                    <td>XXX</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
