@@ -33,7 +33,7 @@ public class SessionController extends SitnetController {
 
             user = Ebean.find(User.class)
                     .select("id, eppn, email, firstName, lastName, userLanguage")
-                    .where().eq("eppn", credentials.getUsername())
+                    .where().eq("eppn", credentials.getUsername() +"@funet.fi")
                     .eq("password", md5psswd).findUnique();
 
             if (user == null) {

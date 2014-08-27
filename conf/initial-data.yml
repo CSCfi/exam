@@ -89,7 +89,7 @@ users:
 
     - !!models.User
       email:      sitnetad@funet.fi
-      eppn:       sitnetad
+      eppn:       sitnetad@funet.fi
       firstName:  Admin
       lastName:   Instrator
       password:   c74626d3eca0613f356cd34ecd1301c5  #sitnetad
@@ -100,7 +100,7 @@ users:
 
     - &maika !!models.User
       email:      maikaope@funet.fi
-      eppn:       maikaope
+      eppn:       maikaope@funet.fi
       firstName:  Maika
       lastName:   Opettaja
       password:   1d0ebf168b86f79a0c34e81eb1fd70cd  # maikaope
@@ -111,7 +111,7 @@ users:
 
     - &sauli !!models.User
       email:      saulistu@funet.fi
-      eppn:      saulistu
+      eppn:       saulistu@funet.fi
       firstName:  Sauli
       lastName:   Student
       password:   72e6570dbfeb95d5df59e08f1fa6302f   # saulistu
@@ -122,7 +122,7 @@ users:
 
     - &arvo !!models.User
       email:      arvo@funet.fi
-      eppn:       arvo
+      eppn:       arvo@funet.fi
       firstName:  Arvon
       lastName:   Penaali
       password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
@@ -133,7 +133,7 @@ users:
 
     - &soikkeli !!models.User
       email:      soikkeli@funet.fi
-      eppn:       soikkeli
+      eppn:       soikkeli@funet.fi
       firstName:  Höylä
       lastName:   Soikkeli
       password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
@@ -144,7 +144,7 @@ users:
       
     - &orville !!models.User
       email:      oppilas@funet.fi
-      eppn:       oppilas
+      eppn:       oppilas@funet.fi
       firstName:  Orville
       lastName:   Oates
       password:   2664274e7f6f56c565470797478cb406  #oppilas
