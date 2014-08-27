@@ -130,9 +130,9 @@
                 };
 
                 $scope.removeReservation = function (value) {
-                    AdminReservationResource.reservationDeletion.delete(value,
+                    AdminReservationResource.reservationDeletion.remove({id: value}, null,
                     function (result) {
-
+                        $location.path("admin/reservations/")
                     }, function (error) {
                         toastr.error(error.data);
                     });

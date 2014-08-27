@@ -40,12 +40,13 @@
 
 
                 reservationDeletion: $resource(
-                    "/admin/reservations/delete/:reservationid",
+                    "/admin/reservations/delete/:id",
                     {
-                        id: "@reservationId"
+                        id: "@id"
                     },
                     {
                         "remove": {method: "DELETE", params: { id: "id"}}
+
                     }),
                 students: $resource(
                     "/admin/students", null,

@@ -107,6 +107,7 @@ public class AdminReservationController extends SitnetController {
         enrolment.setReservation(null);
         Ebean.save(enrolment);
         Ebean.delete(Reservation.class, id);
+        Ebean.delete(enrolment);
         return ok("removed");
     }
 

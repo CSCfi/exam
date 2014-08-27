@@ -16,7 +16,7 @@
                     <td>{{enrolment.reservation.machine.room.name}}</td>
                     <td>{{enrolment.exam.name}}</td>
                     <td>{{enrolment.reservation.startAt}}</td>
-                    <td><button ng-click="deleteReservation({{enrolment.reservation.id}})" class="btn btn-primary pull-left">{{'sitnet_remove_reservation' | translate}}</button></td>
+                    <td><button ng-click="removeReservation(enrolment.reservation.id)" class="btn btn-primary pull-left">{{'sitnet_remove_reservation' | translate}}</button></td>
                 </tr>
             </tbody>
         </table>
