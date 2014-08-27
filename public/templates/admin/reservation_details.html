@@ -3,11 +3,11 @@
         <table class="table table-bordered">
             <thead>
             <tr>
-                <th>Opiskelija</th>
-                <th>Tenttitila</th>
-                <th>Tentti</th>
-                <th>Päivämäärä</th>
-                <th>Poista varaus</th>
+                <th>{{'sitnet_student' | translate}}</th>
+                <th>{{'sitnet_room' | translate}}</th>
+                <th>{{'sitnet_exam' | translate}}</th>
+                <th>{{'sitnet_date' | translate}}</th>
+                <th>{{'sitnet_remove_reservation' | translate}}</th>
             </tr>
             </thead>
             <tbody>
@@ -16,7 +16,7 @@
                     <td>{{enrolment.reservation.machine.room.name}}</td>
                     <td>{{enrolment.exam.name}}</td>
                     <td>{{enrolment.reservation.startAt}}</td>
-                    <td>XXX</td>
+                    <td><button ng-click="deleteReservation({{enrolment.reservation.id}})" class="btn btn-primary pull-left">{{'sitnet_remove_reservation' | translate}}</button></td>
                 </tr>
             </tbody>
         </table>

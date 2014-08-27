@@ -129,8 +129,14 @@
 
                 };
 
-                $scope.removeReservation = function () {
-                }
+                $scope.removeReservation = function (value) {
+                    AdminReservationResource.reservationDeletion.delete(value,
+                    function (result) {
+
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                };
 
 
             }]);

@@ -334,5 +334,9 @@
     "sitnet_remove_reservation" : "Poista huonevaraus",
     "sitnet_accept_useragreement": "Käyttäjäehton hyväksyminen.",
     "sitnet_button_decline": "Hylkää",
-    "sitnet_button_accept": "Hyväksy"
+    "sitnet_button_accept": "Hyväksy",
+    "sitnet_remove_reservation" : "Poista varaus",
+    "sitnet_room" : "Tenttitila",
+    "sitnet_date" : "Päivämäärä",
+    "sitnet_reservations_administration" : "Varausten hallinta"
 }

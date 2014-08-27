@@ -1,25 +1,25 @@
 <div id="sitnet-header" class="header">
     <div class="col-md-12 header-wrapper">
-        <span class="header-text">Varausten hallinta</span>
+        <span class="header-text">{{'sitnet_reservations_administration' | translate}}</span>
     </div>
 </div>
 
 <div id='reservations'>
     <div class="base row">
         <div class="col-md-3">
-            <select ui-select2="{ allowClear: true}" ng-model="selectedStudent" ng-change="setStudent(selectedStudent)" data-placeholder="Pick a student">
+            <select ui-select2="{ allowClear: true}" ng-model="selectedStudent" ng-change="setStudent(selectedStudent)" data-placeholder="{{'sitnet_student' | translate}}">
                 <option value=""></option>
                 <option ng-repeat="student in students" value="{{student.id}}">{{student.firstName}} {{student.lastName}}</option>
             </select>
         </div>
         <div class="col-md-3">
-            <select ui-select2="{ allowClear: true}" ng-model="selectedExamRoom" ng-change="setRoom(selectedExamRoom)" data-placeholder="Pick a room">
+            <select ui-select2="{ allowClear: true}" ng-model="selectedExamRoom" ng-change="setRoom(selectedExamRoom)" data-placeholder="{{'sitnet_room' | translate}}">
                 <option value=""></option>
                 <option ng-repeat="examroom in examrooms" value="{{examroom.id}}">{{examroom.name}}</option>
             </select>
         </div>
         <div class="col-md-3">
-            <select ui-select2="{ allowClear: true}" ng-model="selectedExam" ng-change="setExam(selectedExam)" data-placeholder="Pick an exam">
+            <select ui-select2="{ allowClear: true}" ng-model="selectedExam" ng-change="setExam(selectedExam)" data-placeholder="{{'sitnet_exam' | translate}}">
                 <option value=""></option>
                 <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.name}}</option>
             </select>

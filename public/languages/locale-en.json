@@ -335,5 +335,9 @@
     "sitnet_logged_out": "You have logged out. Please close the browser.",
     "sitnet_accept_useragreement": "Accept user agreement",
     "sitnet_button_decline": "Accept",
-    "sitnet_button_accept": "Decline"
+    "sitnet_button_accept": "Decline",
+    "sitnet_remove_reservation" : "Remove reservation",
+    "sitnet_room" : "Exam room",
+    "sitnet_date" : "Date",
+    "sitnet_reservations_administration" : "Reservations administration"
 }
