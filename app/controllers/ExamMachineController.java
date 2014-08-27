@@ -4,9 +4,11 @@ import Exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Software;
+import com.avaje.ebean.text.json.JsonContext;
+import com.avaje.ebean.text.json.JsonWriteOptions;
+import models.*;
+import org.joda.time.DateTime;
+import org.springframework.util.CollectionUtils;
 import play.Logger;
 import play.data.Form;
 import play.libs.Json;
@@ -22,7 +24,10 @@ public class ExamMachineController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getExamMachines() {
-        List<ExamMachine> machines = Ebean.find(ExamMachine.class).findList();
+        List<ExamMachine> machines = Ebean.find(ExamMachine.class)
+                .where()
+                .eq("archived", false)
+                .findList();
 
         return ok(Json.toJson(machines));
     }
@@ -33,6 +38,23 @@ public class ExamMachineController extends SitnetController {
 
         return ok(Json.toJson(machine));
     }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExamMachineReservationsFromNow(Long id) {
+
+        List<Reservation> reservations = Ebean.find(Reservation.class)
+                .where()
+                .eq("machine.id", id)
+                .gt("endAt", DateTime.now()) //.minus(1000 * 60 * 60 * 24))
+                .findList();
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, startAt, endAt");
+
+        return ok(jsonContext.toJsonString(reservations, true, options)).as("application/json");
+    }
+
 
     @Restrict({@Group("ADMIN")})
     public static Result updateExamMachine(Long id) throws MalformedDataException {
@@ -94,7 +116,26 @@ public class ExamMachineController extends SitnetController {
     public static Result removeExamMachine(Long id) throws MalformedDataException {
 
         ExamMachine machine = Ebean.find(ExamMachine.class, id);
-        machine.delete();
+
+        List<Reservation> reservations = Ebean.find(Reservation.class).where().eq("machine.id", id).gt("endAt", DateTime.now()).findList();
+
+        if(!CollectionUtils.isEmpty(reservations)) {
+            reservations.stream().forEach(reservation -> {
+
+                List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).where().eq("reservation.id", reservation.getId()).findList();
+
+                if(!CollectionUtils.isEmpty(reservations)) {
+                       enrolments.stream().forEach(enrollment -> {
+                           enrollment.setReservation(null);
+                           enrollment.update();
+                       });
+                }
+                reservation.delete();
+            });
+        }
+
+        machine.setArchived(true);
+        machine.update();
 
         return ok();
     }

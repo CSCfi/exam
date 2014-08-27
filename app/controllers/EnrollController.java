@@ -42,6 +42,28 @@ public class EnrollController extends Controller {
         return ok(jsonContext.toJsonString(activeExams, true, options)).as("application/json");
     }
 
+    @Restrict({@Group("ADMIN")})
+    public static Result enrolmentsByReservation(Long id) {
+
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("user")
+                .fetch("exam")
+                .fetch("reservation")
+                .where()
+                .eq("reservation.id", id)
+                .findList();
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, exam, user, reservation");
+        options.setPathProperties("exam", "id, name, course, examActiveStartDate, examActiveEndDate");
+        options.setPathProperties("exam.course", "code, name");
+        options.setPathProperties("user", "firstName, lastName, email");
+        options.setPathProperties("reservation", "id, startAt, endAt");
+
+        return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+    }
+
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result enrollExamInfo(String code, Long id)  {
   	

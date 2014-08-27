@@ -1,13 +1,13 @@
 <!-- Toolbar -->
 <!-- Create new question icon and text -->
-<div class="col-md-12" ng-controller="QuestionCtrl">
-    <div class="col-md-2 pull-left header-top">
+<div class="col-md-12  header-top" ng-controller="QuestionCtrl">
+    <div class="col-md-2 pull-left">
         <a class="header-top-link dropdown-toggle" data-toggle="dropdown">
          <span class="pull-left fa-stack fa-lg header-top-icon">
             <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
             <i class="fa sitnet-white fa-list-ol fa-stack-1x"></i>
         </span>
-        {{'sitnet_toolbar_new_question' | translate}}
+            {{'sitnet_toolbar_new_question' | translate}}
         </a>
         <ul class="dropdown-menu" role="menu">
             <li>
@@ -16,13 +16,13 @@
             </li>
         </ul>
     </div>
-    <div class="col-md-2 pull-left header-top" ng-controller="ExamController">
+    <div class="col-md-2 pull-left" ng-controller="ExamController">
         <a class="header-top-link" ng-click="createExam()">
          <span class="pull-left fa-stack fa-lg header-top-icon">
             <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
             <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
         </span>
-        {{'sitnet_toolbar_new_exam' | translate}}</a>
+            {{'sitnet_toolbar_new_exam' | translate}}</a>
     </div>
 </div>
 <!-- Todo: Uncomment when implementing question library

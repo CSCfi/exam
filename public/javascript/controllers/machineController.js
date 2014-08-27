@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('MachineCtrl', ['$scope', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService',
-            function ($scope, $routeParams, $location, SoftwareResource, ExamMachineResource, SITNET_CONF, dateService) {
+        .controller('MachineCtrl', ['$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'SITNET_CONF', 'dateService',
+            function ($scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, SITNET_CONF, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/machine.html";
@@ -18,7 +18,7 @@
                 $scope.softwares = SoftwareResource.softwares.query();
 
                 $scope.removeMachine = function (machine) {
-                    if (confirm('Koneella voi olla varauksia\nPoistetaanko kone?')) {
+                    if (confirm('Poistetaanko kone?')) {
                         ExamMachineResource.remove({id: machine.id},
                             function () {
                                 $scope.roomInstance.examMachines.splice($scope.roomInstance.examMachines.indexOf(machine), 1);
@@ -26,7 +26,6 @@
                             },
                             function (error) {
                                 toastr.error(error.data);
-
                             }
                         );
                     }
@@ -42,7 +41,7 @@
                     });
                     toastr.info("Tenttikone päivitetty.");
                     $scope.selectedSoftwares(machine);
-                }
+                };
 
                 $scope.updateMachine = function (machine) {
 
@@ -61,7 +60,7 @@
                 $scope.updateMachineAndExit = function (machine) {
                     $scope.updateMachine(machine);
                     $location.path("/rooms/");
-                }
+                };
 
                 $scope.selectedSoftwares = function (machine) {
                     return machine.softwareInfo.map(function (software) {
@@ -69,5 +68,31 @@
                     }).join(", ");
                 };
 
+                $scope.removeMachineModal = function () {
+
+                    var params = {
+                        "machine": $scope.machine,
+                        "room": $scope.roomInstance
+                    };
+
+                    var modalInstance = $modal.open({
+                        templateUrl: 'assets/templates/admin/remove_machine_modal.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: "MachineModalController",
+                        resolve: {
+                            params: function () {
+                                return params;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (machine) {
+                        // OK button clicked
+                        $scope.removeMachine(machine);
+                    }, function () {
+                        // Cancel button clicked
+                    });
+                };
         }]);
 }());

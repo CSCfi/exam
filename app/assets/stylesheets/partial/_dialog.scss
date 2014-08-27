@@ -10,4 +10,81 @@
   .arrow-right-button {
     margin-left: 2.8em;
   }
+
+  .dialog-body-wrapper {
+    width:96%;
+    margin:0 auto;
+
+    .header {
+      padding:1.5em 0;
+      font-weight: bold;
+      font-size: 1.1em;
+
+      .headerNotice {
+        font-size: 0.8em;
+        color: $sitnet-notice;
+        width:100%;
+        clear:both;
+        display: block;
+      }
+    }
+
+    .body {
+      width:100%;
+    }
+  }
+
+  .list-table {
+
+    min-width: 400px;
+    border: 0;
+    font-family: $sitnet-family-opensans;
+    font-weight: normal;
+    font-size: 0.8em;
+
+    th {
+      background-color: $sitnet-common-light;
+      font-family: $sitnet-family-georgia;
+      color: $sitnet-common-medium;
+      font-style: italic;
+      font-weight: normal;
+      border:0;
+    }
+
+    td:first-child {
+      border-left:0;
+    }
+    td:last-child {
+      border-right:0;
+    }
+
+    tr:last-child {
+      td {
+        border-bottom: 0;
+      }
+    }
+
+    .subHeader {
+      color:$sitnet-common-medium;
+      text-align: right;
+    }
+
+    .email {
+      font-weight: bold;
+    }
+
+    .code {
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .name {
+      width: 35%;
+    }
+
+    .time {
+      width:30%;
+      font-weight: bold;
+    }
+  }
 }

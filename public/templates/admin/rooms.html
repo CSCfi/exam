@@ -14,16 +14,15 @@
     </div>
 </div>
 <div id="room" ng-controller="RoomCtrl" class="base">
-    <span class="sitnet-horizontal-line"></span>
     <div class="col-md-12  header-top">
-        <div class="col-md-2 pull-left  header-top">
+        <div class="col-md-2 pull-left">
              <span class="pull-left fa-stack fa-lg header-top-icon">
                 <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                 <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
             </span>
             <a class="header-top-link" ng-click="createExamRoom()">{{ 'sitnet_add_new_room' | translate }}</a>
         </div>
-        <div class="col-md-2 pull-left  header-top">
+        <div class="col-md-2 pull-left">
              <span class="pull-left fa-stack fa-lg header-top-icon">
                 <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                 <i class="fa sitnet-white fa-laptop fa-stack-1x"></i>
@@ -32,7 +31,7 @@
         </div>
     </div>
     <div ng-repeat="room in rooms" class="room-list col-md-12">
-        <div class="room-header row">
+        <div class="room-header">
             <div class="col-md-9 ">
                 <span class="room-name pull-left">{{room.name}}</span>
             </div>

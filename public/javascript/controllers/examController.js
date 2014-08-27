@@ -11,7 +11,7 @@
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_question.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_general.html";
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
-                $scope.examsTemplate;
+                $scope.examsTemplate = "";
 
                 $scope.user = $scope.session.user;
                 if ($scope.user.isStudent) {
@@ -64,9 +64,9 @@
                     "Kypsyysnäyte"
                 ];
 
-                if (($routeParams.id === undefined) && !$scope.user.isStudent)
+                if (($routeParams.id === undefined) && !$scope.user.isStudent) {
                     $scope.exams = ExamRes.exams.query();
-                else {
+                } else {
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
                             $scope.newExam = exam;
@@ -105,7 +105,7 @@
 
                     var exam = {
                         "id": $scope.newExam.id
-                    }
+                    };
 
                     var modalInstance = $modal.open({
                         templateUrl: 'assets/templates/exam-editor/exam_inspector.html',
@@ -121,11 +121,11 @@
 
                     modalInstance.result.then(function (inspectors) {
                         // OK button clicked
-                        getInspectors ()
+                        getInspectors ();
                     }, function () {
                         // Cancel button clicked
                     });
-                }
+                };
 
                 $scope.newSection = {
                     expanded: true,
@@ -155,7 +155,7 @@
                         function (error) {
                             toastr.error(error.data);
                         });
-                }
+                };
 
                 $scope.reindexNumbering = function () {
                     // set sections and question nubering
@@ -543,7 +543,7 @@
                         errors.examType = "Tentin suoritustyyppiä ei ole määritelty";
 
                     return errors;
-                }
+                };
 
                     $scope.deleteExam = function (exam) {
                     if (confirm('Haluatko poistaa tentin lopullisesti?')) {
@@ -631,7 +631,8 @@
                             toastr.error(error.data);
                         });
                     }
-                }
+                };
+
                 $scope.selectFile = function () {
 
                     // Save question before entering attachment to not lose data.
@@ -663,7 +664,7 @@
                                     $modalInstance.dismiss();
                                     toastr.error(error);
                                 });
-                        }
+                        };
                     };
 
                     var modalInstance = $modal.open({
@@ -691,7 +692,7 @@
                 $scope.getSectionId = function (id) {
 
                     return document.getElementById(id).select();
-                }
+                };
 
             }]);
 }());

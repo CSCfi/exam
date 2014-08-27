@@ -193,6 +193,7 @@ public class ExamMachine extends Model {
                 "accessibilityInfo='" + accessibilityInfo + '\'' +
                 ", id=" + id +
                 ", name='" + name + '\'' +
+                ", archived='" + archived + '\'' +
                 ", otherIdentifier='" + otherIdentifier + '\'' +
                 ", accessible=" + accessible +
                 ", softwareInfo=" + softwareInfo +

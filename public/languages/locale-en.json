@@ -323,8 +323,14 @@
     "sitnet_room_out_of_service": "Room is out of service",
     "sitnet_participation_reviewed": "Reviewed/Answered",
     "sitnet_teachers": "Teachers",
-
-
+    "sitnet_remove_exam_machine": "Remove machine",
+    "sitnet_machine_future_reservations_will_be_deleted": "These future reservations will be deleted from this machine",
+    "sitnet_clock_short": "at",
+    "sitnet_date_short": "pvm",
+    "sitnet_course_info": "Course info",
+    "sitnet_email_hi": "Hei",
+    "sitnet_email_body_text": "Seuraava varaamasi tenttiaika on peruttu. Kyseinen tenttikone ei ole käytettävissä. Varaa tentillesi uusi aika.",
+    "sitnet_inform_student_manually": "Ilmoita oppilaille tenttikoneen poistosta manuaalisesti"
     "sitnet_remove_reservation" : "Remove reservation",
     "sitnet_logged_out": "You have logged out. Please close the browser.",
     "sitnet_accept_useragreement": "Accept user agreement",

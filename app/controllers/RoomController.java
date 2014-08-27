@@ -14,6 +14,7 @@ import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
+import org.springframework.util.CollectionUtils;
 import play.Logger;
 import play.data.Form;
 import play.libs.Json;
@@ -30,9 +31,27 @@ public class RoomController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getExamRooms() {
+
         List<ExamRoom> rooms = Ebean.find(ExamRoom.class)
                 .fetch("examMachines")
                 .findList();
+
+        if(!CollectionUtils.isEmpty(rooms)) {
+
+            for(ExamRoom room : rooms) {
+                if(!CollectionUtils.isEmpty(room.getExamMachines())) {
+                    Iterator i = room.getExamMachines().iterator();
+                    while(i.hasNext()) {
+                        ExamMachine machine = (ExamMachine) i.next();
+
+                        if(machine.isArchived()) {
+                            i.remove();
+                        }
+                    }
+                }
+            }
+        }
+
         return ok(Json.toJson(rooms));
     }
 

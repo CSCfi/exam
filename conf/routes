@@ -75,6 +75,7 @@ POST          /student/exams/:hash/question/:questionId             controllers.
 ############### Enrolment interface ###############
 
 GET           /enroll/:code                                         controllers.EnrollController.enrollExamList(code: String)
+GET           /enroll/reservation/:id                               controllers.EnrollController.enrolmentsByReservation(id: Long)
 GET           /enroll/:code/exam/:id                                controllers.EnrollController.enrollExamInfo(code: String, id: Long)
 POST          /enroll/:code/exam/:id                                controllers.EnrollController.createEnrolment(code: String, id: Long)
 DELETE        /enroll/:code/exam/:id                                controllers.EnrollController.deleteEnrolment(code: String, id: Long)
@@ -135,6 +136,7 @@ DELETE        /admin/resevation/:id                                 controllers.
 
 GET           /machines                                             controllers.ExamMachineController.getExamMachines()
 GET           /machines/:id                                         controllers.ExamMachineController.getExamMachine(id: Long)
+GET           /machines/:id/reservations                            controllers.ExamMachineController.getExamMachineReservationsFromNow(id: Long)
 PUT           /machines/:id                                         controllers.ExamMachineController.updateExamMachine(id: Long)
 POST          /machines/:id                                         controllers.ExamMachineController.insertExamMachine(id: Long)
 DELETE        /machines/:id                                         controllers.ExamMachineController.removeExamMachine(id: Long)
@@ -181,12 +183,16 @@ DELETE        /calendar/reservation/:id                             controllers.
 
 ################# General Settings interface ##################
 
-GET        /agreement                                               controllers.SettingsController.getUserAgreement()
-PUT        /agreement                                               controllers.SettingsController.updateUserAgreement()
-PUT        /settings                                                controllers.SettingsController.updateSettings()
+GET        	  /agreement                                               controllers.SettingsController.getUserAgreement()
+PUT        	  /agreement                                               controllers.SettingsController.updateUserAgreement()
+PUT        	  /settings                                                controllers.SettingsController.updateSettings()
 
 ################# Statistics interface ##################
 
+
+GET           /statistics/resbydate/:roomId/:from/:to               controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
+GET           /statistics/examnames                                 controllers.StatisticsController.getExamNames()
+GET           /statistics/examnames/:id/:type                       controllers.StatisticsController.getExam(id: Long, type: String)
 GET           /statistics/resbydate/:roomId/:from/:to               controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
 GET           /statistics/examnames                                 controllers.StatisticsController.getExamNames()
 GET           /statistics/examnames/:id/:type                       controllers.StatisticsController.getExam(id: Long, type: String)

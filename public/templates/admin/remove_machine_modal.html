@@ -1,0 +1,48 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4><i class="sitnet-white">{{'sitnet_remove_exam_machine' | translate}}</i></h4>
+    </div>
+    <div class="dialog-body-wrapper">
+        <div class="header">
+            {{'sitnet_machine_future_reservations_will_be_deleted' | translate}}
+            <span class="headerNotice">{{'sitnet_inform_student_manually' | translate}}</span>
+        </div>
+
+        <div class="body">
+            <table class="table table-bordered list-table">
+                <tr>
+                    <th>{{'sitnet_student' | translate}}</th>
+                    <th colspan="2">{{'sitnet_course_info' | translate}}</th>
+                    <th colspan="2">{{'sitnet_exam_time' | translate}}</th>
+                </tr>
+                <tr ng-repeat="enrollment in enrollments">
+                    <td class="name">
+                        {{ enrollment.user.firstName }} {{ enrollment.user.lastName }}</br>
+                        <span class="email"><a href="{{ setEmail(enrollment) }}">{{ enrollment.user.email }}</a></span>
+                    </td>
+                    <td class="code">{{ enrollment.exam.course.code }}</td>
+                    <td class="name">
+                        {{ enrollment.exam.course.name }}
+                    </td>
+                    <td class="subHeader">
+                        {{ 'sitnet_date_short' | translate }}</br>
+                        {{ 'sitnet_clock_short' | translate }}
+                    </td>
+                    <td class="time">
+                        {{ enrollment.reservation.startAt | date:'dd.MM.yyyy' }}</br>
+                        {{ enrollment.reservation.startAt | date:'HH:mm' }} - {{ enrollment.reservation.endAt  | date:'HH:mm' }}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-3">
+            <button ng-click="cancel()" class="btn btn-danger">{{'sitnet_button_cancel' | translate}}</button>
+        </div>
+        <div class="col-md-3 col-md-offset-5">
+            <!--{{'sitnet_create_new' | translate}}-->
+            <button ng-click="ok()" class="btn btn-primary">{{'sitnet_exam_remove' | translate}}</button>
+        </div>
+    </div>
+</div>

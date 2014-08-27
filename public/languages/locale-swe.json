@@ -311,7 +311,14 @@
     "sitnet_room_out_of_service": "Room is out of service",
     "sitnet_participation_reviewed": "Reviewed/Answered",
     "sitnet_teachers": "Opettajat",
-
+    "sitnet_remove_exam_machine": "Poista tenttikone",
+    "sitnet_machine_future_reservations_will_be_deleted": "These future reservations will be deleted from this machine",
+    "sitnet_clock_short": "klo",
+    "sitnet_date_short": "pvm",
+    "sitnet_course_info": "Opintojakson tiedot",
+    "sitnet_email_hi": "Hei",
+    "sitnet_email_body_text": "Seuraava varaamasi tenttiaika on peruttu. Kyseinen tenttikone ei ole käytettävissä. Varaa tentillesi uusi aika.",
+    "sitnet_inform_student_manually": "Ilmoita oppilaille tenttikoneen poistosta manuaalisesti",
     "sitnet_change_reservation" : "Vaihda huonevarausta",
     "sitnet_remove_reservation" : "Poista huonevaraus",
 
