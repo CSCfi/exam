@@ -5,10 +5,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static models.calendar.DefaultWorkingHours.Day;
 
@@ -56,8 +53,23 @@ public class DefaultWorkingHourDTO {
 
     private Timestamp convertTime(int row) {
         String start = String.format("%02d", startHour) + ":00";
-        LocalTime time = fmt.parseLocalTime(start).plusMinutes(row * stepMinutes);
-        return new Timestamp(time.getMillisOfDay());
+       // System.out.println("-- start -- " + start);
+
+        final LocalTime time = fmt.parseLocalTime(start).plusMinutes(row * stepMinutes);
+       // System.out.println("-- localtime -- " + time);
+
+        final long millis = time.getMillisOfDay();
+       // System.out.println("-- millis -- "+ millis);
+
+
+        final Timestamp timestamp = new Timestamp(millis);
+
+       // System.out.println("-- timestamp millis -- "+  timestamp.getTime());
+
+
+       // System.out.println("-- timestamp -- " + timestamp);
+
+        return timestamp;
     }
 
     public List<DefaultWorkingHours> getDefaultWorkingHours() {

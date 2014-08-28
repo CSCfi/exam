@@ -5,7 +5,7 @@ import models.ExamRoom;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @DiscriminatorValue("DefaultWorkingHours")
@@ -26,10 +26,10 @@ public class DefaultWorkingHours extends Model {
     private Long id;
 
     @Temporal(TemporalType.TIME)
-    protected Timestamp startTime;
+    protected Date startTime;
 
     @Temporal(TemporalType.TIME)
-    protected Timestamp endTime;
+    protected Date endTime;
 
     private String day;
 
@@ -53,19 +53,19 @@ public class DefaultWorkingHours extends Model {
         this.room = room;
     }
 
-    public Timestamp getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
-    public Timestamp getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 

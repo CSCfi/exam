@@ -120,7 +120,11 @@ PUT           /workinghours/:id                                     controllers.
 PUT           /exception/:id                                        controllers.RoomController.addRoomExceptionHour(id: Long)
 DELETE        /exception/:id                                        controllers.RoomController.removeRoomExceptionHour(id: Long)
 
+POST          /room/:id/accessibility                               controllers.RoomController.updateExamRoomAccessibility(id: Long)
 
+DELETE        /accessibility/:id                                    controllers.AccessibilityController.removeAccessibility(id: Long)
+POST          /accessibility                                        controllers.AccessibilityController.addAccessibility()
+GET           /accessibility                                        controllers.AccessibilityController.getAccessibilities()
 
 GET           /draft/rooms                                          controllers.RoomController.createExamRoomDraft()
 
@@ -180,17 +184,17 @@ GET           /time/:id                                             controllers.
 
 
 ################# Calendar interface ##################
-GET           /calendar/:examinput/:roominput/:dateinput            controllers.CalendarController.getSlots(examinput: String, roominput:String, dateinput: String)
+GET           /calendar/:examinput/:roominput/:dateinput/access/:ids controllers.CalendarController.getSlots(examinput: String, roominput:String, dateinput: String, ids: String)
+GET           /calendar/:examinput/:roominput/:dateinput/access/      controllers.CalendarController.getSlotsWithOutAccessibility(examinput: String, roominput:String, dateinput: String)
 POST          /calendar/reservation                                 controllers.CalendarController.createReservation()
 DELETE        /calendar/reservation/:id                             controllers.CalendarController.removeReservation(id: Long)
-
+GET           /calendar/roomAccessbility/:id                        controllers.CalendarController.getRoomAccessibilityInfo(id: Long)
 
 ################# General Settings interface ##################
 
 GET        	  /agreement                                               controllers.SettingsController.getUserAgreement()
 PUT        	  /agreement                                               controllers.SettingsController.updateUserAgreement()
 PUT        	  /settings                                                controllers.SettingsController.updateSettings()
-
 ################# Statistics interface ##################
 
 
@@ -199,7 +203,7 @@ GET           /statistics/examnames                                 controllers.
 GET           /statistics/examnames/:id/:type                       controllers.StatisticsController.getExam(id: Long, type: String)
 GET           /statistics/resbydate/:roomId/:from/:to               controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
 GET           /statistics/examnames                                 controllers.StatisticsController.getExamNames()
-GET           /statistics/examnames/:id/:type                       controllers.StatisticsController.getExam(id: Long, type: String)
+GET           /statistics/examnames/:id/:type                       controllers.StatisticsController.getExam(id: Long, type:        String)
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()

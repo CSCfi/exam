@@ -29,6 +29,15 @@
             </span>
             <a class="header-top-link" ng-click="manageSoftwares()">{{ 'sitnet_softwares' | translate }}</a>
         </div>
+        <div class="col-md-4 pull-left  header-top">
+          <a  href="#/accessibility">
+                 <span class="pull-left fa-stack fa-lg header-top-icon">
+                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                    <i class="fa sitnet-white fa-wheelchair fa-stack-1x"></i>
+                </span>
+                <span class="header-top-link" >{{ 'sitnet_room_accessibility_info' | translate }}</span>
+            </a>
+        </div>
     </div>
     <div ng-repeat="room in rooms" class="room-list col-md-12">
         <div class="room-header">

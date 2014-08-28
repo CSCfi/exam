@@ -16,11 +16,22 @@
                 };
             };
 
+            $scope.accessibilities = [];
+
+            $http.get('accessibility').success(function(data){
+                $scope.accessibilities = data;
+            });
+
             formatMoment(moment());
 
             var refresh = function () {
                 var day = $scope.selectedMonth.data.set('date', 1).format("DD.MM.YYYY");
-                $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id + '/' + day)
+                var accessibility = $scope.accessibilities.filter(function(item){
+                    return item.selected;
+                }).map(function(item){
+                    return item.id;
+                }).join(',');
+                $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id + '/' + day + '/access/' + accessibility)
                     .then(function (reply) {
                         Object.keys(reply.data).forEach(function (key) {
                             if ($scope.selectedMonth.data.get('month') !==
@@ -70,6 +81,11 @@
             $scope.prevMonth = function () {
                 var date = $scope.selectedMonth.data;
                 formatMoment(date.subtract('months', 1));
+                refresh();
+            };
+
+            $scope.selectAccessibility = function (accessibility) {
+                accessibility.selected = !accessibility.selected;
                 refresh();
             };
 

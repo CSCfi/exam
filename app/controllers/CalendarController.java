@@ -15,10 +15,7 @@ import play.mvc.Result;
 import util.java.EmailComposer;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 //I am so sorry. Really.
@@ -49,6 +46,16 @@ public class CalendarController extends SitnetController {
         EmailComposer.composeReservationCancelationNotification(user, reservation, "");
 
         return ok("removed");
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public static Result getRoomAccessibilityInfo(long id) throws MalformedDataException, NotFoundException {
+
+        final List<Accessibility> accessibilities = Ebean.find(ExamRoom.class)
+                .where()
+                .eq("id", id).findUnique().getAccessibility();
+
+        return ok(Json.toJson(accessibilities));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -96,24 +103,36 @@ public class CalendarController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getSlots(String examinput, String roominput, String dateinput) throws MalformedDataException {
+    public static Result getSlotsWithOutAccessibility(String examinput, String roominput, String dateinput) throws MalformedDataException, NotFoundException {
+        return getSlots(examinput,roominput,dateinput, null);
+    }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public static Result getSlots(String examinput, String roominput, String dateinput, String accessibilityIds) throws NotFoundException {
+
+        final ArrayList<Integer> ids = new ArrayList<>();
+        if (accessibilityIds != null) {
+            final List<String> strings = Arrays.asList(accessibilityIds.split(","));
+            for (String id : strings) {
+                ids.add(Integer.parseInt(id));
+            }
+        }
 
         final Long selectedExamId = Long.parseLong(examinput);
         final Long examRoomId = Long.parseLong(roominput);
         final User user = UserController.getLoggedUser();
-        //final User user = Ebean.find(User.class,3);
         ExamEnrolment examEnrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where().eq("user", user)
                 .where().eq("exam", Ebean.find(Exam.class, selectedExamId)).findUnique();
 
         if (examEnrolment == null) {
-            throw new MalformedDataException(String.format("Cannot find enrolment with user/exam id-combination (%s/%s)", selectedExamId, user.getId()));
+            throw new NotFoundException(String.format("Cannot find enrolment with user/exam id-combination (%s/%s)", selectedExamId, user.getId()));
         }
 
         ExamRoom room = Ebean.find(ExamRoom.class)
                 .fetch("examMachines")
+                .fetch("accessibility")
                 .where()
                 .eq("id", examRoomId)
                 .eq("outOfService", false)
@@ -121,7 +140,23 @@ public class CalendarController extends SitnetController {
                 .findUnique();
 
         if (room == null) {
-            throw new MalformedDataException(String.format("No room with id: (%s)", room));
+            throw new NotFoundException(String.format("No room with id: (%s)", room.getId()));
+        }
+
+        if (!ids.isEmpty()) {
+            final List<Accessibility> accessibility = room.getAccessibility();
+            for (Integer wantedId : ids) {
+                boolean notFound = true;
+                for (Accessibility access : accessibility) {
+                    int id = access.getId().intValue();
+                    if( id == wantedId){
+                        notFound = false;
+                    }
+                }
+                if (notFound) {
+                    throw new NotFoundException(String.format("Accessibility requirements fails for room (%s)", room.getId()));
+                }
+            }
         }
 
         Exam exam = examEnrolment.getExam();
@@ -129,7 +164,7 @@ public class CalendarController extends SitnetController {
         DateTime searchDate = LocalDate.parse(dateinput, dateFormat).toDateTime(LocalTime.now());
 
         if (searchDate.isAfter(examEndDateTime)) {
-            throw new MalformedDataException(String.format("Given date (%s) is after active exam(%s) date(%s)", searchDate, exam.getId(), examEndDateTime));
+            throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) date(%s)", searchDate, exam.getId(), examEndDateTime));
         }
 
         if (searchDate.isBeforeNow()) {

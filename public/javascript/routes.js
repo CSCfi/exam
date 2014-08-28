@@ -35,6 +35,7 @@
             $routeProvider.when('/machines', { templateUrl: tmpl + 'admin/machine.html', controller: 'RoomCtrl'});
             $routeProvider.when('/machines/:id', { templateUrl: tmpl + 'admin/machine.html', controller: 'MachineCtrl'});
             $routeProvider.when('/softwares', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
+            $routeProvider.when('/accessibility', { templateUrl: tmpl + 'admin/accessibility.html', controller: 'AccessibilityCtrl'});
             $routeProvider.when('/softwares/update/:id/:name', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
             $routeProvider.when('/softwares/:id', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
             $routeProvider.when('/softwares/add/:name', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});

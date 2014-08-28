@@ -1,7 +1,5 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -19,6 +17,9 @@ public class Software extends Model {
 
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "softwareInfo")
     private List<ExamMachine> machine;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<Exam> exams;
 
     private String name;
 

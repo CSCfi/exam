@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'RoomResource', 'dateService',
-            function ($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, RoomResource, dateService) {
+        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'RoomResource', 'SoftwareResource', 'dateService',
+            function ($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, RoomResource, SoftwareResource, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
@@ -26,6 +26,14 @@
 
                 // SIT-367, temporarily removed Room selection from exam
 //                $scope.examRooms = RoomResource.rooms.query();
+
+                $scope.softwares = SoftwareResource.softwares.query();
+
+                $scope.selectedSoftwares = function (machine) {
+                    return machine.softwareInfo.map(function (software) {
+                        return software.name;
+                    }).join(", ");
+                };
 
                 // Todo: Fill in durations from database for final version
                 $scope.examDurations = [

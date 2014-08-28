@@ -1285,7 +1285,6 @@ exam-rooms:
     organization: *OulunYliopisto
     mailAddress: *oulu-yo
     transitionTime: 5
-    accessibilityInfo: Tilassa on pyörätuoliramppi
     accessible: true
     roomInstruction: Tilaan ei saa tuoda juomia tai ruokia.
     contactPerson: Kiinteistöinsinööri Timppa Vaksi. puh. 040 123 4567
@@ -1303,7 +1302,6 @@ exam-machines:
     name: Pegasus 01
     otherIdentifier: Huone, jonka tunnus on 1
     surveillanceCamera: CAM-001
-    accessibilityInfo: Nostettava sähköpöytä
     accessible: true
     softwareInfo:
         - *Matematica
@@ -1318,7 +1316,6 @@ exam-machines:
     name: Pegasus 02
     otherIdentifier: Huone, jonka tunnus on 2
     surveillanceCamera: CAM-002
-    accessibilityInfo: Automaattisesti avautuvat ovet
     accessible: true
     softwareInfo:
         - *Matematica

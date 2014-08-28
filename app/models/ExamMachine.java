@@ -42,6 +42,11 @@ public class ExamMachine extends Model {
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Software> softwareInfo;
 
+    // Esteettömyys
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Accessibility> accessibility;
+
     private String ipAddress;
 
     private String surveillanceCamera;

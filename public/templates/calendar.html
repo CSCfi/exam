@@ -16,6 +16,7 @@
     </div>
 
     <div class="row">
+        <div class="col-md-12">
 
         <ul class="inline-list">
             <li>
@@ -25,6 +26,22 @@
                     <p ng-show="room.outOfService" class="note">{{'sitnet_room_out_of_service' | translate}} {{room.statusComment}}</p>
             </li>
         </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {{ 'sitnet_room_accessibility_info' | translate }}
+            <ul class="inline-list">
+                <li>
+                    <button ng-repeat='accessibility in accessibilities' type='button'
+                            ng-click="selectAccessibility(accessibility)"
+                            ng-class="accessibility.selected ? 'selected' : '' " class='btn btn-white btn-xs'>
+                        {{accessibility.name}}
+                    </button>
+                </li>
+            </ul>
+        </div>
     </div>
 
     <p >{{selectedRoomsString}}</p>

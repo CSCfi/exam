@@ -57,8 +57,7 @@ public class Interfaces extends SitnetController {
                     .setTimeout(10 * 1000)
                     .setQueryParameter("courseId", id);
 
-            final F.Promise<Result> reply = ws.get().map(
-                    new F.Function<WS.Response, Result>() {
+            final F.Promise<Result> reply = ws.get().map( new F.Function<WS.Response, Result>() {
                         public Result apply(WS.Response response) {
                             JsonNode json = response.asJson();
                             return ok(json);

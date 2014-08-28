@@ -107,6 +107,10 @@ public class Exam extends SitnetModel {
 
     private String grade;
 
+    // Ohjelmistot
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<Software> softwares;
+
     /*
      * this is the user who is marked as evaluator of the Exam
      * in WebOodi, or other system
@@ -339,6 +343,14 @@ public class Exam extends SitnetModel {
 
     public void setCreditType(String creditType) {
         this.creditType = creditType;
+    }
+
+    public List<Software> getSoftwareInfo() {
+        return softwares;
+    }
+
+    public void setSoftwareInfo(List<Software> softwareInfo) {
+        this.softwares = softwareInfo;
     }
 
     @Override

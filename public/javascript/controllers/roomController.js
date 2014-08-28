@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('RoomCtrl', ['$scope', '$routeParams', 'sessionService', '$location', '$modal', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService',
-            function ($scope, $routeParams, sessionService, $location, $modal, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService) {
+        .controller('RoomCtrl', ['$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService',
+            function ($scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
@@ -12,10 +12,17 @@
                 $scope.hoursTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/open_hours.html";
                 $scope.user = $scope.session.user;
 
+
+                $scope.accessibilities = [];
+
+                $http.get('accessibility').success(function(data){
+                    $scope.accessibilities = data;
+                });
+
                 var selectable = [],
                     times = [],
-                    startHour = 8,
-                    endHour = 16,
+                    startHour = 0,
+                    endHour = 23,
                     timeStep = '30',
                     rows = 0,
                     days = 7,
@@ -367,6 +374,24 @@
                     return machine.softwareInfo.map(function (software) {
                         return software.name;
                     }).join(", ");
+                };
+
+
+                $scope.selectedAccessibilities = function () {
+                    return $scope.roomInstance.accessibility.map(function (software) {
+                        return software.name;
+                    }).join(",");
+                };
+
+                $scope.updateAccessibility = function (room) {
+                    var ids = room.accessibility.map(function (item) {
+                        return item.id;
+                    }).join(", ");
+
+                    $http.post('room/' + room.id + '/accessibility', {ids:ids})
+                        .success(function () {
+                            toastr.info("Huone päivitetty.");
+                        });
                 };
 
                 $scope.softwares = SoftwareResource.softwares.query();

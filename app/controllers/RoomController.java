@@ -5,10 +5,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.MailAddress;
-import models.Reservation;
+import models.*;
 import models.calendar.DefaultWorkingHourDTO;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
@@ -21,6 +18,8 @@ import play.libs.Json;
 import play.mvc.Result;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -209,6 +208,37 @@ public class RoomController extends SitnetController {
         return ok(Json.toJson(hours));
     }
 
+    @Restrict(@Group({"ADMIN"}))
+    public static Result updateExamRoomAccessibility(Long id) throws MalformedDataException {
+        JsonNode json = request().body().asJson();
+        final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
+        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        room.setAccessibility(new ArrayList<Accessibility>());
+        room.save();
+        for(String aid : ids){
+            System.out.println(aid);
+            Accessibility accessibility = Ebean.find(Accessibility.class, Integer.parseInt(aid.trim()));
+            room.getAccessibility().add(accessibility);
+            room.save();
+        }
+        return ok();
+    }
+
+    @Restrict(@Group({"ADMIN"}))
+    public static Result addExamRoomAccessibility(Long id) throws MalformedDataException {
+        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        final Accessibility accessibility = bindForm(Accessibility.class);
+        accessibility.save();
+        room.save();
+        return ok();
+    }
+
+    @Restrict(@Group({"ADMIN"}))
+    public static Result removeExamRoomAccessibility(Long id) throws MalformedDataException {
+        Accessibility accessibility = Ebean.find(Accessibility.class, id);
+        accessibility.delete();
+        return ok();
+    }
 
     @Restrict(@Group({"ADMIN"}))
     public static Result removeRoomExceptionHour(Long id) throws MalformedDataException {

@@ -55,7 +55,9 @@ public class ExamRoom extends Model {
     private String transitionTime;
 
     // Accessibility info describes what accessibility issues there are regarding the room
-    private String accessibilityInfo;
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examRoom")
+    @JsonManagedReference
+    private List<Accessibility> accessibility;
 
     // Checkbox indicating is there any accessibility issues concerning the room
     @Column(columnDefinition = "boolean default false")
@@ -135,12 +137,12 @@ public class ExamRoom extends Model {
         this.calendarExceptionEvents = calendarExceptionEvents;
     }
 
-    public String getAccessibilityInfo() {
-        return accessibilityInfo;
+    public List<Accessibility> getAccessibility() {
+        return accessibility;
     }
 
-    public void setAccessibilityInfo(String accessibilityInfo) {
-        this.accessibilityInfo = accessibilityInfo;
+    public void setAccessibility(List<Accessibility> accessibility) {
+        this.accessibility = accessibility;
     }
 
     public String getRoomInstruction() {
@@ -293,8 +295,8 @@ public class ExamRoom extends Model {
             if (exception.getEndDate() == null) {
                 if (startDate.equals(date)) {
                     if (exception.getStartTime() == null) {
-                        start = new LocalTime(exception.getStartTime());
-                        end = new LocalTime(exception.getEndTime());
+                        start = new LocalTime(exception.getStartTime().getTime());
+                        end = new LocalTime(exception.getEndTime().getTime());
                     } else {
                         start = LocalTime.fromMillisOfDay(0);
                         end = LocalTime.MIDNIGHT;
@@ -302,11 +304,11 @@ public class ExamRoom extends Model {
                     return new Interval(date.toDateTime(start), date.toDateTime(end));
                 }
             } else {
-                final LocalDate endDate = new LocalDate(exception.getEndDate());
+                final LocalDate endDate = new LocalDate(exception.getEndDate().getTime());
                 if (startDate.equals(date)) {
                     if (exception.getStartTime() == null) {
-                        start = new LocalTime(exception.getStartTime());
-                        end = new LocalTime(exception.getEndTime());
+                        start = new LocalTime(exception.getStartTime().getTime());
+                        end = new LocalTime(exception.getEndTime().getTime());
                     } else {
                         start = LocalTime.fromMillisOfDay(0);
                         end = LocalTime.MIDNIGHT;
@@ -324,11 +326,10 @@ public class ExamRoom extends Model {
         final List<Interval> intervals = new ArrayList<Interval>();
         for(DefaultWorkingHours defaultHour : this.defaultWorkingHours) {
             if(defaultHour.getDay().equals(day)) {
-                final LocalTime start = new LocalTime(defaultHour.getStartTime());
-                final LocalTime end = new LocalTime(defaultHour.getEndTime());
+                final LocalTime start = new LocalTime(defaultHour.getStartTime().getTime());
+                final LocalTime end = new LocalTime(defaultHour.getEndTime().getTime());
                 Interval interval = new Interval(date.toDateTime(start),date.toDateTime(end));
                 intervals.add(interval);
-
             }
         }
         return intervals;

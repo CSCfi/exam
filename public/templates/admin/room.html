@@ -138,7 +138,30 @@
     <div class="row base">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}</div>
-            <div class="input-group">
+            <div class="col-md-6" >
+ <!--
+             <div ng-repeat='access in roomInstance.accessibility'>{{access.name}}<a ng-click="removeAccessibility(access)"> poista</a></a></div>
+
+             <input type="text" class="form-control ng-pristine ng-valid" ng-model="newAccessibility">
+                <button ng-click="addAccessibility(newAccessibility)" class="btn btn-sm btn-default">
+                    {{'sitnet_add' | translate}}
+                </button>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="roomInstance.accessible" ng-change="updateRoom(roomInstance)">
+                        {{'sitnet_room_accessible' | translate}}
+                    </label>
+                </div>
+            </div>       -->
+                                <multiselect class="input-xlarge"
+                                 multiple="true"
+                                 ng-model="roomInstance.accessibility"
+                                 header="{{'sitnet_select' | translate}}"
+                                 multiheader="selectedAccessibilities()"
+                                 options="access.name for access in accessibilities"
+                                 change="updateAccessibility(roomInstance)" ></multiselect>
+
+            <!--div class="input-group">
                 <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.accessibilityInfo"
                           ui-change="updateRoom(roomInstance)">
                 </textarea>
@@ -146,13 +169,8 @@
                                   ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">
                                 <i class="fa fa-question-circle fa-fw"></i>
                             </span>
-            </div>
-            <div class="checkbox">
-                <label>
-                    <input type="checkbox" ng-model="roomInstance.accessible" ng-change="updateRoom(roomInstance)">
-                    {{'sitnet_room_accessible' | translate}}
-                </label>
-            </div>
+            </div-->
+
         </div>
     </div>
 
