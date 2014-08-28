@@ -15,7 +15,7 @@
                     <td>{{enrolment.user.firstName}} {{enrollment.user.lastName}}</td>
                     <td>{{enrolment.reservation.machine.room.name}}</td>
                     <td>{{enrolment.exam.name}}</td>
-                    <td>{{enrolment.reservation.startAt}}</td>
+                    <td>{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}}</td>
                     <td><button ng-click="removeReservation(enrolment.reservation.id)" class="btn btn-primary pull-left">{{'sitnet_remove_reservation' | translate}}</button></td>
                 </tr>
             </tbody>
