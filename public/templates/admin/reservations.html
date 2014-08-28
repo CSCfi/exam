@@ -27,8 +27,7 @@
         <div class="col-md-2" ng-controller="DatepickerCtrl">
             <p class="input-group">
                 <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
-                       is-open="startDateOpened"
-                       max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="Close"> <!--ui-change="updateExam()"-->
+                       is-open="startDateOpened" datepicker-options="dateOptions" ng-required="true" close-text="Close" ng-change="updateReservationsTable()">
 
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
@@ -40,8 +39,7 @@
         <div class="col-md-2" ng-controller="DatepickerCtrl">
             <p class="input-group">
                 <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
-                       is-open="endDateOpened"
-                       max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="Close"> <!--ui-change="updateExam()"-->
+                       is-open="endDateOpened" datepicker-options="dateOptions" ng-required="true" close-text="Close" ng-change="updateReservationsTable()">
 
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openEndDate($event)">

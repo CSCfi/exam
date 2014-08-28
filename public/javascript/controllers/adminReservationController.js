@@ -80,6 +80,18 @@
                     $scope.getReservationsByStudent();
                 }
 
+                $scope.updateReservationsTable = function () {
+
+                    if ($scope.selectedStudent != null) {
+                        $scope.getReservationsByStudent();
+                    } else if ($scope.selectedExamRoom != null) {
+                        $scope.getReservationsByRoom();
+                    } else if ($scope.selectedExam != null) {
+                        $scope.getReservationsByExam();
+                    }
+
+                };
+
                 $scope.getReservations = function() {
 
                     AdminReservationResource.reservationListing.query({userId: $scope.selectedStudent, roomId: $scope.selectedRoom, examId: $scope.selectedExam},
@@ -94,7 +106,7 @@
 
                 $scope.getReservationsByStudent = function() {
 
-                    AdminReservationResource.reservationListingByStudent.query({userId: $scope.selectedStudent, start: $scope.dateService.startDate, end: $scope.dateService.endDate},
+                    AdminReservationResource.reservationListingByStudent.query({userId: $scope.selectedStudent, start: $scope.dateService.startTimestamp, end: $scope.dateService.endTimestamp},
                     function (enrolments) {
                         $scope.enrolments = enrolments;
 
@@ -107,7 +119,7 @@
 
                 $scope.getReservationsByRoom = function() {
 
-                    AdminReservationResource.reservationListingByRoom.query({roomId: $scope.selectedExamRoom, start: $scope.dateService.startDate, end: $scope.dateService.endDate},
+                    AdminReservationResource.reservationListingByRoom.query({roomId: $scope.selectedExamRoom, start: $scope.dateService.startTimestamp, end: $scope.dateService.endTimestamp},
                     function (enrolments) {
                         $scope.enrolments = enrolments;
 
@@ -119,7 +131,7 @@
 
                 $scope.getReservationsByExam = function() {
 
-                    AdminReservationResource.reservationListingByExam.query({examId: $scope.selectedExam, start: $scope.dateService.startDate, end: $scope.dateService.endDate},
+                    AdminReservationResource.reservationListingByExam.query({examId: $scope.selectedExam, start: $scope.dateService.startTimestamp, end: $scope.dateService.endTimestamp},
                     function (enrolments) {
                         $scope.enrolments = enrolments;
 

@@ -16,10 +16,6 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -27,12 +23,8 @@ import java.util.List;
 
 public class AdminReservationController extends SitnetController {
 
-    private static final String reportsPath = Play.application().configuration().getString("sitnet.reports.path");
     private static final String playPath = Play.application().path().getAbsolutePath();
-    private static final String basePath = playPath + "/" + reportsPath +"/";
 
-    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
-    private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
 
     @Restrict({@Group("ADMIN")})
     public static Result getExams() {
@@ -151,10 +143,13 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservationsByStudent(Long studentId, String startDate, String endDate) {
+    public static Result getReservationsByStudent(Long studentId, String start, String end) {
 
-        final DateTime start = DateTime.parse(startDate, dateFormat);
-        final DateTime end = DateTime.parse(endDate, dateFormat);
+        long startTimestamp = Long.parseLong(start);
+        long endTimestamp = Long.parseLong(end);
+
+        Date startDate = new Date(startTimestamp);
+        Date endDate = new Date(endTimestamp);
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("user")
@@ -164,8 +159,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", studentId)
-                .gt("reservation.endAt", start)
-                .lt("reservation.startAt", end)
+                .gt("reservation.endAt", startDate)
+                .lt("reservation.startAt", endDate)
                 .findList();
 
         if (enrolments == null) {
@@ -185,10 +180,13 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservationsByRoom(Long roomId, String startDate, String endDate) {
+    public static Result getReservationsByRoom(Long roomId, String start, String end) {
 
-        final DateTime start = DateTime.parse(startDate, dateFormat);
-        final DateTime end = DateTime.parse(endDate, dateFormat);
+        long startTimestamp = Long.parseLong(start);
+        long endTimestamp = Long.parseLong(end);
+
+        Date startDate = new Date(startTimestamp);
+        Date endDate = new Date(endTimestamp);
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("user")
@@ -198,8 +196,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("reservation.machine.room.id", roomId)
-                .gt("reservation.endAt", start)
-                .lt("reservation.startAt", end)
+                .gt("reservation.endAt", startDate)
+                .lt("reservation.startAt", endDate)
                 .findList();
 
         if (enrolments == null) {
@@ -219,10 +217,13 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservationsByExam(Long examId, String startDate, String endDate ) {
+    public static Result getReservationsByExam(Long examId, String start, String end ) {
 
-        final DateTime start = DateTime.parse(startDate, dateFormat);
-        final DateTime end = DateTime.parse(endDate, dateFormat);
+        long startTimestamp = Long.parseLong(start);
+        long endTimestamp = Long.parseLong(end);
+
+        Date startDate = new Date(startTimestamp);
+        Date endDate = new Date(endTimestamp);
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("user")
@@ -232,8 +233,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("exam.id", examId)
-                .gt("reservation.endAt", start)
-                .lt("reservation.startAt", end)
+                .gt("reservation.endAt", startDate)
+                .lt("reservation.startAt", endDate)
                 .findList();
 
         if (enrolments == null) {
