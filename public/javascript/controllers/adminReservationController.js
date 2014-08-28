@@ -82,6 +82,9 @@
 
                 $scope.updateReservationsTable = function () {
 
+                    $scope.dateService.startTimestamp = $scope.dateService.startDate.getTime();
+                    $scope.dateService.endTimestamp = $scope.dateService.endDate.getTime();
+
                     if ($scope.selectedStudent != null) {
                         $scope.getReservationsByStudent();
                     } else if ($scope.selectedExamRoom != null) {
