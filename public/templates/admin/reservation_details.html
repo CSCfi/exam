@@ -12,7 +12,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="enrolment in enrolments">
-                    <td>{{enrolment.user.firstName}} {{enrollment.user.lastName}}</td>
+                    <td>{{enrolment.user.firstName}} {{enrolment.user.lastName}}</td>
                     <td>{{enrolment.reservation.machine.room.name}}</td>
                     <td>{{enrolment.exam.name}}</td>
                     <td>{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}}</td>
