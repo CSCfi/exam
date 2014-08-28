@@ -159,8 +159,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", studentId)
-                .gt("reservation.endAt", startDate)
-                .lt("reservation.startAt", endDate)
+                .ge("reservation.endAt", startDate)
+                .le("reservation.startAt", endDate)
                 .findList();
 
         if (enrolments == null) {
@@ -196,8 +196,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("reservation.machine.room.id", roomId)
-                .gt("reservation.endAt", startDate)
-                .lt("reservation.startAt", endDate)
+                .ge("reservation.endAt", startDate)
+                .le("reservation.startAt", endDate)
                 .findList();
 
         if (enrolments == null) {
@@ -233,8 +233,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("exam.id", examId)
-                .gt("reservation.endAt", startDate)
-                .lt("reservation.startAt", endDate)
+                .ge("reservation.endAt", startDate)
+                .le("reservation.startAt", endDate)
                 .findList();
 
         if (enrolments == null) {
