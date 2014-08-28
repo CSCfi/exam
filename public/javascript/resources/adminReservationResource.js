@@ -14,28 +14,34 @@
                         "query": {method: "GET", isArray:true, params: {userId: "userId", roomId: "roomId", examId: "examId"}}
                     }),
                 reservationListingByStudent: $resource(
-                    "/admin/reservations/list/student/:userId/",
+                    "/admin/reservations/list/student/:userId/:start/:end",
                     {
-                        userId: "@userId"
+                        userId: "@userId",
+                        start: "@start",
+                        end: "@end"
                     },
                     {
-                        "query": {method: "GET", isArray:true, params: {userId: "userId"}}
+                        "query": {method: "GET", isArray:true, params: {userId: "userId", start: "start", end: "end"}}
                     }),
                 reservationListingByRoom: $resource(
-                    "/admin/reservations/list/room/:roomId/",
+                    "/admin/reservations/list/room/:roomId/:start/:end",
                     {
-                        roomId: "@roomId"
+                        roomId: "@roomId",
+                        start: "@start",
+                        end: "@end"
                     },
                     {
-                        "query": {method: "GET", isArray:true, params: {roomId: "roomId"}}
+                        "query": {method: "GET", isArray:true, params: {roomId: "roomId", start: "start", end: "end"}}
                     }),
                 reservationListingByExam: $resource(
-                    "/admin/reservations/list/exam/:examId/",
+                    "/admin/reservations/list/exam/:examId/:start/:end",
                     {
-                        examId: "@examId"
+                        examId: "@examId",
+                        start: "@start",
+                        end: "@end"
                     },
                     {
-                        "query": {method: "GET", isArray:true, params: {examId: "examId"}}
+                        "query": {method: "GET", isArray:true, params: {examId: "examId", start: "start", end: "end"}}
                     }),
 
 

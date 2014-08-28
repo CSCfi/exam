@@ -8,6 +8,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.*;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Play;
@@ -150,8 +151,10 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservationsByStudent(Long studentId) {
+    public static Result getReservationsByStudent(Long studentId, String startDate, String endDate) {
 
+        final DateTime start = DateTime.parse(startDate, dateFormat);
+        final DateTime end = DateTime.parse(endDate, dateFormat);
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("user")
@@ -161,6 +164,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", studentId)
+                .gt("reservation.endAt", start)
+                .lt("reservation.startAt", end)
                 .findList();
 
         if (enrolments == null) {
@@ -180,8 +185,10 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservationsByRoom(Long roomId) {
+    public static Result getReservationsByRoom(Long roomId, String startDate, String endDate) {
 
+        final DateTime start = DateTime.parse(startDate, dateFormat);
+        final DateTime end = DateTime.parse(endDate, dateFormat);
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("user")
@@ -191,6 +198,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("reservation.machine.room.id", roomId)
+                .gt("reservation.endAt", start)
+                .lt("reservation.startAt", end)
                 .findList();
 
         if (enrolments == null) {
@@ -210,8 +219,10 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservationsByExam(Long examId ) {
+    public static Result getReservationsByExam(Long examId, String startDate, String endDate ) {
 
+        final DateTime start = DateTime.parse(startDate, dateFormat);
+        final DateTime end = DateTime.parse(endDate, dateFormat);
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("user")
@@ -221,6 +232,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("exam.id", examId)
+                .gt("reservation.endAt", start)
+                .lt("reservation.startAt", end)
                 .findList();
 
         if (enrolments == null) {

@@ -94,7 +94,7 @@
 
                 $scope.getReservationsByStudent = function() {
 
-                    AdminReservationResource.reservationListingByStudent.query({userId: $scope.selectedStudent},
+                    AdminReservationResource.reservationListingByStudent.query({userId: $scope.selectedStudent, start: $scope.dateService.startDate, end: $scope.dateService.endDate},
                     function (enrolments) {
                         $scope.enrolments = enrolments;
 
@@ -107,7 +107,7 @@
 
                 $scope.getReservationsByRoom = function() {
 
-                    AdminReservationResource.reservationListingByRoom.query({roomId: $scope.selectedExamRoom},
+                    AdminReservationResource.reservationListingByRoom.query({roomId: $scope.selectedExamRoom, start: $scope.dateService.startDate, end: $scope.dateService.endDate},
                     function (enrolments) {
                         $scope.enrolments = enrolments;
 
@@ -119,7 +119,7 @@
 
                 $scope.getReservationsByExam = function() {
 
-                    AdminReservationResource.reservationListingByExam.query({examId: $scope.selectedExam},
+                    AdminReservationResource.reservationListingByExam.query({examId: $scope.selectedExam, start: $scope.dateService.startDate, end: $scope.dateService.endDate},
                     function (enrolments) {
                         $scope.enrolments = enrolments;
 
