@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$translate', '$modal', '$routeParams', 'sessionService', 'StudentExamRes',
-            function ($scope, $http, $translate, $modal, $routeParams, $sessionService, StudentExamRes) {
+        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService', 'StudentExamRes',
+            function ($scope, $http, $location, $translate, $modal, $routeParams, $sessionService, StudentExamRes) {
 
             var enrolmentId = $routeParams.enrolment;
             $scope.user = $sessionService.user;
@@ -62,7 +62,7 @@
                 slot.exam = enrolmentId;
 
                 $http.post('calendar/reservation', slot).then(function (success) {
-                    toastr.success(success.data);
+                    $location.path('#/home');
                 }, function (error) {
                     toastr.error(error.data);
                 });
