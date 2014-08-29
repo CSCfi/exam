@@ -40,8 +40,8 @@
         });
         $translateProvider.preferredLanguage('fi');
     }]);
-    sitnet.run(['$http', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location',
-        function ($http, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location) {
+    sitnet.run(['$http', '$modal', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location',
+        function ($http, $modal, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location) {
             var user = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
             if (user) {
                 var header = {};
@@ -89,6 +89,38 @@
                     authService.loginConfirmed();
                     $rootScope.$broadcast('userUpdated');
                     toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
+                    if (sessionUser.isStudent) {
+
+                        if (!sessionUser.eulaAccepted) {
+
+                            var modalInstance = $modal.open({
+
+                                templateUrl: 'assets/templates/dialogs/show_eula.html',
+                                backdrop: 'static',
+                                keyboard: false,
+                                controller: function($scope, $modalInstance) {
+
+                                    $scope.ok = function(){
+                                        console.log("ok")
+                                        // OK button
+                                        UserRes.updateAgreementAccepted.update({id: sessionUser.id}, function (user) {
+                                            $scope.session.user = user;
+                                        }, function (error) {
+                                            toastr.error(error.data);
+                                        });
+                                        $modalInstance.dismiss();
+                                        $location.path("/home");
+                                    };
+                                    $scope.cancel = function () {
+                                        console.log("cancel")
+                                        $modalInstance.dismiss('cancel');
+                                        $location.path("/logout");
+                                    };
+                                }
+                            });
+
+                        }
+                    }
                     $location.path("/home");
                 });
             };
