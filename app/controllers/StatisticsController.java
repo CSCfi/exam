@@ -1,10 +1,15 @@
 package controllers;
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.Exam;
 import models.ExamEnrolment;
+import models.ExamParticipation;
+import models.Reservation;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
@@ -20,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -34,7 +40,7 @@ Hakulausekkeita:
 
 * Hae kaikki akvaariovaraukset tällä aikavälillä tästä akvaariosta: palautettavat tiedot ainakin opiskelija/varausaika/tenttikone/tentti mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
 
-Hae tämän tentin tiedot: palautettavat tiedot ainakin tentin nimi/opettaja/luontiaika/tentin kesto/status/voimassaoloaika/opintopistee/opintojakson tunnus/opettaja/arvosana-asteikko/ohjeteksti/kysymykset/kysymysten pistemäärä/liitteet mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
+* Hae tämän tentin tiedot: palautettavat tiedot ainakin tentin nimi/opettaja/luontiaika/tentin kesto/status/voimassaoloaika/opintopistee/opintojakson tunnus/opettaja/arvosana-asteikko/ohjeteksti/kysymykset/kysymysten pistemäärä/liitteet mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
 
 Hae kaikki tenttivastaukset tällä aikavälillä: palautettavat tiedot ainakin opiskelija/vastausaika/vastauksen status/tentti/opintojaksontunnus/opettaja mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
 
@@ -60,6 +66,7 @@ public class StatisticsController extends SitnetController {
     private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
 
+    @Restrict({@Group("ADMIN")})
     public static Result getExamNames() {
 
         List<Exam> exams = Ebean.find(Exam.class)
@@ -85,8 +92,11 @@ public class StatisticsController extends SitnetController {
         CellStyle style = wb.createCellStyle();
         CreationHelper creationHelper = wb.getCreationHelper();
         style.setDataFormat(creationHelper.createDataFormat().getFormat(format));
-
+//
+//
         Cell cell = row.createCell(count);
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+//        cell.setCellValue(simpleDateFormat.format(timestamp));
         cell.setCellValue(new Date(timestamp.getTime()));
         cell.setCellStyle(style);
         return cell;
@@ -101,6 +111,7 @@ public class StatisticsController extends SitnetController {
      * @param id
      * @return
      */
+    @Restrict({@Group("ADMIN")})
     public static Result getExam(Long id, String type) {
 
         Exam exam = Ebean.find(Exam.class)
@@ -215,7 +226,7 @@ public class StatisticsController extends SitnetController {
     // Hae kaikki akvaariovaraukset tällä aikavälillä tästä akvaariosta:
     // palautettavat tiedot ainakin opiskelija/varausaika/tenttikone/tentti
     // mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
-    //    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({@Group("ADMIN")})
     public static Result getReservationsForRoomByDate(Long roomId, String from, String to) {
 
         final DateTime start = DateTime.parse(from, dateFormat);
@@ -337,6 +348,181 @@ public class StatisticsController extends SitnetController {
 //        }
     }
 
+// Hae kaikki tenttivastaukset tällä aikavälillä: palautettavat tiedot ainakin opiskelija/vastausaika/vastauksen status/tentti/opintojaksontunnus/opettaja mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
+//    @Restrict({@Group("ADMIN")})
+    public static Result reportAllExams(String from, String to) {
+
+        final DateTime start = DateTime.parse(from, dateFormat);
+        final DateTime end = DateTime.parse(to, dateFormat);
+
+        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+                .fetch("exam")
+                .select("")
+                .where()
+                .gt("started", start)
+                .lt("ended", end)
+
+                // not interested in these
+                .ne("exam.state", "SAVED")
+                .ne("exam.state", "PUBLISHED")
+                .ne("exam.state", "STUDENT_STARTED")
+                .ne("exam.state", "REVIEW")
+                /*  we ARE interested in these
+                GRADED,
+                GRADED_LOGGED,
+                ABORTED,
+                ARCHIVED
+                */
+                .findList();
+
+        File file = new File(basePath+"tenttivastaukset"+from.replace(".", "-") +"_"+to.replace(".", "-") +".xlsx");
+        FileOutputStream fileOut = null;
+        try {
+            fileOut = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        Workbook wb = new XSSFWorkbook();
+        CreationHelper creationHelper = wb.getCreationHelper();
+        Sheet sheet = wb.createSheet("tenttisuoritukset");
+        CellStyle style = wb.createCellStyle();
+
+        // Table headings
+        Row headerRow = sheet.createRow(0);
+
+        int i = 0;
+        
+        // student
+        headerRow.createCell(i++).setCellValue("Opiskelija id");  // Todo: should probaly be schacPersonalUniqueCode, opiskelijanumero
+        headerRow.createCell(i++).setCellValue("Etunimi");
+        headerRow.createCell(i++).setCellValue("Sukunimi");
+        headerRow.createCell(i++).setCellValue("Email");
+
+        // graded by teacher
+        headerRow.createCell(i++).setCellValue("Opiskelija id");
+        headerRow.createCell(i++).setCellValue("Etunimi");
+        headerRow.createCell(i++).setCellValue("Sukunimi");
+        headerRow.createCell(i++).setCellValue("Email");
+
+        headerRow.createCell(i++).setCellValue("varaus id");
+        headerRow.createCell(i++).setCellValue("varauksen pvm");
+        headerRow.createCell(i++).setCellValue("tentti alkoi");
+        headerRow.createCell(i++).setCellValue("tentti loppui");
+        headerRow.createCell(i++).setCellValue("suoritus kesti");
+
+        headerRow.createCell(i++).setCellValue("Tenttitila id");
+        headerRow.createCell(i++).setCellValue("Nimi");
+        headerRow.createCell(i++).setCellValue("Tunnus");
+
+        headerRow.createCell(i++).setCellValue("Tenttikone id");
+        headerRow.createCell(i++).setCellValue("Nimi");
+        headerRow.createCell(i++).setCellValue("IP-osoite");
+
+        headerRow.createCell(i++).setCellValue("Opintojakson nimi");
+        headerRow.createCell(i++).setCellValue("Opintojakson koodi");
+
+        headerRow.createCell(i++).setCellValue("Tentti id");
+        headerRow.createCell(i++).setCellValue("Nimi");
+        headerRow.createCell(i++).setCellValue("kesto");
+        headerRow.createCell(i++).setCellValue("status");
+        headerRow.createCell(i++).setCellValue("pisteet");
+        headerRow.createCell(i++).setCellValue("arvosana-asteikko");
+        headerRow.createCell(i++).setCellValue("arvosana");
+        headerRow.createCell(i++).setCellValue("arvioitu pvm");
+        headerRow.createCell(i++).setCellValue("Suoritustyyppi");
+
+
+        for(ExamParticipation p: participations) {
+
+            int j = 0;
+
+            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                    .fetch("user")
+                    .fetch("exam")
+                    .fetch("exam.gradedByUser")
+                    .fetch("reservation")
+                    .fetch("reservation.machine")
+                    .fetch("reservation.machine.room")
+                    .where()
+                    .eq("user.id", p.getUser().getId())
+                    .eq("exam.id", p.getExam().getId())
+                    .findUnique();
+
+            Row dataRow = sheet.createRow(participations.indexOf(p)+1);
+
+            // student
+            dataRow.createCell(j++).setCellValue(p.getUser().getId());
+            dataRow.createCell(j++).setCellValue(p.getUser().getFirstName());
+            dataRow.createCell(j++).setCellValue(p.getUser().getLastName());
+            dataRow.createCell(j++).setCellValue(p.getUser().getEmail());
+
+            // teacher
+            dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getId());
+            dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getFirstName());
+            dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getLastName());
+            dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getEmail());
+
+            // reservation
+            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getId());
+
+            // varauksen pvm
+            dateCell(wb, dataRow, j++, enrolment.getEnrolledOn(), "dd.MM.yyyy");
+
+            // tentti alkoi
+            dateCell(wb, dataRow, j++, p.getStarted(), "HH:mm");
+
+            // tentti loppui
+            dateCell(wb, dataRow, j++, p.getEnded(), "HH:mm");
+
+            // suoritus kesti
+            dateCell(wb, dataRow, j++, p.getDuration(), "HH.mm");
+
+            // tenttitila
+            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getId());
+            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getName());
+            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getRoomCode());
+            // tenttikone
+            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getId());
+            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getName());
+            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getIpAddress());
+
+            dataRow.createCell(j++).setCellValue(p.getExam().getCourse().getName());
+            dataRow.createCell(j++).setCellValue(p.getExam().getCourse().getCode());
+
+            dataRow.createCell(j++).setCellValue(p.getExam().getId());
+            dataRow.createCell(j++).setCellValue(p.getExam().getName());
+            dataRow.createCell(j++).setCellValue(p.getExam().getDuration());
+            dataRow.createCell(j++).setCellValue(p.getExam().getState());
+            dataRow.createCell(j++).setCellValue(p.getExam().getTotalScore());
+            dataRow.createCell(j++).setCellValue(p.getExam().getGrading());
+            dataRow.createCell(j++).setCellValue(p.getExam().getGrade());
+
+            // arvosana annettu pvm
+            dateCell(wb, dataRow, j++, p.getExam().getGradedTime(), "dd.MM.yyyy");
+
+//            style.setDataFormat(creationHelper.createDataFormat().getFormat("HH.mm"));
+//            cell = dataRow.createCell(j++);
+//            cell.setCellValue(new Date(p.getExam().getGradedTime().getTime()));
+//            cell.setCellStyle(style);
+
+            dataRow.createCell(j++).setCellValue(p.getExam().getCreditType());
+
+        }
+
+        try {
+            wb.write(fileOut);
+            fileOut.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        File af = new File(file.getAbsolutePath());
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        return ok(af);
+    }
+
+    // no route to this method
     public static void createReportDirectory() {
         String reportsPath = Play.application().configuration().getString("sitnet.reports.path");
         String playPath = Play.application().path().getAbsolutePath();

@@ -199,11 +199,12 @@ PUT        	  /settings                                                controlle
 
 
 GET           /statistics/resbydate/:roomId/:from/:to               controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
+GET           /statistics/allexams/:from/:to                        controllers.StatisticsController.reportAllExams(from: String, to: String)
 GET           /statistics/examnames                                 controllers.StatisticsController.getExamNames()
 GET           /statistics/examnames/:id/:type                       controllers.StatisticsController.getExam(id: Long, type: String)
 GET           /statistics/resbydate/:roomId/:from/:to               controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
 GET           /statistics/examnames                                 controllers.StatisticsController.getExamNames()
-GET           /statistics/examnames/:id/:type                       controllers.StatisticsController.getExam(id: Long, type:        String)
+GET           /statistics/examnames/:id/:type                       controllers.StatisticsController.getExam(id: Long, type: String)
 
 ############### test test test test test###############
 POST          /test                                                 controllers.TestController.addQuestion()

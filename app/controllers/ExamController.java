@@ -439,6 +439,7 @@ public class ExamController extends SitnetController {
 
         ex.generateHash();
         ex.setGradedTime(SitnetUtil.getTime());
+        ex.setGradedByUser(UserController.getLoggedUser());
         ex.update();
 
         EmailComposer.composeInspectionReady(ex.getCreator(), UserController.getLoggedUser(), ex);
