@@ -40,8 +40,8 @@
         });
         $translateProvider.preferredLanguage('fi');
     }]);
-    sitnet.run(['$http', '$modal', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location',
-        function ($http, $modal, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location) {
+    sitnet.run(['$http', '$modal', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
+        function ($http, $modal, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
             var user = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
             if (user) {
                 var header = {};
