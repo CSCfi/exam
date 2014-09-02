@@ -411,8 +411,8 @@ public class EmailComposer {
         String exam_info = exam.getName() +" "+ exam.getCourse().getCode();
         String teacher_name = exam.getCreator().getFirstName() + " "+ exam.getCreator().getLastName();
 
-        String start = new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(reservation.getEndAt());
-        String end = new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(reservation.getStartAt());
+        String end = new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(reservation.getEndAt());
+        String start = new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(reservation.getStartAt());
 
         String reservation_date = start +" - "+ end;
         String exam_duration = ((int)(exam.getDuration()/60)) +"h "+ ((int)(exam.getDuration()%60)) +"min";
@@ -439,7 +439,7 @@ public class EmailComposer {
         stringValues.put("room_name", ""+room_name);
         stringValues.put("machine_name", ""+machine_name);
         stringValues.put("room_instructions", room_instructions);
-
+        stringValues.put("cancelation_link", hostname + "/#/home/\"");
 
         //Replace template strings
         template = replaceAll(template, tagOpen, tagClosed, stringValues);
