@@ -15,7 +15,7 @@
                 $scope.guide = false;
                 $scope.switchToGuide = function(b) {
                     $scope.guide = b;
-                }
+                };
                 $scope.previousButton = false;
                 $scope.previousButtonText = "";
 
@@ -90,9 +90,8 @@
                         error(function (data, status, headers, config) {
                             // called asynchronously if an error occurs
                             // or server returns response with an error status.
-                        })
-
-                }
+                        });
+                };
 
                 $scope.previewExam();
 
@@ -125,7 +124,7 @@
                             question.expanded = false;
                         }
                         $scope.setQuestionColors(question);
-                    })
+                    });
                 };
 
                 $scope.setPreviousSection = function (exam, active_section) {
@@ -145,9 +144,9 @@
                                     $scope.setActiveSection(exam.examSections[index - 1]);
                                 }
                             }
-                        })
+                        });
                     }
-                }
+                };
 
                 $scope.setNextSection = function (exam, active_section) {
                     var sectionCount = exam.examSections.length;
@@ -166,9 +165,9 @@
                                     $scope.setActiveSection(exam.examSections[index + 1]);
                                 }
                             }
-                        })
+                        });
                     }
-                }
+                };
 
                 // Called when the exit button is clicked
                 $scope.exitPreview = function () {
@@ -232,6 +231,6 @@
                             question.selectedAnsweredState = 'question-unanswered-header';
                         }
                     }
-                }
+                };
             }]);
 }());

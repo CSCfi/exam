@@ -227,15 +227,11 @@
                 if ($scope.user.isAdmin || $scope.user.isTeacher) {
                     if ($routeParams.id === undefined) {
                         $scope.rooms = RoomResource.rooms.query();
-                        console.log($scope.rooms);
                         if($scope.rooms) {
-                            console.log("in rooms")
                             angular.forEach($scope.rooms, function(room){
                                if(room.examMachines) {
-                                   console.log("in machines")
                                    angular.forEach(room.machines, function(machine, index){
                                        if(machine.isArchived()) {
-                                           console.log("slicing....")
                                            room.machines.slice(index, 1);
                                        }
                                    });
@@ -279,7 +275,7 @@
                         });
                     }
                     return i;
-                }
+                };
 
                 $scope.countMachineNotices = function (room) {
 
@@ -290,7 +286,7 @@
                         });
                     }
                     return i;
-                }
+                };
 
                 // Called when create exam button is clicked
                 $scope.createExamRoom = function () {

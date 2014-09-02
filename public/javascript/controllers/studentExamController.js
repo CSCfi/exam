@@ -89,9 +89,15 @@
                                 question.expanded = false;
 
                                 $scope.setQuestionColors(question);
-                            })
+                            });
+
                             $scope.switchToGuide(true);
                             $scope.switchButtons($scope.doexam.examSections[0]);
+
+                            $http.get('/examenrolmentroom/' + $scope.doexam.id)
+                                .success(function (data, status, headers, config) {
+                                    $scope.info = data;
+                                });
                         }).
                         error(function (data, status, headers, config) {
                             // called asynchronously if an error occurs
@@ -166,7 +172,7 @@
                         }
 
                         $scope.setQuestionColors(question);
-                    })
+                    });
                 };
 
                 $scope.setPreviousSection = function (exam, active_section) {
@@ -186,7 +192,7 @@
                                     $scope.setActiveSection(exam.examSections[index - 1]);
                                 }
                             }
-                        })
+                        });
                     }
                 };
 
@@ -207,7 +213,7 @@
                                     $scope.setActiveSection(exam.examSections[index + 1]);
                                 }
                             }
-                        })
+                        });
                     }
                 };
 
@@ -342,6 +348,6 @@
                             question.selectedAnsweredState = 'question-unanswered-header';
                         }
                     }
-                }
+                };
             }]);
 }());

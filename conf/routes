@@ -47,6 +47,7 @@ GET           /examparticipations/:eid                              controllers.
 GET           /examparticipationsandreviews/:eid                    controllers.ExamController.getParticipationsAndReviewedForExam(eid: Long)
 POST          /exams/:eid/examtype/:etid                            controllers.ExamController.insertExamType(eid: Long, etid: Long)
 
+GET           /examenrolmentroom/:eid                               controllers.ExamController.getRoomInfoFromEnrollment(eid: Long)
 
 GET           /exam/:id/inspections                                 controllers.ExamController.getExamInspections(id: Long)
 POST          /exams/:eid/inspector/:uid                            controllers.ExamController.insertInspection(eid: Long, uid: Long)

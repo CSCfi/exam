@@ -67,6 +67,14 @@ public class ExamRoom extends Model {
     @Column(columnDefinition = "TEXT")
     private String roomInstruction;
 
+    // Tilaohjeet
+    @Column(columnDefinition = "TEXT")
+    private String roomInstructionEN;
+
+    // Tilaohjeet
+    @Column(columnDefinition = "TEXT")
+    private String roomInstructionSV;
+
     // Vahtimestari tai muu yhteystieto esim. virkailija: (vapaaehtoinen)
     // tämä voisi olla myös Sitnet User, muuta ei välttämättä kannata
     private String contactPerson;
@@ -151,6 +159,22 @@ public class ExamRoom extends Model {
 
     public void setRoomInstruction(String roomInstruction) {
         this.roomInstruction = roomInstruction;
+    }
+
+    public String getRoomInstructionEN() {
+        return roomInstructionEN;
+    }
+
+    public void setRoomInstructionEN(String roomInstructionEN) {
+        this.roomInstructionEN = roomInstructionEN;
+    }
+
+    public String getRoomInstructionSV() {
+        return roomInstructionSV;
+    }
+
+    public void setRoomInstructionSV(String roomInstructionSV) {
+        this.roomInstructionSV = roomInstructionSV;
     }
 
     public String getContactPerson() {

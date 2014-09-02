@@ -195,7 +195,7 @@ public class StudentExamController extends SitnetController {
                         "duration, examLanguage, answerLanguage, state, expanded");
                 options.setPathProperties("creator", "id");
                 options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
-                options.setPathProperties("room", "roomInstruction");
+                options.setPathProperties("room", "roomInstruction, roomInstructionEN, roomInstructionSV");
                 options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
                 options.setPathProperties("examType", "id, type");
                 options.setPathProperties("examSections", "id, name, questions, exam, expanded");

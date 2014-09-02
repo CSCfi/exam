@@ -364,6 +364,7 @@ public class ExamController extends SitnetController {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
+                .fetch("room")
                 .fetch("attachment")
                 .fetch("examSections")
                 .fetch("examSections.questions")
@@ -394,7 +395,7 @@ public class ExamController extends SitnetController {
             options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                     "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
             options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
-            options.setPathProperties("room", "id, name");
+            options.setPathProperties("room", "id, name roomInstruction roomInstructionEN roomInstructionSV");
             options.setPathProperties("attachment", "id, fileName");
             options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examType", "id, type");
@@ -1121,6 +1122,34 @@ public class ExamController extends SitnetController {
             options.setPathProperties("reservation.machine", "name");
 
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+        }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public static Result getRoomInfoFromEnrollment(Long eid) {
+        ExamEnrolment enrollment = Ebean.find(ExamEnrolment.class)
+                .fetch("user")
+                .fetch("user.userLanguage")
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .eq("exam.id", eid)
+                .findUnique();
+
+        if (enrollment == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, user, reservation");
+            options.setPathProperties("user", "id, userLanguage");
+            options.setPathProperties("user.userLanguage", "nativeLanguageCode, UILanguageCode");
+            options.setPathProperties("reservation", "machine");
+            options.setPathProperties("reservation.machine", "room");
+            options.setPathProperties("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV");
+
+            return ok(jsonContext.toJsonString(enrollment, true, options)).as("application/json");
         }
     }
 

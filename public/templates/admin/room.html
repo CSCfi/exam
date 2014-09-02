@@ -3,9 +3,8 @@
         <span class="header-text">{{'sitnet_examination_location' | translate}}</span>
     </div>
 </div>
-<div id="room">
+<div id="room" class="col-md-12">
 <form class="form-inline" role="form" name="roomForm" novalidate>
-    <div class="row base">
         <div class="col-md-9 " ng-init="showName = true">
             <div ng-show="showName" onclick="document.getElementById('name_field').select();">
                 <span class="pull-left room-name" ng-click="showName = !showName">
@@ -29,9 +28,7 @@
                 <i class="sitnet-red fa fa-times fa-stack-1x"></i>
             </a>
         </div>
-    </div>
     <!-- Room Code & Building name -->
-    <div class="row base">
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_room_code' | translate}}</div>
             <div class="input-group">
@@ -55,40 +52,38 @@
                             </span>
             </div>
         </div>
-    </div>
 
     <!-- Campus & Organization name -->
-    <div class="row base">
-        <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_room_campus' | translate}}</div>
-            <div class="input-group">
-                <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.campus"
-                       ui-change="updateRoom(roomInstance)">
-                        <span class="input-group-addon"
-                              ng-click="toaster.info('Kampus, jossa tenttitila sijaitsee');">
-                            <i class="fa fa-question-circle fa-fw"></i>
-                        </span>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_room_organization' | translate}}</div>
-            <div class="input-group">
-                <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.organization"
-                       ui-change="updateRoom(roomInstance)">
+        <div class="bottom-padding-2">
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{'sitnet_room_campus' | translate}}</div>
+                <div class="input-group">
+                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.campus"
+                           ui-change="updateRoom(roomInstance)">
                             <span class="input-group-addon"
-                                  ng-click="toaster.info('Organisaatio, joka tenttitilan omistaa');">
+                                  ng-click="toaster.info('Kampus, jossa tenttitila sijaitsee');">
                                 <i class="fa fa-question-circle fa-fw"></i>
                             </span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{'sitnet_room_organization' | translate}}</div>
+                <div class="input-group">
+                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.organization.name"
+                           ui-change="updateRoom(roomInstance)">
+                                <span class="input-group-addon"
+                                      ng-click="toaster.info('Organisaatio, joka tenttitilan omistaa');">
+                                    <i class="fa fa-question-circle fa-fw"></i>
+                                </span>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="row base">
-        <h2 class="header-text generic-header">{{'sitnet_room_default_working_hours' | translate}}</h2>
-        <div class="col-md-12" ng-include="hoursTemplate"></div>
-    </div>
-    <div class="row base">
+        <div class="base row col-md-12">
+            <h2 class="header-text generic-header">{{'sitnet_room_default_working_hours' | translate}}</h2>
+            <div class="col-md-12" ng-include="hoursTemplate"></div>
+        </div>
+    <div class="col-md-12 bottom-padding-2">
         <h2 class="header-text generic-header">{{'sitnet_exception_datetimes' | translate}}</h2>
         <div class="col-md-12">
             <div class="col-md-12">
@@ -138,7 +133,7 @@
     <div class="row base">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}</div>
-            <div class="col-md-6" >
+            <div>
  <!--
              <div ng-repeat='access in roomInstance.accessibility'>{{access.name}}<a ng-click="removeAccessibility(access)"> poista</a></a></div>
 
@@ -170,19 +165,24 @@
                                 <i class="fa fa-question-circle fa-fw"></i>
                             </span>
             </div-->
-
-        </div>
+          </div>
     </div>
 
     <!-- Guidance & Contact person information -->
     <div class="row base">
-        <div class="col-md-6">
+        <div class="row col-md-6">
             <div class="sitnet-info-text">{{'sitnet_room_guidance' | translate}}</div>
             <div class="input-group">
                 <!--<input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomInstruction"-->
                 <!--ui-change="updateRoom(roomInstance)">-->
                 <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomInstruction"
-                          ui-change="updateRoom(roomInstance)">
+                          ui-change="updateRoom(roomInstance)" placeholder="fin">
+                </textarea>
+                <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomInstructionEN"
+                          ui-change="updateRoom(roomInstance)" placeholder="eng">
+                </textarea>
+                <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.roomInstructionSV"
+                          ui-change="updateRoom(roomInstance)" placeholder="swe">
                 </textarea>
                         <span class="input-group-addon"
                               ng-click="toaster.info('Tenttitilan käyttämiseen liittyvä ohjeistus');">
@@ -204,7 +204,7 @@
 
     <!-- Video recordings URL -->
     <div class="row base">
-        <div class="col-md-6">
+        <div class="row col-md-6">
             <div class="sitnet-info-text">{{'sitnet_room_videorecordings_url' | translate}}</div>
             <div class="input-group">
                 <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.videoRecordingsURL"
@@ -219,7 +219,7 @@
 
     <!-- Postal address-->
     <div class="row base">
-        <div class="col-md-12">
+        <div class="row col-md-12">
             <!-- Address -->
             <h3>{{'sitnet_exam_room_postal_address' | translate }}</h3>
 
@@ -229,7 +229,7 @@
 
     <!-- Service status -->
     <div class="row base">
-        <div class="col-md-12">
+        <div class="row col-md-12">
             <div class="checkbox">
                 <label>
                     <input type="checkbox" ng-model="roomInstance.outOfService" ng-change="updateRoom(roomInstance)">

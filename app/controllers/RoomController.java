@@ -109,6 +109,8 @@ public class RoomController extends SitnetController {
                 "accessibilityInfo",
                 "accessible",
                 "roomInstruction",
+                "roomInstructionEN",
+                "roomInstructionSV",
                 "contactPerson",
                 "videoRecordingsURL",
                 "examMachineCount",
