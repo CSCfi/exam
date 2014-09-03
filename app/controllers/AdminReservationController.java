@@ -8,6 +8,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.*;
+import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -148,8 +149,8 @@ public class AdminReservationController extends SitnetController {
         long startTimestamp = Long.parseLong(start);
         long endTimestamp = Long.parseLong(end);
 
-        Date startDate = new Date(startTimestamp);
-        Date endDate = new Date(endTimestamp);
+        DateMidnight startDate = new DateMidnight(startTimestamp);
+        DateTime endDate = new DateMidnight(endTimestamp).plusDays(1).toDateTime();
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("user")
@@ -159,8 +160,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", studentId)
-                .ge("reservation.endAt", startDate)
-                .le("reservation.startAt", endDate)
+                .ge("reservation.startAt", startDate)
+                .lt("reservation.endAt", endDate)
                 .findList();
 
         if (enrolments == null) {
@@ -185,8 +186,8 @@ public class AdminReservationController extends SitnetController {
         long startTimestamp = Long.parseLong(start);
         long endTimestamp = Long.parseLong(end);
 
-        Date startDate = new Date(startTimestamp);
-        Date endDate = new Date(endTimestamp);
+        DateMidnight startDate = new DateMidnight(startTimestamp);
+        DateTime endDate = new DateMidnight(endTimestamp).plusDays(1).toDateTime();
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("user")
@@ -196,8 +197,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("reservation.machine.room.id", roomId)
-                .ge("reservation.endAt", startDate)
-                .le("reservation.startAt", endDate)
+                .ge("reservation.startAt", startDate)
+                .lt("reservation.endAt", endDate)
                 .findList();
 
         if (enrolments == null) {
@@ -222,8 +223,8 @@ public class AdminReservationController extends SitnetController {
         long startTimestamp = Long.parseLong(start);
         long endTimestamp = Long.parseLong(end);
 
-        Date startDate = new Date(startTimestamp);
-        Date endDate = new Date(endTimestamp);
+        DateMidnight startDate = new DateMidnight(startTimestamp);
+        DateTime endDate = new DateMidnight(endTimestamp).plusDays(1).toDateTime();
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("user")
@@ -233,8 +234,8 @@ public class AdminReservationController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("exam.id", examId)
-                .ge("reservation.endAt", startDate)
-                .le("reservation.startAt", endDate)
+                .ge("reservation.startAt", startDate)
+                .lt("reservation.endAt", endDate)
                 .findList();
 
         if (enrolments == null) {
