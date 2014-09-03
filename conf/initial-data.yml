@@ -923,14 +923,14 @@ courses:
     type:
     credits: 3.5
 
-  - &ay464085A !!models.Course
+  - &5010107K !!models.Course
     organisation: *OulunYliopisto
     code: 5010107K
     name: Tilastollisten menetelmien työpaja jatko-opiskelijoille
     type:
     credits: 5
 
-  - &ay464085A !!models.Course
+  - &5119161 !!models.Course
     organisation: *OulunYliopisto
     code: 5119161
     name: Sustainability and Natural Resources

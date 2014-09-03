@@ -307,7 +307,7 @@
     "sitnet_hide": "Hide",
     "sitnet_download": "Ladda ner",
     "sitnet_exam_graded_by": "Inspected by",
-    "sitnet_logged_out": "Och samma på svenska..",
+    "sitnet_logged_out": "You have logged out. Please close the browser.",
     "sitnet_room_out_of_service": "Room is out of service",
     "sitnet_participation_reviewed": "Reviewed/Answered",
     "sitnet_teachers": "Opettajat",
@@ -322,8 +322,9 @@
     "sitnet_change_reservation" : "Vaihda huonevarausta",
     "sitnet_remove_reservation" : "Poista huonevaraus",
 
-    "sitnet_logged_out": "Och samma på svenska..",
     "sitnet_accept_useragreement": "Accept user agreement",
     "sitnet_button_decline": "Accept",
-    "sitnet_button_accept": "Decline"
+    "sitnet_button_accept": "Decline",
+    "sitnet_enrolment_url" : "Enrolment link"
+
 }

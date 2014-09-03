@@ -332,12 +332,13 @@
     "sitnet_email_body_text": "Seuraava varaamasi tenttiaika on peruttu. Kyseinen tenttikone ei ole käytettävissä. Varaa tentillesi uusi aika.",
     "sitnet_inform_student_manually": "Ilmoita oppilaille tenttikoneen poistosta manuaalisesti"
     "sitnet_remove_reservation" : "Remove reservation",
-    "sitnet_logged_out": "You have logged out. Please close the browser.",
     "sitnet_accept_useragreement": "Accept user agreement",
     "sitnet_button_decline": "Accept",
     "sitnet_button_accept": "Decline",
     "sitnet_remove_reservation" : "Remove reservation",
     "sitnet_room" : "Exam room",
     "sitnet_date" : "Date",
-    "sitnet_reservations_administration" : "Reservations administration"
+    "sitnet_reservations_administration" : "Reservations administration",
+    "sitnet_enrolment_url" : "Enrolment link"
+
 }

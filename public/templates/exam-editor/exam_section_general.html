@@ -115,6 +115,16 @@
         </div>
     </div>
 
+    <div class="row" ng-hide="newExam.course === undefined">
+        <div class="row col-md-12">
+            <div class="sitnet-info-text col-md-12">{{'sitnet_enrolment_url' | translate}}:</div>
+        </div>
+        <div class="row col-md-12">
+            <div class="col-md-12">
+                <a href="https://sitnet01.csc.fi/#/enroll/{{newExam.course.code}}">https://sitnet01.csc.fi/#/enroll/{{newExam.course.code}}</a>
+            </div>
+        </div>
+    </div>
     <!-- Room name and exam length input elements -->
     <div class="row">
         <!--SIT-367, temporarily removed Room selection from exam-->
