@@ -19,5 +19,4 @@ dist
 *.zip
 .tern-project
 /bin
-/conf/evolutions/
 /data
