@@ -25,6 +25,7 @@ import scala.concurrent.duration.Duration;
 
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,10 +120,11 @@ public class Global extends GlobalSettings {
     @Override
     public Action onRequest(Request request, Method actionMethod) {
 
-        Logger.debug(request.path());
 
         String token = request.getHeader(SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
+        AuditLogger.log(request, actionMethod, session);
+
         if(session == null) {
             return super.onRequest(request, actionMethod);
         }
@@ -151,11 +153,15 @@ public class Global extends GlobalSettings {
             return super.onRequest(request, actionMethod);
         }
 
+
+        //todo: widen the range, to see upcoming enrolments
+        //todo: add cases for these
         Timestamp now = new Timestamp(DateTime.now().getMillis());
 
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
                 .fetch("exam")
                 .where()
                 .eq("user.id", user.getId())
@@ -177,7 +183,15 @@ public class Global extends GlobalSettings {
         //todo: is there another way to identify/match machines?
         //todo: eg. some transparent proxy that add id header etc.
         if(!remoteIp.equals(machineIp)) {
-            headers.put("x-hello-world", "foo-bar-baz");
+            ExamMachine machine = enrolment.getReservation().getMachine();
+            ExamRoom room = machine.getRoom();
+
+            String info = room.getCampus() + ":::" +
+                            room.getBuildingName() + ":::" +
+                            room.getRoomCode() + ":::" +
+                            machine.getName() ;
+
+            headers.put("X-Sitnet-Wrong-Machine", Base64.getEncoder().encodeToString(info.getBytes()));
             //todo: add note, about wrong machine?
             return new AddHeader( super.onRequest(request, actionMethod), headers);
         }
@@ -188,7 +202,7 @@ public class Global extends GlobalSettings {
         } catch (UnauthorizedAccessException e) {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        headers.put("x-hello-world", "Special-case");
+        headers.put("X-Sitnet-Start-Exam", hash);
         return new AddHeader( super.onRequest(request, actionMethod), headers);
     }
 
