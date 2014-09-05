@@ -22,7 +22,7 @@ import javax.persistence.Id;
 public class UserLanguage extends Model {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
 	// käyttäjän äidinkieli

@@ -13,7 +13,7 @@ public class ExamScore extends Model {
 
     // Tallennetaan Sitnet tietokantaan, koska osassa organisaatioita suoritukset viedään erä-ajona
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
     private String StudentId;

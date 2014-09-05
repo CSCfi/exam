@@ -14,7 +14,7 @@ import javax.persistence.Id;
 public class MailAddress extends Model {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
     private String street;

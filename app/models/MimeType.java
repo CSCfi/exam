@@ -13,7 +13,7 @@ public class MimeType {
 	public static final String TEXT ="text";
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;	
 	
 	private String type;

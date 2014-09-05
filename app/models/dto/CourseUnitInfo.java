@@ -11,7 +11,7 @@ import java.util.Collection;
 public class CourseUnitInfo {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
     private String identifier;
