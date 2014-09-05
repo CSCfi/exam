@@ -208,6 +208,11 @@
                 },
                 {
                     inspection: {method: "POST", params: { eid: "@eid", msg: "@msg" }}
+                }),
+
+                saveRecord: $resource("/exam/record", null,
+                {
+                    "add": {method: "POST"}
                 })
             };
         }]);

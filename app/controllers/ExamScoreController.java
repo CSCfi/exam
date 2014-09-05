@@ -72,10 +72,12 @@ public class ExamScoreController extends SitnetController {
         score.setCreditLanguage(node.findValue("creditsLanguage").findValue("name").asText());
         score.setExamDate(new Timestamp(new Date().getTime()).toString());
 
+        /*
         List<String> examScore = new ArrayList<String>();
         examScore.add(new String("25"));
         examScore.add(new String("13"));
-        score.setExamScore(examScore);
+        */
+        score.setExamScore("25");
 
         score.setGradeScale(node.findValue("gradeScale").asText());
         score.setLecturer(node.findValue("lecturer").findValue("name").asText());
@@ -190,7 +192,9 @@ public class ExamScoreController extends SitnetController {
         List<String> scores = new ArrayList<String>();
         scores.add(new String("25"));
         scores.add(new String("13"));
-        examScore.setExamScore(scores);
+
+
+        //examScore.setExamScore(scores);
 
         examScore.setStudent("Sauli Student");
         examScore.setStudentGrade("4");

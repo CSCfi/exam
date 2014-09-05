@@ -340,6 +340,8 @@
     "sitnet_room" : "Exam room",
     "sitnet_date" : "Date",
     "sitnet_reservations_administration" : "Reservations administration",
+    "sitnet_exam_save_register" : "Register exam",
+    "sitnet_reservations_administration" : "Reservations administration",
     "sitnet_total_score": "Total score",
     "sitnet_inspection_status": "Inspection status",
     "sitnet_ready": "Ready",

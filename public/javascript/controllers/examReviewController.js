@@ -357,5 +357,20 @@
                     });
                 };
 
+                $scope.saveExamRecord = function (reviewed_exam) {
+                    var examToRecord = {
+                        "id": reviewed_exam.id,
+                        "state": 'GRADED_LOGGED',
+                        "grade": reviewed_exam.grade,
+                        "otherGrading": reviewed_exam.otherGrading,
+                        "totalScore": reviewed_exam.totalScore
+                    }
+                    ExamRes.saveRecord.add(examToRecord, function(exam) {
+                        toastr.info("Suoritus kirjattu.");
+                        $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                };
             }]);
 }());

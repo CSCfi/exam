@@ -2,10 +2,7 @@ package models.dto;
 
 import play.db.ebean.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -25,7 +22,7 @@ public class ExamScore extends Model {
     private String CreditLanguage;
     private String StudentGrade;
     private String GradeScale;
-    private List<String> ExamScore;
+    private String ExamScore;
     private String CourseUnitLevel;
     private String CourseUnitType;
     private String CreditType;
@@ -106,11 +103,11 @@ public class ExamScore extends Model {
         ExamDate = examDate;
     }
 
-    public List<String> getExamScore() {
+    public String getExamScore() {
         return ExamScore;
     }
 
-    public void setExamScore(List<String> examScore) {
+    public void setExamScore(String examScore) {
         ExamScore = examScore;
     }
 

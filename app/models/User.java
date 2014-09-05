@@ -39,7 +39,9 @@ public class User extends Model implements Subject {
     private UserLanguage userLanguage;
 
     // Shibboleth attributes
-    Map<String, String[]> attributes;
+    //Map<String, String[]> attributes;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<HakaAttribute> attributes;
 
     @OneToOne
     private Organisation organisation;
@@ -58,6 +60,7 @@ public class User extends Model implements Subject {
 
     @Column(columnDefinition="BOOLEAN DEFAULT FALSE")
     private boolean hasAcceptedUserAgreament = false;
+
 
     public boolean isHasAcceptedUserAgreament() {
         return hasAcceptedUserAgreament;
@@ -99,13 +102,6 @@ public class User extends Model implements Subject {
         this.shibbolethUser = shibbolethUser;
     }
 
-    public Map<String, String[]> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(Map<String, String[]> attributes) {
-        this.attributes = attributes;
-    }
 
     public String getEmail() {
         return email;
@@ -219,5 +215,13 @@ public class User extends Model implements Subject {
     public String toString() {
         return "User [id=" + id + ", email=" + email + ", name=" + lastName + " " +
                 firstName + ", password=" + password + "]";
+    }
+
+    public List<HakaAttribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<HakaAttribute> attributes) {
+        this.attributes = attributes;
     }
 }

@@ -50,12 +50,54 @@ public class SessionController extends SitnetController {
                     .eq("eppn", eppn)
                     .findUnique();
 
-            // First login -> crea
-            if(user == null)
-            {
+
+            if(user != null) {
+                List<HakaAttribute> attrs = new ArrayList<HakaAttribute>();
+
+                for (Map.Entry<String,String[]> entry : attributes.entrySet()) {
+
+                    String key = entry.getKey();
+                    String[] value = entry.getValue();
+
+                    HakaAttribute attr = new HakaAttribute();
+                    attr.setKey(key);
+                    if (value.length > 1) {
+
+                        // TODO This might bite our arse at some point.
+                        attr.setValue(Arrays.toString(value));
+                    } else {
+                        attr.setValue(value[0]);
+                    }
+                    attrs.add(attr);
+                }
+
+                user.setAttributes(attrs);
+
+            } else {
+                // First login -> create it
                 user = new User();
 
-                user.setAttributes(attributes);
+                List<HakaAttribute> attrs = new ArrayList<HakaAttribute>();
+
+                for (Map.Entry<String,String[]> entry : attributes.entrySet()) {
+
+                    String key = entry.getKey();
+                    String[] value = entry.getValue();
+
+                    HakaAttribute attr = new HakaAttribute();
+                    attr.setKey(key);
+                    if (value.length > 1) {
+
+                        // TODO This might bite our arse at some point.
+                        attr.setValue(Arrays.toString(value));
+                    } else {
+                        attr.setValue(value[0]);
+                    }
+                    attrs.add(attr);
+                }
+
+                user.setAttributes(attrs);
+
                 user.setEppn(request().getHeader("eppn"));
 
                 String email = request().getHeader("mail");
