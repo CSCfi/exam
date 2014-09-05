@@ -322,9 +322,15 @@
     "sitnet_change_reservation" : "Vaihda huonevarausta",
     "sitnet_remove_reservation" : "Poista huonevaraus",
 
+    "sitnet_logged_out": "Och samma på svenska..",
     "sitnet_accept_useragreement": "Accept user agreement",
     "sitnet_button_decline": "Accept",
     "sitnet_button_accept": "Decline",
+    "sitnet_total_score": "Total score",
+    "sitnet_inspection_status": "Tarkastuksen tilanne",
+    "sitnet_ready": "Valmis",
+    "sitnet_send_to_other_reviewers": "Lähetä sähköpostiviesti muille tarkastajille",
+    "sitnet_send": "Lähetä",
     "sitnet_enrolment_url" : "Enrolment link"
 
 }

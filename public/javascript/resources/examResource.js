@@ -148,6 +148,23 @@
                     "update": {method: "PUT", params: { eid: "@eid" , uid: "@uid"}}
                 }),
 
+                inspectionReady: $resource("/exams/inspection/:id/:ready",
+                {
+                    id: "@id", ready: "@ready"
+                },
+                {
+                    "update": {method: "PUT", params: { id: "@id" , ready: "@ready"}}
+                }),
+
+
+                localInspection: $resource("/exams/localInspection/:eid/:uid",
+                {
+                    eid: "@eid", uid: "@uid"
+                },
+                {
+                    "insert": {method: "POST", params: { eid: "@eid" , uid: "@uid"}}
+                }),
+
                 inspector: $resource("/exams/inspector/:id",
                 {
                     id: "@id"
@@ -173,17 +190,25 @@
                 }),
 
                 examParticipationsAndReviews: $resource("/examparticipationsandreviews/:eid",
-                    {
-                        eid: "@eid"
-                    },
-                    {
-                        "get": {method: "GET", params: { eid: "@eid" }}
-                    }),
+                {
+                    eid: "@eid"
+                },
+                {
+                    "get": {method: "GET", params: { eid: "@eid" }}
+                }),
 
                 studentInfo: $resource("/review/info/:id",
                 {
                     id: "@id"
+                }),
+                email: $resource("/email/inspection/:eid/:msg",
+                {
+                    eid: "@eid",
+                    msg: "@msg"
+                },
+                {
+                    inspection: {method: "POST", params: { eid: "@eid", msg: "@msg" }}
                 })
-            }
+            };
         }]);
 }());

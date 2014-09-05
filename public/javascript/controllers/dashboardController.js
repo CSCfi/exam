@@ -74,7 +74,7 @@
                                     function (error) {
                                         toastr.error(error.data);
                                     });
-                            })
+                            });
                         });
 
                         ExamRes.examsByState.query({state: 'SAVED'},
@@ -100,11 +100,11 @@
 
                 $scope.beforeDate = function(date) {
                     return Date.now() <= new Date(date);
-                }
+                };
 
                 $scope.afterDate = function(date) {
                     return Date.now() >= new Date(date);
-                }
+                };
 
                 //Go to feedback template to show teacher's comments
                 $scope.showFeedback = function (id) {

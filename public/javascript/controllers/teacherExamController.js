@@ -46,7 +46,7 @@
                         $scope.nextButton = false;
                         $scope.nextButtonText = "";
                     }
-                }
+                };
 
                 $scope.previewExam = function () {
 

@@ -174,7 +174,7 @@
                             question.index = index +1;
                         });
                     });
-                }
+                };
 
                 $scope.addNewSection = function () {
                     ExamRes.sections.insert({eid: $scope.newExam.id}, $scope.newSection, function (section) {

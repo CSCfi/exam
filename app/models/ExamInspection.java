@@ -43,7 +43,17 @@ public class ExamInspection extends Model {
     @JsonBackReference
     private Comment comment;
 
-	public Exam getExam() {
+    private boolean ready;
+
+    public boolean isReady() {
+        return ready;
+    }
+
+    public void setReady(boolean ready) {
+        this.ready = ready;
+    }
+
+    public Exam getExam() {
 		return exam;
 	}
 

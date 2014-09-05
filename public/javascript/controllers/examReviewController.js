@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamReviewController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'QuestionRes',
-            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, QuestionRes) {
+        .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'QuestionRes',
+            function ($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, QuestionRes) {
 
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section_general.html";
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section.html";
@@ -10,6 +10,11 @@
                 $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_essay_question.html";
                 $scope.studentInfoTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_student_info.html";
 
+                $scope.session = sessionService;
+                $scope.user = $scope.session.user;
+
+                $scope.globalInspections = [];
+                $scope.localInspections = [];
                 $scope.examGrading = [];
 
                 if ($routeParams.id === undefined) {
@@ -21,28 +26,112 @@
                         function (exam) {
                             $scope.examToBeReviewed = exam;
 
-                            if ($scope.examToBeReviewed.grading == '0-5') {
-                                $scope.examGrading.push('0');
-                                $scope.examGrading.push('1');
-                                $scope.examGrading.push('2');
-                                $scope.examGrading.push('3');
-                                $scope.examGrading.push('4');
-                                $scope.examGrading.push('5');
+                            switch($scope.examToBeReviewed.grading) {
+                                case "0-5":
+                                    $scope.examGrading = ["0", "1", "2", "3", "4", "5"];
+                                    break;
+
+                                case "Hyväksytty-Hylätty":
+                                    $scope.examGrading = ["Hyväksytty", "Hylätty"];
+                                    break;
+
+                                case "Improbatur-Laudatur":
+                                    $scope.examGrading = [
+                                        "Laudatur",
+                                        "Eximia cum laude approbatur",
+                                        "Magna cum laude approbatur",
+                                        "Cum laude approbatur",
+                                        "Non sine laude approbatur",
+                                        "Lubenter approbatur",
+                                        "Approbatur",
+                                        "Improbatur"
+                                    ];
+                                    break;
                             }
-                            if ($scope.examToBeReviewed.grading == 'Hyväksytty-Hylätty') {
-                            	$scope.examGrading.push('Hyväksytty');
-                            	$scope.examGrading.push('Hylätty');
-                            }
-                            if ($scope.examToBeReviewed.grading == 'Improbatur-Laudatur') {
-                            	$scope.examGrading.push('Laudatur');
-                            	$scope.examGrading.push('Eximia cum laude approbatur');
-                            	$scope.examGrading.push('Magna cum laude approbatur');
-                            	$scope.examGrading.push('Cum laude approbatur');
-                            	$scope.examGrading.push('Non sine laude approbatur');
-                            	$scope.examGrading.push('Lubenter approbatur');
-                            	$scope.examGrading.push('Approbatur');
-                            	$scope.examGrading.push('Improbatur');
-                            }
+
+                            $scope.scope = $scope;
+                            $scope.reviewStatus = [
+                                {
+                                    "key": true,
+                                    "value": $translate('sitnet_ready')
+                                },
+                                {
+                                    "key": false,
+                                    "value": $translate('sitnet_in_progress')
+                                }
+                            ];
+
+                            $scope.isLocalReady = function (userId) {
+                                var ready = false;
+                                if($scope.localInspections.length > 0) {
+                                    angular.forEach($scope.localInspections, function(localInspection){
+                                        if(localInspection.user.id && localInspection.user.id === userId) {
+                                            ready = localInspection.ready;
+                                        }
+                                    });
+                                }
+                                return ready;
+                            };
+
+                            $scope.toggleReady = function () {
+                                angular.forEach($scope.localInspections, function(localInspection){
+                                    if(localInspection.user.id === $scope.user.id) {
+                                        // toggle ready ->
+                                        ExamRes.inspectionReady.update({id: localInspection.id, ready: $scope.reviewReady}, function (result) {
+                                            toastr.info("Tentti päivitetty.");
+                                        }, function (error) {
+                                            toastr.error(error.data);
+                                        });
+                                    }
+                                });
+                            };
+
+                            // get global exam inspections ->
+                            ExamRes.inspections.get({id: $scope.examToBeReviewed.parent.id},
+                                function (globals) {
+                                    $scope.globalInspections = globals;
+
+                                    // get local inspections if more than one inspector ->
+                                    if($scope.globalInspections && $scope.globalInspections.length > 1) {
+
+                                        // get single exam inspections ->
+                                        ExamRes.inspections.get({id: $scope.examToBeReviewed.id},
+                                            function (locals) {
+
+                                                var isCurrentUserInspectionCreated = false;
+                                                $scope.localInspections = locals;
+
+                                                // created local inspections, if not created ->
+                                                if($scope.localInspections.length > 0) {
+                                                    angular.forEach($scope.localInspections, function(localInspection){
+                                                        if(localInspection.user.id === $scope.user.id) {
+                                                            isCurrentUserInspectionCreated = true;
+                                                            $scope.reviewReady = localInspection.ready;
+                                                        }
+                                                    });
+                                                }
+
+                                                // if user doesn't already have an inspection, create, otherwise skip ->
+                                                if(isCurrentUserInspectionCreated === false) {
+                                                    ExamRes.localInspection.insert({eid: $scope.examToBeReviewed.id, uid: $scope.user.id}, function (newLocalInspection) {
+                                                        $scope.localInspections.push(newLocalInspection);
+                                                        $scope.reviewReady = false;
+                                                    }, function (error) {
+
+                                                    });
+                                                }
+                                            },
+                                            function (error) {
+                                                toastr.error(error.data);
+                                            }
+                                        );
+                                    }
+                                    console.log($scope.localInspections);
+                                },
+                                function (error) {
+                                    toastr.error(error.data);
+                                }
+                            );
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -245,11 +334,24 @@
                         "grade": reviewed_exam.grade,
                         "otherGrading": reviewed_exam.otherGrading,
                         "totalScore": reviewed_exam.totalScore
-                    }
+                    };
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
                         toastr.info("Tentti on tarkastettu.");
                         $location.path("/exams/reviews/"+ reviewed_exam.parent.id);
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                };
+
+                $scope.message = "";
+
+                // called when send email button is clicked
+                $scope.sendEmailMessage = function () {
+
+                    ExamRes.email.inspection({eid: $scope.examToBeReviewed.id, msg: $scope.message}, function (response) {
+                        toastr.info("Viesti lähetetty");
+                        $scope.message = "";
                     }, function (error) {
                         toastr.error(error.data);
                     });

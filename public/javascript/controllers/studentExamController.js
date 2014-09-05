@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('StudentExamController', ['$scope', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes',
-            function ($scope, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, QuestionRes) {
+        .controller('StudentExamController', ['$rootScope', '$scope', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes',
+            function ($rootScope, $scope, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, QuestionRes) {
 
                 $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
@@ -97,6 +97,7 @@
                             $http.get('/examenrolmentroom/' + $scope.doexam.id)
                                 .success(function (data, status, headers, config) {
                                     $scope.info = data;
+                                    $scope.currentLanguageText = currentLanguage();
                                 });
                         }).
                         error(function (data, status, headers, config) {
@@ -104,6 +105,43 @@
                             // or server returns response with an error status.
                         });
                 };
+
+                $rootScope.$on('$translateChangeSuccess', function () {
+                    $scope.currentLanguageText = currentLanguage();
+                });
+
+
+
+                //$scope.currentLanguageText = currentLanguage();
+
+                function currentLanguage () {
+                    var tmp = "";
+
+                    switch($translate.uses()) {
+                        case "fi":
+                            if($scope.info.reservation.machine.room.roomInstruction) {
+                                tmp = $scope.info.reservation.machine.room.roomInstruction;
+                            }
+                            break;
+                        case "swe":
+                            if($scope.info.reservation.machine.room.roomInstructionSV) {
+                                tmp = $scope.info.reservation.machine.room.roomInstructionSV;
+                            }
+                            break;
+                        case "eng":
+                            if($scope.info.reservation.machine.room.roomInstructionEN) {
+                                tmp = $scope.info.reservation.machine.room.roomInstructionEN;
+                            }
+                            break;
+                        default:
+                            if($scope.info.reservation.machine.room.roomInstructionEN) {
+                                tmp = $scope.info.reservation.machine.room.roomInstructionEN;
+                            }
+                            break;
+                    }
+                    return tmp;
+                }
+
 
                 if ($routeParams.hash != undefined) {
                     $scope.doExam();
@@ -260,7 +298,7 @@
                 $scope.saveEssay = function (question, answer) {
                 	question.answered = true;
                 	question.questionStatus = $translate("sitnet_question_answered");
-                	
+
                     var params = {
                         hash: $scope.doexam.hash,
                         qid: question.id

@@ -83,17 +83,10 @@
 
         <div class="top-padding-2">
             <!-- INSTRUCTIONS -->
-            <a ng-show="info.user.userLanguage.UILanguageCode == 'fi'" class="col-md-12 sidebutton" popover-placement="left" popover-trigger="mouseenter" popover="{{ info.reservation.machine.room.roomInstruction }}"> <!-- room instructions -->
+            {{ currentLanguage }}
+            <a class="col-md-12 sidebutton" popover-placement="left" popover-trigger="click" popover="{{ currentLanguageText }}"> <!-- room instructions -->
                 <i class="fa fa-info-circle">
                 <span class="italic">{{'sitnet_room_guidance' | translate}}</span></i>
-            </a>
-            <a ng-show="info.user.userLanguage.UILanguageCode == 'en'" class="col-md-12 sidebutton" popover-placement="left" popover-trigger="mouseenter" popover="{{ info.reservation.machine.room.roomInstructionEN }}"> <!-- room instructions -->
-                <i class="fa fa-info-circle">
-                    <span class="italic">{{'sitnet_room_guidance' | translate}}</span></i>
-            </a>
-            <a ng-show="info.user.userLanguage.UILanguageCode == 'sv'" class="col-md-12 sidebutton" popover-placement="left" popover-trigger="mouseenter" popover="{{ info.reservation.machine.room.roomInstructionSV }}"> <!-- room instructions -->
-                <i class="fa fa-info-circle">
-                    <span class="italic">{{'sitnet_room_guidance' | translate}}</span></i>
             </a>
             <!-- SAVE EXAM BUTTON -->
             <a class="col-md-12 sidebutton" href="#/logout">

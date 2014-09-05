@@ -14,35 +14,36 @@
     </div>
 </div>
 
-<div id="exam">
+<div id="exam" class="col-md-12">
+
     <div class="col-md-12">
         <div class="exam-name">
             <h3>
                 {{examToBeReviewed.course.code}} - {{examToBeReviewed.name}}
             </h3>
         </div>
+    </div>
+    <div class="exam-wrapper">
+        <!-- General Information -->
+        <div class="exam-general-information" ng-include="generalInfoPath">
+        </div>
 
-        <div class="exam-wrapper">
-            <!-- General Information -->
-            <div class="exam-general-information" ng-include="generalInfoPath">
+        <div class="exam-sections">
+            <div ng-include="reviewSectionPath" ng-repeat="section in examToBeReviewed.examSections"></div>
             </div>
+        </div>
 
-            <div class="exam-sections">
-                <div ng-include="reviewSectionPath" ng-repeat="section in examToBeReviewed.examSections"></div>
-                </div>
-            </div>
-
-            <div style="margin-top: 3em">
-                Tentin kokonaispisteet: {{getExamTotalScore(examToBeReviewed)}}
+        <div class="col-md-12 top-padding-2">
+            <div class="col-md-12">
+                {{'sitnet_total_score' | translate}}: {{getExamTotalScore(examToBeReviewed)}}
             </div>
         </div>
     </div>
-
-    <div style="padding: 1em">
-        <div class="row">
+    <div class="col-md-12">
+        <div class="col-md-12">
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_exam_grade' | translate}}:</div>
-                <div class="input-group">
+                <div class="input-group col-md-12">
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                             {{'sitnet_choose' | translate}}
@@ -90,19 +91,63 @@
                 <!--</div>-->
         <!--</div>-->
 
-        <div>
+        <div class="col-md-12">
+            <div class="top-padding-2 col-md-12">
             <span class="sitnet-info-text"><i>{{'sitnet_exam_feedback' | translate}}:</i>
             </span>
             <!--How to get CKEditor text with Angular-->
             <!--http://jsfiddle.net/TheSharpieOne/cPTr7/-->
             <!--http://stackoverflow.com/questions/18917262/updating-textarea-value-with-ckeditor-content-in-angular-js-->
-            <textarea ck-editor rows="10" cols="80" ng-model="examToBeReviewed.examFeedback.comment">
-            </textarea>
-            <p></p>
+            <textarea ck-editor rows="10" cols="80" ng-model="examToBeReviewed.examFeedback.comment"></textarea>
+            </div>
             <!--<p><button ng-click="saveFeedback(examToBeReviewed)" class="btn btn-primary">{{'sitnet_exam_save_feedback' | translate}}</button></p>-->
         </div>
 
-        <div class="row">
+        <div class="col-md-12" ng-show="globalInspections.length > 1">
+            <div class="top-margin-1 col-md-12 bottom-padding-2 pull-left">
+                <div class="col-md-12 sitnet-horizontal-line top-margin-1"></div>
+                <div class="col-md-6">
+                    <div class="col-md-12 row">
+                        <span class="col-md-6 sitnet-info-text">{{'sitnet_exam_instructor' | translate}}</span>
+                        <span class="col-md-6 sitnet-info-text">{{'sitnet_inspection_status' | translate}}</span>
+                    </div>
+                    <div class="col-md-12 row" ng-repeat="inspection in globalInspections">
+                        <div class="col-md-6 vertical-padding-1">{{ inspection.user.firstName }} {{ inspection.user.lastName }}</div>
+                        <div class="col-md-6 vertical-padding-1">
+                            <span class="col-md-6 input-group-sm row">
+                                <select ng-model="scope.reviewReady" class="form-control" ng-options="s.key as s.value for s in reviewStatus" ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
+
+                                </select>
+                            </span>
+                            <span class="col-md-12 row" ng-show="inspection.user.id !== user.id">
+                                <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.user.id) === true">{{'sitnet_ready' | translate}}</span>
+                                <span class="sitnet-text-alarm" ng-show="isLocalReady(inspection.user.id) === false">{{'sitnet_in_progress' | translate}}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 pull-right">
+                    <div class="sitnet-info-text">
+                        {{'sitnet_send_to_other_reviewers' | translate}}:
+                    </div>
+
+                    <div class="input-group exam-info">
+                        <dl class="col-md-12 pull-left row">
+                            <dt class="pull-left inline col-md-11 row">
+                                <textarea class="form-control" ng-model="message" rows="3" cols="120">
+                                </textarea>
+                            </dt>
+                            <dd class="pull-right inline col-md-1 top-padding-2 row">
+                                <input type="button" class="btn btn-primary btn-sm top-margin-1 pull-left" ng-click="sendEmailMessage()" value="{{'sitnet_send' | translate}}"/>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+                <div class="col-md-12 sitnet-horizontal-line top-margin-1"></div>
+            </div>
+        </div>
+
+        <div class="col-md-12 row bottom-padding-2">
             <div class="col-md-6">
                 <div style="padding-left: 1em">
                     <button ng-click="examReviewReady(examToBeReviewed)" class="btn btn-primary">{{'sitnet_exam_save_review' | translate}}</button>
@@ -110,5 +155,4 @@
             </div>
         </div>
     </div>
-
 </div>

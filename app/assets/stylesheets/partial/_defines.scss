@@ -238,6 +238,9 @@ $sitnet-icon-size: 32px;
   cursor: pointer;
 }
 
+.top-margin-1 {
+  margin-top: 1em;
+}
 
 .top-padding-2 {
   padding-top:2em;
@@ -245,6 +248,14 @@ $sitnet-icon-size: 32px;
 
 .bottom-padding-2 {
   padding-bottom:2em;
+}
+
+.horizontal-padding-1 {
+  padding:0 1em;
+}
+
+.horizontal-padding-05 {
+  padding:0 0.5em;
 }
 
 .vertical-padding-2 {

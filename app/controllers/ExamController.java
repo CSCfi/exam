@@ -1218,7 +1218,7 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, user, exam, started, ended");
-            options.setPathProperties("user", "id");
+            options.setPathProperties("user", "id, firstName, lastName");
             options.setPathProperties("exam", "id, name, course");
             options.setPathProperties("exam.course", "code");
 
@@ -1229,21 +1229,19 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamInspections(Long id) {
 
-        Exam exam = Ebean.find(Exam.class, id);
-
-        List<ExamInspection> inspections = null;
-        if(exam.getParent() == null) {
-            inspections = Ebean.find(ExamInspection.class).fetch("user").where().eq("exam.id", id).findList();
-        } else {
-            inspections = Ebean.find(ExamInspection.class).fetch("user").where().eq("exam.id", exam.getParent().getId()).findList();
-        }
+        List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
+                .fetch("user")
+                .fetch("exam")
+                .where()
+                .eq("exam.id", id)
+                .findList();
 
         if (inspections == null) {
             return notFound();
         } else {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, user, exam");
+            options.setRootPathProperties("id, user, exam, ready");
             options.setPathProperties("user", "id, email, firstName, lastName, roles, userLanguage");
             options.setPathProperties("exam", "id");
 
@@ -1306,4 +1304,57 @@ public class ExamController extends SitnetController {
 
         return ok();
     }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result updateInspection(Long id, boolean ready) {
+
+        ExamInspection inspection = Ebean.find(ExamInspection.class, id);
+        inspection.setReady(ready);
+        inspection.update();
+
+        return ok();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result sendInspectionMessage(Long eid, String msg) {
+
+        final Exam exam = Ebean.find(Exam.class, eid);
+
+        if(exam == null) {
+            return notFound();
+        }
+        List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
+                .fetch("user")
+                .fetch("exam")
+                .where()
+                .eq("exam.id", exam.getParent().getId())
+                .findList();
+
+        if(CollectionUtils.isEmpty(inspections)) {
+            return notFound();
+        }
+
+        for(ExamInspection inspection : inspections) {
+            EmailComposer.composeInspectionMessage(inspection.getUser(), UserController.getLoggedUser(), exam, msg);
+        }
+
+        return ok();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result insertLocalInspectionWithoutCommentAndEmail(Long eid, Long uid) throws SitnetException {
+
+        ExamInspection inspection = new ExamInspection();
+        final User recipient = Ebean.find(User.class, uid);
+        final Exam exam = Ebean.find(Exam.class, eid);
+
+        inspection.setExam(exam);
+        inspection.setUser(recipient);
+        inspection.setAssignedBy(UserController.getLoggedUser());
+
+        inspection.save();
+
+        return ok(Json.toJson(inspection));
+    }
+
 }

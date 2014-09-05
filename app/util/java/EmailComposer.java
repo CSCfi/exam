@@ -198,6 +198,48 @@ public class EmailComposer {
 
     /**
      *
+     * This notification is sent to the creator of exam when assigned inspector has finished inspection
+     *
+     * @param inspector The responsible teacher for the exam.
+     * @param sender    The teacher who inspected the exam.
+     * @param exam      The exam.
+     * @param msg       Message from inspector
+     */
+    public static void composeInspectionMessage(User inspector, User sender, Exam exam, String msg) {
+
+        String templatePath = TEMPLATES_ROOT + "inspectionReady/inspectionMessage.html";
+
+        String subject = "Exam"; //TODO!!
+        String teacher_name = sender.getFirstName() + " " + sender.getLastName() + " <" + sender.getEmail() + ">";
+        String exam_info = exam.getName() + ", (" + exam.getCourse().getName() + ")";
+        String linkToInspection =  hostname + "/#/exams/review/" + exam.getName();
+        String template = new String();
+
+        Map<String, String> stringValues = new HashMap<String, String>();
+
+
+        try {
+            template = readFile(templatePath, ENCODING);
+        }
+        catch(IOException exception) {
+            //TODO!!
+        }
+
+        stringValues.put("teacher_name", teacher_name);
+        stringValues.put("exam_info", exam_info);
+        stringValues.put("inspection_link", linkToInspection);
+        stringValues.put("inspection_comment", msg);
+
+        //Replace template strings
+        template = replaceAll(template, tagOpen, tagClosed, stringValues);
+
+        //Send notification
+        EmailSender.sendInspectorNotification(inspector.getEmail(), sender.getEmail(), subject, template);
+
+    }
+
+    /**
+     *
      * This notification is sent to teachers weekly
      *
      * @param teacher Teacher that this summary is made for

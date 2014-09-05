@@ -38,6 +38,7 @@
                                 <th>{{'sitnet_student' | translate }}</th>
                                 <th>{{'sitnet_review_deadline' | translate }}</th>
                                 <th>{{'sitnet_exam_duration' | translate}}</th>
+                                <th>{{'sitnet_inspection_status' | translate}}</th>
                                 <th>{{'sitnet_exam_state' | translate}}</th>
                             </tr>
                         </thead>
@@ -49,6 +50,12 @@
                                 <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
                                 <td class="table-column-open-until">{{examReview.deadline  | date:'dd.MM.yyyy'}}</td>
                                 <td class="table-column-open-until">{{examReview.duration | date: 'HH:mm'}}</td>
+                                <td class="table-column-teachers">
+                                    <div class="col-md-12" ng-repeat="inspection in localInspections(examReview.exam.id)">
+                                        <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === true">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
+                                        <span class="sitnet-text-alarm" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === false">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
+                                    </div>
+                                </td>
                                 <td class="table-column-open-until">{{examReview.exam.state}}</td>
                             </tr>
                         </tbody>
@@ -70,6 +77,7 @@
                             <th>{{ 'sitnet_exam_name' | translate }}</th>
                             <th>{{ 'sitnet_student' | translate }}</th>
                             <th>{{ 'sitnet_grade' | translate }}</th>
+                            <th>{{'sitnet_inspection_status' | translate}}</th>
                             <th>{{ 'sitnet_graded' | translate }}</th>
                         </tr>
                         </thead>
@@ -82,6 +90,12 @@
                             <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.exam.name}}</a></td>
                             <td class="table-column-examname"><a href="mailto:{{examReview.user.email}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
                             <td class="table-column-open-until">{{examReview.exam.grade}}</td>
+                            <td class="table-column-teachers">
+                                <div class="pull-left horizontal-padding-05" ng-repeat="inspection in getLocalInspection(examReview.exam.id)">
+                                    <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === true">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
+                                    <span class="sitnet-text-alarm" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === false">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
+                                </div>
+                            </td>
                             <td class="table-column-open-until">{{examReview.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
                         </tr>
                         </tbody>

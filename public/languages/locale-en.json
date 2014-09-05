@@ -330,8 +330,9 @@
     "sitnet_course_info": "Course info",
     "sitnet_email_hi": "Hei",
     "sitnet_email_body_text": "Seuraava varaamasi tenttiaika on peruttu. Kyseinen tenttikone ei ole käytettävissä. Varaa tentillesi uusi aika.",
-    "sitnet_inform_student_manually": "Ilmoita oppilaille tenttikoneen poistosta manuaalisesti"
+    "sitnet_inform_student_manually": "Ilmoita oppilaille tenttikoneen poistosta manuaalisesti",
     "sitnet_remove_reservation" : "Remove reservation",
+    "sitnet_logged_out": "You have logged out. Please close the browser.",
     "sitnet_accept_useragreement": "Accept user agreement",
     "sitnet_button_decline": "Accept",
     "sitnet_button_accept": "Decline",
@@ -339,6 +340,11 @@
     "sitnet_room" : "Exam room",
     "sitnet_date" : "Date",
     "sitnet_reservations_administration" : "Reservations administration",
+    "sitnet_total_score": "Total score",
+    "sitnet_inspection_status": "Inspection status",
+    "sitnet_ready": "Ready",
+    "sitnet_send_to_other_reviewers": "Send email message to other reviewers",
+    "sitnet_send": "Send",
     "sitnet_enrolment_url" : "Enrolment link"
 
 }

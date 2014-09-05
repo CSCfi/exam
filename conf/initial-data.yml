@@ -971,7 +971,7 @@ exams:
     instruction: Vastaa kolmeen tehtävään neljästä
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-29 16:00:00.123
+    examActiveEndDate: 2014-12-29 16:00:00.123
     grading: 0-5
     examSections:
     state: GRADED
@@ -1002,7 +1002,7 @@ exams:
     instruction:
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-29 16:00:00.123
+    examActiveEndDate: 2014-12-29 16:00:00.123
     grading: 0-5
     examSections:
     state: PUBLISHED
@@ -1017,7 +1017,7 @@ exams:
     instruction: Vastaa jompaan kumpaan, Essee tehävään tai monivalintoihin
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-29 16:00:00.123
+    examActiveEndDate: 2014-12-29 16:00:00.123
     grading: 0-5
     examSections:
     state: PUBLISHED
@@ -1032,7 +1032,7 @@ exams:
     instruction: Vastaa kaikkiin tenttikysymyksiin
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-29 16:00:00.123
+    examActiveEndDate: 2014-12-29 16:00:00.123
     grading: Improbatur-Laudatur
     examSections:
     state: PUBLISHED
@@ -1047,8 +1047,8 @@ exams:
     instruction: Tentissä saa käyttää vain O(log(n)) Algoritmeja
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-29 16:00:00.123
-    grading: Hyväksytty/Hylätty
+    examActiveEndDate: 2014-12-29 16:00:00.123
+    grading: Hyväksytty-Hylätty
     examSections:
     state: SAVED
     duration: 90
@@ -1062,7 +1062,7 @@ exams:
     instruction: Tentissä saa käyttää vain tilakoneita.
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
-    examActiveEndDate: 2014-08-29 16:00:00.123
+    examActiveEndDate: 2014-12-29 16:00:00.123
     grading: 0-5
     examSections:
     state: REVIEW

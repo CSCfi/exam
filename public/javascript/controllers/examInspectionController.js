@@ -20,7 +20,7 @@
                     "comment": {
                         "comment": ""
                     }
-                }
+                };
 
                 $scope.examInspectors = function (filter, criteria) {
                     return UserRes.filterUsersByExam.query({role: 'TEACHER', eid: $scope.newInspection.exam.id, q: criteria}).$promise.then(
@@ -61,7 +61,7 @@
                         toastr.error("Opettajaa ei löytynyt");
                         $scope.cancel();
                     }
-                }
+                };
 
             }]);
 }());
