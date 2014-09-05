@@ -103,5 +103,37 @@
                 </div>
             </div>
         </div>
+        <!--Kirjattu-->
+        <div class="row base">
+            <div class="exams-list col-md-12">
+                <div class="exams-table-borders">
+                    <table class="table table-bordered exams-table">
+                        <thead>
+                        <tr>
+                            <th><i class="fa fa-flag"></i></th>
+                            <th><i class="fa fa-exclamation-triangle"></i></th>
+                            <th>{{ 'sitnet_examcode' | translate }}</th>
+                            <th>{{ 'sitnet_exam_name' | translate }}</th>
+                            <th>{{ 'sitnet_student' | translate }}</th>
+                            <th>{{ 'sitnet_grade' | translate }}</th>
+                            <th>{{ 'sitnet_graded' | translate }}</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr ng-repeat="examReview in examReviews | filter: byState('GRADED_LOGGED')">
+                            <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
+                            <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                            <td class="table-column-examcode">{{examReview.exam.course.code}}</td>
+                            <td class="table-column-examname">{{examReview.exam.name}}</td>
+                            <td class="table-column-examname">{{examReview.user.firstName}} {{examReview.user.lastName}}</td>
+                            <td class="table-column-open-until">{{examReview.exam.grade}}</td>
+                            <td class="table-column-open-until">{{examReview.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

@@ -18,12 +18,14 @@
                     } else {
                         return "Tentillä ei ole yhtään vastausta";
                     }
-                }
+                };
 
 
-                if ($routeParams.id === undefined)
+                if ($routeParams.id === undefined) {
                     $scope.examReviews = ExamRes.examsByState.query({state: 'REVIEW'});
-                else {
+                    $scope.examReviews = $scope.examReviews.concat(ExamRes.examsByState.query({state: 'GRADED'}));
+                    $scope.examReviews = $scope.examReviews.concat(ExamRes.examsByState.query({state: 'GRADED_LOGGED'}));
+                } else {
                     ExamRes.examReviews.query({eid: $routeParams.id},
                         function (examReviews) {
                             $scope.examReviews = examReviews;
