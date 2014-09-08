@@ -112,7 +112,7 @@ public class StatisticsController extends SitnetController {
      * @return
      */
     @Restrict({@Group("ADMIN")})
-    public static Result getExam(Long id, String type) {
+    public static Result getExam(Long id, String reportType) {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("creator")
@@ -122,7 +122,7 @@ public class StatisticsController extends SitnetController {
                 .eq("id", id)
                 .findUnique();
 
-        if(type.equals("xlsx")) {
+        if(reportType.equals("xlsx")) {
             File file = new File(basePath + "tentti_" + exam.getName().toLowerCase().replace(" ", "-") + ".xlsx");
             FileOutputStream fileOut = null;
             try {
@@ -194,7 +194,7 @@ public class StatisticsController extends SitnetController {
             response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
             return ok(af);
         }
-        else if(type.equals("json")) {
+        else if(reportType.equals("json")) {
             if (exam == null) {
                 return notFound();
             }
@@ -219,7 +219,7 @@ public class StatisticsController extends SitnetController {
                 return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
         }
         else
-            return ok("invalid type: "+ type);
+            return ok("invalid type: "+ reportType);
     }
 
 
