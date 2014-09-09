@@ -180,14 +180,16 @@
                                 </div>
                             </li>
                         </ul>
-                        <span ng-click="minimizeNavigation = !minimizeNavigation" class="minify">
-                            <div ng-hide="minimizeNavigation">
-                                <i class="fa fa-3x fa-chevron-left hit"></i>
+                        <div class="row">
+                            <div ng-click="minimizeNavigation = !minimizeNavigation" class="minify">
+                                <div ng-hide="minimizeNavigation">
+                                    <i class="fa fa-3x fa-chevron-left hit"></i>
+                                </div>
+                                <div ng-hide="!minimizeNavigation">
+                                    <i class="fa fa-3x fa-chevron-right hit"></i>
+                                </div>
                             </div>
-                            <div ng-hide="!minimizeNavigation">
-                                <i class="fa fa-3x fa-chevron-right hit"></i>
-                            </div>
-                        </span>
+                        </div>
                     </nav>
                 </div>
             </div>
