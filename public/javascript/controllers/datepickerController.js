@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('DatepickerCtrl', ['$scope', '$locale', 'dateService',
-            function ($scope, $locale, dateService) {
+        .controller('DatepickerCtrl', ['$scope', '$locale', 'dateService', 'datepickerPopupConfig',
+            function ($scope, $locale, dateService, datepickerPopupConfig) {
 
                 $scope.dateService = dateService;
 
@@ -42,6 +42,8 @@
                     $event.stopPropagation();
 
                     $scope.startDateOpened = true;
+                    $scope.minDate++;
+                    $scope.minDate--;
                 };
 
                 $scope.openEndDate = function ($event) {
@@ -49,6 +51,9 @@
                     $event.stopPropagation();
 
                     $scope.endDateOpened = true;
+                    $scope.minDate++;
+                    $scope.minDate--;
+
                 };
 
                 $scope.$watch('dateService.startDate', function (v) {
