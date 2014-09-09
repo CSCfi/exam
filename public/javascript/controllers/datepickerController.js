@@ -87,10 +87,6 @@
                     $scope.dateService.exceptionEndDateTimestamp = d.getTime();
                 });
 
-                $locale.$watch($locale.id), function () {
-                    var foobar = 1;
-                }
-
                 $scope.dateOptions = {
                     'starting-day': 1
                 };
