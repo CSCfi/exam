@@ -25,7 +25,7 @@ public class CalendarController extends SitnetController {
     private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws MalformedDataException, NotFoundException {
         //todo: email trigger: remove reservation
         final User user = UserController.getLoggedUser();
@@ -37,13 +37,17 @@ public class CalendarController extends SitnetController {
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id  {} for current user.", id));
         }
+
         Reservation reservation = enrolment.getReservation();
+
+        // if user who removes reservation is not Student himself, send email
+        if(user.getId() != enrolment.getUser().getId()) {
+            EmailComposer.composeReservationCancelationNotification(user, reservation, "");
+        }
+
         enrolment.setReservation(null);
         Ebean.save(enrolment);
         Ebean.delete(Reservation.class, id);
-
-        // All done, notify student
-        EmailComposer.composeReservationCancelationNotification(user, reservation, "");
 
         return ok("removed");
     }
