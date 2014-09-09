@@ -16,7 +16,7 @@
             <p class="input-group">
                 <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
                        is-open="startDateOpened" min="minDate"
-                       datepicker-options="dateOptions" ng-required="true" close-text="Close" ui-change="updateExam()">
+                       datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ui-change="updateExam()">
                        
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
@@ -31,7 +31,7 @@
             <p class="input-group">
                 <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
                        is-open="endDateOpened" min="dateService.startDate"
-                       datepicker-options="dateOptions" ng-required="true" close-text="Close">
+                       datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"  ng-required="true">
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openEndDate($event)">
                         <i class="fa fa-calendar"></i>

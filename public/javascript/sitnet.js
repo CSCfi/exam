@@ -19,7 +19,8 @@
         'mgcrea.ngStrap.affix',
         'ui.calendar',
         'ui.multiselect',
-        'ui.select2'
+        'ui.select2',
+        'tmh.dynamicLocale'
     ]);
     sitnet.constant('SITNET_CONF', (function () {
         var context_path = '/';

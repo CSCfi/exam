@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$routeParams', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'ExamRes', 'UserRes', 'SITNET_CONF',
-            function ($scope, $routeParams, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, ExamRes, UserRes, SITNET_CONF) {
+        .controller('SessionCtrl', ['$scope', '$routeParams', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'ExamRes', 'UserRes', 'SITNET_CONF', 'tmhDynamicLocale',
+            function ($scope, $routeParams, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, ExamRes, UserRes, SITNET_CONF, tmhDynamicLocale) {
 
                 $scope.session = sessionService;
 
@@ -34,6 +34,15 @@
 
                 $scope.switchLanguage = function (key) {
                     $translate.uses(key);
+                    if(key == 'fi') {
+                        tmhDynamicLocale.set('fi');
+                    }
+                    else if (key == 'swe') {
+                        tmhDynamicLocale.set('sv');
+                    }
+                    else if (key == 'en') {
+                        tmhDynamicLocale.set('en');
+                    }
                 };
 
                 var dialog;
