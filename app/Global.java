@@ -3,7 +3,6 @@ import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
 import controllers.StatisticsController;
-import controllers.StudentExamController;
 import models.*;
 import models.questions.QuestionInterface;
 import org.joda.time.DateTime;
@@ -174,12 +173,15 @@ public class Global extends GlobalSettings {
             return super.onRequest(request, actionMethod);
         }
 
+        if(!enrolment.getExam().getState().equals("PUBLISHED")) {
+            return super.onRequest(request, actionMethod);
+        }
+
         String machineIp = enrolment.getReservation().getMachine().getIpAddress();
         String remoteIp = request.remoteAddress();
 
         HashMap<String, String> headers = new HashMap<>();
 
-        Logger.debug("User   ip: " + remoteIp + "\nRemote ip: " + machineIp);
         //todo: is there another way to identify/match machines?
         //todo: eg. some transparent proxy that add id header etc.
         if(!remoteIp.equals(machineIp)) {
@@ -191,18 +193,15 @@ public class Global extends GlobalSettings {
                             room.getRoomCode() + ":::" +
                             machine.getName() ;
 
-            headers.put("X-Sitnet-Wrong-Machine", Base64.getEncoder().encodeToString(info.getBytes()));
+            Logger.debug("\nUser   ip: " + remoteIp + "\nRemote ip: " + machineIp);
+
+            headers.put("x-sitnet-wrong-machine", Base64.getEncoder().encodeToString(info.getBytes()));
             //todo: add note, about wrong machine?
             return new AddHeader( super.onRequest(request, actionMethod), headers);
         }
 
         String hash = enrolment.getExam().getHash();
-        try {
-            StudentExamController.createExam(hash, user);
-        } catch (UnauthorizedAccessException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
-        headers.put("X-Sitnet-Start-Exam", hash);
+        headers.put("x-sitnet-start-exam", hash);
         return new AddHeader( super.onRequest(request, actionMethod), headers);
     }
 

@@ -43,6 +43,25 @@
                     $scope.selectedSoftwares(machine);
                 };
 
+
+                $scope.selectedAccessibilities = function () {
+                    return $scope.roomInstance.examMachines.accessibility.map(function (software) {
+                        return software.name;
+                    }).join(",");
+                };
+
+                $scope.updateAccessibility = function (room) {
+                    var ids = room.accessibility.examMachines.map(function (item) {
+                        return item.id;
+                    }).join(", ");
+
+                    $http.post('room/' + room.id + '/accessibility', {ids:ids})
+                        .success(function () {
+                            toastr.info("Huone päivitetty.");
+                        });
+                };
+
+
                 $scope.updateMachine = function (machine) {
 
                     ExamMachineResource.update({id: machine.id}, machine,

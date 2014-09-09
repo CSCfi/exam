@@ -6,6 +6,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
 import org.joda.time.DateTime;
 import org.springframework.util.CollectionUtils;
@@ -14,6 +15,8 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -184,4 +187,37 @@ public class ExamMachineController extends SitnetController {
 
         return ok();
     }
+
+    @Restrict(@Group({"ADMIN"}))
+    public static Result updateExamRoomAccessibility(Long id) throws MalformedDataException {
+        JsonNode json = request().body().asJson();
+        final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
+        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        room.setAccessibility(new ArrayList<Accessibility>());
+        room.save();
+        for(String aid : ids){
+            System.out.println(aid);
+            Accessibility accessibility = Ebean.find(Accessibility.class, Integer.parseInt(aid.trim()));
+            room.getAccessibility().add(accessibility);
+            room.save();
+        }
+        return ok();
+    }
+
+    @Restrict(@Group({"ADMIN"}))
+    public static Result addExamRoomAccessibility(Long id) throws MalformedDataException {
+        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        final Accessibility accessibility = bindForm(Accessibility.class);
+        accessibility.save();
+        room.save();
+        return ok();
+    }
+
+    @Restrict(@Group({"ADMIN"}))
+    public static Result removeExamRoomAccessibility(Long id) throws MalformedDataException {
+        Accessibility accessibility = Ebean.find(Accessibility.class, id);
+        accessibility.delete();
+        return ok();
+    }
+
 }

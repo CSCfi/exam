@@ -162,11 +162,10 @@
                                     }
                                 });
 
-
-                            } else {
-                                $location.path("/home");
                             }
                         }
+
+                        $location.path("/home");
                     });
                     xhr.error(function (message) {
                         toastr.error(message, "Kirjautuminen epäonnistui!");

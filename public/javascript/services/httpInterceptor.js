@@ -3,15 +3,24 @@
     angular.module('sitnet.services')
         .service('httpInterceptor', [
             function () {
+
             }
         ]).config(['$httpProvider', function ($httpProvider) {
-            $httpProvider.interceptors.push(['$rootScope' , '$q', function ($rootScope, $q) {
+            $httpProvider.interceptors.push(['$rootScope' ,'$location', 'wrongRoomService', function ($rootScope, $location, wrongRoomService) {
                 return {
-                    'responseError': function (rejection) {
-                        if (rejection.headers()['x-sitnet-token-failure'] === 'Invalid token') {
-                            $rootScope.$broadcast('invalidToken');
+                    'response': function (response) {
+                        var wrongPlace = response.headers()['x-sitnet-wrong-machine'];
+                        if (wrongPlace) {
+                            var location = atob(wrongPlace).split(":::");
+                            wrongRoomService.display(location);
                         }
-                        return $q.reject(rejection);
+
+                        var startExam = response.headers()['x-sitnet-start-exam'];
+                        if (startExam) {
+                            $location.path('/student/doexam/' + startExam);
+                        }
+
+                        return response;
                     }
                 };
             }]);
