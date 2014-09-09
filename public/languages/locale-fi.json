@@ -344,5 +344,8 @@
     "sitnet_teachers": "Opettajat",
     "sitnet_total_score": "Kokonaispisteet",
     "sitnet_updated": "päivitetty",
-    "sitnet_user_agreament": "Käyttöehdot"
+    "sitnet_user_agreament": "Käyttöehdot",
+    "sitnet_clear" : "Tyhjennä",
+    "sitnet_weeks" : "Näytä viikot",
+    "sitnet_today" : "Tänään"
 }

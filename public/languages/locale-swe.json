@@ -332,6 +332,9 @@
     "sitnet_teachers": "Teachers",
     "sitnet_total_score": "Total score",
     "sitnet_updated": "updated",
-    "sitnet_user_agreament": "User agreament"
+    "sitnet_user_agreament": "User agreament",
+    "sitnet_clear" : "Tomma",
+    "sitnet_weeks" : "Visa veckorna",
+    "sitnet_today" : "Idag"
 
 }
