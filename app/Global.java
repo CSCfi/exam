@@ -21,13 +21,12 @@ import play.mvc.Http.Request;
 import play.mvc.Results;
 import play.mvc.SimpleResult;
 import scala.concurrent.duration.Duration;
+import scala.concurrent.duration.FiniteDuration;
+import util.java.EmailComposer;
 
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Global extends GlobalSettings {
@@ -53,15 +52,64 @@ public class Global extends GlobalSettings {
         );
 
 // Todo: in production should use 7 DAYS
-        Akka.system().scheduler().schedule(
-                Duration.create(1, TimeUnit.MINUTES),
-                Duration.create(1, TimeUnit.DAYS),
-                new WeeklyEmailReport(),
-                Akka.system().dispatcher()
-        );
+//        Akka.system().scheduler().schedule(
+//                Duration.create(1, TimeUnit.MINUTES),
+//                Duration.create(1, TimeUnit.DAYS),
+//                new WeeklyEmailReport(),
+//                Akka.system().dispatcher()
+//        );
+
+
+
+
+        // TODO: WeeklyEmailReport.java unused after this, remove if not needeed
+        weeklyEmailReport();
+
+
+
+
 
         InitialData.insert(app);
         StatisticsController.createReportDirectory();
+    }
+
+    // TODO: quick fix, experimental scheduler from:
+    // http://davidchang168.blogspot.fi/2014/05/how-to-schedule-cron-jobs-in-play-2.html
+    private void weeklyEmailReport() {
+        Long delayInSeconds;
+        Calendar c = Calendar.getInstance();
+        c.set(Calendar.HOUR_OF_DAY, 19);
+        c.set(Calendar.MINUTE, 40);
+        c.set(Calendar.SECOND, 0);
+        Date plannedStart = c.getTime();
+        Date now = new Date();
+        Date nextRun;
+        if(now.after(plannedStart)) {
+            c.add(Calendar.DAY_OF_WEEK, 5);
+            nextRun = c.getTime();
+        } else {
+            nextRun = c.getTime();
+        }
+        delayInSeconds = (nextRun.getTime() - now.getTime()) / 1000; //To convert milliseconds to seconds.
+        FiniteDuration delay = FiniteDuration.create(delayInSeconds, TimeUnit.SECONDS);
+        FiniteDuration frequency = FiniteDuration.create(7, TimeUnit.DAYS);
+        Runnable showTime = new Runnable() {
+            @Override
+            public void run() {
+
+                Logger.info( new Date() + "Running weekly email report");
+                List<User> teachers = Ebean.find(User.class)
+                        .fetch("roles")
+                        .where()
+                        .eq("roles.name", "TEACHER")
+                        .findList();
+
+                for (User teacher : teachers) {
+                    EmailComposer.composeWeeklySummary(teacher);
+                }
+            }
+        };
+        Akka.system().scheduler().schedule(delay, frequency, showTime, Akka.system().dispatcher());
     }
 
     @Override
