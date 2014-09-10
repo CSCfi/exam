@@ -8,6 +8,7 @@ import models.*;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import play.Logger;
 import play.Play;
 import play.mvc.Http;
 import util.SitnetUtil;
@@ -249,6 +250,7 @@ public class EmailComposer {
 
 //        $ /path/to/bin/<project-name> -Dconfig.resource=prod.conf
 
+        Logger.info("Sending weekly report to: "+ teacher.getEmail());
 
         String templatePath = TEMPLATES_ROOT + "weeklySummary/weeklySummary.html";
         String enrollmentTemplatePath = TEMPLATES_ROOT + "weeklySummary/enrollmentInfo.html";
@@ -453,10 +455,15 @@ public class EmailComposer {
         String exam_info = exam.getName() +" "+ exam.getCourse().getCode();
         String teacher_name = exam.getCreator().getFirstName() + " "+ exam.getCreator().getLastName();
 
-        String end = new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(reservation.getEndAt());
-        String start = new SimpleDateFormat("dd.MM.yyyy, HH:mm").format(reservation.getStartAt());
+        String startDate = new SimpleDateFormat("dd.MM.yyyy").format(reservation.getStartAt());
+        String endDate = new SimpleDateFormat("dd.MM.yyyy").format(reservation.getEndAt());
 
-        String reservation_date = start +" - "+ end;
+        String startTime = new SimpleDateFormat("HH:mm").format(reservation.getStartAt());
+        String endTime = new SimpleDateFormat("HH:mm").format(reservation.getEndAt());
+
+        // Tenttiaika: 02.10.2015 klo 16:00 - 02.10.2015 klo 18:00”
+
+        String reservation_date = startDate +" klo "+startTime +" - "+ endDate +" klo "+ endTime;
         String exam_duration = ((int)(exam.getDuration()/60)) +"h "+ ((int)(exam.getDuration()%60)) +"min";
         String building_info = reservation.getMachine().getRoom().getBuildingName();
         String room_name = reservation.getMachine().getRoom().getName();
@@ -548,7 +555,6 @@ public class EmailComposer {
     /**
      *
      * @param student           The student who reserved exam room.
-     * @param sender            The teacher who inspected the exam.
      * @param reservation       The reservation
      * @param message           Cancelation message
      *
