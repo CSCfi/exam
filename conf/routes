@@ -217,4 +217,4 @@ GET           /org                                                             c
 GET           /exam-score-static/:code                                         controllers.ExamScoreController.examScoreStatic(code: String)
 POST          /exam-score-test                                                 controllers.ExamScoreController.examScoreTest()
 
-GET           /assets/*file                                                    controllers.Assets.at(path="/public", file)
+GET             /assets/*file                                                    controllers.Assets.at(path="/public", file)

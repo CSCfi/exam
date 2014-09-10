@@ -173,10 +173,7 @@ public class SitnetUtil {
             object.setCreator(((SitnetModel) asd).getCreator());
         }
 
-        if (object.getCreator().getId() != user.getId())
-            return false;
-        else
-            return true;
+        return object.getCreator().getId().equals(user.getId());
     }
 
     static public String encodeMD5(String str) {

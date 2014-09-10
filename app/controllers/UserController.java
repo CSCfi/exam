@@ -119,7 +119,7 @@ public class UserController extends SitnetController {
         for(User u : users) {
             boolean b = true;
             for(ExamInspection i : inspections) {
-                if(u.getId() == i.getUser().getId()) {
+                if(u.getId().equals(i.getUser().getId())) {
                     b = false;
                 }
             }

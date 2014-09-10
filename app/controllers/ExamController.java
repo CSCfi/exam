@@ -300,7 +300,7 @@ public class ExamController extends SitnetController {
 
                 // yes yes, its weird, but Ebean won't delete relations with ManyToMany on enchaced classes
                 // so we just tell everyone its "deleted"
-                exam.setState("DELETED");
+                exam.setState(Exam.State.DELETED.name());
                 exam.save();
 
 //                exam.delete();

@@ -33,7 +33,8 @@ public class Exam extends SitnetModel {
         GRADED_LOGGED,   // OPINTOSUORITUS KIRJATTU JOHONKIN JÄRJESTELMÄÄN
         STUDENT_STARTED,
         ABORTED,
-        ARCHIVED
+        ARCHIVED,
+        DELETED
     }
 
     private String name;

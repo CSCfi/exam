@@ -41,7 +41,7 @@ public class CalendarController extends SitnetController {
         Reservation reservation = enrolment.getReservation();
 
         // if user who removes reservation is not Student himself, send email
-        if(user.getId() != enrolment.getUser().getId()) {
+        if( !user.getId().equals(enrolment.getUser().getId())) {
             EmailComposer.composeReservationCancelationNotification(user, reservation, "");
         }
 
