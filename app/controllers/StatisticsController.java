@@ -367,7 +367,7 @@ public class StatisticsController extends SitnetController {
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 
-        return ok(Base64.encode(bos.toByteArray()));
+        return ok(com.ning.http.util.Base64.encode(bos.toByteArray()));
     }
 
     /**
@@ -470,7 +470,7 @@ public class StatisticsController extends SitnetController {
         }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 
-        return ok(Base64.encode(bos.toByteArray()));
+        return ok(com.ning.http.util.Base64.encode(bos.toByteArray()));
     }
 
     // Hae kaikki akvaariovaraukset tällä aikavälillä tästä akvaariosta:
