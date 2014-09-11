@@ -56,7 +56,7 @@ DELETE        /exams/inspector/:id                                             c
 
 PUT           /exams/inspection/:id/:ready                                     controllers.ExamController.updateInspection(id: Long, ready: Boolean)
 POST          /exams/localInspection/:eid/:uid                                 controllers.ExamController.insertLocalInspectionWithoutCommentAndEmail(eid: Long, uid: Long)
-POST		  /email/inspection/:eid/:msg									   controllers.ExamController.sendInspectionMessage(eid: Long, msg: String)
+POST          /email/inspection/:eid/:msg                                      controllers.ExamController.sendInspectionMessage(eid: Long, msg: String)
 
 POST          /exam/:eid/section/:sid/question/:qid                            controllers.ExamController.insertExamQuestion(eid: Long, sid: Long, qid: Long)
 POST          /exams/:eid/section/:sid/question/:qid                           controllers.ExamController.insertQuestion(eid: Long, sid: Long, qid: Long)
@@ -203,9 +203,16 @@ PUT           /agreement                                                       c
 PUT           /settings                                                        controllers.SettingsController.updateSettings()
 ################# Statistics interface ##################
 
+
 GET           /statistics/resbydate/:roomId/:from/:to                          controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
 GET           /statistics/allexams/:from/:to                                   controllers.StatisticsController.reportAllExams(from: String, to: String)
 GET           /statistics/examnames                                            controllers.StatisticsController.getExamNames()
+GET           /statistics/examnames/:id/:type                                  controllers.StatisticsController.getExam(id: Long, type: String)
+GET           /statistics/resbydate/:roomId/:from/:to                          controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
+GET           /statistics/examnames                                            controllers.StatisticsController.getExamNames()
+GET           /statistics/examnames/:id/:type                                  controllers.StatisticsController.getExam(id: Long, type: String)
+GET           /statistics/reviewsbydate/:from/:to                              controllers.StatisticsController.getReviewsByDate(from: String, to: String)
+GET			  /statistics/teacherexamsbydate/:uid/:from/:to					   controllers.StatisticsController.getTeacherExamsByDate(uid: Long, from: String, to: String)
 GET           /statistics/examnames/:id/:reportType                            controllers.StatisticsController.getExam(id: Long, reportType: String)
 
 ############### test test test test test###############

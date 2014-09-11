@@ -6,28 +6,25 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.ning.http.util.Base64;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
-import models.Reservation;
+import util.java.StatisticsUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.util.CollectionUtils;
 import play.Play;
-import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+
+import static util.java.StatisticsUtils.*;
 
 /**
  * Created by avainik on 8/15/14.
@@ -222,6 +219,259 @@ public class StatisticsController extends SitnetController {
             return ok("invalid type: "+ reportType);
     }
 
+    /**
+     * Hae kaikki opettajna luomat tentit aikavälillä
+     * @param from alkupäivä
+     * @param to loppupäivä
+     * @return excel
+     */
+    @Restrict({@Group("ADMIN")})
+    public static Result getTeacherExamsByDate(Long uid, String from, String to) {
+
+        final DateTime start = DateTime.parse(from, dateFormat);
+        final DateTime end = DateTime.parse(to, dateFormat);
+
+        String s = from.toString().replace(".", "-");
+        String t = to.toString().replace(".", "-");
+        String name = "luodut_tentit_" + s + "_" + t;
+
+        List<Exam> exams = Ebean.find(Exam.class)
+                .fetch("creator")
+                .fetch("parent")
+                .fetch("examType")
+                .fetch("course")
+                .where()
+                .between("created", start, end)
+                .isNull("parent")
+                .eq("creator.id", uid)
+                .orderBy("created")
+                .findList();
+
+        List<Exam> childs = Ebean.find(Exam.class)
+                .fetch("creator")
+                .fetch("parent")
+                .fetch("parent.examType")
+                .fetch("course")
+                .where()
+                .between("parent.created", start, end)
+                .isNotNull("parent")
+                .eq("parent.creator.id", uid)
+                .orderBy("created")
+                .findList();
+
+        exams.addAll(childs);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        File file = new File(basePath + name + ".xlsx");
+
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet(name);
+
+        final int COLUMNS = 10;
+
+        String[] headers = {
+                "tentti",           // 0
+                "luontiaika",       // 1
+                "status",           // 2
+                "opintojaksotunnus",// 3
+                "voimassaoloaika",  // 4
+                "opintopistemäärä", // 5
+                "suoritustyyppi",   // 6
+                "tenttivastaukset", // 7
+                "suoritukset",       // 8
+                "kirjatut suoritukset"// 9
+        };
+
+        StatisticsUtils.addHeader(sheet, headers, 0, COLUMNS);
+
+        if(!CollectionUtils.isEmpty(exams)) {
+
+            CreationHelper creationHelper = wb.getCreationHelper();
+            CellStyle style = wb.createCellStyle();
+            style.setDataFormat(creationHelper.createDataFormat().getFormat("dd.MM.yyyy"));
+
+            Map<Long,Integer> review = new HashMap<>();
+            Map<Long,Integer> graded = new HashMap<>();
+            Map<Long,Integer> graded_logged = new HashMap<>();
+
+            // counting and removing childs ->
+            Iterator iterator = exams.iterator();
+            while(iterator.hasNext()) {
+                Exam e = (Exam) iterator.next();
+                if(e.getParent() != null) {
+
+                    switch(e.getState()) {
+                        case "REVIEW":
+                            incrementResult(e.getParent().getId(), review);
+                            break;
+                        case "GRADED":
+                            incrementResult(e.getParent().getId(), graded);
+                            break;
+                        case "GRADED_LOGGED":
+                            incrementResult(e.getParent().getId(), graded_logged);
+                            break;
+                    }
+
+                    // removes the child after counting
+                    iterator.remove();
+                }
+            }
+
+            if(!CollectionUtils.isEmpty(exams)) {
+                for (Exam e : exams) {
+
+                    Row dataRow = sheet.createRow(exams.indexOf(e)+1);
+
+                    for(int i = 0; i < COLUMNS; i++) {
+
+                        sheet.autoSizeColumn(i,true);
+
+                        String type = "";
+                        try {
+                            type = e.getExamType().getType() != null ? e.getExamType().getType() : "";
+                        } catch(Exception ex) {
+
+                        }
+
+                        switch(i) {
+                            case 0: addCell(dataRow, i, e.getName()); break;
+                            case 1: addDateCell(style, dataRow, i, e.getCreated()); break;
+                            case 2: addCell(dataRow, i, e.getState()); break;
+                            case 3: addCell(dataRow, i, e.getCourse().getCode()); break;
+                            case 4: addDateBetweenCell(dataRow, i, e.getExamActiveStartDate(), e.getExamActiveEndDate()); break;
+                            case 5: addCell(dataRow, i, e.getCourse().getCredits() + ""); break;
+                            case 6: addCell(dataRow, i, type); break;
+                            case 7: addCell(dataRow, i, getMapResult(e.getId(), review) + ""); break;
+                            case 8: addCell(dataRow, i, getMapResult(e.getId(), graded) + ""); break;
+                            case 9: addCell(dataRow, i, getMapResult(e.getId(), graded_logged) + ""); break;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        try {
+
+            FileOutputStream fileOut = new FileOutputStream(file);
+            wb.write(fileOut);
+            FileInputStream fis = new FileInputStream(file);
+
+            setBytes(fis, bos);
+
+            fis.close();
+            fileOut.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+
+        return ok(Base64.encode(bos.toByteArray()));
+    }
+
+    /**
+     * Hae kaikki suoritukset aikavälillä
+     * @param from alkupäivä
+     * @param to loppupäivä
+     * @return excel
+     */
+    @Restrict({@Group("ADMIN")})
+    public static Result getReviewsByDate(String from, String to) {
+
+        final DateTime start = DateTime.parse(from, dateFormat);
+        final DateTime end = DateTime.parse(to, dateFormat);
+
+        String s = from.toString().replace(".", "-");
+        String t = to.toString().replace(".", "-");
+        String name = "suoritukset_" + s + "_" + t;
+
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("user")
+                .fetch("exam")
+                .fetch("exam.course")
+                .where()
+                .and(
+                        Expr.between("exam.gradedTime", start, end),
+                        Expr.or(
+                                Expr.eq("exam.state", "GRADED"),
+                                Expr.eq("exam.state", "GRADED_LOGGED")
+                        )
+                )
+                .orderBy("user.id")
+                .findList();
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        File file = new File(basePath + name + ".xlsx");
+
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet(name);
+
+        final int COLUMNS = 10;
+
+        String[] headers = {
+                "opiskelija",       // 0
+                "tentti",           // 1
+                "opintojakso",      // 2
+                "suoritusaika",     // 3
+                "arviointiaika",    // 4
+                "opettaja",         // 5
+                "opintopisteet",    // 6
+                "arvosana",         // 7
+                "suoritustyyppi",   // 8
+                "suorituskieli"     // 9
+        };
+
+        addHeader(sheet, headers, 0, COLUMNS);
+
+        if(!CollectionUtils.isEmpty(enrolments)) {
+
+            CreationHelper creationHelper = wb.getCreationHelper();
+            CellStyle style = wb.createCellStyle();
+            style.setDataFormat(creationHelper.createDataFormat().getFormat("dd.MM.yyyy"));
+
+            for (ExamEnrolment e : enrolments) {
+
+                Row dataRow = sheet.createRow(enrolments.indexOf(e)+1);
+
+                for(int i = 0; i < COLUMNS; i++) {
+
+                    sheet.autoSizeColumn(i,true);
+
+                    switch(i) {
+                        case 0: addCell(dataRow, i, e.getUser().getFirstName() + " " + e.getUser().getLastName()); break;
+                        case 1: addCell(dataRow, i, e.getExam().getName()); break;
+                        case 2: addCell(dataRow, i, e.getExam().getCourse().getCode() + " - " + e.getExam().getCourse().getName()); break;
+                        case 3: addDateCell(style, dataRow, i, e.getEnrolledOn()); break;
+                        case 4: addDateCell(style, dataRow, i, e.getExam().getGradedTime()); break;
+                        case 5: addCell(dataRow, i, e.getExam().getGradedByUser().getFirstName() + " " + e.getExam().getGradedByUser().getLastName()); break;
+                        case 6: addCell(dataRow, i, e.getExam().getCourse().getCredits().toString()); break;
+                        case 7: addCell(dataRow, i, e.getExam().getGrade()); break;
+                        case 8: addCell(dataRow, i, e.getExam().getCreditType()); break;
+                        case 9: addCell(dataRow, i, e.getExam().getExamLanguage()); break;
+                    }
+                }
+            }
+        }
+
+        try {
+
+            FileOutputStream fileOut = new FileOutputStream(file);
+            wb.write(fileOut);
+            FileInputStream fis = new FileInputStream(file);
+
+            setBytes(fis, bos);
+
+            fis.close();
+            fileOut.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+
+        return ok(Base64.encode(bos.toByteArray()));
+    }
 
     // Hae kaikki akvaariovaraukset tällä aikavälillä tästä akvaariosta:
     // palautettavat tiedot ainakin opiskelija/varausaika/tenttikone/tentti

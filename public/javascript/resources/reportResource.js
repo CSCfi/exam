@@ -17,7 +17,26 @@
                     "/statistics/examnames", null,
                     {
 
+                    }),
+                reviewsByDate: $resource(
+                    "/statistics/reviewsbydate/:from/:to",
+                    {
+                        from: "@from",
+                        to: "@to"
+                    },
+                    {
+                        "get": {method: "GET", params: {from: "@from", to: "@to"}}
+                    }),
+                teacherExamsByDate: $resource(
+                    "/statistics/teacherexamsbydate/:uid/:from/:to",
+                    {
+                        uid: "@uid",
+                        from: "@from",
+                        to: "@to"
+                    },
+                    {
+                        "get": {method: "GET", params: {uid: "@uid", from: "@from", to: "@to"}}
                     })
-            }
+            };
         }]);
 }());
