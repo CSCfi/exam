@@ -6,11 +6,9 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
-import com.ning.http.util.Base64;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
-import util.java.StatisticsUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
@@ -19,6 +17,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.springframework.util.CollectionUtils;
 import play.Play;
 import play.mvc.Result;
+import util.java.StatisticsUtils;
 
 import java.io.*;
 import java.sql.Timestamp;
@@ -261,7 +260,6 @@ public class StatisticsController extends SitnetController {
 
         exams.addAll(childs);
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         File file = new File(basePath + name + ".xlsx");
 
         Workbook wb = new XSSFWorkbook();
@@ -351,23 +349,9 @@ public class StatisticsController extends SitnetController {
 
         }
 
-        try {
-
-            FileOutputStream fileOut = new FileOutputStream(file);
-            wb.write(fileOut);
-            FileInputStream fis = new FileInputStream(file);
-
-            setBytes(fis, bos);
-
-            fis.close();
-            fileOut.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 
-        return ok(com.ning.http.util.Base64.encode(bos.toByteArray()));
+        return ok(com.ning.http.util.Base64.encode(setData(wb, file).toByteArray()));
     }
 
     /**
@@ -401,7 +385,6 @@ public class StatisticsController extends SitnetController {
                 .orderBy("user.id")
                 .findList();
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         File file = new File(basePath + name + ".xlsx");
 
         Workbook wb = new XSSFWorkbook();
@@ -454,23 +437,9 @@ public class StatisticsController extends SitnetController {
             }
         }
 
-        try {
-
-            FileOutputStream fileOut = new FileOutputStream(file);
-            wb.write(fileOut);
-            FileInputStream fis = new FileInputStream(file);
-
-            setBytes(fis, bos);
-
-            fis.close();
-            fileOut.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 
-        return ok(com.ning.http.util.Base64.encode(bos.toByteArray()));
+        return ok(com.ning.http.util.Base64.encode(setData(wb, file).toByteArray()));
     }
 
     // Hae kaikki akvaariovaraukset tällä aikavälillä tästä akvaariosta:

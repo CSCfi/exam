@@ -114,7 +114,7 @@
                             {{'sitnet_question_attachment' | translate}}
                         </div>
                         <div ng-show="newQuestion.attachment !== null">
-                            <a href="/attachment/question/{{newQuestion.id}}">{{newQuestion.attachment.fileName}}  </a>
+                            <a class="pointer" ng-click="downloadQuestionAttachment(newQuestion)">{{newQuestion.attachment.fileName}}  </a>
                             <span class="sitnet-red pointer" ng-click="removeQuestionAttachment(newQuestion)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
                         </div>
                         <br>

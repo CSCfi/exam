@@ -1,33 +1,27 @@
 package controllers;
 
 
+import Exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-
-import Exceptions.MalformedDataException;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.Attachment;
 import models.Exam;
-import models.User;
 import models.questions.AbstractQuestion;
+import play.Play;
+import play.mvc.Http.MultipartFormData;
+import play.mvc.Http.MultipartFormData.FilePart;
+import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 
-import util.SitnetUtil;
-import play.libs.Json;
-import play.mvc.Result;
-import play.mvc.Http.MultipartFormData;
-import play.mvc.Http.MultipartFormData.FilePart;
-import util.SitnetUtil;
-import play.Play;
-import play.Application;
-import play.Configuration;
-
+import static util.java.AttachmentUtils.setData;
 
 
 /**
@@ -235,9 +229,10 @@ public class AttachmentController extends SitnetController {
                 .findUnique();
 
         Attachment aa = Ebean.find(Attachment.class, question.getAttachment().getId());
-        File af = new File(aa.getFilePath());
+        File file = new File(aa.getFilePath());
+
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(af);
+        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
     }
 
     public static Result downloadExamAttachment(Long id) {
@@ -249,8 +244,9 @@ public class AttachmentController extends SitnetController {
                 .findUnique();
 
         Attachment aa = Ebean.find(Attachment.class, exam.getAttachment().getId());
-        File af = new File(aa.getFilePath());
+        File file = new File(aa.getFilePath());
+
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
-        return ok(af);
+        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
     }
 }

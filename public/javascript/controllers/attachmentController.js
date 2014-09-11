@@ -20,11 +20,16 @@
 
             $scope.downloadQuestionAttachment = function (question) {
 
-                AttachmentRes.questionAttachment.get({id: question.id},
-                    function (file) {
-                        toastr.info("Liite ladattu.");
-                        //window.location = question.attachment.fileName;
-                        //$location.path("/questions/" + qid);
+            $http({method: 'GET', url: '/attachment/question/' + question.id}).
+                success(function(data, status, headers, config) {
+
+                        var element = angular.element('<a/>');
+                        element.attr({
+                            href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                            target: '_blank',
+                            download: question.attachment.fileName
+                        })[0].click();
+
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -47,15 +52,19 @@
 
             $scope.downloadExamAttachment = function (exam) {
 
-                AttachmentRes.examAttachment.get({id: exam.id},
+                $http({method: 'GET', url: '/attachment/exam/' + exam.id}).
+                    success(function(data, status, headers, config) {
 
-                    function (file) {
-                        toastr.info("Liite ladattu.");
-                        //$location.path("/exams");
+                        var element = angular.element('<a/>');
+                        element.attr({
+                            href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                            target: '_blank',
+                            download: exam.attachment.fileName
+                        })[0].click();
+
                     }, function (error) {
                         toastr.error(error.data);
                     });
-            }
-
+            };
         }]);
 }());

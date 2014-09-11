@@ -126,7 +126,6 @@
                                             }
                                         );
                                     }
-                                    console.log($scope.localInspections);
                                 },
                                 function (error) {
                                     toastr.error(error.data);
@@ -279,7 +278,6 @@
                 };
 
                 $scope.insertCreditType = function (exam) {
-                    console.log($scope.examToBeReviewed.creditType);
 
                     var examToReview = {
                         "id": exam.id,
