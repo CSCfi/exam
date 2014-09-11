@@ -27,8 +27,8 @@
                         {href: "#/questions", visible: (admin || teacher), class: "fa-list-ol", name: $translate("sitnet_questions"), sub: []},
                         {href: "#/exams", visible: (admin || teacher), class: "fa-paste", name: $translate("sitnet_exams"), sub: []},
                         {href: "#/rooms", visible: (admin), class: "fa-building-o", name: $translate("sitnet_exam_rooms"), sub: []},
-                        {href: "#/reports", visible: (admin), class: "fa-file-word-o", name: $translate("sitnet_reports"), sub: []},
-                        {href: "#/admin/reservations", visible: (admin), class: "fa-file-word-o", name: "Varaukset", sub: []}, //TODO!! Localise
+                        {href: "#/reports", visible: (admin), class: "fa-file-excel-o", name: $translate("sitnet_reports"), sub: []},
+                        {href: "#/admin/reservations", visible: (admin), class: "fa-clock-o", name: "Varaukset", sub: []}, //TODO!! Localise
                         {href: "#/calendar", visible: (admin || teacher), class: "fa-calendar", name: $translate("sitnet_calendar")},
                         {href: "#/logout", visible: (student || admin || teacher), class: "fa-sign-out", name: $translate("sitnet_logout")},
                         {href: "#/login", visible: (sessionService.user == undefined ? true : false), class: "fa-sign-in", name: $translate("sitnet_login")}
