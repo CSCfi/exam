@@ -208,7 +208,7 @@ public class EmailComposer {
      */
     public static void composeInspectionMessage(User inspector, User sender, Exam exam, String msg) {
 
-        String templatePath = TEMPLATES_ROOT + "inspectionReady/inspectionMessage.html";
+        String templatePath = TEMPLATES_ROOT + "inspectionReady/inspectionReady.html";
 
         String subject = "Exam"; //TODO!!
         String teacher_name = sender.getFirstName() + " " + sender.getLastName() + " <" + sender.getEmail() + ">";
