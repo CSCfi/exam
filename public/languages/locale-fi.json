@@ -347,5 +347,7 @@
     "sitnet_user_agreament": "Käyttöehdot",
     "sitnet_clear" : "Tyhjennä",
     "sitnet_weeks" : "Näytä viikot",
-    "sitnet_today" : "Tänään"
+    "sitnet_today" : "Tänään",
+    "sitnet_confirm_record_review": "Suorituksen kirjauksen jälkeen et enää voi muuttaa arvioinitia. Haluatko jatkaa?"
+
 }

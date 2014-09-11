@@ -335,6 +335,8 @@
     "sitnet_user_agreament": "User agreament",
     "sitnet_clear" : "Tomma",
     "sitnet_weeks" : "Visa veckorna",
-    "sitnet_today" : "Idag"
+    "sitnet_today" : "Idag",
+    "sitnet_confirm_record_review": "Suorituksen kirjauksen jälkeen et enää voi muuttaa arvioinitia. Haluatko jatkaa?"
+
 
 }
