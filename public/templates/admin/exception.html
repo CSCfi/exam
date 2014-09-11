@@ -23,6 +23,10 @@
                        ng-change="selectStartDate(startDate)"
                        ng-model='startDate'
                        is-open='startOpen'
+                       close-text="{{'sitnet_close' | translate}}"
+                       current-text="{{'sitnet_today' | translate}}"
+                       toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                       clear-text="{{'sitnet_clear' | translate}}"
                        ng-required='true'
                        close-text='Close'/>
 
@@ -44,6 +48,10 @@
                        datepicker-popup='{{format}}'
                        ng-model='endDate'
                        is-open='endOpen'
+                       close-text="{{'sitnet_close' | translate}}"
+                       current-text="{{'sitnet_today' | translate}}"
+                       toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                       clear-text="{{'sitnet_clear' | translate}}"
                        ng-required='true'
                        close-text='Close'/>
 

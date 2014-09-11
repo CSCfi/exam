@@ -42,7 +42,6 @@
                     $event.stopPropagation();
 
                     $scope.startDateOpened = true;
-                    $scope.minDate++;
                     $scope.minDate--;
                 };
 
@@ -52,7 +51,6 @@
 
                     $scope.endDateOpened = true;
                     $scope.minDate++;
-                    $scope.minDate--;
 
                 };
 

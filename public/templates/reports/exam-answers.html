@@ -11,7 +11,7 @@
         <p class="input-group">
             <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
                    is-open="startDateOpened"
-                   max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="Close">
+                   max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
                        
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
@@ -27,7 +27,7 @@
             <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
                    is-open="endDateOpened" min="dateService.startDate"
                    max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
-                   ng-required="true" close-text="Close">
+                   ng-required="true" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openEndDate($event)">
                         <i class="fa fa-calendar"></i>

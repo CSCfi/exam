@@ -27,7 +27,7 @@
         <div class="col-md-2" ng-controller="DatepickerCtrl">
             <p class="input-group">
                 <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
-                       is-open="startDateOpened" datepicker-options="dateOptions" ng-required="true" close-text="Close" ng-change="updateReservationsTable()">
+                       is-open="startDateOpened" datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ng-change="updateReservationsTable()">
 
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
@@ -39,7 +39,7 @@
         <div class="col-md-2" ng-controller="DatepickerCtrl">
             <p class="input-group">
                 <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
-                       is-open="endDateOpened" datepicker-options="dateOptions" ng-required="true" close-text="Close" ng-change="updateReservationsTable()">
+                       is-open="endDateOpened" datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ng-change="updateReservationsTable()">
 
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openEndDate($event)">
