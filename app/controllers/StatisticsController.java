@@ -335,6 +335,84 @@ public class StatisticsController extends SitnetController {
     }
 
     /**
+     * Opiskelijan nimi,
+     * opiskelijanumero,
+     * hakatunnus,
+     * varausslotti:pvm
+     * ja klon aika,
+     * suoritusaika
+     * (vastauksen tallettumisen pvm ja klo).
+
+     Kysymys: löytyykö tietoa varauksen peruuttamisesta,
+     eli jos joku on varannut tietylle tentille paikan mutta peruuttanut sen?
+     Jos löytyy niin siitäkin olisi kiva saada varauksen statustieto: peruutettu.
+
+     Tällä olisi tarpeen saada kiinni myös sellaiset jotka ovat varanneet tenttiin paikan mutta eivät ole peruneet sitä eivätkä tule tenttiin lainkaan.
+     * @param id
+     * @return
+     */
+    @Restrict({@Group("ADMIN")})
+    public static Result getExamEnrollments(Long id) {
+
+        String name = "tentti_ilmoittautumiset";
+
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("user")
+                .fetch("exam")
+                .fetch("exam.course")
+                .where()
+                .eq("exam.id", id)
+                .orderBy("user.id")
+                .findList();
+
+        File file = new File(basePath + name + ".xlsx");
+
+        Workbook wb = new XSSFWorkbook();
+        Sheet sheet = wb.createSheet(name);
+
+        final int COLUMNS = 5;
+
+        String[] headers = {
+                "opiskelijan nimi",     // 0
+                "opiskelijan numero",   // 1
+                "hakatunnus",           // 2
+                "varaus",               // 3
+                "suoritusaika"         // 4
+        };
+
+        addHeader(sheet, headers, 0, COLUMNS);
+
+        if(!CollectionUtils.isEmpty(enrolments)) {
+
+            CreationHelper creationHelper = wb.getCreationHelper();
+            CellStyle style = wb.createCellStyle();
+            style.setDataFormat(creationHelper.createDataFormat().getFormat("dd.MM.yyyy"));
+
+            for (ExamEnrolment e : enrolments) {
+
+                Row dataRow = sheet.createRow(enrolments.indexOf(e)+1);
+
+                for(int i = 0; i < COLUMNS; i++) {
+
+                    sheet.autoSizeColumn(i,true);
+
+                    switch(i) {
+                        case 0: addCell(dataRow, i, e.getUser().getFirstName() + " " + e.getUser().getLastName()); break;
+                        case 1: addCell(dataRow, i, e.getUser().getIdentifier()); break;
+                        case 2: addCell(dataRow, i, e.getUser().getEppn()); break;
+                        case 3: addDateCell(style, dataRow, i, e.getReservation().getStartAt()); break;
+                        case 4: addDateCell(style, dataRow, i, e.getEnrolledOn()); break;
+                    }
+                }
+            }
+        }
+
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+
+        return ok(com.ning.http.util.Base64.encode(setData(wb, file).toByteArray()));
+    }
+
+    /**
      * Hae kaikki suoritukset aikavälillä
      * @param from alkupäivä
      * @param to loppupäivä

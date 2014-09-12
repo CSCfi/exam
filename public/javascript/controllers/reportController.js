@@ -12,28 +12,32 @@
                 $scope.examReport = SITNET_CONF.TEMPLATES_PATH + "reports/exam-report.html";
                 $scope.examReportJson = SITNET_CONF.TEMPLATES_PATH + "reports/exam-report-json.html";
                 $scope.examAnswers = SITNET_CONF.TEMPLATES_PATH + "reports/exam-answers.html";
+                $scope.examEnrollmentsReport = SITNET_CONF.TEMPLATES_PATH + "reports/exam-enrollments.html";
 
                 $scope.selectedRoom = {
                     name: $translate("sitnet_choose")
                 };
                 $scope.selectedExam;
-                $scope.selectedRoom;
-                $scope.selectedTeacher = {
-                    name: $translate("sitnet_choose")
+                $scope.setExam = function (exam) {
+                    $scope.selectedExam = exam;
                 };
-                $scope.link;
 
-                $scope.rooms = RoomResource.rooms.query();
-                $scope.examnames = ReportResource.examnames.query();
-                $scope.teachers = UserRes.usersByRole.query({role: "TEACHER"});
+                $scope.examEnrollment;
 
                 $scope.setRoom = function (room) {
                     $scope.selectedRoom = room;
+                };
+
+                $scope.selectedTeacher = {
+                    name: $translate("sitnet_choose")
                 };
                 $scope.setTeacher = function (teacher) {
                     $scope.selectedTeacher = teacher;
                 };
 
+                $scope.rooms = RoomResource.rooms.query();
+                $scope.examnames = ReportResource.examnames.query();
+                $scope.teachers = UserRes.usersByRole.query({role: "TEACHER"});
 
                 $scope.getReservations = function() {
 
@@ -48,6 +52,29 @@
 
                 };
 
+                $scope.getExamEnrollments = function (exam) {
+
+                    if(exam) {
+
+                        $http({method: 'GET', url: '/statistics/examenrollments/' + exam}).
+                            success(function (data, status, headers, config) {
+
+                                var element = angular.element('<a/>');
+                                element.attr({
+                                    href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
+                                    target: '_blank',
+                                    download: 'tentti_ilmoittautumiset.xlsx'
+                                })[0].click();
+
+                            }).
+                            error(function (data, status, headers, config) {
+                                // if there's an error you should see it here
+                            });
+                    } else {
+                        toastr.error("Valitse tentti");
+                    }
+                };
+
                 $scope.exam_json;
                 $scope.exam_xlsx;
 
@@ -55,12 +82,12 @@
 
                     if(exam) {
 
-                        $http({method: 'GET', url: 'statistics/examnames/' + exam + '/xlsx'}).
+                        $http({method: 'GET', url: '/statistics/examnames/' + exam + '/xlsx'}).
                             success(function (data, status, headers, config) {
 
                                 var element = angular.element('<a/>');
                                 element.attr({
-                                    href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                                    href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
                                     target: '_blank',
                                     download: 'tentit.xlsx'
                                 })[0].click();
@@ -72,18 +99,18 @@
                     } else {
                         toastr.error("Valitse tentti");
                     }
-                }
+                };
 
                 $scope.getExamsJson = function (exam) {
 
                     if(exam) {
 
-                        $http({method: 'GET', url: 'statistics/examnames/' + exam + '/json'}).
+                        $http({method: 'GET', url: '/statistics/examnames/' + exam + '/json'}).
                             success(function (data, status, headers, config) {
                                 console.log(data);
                                 var element = angular.element('<a/>');
                                 element.attr({
-                                    href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                                    href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
                                     target: '_blank',
                                     download: 'tentit.json'
                                 })[0].click();
@@ -108,7 +135,7 @@
 
                             var element = angular.element('<a/>');
                             element.attr({
-                                href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                                href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
                                 target: '_blank',
                                 download: 'suoritukset_' + f + '_' + t + '.xlsx'
                             })[0].click();
@@ -131,7 +158,7 @@
 
                                 var element = angular.element('<a/>');
                                 element.attr({
-                                    href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                                    href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
                                     target: '_blank',
                                     download: 'luodut_tentit_' + f + '_' + t + '.xlsx'
                                 })[0].click();
@@ -157,7 +184,7 @@
 
                                 var element = angular.element('<a/>');
                                 element.attr({
-                                    href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                                    href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
                                     target: '_blank',
                                     download: 'tilavaraukset_' + f + '_' + t + '.xlsx'
                                 })[0].click();
