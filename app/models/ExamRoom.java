@@ -3,10 +3,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.Interval;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
+import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.db.ebean.Model;
@@ -312,36 +309,45 @@ public class ExamRoom extends Model {
     private Interval getFromExceptionEvents(LocalDate date) {
 
         for (ExceptionWorkingHours exception : calendarExceptionEvents) {
-            final LocalDate startDate = new LocalDate(exception.getStartDate());
-            final LocalTime start;
-            final LocalTime end;
 
-            if (exception.getEndDate() == null) {
-                if (startDate.equals(date)) {
-                    if (exception.getStartTime() == null) {
-                        start = new LocalTime(exception.getStartTime().getTime());
-                        end = new LocalTime(exception.getEndTime().getTime());
-                    } else {
-                        start = LocalTime.fromMillisOfDay(0);
-                        end = LocalTime.MIDNIGHT;
-                    }
-                    return new Interval(date.toDateTime(start), date.toDateTime(end));
+            boolean isTimeRange = exception.getEndDate() != null;
+            boolean isClosed = exception.getStartTime() == null;
+            DateTime startDate = new DateTime(exception.getStartDate()).withTimeAtStartOfDay();
+            if (isTimeRange) {
+                DateTime endDate = new DateTime(exception.getEndDate()).withTime(23, 59, 59, 999).toDateTime();
+                Interval range = new Interval(startDate, endDate);
+                if (!range.contains(date.toDateMidnight())) {
+                    continue;
+                }
+                if (isClosed) {
+                    return zeroSecondInterval(date);
+                } else {
+                    return getInterval(date, exception);
                 }
             } else {
-                final LocalDate endDate = new LocalDate(exception.getEndDate().getTime());
-                if (startDate.equals(date)) {
-                    if (exception.getStartTime() == null) {
-                        start = new LocalTime(exception.getStartTime().getTime());
-                        end = new LocalTime(exception.getEndTime().getTime());
-                    } else {
-                        start = LocalTime.fromMillisOfDay(0);
-                        end = LocalTime.MIDNIGHT;
-                    }
-                    return new Interval(startDate.toDateTime(start), endDate.toDateTime(end));
+                if (!startDate.toLocalDate().equals(date)) {
+                    continue;
+                }
+                if (isClosed) {
+                    return zeroSecondInterval(date);
+                } else {
+                    return getInterval(date, exception);
                 }
             }
         }
         return null;
+    }
+
+    @Transient
+    private Interval getInterval(LocalDate date, ExceptionWorkingHours exception) {
+        LocalTime start = new LocalTime(exception.getStartTime().getTime());
+        LocalTime end = new LocalTime(exception.getEndTime().getTime());
+        return new Interval(date.toDateTime(start), date.toDateTime(end));
+    }
+
+    @Transient
+    private Interval zeroSecondInterval(LocalDate date) {
+        return new Interval(date.toDateMidnight(), date.toDateMidnight());
     }
 
     @Transient
@@ -366,6 +372,7 @@ public class ExamRoom extends Model {
         if(exceptionEvents != null) {
             return Arrays.asList(exceptionEvents);
         }
+
         return getFromDefaultHours(date);
     }
 }

@@ -22,7 +22,7 @@
                 var selectable = [],
                     times = [],
                     startHour = 0,
-                    endHour = 23,
+                    endHour = 24,
                     timeStep = '30',
                     rows = 0,
                     days = 7,
@@ -34,6 +34,10 @@
 
                 for (i = startHour; i <= endHour; i++) {
                     times.push(i + ".00");
+                    if(i === endHour) {
+                        rows ++;
+                        break;
+                    }
                     times.push(i + "." + timeStep);
                     rows += 2;
                 }

@@ -52,22 +52,28 @@ public class DefaultWorkingHourDTO {
     }
 
     private Timestamp convertTime(int row) {
+
+        if(row > 0 && row/2 == endHour) {  //24:00 -> 23.59.59
+            return new Timestamp(LocalTime.MIDNIGHT.minusSeconds(1).getMillisOfDay());
+        }
+
+        //System.out.println("-- row -- " + row);
         String start = String.format("%02d", startHour) + ":00";
-       // System.out.println("-- start -- " + start);
+        //System.out.println("-- start -- " + start);
 
         final LocalTime time = fmt.parseLocalTime(start).plusMinutes(row * stepMinutes);
-       // System.out.println("-- localtime -- " + time);
+        //System.out.println("-- localtime -- " + time);
 
         final long millis = time.getMillisOfDay();
-       // System.out.println("-- millis -- "+ millis);
+        //System.out.println("-- millis -- "+ millis);
 
 
         final Timestamp timestamp = new Timestamp(millis);
 
-       // System.out.println("-- timestamp millis -- "+  timestamp.getTime());
+        //System.out.println("-- timestamp millis -- "+  timestamp.getTime());
 
 
-       // System.out.println("-- timestamp -- " + timestamp);
+        //System.out.println("-- timestamp -- " + timestamp);
 
         return timestamp;
     }

@@ -192,6 +192,12 @@ public class CalendarController extends SitnetController {
 
         final DateTime now = DateTime.now();
 
+        final DateTime examStartTime = new DateTime(exam.getExamActiveStartDate());
+
+        if(examStartTime.isAfter(forDay)) {
+            return allPossibleFreeTimeSlots;
+        }
+
         for (ExamMachine examMachine : room.getExamMachines()) {
 
             if (examMachine.getOutOfService()) {
