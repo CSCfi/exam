@@ -110,10 +110,6 @@
                     $scope.currentLanguageText = currentLanguage();
                 });
 
-
-
-                //$scope.currentLanguageText = currentLanguage();
-
                 function currentLanguage () {
                     var tmp = "";
 

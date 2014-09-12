@@ -6,7 +6,7 @@
 <div class="row">
     <div class="col-md-10">
         <h4>{{'sitnet_select_exam' | translate}}</h4>
-        <select ui-select2 ng-model="value" ng-change="setExam(value)" data-placeholder="Pick a number">
+        <select ui-select2 ng-model="exam_xlsx" data-placeholder="Pick a number" style="min-width:50%;">
             <option value=""></option>
             <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.course.code}} - {{exam.name}}</option>
         </select>
@@ -14,7 +14,7 @@
 
     <div class="col-md-2">
         <h2>
-            <a ng-href="{{link}}/xlsx" class="fa-stack fa-lg"
+            <a ng-click="getExamsXlsx(exam_xlsx)" class="fa-stack fa-lg"
                download popover-trigger="mouseenter"
                popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>

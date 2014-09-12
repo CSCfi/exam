@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import java.io.*;
 import java.sql.Timestamp;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -58,17 +59,31 @@ public class StatisticsUtils {
     }
 
     public static void addCell(Row dataRow, int index, String content) {
-        dataRow.createCell(index).setCellValue(content);
+        if(content == null) {
+            dataRow.createCell(index).setCellValue("");
+        } else {
+            dataRow.createCell(index).setCellValue(content);
+        }
     }
 
     public static void addDateCell(CellStyle style, Row dataRow, int index, Timestamp time) {
         Cell cell = dataRow.createCell(index);
-        cell.setCellValue(time);
-        cell.setCellStyle(style);
+        if(time == null) {
+            cell.setCellValue("");
+        } else {
+            cell.setCellStyle(style);
+            cell.setCellValue(time);
+        }
+
+
     }
 
     public static void addDateBetweenCell(Row dataRow, int index, Timestamp from, Timestamp to) {
-        dataRow.createCell(index).setCellValue(from.toLocalDateTime().toLocalDate().format(dateFormat).toString() + " - " + to.toLocalDateTime().toLocalDate().format(dateFormat).toString());
+        if(from == null || to == null) {
+            dataRow.createCell(index).setCellValue("");
+        } else {
+            dataRow.createCell(index).setCellValue(from.toLocalDateTime().toLocalDate().format(dateFormat).toString() + " - " + to.toLocalDateTime().toLocalDate().format(dateFormat).toString());
+        }
     }
 
     public static void incrementResult(Long id, Map<Long,Integer> map) {
@@ -84,4 +99,17 @@ public class StatisticsUtils {
         int i = map.get(id) != null ? map.get(id) : 0;
         return i;
     }
+
+    public static Cell dateCell(Workbook wb, Row row, int index, Timestamp timestamp, String format) {
+        CellStyle style = wb.createCellStyle();
+        CreationHelper creationHelper = wb.getCreationHelper();
+        style.setDataFormat(creationHelper.createDataFormat().getFormat(format));
+
+        Cell cell = row.createCell(index);
+        cell.setCellValue(new Date(timestamp.getTime()));
+        cell.setCellStyle(style);
+
+        return cell;
+    }
+
 }

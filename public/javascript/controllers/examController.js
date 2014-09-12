@@ -684,10 +684,10 @@
 
                     modalInstance.result.then(function (resp) {
                         // OK button
-                        $modalInstance.dismiss();
+                        modalInstance.dismiss();
                         $location.path('/exams/'+ $scope.newExam.id);
                     }, function () {
-                        $modalInstance.dismiss();
+                        modalInstance.dismiss();
                         // Cancel button
                     });
                 };

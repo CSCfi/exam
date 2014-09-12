@@ -27,9 +27,6 @@
                 $scope.examnames = ReportResource.examnames.query();
                 $scope.teachers = UserRes.usersByRole.query({role: "TEACHER"});
 
-                $scope.setExam = function (exam) {
-                    $scope.link = 'statistics/examnames/'+ exam;
-                };
                 $scope.setRoom = function (room) {
                     $scope.selectedRoom = room;
                 };
@@ -49,6 +46,55 @@
 
 //                    $location.path("#/statistics/resbydate/1/01.01.2014/29.08.2014");
 
+                };
+
+                $scope.exam_json;
+                $scope.exam_xlsx;
+
+                $scope.getExamsXlsx = function (exam) {
+
+                    if(exam) {
+
+                        $http({method: 'GET', url: 'statistics/examnames/' + exam + '/xlsx'}).
+                            success(function (data, status, headers, config) {
+
+                                var element = angular.element('<a/>');
+                                element.attr({
+                                    href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                                    target: '_blank',
+                                    download: 'tentit.xlsx'
+                                })[0].click();
+
+                            }).
+                            error(function (data, status, headers, config) {
+                                // if there's an error you should see it here
+                            });
+                    } else {
+                        toastr.error("Valitse tentti");
+                    }
+                }
+
+                $scope.getExamsJson = function (exam) {
+
+                    if(exam) {
+
+                        $http({method: 'GET', url: 'statistics/examnames/' + exam + '/json'}).
+                            success(function (data, status, headers, config) {
+                                console.log(data);
+                                var element = angular.element('<a/>');
+                                element.attr({
+                                    href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                                    target: '_blank',
+                                    download: 'tentit.json'
+                                })[0].click();
+
+                            }).
+                            error(function (data, status, headers, config) {
+                                // if there's an error you should see it here
+                            });
+                    } else {
+                        toastr.error("Valitse tentti");
+                    }
                 };
 
 
@@ -96,6 +142,32 @@
                             });
                     } else {
                         toastr.error("Valitse opettaja");
+                    }
+                };
+
+                $scope.getRoomReservationsByDate = function(rid, from, to) {
+
+                    var f = $filter("date")(from, "dd.MM.yyyy");
+                    var t = $filter("date")(to, "dd.MM.yyyy");
+
+                    if (rid > 0) {
+
+                        $http({method: 'GET', url: '/statistics/resbydate/' + rid + '/' + f + '/' + t}).
+                            success(function (data, status, headers, config) {
+
+                                var element = angular.element('<a/>');
+                                element.attr({
+                                    href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                                    target: '_blank',
+                                    download: 'tilavaraukset_' + f + '_' + t + '.xlsx'
+                                })[0].click();
+
+                            }).
+                            error(function (data, status, headers, config) {
+                                // if there's an error you should see it here
+                            });
+                    } else {
+                        toastr.error("Valitse tila");
                     }
                 };
 

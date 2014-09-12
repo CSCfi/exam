@@ -20,7 +20,6 @@ import play.mvc.Result;
 import util.java.StatisticsUtils;
 
 import java.io.*;
-import java.sql.Timestamp;
 import java.util.*;
 
 import static util.java.StatisticsUtils.*;
@@ -30,25 +29,6 @@ import static util.java.StatisticsUtils.*;
  */
 
 /*
-SIT-349
-
-Hakulausekkeita:
-
-* Hae kaikki akvaariovaraukset tällä aikavälillä tästä akvaariosta: palautettavat tiedot ainakin opiskelija/varausaika/tenttikone/tentti mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
-
-* Hae tämän tentin tiedot: palautettavat tiedot ainakin tentin nimi/opettaja/luontiaika/tentin kesto/status/voimassaoloaika/opintopistee/opintojakson tunnus/opettaja/arvosana-asteikko/ohjeteksti/kysymykset/kysymysten pistemäärä/liitteet mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
-
-Hae kaikki tenttivastaukset tällä aikavälillä: palautettavat tiedot ainakin opiskelija/vastausaika/vastauksen status/tentti/opintojaksontunnus/opettaja mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
-
-Hae kaikki suoritukset tällä aikavälillä: palautettavat tiedot ainakin opiskelija/tentti/ opintojakso/suoritusaika/arviointiaika/opettaja/opintopisteet/arvosana/suoritustyyppi/suorituskieli mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
-
-Hae tämän opettajan tiedot tällä aikavälillä: palautettavat tiedot ainakin tentti/luontiaika/status/opintojaksotunnus/voimassaoloaika/opintopistemäärä/suoritustyyppi/tenttivastaukset/suoritukset/ mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
-
-Hae tämän opiskelijan tiedot tällä aikavälillä: palautettavat tiedot ainakin oletuskieli/tenttivastaukset/status/suoritukset/akvaariovaraukset/ mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
-
-Hae kaikki tähän tenttiin ilmoittautuneet: saa palauttaa kaikki tiedot jotka saatavilla
-
-
 Pari muutoslauseketta:
 Muuta tämän tentin vastuuopettajaksi tämä opettaja (vaihdetaan opettaja esim. poissaolojen takia)
 Muuta tämän tentin statukseksi ei julkinen (tavoitteena ottaa joku tentti pois ilmoittautumisten piiristä)
@@ -84,20 +64,6 @@ public class StatisticsController extends SitnetController {
         }
     }
 
-    private static Cell dateCell(Workbook wb, Row row, int count, Timestamp timestamp, String format) {
-        CellStyle style = wb.createCellStyle();
-        CreationHelper creationHelper = wb.getCreationHelper();
-        style.setDataFormat(creationHelper.createDataFormat().getFormat(format));
-//
-//
-        Cell cell = row.createCell(count);
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
-//        cell.setCellValue(simpleDateFormat.format(timestamp));
-        cell.setCellValue(new Date(timestamp.getTime()));
-        cell.setCellStyle(style);
-        return cell;
-    }
-
     /**
      *     Hae tämän tentin tiedot:
      *     nimi/opettaja/luontiaika/tentin kesto/status/voimassaoloaika/
@@ -113,24 +79,16 @@ public class StatisticsController extends SitnetController {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("creator")
                 .fetch("course")
-//                .fetch("course")
                 .where()
                 .eq("id", id)
                 .findUnique();
 
         if(reportType.equals("xlsx")) {
+
             File file = new File(basePath + "tentti_" + exam.getName().toLowerCase().replace(" ", "-") + ".xlsx");
-            FileOutputStream fileOut = null;
-            try {
-                fileOut = new FileOutputStream(file);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
 
             Workbook wb = new XSSFWorkbook();
-            CreationHelper creationHelper = wb.getCreationHelper();
             Sheet sheet = wb.createSheet(exam.getName());
-            CellStyle style = wb.createCellStyle();
 
             Row headerRow = sheet.createRow(0);
             headerRow.createCell(0).setCellValue("Omistaja id");
@@ -179,40 +137,56 @@ public class StatisticsController extends SitnetController {
             dataRow.createCell(15).setCellValue(exam.getInstruction());
             dataRow.createCell(16).setCellValue(exam.isShared());
 
-            try {
-                wb.write(fileOut);
-                fileOut.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            File af = new File(file.getAbsolutePath());
             response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-            return ok(af);
-        }
-        else if(reportType.equals("json")) {
+
+            return ok(com.ning.http.util.Base64.encode(setData(wb, file).toByteArray()));
+
+        } else if(reportType.equals("json")) {
             if (exam == null) {
                 return notFound();
             }
-                JsonContext jsonContext = Ebean.createJsonContext();
-                JsonWriteOptions options = new JsonWriteOptions();
-                options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                        "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
-                options.setPathProperties("parent", "id");
-                options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
-                options.setPathProperties("room", "id, name");
-                options.setPathProperties("attachment", "id, fileName");
-                options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
-                options.setPathProperties("examType", "id, type");
-                options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
-                options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
-                options.setPathProperties("examSections.questions.answer", "type, option, answer");
-                options.setPathProperties("examSections.questions.answer.option", "id, option, correctOption, score");
-                options.setPathProperties("examSections.questions.options", "id, option" );
-                options.setPathProperties("examSections.questions.comments", "id, comment");
-                options.setPathProperties("examFeedback", "id, comment");
 
-                return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
+                    "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
+            options.setPathProperties("parent", "id");
+            options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("room", "id, name");
+            options.setPathProperties("attachment", "id, fileName");
+            options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
+            options.setPathProperties("examType", "id, type");
+            options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
+            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
+            options.setPathProperties("examSections.questions.answer", "type, option, answer");
+            options.setPathProperties("examSections.questions.answer.option", "id, option, correctOption, score");
+            options.setPathProperties("examSections.questions.options", "id, option" );
+            options.setPathProperties("examSections.questions.comments", "id, comment");
+            options.setPathProperties("examFeedback", "id, comment");
+
+            File file = new File(basePath + "tentti_" + exam.getName().toLowerCase().replace(" ", "-") + ".json");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+            try {
+                FileWriter writer = new FileWriter(file);
+                String content = jsonContext.toJsonString(exam, true, options);
+                writer.write(content);
+                InputStream fis = new FileInputStream(file);
+
+                byte[] buf = new byte[1024];
+
+                for (int readNum; (readNum = fis.read(buf)) != -1; ) {
+                    bos.write(buf, 0, readNum);
+                }
+
+                fis.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+
+            response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+            return ok(com.ning.http.util.Base64.encode(bos.toByteArray()));
+            //return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
         }
         else
             return ok("invalid type: "+ reportType);
@@ -324,20 +298,26 @@ public class StatisticsController extends SitnetController {
 
                         sheet.autoSizeColumn(i,true);
 
-                        String type = "";
-                        try {
-                            type = e.getExamType().getType() != null ? e.getExamType().getType() : "";
-                        } catch(Exception ex) {
+                        String type = "",
+                               code = "",
+                               state = "",
+                               examname = "",
+                               credits = "";
 
-                        }
+                        // null checking to prevent excel from failing ->
+                        try { type = e.getExamType().getType() != null ? e.getExamType().getType() : ""; } catch(Exception ex) {}
+                        try { code = e.getCourse().getCode() != null ? e.getCourse().getCode() : ""; } catch(Exception ex) {}
+                        try { state = e.getState() != null ? e.getState() : ""; } catch(Exception ex) {}
+                        try { examname = e.getName() != null ? e.getName() : ""; } catch(Exception ex) {}
+                        try { credits = e.getCourse().getCredits() != null ? Integer.toString(e.getCourse().getCredits().intValue()) : ""; } catch(Exception ex) {}
 
                         switch(i) {
-                            case 0: addCell(dataRow, i, e.getName()); break;
+                            case 0: addCell(dataRow, i, examname); break;
                             case 1: addDateCell(style, dataRow, i, e.getCreated()); break;
-                            case 2: addCell(dataRow, i, e.getState()); break;
-                            case 3: addCell(dataRow, i, e.getCourse().getCode()); break;
+                            case 2: addCell(dataRow, i, state); break;
+                            case 3: addCell(dataRow, i, code); break;
                             case 4: addDateBetweenCell(dataRow, i, e.getExamActiveStartDate(), e.getExamActiveEndDate()); break;
-                            case 5: addCell(dataRow, i, e.getCourse().getCredits() + ""); break;
+                            case 5: addCell(dataRow, i, credits); break;
                             case 6: addCell(dataRow, i, type); break;
                             case 7: addCell(dataRow, i, getMapResult(e.getId(), review) + ""); break;
                             case 8: addCell(dataRow, i, getMapResult(e.getId(), graded) + ""); break;
@@ -468,12 +448,6 @@ public class StatisticsController extends SitnetController {
         // https://svn.apache.org/repos/asf/poi/trunk/src/examples/src/org/apache/poi/xssf/usermodel/examples/CreateCell.java
 
         File file = new File(basePath+"tilavaraukset_"+from.replace(".", "-") +"_"+to.replace(".", "-") +".xlsx");
-        FileOutputStream fileOut = null;
-        try {
-            fileOut = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
 
         Workbook wb = new XSSFWorkbook();
         CreationHelper creationHelper = wb.getCreationHelper();
@@ -538,16 +512,9 @@ public class StatisticsController extends SitnetController {
             dataRow.createCell(15).setCellValue(e.getReservation().getMachine().getRoom().getRoomCode());
         }
 
-        try {
-            wb.write(fileOut);
-            fileOut.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        File af = new File(file.getAbsolutePath());
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(af);
+
+        return ok(com.ning.http.util.Base64.encode(setData(wb, file).toByteArray()));
 
 //        Do not remove this! Really handy for debugging
 //
@@ -595,17 +562,8 @@ public class StatisticsController extends SitnetController {
                 .findList();
 
         File file = new File(basePath+"tenttivastaukset"+from.replace(".", "-") +"_"+to.replace(".", "-") +".xlsx");
-        FileOutputStream fileOut = null;
-        try {
-            fileOut = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
         Workbook wb = new XSSFWorkbook();
-        CreationHelper creationHelper = wb.getCreationHelper();
         Sheet sheet = wb.createSheet("tenttisuoritukset");
-        CellStyle style = wb.createCellStyle();
 
         // Table headings
         Row headerRow = sheet.createRow(0);
@@ -729,16 +687,9 @@ public class StatisticsController extends SitnetController {
 
         }
 
-        try {
-            wb.write(fileOut);
-            fileOut.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        File af = new File(file.getAbsolutePath());
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(af);
+
+        return ok(com.ning.http.util.Base64.encode(setData(wb, file).toByteArray()));
     }
 
     // no route to this method
