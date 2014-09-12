@@ -264,6 +264,9 @@ public class SessionController extends SitnetController {
         String loginType = ConfigFactory.load().getString("sitnet.login");
         if (loginType.equals("HAKA")) {
             Session session = (Session) Cache.get(key);
+            if(session == null) {
+                return ok();
+            }
             session.setValid(false);
             Cache.set(key, session);
         } else {
