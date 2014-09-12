@@ -618,7 +618,7 @@ public class StatisticsController extends SitnetController {
     }
 
 // Hae kaikki tenttivastaukset tällä aikavälillä: palautettavat tiedot ainakin opiskelija/vastausaika/vastauksen status/tentti/opintojaksontunnus/opettaja mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
-//    @Restrict({@Group("ADMIN")})
+    @Restrict({@Group("ADMIN")})
     public static Result reportAllExams(String from, String to) {
 
         final DateTime start = DateTime.parse(from, dateFormat);
@@ -782,8 +782,10 @@ public class StatisticsController extends SitnetController {
             dataRow.createCell(j++).setCellValue(p.getExam().getGrade());
 
             // arvosana annettu pvm
-            dateCell(wb, dataRow, j++, p.getExam().getGradedTime(), "dd.MM.yyyy");
-
+            if(p.getExam().getGradedTime() != null)
+                dateCell(wb, dataRow, j++, p.getExam().getGradedTime(), "dd.MM.yyyy");
+            else
+                dataRow.createCell(j++).setCellValue("");
 //            style.setDataFormat(creationHelper.createDataFormat().getFormat("HH.mm"));
 //            cell = dataRow.createCell(j++);
 //            cell.setCellValue(new Date(p.getExam().getGradedTime().getTime()));

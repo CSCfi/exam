@@ -977,6 +977,9 @@ exams:
     state: GRADED
     examFeedback: *comment_sauli
     grade: 5
+    duration: 90
+    gradedTime: 2014-08-29 16:00:00.123
+
 
   - &alkeidenperusteetReview !!models.Exam
     creator: *sauli
@@ -992,6 +995,8 @@ exams:
     examSections:
     state: REVIEW
     grade: 5
+    duration: 90
+
 
   - &astronomianPerusteet !!models.Exam
     creator: *maika
@@ -1206,18 +1211,24 @@ exam-participations:
     exam: *ooad
     started: 2014-05-23 08:00:00.575
     ended: 2014-05-23 10:00:00.575
+    duration: 1970-01-01 02:00:00.000
+    deadline: 2014-12-23 10:00:00.575
 
   - !!models.ExamParticipation
     user: *sauli
     exam: *alkeidenperusteetGraded
     started: 2014-05-24 08:00:00.575
     ended: 2014-05-24 10:00:00.575
+    duration: 1970-01-01 02:00:00.000
+    deadline: 2014-12-23 10:00:00.575
 
   - !!models.ExamParticipation
     user: *sauli
     exam: *alkeidenperusteetReview
     started: 2014-05-26 08:00:00.575
     ended: 2014-05-26 10:00:00.575
+    duration: 1970-01-01 02:00:00.000
+    deadline: 2014-12-23 10:00:00.575
 
 ################################################################
 
@@ -1401,6 +1412,11 @@ exam-enrolments:
   - &enrolment4 !!models.ExamEnrolment
     user: *orville
     exam: *ooad
+    enrolledOn: 2014-05-03 20:32:04.575
+
+  - &enrolment5 !!models.ExamEnrolment
+    user: *sauli
+    exam: *alkeidenperusteetGraded
     enrolledOn: 2014-05-03 20:32:04.575
 
 ################################################################
