@@ -485,7 +485,12 @@ public class StatisticsController extends SitnetController {
                         case 2: addCell(dataRow, i, e.getExam().getCourse().getCode() + " - " + e.getExam().getCourse().getName()); break;
                         case 3: addDateCell(style, dataRow, i, e.getEnrolledOn()); break;
                         case 4: addDateCell(style, dataRow, i, e.getExam().getGradedTime()); break;
-                        case 5: addCell(dataRow, i, e.getExam().getGradedByUser().getFirstName() + " " + e.getExam().getGradedByUser().getLastName()); break;
+                        case 5:
+                            if(e.getExam().getGradedByUser() != null)
+                                addCell(dataRow, i, e.getExam().getGradedByUser().getFirstName() + " " + e.getExam().getGradedByUser().getLastName());
+                            else
+                                addCell(dataRow, i, "");
+                            break;
                         case 6: addCell(dataRow, i, e.getExam().getCourse().getCredits().toString()); break;
                         case 7: addCell(dataRow, i, e.getExam().getGrade()); break;
                         case 8: addCell(dataRow, i, e.getExam().getCreditType()); break;
@@ -713,13 +718,25 @@ public class StatisticsController extends SitnetController {
             dataRow.createCell(j++).setCellValue(p.getUser().getEmail());
 
             // teacher
-            dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getId());
-            dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getFirstName());
-            dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getLastName());
-            dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getEmail());
-
+            if(p.getExam().getGradedByUser() != null) {
+                dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getId());
+                dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getFirstName());
+                dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getLastName());
+                dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getEmail());
+            }
+            else {
+                dataRow.createCell(j++).setCellValue("");
+                dataRow.createCell(j++).setCellValue("");
+                dataRow.createCell(j++).setCellValue("");
+                dataRow.createCell(j++).setCellValue("");
+            }
             // reservation
-            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getId());
+            if(enrolment.getReservation() != null) {
+                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getId());
+            }
+            else {
+                dataRow.createCell(j++).setCellValue("");
+            }
 
             // varauksen pvm
             dateCell(wb, dataRow, j++, enrolment.getEnrolledOn(), "dd.MM.yyyy");
@@ -734,13 +751,24 @@ public class StatisticsController extends SitnetController {
             dateCell(wb, dataRow, j++, p.getDuration(), "HH.mm");
 
             // tenttitila
-            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getId());
-            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getName());
-            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getRoomCode());
-            // tenttikone
-            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getId());
-            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getName());
-            dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getIpAddress());
+            if (enrolment.getReservation() != null) {
+                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getId());
+                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getName());
+                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getRoomCode());
+                // tenttikone
+                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getId());
+                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getName());
+                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getIpAddress());
+            } else {
+                dataRow.createCell(j++).setCellValue("");
+                dataRow.createCell(j++).setCellValue("");
+                dataRow.createCell(j++).setCellValue("");
+                // tenttikone
+                dataRow.createCell(j++).setCellValue("");
+                dataRow.createCell(j++).setCellValue("");
+                dataRow.createCell(j++).setCellValue("");
+            }
+
 
             dataRow.createCell(j++).setCellValue(p.getExam().getCourse().getName());
             dataRow.createCell(j++).setCellValue(p.getExam().getCourse().getCode());
