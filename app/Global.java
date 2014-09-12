@@ -62,7 +62,7 @@ public class Global extends GlobalSettings {
 
 
 
-        // TODO: WeeklyEmailReport.java unused after this, remove if not needeed
+        // TODO: WeeklyEmailReport.java unused after this
         weeklyEmailReport();
 
 
