@@ -24,10 +24,7 @@ import util.SitnetUtil;
 import util.java.EmailComposer;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ExamController extends SitnetController {
 
@@ -978,12 +975,8 @@ public class ExamController extends SitnetController {
 
         if(SitnetUtil.isOwner(section) || UserController.getLoggedUser().hasRole("ADMIN")) {
 
-            for(AbstractQuestion q : section.getQuestions())
-            {
-                section.getQuestions().remove(q);
-                q.delete();
-            }
             Ebean.deleteManyToManyAssociations(section, "questions");
+
             section.save();
             return ok(Json.toJson(section));
         }
