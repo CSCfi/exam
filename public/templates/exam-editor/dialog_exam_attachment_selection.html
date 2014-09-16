@@ -10,11 +10,15 @@
         <form enctype="multipart/form-data" method="post" ng-submit="ok(); submit(newExam);">
             <input type="file" name="attachment" file-model="attachmentFile">
             <div class="modal-footer">
-                <div class="col-md-3">
-                    <span ng-click="cancel()" class="sitnet-red pointer"><i class="fa fa-arrow-circle-left fa-stack-2x"></i>{{'sitnet_button_cancel' | translate}}</span>
+                <div class="col-md-4">
+                    <a class="sitnet-red" ng-click="cancel()">
+                        <i class="fa fa-arrow-circle-left fa-lg">
+                            <span class="pointer">{{'sitnet_button_cancel' | translate}}</span>
+                        </i>
+                    </a>
                 </div>
-                <div class="col-md-3 col-md-offset-5">
-                    <input type="submit" class="form-control"></input>
+                <div class="col-md-4 col-md-offset-4">
+                    <input type="submit" class="form-control"/>
                 </div>
             </div>
         </form>

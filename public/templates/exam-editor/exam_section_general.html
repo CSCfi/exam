@@ -261,9 +261,9 @@
             <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
             <multiselect class="input-xlarge"
                          multiple="true"
-                         ng-model="newExam.software"
+                         ng-model="newExam.softwares"
                          header="{{'sitnet_select' | translate}}"
-                         multiheader="selectedSoftwares(newExam.software)"
+                         multiheader="selectedSoftwares(newExam)"
                          options="software.id as software.name for software in softwares"
                          change="updateSoftwareInfo(newExam)" >
 

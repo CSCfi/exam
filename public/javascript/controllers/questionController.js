@@ -357,15 +357,19 @@
                                 transformRequest: angular.identity,
                                 headers: {'Content-Type': undefined}
                             })
-                                .success(function (attachment) {
-                                    $modalInstance.dismiss();
-                                    question.attachment = attachment;
-                                })
-                                .error(function (error) {
-                                    $modalInstance.dismiss();
-                                    toastr.error(error);
-                                });
-                        }
+                            .success(function (attachment) {
+                                $modalInstance.dismiss();
+                                question.attachment = attachment;
+                            })
+                            .error(function (error) {
+                                $modalInstance.dismiss();
+                                toastr.error(error);
+                            });
+                        };
+                        // Cancel button is pressed in the modal dialog
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('Canceled');
+                        };
                     };
 
                     var modalInstance = $modal.open({

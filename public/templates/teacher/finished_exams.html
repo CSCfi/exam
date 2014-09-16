@@ -1,9 +1,9 @@
 <div class="col-md-12 row">
-    <div class="col-md-3 exams-table-title-area">
+    <div class="col-md-5 exams-table-title-area">
         <span ng-click="toggleFinishedExams = !toggleFinishedExams" class="exams-list-title-text pull-left pointer">{{ 'sitnet_finished_exams' | translate }}</span>
     </div>
 
-    <div class="col-md-9" ng-init="toggleFinishedExams = true">
+    <div class="col-md-7" ng-init="toggleFinishedExams = true">
         <!-- href="#/rooms/{{room.id}}" -->
         <a ng-click="toggleFinishedExams = !toggleFinishedExams" class="header-icon pull-right fa-stack fa-lg">
             <i class="fa sitnet-white fa-stop fa-stack-2x"></i>

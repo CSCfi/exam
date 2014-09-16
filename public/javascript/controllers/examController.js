@@ -113,7 +113,7 @@
 
                 $scope.updateSoftwareInfo = function () {
 
-                    if($scope.softwaresUpdate && $scope.newExam.softwares.length !== $scope.softwaresUpdate) {
+                    if($scope.newExam.softwares.length !== $scope.softwaresUpdate) {
 
                         ExamRes.machines.reset({eid: $scope.newExam.id});
 
@@ -690,6 +690,10 @@
                                     $modalInstance.dismiss();
                                     toastr.error(error);
                                 });
+                        };
+                        // Cancel button is pressed in the modal dialog
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('Canceled');
                         };
                     };
 
