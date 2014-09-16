@@ -59,26 +59,27 @@
                     $scope.selectedExamRoom = null;
                     $scope.selectedStudent = null;
 
-                    $scope.getReservationsByExam();
-
-                }
+                    if(value != "")
+                        $scope.getReservationsByExam();
+                };
 
                 $scope.setRoom = function (value) {
                     $scope.selectedExamRoom = value;
                     $scope.selectedStudent = null;
                     $scope.selectedExam = null;
 
-                    $scope.getReservationsByRoom();
-
-                }
+                    if(value != "")
+                        $scope.getReservationsByRoom();
+                };
 
                 $scope.setStudent = function (value) {
                     $scope.selectedStudent = value;
                     $scope.selectedExamRoom = null;
                     $scope.selectedExam = null;
 
-                    $scope.getReservationsByStudent();
-                }
+                    if(value != "")
+                        $scope.getReservationsByStudent();
+                };
 
                 $scope.updateReservationsTable = function () {
 
@@ -144,9 +145,10 @@
 
                 };
 
-                $scope.removeReservation = function (value) {
-                    AdminReservationResource.reservationDeletion.remove({id: value}, null,
+                $scope.removeReservation = function (enrolment) {
+                    AdminReservationResource.reservationDeletion.remove({id: enrolment.reservation.id}, null,
                     function (result) {
+                        $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1)
                         $location.path("admin/reservations/")
                     }, function (error) {
                         toastr.error(error.data);

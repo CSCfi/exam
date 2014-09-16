@@ -41,6 +41,9 @@ public class EmailComposer {
     private final static String TEMPLATES_ROOT = Play.application().path().getAbsolutePath() + "/app/assets/template/email/";
 
     private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    private static DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
+    private static DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH:mm");
+
 
     /**
      *
@@ -569,18 +572,15 @@ public class EmailComposer {
          *
          */
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/m/yyyy HH:mm:ss");
-        String dateTime = sdf.format(reservation.getStartAt());
-        String[] dta = dateTime.split(" ");
-        String date = dta[0];
-        String time = dta[1];
+        String date = dateFormat.print(reservation.getStartAt().getTime());
+        String time = timeFormat.print(reservation.getStartAt().getTime());
         String room = reservation.getMachine().getRoom().getName();
 
         Map<String, String> stringValues = new HashMap<String, String>();
         stringValues.put("reservation_date", date);
         stringValues.put("reservation_time", time);
         stringValues.put("room_name", room);
-        stringValues.put("cancellation_information", message);
+        stringValues.put("cancelation_information", (message == null || message.length() < 1 ? "" : "Lisätietoja:<br>"+ message));
 
         String template = null;
         try {

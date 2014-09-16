@@ -1,4 +1,4 @@
-<div id='reservation_details'>
+<div id='reservation_details' class="base row">
     <div class="col-md-12">
         <table class="table table-bordered">
             <thead>
@@ -16,7 +16,7 @@
                     <td>{{enrolment.reservation.machine.room.name}}</td>
                     <td>{{enrolment.exam.name}}</td>
                     <td>{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}}</td>
-                    <td><button ng-click="removeReservation(enrolment.reservation.id)" class="btn btn-primary pull-left">{{'sitnet_remove_reservation' | translate}}</button></td>
+                    <td><button ng-click="removeReservation(enrolment)" class="btn btn-primary pull-left">{{'sitnet_remove_reservation' | translate}}</button></td>
                 </tr>
             </tbody>
         </table>
