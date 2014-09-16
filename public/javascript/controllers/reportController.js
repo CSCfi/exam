@@ -75,6 +75,28 @@
                     }
                 };
 
+                $scope.getExamAnswerReport = function (from, to) {
+
+                    var f = $filter("date")(from, "dd.MM.yyyy");
+                    var t = $filter("date")(to, "dd.MM.yyyy");
+
+                    $http({method: 'GET', url: 'statistics/allexams/' + f + '/' + t}).
+                        success(function (data, status, headers, config) {
+
+                            var element = angular.element('<a/>');
+                            element.attr({
+                                href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
+                                target: '_blank',
+                                download: 'tentti_vastaukset_' + f + '_' + t + '.xlsx'
+                            })[0].click();
+
+                        }).
+                        error(function (data, status, headers, config) {
+                            // if there's an error you should see it here
+                        });
+
+                };
+
                 $scope.exam_json;
                 $scope.exam_xlsx;
 

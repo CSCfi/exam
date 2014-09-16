@@ -321,6 +321,7 @@ public class ExamController extends SitnetController {
                 .fetch("course")
                 .fetch("examSections")
                 .fetch("examSections.questions")
+                .fetch("softwares")
                 .where()
                 .eq("id", id)
                 .orderBy("examSections.id, id desc")
@@ -336,11 +337,12 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment, creator");
+                    "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment, creator, softwares");
             options.setPathProperties("creator", "id, firstName, lastName");
             options.setPathProperties("parent", "id");
             options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
             options.setPathProperties("room", "id, name");
+            options.setPathProperties("softwares", "id, name");
             options.setPathProperties("attachment", "id, fileName");
             options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examType", "id, type");
@@ -555,6 +557,7 @@ public class ExamController extends SitnetController {
                 .fetch("course")
                 .fetch("examSections")
                 .fetch("room")
+                .fetch("softwares")
                 .where()
                 .eq("id", id)
                 .findUnique();
@@ -658,8 +661,9 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded");
+                    "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, softwares");
             options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("softwares", "id, name");
             options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examType", "id, type");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
@@ -674,6 +678,27 @@ public class ExamController extends SitnetController {
             return forbidden("You are not allowed to modify this object");
         }
    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result resetExamSoftwareInfo(Long eid) throws MalformedDataException {
+        Exam exam = Ebean.find(Exam.class, eid);
+
+        exam.getSoftwareInfo().clear();
+        exam.update();
+
+        return ok(Json.toJson(exam));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result updateExamSoftwareInfo(Long eid, Long sid) throws MalformedDataException {
+        Exam exam = Ebean.find(Exam.class, eid);
+        Software software = Ebean.find(Software.class, sid);
+
+        exam.getSoftwareInfo().add(software);
+        exam.update();
+
+        return ok(Json.toJson(exam));
+    }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result createExamDraft() throws MalformedDataException {

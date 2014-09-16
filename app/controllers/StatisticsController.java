@@ -112,16 +112,28 @@ public class StatisticsController extends SitnetController {
             headerRow.createCell(16).setCellValue("jaettu");
 
             Row dataRow = sheet.createRow(1);
-            dataRow.createCell(0).setCellValue(exam.getCreator().getId());
-            dataRow.createCell(1).setCellValue(exam.getCreator().getFirstName());
-            dataRow.createCell(2).setCellValue(exam.getCreator().getLastName());
-
-            dataRow.createCell(3).setCellValue(exam.getCourse().getId());
-            dataRow.createCell(4).setCellValue(exam.getCourse().getName());
-            dataRow.createCell(5).setCellValue(exam.getCourse().getCredits());
-            dataRow.createCell(6).setCellValue(exam.getCourse().getType() == null ? "NULL" : exam.getCourse().getType().getCode());   // what is this, after integratio ?
-            dataRow.createCell(7).setCellValue(exam.getCourse().getLevel());
-
+            if(exam.getCreator() != null) {
+                dataRow.createCell(0).setCellValue(exam.getCreator().getId() != null ? exam.getCreator().getId().toString() : "");
+                dataRow.createCell(1).setCellValue(exam.getCreator().getFirstName() != null ? exam.getCreator().getFirstName() : "");
+                dataRow.createCell(2).setCellValue(exam.getCreator().getLastName() != null ? exam.getCreator().getLastName() : "");
+            } else {
+                dataRow.createCell(0).setCellValue("");
+                dataRow.createCell(1).setCellValue("");
+                dataRow.createCell(2).setCellValue("");
+            }
+            if(exam.getCourse() != null) {
+                dataRow.createCell(3).setCellValue(exam.getCourse().getId() == null ? "" : exam.getCourse().getId().toString());
+                dataRow.createCell(4).setCellValue(exam.getCourse().getName() == null ? "" : exam.getCourse().getName());
+                dataRow.createCell(5).setCellValue(exam.getCourse().getCredits() == null ? "" : Integer.toString(exam.getCourse().getCredits().intValue()));
+                dataRow.createCell(6).setCellValue(exam.getCourse().getType() == null ? "NULL" : exam.getCourse().getType().getCode());   // what is this, after integratio ?
+                dataRow.createCell(7).setCellValue(exam.getCourse().getLevel() == null ? "" : exam.getCourse().getLevel());
+            } else {
+                dataRow.createCell(3).setCellValue("");
+                dataRow.createCell(4).setCellValue("");
+                dataRow.createCell(5).setCellValue("");
+                dataRow.createCell(6).setCellValue("");   // what is this, after integratio ?
+                dataRow.createCell(7).setCellValue("");
+            }
             dateCell(wb, dataRow, 8, exam.getCreated(), "dd.MM.yyyy");
             dateCell(wb, dataRow, 9, exam.getExamActiveStartDate(), "dd.MM.yyyy");
             dateCell(wb, dataRow, 10, exam.getExamActiveEndDate(), "dd.MM.yyyy");
@@ -305,11 +317,11 @@ public class StatisticsController extends SitnetController {
                                credits = "";
 
                         // null checking to prevent excel from failing ->
-                        try { type = e.getExamType().getType() != null ? e.getExamType().getType() : ""; } catch(Exception ex) {}
-                        try { code = e.getCourse().getCode() != null ? e.getCourse().getCode() : ""; } catch(Exception ex) {}
-                        try { state = e.getState() != null ? e.getState() : ""; } catch(Exception ex) {}
-                        try { examname = e.getName() != null ? e.getName() : ""; } catch(Exception ex) {}
-                        try { credits = e.getCourse().getCredits() != null ? Integer.toString(e.getCourse().getCredits().intValue()) : ""; } catch(Exception ex) {}
+                        type = e.getExamType() != null && e.getExamType().getType() != null ? e.getExamType().getType() : "";
+                        code = e.getCourse() != null && e.getCourse().getCode() != null ? e.getCourse().getCode() : "";
+                        state = e.getState() != null ? e.getState() : "";
+                        examname = e.getName() != null ? e.getName() : "";
+                        credits = e.getCourse() != null && e.getCourse().getCredits() != null ? Integer.toString(e.getCourse().getCredits().intValue()) : "";
 
                         switch(i) {
                             case 0: addCell(dataRow, i, examname); break;
@@ -396,12 +408,45 @@ public class StatisticsController extends SitnetController {
 
                     sheet.autoSizeColumn(i,true);
 
-                    switch(i) {
-                        case 0: addCell(dataRow, i, e.getUser().getFirstName() + " " + e.getUser().getLastName()); break;
-                        case 1: addCell(dataRow, i, e.getUser().getIdentifier()); break;
-                        case 2: addCell(dataRow, i, e.getUser().getEppn()); break;
-                        case 3: addDateCell(style, dataRow, i, e.getReservation().getStartAt()); break;
-                        case 4: addDateCell(style, dataRow, i, e.getEnrolledOn()); break;
+                    if(e.getUser() != null) {
+                        switch(i) {
+                            case 0: addCell(dataRow, i, e.getUser().getFirstName() + " " + e.getUser().getLastName()); break;
+                            case 1: addCell(dataRow, i, e.getUser().getIdentifier() == null ? "" : e.getUser().getIdentifier()); break;
+                            case 2: addCell(dataRow, i, e.getUser().getEppn() == null ? "" : e.getUser().getEppn()); break;
+                            case 3:
+                                if(e.getReservation() == null || e.getReservation().getStartAt() == null) {
+                                    addCell(dataRow, i, "");
+                                } else {
+                                    addDateCell(style, dataRow, i, e.getReservation().getStartAt());
+                                }
+                                break;
+                            case 4:
+                                if(e.getEnrolledOn() == null) {
+                                    addCell(dataRow, i, "");
+                                } else {
+                                    addDateCell(style, dataRow, i, e.getEnrolledOn());
+                                }
+                                break;
+                        }
+                    } else {
+                        switch(i) {
+                            case 0: case 1: case 2: addCell(dataRow, i, ""); break;
+
+                            case 3:
+                                if(e.getReservation() == null || e.getReservation().getStartAt() == null) {
+                                    addCell(dataRow, i, "");
+                                } else {
+                                    addDateCell(style, dataRow, i, e.getReservation().getStartAt());
+                                }
+                                break;
+                            case 4:
+                                if(e.getEnrolledOn() == null) {
+                                    addCell(dataRow, i, "");
+                                } else {
+                                    addDateCell(style, dataRow, i, e.getEnrolledOn());
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -479,22 +524,42 @@ public class StatisticsController extends SitnetController {
 
                     sheet.autoSizeColumn(i,true);
 
+                    String code = "",
+                           courseName = "",
+                           credits = "";
+
+                    code = e.getExam().getCourse() == null || e.getExam().getCourse().getCode() == null ? "" : e.getExam().getCourse().getCode();
+                    courseName = e.getExam().getCourse() == null || e.getExam().getCourse().getName() == null ? "" : e.getExam().getCourse().getName();
+                    credits = e.getExam().getCourse() == null || e.getExam().getCourse().getCredits() == null ? "" : Integer.toString(e.getExam().getCourse().getCredits().intValue());
+
                     switch(i) {
                         case 0: addCell(dataRow, i, e.getUser().getFirstName() + " " + e.getUser().getLastName()); break;
-                        case 1: addCell(dataRow, i, e.getExam().getName()); break;
-                        case 2: addCell(dataRow, i, e.getExam().getCourse().getCode() + " - " + e.getExam().getCourse().getName()); break;
-                        case 3: addDateCell(style, dataRow, i, e.getEnrolledOn()); break;
-                        case 4: addDateCell(style, dataRow, i, e.getExam().getGradedTime()); break;
+                        case 1: addCell(dataRow, i, e.getExam().getName() == null ? "" : e.getExam().getName()); break;
+                        case 2: addCell(dataRow, i, code + " - " + courseName); break;
+                        case 3:
+                            if(e.getEnrolledOn() == null) {
+                                addCell(dataRow, i, "");
+                            } else {
+                                addDateCell(style, dataRow, i, e.getEnrolledOn());
+                            }
+                            break;
+                        case 4:
+                            if(e.getExam().getGradedTime() == null) {
+                                addCell(dataRow, i, "");
+                            } else {
+                                addDateCell(style, dataRow, i, e.getExam().getGradedTime());
+                            }
+                            break;
                         case 5:
                             if(e.getExam().getGradedByUser() != null)
                                 addCell(dataRow, i, e.getExam().getGradedByUser().getFirstName() + " " + e.getExam().getGradedByUser().getLastName());
                             else
                                 addCell(dataRow, i, "");
                             break;
-                        case 6: addCell(dataRow, i, e.getExam().getCourse().getCredits().toString()); break;
-                        case 7: addCell(dataRow, i, e.getExam().getGrade()); break;
-                        case 8: addCell(dataRow, i, e.getExam().getCreditType()); break;
-                        case 9: addCell(dataRow, i, e.getExam().getExamLanguage()); break;
+                        case 6: addCell(dataRow, i, credits); break;
+                        case 7: addCell(dataRow, i, e.getExam().getGrade() != null ? e.getExam().getGrade() : ""); break;
+                        case 8: addCell(dataRow, i, e.getExam().getCreditType() != null ? e.getExam().getCreditType() : ""); break;
+                        case 9: addCell(dataRow, i, e.getExam().getExamLanguage() != null ? e.getExam().getExamLanguage() : ""); break;
                     }
                 }
             }
@@ -586,13 +651,23 @@ public class StatisticsController extends SitnetController {
             cell.setCellValue(new Date(e.getReservation().getStartAt().getTime()));
             cell.setCellStyle(style);
 
-            dataRow.createCell(10).setCellValue(e.getReservation().getMachine().getId());
-            dataRow.createCell(11).setCellValue(e.getReservation().getMachine().getName());
-            dataRow.createCell(12).setCellValue(e.getReservation().getMachine().getIpAddress());
+            if(e.getReservation() == null) {
+                dataRow.createCell(10).setCellValue("");
+                dataRow.createCell(11).setCellValue("");
+                dataRow.createCell(12).setCellValue("");
 
-            dataRow.createCell(13).setCellValue(e.getReservation().getMachine().getRoom().getId());
-            dataRow.createCell(14).setCellValue(e.getReservation().getMachine().getRoom().getName());
-            dataRow.createCell(15).setCellValue(e.getReservation().getMachine().getRoom().getRoomCode());
+                dataRow.createCell(13).setCellValue("");
+                dataRow.createCell(14).setCellValue("");
+                dataRow.createCell(15).setCellValue("");
+            } else {
+                dataRow.createCell(10).setCellValue(e.getReservation().getMachine().getId());
+                dataRow.createCell(11).setCellValue(e.getReservation().getMachine().getName());
+                dataRow.createCell(12).setCellValue(e.getReservation().getMachine().getIpAddress());
+
+                dataRow.createCell(13).setCellValue(e.getReservation().getMachine().getRoom().getId());
+                dataRow.createCell(14).setCellValue(e.getReservation().getMachine().getRoom().getName());
+                dataRow.createCell(15).setCellValue(e.getReservation().getMachine().getRoom().getRoomCode());
+            }
         }
 
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
@@ -644,7 +719,7 @@ public class StatisticsController extends SitnetController {
                 */
                 .findList();
 
-        File file = new File(basePath+"tenttivastaukset"+from.replace(".", "-") +"_"+to.replace(".", "-") +".xlsx");
+        File file = new File(basePath + "tenttivastaukset" + from.replace(".", "-") + "_" + to.replace(".", "-") + ".xlsx");
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("tenttisuoritukset");
 
@@ -692,107 +767,132 @@ public class StatisticsController extends SitnetController {
         headerRow.createCell(i++).setCellValue("arvioitu pvm");
         headerRow.createCell(i++).setCellValue("Suoritustyyppi");
 
+        if(!CollectionUtils.isEmpty(participations)) {
+            for (ExamParticipation p : participations) {
 
-        for(ExamParticipation p: participations) {
+                int j = 0;
 
-            int j = 0;
+                ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                        .fetch("user")
+                        .fetch("exam")
+                        .fetch("exam.gradedByUser")
+                        .fetch("reservation")
+                        .fetch("reservation.machine")
+                        .fetch("reservation.machine.room")
+                        .where()
+                        .eq("user.id", p.getUser().getId())
+                        .eq("exam.id", p.getExam().getId())
+                        .findUnique();
 
-            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                    .fetch("user")
-                    .fetch("exam")
-                    .fetch("exam.gradedByUser")
-                    .fetch("reservation")
-                    .fetch("reservation.machine")
-                    .fetch("reservation.machine.room")
-                    .where()
-                    .eq("user.id", p.getUser().getId())
-                    .eq("exam.id", p.getExam().getId())
-                    .findUnique();
+                Row dataRow = sheet.createRow(participations.indexOf(p) + 1);
 
-            Row dataRow = sheet.createRow(participations.indexOf(p)+1);
+                // student
+                if (p.getUser() != null) {
+                    dataRow.createCell(j++).setCellValue(p.getUser().getId());
+                    dataRow.createCell(j++).setCellValue(p.getUser().getFirstName());
+                    dataRow.createCell(j++).setCellValue(p.getUser().getLastName());
+                    dataRow.createCell(j++).setCellValue(p.getUser().getEmail());
+                }
+                // teacher
+                if (p.getExam().getGradedByUser() != null) {
+                    dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getId());
+                    dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getFirstName());
+                    dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getLastName());
+                    dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getEmail());
+                } else {
+                    dataRow.createCell(j++).setCellValue("");
+                    dataRow.createCell(j++).setCellValue("");
+                    dataRow.createCell(j++).setCellValue("");
+                    dataRow.createCell(j++).setCellValue("");
+                }
+                // reservation
+                if (enrolment.getReservation() != null) {
+                    dataRow.createCell(j++).setCellValue(enrolment.getReservation().getId());
+                } else {
+                    dataRow.createCell(j++).setCellValue("");
+                }
 
-            // student
-            dataRow.createCell(j++).setCellValue(p.getUser().getId());
-            dataRow.createCell(j++).setCellValue(p.getUser().getFirstName());
-            dataRow.createCell(j++).setCellValue(p.getUser().getLastName());
-            dataRow.createCell(j++).setCellValue(p.getUser().getEmail());
+                // varauksen pvm
+                if (enrolment.getEnrolledOn() == null) {
+                    dataRow.createCell(j++).setCellValue("");
+                } else {
+                    dateCell(wb, dataRow, j++, enrolment.getEnrolledOn(), "dd.MM.yyyy");
+                }
+                // tentti alkoi
+                if (p.getStarted() == null) {
+                    dataRow.createCell(j++).setCellValue("");
+                } else {
+                    dateCell(wb, dataRow, j++, p.getStarted(), "HH:mm");
+                }
+                // tentti loppui
+                if (p.getEnded() == null) {
+                    dataRow.createCell(j++).setCellValue("");
+                } else {
+                    dateCell(wb, dataRow, j++, p.getEnded(), "HH:mm");
+                }
 
-            // teacher
-            if(p.getExam().getGradedByUser() != null) {
-                dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getId());
-                dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getFirstName());
-                dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getLastName());
-                dataRow.createCell(j++).setCellValue(p.getExam().getGradedByUser().getEmail());
+                // suoritus kesti
+                if (p.getDuration() == null) {
+                    dataRow.createCell(j++).setCellValue("");
+                } else {
+                    dateCell(wb, dataRow, j++, p.getDuration(), "HH.mm");
+                }
+
+                // tenttitila
+                if (enrolment.getReservation() != null) {
+                    if (enrolment.getReservation().getMachine() == null || enrolment.getReservation().getMachine().getRoom() == null) {
+                        dataRow.createCell(j++).setCellValue("");
+                        dataRow.createCell(j++).setCellValue("");
+                        dataRow.createCell(j++).setCellValue("");
+
+                        dataRow.createCell(j++).setCellValue("");
+                        dataRow.createCell(j++).setCellValue("");
+                        dataRow.createCell(j++).setCellValue("");
+                    } else {
+                        dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getId().toString());
+                        dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getName() == null ? "" : enrolment.getReservation().getMachine().getRoom().getName());
+                        dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getRoomCode() == null ? "" : enrolment.getReservation().getMachine().getRoom().getRoomCode());
+
+                        // tenttikone
+                        dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getId());
+                        dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getName() == null ? "" : enrolment.getReservation().getMachine().getName());
+                        dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getIpAddress() == null ? "" : enrolment.getReservation().getMachine().getIpAddress());
+                    }
+                } else {
+                    dataRow.createCell(j++).setCellValue("");
+                    dataRow.createCell(j++).setCellValue("");
+                    dataRow.createCell(j++).setCellValue("");
+                    // tenttikone
+                    dataRow.createCell(j++).setCellValue("");
+                    dataRow.createCell(j++).setCellValue("");
+                    dataRow.createCell(j++).setCellValue("");
+                }
+
+                if (p.getExam().getCourse() == null) {
+                    dataRow.createCell(j++).setCellValue("");
+                    dataRow.createCell(j++).setCellValue("");
+                } else {
+                    dataRow.createCell(j++).setCellValue(p.getExam().getCourse().getName() == null ? "" : p.getExam().getCourse().getName());
+                    dataRow.createCell(j++).setCellValue(p.getExam().getCourse().getCode() == null ? "" : p.getExam().getCourse().getCode());
+                }
+                dataRow.createCell(j++).setCellValue(p.getExam().getId());
+                dataRow.createCell(j++).setCellValue(p.getExam().getName() == null ? "" : p.getExam().getName());
+                dataRow.createCell(j++).setCellValue(p.getExam().getDuration() == null ? "" : p.getExam().getDuration().toString());
+                dataRow.createCell(j++).setCellValue(p.getExam().getState() == null ? "" : p.getExam().getState());
+                dataRow.createCell(j++).setCellValue(p.getExam().getTotalScore() == null ? "" : p.getExam().getTotalScore().toString());
+                dataRow.createCell(j++).setCellValue(p.getExam().getGrading() == null ? "" : p.getExam().getGrading());
+                dataRow.createCell(j++).setCellValue(p.getExam().getGrade() == null ? "" : p.getExam().getGrade());
+
+                // arvosana annettu pvm
+                if (p.getExam().getGradedTime() != null) {
+                    dateCell(wb, dataRow, j++, p.getExam().getGradedTime(), "dd.MM.yyyy");
+                } else {
+                    dataRow.createCell(j++).setCellValue("");
+                }
+
+                dataRow.createCell(j++).setCellValue(p.getExam().getCreditType() == null ? "" : p.getExam().getCreditType());
+
             }
-            else {
-                dataRow.createCell(j++).setCellValue("");
-                dataRow.createCell(j++).setCellValue("");
-                dataRow.createCell(j++).setCellValue("");
-                dataRow.createCell(j++).setCellValue("");
-            }
-            // reservation
-            if(enrolment.getReservation() != null) {
-                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getId());
-            }
-            else {
-                dataRow.createCell(j++).setCellValue("");
-            }
-
-            // varauksen pvm
-            dateCell(wb, dataRow, j++, enrolment.getEnrolledOn(), "dd.MM.yyyy");
-
-            // tentti alkoi
-            dateCell(wb, dataRow, j++, p.getStarted(), "HH:mm");
-
-            // tentti loppui
-            dateCell(wb, dataRow, j++, p.getEnded(), "HH:mm");
-
-            // suoritus kesti
-            dateCell(wb, dataRow, j++, p.getDuration(), "HH.mm");
-
-            // tenttitila
-            if (enrolment.getReservation() != null) {
-                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getId());
-                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getName());
-                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getRoom().getRoomCode());
-                // tenttikone
-                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getId());
-                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getName());
-                dataRow.createCell(j++).setCellValue(enrolment.getReservation().getMachine().getIpAddress());
-            } else {
-                dataRow.createCell(j++).setCellValue("");
-                dataRow.createCell(j++).setCellValue("");
-                dataRow.createCell(j++).setCellValue("");
-                // tenttikone
-                dataRow.createCell(j++).setCellValue("");
-                dataRow.createCell(j++).setCellValue("");
-                dataRow.createCell(j++).setCellValue("");
-            }
-
-
-            dataRow.createCell(j++).setCellValue(p.getExam().getCourse().getName());
-            dataRow.createCell(j++).setCellValue(p.getExam().getCourse().getCode());
-
-            dataRow.createCell(j++).setCellValue(p.getExam().getId());
-            dataRow.createCell(j++).setCellValue(p.getExam().getName());
-            dataRow.createCell(j++).setCellValue(p.getExam().getDuration());
-            dataRow.createCell(j++).setCellValue(p.getExam().getState());
-            dataRow.createCell(j++).setCellValue(p.getExam().getTotalScore());
-            dataRow.createCell(j++).setCellValue(p.getExam().getGrading());
-            dataRow.createCell(j++).setCellValue(p.getExam().getGrade());
-
-            // arvosana annettu pvm
-            if(p.getExam().getGradedTime() != null)
-                dateCell(wb, dataRow, j++, p.getExam().getGradedTime(), "dd.MM.yyyy");
-            else
-                dataRow.createCell(j++).setCellValue("");
-//            style.setDataFormat(creationHelper.createDataFormat().getFormat("HH.mm"));
-//            cell = dataRow.createCell(j++);
-//            cell.setCellValue(new Date(p.getExam().getGradedTime().getTime()));
-//            cell.setCellStyle(style);
-
-            dataRow.createCell(j++).setCellValue(p.getExam().getCreditType());
-
         }
 
         response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");

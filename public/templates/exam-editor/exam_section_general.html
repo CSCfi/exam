@@ -263,9 +263,9 @@
                          multiple="true"
                          ng-model="newExam.software"
                          header="{{'sitnet_select' | translate}}"
-                         multiheader="selectedSoftwares(newExam)"
-                         options="software.name for software in availableSoftare"
-                         change="updateSoftware(exam)" >
+                         multiheader="selectedSoftwares(newExam.software)"
+                         options="software.id as software.name for software in softwares"
+                         change="updateSoftwareInfo(newExam)" >
 
             </multiselect>
         </div>

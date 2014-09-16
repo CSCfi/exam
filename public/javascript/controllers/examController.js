@@ -27,13 +27,6 @@
                 // SIT-367, temporarily removed Room selection from exam
 //                $scope.examRooms = RoomResource.rooms.query();
 
-                $scope.softwares = SoftwareResource.softwares.query();
-
-                $scope.selectedSoftwares = function (machine) {
-                    return machine.softwareInfo.map(function (software) {
-                        return software.name;
-                    }).join(", ");
-                };
 
                 // Todo: Fill in durations from database for final version
                 $scope.examDurations = [
@@ -78,6 +71,7 @@
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
                             $scope.newExam = exam;
+                            $scope.softwaresUpdate = $scope.newExam.softwares.length;
 
                             if ($scope.newExam.examLanguage === null) {
                                 $scope.newExam.examLanguage = $scope.examLanguages[0];
@@ -108,6 +102,30 @@
                         }
                     );
                 }
+
+                $scope.softwares = SoftwareResource.softwares.query();
+
+                $scope.selectedSoftwares = function (exam) {
+                    return exam.softwares.map(function (software) {
+                        return software.name;
+                    }).join(", ");
+                };
+
+                $scope.updateSoftwareInfo = function () {
+
+                    if($scope.softwaresUpdate && $scope.newExam.softwares.length !== $scope.softwaresUpdate) {
+
+                        ExamRes.machines.reset({eid: $scope.newExam.id});
+
+                        angular.forEach($scope.newExam.softwares, function (software) {
+                            ExamRes.machine.add({eid: $scope.newExam.id, sid: software.id});
+                        });
+                        toastr.info("Tentin ohjelmistot päivitetty.");
+                        $scope.selectedSoftwares($scope.newExam);
+
+                        $scope.softwaresUpdate = $scope.newExam.softwares.length;
+                    }
+                };
 
                 $scope.openInspectorModal = function () {
 

@@ -32,15 +32,15 @@
                     $location.path("/rooms/");
                 };
 
-                $scope.updateSoftwareInfo = function (machine) {
+                $scope.updateSoftwareInfo = function () {
 
-                    SoftwareResource.machines.reset({mid: machine.id});
+                    SoftwareResource.machines.reset({mid: $scope.machine.id});
 
-                    angular.forEach(machine.softwareInfo, function(software) {
-                        SoftwareResource.machine.add({mid: machine.id, sid: software.id});
+                    angular.forEach($scope.machine.softwareInfo, function(software) {
+                        SoftwareResource.machine.add({mid: $scope.machine.id, sid: software.id});
                     });
                     toastr.info("Tenttikone päivitetty.");
-                    $scope.selectedSoftwares(machine);
+                    $scope.selectedSoftwares($scope.machine);
                 };
 
 

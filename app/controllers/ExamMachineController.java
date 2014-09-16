@@ -85,7 +85,7 @@ public class ExamMachineController extends SitnetController {
     public static Result resetExamMachineSoftwareInfo(Long mid) throws MalformedDataException {
         ExamMachine machine = Ebean.find(ExamMachine.class, mid);
 
-        machine.setSoftwareInfo(null);
+        machine.getSoftwareInfo().clear();
         machine.update();
 
         return ok(Json.toJson(machine));
@@ -97,6 +97,7 @@ public class ExamMachineController extends SitnetController {
         Software software = Ebean.find(Software.class, sid);
 
         machine.getSoftwareInfo().add(software);
+        machine.update();
 
         return ok(Json.toJson(machine));
     }

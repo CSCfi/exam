@@ -25,7 +25,7 @@
 
                         var element = angular.element('<a/>');
                         element.attr({
-                            href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                            href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
                             target: '_blank',
                             download: question.attachment.fileName
                         })[0].click();
@@ -57,7 +57,7 @@
 
                         var element = angular.element('<a/>');
                         element.attr({
-                            href: 'data:attachment;charset=utf-8; base64,' + encodeURI(data),
+                            href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
                             target: '_blank',
                             download: exam.attachment.fileName
                         })[0].click();

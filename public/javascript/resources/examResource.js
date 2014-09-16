@@ -213,6 +213,22 @@
                 saveRecord: $resource("/exam/record", null,
                 {
                     "add": {method: "POST"}
+                }),
+                machines: $resource("exam/resetsoftware/:eid",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "reset": {method: "PUT"}
+                }),
+
+                machine: $resource("/exam/:eid/software/:sid",
+                {
+                    eid: "@eid",
+                    sid: "@sid"
+                },
+                {
+                    "add": {method: "PUT"}
                 })
             };
         }]);

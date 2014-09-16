@@ -84,17 +84,28 @@
         <div class="top-padding-2">
             <!-- INSTRUCTIONS -->
             {{ currentLanguage }}
-            <a class="col-md-12 sidebutton" popover-placement="left" popover-trigger="click" popover="{{ currentLanguageText }}"> <!-- room instructions -->
-                <i class="fa fa-info-circle">
-                <span class="italic">{{'sitnet_room_guidance' | translate}}</span></i>
-            </a>
+            <div class="bottom-padding-2">
+                <a class="col-md-12 sidebutton" popover-placement="left" popover-trigger="click" popover="{{ currentLanguageText }}"> <!-- room instructions -->
+                    <i class="fa fa-info-circle">
+                    <span class="italic">{{'sitnet_room_guidance' | translate}}</span></i>
+                </a>
+                <!-- exam attachment -->
+                <div ng-show="doexam.parent.attachment !== null" class="col-md-12 bottom-padding-2" ng-controller="AttachmentController">
+                    <a class="sidebutton" ng-click="downloadExamAttachment(doexam.parent)">
+                        <i class="fa fa-file-o">
+                            <span class="italic">{{'sitnet_exam_attacment' | translate}}</span>
+                        </i>
+                    </a>
+                    <span class="sitnet-text-medium small" style="font-style: normal"> ({{doexam.parent.attachment.fileName}}) </span>
+                </div>
+            </div>
             <!-- SAVE EXAM BUTTON -->
-            <a class="col-md-12 sidebutton" href="#/logout">
+            <a class="col-md-12 sidebutton top-padding-2" href="#/logout">
                 <i class="fa fa-sign-out">
                 <span class="italic">{{'sitnet_logout' | translate}}</span></i>
             </a>
             <!-- ABORT EXAM BUTTON -->
-            <a class="col-md-12 top-padding-2" ng-click="abortExam(doexam)">
+            <a class="col-md-12" ng-click="abortExam(doexam)">
                  <i class="fa fa-ban sidebutton-alarm">
                  <span class="italic">{{'sitnet_abort_exam' | translate}}</span></i>
             </a>

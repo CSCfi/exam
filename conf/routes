@@ -63,6 +63,9 @@ POST          /exams/:eid/section/:sid/question/:qid                           c
 DELETE        /exams/:eid/section/:sid/question/:qid                           controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
 GET           /draft                                                           controllers.ExamController.createExamDraft()
 
+PUT           /exam/:eid/software/:sid                                		   controllers.ExamController.updateExamSoftwareInfo(eid: Long, sid: Long)
+PUT           /exam/resetsoftware/:eid                                         controllers.ExamController.resetExamSoftwareInfo(eid: Long)
+
 GET           /enrolments                                                      controllers.ExamController.getEnrolments()
 GET           /inspections                                                     controllers.ExamController.getInspections()
 
@@ -210,7 +213,7 @@ GET           /statistics/reviewsbydate/:from/:to                              c
 GET           /statistics/teacherexamsbydate/:uid/:from/:to                    controllers.StatisticsController.getTeacherExamsByDate(uid: Long, from: String, to: String)
 GET           /statistics/examnames                                            controllers.StatisticsController.getExamNames()
 GET           /statistics/examnames/:id/:reportType                            controllers.StatisticsController.getExam(id: Long, reportType: String)
-GET           /statistics/examenrollments/:id	   	  	                       controllers.StatisticsController.getExamEnrollments(id: Long)
+GET           /statistics/examenrollments/:id                                  controllers.StatisticsController.getExamEnrollments(id: Long)
 
 ############### test test test test test###############
 POST          /test                                                            controllers.TestController.addQuestion()
