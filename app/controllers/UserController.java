@@ -173,7 +173,7 @@ public class UserController extends SitnetController {
 
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, email, firstName, lastName, roles, userLanguage");
+            options.setRootPathProperties("id, email, firstName, lastName, roles, userLanguage, hasAcceptedUserAgreament");
             options.setPathProperties("roles", "name");
 
             return ok(jsonContext.toJsonString(user, true, options)).as("application/json");

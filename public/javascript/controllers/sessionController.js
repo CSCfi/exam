@@ -125,6 +125,7 @@
                             header = {};
                         header[SITNET_CONF.AUTH_HEADER] = user.token;
                         $http.defaults.headers.common = header;
+
                         var sessionUser = {
                             id: user.id,
                             firstname: user.firstname,
@@ -134,29 +135,31 @@
                             isTeacher: (hasRole(user, 'TEACHER')),
                             isLoggedOut : false,
                             token: user.token,
-                            eulaAccepted: user.eulaAccepted
+                            hasAcceptedUserAgreament: user.hasAcceptedUserAgreament
                         };
+
                         $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = sessionUser;
                         $scope.session.user = sessionUser;
                         authService.loginConfirmed();
                         $rootScope.$broadcast('userUpdated');
                         toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
+
                         if (sessionUser.isStudent) {
 
-                            if (!sessionUser.eulaAccepted) {
+                            if (!sessionUser.hasAcceptedUserAgreament) {
 
                                 var modalInstance = $modal.open({
 
                                     templateUrl: 'assets/templates/dialogs/show_eula.html',
                                     backdrop: 'static',
                                     keyboard: false,
-                                    controller: function($scope, $modalInstance) {
+                                    controller: function($scope, $modalInstance, sessionService) {
 
                                         $scope.ok = function(){
                                             console.log("ok")
                                             // OK button
                                             UserRes.updateAgreementAccepted.update({id: sessionUser.id}, function (user) {
-                                                $scope.session.user = user;
+                                                sessionService.user = user;
                                             }, function (error) {
                                                 toastr.error(error.data);
                                             });
