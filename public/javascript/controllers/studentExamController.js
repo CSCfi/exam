@@ -144,26 +144,39 @@
                 }
 
                 $scope.activateExam = function (exam) {
-                    $scope.doexam = exam;
-                    var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/dialog_terms_of_use.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: "ModalInstanceCtrl"
-                    });
 
-                    modalInstance.result.then(function () {
-                        $http.get('/student/doexam/' + $scope.doexam.hash)
-                            .success(function (clonedExam) {
-                                $scope.clonedExam = clonedExam;
-                                $location.path('/student/doexam/' + clonedExam.hash);
-                            }).
-                            error(function (error) {
-                                console.log('Error happened: ' + error);
-                            });
-                    }, function () {
-                        console.log('Modal dismissed at: ' + new Date());
-                    });
+                    $scope.doexam = exam;
+
+                    $http.get('/student/doexam/' + $scope.doexam.hash)
+                        .success(function (clonedExam) {
+                            $scope.clonedExam = clonedExam;
+                            $location.path('/student/doexam/' + clonedExam.hash);
+                        }).
+                        error(function (error) {
+                            console.log('Error happened: ' + error);
+                        });
+
+//                    removed because SIT-510
+//                    $scope.doexam = exam;
+//                    var modalInstance = $modal.open({
+//                        templateUrl: 'assets/templates/dialog_terms_of_use.html',
+//                        backdrop: 'static',
+//                        keyboard: true,
+//                        controller: "ModalInstanceCtrl"
+//                    });
+//
+//                    modalInstance.result.then(function () {
+//                        $http.get('/student/doexam/' + $scope.doexam.hash)
+//                            .success(function (clonedExam) {
+//                                $scope.clonedExam = clonedExam;
+//                                $location.path('/student/doexam/' + clonedExam.hash);
+//                            }).
+//                            error(function (error) {
+//                                console.log('Error happened: ' + error);
+//                            });
+//                    }, function () {
+//                        console.log('Modal dismissed at: ' + new Date());
+//                    });
                 };
 
                 $scope.continueExam = function (exam) {
@@ -253,28 +266,35 @@
 
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
-                    StudentExamRes.exams.update({id: doexam.id}, function () {
 
-                        // Todo: tässä vaiheessa pitäisi tehdä paljon muitakin tarkistuksia
+                    if (confirm($translate('sitnet_confirm_turn_exam'))) {
+
+                        StudentExamRes.exams.update({id: doexam.id}, function () {
+
+                            // Todo: tässä vaiheessa pitäisi tehdä paljon muitakin tarkistuksia
 
 
-                        toastr.info("Tentti palautettu");
-                        $location.path("/home/");
+                            toastr.info("Tentti palautettu");
+                            $location.path("/home/");
 
-                    }, function () {
-                        toastr.error(error.data);
-                    });
+                        }, function () {
+                            toastr.error(error.data);
+                        });
+                    }
                 };
 
                 // Called when the abort button is clicked
                 $scope.abortExam = function (doexam) {
-                    StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
-                        toastr.info("Tentti keskeytetty.");
-                        $location.path("/home/");
 
-                    }, function () {
-                        toastr.error(error.data);
-                    });
+                    if (confirm($translate('sitnet_confirm_abort_exam'))) {
+                        StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
+                            toastr.info("Tentti keskeytetty.");
+                            $location.path("/home/");
+
+                        }, function () {
+                            toastr.error(error.data);
+                        });
+                    }
                 };
 
                 // Called when a radiobutton is selected

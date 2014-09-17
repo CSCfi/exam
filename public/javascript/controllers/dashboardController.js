@@ -91,10 +91,13 @@
                 }
 
                 $scope.removeReservation = function(enrolment){
-                    $http.delete('calendar/reservation/' +enrolment.reservation.id).success(function(){
-                        delete enrolment.reservation;
-                        toastr.success("ok");
-                    });
+                    if (confirm($translate('sitnet_are_you_sure'))) {
+
+                        $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
+                            delete enrolment.reservation;
+                            toastr.success("ok");
+                        });
+                    }
                 };
 
                 $scope.beforeDate = function(date) {
