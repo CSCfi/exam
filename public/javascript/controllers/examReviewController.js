@@ -148,6 +148,28 @@
 
                 }
 
+                $scope.printExamDuration = function(exam) {
+
+                    var h = 0;
+                    var d = exam.duration;
+
+                    while(d > 0) {
+                        if(d - 60 >= 0) {
+                            h++;
+                            d = d - 60;
+                        } else {
+                            break;
+                        }
+                    }
+                    if(h === 0) {
+                        return d + "min";
+                    } else if(d === 0) {
+                        return h + "h ";
+                    } else {
+                        return h + "h " + d + "min";
+                    }
+                };
+
                 $scope.scoreMultipleChoiceAnswer = function (question) {
                     var score = 0;
 

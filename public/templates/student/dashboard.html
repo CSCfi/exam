@@ -43,7 +43,7 @@
                         </div>
                         <div class="info-row col-md-12 info-column">
                             <span class="header col-md-4">{{ 'sitnet_exam_time' | translate }}:</span>
-                            <span class="text col-md-8">{{ enrolment.exam.duration / 60 }} h</span>
+                            <span class="text col-md-8">{{ printExamDuration(enrolment.exam) }}</span>
                         </div>
                     </div>
                 </div>

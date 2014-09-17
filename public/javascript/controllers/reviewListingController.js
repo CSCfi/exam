@@ -11,6 +11,10 @@
                 $scope.user = $scope.session.user;
                 $scope.examLocalInspections = {};
 
+                $scope.toggleReviewExams = false;
+                $scope.toggleGradedExams = false;
+                $scope.toggleLoggedExams = false;
+
                 $scope.getExamInfo = function() {
                     if($scope.examReviews && $scope.examReviews.length > 0){
                         var info = $scope.examReviews[0].exam.course.code +" "+ $scope.examReviews[0].exam.name;
@@ -31,6 +35,11 @@
                             $scope.examReviews = examReviews;
 
                             angular.forEach($scope.examReviews, function(review){
+
+                                if(review.exam.state === "REVIEW") { $scope.toggleReviewExams = true; }
+                                if(review.exam.state === "GRADED") { $scope.toggleGradedExams = true; }
+                                if(review.exam.state === "GRADED_LOGGED") { $scope.toggleLoggedExams = true; }
+
                                 ExamRes.inspections.get({id: review.exam.id},
                                     function (locals) {
                                         $scope.examLocalInspections[review.exam.id] = locals;
@@ -46,6 +55,30 @@
                         }
                     );
                 }
+
+
+
+                $scope.printExamDuration = function(exam) {
+
+                    var h = 0;
+                    var d = exam.duration;
+
+                    while(d > 0) {
+                        if(d - 60 >= 0) {
+                            h++;
+                            d = d - 60;
+                        } else {
+                            break;
+                        }
+                    }
+                    if(h === 0) {
+                        return d + "min";
+                    } else if(d === 0) {
+                        return h + "h ";
+                    } else {
+                        return h + "h " + d + "min";
+                    }
+                };
 
                 $scope.getLocalInspection = function(eid) {
                     return $scope.examLocalInspections[eid];

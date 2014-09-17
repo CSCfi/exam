@@ -55,11 +55,34 @@
                     }
                 };
 
+                $scope.printExamDuration = function(exam) {
+
+                    var h = 0;
+                    var d = exam.duration;
+
+                    while(d > 0) {
+                        if(d - 60 >= 0) {
+                            h++;
+                            d = d - 60;
+                        } else {
+                            break;
+                        }
+                    }
+                    if(h === 0) {
+                        return d + "min";
+                    } else if(d === 0) {
+                        return h + "h ";
+                    } else {
+                        return h + "h " + d + "min";
+                    }
+                };
+
                 $scope.doExam = function (hash) {
                     $http.get('/student/doexam/' + $routeParams.hash)
                         .success(function (data, status, headers, config) {
                             $scope.doexam = data;
                             $scope.activeSection = $scope.doexam.examSections[0];
+
 
                             // set sections and question numbering
                             angular.forEach($scope.doexam.examSections, function (section, index) {

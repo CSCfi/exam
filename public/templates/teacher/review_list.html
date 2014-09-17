@@ -27,8 +27,22 @@
     </div>
     <div ng-show="examReviews.length > 0">
         <!--Odottaa tarkastusta-->
-        <div class="row base">
-            <div class="exams-list col-md-12">
+        <div class="col-md-12 row">
+            <div class="col-md-5 exams-table-title-area">
+                <span ng-click="toggleReviewExams = !toggleReviewExams" class="exams-list-title-text pull-left pointer">{{ 'sitnet_exam_in_review' | translate }}</span>
+            </div>
+
+            <div class="col-md-7">
+                <!-- href="#/rooms/{{room.id}}" -->
+                <a ng-click="toggleReviewExams = !toggleReviewExams" class="header-icon pull-right fa-stack fa-lg">
+                    <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                    <i ng-show="!toggleReviewExams" class="fa fa-chevron-left fa-stack-1x"></i>
+                    <i ng-show="toggleReviewExams" class="fa fa-chevron-down fa-stack-1x"></i>
+                </a>
+            </div>
+        </div>
+        <div class="row base" ng-show="toggleReviewExams">
+            <div class="exams-list col-md-12" ng-if="( examReviews | filter: byState('REVIEW') ).length > 0">
                 <div class="exams-table-borders">
                     <table class="table table-bordered exams-table">
                         <thead>
@@ -51,7 +65,7 @@
                                 <td class="table-column-open-until">{{examReview.deadline  | date:'dd.MM.yyyy'}}</td>
                                 <td class="table-column-open-until">{{examReview.duration | date: 'HH:mm'}}</td>
                                 <td class="table-column-teachers">
-                                    <div class="col-md-12" ng-repeat="inspection in localInspections(examReview.exam.id)">
+                                    <div class="col-md-12" ng-repeat="inspection in getLocalInspection(examReview.exam.id)">
                                         <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === true">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
                                         <span class="sitnet-text-alarm" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === false">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
                                     </div>
@@ -65,8 +79,22 @@
         </div>
 
     <!--Tarkastettu-->
-        <div class="row base">
-            <div class="exams-list col-md-12">
+        <div class="col-md-12 row">
+            <div class="col-md-5 exams-table-title-area">
+                <span ng-click="toggleGradedExams = !toggleGradedExams" class="exams-list-title-text pull-left pointer">{{ 'sitnet_exam_reviewed' | translate }}</span>
+            </div>
+
+            <div class="col-md-7">
+                <!-- href="#/rooms/{{room.id}}" -->
+                <a ng-click="toggleGradedExams = !toggleGradedExams" class="header-icon pull-right fa-stack fa-lg">
+                    <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                    <i ng-show="!toggleGradedExams" class="fa fa-chevron-left fa-stack-1x"></i>
+                    <i ng-show="toggleGradedExams" class="fa fa-chevron-down fa-stack-1x"></i>
+                </a>
+            </div>
+        </div>
+        <div class="row base" ng-show="toggleGradedExams">
+            <div class="exams-list col-md-12" ng-if="( examReviews | filter: byState('GRADED') ).length > 0">
                 <div class="exams-table-borders">
                     <table class="table table-bordered exams-table">
                         <thead>
@@ -104,8 +132,22 @@
             </div>
         </div>
         <!--Kirjattu-->
-        <div class="row base">
-            <div class="exams-list col-md-12">
+        <div class="col-md-12 row">
+            <div class="col-md-5 exams-table-title-area">
+                <span ng-click="toggleLoggedExams = !toggleLoggedExams" class="exams-list-title-text pull-left pointer">{{ 'sitnet_exam_graded_logged' | translate }}</span>
+            </div>
+
+            <div class="col-md-7">
+                <!-- href="#/rooms/{{room.id}}" -->
+                <a ng-click="toggleLoggedExams = !toggleLoggedExams" class="header-icon pull-right fa-stack fa-lg">
+                    <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                    <i ng-show="!toggleLoggedExams" class="fa fa-chevron-left fa-stack-1x"></i>
+                    <i ng-show="toggleLoggedExams" class="fa fa-chevron-down fa-stack-1x"></i>
+                </a>
+            </div>
+        </div>
+        <div class="row base" ng-show="toggleLoggedExams">
+            <div class="exams-list col-md-12" ng-if="( examReviews | filter: byState('GRADED_LOGGED') ).length > 0">
                 <div class="exams-table-borders">
                     <table class="table table-bordered exams-table">
                         <thead>
