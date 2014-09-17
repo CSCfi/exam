@@ -30,6 +30,10 @@ public class Reservation extends Model {
     @JsonBackReference
     ExamMachine machine;
 
+    @OneToOne
+    @JsonBackReference
+    User user;
+
     public Long getId() {
         return id;
     }
@@ -60,5 +64,13 @@ public class Reservation extends Model {
 
     public void setMachine(ExamMachine machine) {
         this.machine = machine;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
