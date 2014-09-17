@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.joda.time.Interval;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -17,7 +18,7 @@ import java.sql.Timestamp;
 public class Reservation extends Model {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -72,5 +73,10 @@ public class Reservation extends Model {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @Transient
+    public Interval toInterval() {
+        return new Interval(startAt.getTime(), endAt.getTime());
     }
 }

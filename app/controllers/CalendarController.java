@@ -185,11 +185,8 @@ public class CalendarController extends SitnetController {
                 .gt("startAt", DateTime.now())
                 .findList();
 
-
-        System.out.println(reservations);
-
         do {
-            final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, current, user);
+            final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, current, reservations);
             current = current.plusDays(1);
             allPossibleFreeTimeSlots.putAll(slots);
         } while (current.minusDays(1).isBefore(examEndDateTime));
@@ -197,7 +194,7 @@ public class CalendarController extends SitnetController {
         return ok(Json.toJson(allPossibleFreeTimeSlots));
     }
 
-    private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay, User user) {
+    private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay,  List<Reservation> reservations) {
         Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<String, DayWithFreeTimes>();
 
         final DateTime now = DateTime.now();
@@ -283,13 +280,30 @@ public class CalendarController extends SitnetController {
                     day.getSlots().add(possibleTimeSlot);
                 }
 
+
                 for (FreeTimeSlot possibleFreeTimeSlot : day.getSlots()) {
 
+
+                    final Interval possibleFreeTimeSlotDuration = new Interval(dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getStart()), dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getEnd()));
+
+
+                    //user reservations
+                    if(!reservations.isEmpty())  {
+                        for(Reservation reservation :reservations) {
+
+                            final Interval reservationDuration = reservation.toInterval();
+                            //remove if intersects
+                            if (possibleFreeTimeSlotDuration.overlaps(reservationDuration)) {
+                                possibleFreeSlots.remove(possibleFreeTimeSlot);
+                            }
+                        }
+
+                    }
+
+                    //reservations for machine
                     for (Reservation reservation : examMachine.getReservation()) {
 
-                        final Interval reservationDuration = new Interval(reservation.getStartAt().getTime(), reservation.getEndAt().getTime());
-
-                        final Interval possibleFreeTimeSlotDuration = new Interval(dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getStart()), dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getEnd()));
+                        final Interval reservationDuration = reservation.toInterval();
 
                         //remove if intersects
                         if (possibleFreeTimeSlotDuration.overlaps(reservationDuration)) {
