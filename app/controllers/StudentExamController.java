@@ -138,33 +138,58 @@ public class StudentExamController extends SitnetController {
     }
 
     public static Result createExam(String hash, User user) throws UnauthorizedAccessException {
-        Exam possibleClone = Ebean.find(Exam.class)
-                .fetch("examSections")
-                .where()
-                .eq("hash", hash)
-                .eq("state", "STUDENT_STARTED").findUnique();
 
-        //todo: check credentials / token
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
                 .where()
                 .eq("hash", hash)
+                .eq("parent", null)
                 .findUnique();
 
-        if (blueprint == null) {
-            //todo: add proper exception
-            throw new UnauthorizedAccessException("a");
+
+        Exam possibleClone = Ebean.find(Exam.class)
+                .fetch("examSections")
+                .where()
+                .eq("hash", hash)
+                .ne("parent", null)
+                .findUnique();
+
+        //ko. hashilla ei ole koetta olemassa
+        if (blueprint == null && possibleClone == null) {
+            return notFound();
+        }
+
+        //aloitettu koe
+        if(possibleClone != null) {
+            String state = possibleClone.getState();
+            //kokeen tila on jokin muu kuin käynnissäoleva
+            if (!state.equals(Exam.State.STUDENT_STARTED.toString())) {
+                return forbidden();
+            }
         }
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
 
+        // tehdään uusi koe opiskelijalle "oletus"
         if (possibleClone == null) {
 
             Exam studentExam = (Exam)blueprint.clone();
             if (studentExam == null) {
                 return notFound();
             } else {
+
+                ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                        .where()
+                        .eq("user.id", user.getId())
+                        .eq("exam.id", blueprint.getId())
+                        .findUnique();
+
+                //et ole ilmoittautunut kokeeseen
+                if(enrolment == null) {
+                    return forbidden();
+                }
+
                 studentExam.setState("STUDENT_STARTED");
                 studentExam.setCreator(  user );
                 studentExam.setParent(blueprint);
@@ -175,11 +200,6 @@ public class StudentExamController extends SitnetController {
                 // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
                 // http://avaje.org/topic-112.html
 
-                ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                        .where()
-                        .eq("user.id", user.getId())
-                        .eq("exam.id", blueprint.getId())
-                        .findUnique();
 
                 enrolment.setExam(studentExam);
                 enrolment.save();
@@ -196,6 +216,7 @@ public class StudentExamController extends SitnetController {
                 return ok(jsonContext.toJsonString(studentExam, true, options)).as("application/json");
             }
         } else {
+            //palautetaan olemassa oleva koe, esim. sessio katkennut tms. jatketaan kokeen tekemistä.
 
             setStudentExamContent(options);
 
