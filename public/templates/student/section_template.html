@@ -11,8 +11,11 @@
                   <i class="fa fa-stack-1x question-icon" ng-class="question.type === 'MultipleChoiceQuestion' ? 'fa-list-ul' : 'fa-pencil-square-o'"></i>
                 </span>
 
-                <span ng-click="question.expanded = !question.expanded; chevronClicked(question);" class="question-text pointer pull-left col-md-10" ng-bind-html="question.question"></span>
-
+                <span ng-click="question.expanded = !question.expanded; chevronClicked(question);"
+                class="question-text pointer pull-left col-md-8" ng-bind-html="question.question"></span>
+                <span class="question-text pull-left col-md-2" ng-click="question.expanded = !question.expanded; chevronClicked(question);">
+                    ({{question.maxScore}} {{'sitnet_unit_points' | translate}})
+                </span>
                 <span ng-click="question.expanded = !question.expanded; chevronClicked(question);" class="fa-stack fa-lg pointer pull-right col-md-1">
                     <i ng-class="question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-left sitnet-text-medium'"
                        class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
@@ -20,13 +23,11 @@
                 </span>
             </div>
 
-
             <div class="exam-question-container" ng-show="question.expanded">
                 <div class="question" ng-include="question.template"></div>
                 <div ng-show="question.attachment !== null" ng-controller="AttachmentController">
                     <a class="pointer" ng-click="downloadQuestionAttachment(question)"> {{'sitnet_download_attachment' | translate }} <span class="sitnet-text-medium"><small>({{question.attachment.fileName}})</small></span></a>
                 </div>
-
             </div>
         </div>
     </div>
