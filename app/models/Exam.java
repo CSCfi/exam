@@ -381,6 +381,7 @@ public class Exam extends SitnetModel {
         clone.setExamFeedback(this.getExamFeedback());
         clone.setCreditType(this.getCreditType());
         clone.setParent(this);
+        clone.setAttachment(this.getAttachment());
         clone.save();
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();

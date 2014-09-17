@@ -156,6 +156,9 @@ public class StudentExamController extends SitnetController {
             throw new UnauthorizedAccessException("a");
         }
 
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+
         if (possibleClone == null) {
 
             Exam studentExam = (Exam)blueprint.clone();
@@ -188,26 +191,33 @@ public class StudentExamController extends SitnetController {
                 examParticipation.save();
                 user.getParticipations().add(examParticipation);
 
-                JsonContext jsonContext = Ebean.createJsonContext();
-                JsonWriteOptions options = new JsonWriteOptions();
-
-                options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
-                        "duration, examLanguage, answerLanguage, state, expanded");
-                options.setPathProperties("creator", "id");
-                options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
-                options.setPathProperties("room", "roomInstruction, roomInstructionEN, roomInstructionSV");
-                options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
-                options.setPathProperties("examType", "id, type");
-                options.setPathProperties("examSections", "id, name, questions, exam, expanded");
-                options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, options");
-                options.setPathProperties("examSections.questions.options", "id, option" );
-                options.setPathProperties("examSections.questions.comments", "id, comment");
+                setStudentExamContent(options);
 
                 return ok(jsonContext.toJsonString(studentExam, true, options)).as("application/json");
             }
         } else {
-            return ok(Json.toJson(possibleClone));
+
+            setStudentExamContent(options);
+
+            return ok(jsonContext.toJsonString(possibleClone, true, options)).as("application/json");
         }
+    }
+
+    private static void setStudentExamContent(JsonWriteOptions options) {
+
+        options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
+                "duration, examLanguage, answerLanguage, state, expanded, attachment");
+        options.setPathProperties("creator", "id");
+        options.setPathProperties("attachment", "fileName");
+        options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+        options.setPathProperties("room", "roomInstruction, roomInstructionEN, roomInstructionSV");
+        options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
+        options.setPathProperties("examType", "id, type");
+        options.setPathProperties("examSections", "id, name, questions, exam, expanded");
+        options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, options, attachment");
+        options.setPathProperties("examSections.questions.attachment", "fileName");
+        options.setPathProperties("examSections.questions.options", "id, option" );
+        options.setPathProperties("examSections.questions.comments", "id, comment");
     }
 
     @Restrict({@Group("STUDENT")})
