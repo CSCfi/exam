@@ -214,10 +214,10 @@ public class RoomController extends SitnetController {
     public static Result updateExamRoomAccessibility(Long id) throws MalformedDataException {
         JsonNode json = request().body().asJson();
         final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
-        room.setAccessibility(new ArrayList<Accessibility>());
-        room.save();
         if (!ids.isEmpty()) {
+            ExamRoom room = Ebean.find(ExamRoom.class, id);
+            room.setAccessibility(new ArrayList<Accessibility>());
+            room.save();
             for (String aid : ids) {
                 System.out.println(aid);
                 Accessibility accessibility = Ebean.find(Accessibility.class, Integer.parseInt(aid.trim()));
