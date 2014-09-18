@@ -150,23 +150,27 @@
 
                 $scope.printExamDuration = function(exam) {
 
-                    var h = 0;
-                    var d = exam.duration;
+                    if(exam && exam.duration) {
+                        var h = 0;
+                        var d = exam.duration;
 
-                    while(d > 0) {
-                        if(d - 60 >= 0) {
-                            h++;
-                            d = d - 60;
-                        } else {
-                            break;
+                        while (d > 0) {
+                            if (d - 60 >= 0) {
+                                h++;
+                                d = d - 60;
+                            } else {
+                                break;
+                            }
                         }
-                    }
-                    if(h === 0) {
-                        return d + "min";
-                    } else if(d === 0) {
-                        return h + "h ";
+                        if (h === 0) {
+                            return d + "min";
+                        } else if (d === 0) {
+                            return h + "h ";
+                        } else {
+                            return h + "h " + d + "min";
+                        }
                     } else {
-                        return h + "h " + d + "min";
+                        return "";
                     }
                 };
 
@@ -346,8 +350,6 @@
                 // Called when the review ready button is clicked
                 $scope.examReviewReady = function (reviewed_exam) {
 
-                    $scope.saveFeedback(reviewed_exam);
-
                     var examToReview = {
                         "id": reviewed_exam.id,
                         "state": 'GRADED',
@@ -377,10 +379,16 @@
                     });
                 };
 
+                $scope.sendReviewFeedback = true;
+
                 $scope.saveExamRecord = function (reviewed_exam) {
 
                     if (confirm($translate('sitnet_confirm_record_review'))) {
 
+                        if($scope.sendReviewFeedback) {
+                            console.log("feedback ->")
+                            $scope.saveFeedback(reviewed_exam);
+                        }
                         var examToRecord = {
                             "id": reviewed_exam.id,
                             "state": 'GRADED_LOGGED',

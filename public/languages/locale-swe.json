@@ -306,6 +306,7 @@
     "sitnet_confirm_turn_exam": "You are about to turn this exam. After this exam will exit and you won't be able to edit answers. Are you sure?",
     "sitnet_confirm_abort_exam": "You are about to abort this exam. This means turning an empty paper. Are you sure?",
     "sitnet_confirm_cancel_reservation": "Are you sure you wish to cancel reservation?",
-    "sitnet_unit_points": "poäng"
+    "sitnet_unit_points": "poäng",
+    "sitnet_send_exam_feedback": "Lähetä tentin palaute oppilaalle"
 
 }
