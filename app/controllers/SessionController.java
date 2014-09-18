@@ -135,7 +135,15 @@ public class SessionController extends SitnetController {
         }
 
         // User exists in the system -> log in
-        String token = UUID.randomUUID().toString();
+
+        String token;
+
+        if(loginType.equals("HAKA")) {
+          token = request().getHeader("Shib-Session-ID");
+        } else {
+          token = UUID.randomUUID().toString();
+        }
+
         Session session = new Session();
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
