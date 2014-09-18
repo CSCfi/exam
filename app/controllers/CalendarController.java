@@ -68,13 +68,15 @@ public class CalendarController extends SitnetController {
         JsonNode json = request().body().asJson();
 
         //todo: add more validation, user can make loooon reservations eg.
-        final Integer machineId = json.get("machine").asInt();
+        final Integer roomId = json.get("room").asInt();
         final Integer enrolmentId = json.get("exam").asInt();
         final DateTime start = DateTime.parse(json.get("start").asText(), dateTimeFormat);
         final DateTime end = DateTime.parse(json.get("end").asText(), dateTimeFormat);
 
         final User user = UserController.getLoggedUser();
-        final ExamMachine machine = Ebean.find(ExamMachine.class, machineId);
+        final ExamRoom room = Ebean.find(ExamRoom.class, roomId);
+
+        ExamMachine machine = getRandomMachine(room);
 
         final Reservation reservation = new Reservation();
         reservation.setEndAt(new Timestamp(end.getMillis()));
@@ -105,6 +107,12 @@ public class CalendarController extends SitnetController {
         }
 
         return ok("ok");
+    }
+
+    private static ExamMachine getRandomMachine(ExamRoom room) {
+        return null;
+
+
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -267,19 +275,22 @@ public class CalendarController extends SitnetController {
                 final DayWithFreeTimes day = new DayWithFreeTimes();
                 day.setDate(theDay);
 
-                for (int i = 0; i <= (numberOfPossibleFreeSlots - 1); i++) {
-                    final int shift = examDuration + transitionTime;
-                    DateTime freeTimeSlotStartTime = startTime.plusMinutes(i * shift);
-                    DateTime freeTimeSlotEndTime = freeTimeSlotStartTime.plusMinutes(shift);
-                    FreeTimeSlot possibleTimeSlot = new FreeTimeSlot();
-                    possibleTimeSlot.setStart(dateTimeFormat.print(freeTimeSlotStartTime));
-                    possibleTimeSlot.setEnd(dateTimeFormat.print(freeTimeSlotEndTime));
-                    possibleTimeSlot.setTitle(examMachine.getName());
-                    possibleTimeSlot.setRoom(room.getId());
-                    possibleTimeSlot.setMachine(examMachine.getId());
+
+                final int shift = examDuration + transitionTime;
+
+                if(startTime.getMinuteOfHour() != 0) {
+                    DateTime freeTimeSlotEndTime = startTime.plusMinutes(shift);
+                    FreeTimeSlot possibleTimeSlot = getFreeTimeSlot(room, examMachine, startTime, freeTimeSlotEndTime);
                     day.getSlots().add(possibleTimeSlot);
                 }
 
+                DateTime freeTimeSlotStartTime = startTime.withMinuteOfHour(0);
+
+                while(freeTimeSlotStartTime.plusHours(1).plusMinutes(shift).isBefore(endTime)) {
+                    freeTimeSlotStartTime = freeTimeSlotStartTime.plusHours(1);
+                    FreeTimeSlot possibleTimeSlot = getFreeTimeSlot(room, examMachine, freeTimeSlotStartTime, freeTimeSlotStartTime.plusMinutes(shift));
+                    day.getSlots().add(possibleTimeSlot);
+                }
 
                 for (FreeTimeSlot possibleFreeTimeSlot : day.getSlots()) {
 
@@ -318,6 +329,16 @@ public class CalendarController extends SitnetController {
             }
         }
         return allPossibleFreeTimeSlots;
+    }
+
+    private static FreeTimeSlot getFreeTimeSlot(ExamRoom room, ExamMachine examMachine, DateTime freeTimeSlotStartTime, DateTime freeTimeSlotEndTime) {
+        FreeTimeSlot possibleTimeSlot = new FreeTimeSlot();
+        possibleTimeSlot.setStart(dateTimeFormat.print(freeTimeSlotStartTime));
+        possibleTimeSlot.setEnd(dateTimeFormat.print(freeTimeSlotEndTime));
+        possibleTimeSlot.setTitle(examMachine.getName());
+        possibleTimeSlot.setRoom(room.getId());
+        possibleTimeSlot.setMachine(examMachine.getId());
+        return possibleTimeSlot;
     }
 
     private static class WorkingHours {
