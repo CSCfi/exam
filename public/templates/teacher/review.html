@@ -2,15 +2,13 @@
     <div class="col-md-8 header-wrapper">
         <span class="header-text">{{'sitnet_exam_review' | translate}}</span>
     </div>
-    <div class="col-md-2 header-wrapper">
-        <!--<a class="btn header-button pull-right">{{'sitnet_create_new' | translate}}<i class="sitnet-white pull-right fa fa-angle-down fa-lg"></i></a>-->
-    </div>
-    <div class="col-md-2 ">
-        <!--<span class="header-clock pull-right">
-            <span class="col-md-12  weekday">24. lauantai</span>
-            <span class="col-md-12  date">Toukokuuta 2014</span>
-            <span class="col-md-12  clock"></span>
-        </span>-->
+    <div class="col-md-4 header-wrapper">
+        <span class="pull-right horizontal-padding-1 sitnet-text-medium col-md-12"><span class="pull-right">{{'sitnet_inspection_status' | translate}}:</span></span>
+        <span class="pull-right horizontal-padding-1 col-md-12">
+            <span ng-if="examToBeReviewed.state ==='REVIEW' || examToBeReviewed.state === 'REVIEW_STARTED'" class="pull-right sitnet-text-ready" style="font-size: 0.9em">{{'sitnet_exam_in_review' | translate}}</span>
+            <span ng-if="examToBeReviewed.state === 'GRADED'" class="pull-right sitnet-text-notice" style="font-size: 0.9em">{{'sitnet_exam_reviewed' | translate}}</span>
+            <span ng-if="examToBeReviewed.state === 'GRADED_LOGGED'" class="pull-right sitnet-text-alarm" style="font-size: 0.9em">{{'sitnet_exam_reviewed' | translate}}</span>
+        </span>
     </div>
 </div>
 

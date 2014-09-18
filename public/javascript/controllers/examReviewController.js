@@ -196,7 +196,7 @@
 
                 $scope.removeNewLines = function(answer) {
                     return answer ? answer.replace(/\n/g, '') : '';
-                }
+                };
 
                 $scope.scoreEssayAnswer = function (question) {
                     if (question.answer === null) {
