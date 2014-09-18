@@ -222,7 +222,13 @@ public class RoomController extends SitnetController {
         if (!ids.isEmpty()) {
             for (String aid : ids) {
                 System.out.println(aid);
-                Accessibility accessibility = Ebean.find(Accessibility.class, Integer.parseInt(aid.trim()));
+                int accessibilityId = 0;
+                try {
+                    accessibilityId = Integer.parseInt(aid.trim());
+                } catch (Exception ex) {
+                    break;
+                }
+                Accessibility accessibility = Ebean.find(Accessibility.class, accessibilityId);
                 room.getAccessibility().add(accessibility);
                 room.save();
             }
