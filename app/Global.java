@@ -42,6 +42,9 @@ public class Global extends GlobalSettings {
     @Override
     public void onStart(Application app) {
 
+        System.setProperty("user.timezone", "UTC");
+        TimeZone.setDefault(null);
+
         //todo: make these interval and start times configurable via configuration files
 
         Akka.system().scheduler().schedule(
