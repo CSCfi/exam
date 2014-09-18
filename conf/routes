@@ -5,6 +5,7 @@ POST          /login                                                           c
 #POST          /shiblogin                                            controllers.SessionController.shiblogin()
 POST          /logout                                                          controllers.SessionController.logout()
 GET           /ping                                                            controllers.SessionController.ping()
+GET           /secreturl                                                       controllers.SessionController.getAttributes()
 
 
 ############### User interface ###############

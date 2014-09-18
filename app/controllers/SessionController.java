@@ -151,51 +151,23 @@ public class SessionController extends SitnetController {
         return ok(result);
     }
 
-//  public static Result shiblogin() throws MalformedDataException, UnauthorizedAccessException {
-//
-//        Map<String, String[]> attributes = request().headers();
-//        String eppn = request().getHeader("eppn");
-//
-//        User user = Ebean.find(User.class)
-//                .where()
-//                .eq("email", eppn)
-//                .findUnique();
-//
-//        // First login -> create user
-//        if(user == null)
-//        {
-//            user = new User();
-//
-//            user.setAttributes(attributes);
-//            user.setEmail(request().getHeader("eppn"));
-//            user.setLastName(request().getHeader("sn"));
-//            user.setFirstName(request().getHeader("displayName"));
-//
-//            String shibRole = request().getHeader("unscoped-affiliation");
-//            SitnetRole srole = getRole(shibRole);
-//            if(srole == null)
-//                return notFound("Cannot assign role "+ shibRole);
-//            else
-//                ((List<SitnetRole>)user.getRoles()).add(srole);
-//
-//            user.save();
-//        }
-//
-//        // User exists in the system -> log in
-//        String token = UUID.randomUUID().toString();
-//        Session session = new Session();
-//        session.setSince(DateTime.now());
-//        session.setUserId(user.getId());
-//        user.setAttributes(attributes);
-//
-//        Cache.set(SITNET_CACHE_KEY + token, session);
-//        ObjectNode result = Json.newObject();
-//        result.put("token", token);
-//        result.put("firstname", user.getFirstName());
-//        result.put("lastname", user.getLastName());
-//        result.put("roles", Json.toJson(user.getRoles()));
-//        return ok(result);
-//    }
+    public static Result getAttributes() {
+
+        Map<String, String[]> attributes = request().headers();
+        String output = "";
+
+        for (Map.Entry<String,String[]> entry : attributes.entrySet()) {
+
+            String key = entry.getKey();
+            String[] value = entry.getValue();
+
+            output += key +"\t";
+            output += Arrays.toString(value);
+            output += "\n";
+        }
+
+        return ok(output);
+    }
 
     static private SitnetRole getRole(String affiliation) {
 
