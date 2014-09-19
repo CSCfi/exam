@@ -323,24 +323,24 @@
                 };
 
                 // Called when the save feedback button is clicked
-                $scope.saveFeedback = function (exam) {
+                $scope.saveFeedback = function () {
 
                     var examFeedback = {
-                        "comment": exam.examFeedback.comment
+                        "comment": $scope.examToBeReviewed.examFeedback.comment
                     };
 
                     // Update comment
-                    if (exam.examFeedback.id) {
-                        ExamRes.comment.update({eid: exam.id, cid: exam.examFeedback.id}, examFeedback, function (exam) {
+                    if ($scope.examToBeReviewed.examFeedback.id) {
+                        ExamRes.comment.update({eid: $scope.examToBeReviewed.id, cid: $scope.examToBeReviewed.examFeedback.id}, examFeedback, function (exam) {
                             toastr.info("Tentin kommentti päivitetty.");
                         }, function (error) {
                             toastr.error(error.data);
                         });
                     // Insert new comment
                     } else {
-                        ExamRes.comment.insert({eid: exam.id, cid: 0}, examFeedback, function (comment) {
+                        ExamRes.comment.insert({eid: $scope.examToBeReviewed.id, cid: 0}, examFeedback, function (comment) {
                             toastr.info("Kommentti lisätty tenttiin.");
-                            exam.examFeedback = comment;
+                            $scope.examToBeReviewed.examFeedback.comment = comment;
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -349,6 +349,8 @@
 
                 // Called when the review ready button is clicked
                 $scope.examReviewReady = function (reviewed_exam) {
+
+                    $scope.saveFeedback();
 
                     var examToReview = {
                         "id": reviewed_exam.id,
@@ -385,24 +387,22 @@
 
                     if (confirm($translate('sitnet_confirm_record_review'))) {
 
-                        if($scope.sendReviewFeedback) {
-                            console.log("feedback ->")
-                            $scope.saveFeedback(reviewed_exam);
-                        }
                         var examToRecord = {
                             "id": reviewed_exam.id,
                             "state": 'GRADED_LOGGED',
                             "grade": reviewed_exam.grade,
                             "otherGrading": reviewed_exam.otherGrading,
-                            "totalScore": reviewed_exam.totalScore
-                        }
+                            "totalScore": reviewed_exam.totalScore,
+                            "sendFeedback": $scope.sendReviewFeedback
+                        };
+
                         ExamRes.saveRecord.add(examToRecord, function (exam) {
                             toastr.info("Suoritus kirjattu.");
                             $location.path("exams/reviews/" + reviewed_exam.parent.id);
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                    };
-                }
+                    }
+                };
             }]);
 }());

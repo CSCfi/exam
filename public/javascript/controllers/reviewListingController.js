@@ -36,7 +36,7 @@
 
                             angular.forEach($scope.examReviews, function(review){
 
-                                if(review.exam.state === "REVIEW") { $scope.toggleReviewExams = true; }
+                                if(review.exam.state === "REVIEW" || review.exam.state === "ABORTED" || review.exam.state === "STUDENT_STARTED") { $scope.toggleReviewExams = true; }
                                 if(review.exam.state === "GRADED") { $scope.toggleGradedExams = true; }
                                 if(review.exam.state === "GRADED_LOGGED") { $scope.toggleLoggedExams = true; }
 

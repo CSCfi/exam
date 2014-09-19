@@ -307,6 +307,9 @@
     "sitnet_confirm_abort_exam": "Olet keskeyttämässä tenttiä. Tämä tarkoittaa tyhjän paperin palauttamista. Oletko varma?",
     "sitnet_confirm_cancel_reservation": "Oletko varma että haluat perua varauksen?",
     "sitnet_unit_points": "pistettä",
-    "sitnet_send_exam_feedback": "Lähetä tentin palaute oppilaalle"
+    "sitnet_send_exam_feedback": "Lähetä tentin palaute oppilaalle",
+    "sitnet_state_started": "Aloitettu",
+    "sitnet_state_ready": "Valmiina tentittäväksi",
+    "sitnet_state_graded_logged": "Arvioitu ja kirjattu"
 
 }

@@ -4,14 +4,16 @@ import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
 import models.*;
 import models.dto.ExamScore;
+import play.Logger;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import util.java.EmailComposer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by alahtinen on 02/09/14.
@@ -104,6 +106,15 @@ public class ExamRecordController extends SitnetController {
 
         er.setExamScore(score);
         er.save();
+
+        DynamicForm df = Form.form().bindFromRequest();
+
+        boolean sendFeedback = Boolean.parseBoolean(df.get("sendFeedback"));
+
+        if(sendFeedback) {
+            EmailComposer.composeInspectionReady(exam.getCreator(), UserController.getLoggedUser(), exam);
+        }
+
         return ok();
     }
 

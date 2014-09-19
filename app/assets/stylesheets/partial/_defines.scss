@@ -302,6 +302,13 @@ $sitnet-icon-size: 32px;
     display: inline;
     color: $sitnet-text;
   }
+  .light-text {
+    padding-left:0;
+    margin-left:0;
+    font-weight:normal;
+    float:left;
+    display: inline;
+  }
 }
 .info-column-large-icon {
 

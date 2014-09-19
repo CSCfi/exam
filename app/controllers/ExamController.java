@@ -5,6 +5,7 @@ import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
@@ -311,7 +312,7 @@ public class ExamController extends SitnetController {
 
     }
 
-    //@Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExam(Long id) {
 
         Exam exam = Ebean.find(Exam.class)
@@ -329,8 +330,22 @@ public class ExamController extends SitnetController {
             return notFound();
         }
         else if(exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") ||
-                exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED"))
+                exam.getState().equals("STUDENT_STARTED") || exam.getState().equals("ABORTED") || exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED"))
         {
+            if(exam.getState().equals("STUDENT_STARTED")) {
+                // if exam not over -> return
+                ExamParticipation participation = Ebean.find(ExamParticipation.class)
+                        .fetch("exam")
+                        .where()
+                        .eq("exam.id", id)
+                        .findUnique();
+
+                if(participation != null && participation.getStarted().getTime() + ((15 + exam.getDuration()) * 60 * 1000) < new Date().getTime()) {
+                    return forbidden("You are not allowed to modify this object");
+                }
+
+            }
+
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
@@ -442,8 +457,6 @@ public class ExamController extends SitnetController {
         ex.setGradedByUser(UserController.getLoggedUser());
         ex.update();
 
-        EmailComposer.composeInspectionReady(ex.getCreator(), UserController.getLoggedUser(), ex);
-
         return ok(Json.toJson(ex));
     }
 
@@ -461,6 +474,19 @@ public class ExamController extends SitnetController {
         if (participations == null) {
             return notFound();
         } else {
+
+            Iterator i = participations.iterator();
+            while(i.hasNext()) {
+                ExamParticipation participation = (ExamParticipation) i.next();
+
+                if(participation.getExam().getState().equals("STUDENT_STARTED")) {
+                    // if exam not over -> remove from collection
+                    if(participation.getStarted().getTime() + (participation.getExam().getDuration() * 60 * 1000) < new Date().getTime()) {
+                        i.remove();
+                    }
+                }
+            }
+
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("user, exam, ended, duration, deadline");
@@ -1199,16 +1225,38 @@ public class ExamController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getParticipationsForExam(Long eid) {
+
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .fetch("exam.parent")
                 .where()
                 .eq("exam.parent.id", eid)
+                .disjunction()
+                    // if student has logout check -> if greater than exam deadline
+                    .eq("exam.state", "STUDENT_STARTED")
+                    .eq("exam.state", "ABORTED")
+                    .eq("exam.state", "REVIEW")
+                    .eq("exam.state", "GRADED")
+                    .eq("exam.state", "GRADED_LOGGED")
+                .endJunction()
                 .findList();
 
         if (participations == null) {
             return notFound();
         } else {
+
+            Iterator i = participations.iterator();
+            while(i.hasNext()) {
+                ExamParticipation participation = (ExamParticipation) i.next();
+
+                if(participation.getExam().getState().equals("STUDENT_STARTED")) {
+                    // if exam not over -> remove from collection
+                    if(participation.getStarted().getTime() + ((15 + participation.getExam().getDuration()) * 60 * 1000) < new Date().getTime()) {
+                        i.remove();
+                    }
+                }
+            }
+
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, user, exam, started, ended");
@@ -1227,7 +1275,10 @@ public class ExamController extends SitnetController {
                 .fetch("exam.parent")
                 .where()
                 .eq("exam.parent.id", eid)
-                .isNotNull("exam.grade")
+                .or(
+                        Expr.eq("exam.state", "GRADED"),
+                        Expr.eq("exam.state", "GRADED_LOGGED")
+                )
                 .findList();
 
         if (participations == null) {

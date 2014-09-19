@@ -43,7 +43,21 @@ public class StudentExamController extends SitnetController {
 
         for (ExamEnrolment e : enrolments)
         {
-            exams.add(e.getExam());
+            if(e.getExam().getState().equals("STUDENT_STARTED")) {
+                // if exam not over -> return
+                ExamParticipation participation = Ebean.find(ExamParticipation.class)
+                        .fetch("exam")
+                        .where()
+                        .eq("exam.id", e.getExam().getId())
+                        .findUnique();
+
+                if(participation != null && participation.getStarted().getTime() + ((e.getExam().getDuration()) * 60 * 1000) > new Date().getTime()) {
+                    exams.add(e.getExam());
+                }
+
+            } else {
+                exams.add(e.getExam());
+            }
         }
 
         return ok(Json.toJson(exams));
@@ -61,12 +75,14 @@ public class StudentExamController extends SitnetController {
             oql = "find exam " +
                     "fetch examSections " +
                     "fetch course " +
-                    "where (state=:review or state=:graded) " +
+                    "where (state=:review or state=:graded or state=:graded_logged or state=:aborted) " +
                     "and (creator.id=:userid)";
 
             query = Ebean.createQuery(Exam.class, oql);
             query.setParameter("review", "REVIEW");
             query.setParameter("graded", "GRADED");
+            query.setParameter("graded_logged", "GRADED_LOGGED");
+            query.setParameter("aborted", "ABORTED");
             query.setParameter("userid", user.getId());
         }
 
@@ -115,7 +131,11 @@ public class StudentExamController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", uid)
-                .eq("exam.state", "PUBLISHED")
+                .disjunction()
+                    .eq("exam.state", "PUBLISHED")
+                    .eq("exam.state", "STUDENT_STARTED")
+                    //.eq("exam.state", "ABORTED")
+                .endJunction()
                 .findList();
 
         if (enrolments == null) {
@@ -125,7 +145,7 @@ public class StudentExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course, hash, duration");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state");
             options.setPathProperties("exam.course", "name, code");
             options.setPathProperties("reservation", "id, startAt, endAt, machine");
             options.setPathProperties("reservation.machine", "name");
@@ -191,7 +211,7 @@ public class StudentExamController extends SitnetController {
                 }
 
                 studentExam.setState("STUDENT_STARTED");
-                studentExam.setCreator(  user );
+                studentExam.setCreator(user);
                 studentExam.setParent(blueprint);
                 studentExam.generateHash();
                 studentExam.save();
@@ -282,6 +302,23 @@ public class StudentExamController extends SitnetController {
         Logger.debug("saveAnswersAndExit()");
 
         Exam exam = Ebean.find(Exam.class, id);
+
+        ExamParticipation p = Ebean.find(ExamParticipation.class)
+                .where()
+                .eq("exam.id", id)
+                .findUnique();
+
+        if(p != null) {
+            p.setEnded(SitnetUtil.getTime());
+            p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
+
+            GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
+
+            p.setDeadline(new Timestamp(p.getEnded().getTime() + settings.getReviewDeadline()));
+
+            p.save();
+        }
+
         exam.setState("ABORTED");
         exam.update();
 

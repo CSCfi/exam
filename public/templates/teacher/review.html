@@ -5,7 +5,7 @@
     <div class="col-md-4 header-wrapper">
         <span class="pull-right horizontal-padding-1 sitnet-text-medium col-md-12"><span class="pull-right">{{'sitnet_inspection_status' | translate}}:</span></span>
         <span class="pull-right horizontal-padding-1 col-md-12">
-            <span ng-if="examToBeReviewed.state ==='REVIEW' || examToBeReviewed.state === 'REVIEW_STARTED'" class="pull-right sitnet-text-ready" style="font-size: 0.9em">{{'sitnet_exam_in_review' | translate}}</span>
+            <span ng-if="examToBeReviewed.state ==='REVIEW' || examToBeReviewed.state === 'REVIEW_STARTED'  || examToBeReviewed.state === 'ABORTED'  || examToBeReviewed.state === 'STUDENT_STARTED'" class="pull-right sitnet-text-ready" style="font-size: 0.9em">{{'sitnet_exam_in_review' | translate}}</span>
             <span ng-if="examToBeReviewed.state === 'GRADED'" class="pull-right sitnet-text-notice" style="font-size: 0.9em">{{'sitnet_exam_reviewed' | translate}}</span>
             <span ng-if="examToBeReviewed.state === 'GRADED_LOGGED'" class="pull-right sitnet-text-alarm" style="font-size: 0.9em">{{'sitnet_exam_reviewed' | translate}}</span>
         </span>

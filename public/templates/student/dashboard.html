@@ -45,6 +45,13 @@
                             <span class="header col-md-4">{{ 'sitnet_exam_time' | translate }}:</span>
                             <span class="text col-md-8">{{ printExamDuration(enrolment.exam) }}</span>
                         </div>
+                        <div class="info-row col-md-12 info-column">
+                            <span class="header col-md-4">{{ 'sitnet_status' | translate }}:</span>
+                            <span class="text col-md-8">
+                                <span ng-if="enrolment.exam.state ==='PUBLISHED'" class="light-text sitnet-text-ready">{{'sitnet_state_ready' | translate}}</span>
+                                <span ng-if="enrolment.exam.state === 'STUDENT_STARTED'" class="light-text sitnet-text-alarm">{{'sitnet_state_started' | translate}}</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-md-5 pull-left">
@@ -80,13 +87,13 @@
     </div>
 
     <div class="row col-md-12">
-        <table class="light-table col-md-8">
+        <table class="light-table col-md-12">
             <tbody>
             <tr ng-repeat="finishedExam in studentFinishedExams">
                 <td>
-                    <span ng-if="finishedExam.state ==='REVIEW'" class="status_orange">{{'sitnet_exam_in_review' | translate}}</span>
+                    <span ng-if="finishedExam.state ==='REVIEW' || finishedExam.state === 'REVIEW_STARTED' || finishedExam.state === 'ABORTED'" class="status_orange">{{'sitnet_exam_in_review' | translate}}</span>
                     <span ng-if="finishedExam.state === 'GRADED'" class="status_green">{{'sitnet_exam_reviewed' | translate}}</span>
-                    <span ng-if="finishedExam.state === 'REVIEW_STARTED'"class="status_orange">{{'sitnet_exam_in_review' | translate}}</span>
+                    <span ng-if="finishedExam.state === 'GRADED_LOGGED'" class="status_green">{{'sitnet_state_graded_logged' | translate}}</span>
                 </td>
                 <td>
                     <div class="info-column col-md-12">
@@ -98,8 +105,8 @@
                     <div class="info-column col-md-12">
                         <span class="header col-md-12">{{'sitnet_teachers_comment' | translate}}:</span><br/>
                         <span class="text col-md-12">
-                            <span ng-if="finishedExam.state === 'GRADED'"popover-placement="top" popover-popup-delay="1000" popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(finishedExam.id)" class="pointer sitnet-text-theme">{{'sitnet_comments' | translate}}</span>
-                            <span ng-if="finishedExam.state === 'REVIEW' || finishedExam.state === 'REVIEW_STARTED'" class="sitnet-text-alarm">{{'sitnet_no_comments' | translate}}</span>
+                            <span ng-if="finishedExam.state === 'GRADED' || finishedExam.state === 'GRADED_LOGGED'"popover-placement="top" popover-popup-delay="1000" popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(finishedExam.id)" class="pointer sitnet-text-theme">{{'sitnet_comments' | translate}}</span>
+                            <span ng-if="finishedExam.state === 'REVIEW' || finishedExam.state === 'REVIEW_STARTED' || finishedExam.state === 'ABORTED'" class="sitnet-text-alarm">{{'sitnet_no_comments' | translate}}</span>
                         </span>
                     </div>
                 </td>
