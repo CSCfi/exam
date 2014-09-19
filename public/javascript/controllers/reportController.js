@@ -13,6 +13,7 @@
                 $scope.examReportJson = SITNET_CONF.TEMPLATES_PATH + "reports/exam-report-json.html";
                 $scope.examAnswers = SITNET_CONF.TEMPLATES_PATH + "reports/exam-answers.html";
                 $scope.examEnrollmentsReport = SITNET_CONF.TEMPLATES_PATH + "reports/exam-enrollments.html";
+                $scope.studentReport = SITNET_CONF.TEMPLATES_PATH + "reports/student.html";
 
                 $scope.selectedRoom = {
                     name: $translate("sitnet_choose")
@@ -31,13 +32,24 @@
                 $scope.selectedTeacher = {
                     name: $translate("sitnet_choose")
                 };
+
                 $scope.setTeacher = function (teacher) {
                     $scope.selectedTeacher = teacher;
+                };
+
+                $scope.selectedStudent = {
+                    name: $translate("sitnet_choose")
+                }
+
+                $scope.setStudent = function (student) {
+                    $scope.selectedStudent = student;
                 };
 
                 $scope.rooms = RoomResource.rooms.query();
                 $scope.examnames = ReportResource.examnames.query();
                 $scope.teachers = UserRes.usersByRole.query({role: "TEACHER"});
+                $scope.students = UserRes.usersByRole.query({role: "STUDENT"});
+
 
                 $scope.getReservations = function() {
 
