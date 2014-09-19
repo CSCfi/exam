@@ -279,8 +279,8 @@ public class Global extends GlobalSettings {
                 Ebean.save(all.get("user-roles"));
                 Ebean.save(all.get("user_languages"));
                 Ebean.save(all.get("organisations"));
-                Ebean.save(all.get("users"));
                 Ebean.save(all.get("attachments"));
+                Ebean.save(all.get("users"));
                 Ebean.save(all.get("question_essay"));
                 Ebean.save(all.get("question_multiple_choice"));
                 Ebean.save(all.get("courses"));
