@@ -17,8 +17,8 @@ abstract public class SitnetModel extends Model implements Cloneable {
     protected Long id;
 	
 	@Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+//    @Temporal(TemporalType.TIMESTAMP)
+    protected Long ebeanTimestamp;
 	
 //	@CreatedTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -86,15 +86,15 @@ abstract public class SitnetModel extends Model implements Cloneable {
 		this.modifier = modifier;
 	}
 
-    public Timestamp getEbeanTimestamp() {
-		return ebeanTimestamp;
-	}
+    public Long getEbeanTimestamp() {
+        return ebeanTimestamp;
+    }
 
-	public void setEbeanTimestamp(Timestamp ebeanTimestamp) {
-		this.ebeanTimestamp = ebeanTimestamp;
-	}
+    public void setEbeanTimestamp(Long ebeanTimestamp) {
+        this.ebeanTimestamp = ebeanTimestamp;
+    }
 
-	@Override
+    @Override
     protected Object clone() throws CloneNotSupportedException {
 
         SitnetModel copy = (SitnetModel)SitnetUtil.getClone(this);
