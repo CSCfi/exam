@@ -397,6 +397,14 @@
                         $scope.remainingTime--;
                         return;
                     }
+                    if($scope.remainingTime <= 1) {
+                        StudentExamRes.exams.update({id: doexam.id}, function () {
+                            toastr.info("Tentti palautettu");
+                            $location.path("/home/");
+                        }, function () {
+                            toastr.error(error.data);
+                        });
+                    }
                 };
                 count(); // start the clock
 
