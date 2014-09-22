@@ -69,26 +69,40 @@ public class CalendarController extends SitnetController {
 
         //todo: add more validation, user can make loooon reservations eg.
         final Integer roomId = json.get("room").asInt();
-        final Integer enrolmentId = json.get("exam").asInt();
+        final Integer exam = json.get("exam").asInt();
         final DateTime start = DateTime.parse(json.get("start").asText(), dateTimeFormat);
         final DateTime end = DateTime.parse(json.get("end").asText(), dateTimeFormat);
 
         final User user = UserController.getLoggedUser();
-        final ExamRoom room = Ebean.find(ExamRoom.class, roomId);
 
-        ExamMachine machine = getRandomMachine(room);
+        final ExamRoom room = Ebean.find(ExamRoom.class)
+                .fetch("examMachines")
+                .fetch("examMachines.reservation")
+                .fetch("examMachines.softwareInfo")
+                .where()
+                .eq("id", roomId)
+                .findUnique();
+
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .fetch("exam.softwares")
+                .where()
+                .eq("user.id", user.getId())
+                .eq("exam.id", exam)
+                .findUnique();
+
+        ExamMachine machine = getRandomMachine(room, enrolment.getExam(), start, end);
+
+
+        if(machine == null) {
+            return notFound();
+        }
 
         final Reservation reservation = new Reservation();
         reservation.setEndAt(new Timestamp(end.getMillis()));
         reservation.setStartAt(new Timestamp(start.getMillis()));
         reservation.setMachine(machine);
         reservation.setUser(user);
-
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .where()
-                .eq("user.id", user.getId())
-                .eq("exam.id", enrolmentId)
-                .findUnique();
 
         final Reservation oldReservation = enrolment.getReservation();
 
@@ -109,10 +123,43 @@ public class CalendarController extends SitnetController {
         return ok("ok");
     }
 
-    private static ExamMachine getRandomMachine(ExamRoom room) {
+    private static ExamMachine getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end) {
+        List<Software> wantedSoftware = exam.getSoftwareInfo();
+        final List<ExamMachine> machines = room.getExamMachines();
+        Collections.shuffle(machines);
+        List<ExamMachine> candidates = new ArrayList<>();
+        for (ExamMachine machine : machines) {
+            if (wantedSoftware.isEmpty()) {
+                continue;
+            }
+            List<Software> machineSoftware = machine.getSoftwareInfo();
+            for (Software wanted : wantedSoftware) {
+                for (Software software : machineSoftware) {
+                    if (wanted.getId().equals(software.getId())) {
+                        candidates.add(machine);
+                    }
+                }
+            }
+
+        }
+        if(candidates.isEmpty()) {
+            return null;
+        }
+        Interval wantedTime = new Interval(start, end);
+        for (ExamMachine machine : candidates) {
+            boolean overlaps = false;
+            for (Reservation reservation : machine.getReservation()) {
+                Interval reservationInterval = new Interval(reservation.getStartAt().getTime(), reservation.getEndAt().getTime());
+                if (!reservationInterval.overlaps(wantedTime)) {
+                    overlaps = true;
+                }
+                continue;
+            }
+            if(overlaps) {
+                return machine;
+            }
+        }
         return null;
-
-
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -227,7 +274,7 @@ public class CalendarController extends SitnetController {
                 final DateTime endTime;
 
                 if (forDay.toLocalDate().equals(now.toLocalDate()) && hours.getStart().isBefore(now)) {
-                    startTime = DateTime.now();
+                    startTime = DateTime.now().plusHours(1).withMinuteOfHour(0);
                 } else {
                     startTime = hours.getStart();
                 }
