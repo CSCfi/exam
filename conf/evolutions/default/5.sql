@@ -28,7 +28,7 @@ ALTER COLUMN ebean_timestamp TYPE timestamp with time zone,
         timestamp with time zone 'epoch' + foo_timestamp * interval '1 second',
     ALTER COLUMN ebean_timestamp SET DEFAULT now();
 ALTER TABLE question
-ALTER COLUMN ebean_timestamp DROP DEFAULT,
+ALTER COLUMN ebean_timestamp DROP DEFAUL,
 ALTER COLUMN ebean_timestamp TYPE timestamp with time zone,
    USING
         timestamp with time zone 'epoch' + foo_timestamp * interval '1 second',
