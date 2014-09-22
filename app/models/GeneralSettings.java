@@ -10,6 +10,9 @@ import javax.persistence.*;
 @Entity
 public class GeneralSettings extends Model {
 
+    @Version
+    protected Long ebeanTimestamp;
+
     @Id
 	@GeneratedValue(strategy= GenerationType.AUTO)
     protected Long id;

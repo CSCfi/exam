@@ -13,9 +13,13 @@ import java.sql.Timestamp;
 @Entity
 public class ExamRecord extends Model {
 
+    @Version
+    protected Long ebeanTimestamp;
+
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
+
     @OneToOne
     private User teacher;
     @OneToOne

@@ -2,16 +2,16 @@ package models;
 
 import play.db.ebean.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Created by alahtinen on 05/09/14.
  */
 @Entity
 public class HakaAttribute extends Model {
+
+    @Version
+    protected Long ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

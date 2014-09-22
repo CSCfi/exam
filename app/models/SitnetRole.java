@@ -3,15 +3,15 @@ package models;
 import be.objectify.deadbolt.core.models.Role;
 import play.db.ebean.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class SitnetRole extends Model implements Role {
 
     public static final Finder<Long, SitnetRole> find = new Finder<Long, SitnetRole>(Long.class, SitnetRole.class);
+
+    @Version
+    protected Long ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

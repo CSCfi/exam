@@ -9,6 +9,9 @@ import java.sql.Timestamp;
 @Entity
 public class ExamEnrolment extends Model {
 
+    @Version
+    protected Long ebeanTimestamp;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

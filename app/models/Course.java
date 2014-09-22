@@ -14,6 +14,9 @@ import javax.persistence.*;
 @Entity
 public class Course extends Model {
 
+    @Version
+    protected Long ebeanTimestamp;
+
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Long id;

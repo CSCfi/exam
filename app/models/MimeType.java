@@ -1,21 +1,26 @@
 package models;
 
+import play.db.ebean.Model;
+
 import javax.persistence.*;
 
 @Entity
-public class MimeType {
+public class MimeType extends Model {
 
-	@Transient
+    @Version
+    protected Long ebeanTimestamp;
+
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
+
+    @Transient
 	public static final String COMMENT ="comment";
-	@Transient
+    @Transient
 	public static final String IMAGE ="image";
 	@Transient
 	public static final String TEXT ="text";
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Long id;	
-	
 	private String type;
 
 	public String getType() {

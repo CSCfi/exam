@@ -15,6 +15,9 @@ import java.util.Map;
 @Table(name = "sitnet_users")
 public class User extends Model implements Subject {
 
+    @Version
+    protected Long ebeanTimestamp;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

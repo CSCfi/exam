@@ -17,7 +17,6 @@ abstract public class SitnetModel extends Model implements Cloneable {
     protected Long id;
 	
 	@Version
-//    @Temporal(TemporalType.TIMESTAMP)
     protected Long ebeanTimestamp;
 	
 //	@CreatedTimestamp

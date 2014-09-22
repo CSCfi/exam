@@ -11,6 +11,9 @@ import java.util.List;
 @Entity
 public class Software extends Model {
 
+    @Version
+    protected Long ebeanTimestamp;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

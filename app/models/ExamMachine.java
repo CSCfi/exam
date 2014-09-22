@@ -15,6 +15,9 @@ import java.util.List;
 @Entity
 public class ExamMachine extends Model {
 
+    @Version
+    protected Long ebeanTimestamp;
+
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;

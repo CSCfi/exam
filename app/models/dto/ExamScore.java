@@ -8,6 +8,9 @@ import java.util.List;
 @Entity
 public class ExamScore extends Model {
 
+    @Version
+    protected Long ebeanTimestamp;
+
     // Tallennetaan Sitnet tietokantaan, koska osassa organisaatioita suoritukset viedään erä-ajona
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

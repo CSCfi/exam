@@ -16,6 +16,13 @@ import java.sql.Timestamp;
 @DiscriminatorValue("AbstractCalendarEvent")
 abstract public class AbstractCalendarEvent extends Model {
 
+    @Version
+    protected Long ebeanTimestamp;
+
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    protected Long id;
+
     @Column(name="event_type")
     protected String event_type;
 
@@ -36,6 +43,14 @@ abstract public class AbstractCalendarEvent extends Model {
 
     @Column(columnDefinition="boolean default false")
     protected boolean reoccurring;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getEvent_type() {
         return event_type;

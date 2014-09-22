@@ -2,14 +2,7 @@ package models;
 
 import java.sql.Timestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -17,6 +10,9 @@ import play.db.ebean.Model;
 
 @Entity
 public class ExamParticipation extends Model {
+
+    @Version
+    protected Long ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
