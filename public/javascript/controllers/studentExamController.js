@@ -378,10 +378,12 @@
                 $scope.alarmLine = 300; //if under this, red text. in seconds -> set to 5 minutes
 
                 var getRemainingTime = function() {
-                    var req = $http.get('/time/' + $scope.doexam.id);
-                    req.success(function (reply) {
-                        $scope.remainingTime = reply;
-                    });
+                    if($scope.doexam && $scope.doexam.id) {
+                        var req = $http.get('/time/' + $scope.doexam.id);
+                        req.success(function (reply) {
+                            $scope.remainingTime = reply;
+                        });
+                    }
                 };
 
                 $scope.remainingTime = "";

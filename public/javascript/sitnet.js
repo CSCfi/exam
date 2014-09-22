@@ -43,6 +43,9 @@
     }]);
     sitnet.run(['$http', '$modal', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
         function ($http, $modal, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
+
+            $localStorage["LOCATION.PATH"] = $location.path();
+
             var user = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
             if (user) {
                 var header = {};
@@ -113,7 +116,12 @@
                                             toastr.error(error.data);
                                         });
                                         $modalInstance.dismiss();
-                                        $location.path("/home");
+                                        if($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
+                                            $location.path($localStorage["LOCATION.PATH"]);
+                                            $localStorage["LOCATION.PATH"] = "";
+                                        } else {
+                                            $location.path("/home");
+                                        }
                                     };
                                     $scope.cancel = function () {
                                         console.log("cancel")
@@ -125,7 +133,16 @@
 
                         }
                     }
-                    $location.path("/home");
+                    if($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
+                        $location.path($localStorage["LOCATION.PATH"]);
+                        $localStorage["LOCATION.PATH"] = "";
+                    } else {
+                        $location.path("/home");
+                    }
+                });
+                xhr.error(function (message) {
+                    console.log(message)
+                        $location.path("/login");
                 });
             };
             login();

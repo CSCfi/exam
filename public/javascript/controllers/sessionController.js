@@ -4,6 +4,7 @@
         .controller('SessionCtrl', ['$scope', '$routeParams', '$rootScope', '$localStorage', '$sessionStorage', '$location', '$http', '$modal', '$translate', 'authService', 'sessionService', 'ExamRes', 'UserRes', 'SITNET_CONF', 'tmhDynamicLocale',
             function ($scope, $routeParams, $rootScope, $localStorage, $sessionStorage, $location, $http, $modal, $translate, authService, sessionService, ExamRes, UserRes, SITNET_CONF, tmhDynamicLocale) {
 
+                $scope.path = $location.path();
                 $scope.session = sessionService;
 
 //                $scope.logoutDialog = function () {
@@ -73,7 +74,7 @@
                                 toastr.success("Päätä avoin tentti ennen uloskirjautumista");
                             } else {
                                 $scope.dologout();
-                            };
+                            }
                         },
                         function (error) {
                             toastr.success(error, "Jotain odottamatonta tapahtui!");
@@ -164,7 +165,12 @@
                                                 toastr.error(error.data);
                                             });
                                             $modalInstance.dismiss();
-                                            $location.path("/home");
+                                            if($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
+                                                $location.path($localStorage["LOCATION.PATH"]);
+                                                $localStorage["LOCATION.PATH"] = "";
+                                            } else {
+                                                $location.path("/home");
+                                            }
                                         };
                                         $scope.cancel = function () {
                                             console.log("cancel")
@@ -177,10 +183,15 @@
                             }
                         }
 
-                        $location.path("/home");
+                        if($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
+                            $location.path($localStorage["LOCATION.PATH"]);
+                            $localStorage["LOCATION.PATH"] = "";
+                        } else {
+                            $location.path("/home");
+                        }
                     });
                     xhr.error(function (message) {
-                        toastr.error(message, "Kirjautuminen epäonnistui!");
+                        $location.path("/login");
                     });
                 };
 
