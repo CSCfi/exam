@@ -200,6 +200,8 @@ public class StudentExamController extends SitnetController {
             } else {
 
                 ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                        .fetch("reservation")
+                        .fetch("reservation.machine")
                         .where()
                         .eq("user.id", user.getId())
                         .eq("exam.id", blueprint.getId())
@@ -207,8 +209,23 @@ public class StudentExamController extends SitnetController {
 
                 //et ole ilmoittautunut kokeeseen
                 if(enrolment == null) {
-                    return forbidden();
+                    return forbidden("you have no enrolment");
                 }
+
+                if(enrolment.getReservation() ==  null) {
+                      return forbidden("you have no reservation");
+                }
+
+                if(enrolment.getReservation().getMachine() == null ) {
+                    return internalServerError("there is no machine on the reservation");
+                }
+
+                /*
+                String ip = request().remoteAddress();
+                if(!enrolment.getReservation().getMachine().getIpAddress().equals(ip)){
+                    return forbidden("wrong machine");
+                }
+                */
 
                 studentExam.setState("STUDENT_STARTED");
                 studentExam.setCreator(user);
