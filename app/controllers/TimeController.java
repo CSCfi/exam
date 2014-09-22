@@ -34,6 +34,10 @@ public class TimeController extends Controller {
                 .eq("user.id", user.getId())
                 .findUnique();
 
+        if(participation == null) {
+            return notFound();
+        }
+
         Exam exam = participation.getExam();
 
         final Seconds examDuration = Minutes.minutes(exam.getDuration()).toStandardSeconds();
