@@ -363,14 +363,28 @@
                         var seconds = time - ( minutes * 60 );
                         remaining = minutes + "m " + seconds + 's';
                     } else {
-                        remaining = time + 's';
+                        if(time >= 0) {
+                            remaining = time + 's';
+                        } else {
+                            remaining = "";
+                            updateInterval = 30;
+                        }
                     }
 
                     return remaining;
 
                 };
 
-                $scope.remainingTime = '';
+                $scope.alarmLine = 300; //if under this, red text. in seconds -> set to 5 minutes
+
+                var getRemainingTime = function() {
+                    var req = $http.get('/time/' + $scope.doexam.id);
+                    req.success(function (reply) {
+                        $scope.remainingTime = reply;
+                    });
+                };
+
+                $scope.remainingTime = "";
                 var updateCheck = 30;
                 var updateInterval = 0;
                 var count = function () {
@@ -378,15 +392,13 @@
                     $timeout(count, 1000);
                     if (updateInterval >= updateCheck) {
                         updateInterval = 0;
-                        var req = $http.get('/time/' + $scope.doexam.id);
-                        req.success(function (reply) {
-                            $scope.remainingTime = reply;
-                        });
+                        $scope.remainingTime = getRemainingTime();
                     } else {
                         $scope.remainingTime--;
                         return;
                     }
                 };
+                count(); // start the clock
 
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
@@ -399,11 +411,11 @@
 
                 $scope.isAnswer = function (question, option) {
 
-                    if(question.answer === null)
+                    if(question && question.answer === null)
                         return false;
-                    else if(question.answer.option === null)
+                    else if(question && question.answer && question.answer.option === null)
                         return false;
-                    else if(option.option === question.answer.option.option)
+                    else if(option && question && question.answer && question.answer.option && option.option === question.answer.option.option)
                         return true;
                 };
 
