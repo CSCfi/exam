@@ -9,15 +9,15 @@ ALTER TABLE exam DROP COLUMN ebean_timestamp;
 ALTER TABLE exam_section DROP COLUMN ebean_timestamp;
 ALTER TABLE grade DROP COLUMN ebean_timestamp;
 
-ALTER TABLE answer ADD COLUMN ebean_timestamp bigint;
-ALTER TABLE question ADD COLUMN ebean_timestamp bigint;
-ALTER TABLE attachment ADD COLUMN ebean_timestamp bigint;
-ALTER TABLE comment ADD COLUMN ebean_timestamp bigint;
-ALTER TABLE evaluation_criteria ADD COLUMN ebean_timestamp bigint;
-ALTER TABLE evaluation_phrase ADD COLUMN ebean_timestamp bigint;
-ALTER TABLE exam ADD COLUMN ebean_timestamp bigint;
-ALTER TABLE exam_section ADD COLUMN ebean_timestamp bigint;
-ALTER TABLE grade ADD COLUMN ebean_timestamp bigint;
+ALTER TABLE answer ADD COLUMN ebean_timestamp BIGINT DEFAULT 0;
+ALTER TABLE question ADD COLUMN ebean_timestamp BIGINT DEFAULT 0;
+ALTER TABLE attachment ADD COLUMN ebean_timestamp BIGINT DEFAULT 0;
+ALTER TABLE comment ADD COLUMN ebean_timestamp BIGINT DEFAULT 0;
+ALTER TABLE evaluation_criteria ADD COLUMN ebean_timestamp BIGINT DEFAULT 0;
+ALTER TABLE evaluation_phrase ADD COLUMN ebean_timestamp BIGINT DEFAULT 0;
+ALTER TABLE exam ADD COLUMN ebean_timestamp BIGINT DEFAULT 0;
+ALTER TABLE exam_section ADD COLUMN ebean_timestamp BIGINT DEFAULT 0;
+ALTER TABLE grade ADD COLUMN ebean_timestamp BIGINT DEFAULT 0;
 
 # --- !Downs
 # these may be incorrect

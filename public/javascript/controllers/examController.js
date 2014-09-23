@@ -630,15 +630,16 @@
 
                 $scope.toggleLottery = function (section) {
 
-                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
-                        section = sec;
+                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
+                        function (sec) {
+                            section = sec;
 
-//                        if( section.lotteryItemCount === undefined )
-//                            section.lotteryItemCount = 1;
+                            if (section.lotteryItemCount === undefined)
+                                section.lotteryItemCount = 1;
 
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
                 };
 
                 $scope.updateLotteryCount = function (section) {
