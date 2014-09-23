@@ -1029,14 +1029,6 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateSection(Long eid, Long sid) {
 
-//        DynamicForm df = Form.form().bindFromRequest();
-//        ExamSection section = new ExamSection();
-//        section.setId(new Long(df.get("id")));
-//        section.setName(df.get("name"));
-//        section.setExpanded(new Boolean(df.get("expanded")));
-//        section.setLotteryOn(new Boolean(df.get("lotteryOn")));
-//        section.setLotteryItemCount(new Integer(df.get("lotteryItemCount")));
-
         // TODO: should check is user is owner ?
         ExamSection section = Form.form(ExamSection.class).bindFromRequest(
                 "id",
@@ -1046,7 +1038,7 @@ public class ExamController extends SitnetController {
                 "lotteryItemCount"
         ).get();
 
-        ExamSection sectionToUpdate = Ebean.find(ExamSection.class, eid);
+        ExamSection sectionToUpdate = Ebean.find(ExamSection.class, sid);
         sectionToUpdate.setName(section.getName());
         sectionToUpdate.setExpanded(section.getExpanded());
         sectionToUpdate.setLotteryOn(section.getLotteryOn());
