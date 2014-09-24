@@ -40,7 +40,7 @@
                             $scope.reviewerExams = reviewerExams;
 
                             angular.forEach($scope.reviewerExams, function (review, index) {
-                                ExamRes.examEnrolments.query({eid: review.exam.id},
+                                ExamRes.examEnrolmentsWithReservations.query({eid: review.exam.id},
                                     function (activeExamEnrolments) {
                                         review.activeExamEnrolments = activeExamEnrolments;
                                     },

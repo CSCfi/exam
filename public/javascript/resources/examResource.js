@@ -181,6 +181,14 @@
                     "get": {method: "GET", params: { eid: "@eid" }}
                 }),
 
+                examEnrolmentsWithReservations: $resource("/examenrolmentswithreservations/:eid",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "get": {method: "GET", params: { eid: "@eid" }}
+                }),
+
                 examParticipations: $resource("/examparticipations/:eid",
                 {
                     eid: "@eid"

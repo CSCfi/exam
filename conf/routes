@@ -44,6 +44,7 @@ GET           /finishedexams                                                   c
 GET           /activeexams                                                     controllers.ExamController.getActiveExams()
 GET           /reviewerexams                                                   controllers.ExamController.getTeachersExams()
 GET           /examenrolments/:eid                                             controllers.ExamController.getEnrolmentsForExam(eid: Long)
+GET           /examenrolmentswithreservations/:eid                           controllers.ExamController.getEnrolmentsWithReservationsForExam(eid: Long)
 GET           /examparticipations/:eid                                         controllers.ExamController.getParticipationsForExam(eid: Long)
 GET           /examparticipationsandreviews/:eid                               controllers.ExamController.getParticipationsAndReviewedForExam(eid: Long)
 POST          /exams/:eid/examtype/:etid                                       controllers.ExamController.insertExamType(eid: Long, etid: Long)

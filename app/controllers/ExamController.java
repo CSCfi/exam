@@ -1210,7 +1210,36 @@ public class ExamController extends SitnetController {
                 .fetch("exam.parent")
                 .fetch("reservation")
                 .where()
-                .eq("exam.parent.id", eid)
+                .eq("exam.id", eid)             // Just enrolled, not started
+//                .eq("exam.parent.id", eid)    // Exams that have been started by student
+                .findList();
+
+        if (enrolments == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+            options.setPathProperties("user", "id");
+            options.setPathProperties("exam", "id, name, course");
+            options.setPathProperties("exam.course", "code");
+            options.setPathProperties("reservation", "startAt, machine");
+            options.setPathProperties("reservation.machine", "name");
+
+            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+        }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public static Result getEnrolmentsWithReservationsForExam(Long eid) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .fetch("exam.parent")
+                .fetch("reservation")
+                .where()
+                .ne("reservation", null)             // Just enrolled, not started
+                .eq("exam.id", eid)             // Just enrolled, not started
+//                .eq("exam.parent.id", eid)    // Exams that have been started by student
                 .findList();
 
         if (enrolments == null) {

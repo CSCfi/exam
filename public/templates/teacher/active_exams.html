@@ -76,7 +76,7 @@
                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                 <td class="table-column-examcode">{{ activeExam.exam.course.code }}</td>
                 <td class="table-column-examname"><a href="#/exams/reviews/{{activeExam.exam.id}}">{{ activeExam.exam.name }}</a></td>
-                <td class="table-column-enroll-participation">{{ activeExam.examParticipations.length }} / {{ activeExam.activeExamEnrolments.length }} <span>({{ (activeExam.examParticipations.length/activeExam.activeExamEnrolments.length)*100 | number : 2 }}%)</span></td>
+                <td class="table-column-enroll-participation">{{ activeExam.examParticipations.length }} / {{ activeExam.activeExamEnrolments.length +activeExam.examParticipations.length}} <span>({{ (activeExam.examParticipations.length/(activeExam.activeExamEnrolments.length +activeExam.examParticipations.length))*100 | number : 2 }}%)</span></td>
                 <td class="table-column-enroll-participation">{{ activeExam.examParticipationsAndReviews.length }} / {{ activeExam.examParticipations.length }} <span>({{ (activeExam.examParticipationsAndReviews.length/activeExam.examParticipations.length)*100 | number : 2 }}%)</span></td>
                 <td class="table-column-open-until">{{ activeExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}</td>
                 <td class="table-column-teachers">{{ activeExam.examInspections }}</td>
