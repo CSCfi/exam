@@ -43,7 +43,7 @@ public class Global extends GlobalSettings {
     public void onStart(Application app) {
 
         System.setProperty("user.timezone", "UTC");
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        TimeZone.setDefault(null);
 
         //todo: make these interval and start times configurable via configuration files
 

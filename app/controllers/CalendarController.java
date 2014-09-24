@@ -93,7 +93,6 @@ public class CalendarController extends SitnetController {
 
         ExamMachine machine = getRandomMachine(room, enrolment.getExam(), start, end);
 
-
         if(machine == null) {
             return notFound();
         }
@@ -128,20 +127,21 @@ public class CalendarController extends SitnetController {
         final List<ExamMachine> machines = room.getExamMachines();
         Collections.shuffle(machines);
         List<ExamMachine> candidates = new ArrayList<>();
-        for (ExamMachine machine : machines) {
-            if (wantedSoftware.isEmpty()) {
-                continue;
-            }
-            List<Software> machineSoftware = machine.getSoftwareInfo();
-            for (Software wanted : wantedSoftware) {
-                for (Software software : machineSoftware) {
-                    if (wanted.getId().equals(software.getId())) {
-                        candidates.add(machine);
+        if (wantedSoftware.isEmpty()) {
+            candidates.addAll(machines);
+        } else {
+            for (ExamMachine machine : machines) {
+                List<Software> machineSoftware = machine.getSoftwareInfo();
+                for (Software wanted : wantedSoftware) {
+                    for (Software software : machineSoftware) {
+                        if (wanted.getId().equals(software.getId())) {
+                            candidates.add(machine);
+                        }
                     }
                 }
             }
-
         }
+
         if(candidates.isEmpty()) {
             return null;
         }
@@ -150,12 +150,12 @@ public class CalendarController extends SitnetController {
             boolean overlaps = false;
             for (Reservation reservation : machine.getReservation()) {
                 Interval reservationInterval = new Interval(reservation.getStartAt().getTime(), reservation.getEndAt().getTime());
-                if (!reservationInterval.overlaps(wantedTime)) {
+                if (reservationInterval.overlaps(wantedTime)) {
                     overlaps = true;
                 }
                 continue;
             }
-            if(overlaps) {
+            if(!overlaps) {
                 return machine;
             }
         }

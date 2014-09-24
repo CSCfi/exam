@@ -63,7 +63,7 @@
                     </div>
                     <div class="info-row col-md-12 info-column" ng-show="enrolment.reservation.startAt">
                         <span class="header col-md-4">{{ 'sitnet_exam_time' | translate }}:</span>
-                        <span class="text col-md-8 sitnet-text-alarm">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} klo {{enrolment.reservation.startAt | date:'HH:mm'}} - {{enrolment.reservation.endAt | date:'HH:mm'}}</span>
+                        <span class="text col-md-8 sitnet-text-alarm">{{enrolment.reservation.startAt | utc |date:'dd.MM.yyyy'}} klo {{enrolment.reservation.startAt | utc | date:'HH:mm'}} - {{enrolment.reservation.endAt | utc |date:'HH:mm'}}</span>
                     </div>
                     <div class="info-row col-md-12 info-column">
                         <span class="header col-md-4">{{ 'sitnet_toolbar_calendar' | translate }}:</span>
