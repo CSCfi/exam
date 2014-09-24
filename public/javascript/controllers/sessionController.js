@@ -7,6 +7,17 @@
                 $scope.path = $location.path();
                 $scope.session = sessionService;
 
+                $scope.doExam = false;
+
+
+                $scope.$on('startExam', function () {
+                    $scope.doExam = true;
+                });
+
+                $scope.$on('endExam', function () {
+                    $scope.doExam = false;
+                });
+
 //                $scope.logoutDialog = function () {
 //
 //                    var modalInstance = $modal.open({
@@ -23,6 +34,8 @@
 //                        // Cancel button
 //                    });
 //                };
+
+
 
                 if($location.url() == "/logout")
                 {

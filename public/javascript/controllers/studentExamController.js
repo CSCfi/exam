@@ -84,6 +84,8 @@
                 $scope.doExam = function (hash) {
                     $http.get('/student/doexam/' + $routeParams.hash)
                         .success(function (data, status, headers, config) {
+                            $rootScope.$broadcast('startExam');
+
                             $scope.doexam = data;
                             $scope.activeSection = $scope.doexam.examSections[0];
 
@@ -206,6 +208,7 @@
                 };
 
                 $scope.continueExam = function (exam) {
+                    $rootScope.$broadcast('startExam');
                     $http.get('/student/doexam/' + exam.hash)
                         .success(function (clonedExam) {
                             $scope.clonedExam = clonedExam;
@@ -294,6 +297,7 @@
                 $scope.saveExam = function (doexam) {
 
                     if (confirm($translate('sitnet_confirm_turn_exam'))) {
+                        $rootScope.$broadcast('endExam');
 
                         StudentExamRes.exams.update({id: doexam.id}, function () {
 
@@ -313,6 +317,8 @@
                 $scope.abortExam = function (doexam) {
 
                     if (confirm($translate('sitnet_confirm_abort_exam'))) {
+                        $rootScope.$broadcast('endExam');
+
                         StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
                             toastr.info("Tentti keskeytetty.");
                             $location.path("/home/");
