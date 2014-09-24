@@ -380,6 +380,7 @@
 //                            "course": $scope.newExam.course,
                             "examType": $scope.newExam.examType,
                             "instruction": $scope.newExam.instruction,
+                            "enrollInstruction": $scope.newExam.enrollInstruction,
                             "state": ($scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED': 'SAVED'),
                             "shared": $scope.newExam.shared,
                             "examActiveStartDate": $scope.dateService.startTimestamp,
@@ -412,6 +413,7 @@
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
                         "instruction": $scope.newExam.instruction,
+                        "enrollInstruction": $scope.newExam.enrollInstruction,
 //                        "state": 'SAVED',
 //                        "course": $scope.newExam.course,    // there is no course
                         "shared": $scope.newExam.shared,
@@ -443,6 +445,7 @@
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
                         "instruction": $scope.newExam.instruction,
+                        "enrollInstruction": $scope.newExam.enrollInstruction,
 
                         // if exam is already PUBLISHED save it as PUBLISHED
                         "state": ($scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED': 'SAVED'),
@@ -508,6 +511,7 @@
                             "id": $scope.newExam.id,
                             "name": $scope.newExam.name,
                             "instruction": $scope.newExam.instruction,
+                            "enrollInstruction": $scope.newExam.enrollInstruction,
                             "state": 'PUBLISHED',
 //                            "course": $scope.newExam.course,    // there is no course
                             "shared": $scope.newExam.shared,

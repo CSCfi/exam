@@ -47,9 +47,14 @@ public class Exam extends SitnetModel {
     @NonCloneable
     private ExamType examType;
     
-    // Opettajan antama ohje Opiskelijalle tentin suorittamista varten
+    // Instruction written by teacher, shown during exam
     @Column(columnDefinition = "TEXT")
     private String instruction;
+
+    // Instruction written by teacher, shown during exam
+    @Column(columnDefinition = "TEXT")
+    private String enrollInstruction;
+
 
     private boolean shared;
 
@@ -304,6 +309,14 @@ public class Exam extends SitnetModel {
         this.hash = SitnetUtil.encodeMD5(attributes);
         play.Logger.debug("Exam hash: " + this.hash);
         return hash;
+    }
+
+    public String getEnrollInstruction() {
+        return enrollInstruction;
+    }
+
+    public void setEnrollInstruction(String enrollInstruction) {
+        this.enrollInstruction = enrollInstruction;
     }
 
     public Exam getParent() {

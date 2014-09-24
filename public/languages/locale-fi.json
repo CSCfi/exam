@@ -307,5 +307,7 @@
     "sitnet_state_ready": "Valmiina tentittäväksi",
     "sitnet_state_graded_logged": "Arvioitu ja kirjattu",
     "sitnet_from": "Alkupvm",
-    "sitnet_to": "Loppupvm"
+    "sitnet_to": "Loppupvm",
+    "sitnet_exam_instruction": "Tentin aikana näkyvä ohjeistus",
+    "sitnet_enroll_instruction": "Ilmoittautumisen aikana näkyvä ohjeistus"
 }

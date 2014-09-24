@@ -17,6 +17,7 @@
                             <th class="table-column-flag"></th>
                             <th class="table-column-examname">{{'sitnet_examcode_and_name' | translate}}</th>
                             <th class="table-column-enroll-participation">{{'sitnet_teacher' | translate}}</th>
+                            <th class="table-column-teachers">{{'sitnet_instruction' | translate}}</th>
                             <th class="table-column-open-until">{{'sitnet_exam_time' | translate}}</th>
                         </tr>
                     </thead>
@@ -31,6 +32,9 @@
                             </td>
                             <td>
                                 <i>{{exam.creator.firstName}} {{exam.creator.lastName}}</i>
+                            </td>
+                            <td>
+                                <i>{{exam.enrollInstruction}}</i>
                             </td>
                             <td>{{exam.examActiveStartDate | date:'dd.MM.yyyy HH:mm'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy HH:mm'}}</td>
 

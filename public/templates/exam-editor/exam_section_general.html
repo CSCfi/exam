@@ -255,21 +255,9 @@
                 <input type="text" class="form-control" ng-model="newExam.answerLanguage" ui-change="updateExam()">
             </div>
         </div>
+    </div>
 
-        <!-- Exam material and quidance input elements -->
-        <div class="col-md-12">
-            <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
-            <multiselect class="input-xlarge"
-                         multiple="true"
-                         ng-model="newExam.softwares"
-                         header="{{'sitnet_select' | translate}}"
-                         multiheader="selectedSoftwares(newExam)"
-                         options="software.id as software.name for software in softwares"
-                         change="updateSoftwareInfo(newExam)" >
-
-            </multiselect>
-        </div>
-        <!--<div class="row base">-->
+    <!--<div class="row base">-->
             <!--<div class="checkbox">-->
                 <!--<label>-->
                     <!--<input type="checkbox" ng-model="newExam.shared" ui-blur="updateExam()"> {{'sitnet_share_this_exam' |-->
@@ -278,26 +266,59 @@
             <!--</div>-->
         <!--</div>-->
 
-        <!-- Exam instruction -->
-        <div class="exam-general-information">
+        <div class="row">
+            <!-- Exam software -->
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
+                <multiselect class="input-xlarge"
+                             multiple="true"
+                             ng-model="newExam.softwares"
+                             header="{{'sitnet_select' | translate}}"
+                             multiheader="selectedSoftwares(newExam)"
+                             options="software.id as software.name for software in softwares"
+                             change="updateSoftwareInfo(newExam)" >
+
+                </multiselect>
+            </div>
+
+            <!--Attachment file-->
+            <div class="col-md-6">
+                <div class="sitnet-info-text">
+                    {{'sitnet_exam_attacment' | translate}}
+                </div>
+                <div ng-show="newExam.attachment !== null && newExam.attachment !== undefined" ng-controller="AttachmentController">
+                    <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}}  </a>
+                    <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
+                </div>
+                <br>
+                <button ng-click="selectFile()"class=form-control">{{'sitnet_attach_file' | translate}}</button>
+            </div>
+        </div>
+
+    <!-- Exam instruction -->
+
+    <div class="row">
+        <div class="exam-general-information col-md-12">
             <div class="exam-general-information-header">
                 {{'sitnet_instruction' | translate}}
             </div>
-
+            <div class="sitnet-info-text">
+                {{'sitnet_exam_instruction' | translate}}
+            </div>
             <div class="input-group exam-info">
-                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction" ui-blur="updateExam()"
+                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction" ui-change="updateExam()"
                           placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
                 </textarea>
             </div>
+            <!--Enrolment info-->
             <div class="sitnet-info-text">
-                {{'sitnet_exam_attacment' | translate}}
+                {{'sitnet_enroll_instruction' | translate}}
             </div>
-            <div ng-show="newExam.attachment !== null && newExam.attachment !== undefined" ng-controller="AttachmentController">
-                <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}}  </a>
-                <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
+            <div class="input-group exam-info">
+                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.enrollInstruction" ui-change="updateExam()"
+                          placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
+                </textarea>
             </div>
-            <br>
-            <button ng-click="selectFile()"class=form-control">{{'sitnet_attach_file' | translate}}</button>
         </div>
     </div>
 </div>
