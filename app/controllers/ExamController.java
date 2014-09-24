@@ -385,6 +385,7 @@ public class ExamController extends SitnetController {
                 .fetch("examSections.questions.attachment")
                 .where()
                 .eq("id", id)
+                .orderBy("examSections.id, id desc")
                 .findUnique();
 
         for (ExamSection es : exam.getExamSections()) {

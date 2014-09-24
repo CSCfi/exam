@@ -196,7 +196,8 @@
 
                 $scope.addNewSection = function () {
 
-                    $scope.newSection.name = $translate("sitnet_exam_section_default_name")+" "+ $scope.newExam.examSections.length;
+                    var index = $scope.newExam.examSections.length+1;
+                    $scope.newSection.name = $translate("sitnet_exam_section_default_name")+" "+ index;
 
                     ExamRes.sections.insert({eid: $scope.newExam.id}, $scope.newSection, function (section) {
                         toastr.success("Osio lisätty.");

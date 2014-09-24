@@ -40,19 +40,19 @@
 
     <div class="row">
         <div class="col-md-12">
-            <div class="sitnet-info-text">
-                {{'sitnet_machine_accessibility' | translate}}
-            </div>
-            <div>
-                <input type="text" class="form-control" ng-model="machine.accessibilityInfo" ui-change="updateMachine(machine)">
-                <!--<span class="input-group-addon" ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">-->
-                <!--<i class="fa fa-question-circle fa-fw"></i>-->
-                <!--</span>-->
-            </div>
             <div class="checkbox">
                 <label>
                     <input type="checkbox" ng-model="machine.accessible" ng-change="updateMachine(machine)">{{'sitnet_machine_accessible' | translate}}
                 </label>
+            </div>
+            <div class="sitnet-info-text">
+                {{'sitnet_machine_accessibility' | translate}}
+            </div>
+            <div>
+                <input type="text" ng-disabled="!machine.accessible" class="form-control" ng-model="machine.accessibilityInfo" ui-change="updateMachine(machine)">
+                <!--<span class="input-group-addon" ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">-->
+                <!--<i class="fa fa-question-circle fa-fw"></i>-->
+                <!--</span>-->
             </div>
         </div>
     </div>
@@ -73,19 +73,16 @@
             </div>
         </div>
     </div>
-    <!-- Softwares & IP-address information -->
+    <!-- Video recordings & IP-address information -->
     <div class="row">
-        <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
-            <multiselect class="input-xlarge"
-                 multiple="true"
-                 ng-model="machine.softwareInfo"
-                 header="{{'sitnet_select' | translate}}"
-                 multiheader="selectedSoftwares(machine)"
-                 options="software.name for software in softwares"
-                 change="updateSoftwareInfo()" ></multiselect>
-        </div>
 
+        <!-- Video recordings URL -->
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_machine_video_recordings' | translate}}</div>
+            <div>
+                <input type="text" class="form-control" ng-model="machine.videoRecordings" ui-change="updateMachine(machine)">
+            </div>
+        </div>
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_ip_address' | translate}}</div>
             <div>
@@ -94,14 +91,17 @@
         </div>
     </div>
 
-    <!-- Video recordings URL -->
+    <!--Software-->
     <div class="row">
         <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_machine_video_recordings' | translate}}</div>
-            <div>
-                <input type="text" class="form-control" ng-model="machine.videoRecordings" ui-change="updateMachine(machine)">
-            </div>
-        </div>
+            <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
+            <multiselect class="input-xlarge"
+                         multiple="true"
+                         ng-model="machine.softwareInfo"
+                         header="{{'sitnet_select' | translate}}"
+                         multiheader="selectedSoftwares(machine)"
+                         options="software.name for software in softwares"
+                         change="updateSoftwareInfo()"></multiselect>
         </div>
     </div>
 
@@ -115,7 +115,7 @@
             </div>
             <div class="sitnet-info-text">{{'sitnet_reason' | translate}}</div>
             <div class="input-group">
-                <textarea class="form-control ng-pristine ng-valid" ng-model="machine.statusComment" ui-change="updateMachine(machine)">
+                <textarea ng-disabled="!machine.outOfService" class="form-control ng-pristine ng-valid" ng-model="machine.statusComment" ui-change="updateMachine(machine)">
                 </textarea>
                         <span class="input-group-addon">
                             <i class="fa fa-question-circle fa-fw"></i>
@@ -123,6 +123,7 @@
             </div>
         </div>
     </div>
+
     <div class="row" style="padding:2em 0;">
         <div class="col-md-6 col-md-offset-5">
             <button ng-click="updateMachineAndExit(machine)" class="btn btn-primary">{{'sitnet_save' | translate}}</button>

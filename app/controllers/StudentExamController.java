@@ -172,6 +172,7 @@ public class StudentExamController extends SitnetController {
                 .where()
                 .eq("hash", hash)
                 .ne("parent", null)
+                .orderBy("examSections.id, id desc")
                 .findUnique();
 
         //ko. hashilla ei ole koetta olemassa
