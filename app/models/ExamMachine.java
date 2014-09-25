@@ -197,6 +197,14 @@ public class ExamMachine extends Model {
         this.videoRecordings = videoRecordings;
     }
 
+    public List<Accessibility> getAccessibility() {
+        return accessibility;
+    }
+
+    public void setAccessibility(List<Accessibility> accessibility) {
+        this.accessibility = accessibility;
+    }
+
     @Override
     public String toString() {
         return "ExamMachine{" +
