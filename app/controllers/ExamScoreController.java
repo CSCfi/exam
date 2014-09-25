@@ -89,7 +89,6 @@ public class ExamScoreController extends SitnetController {
 
         return ok(Json.toJson(score));
     }
-
     public static Result examScoreTest() throws MalformedDataException {
 
         Logger.debug("examScoreTest");
@@ -99,58 +98,62 @@ public class ExamScoreController extends SitnetController {
         ExamScore examScore = new ExamScore();
         Random rand = new Random();
 
-        examScore.setIdentifier(json.findValue("identifier").textValue());
-        examScore.setCourseUnitCode(json.findValue("courseUnitCode").textValue());
+        JsonNode courseUnitInfo = json.findValue("CourseUnitInfo");
+
+
+        examScore.setIdentifier(courseUnitInfo.findValue("identifier").textValue());
+        examScore.setCourseUnitCode(courseUnitInfo.findValue("courseUnitCode").textValue());
 //        courseUnitTitle
-        examScore.setCourseUnitLevel(json.findValue("courseUnitLevel").textValue());
-        examScore.setCourseUnitType(json.findValue("courseUnitType").textValue());
-        examScore.setCredits(json.findValue("credits").textValue());
+        examScore.setCourseUnitLevel(courseUnitInfo.findValue("courseUnitLevel").textValue());
+        examScore.setCourseUnitType(courseUnitInfo.findValue("courseUnitType").textValue());
+        examScore.setCredits(courseUnitInfo.findValue("credits").textValue());
         examScore.setCreditType("loppusuoritus");
 //        institutionName
 
 
-        if(! json.findValue("courseImplementation").isArray())
-            return badRequest("courseImplementation should be array");
+        if(courseUnitInfo.findValue("courseImplementation") != null)
+            if(! courseUnitInfo.findValue("courseImplementation").isArray())
+                return badRequest("courseImplementation should be array");
 
-        if(! json.findValue("creditsLanguage").isArray())
+        if(! courseUnitInfo.findValue("creditsLanguage").isArray())
             return badRequest("creditsLanguage should be array");
 
 
 //        lecturerResponsible
-        if(! json.findValue("lecturerResponsible").isArray())
+        if(! courseUnitInfo.findValue("lecturerResponsible").isArray())
             return badRequest("lecturerResponsible should be array");
 
 
 //        gradeScale
-        if(! json.findValue("gradeScale").isArray())
+        if(! courseUnitInfo.findValue("gradeScale").isArray())
             return badRequest("gradeScale should be array");
 
 //        gradeScale
-        if(! json.findValue("lecturer").isArray())
+        if(! courseUnitInfo.findValue("lecturer").isArray())
             return badRequest("lecturer should be array");
 
 
 //        Department
-        if(! json.findValue("department").isArray())
+        if(! courseUnitInfo.findValue("department").isArray())
             return badRequest("department should be array");
 
 //        DegreeProgramme
-        if(! json.findValue("degreeProgramme").isArray())
+        if(! courseUnitInfo.findValue("degreeProgramme").isArray())
             return badRequest("degreeProgramme should be array");
 
 
 //        Campus
-        if(! json.findValue("campus").isArray())
+        if(! courseUnitInfo.findValue("campus").isArray())
             return badRequest("campus should be array");
 
 
 //        CourseMaterial
-        if(! json.findValue("courseMaterial").isArray())
+        if(! courseUnitInfo.findValue("courseMaterial").isArray())
             return badRequest("courseMaterial should be array");
 
 
 //        CreditsLanguage
-        JsonNode language = json.findValue("creditsLanguage");
+        JsonNode language = courseUnitInfo.findValue("creditsLanguage");
         if(language.size() > 0)
         {
             int l = language.size();
@@ -160,7 +163,7 @@ public class ExamScoreController extends SitnetController {
         }
 
 //        GradeScale
-        JsonNode scale = json.findValue("gradeScale");
+        JsonNode scale = courseUnitInfo.findValue("gradeScale");
         if(scale.size() > 0)
         {
             int i = rand.nextInt(scale.size() );
@@ -169,7 +172,7 @@ public class ExamScoreController extends SitnetController {
         }
 
 //        Lecturer
-        JsonNode lecturers = json.findValue("lecturer");
+        JsonNode lecturers = courseUnitInfo.findValue("lecturer");
         if(lecturers.size() > 0)
         {
             int i = rand.nextInt(lecturers.size() );
@@ -178,7 +181,7 @@ public class ExamScoreController extends SitnetController {
             examScore.setLecturerId(value.replace(" ", ".") + "@fake.fi");
         }
 
-        JsonNode courseImplementation = json.findValue("courseImplementation");
+        JsonNode courseImplementation = courseUnitInfo.findValue("courseImplementation");
         if(courseImplementation.size() > 0)
         {
             int i = rand.nextInt(courseImplementation.size() );
@@ -203,7 +206,6 @@ public class ExamScoreController extends SitnetController {
 
         return ok(Json.toJson(examScore));
     }
-
 
     static String readFile(String path) throws IOException {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
