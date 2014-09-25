@@ -68,6 +68,7 @@ public class CalendarController extends SitnetController {
         JsonNode json = request().body().asJson();
 
         //todo: add more validation, user can make loooon reservations eg.
+        //todo: requirements?
         final Integer roomId = json.get("room").asInt();
         final Integer exam = json.get("exam").asInt();
         final DateTime start = DateTime.parse(json.get("start").asText(), dateTimeFormat);
@@ -127,10 +128,16 @@ public class CalendarController extends SitnetController {
         final List<ExamMachine> machines = room.getExamMachines();
         Collections.shuffle(machines);
         List<ExamMachine> candidates = new ArrayList<>();
+
         if (wantedSoftware.isEmpty()) {
             candidates.addAll(machines);
         } else {
             for (ExamMachine machine : machines) {
+
+                if(machine.isArchived() || machine.getOutOfService()) {
+                    continue;
+                }
+
                 List<Software> machineSoftware = machine.getSoftwareInfo();
                 for (Software wanted : wantedSoftware) {
                     for (Software software : machineSoftware) {
@@ -170,11 +177,11 @@ public class CalendarController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSlots(String examinput, String roominput, String dateinput, String accessibilityIds) throws NotFoundException {
 
-        final ArrayList<Integer> ids = new ArrayList<>();
+        final ArrayList<Integer> wantedAccessibility = new ArrayList<>();
         if (accessibilityIds != null) {
             final List<String> strings = Arrays.asList(accessibilityIds.split(","));
             for (String id : strings) {
-                ids.add(Integer.parseInt(id));
+                wantedAccessibility.add(Integer.parseInt(id));
             }
         }
 
@@ -203,22 +210,6 @@ public class CalendarController extends SitnetController {
             throw new NotFoundException(String.format("No room with id: (%s)", room.getId()));
         }
 
-        if (!ids.isEmpty()) {
-            final List<Accessibility> accessibility = room.getAccessibility();
-            for (Integer wantedId : ids) {
-                boolean notFound = true;
-                for (Accessibility access : accessibility) {
-                    int id = access.getId().intValue();
-                    if( id == wantedId){
-                        notFound = false;
-                    }
-                }
-                if (notFound) {
-                    throw new NotFoundException(String.format("Accessibility requirements fails for room (%s)", room.getId()));
-                }
-            }
-        }
-
         Exam exam = examEnrolment.getExam();
         DateTime examEndDateTime = new DateTime(exam.getExamActiveEndDate());
         DateTime searchDate = LocalDate.parse(dateinput, dateFormat).toDateTime(LocalTime.now());
@@ -241,7 +232,7 @@ public class CalendarController extends SitnetController {
                 .findList();
 
         do {
-            final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, current, reservations);
+            final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, current, reservations, wantedAccessibility);
             current = current.plusDays(1);
             allPossibleFreeTimeSlots.putAll(slots);
         } while (current.minusDays(1).isBefore(examEndDateTime));
@@ -249,7 +240,7 @@ public class CalendarController extends SitnetController {
         return ok(Json.toJson(allPossibleFreeTimeSlots));
     }
 
-    private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay,  List<Reservation> reservations) {
+    private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay, List<Reservation> reservations, ArrayList<Integer> wantedAccessibility) {
         Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<String, DayWithFreeTimes>();
 
         final DateTime now = DateTime.now();
@@ -260,7 +251,49 @@ public class CalendarController extends SitnetController {
             return allPossibleFreeTimeSlots;
         }
 
+        boolean roomAccessibilitySatisfied = true;
+
+        if (!wantedAccessibility.isEmpty()) {
+            final List<Accessibility> roomAccessibility = room.getAccessibility();
+            for (Integer wantedId : wantedAccessibility) {
+                boolean notFound = true;
+                for (Accessibility access : roomAccessibility) {
+                    int id = access.getId().intValue();
+                    if( id == wantedId){
+                        notFound = false;
+                    }
+                }
+                if (notFound) {
+                    roomAccessibilitySatisfied = false;
+                }
+            }
+        }
+
+
+
         for (ExamMachine examMachine : room.getExamMachines()) {
+
+            boolean machineAccessibilitySatisfied = true;
+
+            if (!wantedAccessibility.isEmpty() && !roomAccessibilitySatisfied) {
+                final List<Accessibility> examMachineAccessibility = examMachine.getAccessibility();
+                for (Integer wantedId : wantedAccessibility) {
+                    boolean notFound = true;
+                    for (Accessibility access : examMachineAccessibility) {
+                        int id = access.getId().intValue();
+                        if( id == wantedId){
+                            notFound = false;
+                        }
+                    }
+                    if (notFound) {
+                        machineAccessibilitySatisfied = false;
+                    }
+                }
+            }
+
+            if(!machineAccessibilitySatisfied) {
+                continue;
+            }
 
             if (examMachine.getOutOfService()) {
                 continue;
