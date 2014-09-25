@@ -27,7 +27,7 @@
                 <div ng-show="!showName">
                     <form class="form-inline" role="form">
                         <div class="form-group">
-                            <input id="name_field" type="text" class="form-control input-lg" ng-model="newExam.name" autofocus/>
+                            <input id="name_field" type="text" class="form-control input-lg" ng-model="newExam.name" ng-blur="showName = !showName; updateExam()" autofocus/>
                         </div>
                         <button class="btn-primary" ng-click="showName = !showName; updateExam()">
                             <i class="fa fa-check"></i>
