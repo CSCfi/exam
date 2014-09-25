@@ -143,5 +143,10 @@
                 $scope.getUsername = function() {
                     return $scope.session.user.firstname +" "+ $scope.session.user.lastname;
                 };
+
+                $scope.isExamEnded = function (enrolment) {
+                    var end = moment(enrolment.exam.examActiveEndDate).utc();
+                    return end.isBefore(moment());
+                };
         }]);
 }());

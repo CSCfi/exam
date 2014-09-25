@@ -54,7 +54,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-5 pull-left">
+                <div ng-hide='isExamEnded(enrolment)' class="col-md-5 pull-left">
                     <div class="info-row col-md-12 info-column" ng-show="enrolment.reservation.machine.name">
                         <span class="header col-md-4">{{ 'sitnet_exam_room' | translate }}:</span>
                         <span class="text col-md-8">
