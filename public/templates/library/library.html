@@ -67,11 +67,13 @@
                         <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i></div>
                         <div class="library-row-text" >{{stripHtml(question.question)}}</div>
                     </li>
-                    <li>
-                        <div class="menu-item">
-                            {{ 'sitnet_add_random_questions' | translate }} <input type="number" ng-model="amount" min="1" placeholder="0" />
-                        </div>
-                    </li>
+
+                    <!-- SIT-568, Temporarily disabled -->
+                    <!--<li>-->
+                        <!--<div class="menu-item">-->
+                            <!--{{ 'sitnet_add_random_questions' | translate }} <input type="number" ng-model="amount" min="1" placeholder="0" />-->
+                        <!--</div>-->
+                    <!--</li>-->
                 </ul>
             </div>
         </div>
