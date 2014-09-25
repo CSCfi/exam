@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.List;
 
 /*
@@ -16,7 +17,8 @@ import java.util.List;
 public class ExamMachine extends Model {
 
     @Version
-    protected Long ebeanTimestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

@@ -9,6 +9,7 @@ import org.joda.time.format.DateTimeFormatter;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +25,8 @@ import java.util.List;
 public class ExamRoom extends Model {
 
     @Version
-    protected Long ebeanTimestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

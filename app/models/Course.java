@@ -3,6 +3,7 @@ package models;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 
 /*
@@ -15,7 +16,8 @@ import javax.persistence.*;
 public class Course extends Model {
 
     @Version
-    protected Long ebeanTimestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Timestamp ebeanTimestamp;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)

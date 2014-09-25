@@ -10,10 +10,7 @@ import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.*;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import play.Play;
-import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 

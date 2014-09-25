@@ -1,7 +1,6 @@
 package models;
 
-import models.Attachment;
-import com.avaje.ebean.event.*;
+import com.avaje.ebean.event.BeanPersistListener;
 import util.SitnetUtil;
 
 import java.util.Set;

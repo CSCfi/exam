@@ -4,6 +4,7 @@ import be.objectify.deadbolt.core.models.Role;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 public class SitnetRole extends Model implements Role {
@@ -11,7 +12,8 @@ public class SitnetRole extends Model implements Role {
     public static final Finder<Long, SitnetRole> find = new Finder<Long, SitnetRole>(Long.class, SitnetRole.class);
 
     @Version
-    protected Long ebeanTimestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

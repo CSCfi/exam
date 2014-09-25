@@ -408,7 +408,7 @@ public class Exam extends SitnetModel {
             examsec_copy.setId(null);
             examsec_copy.setExam(clone);
             examsec_copy.setQuestions(null);
-            examsec_copy.setEbeanTimestamp(null);
+//            examsec_copy.setEbeanTimestamp(null);
 
             if (examsec_copy.getLotteryOn()) {
                 Collections.shuffle(es.getQuestions());

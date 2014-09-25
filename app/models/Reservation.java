@@ -18,7 +18,8 @@ import java.sql.Timestamp;
 public class Reservation extends Model {
 
     @Version
-    protected Long ebeanTimestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

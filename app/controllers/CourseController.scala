@@ -1,10 +1,10 @@
 package controllers
 
+import be.objectify.deadbolt.java.actions.{Group, Restrict}
 import com.avaje.ebean.Ebean
 import models.Course
-import play.api.mvc.{Controller, Action}
+import play.api.mvc.{Action, Controller}
 import util.scala.ScalaHacks
-import be.objectify.deadbolt.java.actions.{Group, Restrict}
 
 object CourseController extends Controller with ScalaHacks {
 

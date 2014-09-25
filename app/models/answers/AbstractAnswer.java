@@ -1,10 +1,8 @@
 package models.answers;
 
-import models.Comment;
 import models.SitnetModel;
 
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * Created by avainik on 3/6/14.

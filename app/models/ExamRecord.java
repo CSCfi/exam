@@ -14,7 +14,8 @@ import java.sql.Timestamp;
 public class ExamRecord extends Model {
 
     @Version
-    protected Long ebeanTimestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

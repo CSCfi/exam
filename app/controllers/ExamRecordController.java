@@ -4,7 +4,6 @@ import Exceptions.MalformedDataException;
 import com.avaje.ebean.Ebean;
 import models.*;
 import models.dto.ExamScore;
-import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;

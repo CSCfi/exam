@@ -15,7 +15,8 @@ import java.sql.Timestamp;
 public class ExceptionWorkingHours extends Model {
 
     @Version
-    protected Long ebeanTimestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

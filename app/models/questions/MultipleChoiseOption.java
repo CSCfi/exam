@@ -1,17 +1,18 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import play.db.ebean.Model;
 import util.SitnetUtil;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Entity
 public class MultipleChoiseOption extends Model {
 
     @Version
-    protected Long ebeanTimestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

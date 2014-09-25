@@ -2,8 +2,7 @@ package models;
 
 import util.SitnetUtil;
 
-import javax.persistence.*;
-import java.io.File;
+import javax.persistence.Entity;
 
 @Entity
 public class Attachment extends SitnetModel {

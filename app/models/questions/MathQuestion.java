@@ -1,9 +1,9 @@
 package models.questions;
 
+import util.SitnetUtil;
+
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-
-import util.SitnetUtil;
 
 /**
  * Created by avainik on 3/6/14.

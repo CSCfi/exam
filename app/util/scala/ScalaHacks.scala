@@ -1,9 +1,8 @@
 package util.scala
 
-import play.libs.{Json => JavaJson}
-import play.api.mvc.{SimpleResult, Controller}
+import play.api.mvc.{Controller, SimpleResult}
 import play.db.ebean.Model
-import models.Course
+import play.libs.{Json => JavaJson}
 
 trait ScalaHacks {self: Controller =>
 

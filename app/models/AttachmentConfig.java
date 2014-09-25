@@ -6,7 +6,6 @@ package models;
 
 import com.avaje.ebean.config.ServerConfig;
 import com.avaje.ebean.event.ServerConfigStartup;
-import com.avaje.ebean.event.BeanPersistListener;
 
     public class AttachmentConfig implements ServerConfigStartup {
     @Override

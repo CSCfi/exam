@@ -1,10 +1,10 @@
 package models;
 
-import java.util.List;
+import play.db.ebean.Model;
 
 import javax.persistence.*;
-
-import play.db.ebean.Model;
+import java.sql.Timestamp;
+import java.util.List;
 
 // http://tietomalli.csc.fi/Korkeakoulu-kaavio.html
 // http://tietomalli.csc.fi/Sis%C3%A4inen%20organisaatio-kaavio.html
@@ -23,7 +23,8 @@ import play.db.ebean.Model;
 public class Organisation extends Model {
 
     @Version
-    protected Long ebeanTimestamp;
+    @Temporal(TemporalType.TIMESTAMP)
+    protected Timestamp ebeanTimestamp;
 
 	@Id
     @GeneratedValue(strategy= GenerationType.AUTO)

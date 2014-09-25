@@ -1,7 +1,7 @@
 package util.scala
 
-import play.api.mvc.QueryStringBindable.Parsing
 import controllers.CourseController
+import play.api.mvc.QueryStringBindable.Parsing
 
 object Binders {
 
