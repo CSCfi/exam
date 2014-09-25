@@ -74,6 +74,16 @@ public class AdminReservationController extends SitnetController {
                 .eq("roles.name", "STUDENT")
                 .findList();
 
+//        List<HakaAttribute> attr = Ebean.find(HakaAttribute.class)
+//                .where()
+//                .eq("user_id", u.getId())
+//                .like("key", "schacPersonalUniqueCode")
+//                .findList();
+//
+//        for (HakaAttribute a : attr) {
+//            part.put(a.getKey(), a.getValue());
+//        }
+
         if (students == null) {
             return notFound();
         } else {

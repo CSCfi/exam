@@ -52,6 +52,10 @@ public class SessionController extends SitnetController {
 
 
             if(user != null) {
+                // clear old attributes
+                user.getAttributes().clear();
+                user.save();
+
                 List<HakaAttribute> attrs = new ArrayList<HakaAttribute>();
 
                 for (Map.Entry<String,String[]> entry : attributes.entrySet()) {
@@ -72,6 +76,7 @@ public class SessionController extends SitnetController {
                 }
 
                 user.setAttributes(attrs);
+                user.save();
 
             } else {
                 // First login -> create it
