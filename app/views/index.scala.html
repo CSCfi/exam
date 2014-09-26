@@ -128,10 +128,11 @@
                 @*Logo*@
                 <div class="logo">
                     <div ng-hide="minimizeNavigation">
-                        <img src="@routes.Assets.at("images/Exam_logo_hor.png")" alt="exam" />
+                        <img src="@routes.Assets.at("images/exam-logo-black-small.png")" alt="exam" />
                     </div>
                     <div ng-hide="!minimizeNavigation">
-                        <img src="@routes.Assets.at("images/Exam_logo_vert.png")" alt="exam" />
+                        @*<img src="@routes.Assets.at("images/Exam_logo_vert.png")" alt="exam" />*@
+                        <img width="50" height="90" src="@routes.Assets.at("images/exam-logo-black-small-v.png")" alt="exam" />
                     </div>
                 </div>
                  @*Language selection*@
