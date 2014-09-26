@@ -44,7 +44,8 @@ public class User extends Model implements Subject {
 
     // Shibboleth attributes
     //Map<String, String[]> attributes;
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @JsonManagedReference
     private List<HakaAttribute> attributes;
 
     @OneToOne

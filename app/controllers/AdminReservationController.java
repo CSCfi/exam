@@ -7,10 +7,14 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import play.Play;
+import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
@@ -84,6 +88,31 @@ public class AdminReservationController extends SitnetController {
 //            part.put(a.getKey(), a.getValue());
 //        }
 
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+        for(User u : students) {
+            ObjectNode part = Json.newObject();
+            part.put("id", u.getId());
+        	part.put("firstName", u.getFirstName());
+        	part.put("lastName", u.getLastName());
+//        	part.put("schacPersonalUniqueCode", u.getAttributes().get("schacPersonalUniqueCode"));
+//        	part.put("schacPersonalUniqueCode", u.getAttributes().get("schacPersonalUniqueCode"));
+
+            List<HakaAttribute> attr = Ebean.find(HakaAttribute.class)
+                    .where()
+                    .eq("user.id", u.getId())
+                    .like("key", "schacPersonalUniqueCode")
+                    .findList();
+
+            for (HakaAttribute a : attr) {
+                part.put(a.getKey(), a.getValue());
+            }
+
+            part.put("name", new String(u.getFirstName() +" "+u.getLastName()));
+            array.add(part);
+        }
+
+        return ok(Json.toJson(array));
+/*
         if (students == null) {
             return notFound();
         } else {
@@ -92,7 +121,7 @@ public class AdminReservationController extends SitnetController {
             options.setRootPathProperties("id, firstName, lastName");
 
             return ok(jsonContext.toJsonString(students, true, options)).as("application/json");
-        }
+        }*/
     }
 
     @Restrict({@Group("ADMIN")})

@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -14,6 +15,10 @@ public class HakaAttribute extends Model {
     @Version
     @Temporal(TemporalType.TIMESTAMP)
     protected Timestamp ebeanTimestamp;
+
+    @ManyToOne
+    @JsonBackReference
+    private User user;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -44,5 +49,13 @@ public class HakaAttribute extends Model {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
