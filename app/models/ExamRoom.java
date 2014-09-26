@@ -28,14 +28,6 @@ public class ExamRoom extends Model {
     @Temporal(TemporalType.TIMESTAMP)
     protected Timestamp ebeanTimestamp;
 
-    public Long getEbeanTimestamp() {
-        return ebeanTimestamp;
-    }
-
-    public void setEbeanTimestamp(Long ebeanTimestamp) {
-        this.ebeanTimestamp = ebeanTimestamp;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
