@@ -6,6 +6,7 @@
                 <i ng-class="guide ? 'sitnet-text' : 'sitnet-white'" class="fa fa-info-circle fa-stack-1x"></i>
             </a>
             <span ng-class="guide ? 'sitnet-text' : 'sitnet-text-medium'" class="icon_fix">{{'sitnet_exam_quide' | translate}}</span>
+
         </li>
         <li ng-repeat="section in doexam.examSections" ng-click="switchToGuide(false); setActiveSection(section)">
             <span class="fa-stack">
@@ -13,6 +14,11 @@
                 <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-white' " class="fa-stack-1x">{{section.index}}.</i>
             </span>
             <span ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-medium'">{{section.name}}</span>
+            <div class="col-md-6 pull-right">
+                <span class="pull-left sitnet-text-notice bold">{{ getQuestionAmount(section,'open') }}</span>
+                <span class="pull-left horizontal-padding-05"> / </span>
+                <span class="pull-left sitnet-text-ready bold">{{ getQuestionAmount(section,'answered') }}</span>
+            </div>
         </li>
         <li class="info-row col-md-12">
             <a class="col-md-12 fa-stack" ng-click="saveExam(doexam)">

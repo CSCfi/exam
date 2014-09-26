@@ -47,6 +47,30 @@
     margin-left:0.2em;
   }
 
+
+  .exam-clock {
+    font-size: 1.8em;
+    font-style: italic;
+    font-family: $sitnet-family-opensans-bold;
+    color: $sitnet-common-medium;
+    line-height: 2.2em;
+    font-weight: 100;
+    text-align: right;
+    text-spacing: 0.2em;
+  }
+  .exam-clock-text {
+    text-align: right;
+    line-height: 4em;
+    font-size: 1.1em;
+    font-style: italic;
+    font-family: $sitnet-family-opensans-bold;
+    color: $sitnet-common-medium;
+  }
+
+  .exam {
+
+  }
+
   .header-clock {
 
     height:3em;
@@ -61,25 +85,7 @@
       font-size:0.8em;
     }
 
-    .exam, .exam-clock {
-      font-size: 1.1em;
-      font-style: italic;
-      font-family: $sitnet-family-opensans-bold;
-      color: $sitnet-common-medium;
-      margin:0.5em 0;
-      line-height: 2em;
-      height:100%;
-      float:right;
-    }
 
-    .exam {
-
-    }
-    .exam-clock {
-      text-align: center;
-      min-width:20%;
-      color: $sitnet-common-dark;
-    }
 
     .weekday {
       font-family: $sitnet-family-opensans-bold;

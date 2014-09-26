@@ -3,13 +3,12 @@
         <span class="header-text"></span>
     </div>
     <div class="col-md-6">
-        <span class="col-md-12 pull-right header-clock">
-            <span class="exam-clock">
+        <span class="col-md-11 pull-right">
+            <span class="exam-clock-text col-md-10">{{'sitnet_exam_time_left' | translate}}</span>
+            <span class="exam-clock col-md-2">
                 <span ng-if="remainingTime > alarmLine">{{formatRemainingTime(remainingTime)}}</span>
                 <span ng-if="remainingTime <= alarmLine" class="sitnet-text-alarm">{{formatRemainingTime(remainingTime)}}</span>
             </span>
-            <span class="exam">{{'sitnet_exam_time_left' | translate}}</span>
-
         </span>
     </div>
 </div>

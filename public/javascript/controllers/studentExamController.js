@@ -36,7 +36,7 @@
                 $scope.nextButtonText = "";
 
                 $scope.switchButtons = function(section) {
-                    console.log("switchButtons")
+
                     var i = section.index - 1;
 
                     if ($scope.doexam.examSections[i-1]) {
@@ -52,15 +52,13 @@
                     }
 
                     if(i == 0 && $scope.guide) {
-                        console.log("if")
                         $scope.nextButton = true;
                         $scope.nextButtonText = $scope.doexam.examSections[0].index + ". " + $scope.doexam.examSections[0].name;
                     } else if (!$scope.guide && $scope.doexam.examSections[i+1]) {
-                        console.log("else if")
+
                         $scope.nextButton = true;
                         $scope.nextButtonText = $scope.doexam.examSections[i+1].index + ". " + $scope.doexam.examSections[i+1].name;
                     } else {
-                        console.log("else")
                         if($scope.doexam.examSections[i + 1]) {
                             $scope.nextButton = true;
                             $scope.nextButtonText = $scope.doexam.examSections[i + 1].index + ". " + $scope.doexam.examSections[i + 1].name;
@@ -69,6 +67,30 @@
                         }
                     }
 
+                };
+
+                /**
+                 *
+                 * @param section examsection
+                 * @param type "answered" or "open"
+                 */
+                $scope.getQuestionAmount = function(section, type) {
+                    var i = 0;
+                    if(type === 'answered') {
+                        angular.forEach(section.questions, function (question) {
+                            if(question.answered) {
+                                i = i + 1;
+                            }
+                        });
+                    }
+                    if(type === 'open') {
+                        angular.forEach(section.questions, function (question) {
+                            if(!question.answered) {
+                                i = i + 1;
+                            }
+                        });
+                    }
+                    return i;
                 };
 
                 $scope.printExamDuration = function(exam) {
@@ -387,7 +409,28 @@
                     if(minutes > 1) {
                         minutes = (minutes|0);
                         var seconds = time - ( minutes * 60 );
-                        remaining = minutes + "m " + seconds + 's';
+                        if(minutes < 60) {
+                            if(minutes > 9) {
+                                if (seconds > 9) {
+                                    remaining = minutes + ":" + seconds + '';
+                                } else {
+                                    remaining = minutes + ":0" + seconds + '';
+                                }
+                            } else {
+                                if (seconds > 9) {
+                                    remaining = "0" + minutes + ":" + seconds + '';
+                                } else {
+                                    remaining = "0" + minutes + ":0" + seconds + '';
+                                }
+                            }
+                        } else {
+                            var h = 0;
+                            while(minutes > 59) {
+                                h++;
+                                minutes = minutes - 60;
+                            }
+                            remaining = h + ":" + minutes + ":" + seconds + '';
+                        }
                     } else {
                         if(time >= 0) {
                             remaining = time + 's';
