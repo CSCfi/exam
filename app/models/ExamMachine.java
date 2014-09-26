@@ -130,14 +130,6 @@ public class ExamMachine extends Model {
         this.accessibilityInfo = accessibilityInfo;
     }
 
-    public List<Accessibility> getAccessibility() {
-        return accessibility;
-    }
-
-    public void setAccessibility(List<Accessibility> accessibility) {
-        this.accessibility = accessibility;
-    }
-
     public boolean isAccessible() {
         return accessible;
     }
