@@ -13,11 +13,30 @@
 
                 if ($scope.user != null) {
                     if ($scope.user.isStudent) {
+
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "student/dashboard.html";
 
                         StudentExamRes.enrolments.query({uid: $scope.user.id},
                             function (enrolments) {
                                 $scope.userEnrolments = enrolments;
+
+                                if(enrolments && enrolments.length > 0) {
+
+                                    angular.forEach(enrolments, function(enrolment){
+
+                                        StudentExamRes.teachers.get({id: enrolment.exam.id},
+                                            function (teachers) {
+
+                                                enrolment.teachers = teachers.map(function (teacher) {
+                                                    return teacher.user.firstName + " " + teacher.user.lastName;
+                                                }).join(", ");
+                                            },
+                                            function (error) {
+                                                toastr.error(error.data);
+                                            }
+                                        );
+                                    });
+                                }
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -25,12 +44,13 @@
                         );
 
                         StudentExamRes.finishedExams.query({uid: $scope.user.id},
-                            function (finishedExams) {
-                                $scope.studentFinishedExams = finishedExams;
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            });
+                        function (finishedExams) {
+                            $scope.studentFinishedExams = finishedExams;
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        });
+
                     }
                     else if ($scope.user.isTeacher) {
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/dashboard.html";

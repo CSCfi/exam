@@ -23,7 +23,11 @@
                 // section back / forward buttons
                 $scope.guide = false;
                 $scope.switchToGuide = function(b) {
-                    $scope.guide = b;
+                    if($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
+                        $scope.guide = b;
+                    } else {
+                        $scope.guide = false;
+                    }
                 };
                 $scope.previousButton = false;
                 $scope.previousButtonText = "";
@@ -32,27 +36,39 @@
                 $scope.nextButtonText = "";
 
                 $scope.switchButtons = function(section) {
-
+                    console.log("switchButtons")
                     var i = section.index - 1;
 
                     if ($scope.doexam.examSections[i-1]) {
                         $scope.previousButton = true;
                         $scope.previousButtonText = $scope.doexam.examSections[i-1].index + ". " + $scope.doexam.examSections[i-1].name;
                     } else {
-                        $scope.previousButton = true;
-                        $scope.previousButtonText = $translate("sitnet_exam_quide");
+                        if($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
+                            $scope.previousButton = true;
+                            $scope.previousButtonText = $translate("sitnet_exam_quide");
+                        } else {
+                            $scope.previousButton = false;
+                        }
                     }
 
                     if(i == 0 && $scope.guide) {
+                        console.log("if")
                         $scope.nextButton = true;
                         $scope.nextButtonText = $scope.doexam.examSections[0].index + ". " + $scope.doexam.examSections[0].name;
                     } else if (!$scope.guide && $scope.doexam.examSections[i+1]) {
+                        console.log("else if")
                         $scope.nextButton = true;
                         $scope.nextButtonText = $scope.doexam.examSections[i+1].index + ". " + $scope.doexam.examSections[i+1].name;
                     } else {
-                        $scope.nextButton = false;
-                        $scope.nextButtonText = "";
+                        console.log("else")
+                        if($scope.doexam.examSections[i + 1]) {
+                            $scope.nextButton = true;
+                            $scope.nextButtonText = $scope.doexam.examSections[i + 1].index + ". " + $scope.doexam.examSections[i + 1].name;
+                        } else {
+                            $scope.nextButton = false;
+                        }
                     }
+
                 };
 
                 $scope.printExamDuration = function(exam) {
@@ -120,8 +136,12 @@
                                 $scope.setQuestionColors(question);
                             });
 
-                            $scope.switchToGuide(true);
-                            $scope.switchButtons($scope.doexam.examSections[0]);
+                            if($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
+                                $scope.switchToGuide(true);
+                            } else {
+                                $scope.switchToGuide(false);
+                            }
+                            $scope.switchButtons($scope.activeSection);
 
                             $http.get('/examenrolmentroom/' + $scope.doexam.id)
                                 .success(function (data, status, headers, config) {

@@ -33,7 +33,7 @@
 
         <div class="col-md-12 top-padding-2">
             <div class="col-md-12">
-                {{'sitnet_total_score' | translate}}: {{getExamTotalScore(examToBeReviewed)}}
+                {{'sitnet_total_score' | translate}}: {{getExamTotalScore(examToBeReviewed)}} / {{ getExamMaxPossibleScore(examToBeReviewed) }}
             </div>
         </div>
     </div>
@@ -43,7 +43,7 @@
                 <div class="sitnet-info-text">{{'sitnet_exam_grade' | translate}}:</div>
                 <div class="input-group col-md-12">
                     <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" ng-disabled="!isCreator()">
                             {{'sitnet_choose' | translate}}
                             <span class="caret"></span>
                         </button>
@@ -52,7 +52,7 @@
                             </li>
                         </ul>
                     </div>
-                    <input type="text" class="form-control" ng-model="examToBeReviewed.grade">
+                    <input type="text" class="form-control" ng-disabled="!isCreator()" ng-model="examToBeReviewed.grade">
                 </div>
             </div>
             <div class="col-md-6">
@@ -154,7 +154,7 @@
                 <div class="col-md-6">
                     <div style="padding-left: 1em">
                         <div class="col-md-12 top-margin-1"><div class="pull-right"><span>{{ 'sitnet_send_exam_feedback' | translate }}</span> <input type="checkbox" ng-model="sendReviewFeedback" checked/></div></div>
-                        <button ng-click="saveExamRecord(examToBeReviewed)" class="btn btn-warning pull-right top-margin-1">{{'sitnet_exam_save_register' | translate}}</button>
+                        <button ng-click="saveExamRecord(examToBeReviewed)" ng-disabled="!isCreator()" class="btn btn-warning pull-right top-margin-1">{{'sitnet_exam_save_register' | translate}}</button>
                     </div>
                 </div>
 

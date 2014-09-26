@@ -145,7 +145,7 @@ public class StudentExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course, hash, duration, state, examActiveEndDate");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state");
             options.setPathProperties("exam.course", "name, code");
             options.setPathProperties("reservation", "id, startAt, endAt, machine");
             options.setPathProperties("reservation.machine", "name");
@@ -154,6 +154,29 @@ public class StudentExamController extends SitnetController {
 
 
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+        }
+    }
+
+    @Restrict({@Group("STUDENT")})
+    public static Result getExamInspectors(Long id) {
+
+        List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
+                .fetch("user")
+                .fetch("exam")
+                .where()
+                .eq("exam.id", id)
+                .findList();
+
+        if (inspections == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, user, exam");
+            options.setPathProperties("user", "firstName, lastName");
+            options.setPathProperties("exam", "id");
+
+            return ok(jsonContext.toJsonString(inspections, true, options)).as("application/json");
         }
     }
 
@@ -210,7 +233,7 @@ public class StudentExamController extends SitnetController {
 
                 //et ole ilmoittautunut kokeeseen
                 if(enrolment == null) {
-                    return forbidden("you have no enrolment");
+                    return forbidden();
                 }
 
                 if(enrolment.getReservation() ==  null) {

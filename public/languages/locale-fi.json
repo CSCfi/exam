@@ -63,6 +63,8 @@
     "sitnet_evaluation_select": "Hyväksytty / Hylätty",
     "sitnet_evaluation_type": "Arvosana-asteikko",
     "sitnet_exam": "Tentti",
+    "sitnet_exam_active_time": "Tentin aktiivinen aika",
+    "sitnet_exam_active_time_ended": "Tentin aktiivinen aika päättyi",
     "sitnet_exam_answer": "Vastaus",
     "sitnet_exam_answer_language": "Vastauskieli",
     "sitnet_exam_attacment": "Tentin liitetiedosto",
@@ -221,6 +223,7 @@
     "sitnet_review_deadline": "Arvioinnin takaraja",
     "sitnet_room": "Tenttitila",
     "sitnet_room_accessibility_info": "Esteettömyystieto",
+    "sitnet_room_accessible": "Tilassa esteetön pääsy",
     "sitnet_room_building_name": "Rakennuksen nimi",
     "sitnet_room_campus": "Kampus",
     "sitnet_room_code": "Huonekoodi",
@@ -309,5 +312,6 @@
     "sitnet_from": "Alkupvm",
     "sitnet_to": "Loppupvm",
     "sitnet_exam_instruction": "Tentin aikana näkyvä ohjeistus",
-    "sitnet_enroll_instruction": "Ilmoittautumisen aikana näkyvä ohjeistus"
+    "sitnet_enroll_instruction": "Ilmoittautumisen aikana näkyvä ohjeistus",
+    "sitnet_state_needs_reservation": "Odottaa huonevarausta"
 }

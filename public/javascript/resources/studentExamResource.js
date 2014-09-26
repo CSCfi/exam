@@ -64,7 +64,14 @@
                     "saveEssay": {
                         method: "POST", params: { hash: "@hash", qid: "@qid" }
                     }
+                }),
+                teachers: $resource("/student/inspectors/exam/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "get": { method: "GET", isArray:true, params: { id: "@id" }}
                 })
-            }
+            };
         }]);
 }());

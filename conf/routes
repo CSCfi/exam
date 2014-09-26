@@ -72,6 +72,7 @@ GET           /enrolments                                                      c
 GET           /inspections                                                     controllers.ExamController.getInspections()
 
 GET           /student/exams                                                   controllers.StudentExamController.listActiveExams()
+GET           /student/inspectors/exam/:id                                     controllers.StudentExamController.getExamInspectors(id: Long)
 GET           /student/finishedexams/:uid                                      controllers.StudentExamController.getFinishedExams(uid: Long)
 GET           /feedback/exams/:eid                                             controllers.StudentExamController.getExamGeneralInfo(eid: Long)
 PUT           /student/exams/:id                                               controllers.StudentExamController.saveAnswersAndExit(id: Long)

@@ -1,4 +1,5 @@
 {
+    "sitnet_abort_exam": "Abort exam",
     "sitnet_accept_useragreement": "Accept user agreement",
     "sitnet_active_exams": "Exams that are open for students",
     "sitnet_active_period": "Exam period",
@@ -309,5 +310,6 @@
     "sitnet_from": "From",
     "sitnet_to": "To",
     "sitnet_exam_instruction": "Tentin aikana näkyvä ohjeistus",
-    "sitnet_enroll_instruction": "Ilmoittautumisen aikana näkyvä ohjeistus"
+    "sitnet_enroll_instruction": "Ilmoittautumisen aikana näkyvä ohjeistus",
+    "sitnet_state_needs_reservation": "Odottaa huonevarausta"
 }

@@ -26,6 +26,10 @@
                         function (exam) {
                             $scope.examToBeReviewed = exam;
 
+                            $scope.isCreator = function () {
+                                return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
+                            };
+
                             switch($scope.examToBeReviewed.grading) {
                                 case "0-5":
                                     $scope.examGrading = ["0", "1", "2", "3", "4", "5"];
@@ -255,11 +259,11 @@
                                 break;
 
                             case "EssayQuestion":
-                                if (question.evaluationType == 'Points')
-                                        score = score + question.maxScore;
-                                else if (question.evaluationType == 'Select')
-                                        // hyväksytty == 1.0 ja hylätty == 0
-                                        score = score + 1;
+                                if (question.evaluationType == 'Points') {
+                                    score = score + question.maxScore;
+                                } else if (question.evaluationType == 'Select') {
+                                    score = score + 1;
+                                }
                                 break;
 
                             default:
@@ -268,6 +272,18 @@
                         }
                     });
                     return score;
+                };
+
+                $scope.getExamMaxPossibleScore = function(exam) {
+
+                    if (exam) {
+                        var total = 0;
+                        angular.forEach(exam.examSections, function(section) {
+                            total += $scope.getSectionMaxScore(section);
+                        });
+
+                        return total;
+                    }
                 };
 
                 $scope.getExamTotalScore = function(exam) {

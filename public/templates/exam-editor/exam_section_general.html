@@ -150,17 +150,11 @@
 
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_exam_duration' | translate}}:</div>
-            <div class="input-group">
-                <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        {{'sitnet_choose' | translate}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li ng-repeat="duration in examDurations" ng-click="setExamDuration(duration)"><a class="pointer-hand">{{duration}}</a></li>
-                    </ul>
-                </div>
-                <input type="text" class="form-control" ng-model="newExam.duration" ui-change="updateExam()">
+            <div class="input-group col-md-6">
+                <button class="btn btn-default" ng-class="checkDuration(45)" ng-click="setExamDuration(45)">45</button>&nbsp;
+                <button class="btn btn-default" ng-class="checkDuration(90)" ng-click="setExamDuration(90)">90</button>&nbsp;
+                <button class="btn btn-default" ng-class="checkDuration(110)" ng-click="setExamDuration(110)">110</button>&nbsp;
+                <button class="btn btn-default" ng-class="checkDuration(180)" ng-click="setExamDuration(180)">180</button>
             </div>
         </div>
     </div>
@@ -186,34 +180,22 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
             <div class="input-group">
-                <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        {{'sitnet_choose' | translate}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li ng-repeat="grading in examGradings"><a class="pointer-hand" ng-click="setExamGrading(grading)">{{grading}}</a>
-                        </li>
-                    </ul>
+                <div class="input-group col-md-12">
+                    <button class="btn btn-default" ng-class="checkGrading('0-5')" ng-click="setExamGrading('0-5')">0-5</button>&nbsp;
+                    <button class="btn btn-default" ng-class="checkGrading('Improbatur-Laudatur')" ng-click="setExamGrading('Improbatur-Laudatur')">Improbatur-Laudatur</button>&nbsp;
+                    <button class="btn btn-default" ng-class="checkGrading('Hyväksytty-Hylätty')" ng-click="setExamGrading('Hyväksytty-Hylätty')">Hyväksytty-Hylätty</button>
                 </div>
-                <input type="text" class="form-control" ng-model="newExam.grading" ui-change="updateExam()">
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="sitnet-info-text">Suoritustyyppi:</div>
             <div class="input-group">
-                <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        {{'sitnet_choose' | translate}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li ng-repeat="type in examTypes" ng-click="setExamType(type)"><a class="pointer-hand">{{type}}</a>
-                        </li>
-                    </ul>
+                <div class="input-group col-md-12">
+                    <button class="btn btn-default" ng-class="checkType('Osasuoritus')" ng-click="setExamType('Osasuoritus')">Osasuoritus</button>&nbsp;
+                    <button class="btn btn-default" ng-class="checkType('Loppusuoritus')" ng-click="setExamType('Loppusuoritus')">Loppusuoritus</button>&nbsp;
+                    <button class="btn btn-default" ng-class="checkType('Kypsyysnäyte')" ng-click="setExamType('Kypsyysnäyte')">Kypsyysnäyte</button>
                 </div>
-                <input type="text" class="form-control" ng-model="newExam.examType.type">
             </div>
         </div>
     </div>

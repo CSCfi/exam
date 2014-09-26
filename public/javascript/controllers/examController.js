@@ -81,15 +81,16 @@
                                 $scope.newExam.answerLanguage = $scope.examAnswerLanguages[0];
                             }
 
+                            // EXAMTYPE SET ##############################
                             if ($scope.newExam.examType === null) {
                                 // examtype id 2 is Final
                                 ExamRes.examType.insert({eid: $scope.newExam.id, etid: 2}, function (updated_exam) {
-                                	toastr.info("Tentti päivitetty.");
                                     $scope.newExam = updated_exam;
                                 }, function (error) {
                                     toastr.error(error.data);
                                 });
                             }
+                            // ###########################################
 
                             $scope.dateService.startDate = exam.examActiveStartDate;
                             $scope.dateService.endDate = exam.examActiveEndDate;
@@ -234,6 +235,27 @@
                     // Todo: should make proper time selector in UI
                     $scope.newExam.duration = duration;
                     $scope.updateExam();
+                };
+
+                $scope.checkDuration = function (duration) {
+                    if(duration && $scope.newExam && "duration" in $scope.newExam) {
+                        return $scope.newExam.duration === duration ? "btn-primary" : "";
+                    }
+                    return "";
+                };
+
+                $scope.checkGrading = function (grading) {
+                    if(grading && $scope.newExam && "grading" in $scope.newExam) {
+                        return $scope.newExam.grading === grading ? "btn-primary" : "";
+                    }
+                    return "";
+                };
+
+                $scope.checkType = function (type) {
+                    if(type && $scope.newExam.examType && "type" in $scope.newExam.examType) {
+                        return $scope.newExam.examType.type === type ? "btn-primary" : "";
+                    }
+                    return "";
                 };
 
                 $scope.setExamGrading = function (grading) {
@@ -626,7 +648,7 @@
                         });
 
 
-                }
+                };
                 
                 $scope.examFilter = function(item, comparator)
                 {

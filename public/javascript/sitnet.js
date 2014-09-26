@@ -142,7 +142,13 @@
                 });
                 xhr.error(function (message) {
                     console.log(message)
+                    if($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
+                        $location.path($localStorage["LOCATION.PATH"]);
+                        $localStorage["LOCATION.PATH"] = "";
+                    } else {
                         $location.path("/login");
+                    }
+
                 });
             };
             login();

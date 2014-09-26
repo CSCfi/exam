@@ -117,8 +117,7 @@ public class RoomController extends SitnetController {
                 "statusComment",
                 "outOfService",
                 "state",
-                "expanded")
-                .get();
+                "expanded").get();
 
         room.update();
 
