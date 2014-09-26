@@ -201,7 +201,7 @@
                             $location.path('/student/doexam/' + clonedExam.hash);
                         }).
                         error(function (error) {
-                            console.log('Error happened: ' + error);
+                            toastr.error(error);
                         });
 
 //                    removed because SIT-510

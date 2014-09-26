@@ -6,6 +6,7 @@ import controllers.StatisticsController;
 import models.*;
 import models.questions.QuestionInterface;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -206,7 +207,12 @@ public class Global extends GlobalSettings {
 
         //todo: widen the range, to see upcoming enrolments
         //todo: add cases for these
-        Timestamp now = new Timestamp(DateTime.now().getMillis());
+        Timestamp now = new Timestamp(DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now())).getMillis());
+
+
+        Logger.debug(now.toString());
+        Logger.debug(now.toString());
+
 
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
@@ -231,6 +237,8 @@ public class Global extends GlobalSettings {
         String machineIp = enrolment.getReservation().getMachine().getIpAddress();
         String remoteIp = request.remoteAddress();
 
+        Logger.debug("\nUser   ip: " + remoteIp + "\nRemote ip: " + machineIp);
+
         HashMap<String, String> headers = new HashMap<>();
 
         //todo: is there another way to identify/match machines?
@@ -244,7 +252,6 @@ public class Global extends GlobalSettings {
                             room.getRoomCode() + ":::" +
                             machine.getName() ;
 
-            Logger.debug("\nUser   ip: " + remoteIp + "\nRemote ip: " + machineIp);
 
             headers.put("x-sitnet-wrong-machine", Base64.getEncoder().encodeToString(info.getBytes()));
             //todo: add note, about wrong machine?

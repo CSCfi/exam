@@ -13,6 +13,8 @@ import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiseOption;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
@@ -223,33 +225,36 @@ public class StudentExamController extends SitnetController {
                 return notFound();
             } else {
 
+                Timestamp now = new Timestamp(DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now())).getMillis());
+
                 ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                         .fetch("reservation")
                         .fetch("reservation.machine")
+                        .fetch("reservation.machine.room")
                         .where()
                         .eq("user.id", user.getId())
                         .eq("exam.id", blueprint.getId())
+                        .le("reservation.startAt", now)
+                        .gt("reservation.endAt", now)
                         .findUnique();
 
                 //et ole ilmoittautunut kokeeseen
                 if(enrolment == null) {
-                    return forbidden();
+                    return forbidden("you have no enrolment or reservation at this time");
                 }
 
                 if(enrolment.getReservation() ==  null) {
-                      return forbidden("you have no reservation");
+                    return forbidden("you have no reservation");
                 }
 
                 if(enrolment.getReservation().getMachine() == null ) {
                     return internalServerError("there is no machine on the reservation");
                 }
 
-                /*
                 String ip = request().remoteAddress();
                 if(!enrolment.getReservation().getMachine().getIpAddress().equals(ip)){
                     return forbidden("wrong machine");
                 }
-                */
 
                 studentExam.setState("STUDENT_STARTED");
                 studentExam.setCreator(user);

@@ -35,12 +35,13 @@ public class ExamMachine extends Model {
      * Other identifier for the exam machine, specified in task SIT-84
      */
     private String otherIdentifier;
-
     // Esteettömyystieto
+    @Deprecated
     private String accessibilityInfo;
 
     // Checkbox indicating is there any accessibility issues concerning the room
     @Column(columnDefinition="boolean default false")
+    @Deprecated
     private boolean accessible;
 
     // Ohjelmistot
@@ -127,6 +128,14 @@ public class ExamMachine extends Model {
 
     public void setAccessibilityInfo(String accessibilityInfo) {
         this.accessibilityInfo = accessibilityInfo;
+    }
+
+    public List<Accessibility> getAccessibility() {
+        return accessibility;
+    }
+
+    public void setAccessibility(List<Accessibility> accessibility) {
+        this.accessibility = accessibility;
     }
 
     public boolean isAccessible() {
