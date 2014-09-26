@@ -45,25 +45,20 @@
                             <span class="header col-md-5">{{ 'sitnet_exam_time' | translate }}:</span>
                             <span class="text col-md-7">{{ printExamDuration(enrolment.exam) }}</span>
                         </div>
-                        <div class="info-row col-md-12 info-column">
-                            <span class="header col-md-4">{{ 'sitnet_status' | translate }}:</span>
-                            <span class="text col-md-8">
-                                <span ng-if="enrolment.exam.state ==='PUBLISHED'" class="light-text sitnet-text-ready">{{'sitnet_state_ready' | translate}}</span>
-                                <span ng-if="enrolment.exam.state === 'STUDENT_STARTED'" class="light-text sitnet-text-alarm">{{'sitnet_state_started' | translate}}</span>
-                            </span>
-                        </div>
                     </div>
                 </div>
                 <div ng-hide='isExamEnded(enrolment)' class="col-md-5 pull-left">
                     <div class="info-row col-md-12 info-column">
                         <span class="header col-md-3">{{ 'sitnet_exam_room' | translate }}:</span>
                         <span class="text col-md-9">
-                            <span ng-if="enrolment.reservation" class="sitnet-text">{{enrolment.reservation.machine.name}} <br /> {{enrolment.reservation.machine.room.name}}({{enrolment.reservation.machine.room.roomCode}})</span><br/>
+                            <span ng-if="enrolment.reservation" class="sitnet-text">{{enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{enrolment.reservation.machine.room.name}}({{enrolment.reservation.machine.room.roomCode}})</span><br/>
                         </span>
                     </div>
                     <div class="info-row col-md-12 info-column">
                         <span class="header col-md-3">{{ 'sitnet_exam_time' | translate }}:</span>
-                        <span class="text col-md-9 sitnet-text-alarm">{{enrolment.reservation.startAt | utc |date:'dd.MM.yyyy'}} klo {{enrolment.reservation.startAt | utc | date:'HH:mm'}} - {{enrolment.reservation.endAt | utc |date:'HH:mm'}}</span>
+                        <span class="text col-md-9 sitnet-text-alarm">
+                            <span ng-show="enrolment.reservation.startAt">{{enrolment.reservation.startAt | utc |date:'dd.MM.yyyy'}} klo {{enrolment.reservation.startAt | utc | date:'HH:mm'}} - {{enrolment.reservation.endAt | utc |date:'HH:mm'}}</span>
+                        </span>
                     </div>
                     <div class="info-row col-md-12 info-column">
                         <span class="header col-md-3">{{ 'sitnet_toolbar_calendar' | translate }}:</span>
