@@ -73,7 +73,7 @@
                             $scope.newExam = exam;
                             $scope.softwaresUpdate = $scope.newExam.softwares.length;
 
-                            if ($scope.newExam.examLanguage === null) {
+                            if ($scope.newExam.examLanguage === null || $scope.newExam.examLanguage === 'fi') {
                                 $scope.newExam.examLanguage = $scope.examLanguages[0];
                             }
 
