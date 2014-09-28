@@ -253,6 +253,15 @@
                                     setSelected(s, day);
                                 });
 
+                                if (room.calendarExceptionEvents) {
+                                    room.calendarExceptionEvents = room.calendarExceptionEvents.map(function (exception) {
+                                        var n = new Date().getTimezoneOffset() * 60 * 1000;
+                                        exception.startTime += n;
+                                        exception.endTime += n;
+                                        return exception;
+                                    });
+                                }
+
                                 $scope.table = selectable;
 
                                 $scope.roomInstance = room;

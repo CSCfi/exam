@@ -358,17 +358,15 @@ public class CalendarController extends SitnetController {
 
                 final int shift = examDuration + transitionTime;
 
-                if(startTime.getMinuteOfHour() != 0) {
-                    DateTime freeTimeSlotEndTime = startTime.plusMinutes(shift);
-                    FreeTimeSlot possibleTimeSlot = getFreeTimeSlot(room, examMachine, startTime, freeTimeSlotEndTime);
-                    day.getSlots().add(possibleTimeSlot);
-                }
+                DateTime freeTimeSlotEndTime = startTime.plusMinutes(shift);
+                FreeTimeSlot possibleTimeSlot = getFreeTimeSlot(room, examMachine, startTime, freeTimeSlotEndTime);
+                day.getSlots().add(possibleTimeSlot);
 
                 DateTime freeTimeSlotStartTime = startTime.withMinuteOfHour(0);
 
                 while(freeTimeSlotStartTime.plusHours(1).plusMinutes(shift).isBefore(endTime)) {
                     freeTimeSlotStartTime = freeTimeSlotStartTime.plusHours(1);
-                    FreeTimeSlot possibleTimeSlot = getFreeTimeSlot(room, examMachine, freeTimeSlotStartTime, freeTimeSlotStartTime.plusMinutes(shift));
+                    possibleTimeSlot = getFreeTimeSlot(room, examMachine, freeTimeSlotStartTime, freeTimeSlotStartTime.plusMinutes(shift));
                     day.getSlots().add(possibleTimeSlot);
                 }
 
