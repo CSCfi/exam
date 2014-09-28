@@ -10,6 +10,7 @@ import models.calendar.DefaultWorkingHourDTO;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.util.CollectionUtils;
 import play.Logger;
@@ -179,23 +180,24 @@ public class RoomController extends SitnetController {
         DateTime endDate = fromJS(root, "endDate");
         DateTime endTime = fromJS(root, "endTime");
 
+        int offsetMillis = DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now());
 
         final ExceptionWorkingHours hours = new ExceptionWorkingHours();
 
         if (startDate != null) {
-            hours.setStartDate(new Timestamp(startDate.getMillis()));
+            hours.setStartDate(new Timestamp(startDate.plusMillis(offsetMillis).getMillis()));
         }
 
         if (startTime != null) {
-            hours.setStartTime(new Timestamp(startTime.getMillis()));
+            hours.setStartTime(new Timestamp(startTime.plusMillis(offsetMillis).getMillis()));
         }
 
         if (endDate != null) {
-            hours.setEndDate(new Timestamp(endDate.getMillis()));
+            hours.setEndDate(new Timestamp(endDate.plusMillis(offsetMillis).getMillis()));
         }
 
         if (endTime != null) {
-            hours.setEndTime(new Timestamp(endTime.getMillis()));
+            hours.setEndTime(new Timestamp(endTime.plusMillis(offsetMillis).getMillis()));
         }
 
 

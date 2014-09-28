@@ -306,7 +306,7 @@ public class CalendarController extends SitnetController {
                 final DateTime startTime;
                 final DateTime endTime;
 
-                if (forDay.toLocalDate().equals(now.toLocalDate()) && hours.getStart().isBefore(now)) {
+                if (forDay.toLocalDate().equals(now.toLocalDate())) {
                     startTime = DateTime.now().plusHours(1).withMinuteOfHour(0);
                 } else {
                     startTime = hours.getStart();
