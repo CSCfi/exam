@@ -82,7 +82,25 @@ organisations:
                   organisations:
                   courseUnitInfoUrl:
                   recordsWhitelistIp:
-                  
+
+    - &YFL !!models.Organisation
+      name: Yhteiskuntatieteiden ja filosofian laitos
+      nameAbbreviation: YFL
+      code:
+      vatIdNumber: FI0245895-1
+
+    - &KTL !!models.Organisation
+      name: Kasvatustieteiden laitos
+      nameAbbreviation: KTL
+      code:
+      vatIdNumber: FI0245895-1
+
+    - &TOL !!models.Organisation
+      name: Tietojenkäsittelytieteiden laitos
+      nameAbbreviation: TOL
+      code:
+      vatIdNumber: FI0245895-1
+
 ######################################################################
 
 users:
@@ -934,6 +952,27 @@ courses:
     organisation: *OulunYliopisto
     code: 5119161
     name: Sustainability and Natural Resources
+    type:
+    credits: 5
+
+  - !!models.Course
+    organisation: *YTL
+    code: EKTA170
+    name: Hyvä elämä ja etiikka
+    type:
+    credits: 5
+
+  - !!models.Course
+    organisation: *KTL
+    code: ERIA279
+    name: Kandidaatin kypsyysnäyte
+    type:
+    credits: 0
+
+  - !!models.Course
+    organisation: *TOL
+    code: ITKS452
+    name: Requirements Engineering
     type:
     credits: 5
 
