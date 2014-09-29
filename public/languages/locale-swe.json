@@ -310,12 +310,6 @@
     "sitnet_to": "Slutdatum",
     "sitnet_exam_instruction": "Tentin aikana näkyvä ohjeistus",
     "sitnet_enroll_instruction": "Ilmoittautumisen aikana näkyvä ohjeistus",
-    "sitnet_send_exam_feedback": "Lähetä tentin palaute oppilaalle",
-    "sitnet_state_started": "Aloitettu",
-    "sitnet_state_ready": "Valmiina tentittäväksi",
-    "sitnet_state_graded_logged": "Arvioitu ja kirjattu",
-    "sitnet_from": "From",
-    "sitnet_to": "To",
     "sitnet_state_needs_reservation": "Odottaa huonevarausta",
     "sitnet_enroll_to_exam": "Ilmoittaudu"
 }
