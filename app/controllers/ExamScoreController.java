@@ -89,6 +89,7 @@ public class ExamScoreController extends SitnetController {
 
         return ok(Json.toJson(score));
     }
+
     public static Result examScoreTest() throws MalformedDataException {
 
         Logger.debug("examScoreTest");
@@ -101,12 +102,12 @@ public class ExamScoreController extends SitnetController {
         JsonNode courseUnitInfo = json.findValue("CourseUnitInfo");
 
 
-        examScore.setIdentifier(courseUnitInfo.findValue("identifier").textValue());
+        examScore.setIdentifier(courseUnitInfo.findValue("identifier").intValue() + "");
         examScore.setCourseUnitCode(courseUnitInfo.findValue("courseUnitCode").textValue());
 //        courseUnitTitle
-        examScore.setCourseUnitLevel(courseUnitInfo.findValue("courseUnitLevel").textValue());
-        examScore.setCourseUnitType(courseUnitInfo.findValue("courseUnitType").textValue());
-        examScore.setCredits(courseUnitInfo.findValue("credits").textValue());
+        examScore.setCourseUnitLevel(courseUnitInfo.findValue("courseUnitLevel").intValue() + "");
+        examScore.setCourseUnitType(courseUnitInfo.findValue("courseUnitType").intValue() + "");
+        examScore.setCredits(courseUnitInfo.findValue("credits").intValue() + "");
         examScore.setCreditType("loppusuoritus");
 //        institutionName
 
@@ -120,7 +121,7 @@ public class ExamScoreController extends SitnetController {
 
 
 //        lecturerResponsible
-        if(! courseUnitInfo.findValue("lecturerResponsible").isArray())
+        if(! courseUnitInfo.findValue("lecturer").isArray())
             return badRequest("lecturerResponsible should be array");
 
 
@@ -148,7 +149,8 @@ public class ExamScoreController extends SitnetController {
 
 
 //        CourseMaterial
-        if(! courseUnitInfo.findValue("courseMaterial").isArray())
+        if(courseUnitInfo.findValue("courseMaterial") != null)
+            if(! courseUnitInfo.findValue("courseMaterial").isArray())
             return badRequest("courseMaterial should be array");
 
 
@@ -182,6 +184,7 @@ public class ExamScoreController extends SitnetController {
         }
 
         JsonNode courseImplementation = courseUnitInfo.findValue("courseImplementation");
+        if(courseImplementation != null)
         if(courseImplementation.size() > 0)
         {
             int i = rand.nextInt(courseImplementation.size() );
@@ -189,13 +192,7 @@ public class ExamScoreController extends SitnetController {
             examScore.setCourseImplementation(value);
         }
 
-
-        List<String> scores = new ArrayList<String>();
-        scores.add(new String("25"));
-        scores.add(new String("13"));
-
-
-        //examScore.setExamScore(scores);
+        examScore.setExamScore("25");
 
         examScore.setStudent("Sauli Student");
         examScore.setStudentGrade("4");
