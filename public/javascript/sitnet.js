@@ -108,7 +108,6 @@
                                 controller: function($scope, $modalInstance, sessionService) {
 
                                     $scope.ok = function(){
-                                        console.log("ok")
                                         // OK button
                                         UserRes.updateAgreementAccepted.update({id: sessionUser.id}, function (user) {
                                             sessionService.user = user;
@@ -124,7 +123,6 @@
                                         }
                                     };
                                     $scope.cancel = function () {
-                                        console.log("cancel")
                                         $modalInstance.dismiss('cancel');
                                         $location.path("/logout");
                                     };
@@ -141,11 +139,11 @@
                     }
                 });
                 xhr.error(function (message) {
-                    console.log(message)
                     if($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
                         $location.path($localStorage["LOCATION.PATH"]);
                         $localStorage["LOCATION.PATH"] = "";
                     } else {
+                        toastr.error(message);
                         $location.path("/login");
                     }
 

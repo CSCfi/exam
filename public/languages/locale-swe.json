@@ -316,5 +316,6 @@
     "sitnet_state_graded_logged": "Arvioitu ja kirjattu",
     "sitnet_from": "From",
     "sitnet_to": "To",
-    "sitnet_state_needs_reservation": "Odottaa huonevarausta"
+    "sitnet_state_needs_reservation": "Odottaa huonevarausta",
+    "sitnet_enroll_to_exam": "Ilmoittaudu"
 }

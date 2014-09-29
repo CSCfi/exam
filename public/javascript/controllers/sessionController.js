@@ -204,6 +204,7 @@
                         }
                     });
                     xhr.error(function (message) {
+                        toastr.error(message);
                         $location.path("/login");
                     });
                 };

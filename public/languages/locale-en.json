@@ -311,5 +311,6 @@
     "sitnet_to": "To",
     "sitnet_exam_instruction": "Tentin aikana näkyvä ohjeistus",
     "sitnet_enroll_instruction": "Ilmoittautumisen aikana näkyvä ohjeistus",
-    "sitnet_state_needs_reservation": "Odottaa huonevarausta"
+    "sitnet_state_needs_reservation": "Odottaa huonevarausta",
+    "sitnet_enroll_to_exam": "Enroll"
 }
