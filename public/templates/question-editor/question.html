@@ -60,7 +60,7 @@
                                 <div class="col-md-3">
                                     <select class="form-control" ng-model="newQuestion.evaluationType"
                                         ui-change="updateQuestion(); questionForm.evaluationType.$valid ? updateQuestion() : false" required ng-pattern="/^(?!\s*$).+/">
-                                        <option value="Points">{{ 'sitnet_evaluation_points' | translate }}</option>
+                                        <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
                                         <option value="Select">{{ 'sitnet_evaluation_select' | translate }}</option>
                                     </select>
                                 </div>
@@ -68,7 +68,7 @@
                         </div>
                         <!-- POINTS -->
                         <div class="sitnet-info-text" ng-show="selectedType == 'EssayQuestion' && newQuestion.evaluationType == 'Points'">
-                            {{'sitnet_scores' | translate}}
+                            {{'sitnet_max_score' | translate}}
                             <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
                             <div class="row">
                                 <div class="col-md-3">
@@ -85,7 +85,7 @@
                     <!-- Multi -->
                     <div ng-show="selectedType == 'MultipleChoiceQuestion'">
                         <div class="sitnet-info-text">
-                            {{'sitnet_scores' | translate}}
+                            {{'sitnet_max_score' | translate}}
                             <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero</label>
                             <div class="row">
                                 <div class="col-md-2">
