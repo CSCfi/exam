@@ -97,15 +97,15 @@ public class AdminReservationController extends SitnetController {
 //        	part.put("schacPersonalUniqueCode", u.getAttributes().get("schacPersonalUniqueCode"));
 //        	part.put("schacPersonalUniqueCode", u.getAttributes().get("schacPersonalUniqueCode"));
 
-            List<HakaAttribute> attr = Ebean.find(HakaAttribute.class)
-                    .where()
-                    .eq("user.id", u.getId())
-                    .like("key", "schacPersonalUniqueCode")
-                    .findList();
-
-            for (HakaAttribute a : attr) {
-                part.put(a.getKey(), a.getValue());
-            }
+//            List<HakaAttribute> attr = Ebean.find(HakaAttribute.class)
+//                    .where()
+//                    .eq("user.id", u.getId())
+//                    .like("key", "schacPersonalUniqueCode")
+//                    .findList();
+//
+//            for (HakaAttribute a : attr) {
+//                part.put(a.getKey(), a.getValue());
+//            }
 
             part.put("name", new String(u.getFirstName() +" "+u.getLastName()));
             array.add(part);

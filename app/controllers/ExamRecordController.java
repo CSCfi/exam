@@ -72,8 +72,15 @@ public class ExamRecordController extends SitnetController {
         score.setCredits(exam.getCourse().getCredits().toString());
         score.setExamScore(exam.getTotalScore().toString());
 
-        score.setStudent(getAttribute("eduPersonPrincipalName", attrs));
-        score.setStudentId(getAttribute("schacPersonalUniqueCode", attrs));
+        // TODO: attr might be null
+        if(attrs == null) {
+            score.setStudent("");
+            score.setStudentId("");
+        }
+        else {
+            score.setStudent(getAttribute("eduPersonPrincipalName", attrs));
+            score.setStudentId(getAttribute("schacPersonalUniqueCode", attrs));
+        }
 
         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
         // Record transfer timestamp (date)

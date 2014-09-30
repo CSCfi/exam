@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.ExamInspection;
-import models.HakaAttribute;
 import models.Session;
 import models.User;
 import play.Logger;
@@ -20,7 +19,6 @@ import play.libs.Json;
 import play.mvc.Result;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 //todo authorization!
 public class UserController extends SitnetController {
@@ -69,15 +67,15 @@ public class UserController extends SitnetController {
 //        	part.put("firstName", u.getFirstName());
 //        	part.put("schacPersonalUniqueCode", u.getAttributes().get("schacPersonalUniqueCode"));
 
-            List<HakaAttribute> attr = Ebean.find(HakaAttribute.class)
-                    .where()
-                    .eq("user_id", u.getId())
-                    .like("key", "schacPersonalUniqueCode")
-                    .findList();
-
-            for (HakaAttribute a : attr) {
-                part.put(a.getKey(), a.getValue());
-            }
+//            List<HakaAttribute> attr = Ebean.find(HakaAttribute.class)
+//                    .where()
+//                    .eq("user_id", u.getId())
+//                    .like("key", "schacPersonalUniqueCode")
+//                    .findList();
+//
+//            for (HakaAttribute a : attr) {
+//                part.put(a.getKey(), a.getValue());
+//            }
 
         	part.put("name", new String(u.getFirstName() +" "+u.getLastName()));
         	array.add(part);
