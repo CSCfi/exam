@@ -62,10 +62,17 @@ public class ExamController extends SitnetController {
             query.setParameter("saved", "SAVED");
         }
 
-
         List<Exam> exams = query.findList();
 
-        return ok(Json.toJson(exams));
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, creator, course, examActiveStartDate, examActiveEndDate, parent, state");
+        options.setPathProperties("creator", "firstName, lastName");
+        options.setPathProperties("course", "code");
+        options.setPathProperties("parent", "id");
+
+        return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
