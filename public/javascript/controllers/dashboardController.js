@@ -96,13 +96,14 @@
                             });
                         });
 
-                        ExamRes.examsByState.query({state: 'SAVED'},
-                            function (unPublishedExams) {
-                                $scope.unPublishedExams = unPublishedExams;
-                            },
-                            function (error) {
-                            }
-                        );
+                        // TODO: useless
+//                        ExamRes.examsByState.query({state: 'SAVED'},
+//                            function (unPublishedExams) {
+//                                $scope.unPublishedExams = unPublishedExams;
+//                            },
+//                            function (error) {
+//                            }
+//                        );
                     }
                     else if ($scope.user.isAdmin) {
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/dashboard.html";
