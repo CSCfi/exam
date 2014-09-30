@@ -592,6 +592,7 @@ public class ExamController extends SitnetController {
                 .fetch("softwares")
                 .where()
                 .eq("id", id)
+                .order().asc("examSections.id") // SIT-492
                 .findUnique();
 
         if (exam == null) {
