@@ -278,25 +278,6 @@
                     $scope.updateExam();
                 };
 
-                var questions = QuestionRes.questions.query(function () {
-                    questions.map(function (item) {
-                        var icon = "";
-                        switch (item.type) {
-                            case "MultipleChoiceQuestion":
-                                icon = "fa-list-ol";
-                                break;
-                            case "EssayQuestion":
-                                icon = "fa-edit";
-                                break;
-                            default:
-                                icon = "fa-question-circle";
-                                break;
-                        }
-                        item.icon = icon;
-                    });
-                    $scope.questions = questions;
-                });
-
                 $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
                 $scope.libraryFilter = "";
                 $scope.selected = undefined;
@@ -370,6 +351,7 @@
 
                 $scope.removeQuestion = function (section, question) {
                     if (confirm('Poistetaanko kysymys?')) {
+                        // TODO this is redundant ?
                         section.questions.splice(section.questions.indexOf(question), 1);
                         
                         ExamRes.questions.remove({eid: $scope.newExam.id, sid: section.id, qid: question.id}, function (sec) {
