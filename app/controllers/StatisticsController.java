@@ -933,40 +933,45 @@ public class StatisticsController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result reportStudentActivity (String studentId, String from, String to) {
+    public static Result reportStudentActivity (Long studentId, String from, String to) {
 
         final DateTime start = DateTime.parse(from, dateFormat);
         final DateTime end = DateTime.parse(to, dateFormat);
 
-        User student = Ebean.find(User.class)
-                .fetch("user")
-                .select("")
-                .where()
-                .eq("user.id", studentId)
-                .findUnique();
+        User student = Ebean.find(User.class, studentId);
 
-        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
-                .fetch("exam")
-                .select("")
-                .where()
-                .gt("started", start)
-                .lt("ended", end)
-                .eq("user.id", studentId)
-                .findList();
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("enrolment")
-                .select("")
+                .fetch("user")
+                .fetch("exam")
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
                 .where()
-                .gt("started", start)
-                .lt("ended", end)
+                .gt("enrolledOn", start)
+                .lt("enrolledOn", end)
+                .eq("user.id", studentId)
                 .findList();
+
+
+
+
+        /*
+        *     lista varauksen tehneistä opiskelijoista (nimi (linkki sähköpostimahdollisuuteen), tentin nimi (linkki tentin tietoihin), yksikkö, pvm, klo, paikka/kone, suorituskerran numero)
+                lista opiskelijoista, jotka ovat tentissä parhaillaan
+                lista suoritetuista tenteistä
+                lista arvioiduista tenteistä
+                lista arkistoiduista tenteistä
+        * */
+
+
+        //palautettavat tiedot ainakin oletuskieli/tenttivastaukset/status/suoritukset/akvaariovaraukset/ mutta saa palauttaa kaikki tiedot jotka luontevasti tästä kohteesta saa
+        //Joo, raportti kuudessa piti hakea melkolailla samat jutu kuin jossain muussa (en muista mikä), sillä haluttiin nähdä opiskelijan perustiedot (eka sheetti) ja sen aktiviteetit eli tenttisuoritukset + ilmoittautumiset (toinen sheetti)
 
         File file = new File(basePath+"tenttivastaukset"+from.replace(".", "-") +"_"+to.replace(".", "-") +".xlsx");
         Workbook wb = new XSSFWorkbook();
         Sheet student_sheet = wb.createSheet("opiskelija");
         Sheet partiticipations_sheet = wb.createSheet("tenttisuoritukset");
-        Sheet enrolments_sheet = wb.createSheet("ilmoittautumiset");
 
         //**************************************************************
         //Student sheet
@@ -1041,72 +1046,73 @@ public class StatisticsController extends SitnetController {
         headerRow.createCell(index++).setCellValue("Suoritustyyppi");
 
 
-        for(ExamParticipation p: participations) {
+        for(ExamEnrolment rol : enrolments) {
+
+            ExamParticipation pa = Ebean.find(ExamParticipation.class)
+                    .where()
+                    .eq("exam.id", rol.getExam().getId())
+                    .findUnique();
 
             index = 0;
 
-            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                    .fetch("user")
-                    .fetch("exam")
-                    .fetch("exam.gradedByUser")
-                    .fetch("reservation")
-                    .fetch("reservation.machine")
-                    .fetch("reservation.machine.room")
-                    .where()
-                    .eq("user.id", p.getUser().getId())
-                    .eq("exam.id", p.getExam().getId())
-                    .findUnique();
+            dataRow = partiticipations_sheet.createRow(enrolments.indexOf(rol)+1);
 
-            dataRow = partiticipations_sheet.createRow(participations.indexOf(p)+1);
-
-            // student
-            dataRow.createCell(index++).setCellValue(p.getUser().getId());
-            dataRow.createCell(index++).setCellValue(p.getUser().getFirstName());
-            dataRow.createCell(index++).setCellValue(p.getUser().getLastName());
-            dataRow.createCell(index++).setCellValue(p.getUser().getEmail());
+            dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getUser().getId() + "");
+            dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getUser().getFirstName() + "");
+            dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getUser().getLastName());
+            dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getUser().getEmail());
 
             // teacher
-            if(p.getExam().getGradedByUser() != null) {
-                dataRow.createCell(index++).setCellValue(p.getExam().getGradedByUser().getId());
-                dataRow.createCell(index++).setCellValue(p.getExam().getGradedByUser().getFirstName());
-                dataRow.createCell(index++).setCellValue(p.getExam().getGradedByUser().getLastName());
-                dataRow.createCell(index++).setCellValue(p.getExam().getGradedByUser().getEmail());
-            }
-            else {
+            if (pa != null && pa.getExam().getGradedByUser() != null) {
+                dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getExam().getGradedByUser().getId() + "");
+                dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getExam().getGradedByUser().getFirstName());
+                dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getExam().getGradedByUser().getLastName());
+                dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getExam().getGradedByUser().getEmail());
+            } else {
                 dataRow.createCell(index++).setCellValue("");
                 dataRow.createCell(index++).setCellValue("");
                 dataRow.createCell(index++).setCellValue("");
                 dataRow.createCell(index++).setCellValue("");
             }
             // reservation
-            if(enrolment.getReservation() != null) {
-                dataRow.createCell(index++).setCellValue(enrolment.getReservation().getId());
+            if(rol.getReservation() != null) {
+                dataRow.createCell(index++).setCellValue(rol.getReservation().getId());
             }
             else {
                 dataRow.createCell(index++).setCellValue("");
             }
 
             // varauksen pvm
-            dateCell(wb, dataRow, index++, enrolment.getEnrolledOn(), "dd.MM.yyyy");
+            dateCell(wb, dataRow, index++, rol.getEnrolledOn(), "dd.MM.yyyy");
 
             // tentti alkoi
-            dateCell(wb, dataRow, index++, p.getStarted(), "HH:mm");
-
+            if (pa == null) {
+                index++;
+            } else {
+                dateCell(wb, dataRow, index++, pa.getStarted(), "HH:mm");
+            }
             // tentti loppui
-            dateCell(wb, dataRow, index++, p.getEnded(), "HH:mm");
-
+            if (pa == null) {
+                index++;
+            } else {
+                dateCell(wb, dataRow, index++, pa.getEnded(), "HH:mm");
+            }
             // suoritus kesti
-            dateCell(wb, dataRow, index++, p.getDuration(), "HH.mm");
+            if (pa == null) {
+                index++;
+            } else {
+                dateCell(wb, dataRow, index++, pa.getDuration(), "HH.mm");
+            }
 
             // tenttitila
-            if (enrolment.getReservation() != null) {
-                dataRow.createCell(index++).setCellValue(enrolment.getReservation().getMachine().getRoom().getId());
-                dataRow.createCell(index++).setCellValue(enrolment.getReservation().getMachine().getRoom().getName());
-                dataRow.createCell(index++).setCellValue(enrolment.getReservation().getMachine().getRoom().getRoomCode());
+            if (rol.getReservation() != null) {
+                dataRow.createCell(index++).setCellValue(rol.getReservation().getMachine().getRoom().getId());
+                dataRow.createCell(index++).setCellValue(rol.getReservation().getMachine().getRoom().getName());
+                dataRow.createCell(index++).setCellValue(rol.getReservation().getMachine().getRoom().getRoomCode());
                 // tenttikone
-                dataRow.createCell(index++).setCellValue(enrolment.getReservation().getMachine().getId());
-                dataRow.createCell(index++).setCellValue(enrolment.getReservation().getMachine().getName());
-                dataRow.createCell(index++).setCellValue(enrolment.getReservation().getMachine().getIpAddress());
+                dataRow.createCell(index++).setCellValue(rol.getReservation().getMachine().getId());
+                dataRow.createCell(index++).setCellValue(rol.getReservation().getMachine().getName());
+                dataRow.createCell(index++).setCellValue(rol.getReservation().getMachine().getIpAddress());
             } else {
                 dataRow.createCell(index++).setCellValue("");
                 dataRow.createCell(index++).setCellValue("");
@@ -1118,24 +1124,24 @@ public class StatisticsController extends SitnetController {
             }
 
 
-            dataRow.createCell(index++).setCellValue(p.getExam().getCourse().getName());
-            dataRow.createCell(index++).setCellValue(p.getExam().getCourse().getCode());
 
-            dataRow.createCell(index++).setCellValue(p.getExam().getId());
-            dataRow.createCell(index++).setCellValue(p.getExam().getName());
-            dataRow.createCell(index++).setCellValue(p.getExam().getDuration());
-            dataRow.createCell(index++).setCellValue(p.getExam().getState());
-            dataRow.createCell(index++).setCellValue(p.getExam().getTotalScore());
-            dataRow.createCell(index++).setCellValue(p.getExam().getGrading());
-            dataRow.createCell(index++).setCellValue(p.getExam().getGrade());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getCourse().getName());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getCourse().getCode());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getId());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getName());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getDuration() == null ? "" : rol.getExam().getDuration()+"");
+            dataRow.createCell(index++).setCellValue(rol.getExam().getState());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getTotalScore());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getGrading());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getGrade());
 
             // arvosana annettu pvm
-            if(p.getExam().getGradedTime() != null)
-                dateCell(wb, dataRow, index++, p.getExam().getGradedTime(), "dd.MM.yyyy");
+            if(rol.getExam().getGradedTime() != null)
+                dateCell(wb, dataRow, index++, rol.getExam().getGradedTime(), "dd.MM.yyyy");
             else {
                 dataRow.createCell(index++).setCellValue("");
             }
-            dataRow.createCell(index++).setCellValue(p.getExam().getCreditType());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getCreditType());
 
         }
 

@@ -38,13 +38,11 @@ public class Interfaces extends SitnetController {
 
         if (url == null || url.isEmpty()) {
             final List<CourseUnitInfo> list = Ebean.find(CourseUnitInfo.class).where().eq("organisation", organisationId).eq("identifier", id).findList();
-
             return F.Promise.promise(new F.Function0<Result>() {
                 public Result apply() {
                     return Results.ok(Json.toJson(list));
                 }
             });
-
         }
 
         try {

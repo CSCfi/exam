@@ -217,7 +217,7 @@ GET           /statistics/teacherexamsbydate/:uid/:from/:to                    c
 GET           /statistics/examnames                                            controllers.StatisticsController.getExamNames()
 GET           /statistics/examnames/:id/:reportType                            controllers.StatisticsController.getExam(id: Long, reportType: String)
 GET           /statistics/examenrollments/:id                                  controllers.StatisticsController.getExamEnrollments(id: Long)
-GET           /statistics/student/:id/:from/:to                                controllers.StatisticsController.reportStudentActivity(id: String, from: String, to: String)
+GET           /statistics/student/:id/:from/:to                                controllers.StatisticsController.reportStudentActivity(id: Long  , from: String, to: String)
 
 ############### test test test test test###############
 POST          /test                                                            controllers.TestController.addQuestion()
