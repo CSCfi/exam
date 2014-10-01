@@ -247,7 +247,7 @@ public class Global extends GlobalSettings {
         String machineIp = enrolment.getReservation().getMachine().getIpAddress();
         String remoteIp = request.remoteAddress();
 
-        Logger.debug("\nUser   ip: " + remoteIp + "\nRemote ip: " + machineIp);
+        Logger.debug("\nUser   ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
 
         HashMap<String, String> headers = new HashMap<>();
 
