@@ -240,8 +240,6 @@ public class StudentExamController extends SitnetController {
                         .findUnique();
 
                 //et ole ilmoittautunut kokeeseen
-                // TODO: remove comment blocks, for testing only!!!
-/*
                 if(enrolment == null) {
                     return forbidden("you have no enrolment or reservation at this time");
                 }
@@ -258,7 +256,7 @@ public class StudentExamController extends SitnetController {
                 if(!enrolment.getReservation().getMachine().getIpAddress().equals(ip)){
                     return forbidden("wrong machine");
                 }
-*/
+
                 studentExam.setState("STUDENT_STARTED");
                 studentExam.setCreator(user);
                 studentExam.setParent(blueprint);
@@ -269,10 +267,10 @@ public class StudentExamController extends SitnetController {
                 // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
                 // http://avaje.org/topic-112.html
 
-/*
+
                 enrolment.setExam(studentExam);
                 enrolment.save();
-*/
+
                 ExamParticipation examParticipation = new ExamParticipation();
                 examParticipation.setUser(user);
                 examParticipation.setExam(studentExam);
