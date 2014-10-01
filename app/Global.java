@@ -234,7 +234,7 @@ public class Global extends GlobalSettings {
 
         ExamEnrolment enrolment = null;
         for(ExamEnrolment possibleEnrolment : enrolments) {
-            if(enrolment.getExam().getState().equals("PUBLISHED")) {
+            if(possibleEnrolment.getExam().getState().equals("PUBLISHED")) {
                 enrolment = possibleEnrolment;
                 break;
             }
