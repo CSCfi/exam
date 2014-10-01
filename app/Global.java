@@ -214,7 +214,7 @@ public class Global extends GlobalSettings {
         Logger.debug(now.toString());
 
 
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
@@ -224,13 +224,23 @@ public class Global extends GlobalSettings {
                 .le("reservation.startAt", now)
                 .gt("reservation.endAt", now)
                 //there should be no overlapping reservations, right?
-                .findUnique();
+                .findList();
 
-        if(enrolment == null) {
+
+
+        if(enrolments.isEmpty()) {
             return super.onRequest(request, actionMethod);
         }
 
-        if(!enrolment.getExam().getState().equals("PUBLISHED")) {
+        ExamEnrolment enrolment = null;
+        for(ExamEnrolment possibleEnrolment : enrolments) {
+            if(enrolment.getExam().getState().equals("PUBLISHED")) {
+                enrolment = possibleEnrolment;
+                break;
+            }
+        }
+
+        if(enrolment == null) {
             return super.onRequest(request, actionMethod);
         }
 
