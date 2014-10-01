@@ -35,6 +35,12 @@
                 $scope.nextButton = false;
                 $scope.nextButtonText = "";
 
+                $scope.hash = $routeParams.hash;
+
+                $scope.reload = function(){
+                    $scope.doExam($routeParams.hash);
+                };
+
                 $scope.switchButtons = function(section) {
 
                     var i = section.index - 1;
@@ -350,7 +356,7 @@
                             $location.path("/home/");
 
                         }, function () {
-                            toastr.error(error.data);
+
                         });
                     }
                 };
@@ -366,7 +372,7 @@
                             $location.path("/home/");
 
                         }, function () {
-                            toastr.error(error.data);
+
                         });
                     }
                 };
@@ -380,8 +386,8 @@
                         function (updated_answer) {
                         question.answer = updated_answer;
                         toastr.info("Vastaus lisätty kysymykseen.");
-                    }, function () {
-                        toastr.error(error.data);
+                    }, function (error) {
+
                     });
                 };
 
@@ -398,7 +404,7 @@
                     StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
                         toastr.info("Vastaus lisätty kysymykseen.");
                     }, function () {
-                        toastr.error(error.data);
+
                     });
                 };
 
@@ -429,7 +435,20 @@
                                 h++;
                                 minutes = minutes - 60;
                             }
-                            remaining = h + ":" + minutes + ":" + seconds + '';
+                            if(minutes > 9) {
+                                if (seconds > 9) {
+                                    remaining = h + ":" + minutes + ":" + seconds + '';
+                                } else {
+                                    remaining = h + ":" + minutes + ":0" + seconds + '';
+                                }
+                            } else {
+                                if (seconds > 9) {
+                                    remaining = h + ":0" + minutes + ":" + seconds + '';
+                                } else {
+                                    remaining = h + ":0" + minutes + ":0" + seconds + '';
+                                }
+                            }
+
                         }
                     } else {
                         if(time >= 0) {
@@ -473,7 +492,7 @@
                             toastr.info("Tentti palautettu");
                             $location.path("/home/");
                         }, function () {
-                            toastr.error(error.data);
+
                         });
                     }
                 };
@@ -500,8 +519,8 @@
 
                 $scope.setQuestionColors = function(question) {
                     // State machine for resolving how the question header is drawn
-                    if (question.answered) {
-
+                    if (question.answered || question.answer) {
+                        question.answered = true;
                         question.questionStatus = $translate("sitnet_question_answered");
 
                         if (question.expanded) {
@@ -519,6 +538,91 @@
                             question.selectedAnsweredState = 'question-unanswered-header';
                         }
                     }
+                };
+
+                $scope.selectFile = function (question) {
+
+                    $scope.questionTemp = question;
+
+                    // Save question before entering attachment to not lose data.
+                    switch (question.type) {
+                        case "MultipleChoiceQuestion":
+
+                            question.answered = true;
+                            question.questionStatus = $translate("sitnet_question_answered");
+
+                            var optionId = 0;
+                            if(question.answer && question.answer.option) {
+                                optionId = question.answer.option;
+                            }
+
+                            StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: $scope.doexam.hash, qid: question.id, oid: optionId},
+                            function (updated_answer) {
+                                question.answer = updated_answer;
+                                $scope.questionTemp.answer = updated_answer;
+                                toastr.info("Vastaus lisätty kysymykseen.");
+                            }, function (error) {});
+
+                            break;
+
+                        case "EssayQuestion":
+                            var answer = "";
+                            if(question.answer && question.answer.length > 0) {
+                                answer = question.answer.answer;
+                            }
+                            $scope.saveEssay(question,answer);
+                            break;
+                    }
+
+                    var ctrl = function ($scope, $modalInstance) {
+
+                        $scope.questionTemp = question;
+
+                        $scope.submit = function (question) {
+
+                            var file = $scope.attachmentFile;
+                            var url = "attachment/question/answer";
+                            var fd = new FormData();
+                            fd.append('file', file);
+                            fd.append('questionId',  $scope.questionTemp.id);
+                            fd.append('answerId',  $scope.questionTemp.answer.id);
+                            $http.post(url, fd, {
+                                transformRequest: angular.identity,
+                                headers: {'Content-Type': undefined}
+                            })
+                            .success(function (attachment) {
+                                $modalInstance.dismiss();
+                                $scope.questionTemp.answer.attachment = attachment;
+                            })
+                            .error(function (error) {
+                                $modalInstance.dismiss();
+                                toastr.error(error);
+                            });
+                        };
+                        // Cancel button is pressed in the modal dialog
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('Canceled');
+                        };
+                    };
+
+                    var modalInstance = $modal.open({
+                        templateUrl: 'assets/templates/question-editor/dialog_question_attachment_selection.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: ctrl,
+                        resolve: {
+                            question: function () {
+                                return $scope.questionTemp;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function (resp) {
+                        // OK button
+                        $location.path('/student/doexam/' + $routeParams.hash);
+                    }, function () {
+                        // Cancel button
+                    });
                 };
             }]);
 }());

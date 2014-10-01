@@ -18,6 +18,21 @@
                 }
             };
 
+            $scope.removeQuestionAnswerAttachment = function (question, hash) {
+
+                if (confirm("Oletko varma?")) {
+                    AttachmentRes.questionAnswerAttachment.remove({qid: question.id, hash: hash},
+
+                        function () {
+                            toastr.info("Liite poistettu.");
+                            question.attachment = null;
+
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                }
+            };
+
             $scope.downloadQuestionAttachment = function (question) {
 
             $http({method: 'GET', url: '/attachment/question/' + question.id}).
@@ -28,6 +43,23 @@
                             href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
                             target: '_blank',
                             download: question.attachment.fileName
+                        })[0].click();
+
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+            };
+
+            $scope.downloadQuestionAnswerAttachment = function (question, hash) {
+
+                $http({method: 'GET', url: '/attachment/question/' + question.id + '/answer/' + hash}).
+                    success(function(data, status, headers, config) {
+
+                        var element = angular.element('<a/>');
+                        element.attr({
+                            href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
+                            target: '_blank',
+                            download: question.answer.attachment.fileName
                         })[0].click();
 
                     }, function (error) {

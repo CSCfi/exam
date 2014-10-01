@@ -1,5 +1,6 @@
 package models.answers;
 
+import models.Attachment;
 import models.SitnetModel;
 
 import javax.persistence.*;
@@ -24,6 +25,17 @@ abstract public class AbstractAnswer extends SitnetModel implements AnswerInterf
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    @OneToOne(cascade = CascadeType.ALL)
+    protected Attachment attachment;
+
+    public Attachment getAttachment() {
+        return attachment;
+    }
+
+    public void setAttachment(Attachment attachment) {
+        this.attachment = attachment;
     }
 
     @Override

@@ -12,6 +12,7 @@ import models.answers.EssayAnswer;
 import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
+import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -239,6 +240,8 @@ public class StudentExamController extends SitnetController {
                         .findUnique();
 
                 //et ole ilmoittautunut kokeeseen
+                // TODO: remove comment blocks, for testing only!!!
+/*
                 if(enrolment == null) {
                     return forbidden("you have no enrolment or reservation at this time");
                 }
@@ -255,7 +258,7 @@ public class StudentExamController extends SitnetController {
                 if(!enrolment.getReservation().getMachine().getIpAddress().equals(ip)){
                     return forbidden("wrong machine");
                 }
-
+*/
                 studentExam.setState("STUDENT_STARTED");
                 studentExam.setCreator(user);
                 studentExam.setParent(blueprint);
@@ -266,10 +269,10 @@ public class StudentExamController extends SitnetController {
                 // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
                 // http://avaje.org/topic-112.html
 
-
+/*
                 enrolment.setExam(studentExam);
                 enrolment.save();
-
+*/
                 ExamParticipation examParticipation = new ExamParticipation();
                 examParticipation.setUser(user);
                 examParticipation.setExam(studentExam);
@@ -301,7 +304,9 @@ public class StudentExamController extends SitnetController {
         options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
         options.setPathProperties("examType", "id, type");
         options.setPathProperties("examSections", "id, name, questions, exam, expanded");
-        options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, maxCharacters, options, attachment");
+        options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, maxCharacters, options, attachment, answer");
+        options.setPathProperties("examSections.questions.answer", "id, type, option, attachment, answer");
+        options.setPathProperties("examSections.questions.answer.option", "id, option");
         options.setPathProperties("examSections.questions.attachment", "fileName");
         options.setPathProperties("examSections.questions.options", "id, option" );
         options.setPathProperties("examSections.questions.comments", "id, comment");
@@ -372,26 +377,36 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
+    private static Result insertEmptyAnswer(String hash, Long questionId) {
+
+        MultipleChoiceQuestion question = Ebean.find(MultipleChoiceQuestion.class, questionId);
+        MultipleChoiseAnswer answer = new MultipleChoiseAnswer();
+        MultipleChoiseOption option = new MultipleChoiseOption();
+
+        option.setQuestion(question);
+        answer.setOption(option);
+        question.setAnswer(answer);
+
+        option.save();
+        answer.save();
+        question.save();
+
+        return ok(Json.toJson(answer));
+    }
+
+    @Restrict({@Group("STUDENT")})
     public static Result insertEssay(String hash, Long questionId) {
         String answerString = request().body().asJson().get("answer").toString();
 
         Logger.debug(answerString);
 
         EssayQuestion question = Ebean.find(EssayQuestion.class, questionId);
-
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        User user = UserController.getLoggedUser();
-
         EssayAnswer previousAnswer = (EssayAnswer) question.getAnswer();
 
         if(previousAnswer == null) {
             previousAnswer = new EssayAnswer();
-//            previousAnswer.setCreated(currentTime);
-//            previousAnswer.setCreator(user);
         }
 
-//        previousAnswer.setModifier(user);
-//        previousAnswer.setModified(currentTime);
         previousAnswer.setAnswer(answerString);
         previousAnswer.save();
 
@@ -412,46 +427,49 @@ public class StudentExamController extends SitnetController {
                 .eq("id", qid)
                 .findUnique();
 
-        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+        if(oid > 0) {
 
-        // must clone answered option because teacher can remove original option.
-        MultipleChoiseOption answeredOption = new MultipleChoiseOption();
-        answeredOption.setOption(option.getOption());
-        answeredOption.setCorrectOption(option.isCorrectOption());
-        answeredOption.setScore(option.getScore());
-        answeredOption.save();
+            MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
 
-        User user = UserController.getLoggedUser();
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+            // must clone answered option because teacher can remove original option.
+            MultipleChoiseOption answeredOption = new MultipleChoiseOption();
+            answeredOption.setOption(option.getOption());
+            answeredOption.setCorrectOption(option.isCorrectOption());
+            answeredOption.setScore(option.getScore());
+            answeredOption.save();
 
-        if(question.getAnswer() == null) {
-            MultipleChoiseAnswer answer = new MultipleChoiseAnswer();
-            answer.setOption(answeredOption);
-//            answer.setCreator(user);
-//            answer.setCreated(currentTime);
-//            answer.setModifier(user);
-//            answer.setModified(currentTime);
-            question.setAnswer(answer);
-            answer.save();
-            question.save();
-            return ok(Json.toJson(answer));
+            if (question.getAnswer() == null) {
+                MultipleChoiseAnswer answer = new MultipleChoiseAnswer();
+                answer.setOption(answeredOption);
+                question.setAnswer(answer);
+                answer.save();
+                question.save();
+
+                return ok(Json.toJson(answer));
+
+            } else {
+                MultipleChoiseAnswer answer = (MultipleChoiseAnswer) question.getAnswer();
+                if (answer.getOption() == null) {
+
+                    answer.setOption(answeredOption);
+                    answer.update();
+                    question.update();
+
+                } else {
+
+                    long optionId = answer.getOption().getId();
+                    answer.setOption(answeredOption);
+
+                    answer.update();
+                    question.update();
+
+                    // delete old answered option
+                    Ebean.delete(MultipleChoiseOption.class, optionId);
+                }
+                return ok(Json.toJson(answer));
+            }
         } else {
-            MultipleChoiseAnswer answer = (MultipleChoiseAnswer) question.getAnswer();
-            MultipleChoiseOption agh = Ebean.find(MultipleChoiseOption.class, answer.getOption().getId());
-            answer.setOption(agh);
-
-            long optionId = answer.getOption().getId();
-            answer.setOption(answeredOption);
-
-//            answer.setModified(currentTime);
-//            answer.setModifier(user);
-            answer.update();
-            question.update();
-
-            // delete old answered option
-            Ebean.delete(MultipleChoiseOption.class, optionId);
-
-            return ok(Json.toJson(answer));
+            return insertEmptyAnswer(hash, qid);
         }
     }
 

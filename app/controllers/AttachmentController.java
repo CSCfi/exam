@@ -9,6 +9,7 @@ import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.Attachment;
 import models.Exam;
+import models.answers.AbstractAnswer;
 import models.questions.AbstractQuestion;
 import play.Play;
 import play.mvc.Http.MultipartFormData;
@@ -28,6 +29,87 @@ import static util.java.AttachmentUtils.setData;
  * Created by alahtinen on 3.6.2014.
  */
 public class AttachmentController extends SitnetController {
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public static Result addAttachmentToQuestionAnswer() throws MalformedDataException {
+
+        MultipartFormData body = request().body().asMultipartFormData();
+
+        FilePart filePart = body.getFile("file");
+
+        Map<String, String[]> m = body.asFormUrlEncoded();
+
+        String[] q = m.get("questionId");
+        String[] a = m.get("answerId");
+
+        String idstr = q[0];
+        String aidstr = a[0];
+        Long qid = Long.parseLong(idstr);
+        Long aid = Long.parseLong(aidstr);
+
+        if (filePart != null) {
+            String fileName = filePart.getFilename();
+            String contentType = filePart.getContentType();
+            File file = filePart.getFile();
+
+            String uploadPath = Play.application().configuration().getString("sitnet.question.answer.attachments.path");
+            String playPath = Play.application().path().getAbsolutePath();
+
+            // TODO Use smarter config
+            String basePath = playPath + "/" + uploadPath + "/" + String.valueOf(qid) + "/answer/" + String.valueOf(aid);
+            File dir = new File(basePath);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            String rndFileName = UUID.randomUUID().toString();
+            String newFile = basePath + "/" + rndFileName;
+            Attachment attachment = null;
+
+            try {
+                if(SitnetUtil.copyFile(file, new File(newFile))) {
+
+                    AbstractAnswer answer = Ebean.find(AbstractAnswer.class)
+                            .fetch("attachment")
+                            .where()
+                            .eq("id", aid)
+                            .findUnique();
+
+                    if (answer != null) {
+
+                        attachment = answer.getAttachment();
+
+                        // If the question didn't have an attachment before, it does now.
+                        if (attachment == null) {
+                            attachment = new Attachment();
+                        }
+
+                        attachment.setFileName(fileName);
+                        attachment.setFilePath(newFile);
+                        attachment.setMimeType(contentType);
+
+                        attachment.save();
+
+                        answer.setAttachment(attachment);
+                        answer.save();
+
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (attachment == null) {
+                return notFound("Error creating attachment");
+            } else {
+                JsonContext jsonContext = Ebean.createJsonContext();
+                JsonWriteOptions options = new JsonWriteOptions();
+                options.setRootPathProperties("id, fileName");
+
+                return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
+            }
+        }
+        return notFound();
+    }
 
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -122,6 +204,24 @@ public class AttachmentController extends SitnetController {
         Ebean.delete(Attachment.class, aId);
 
         return redirect("/#/questions/" + String.valueOf(id));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public static Result deleteQuestionAnswerAttachment(Long qid, String hash) {
+
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+        Attachment aa = Ebean.find(Attachment.class, question.getAnswer().getAttachment().getId());
+
+        AbstractAnswer answer = question.getAnswer();
+        answer.setAttachment(null);
+        Long aId = aa.getId();
+        answer.save();
+
+        aa.delete();
+
+        Ebean.delete(Attachment.class, aId);
+
+        return redirect("/#/student/doexam/" + hash);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -229,6 +329,22 @@ public class AttachmentController extends SitnetController {
                 .findUnique();
 
         Attachment aa = Ebean.find(Attachment.class, question.getAttachment().getId());
+        File file = new File(aa.getFilePath());
+
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
+        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public static Result downloadQuestionAnswerAttachment(Long qid, String hash) {
+
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class)
+                .fetch("attachment")
+                .where()
+                .eq("id", qid)
+                .findUnique();
+
+        Attachment aa = Ebean.find(Attachment.class, question.getAnswer().getAttachment().getId());
         File file = new File(aa.getFilePath());
 
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
