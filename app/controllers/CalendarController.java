@@ -130,7 +130,12 @@ public class CalendarController extends SitnetController {
         List<ExamMachine> candidates = new ArrayList<>();
 
         if (wantedSoftware.isEmpty()) {
-            candidates.addAll(machines);
+            for (ExamMachine machine : machines) {
+                if (machine.isArchived() || machine.getOutOfService()) {
+                    continue;
+                }
+                candidates.addAll(machines);
+            }
         } else {
             for (ExamMachine machine : machines) {
 
