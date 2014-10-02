@@ -939,7 +939,7 @@ public class ExamController extends SitnetController {
                             .findUnique();
 
                     MultipleChoiceQuestion clonedQuestion;
-                    clonedQuestion = (MultipleChoiceQuestion)multiQuestion.clone();
+                    clonedQuestion = (MultipleChoiceQuestion) multiQuestion.clone();
                     clonedQuestion.setParent(multiQuestion);
                     try {
                         clonedQuestion = (MultipleChoiceQuestion) SitnetUtil.setCreator(clonedQuestion);
@@ -969,7 +969,7 @@ public class ExamController extends SitnetController {
                             .findUnique();
 
                     EssayQuestion clonedQuestion;
-                    clonedQuestion = (EssayQuestion)essayQuestion.clone();
+                    clonedQuestion = (EssayQuestion) essayQuestion.clone();
                     clonedQuestion.setParent(essayQuestion);
                     clonedQuestion.save();
 
