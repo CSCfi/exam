@@ -10,7 +10,10 @@ import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.Attachment;
 import models.Exam;
 import models.answers.AbstractAnswer;
+import models.answers.EssayAnswer;
+import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
+import models.questions.EssayQuestion;
 import play.Play;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
@@ -30,7 +33,7 @@ import static util.java.AttachmentUtils.setData;
  */
 public class AttachmentController extends SitnetController {
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("STUDENT")})
     public static Result addAttachmentToQuestionAnswer() throws MalformedDataException {
 
         MultipartFormData body = request().body().asMultipartFormData();
@@ -40,12 +43,9 @@ public class AttachmentController extends SitnetController {
         Map<String, String[]> m = body.asFormUrlEncoded();
 
         String[] q = m.get("questionId");
-        String[] a = m.get("answerId");
 
         String idstr = q[0];
-        String aidstr = a[0];
         Long qid = Long.parseLong(idstr);
-        Long aid = Long.parseLong(aidstr);
 
         if (filePart != null) {
             String fileName = filePart.getFilename();
@@ -55,8 +55,37 @@ public class AttachmentController extends SitnetController {
             String uploadPath = Play.application().configuration().getString("sitnet.question.answer.attachments.path");
             String playPath = Play.application().path().getAbsolutePath();
 
+            // first check if answer already exist
+            AbstractQuestion question = Ebean.find(AbstractQuestion.class)
+                    .fetch("answer")
+                    .where()
+                    .eq("id", qid)
+                    .findUnique();
+
+            if (question.getAnswer() == null) {
+
+                switch (question.getType()) {
+                    case "EssayQuestion": {
+                        EssayAnswer essayQuestion = new EssayAnswer();
+                        question.setAnswer(essayQuestion);
+                        question.save();
+                    }
+                    break;
+
+                    case "MultipleChoiceQuestion": {
+                        MultipleChoiseAnswer multipleChoiseAnswer = new MultipleChoiseAnswer();
+                        question.setAnswer(multipleChoiseAnswer);
+                        question.save();
+                    }
+                    break;
+                    default:
+                        return notFound("Unsupported question type");
+                }
+            }
+
+
             // TODO Use smarter config
-            String basePath = playPath + "/" + uploadPath + "/" + String.valueOf(qid) + "/answer/" + String.valueOf(aid);
+            String basePath = playPath + "/" + uploadPath + "/" + String.valueOf(qid) + "/answer/" + String.valueOf(question.getAnswer().getId());
             File dir = new File(basePath);
             if (!dir.exists()) {
                 dir.mkdirs();
@@ -66,33 +95,24 @@ public class AttachmentController extends SitnetController {
             Attachment attachment = null;
 
             try {
-                if(SitnetUtil.copyFile(file, new File(newFile))) {
+                if (SitnetUtil.copyFile(file, new File(newFile))) {
 
-                    AbstractAnswer answer = Ebean.find(AbstractAnswer.class)
-                            .fetch("attachment")
-                            .where()
-                            .eq("id", aid)
-                            .findUnique();
+                    attachment = question.getAnswer().getAttachment();
 
-                    if (answer != null) {
-
-                        attachment = answer.getAttachment();
-
-                        // If the question didn't have an attachment before, it does now.
-                        if (attachment == null) {
-                            attachment = new Attachment();
-                        }
-
-                        attachment.setFileName(fileName);
-                        attachment.setFilePath(newFile);
-                        attachment.setMimeType(contentType);
-
-                        attachment.save();
-
-                        answer.setAttachment(attachment);
-                        answer.save();
-
+                    // If the question didn't have an attachment before, it does now.
+                    if (attachment == null) {
+                        attachment = new Attachment();
                     }
+
+                    attachment.setFileName(fileName);
+                    attachment.setFilePath(newFile);
+                    attachment.setMimeType(contentType);
+
+                    attachment.save();
+
+                    question.getAnswer().setAttachment(attachment);
+                    question.save();
+
                 }
             } catch (IOException e) {
                 e.printStackTrace();
