@@ -79,7 +79,7 @@ public class EnrollController extends Controller {
     	JsonContext jsonContext = Ebean.createJsonContext();
     	JsonWriteOptions options = new JsonWriteOptions();
     	options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
-    			+ "grading, room, course, creator, expanded, examType, instruction, examLanguage, answerLanguage");
+    			+ "grading, room, course, creator, expanded, examType, enrollInstruction, examLanguage, answerLanguage");
         options.setPathProperties("room", "name, roomCode, buildingName, campus");
         options.setPathProperties("examType", "type");
         options.setPathProperties("course", "code, name, level, type, credits");
@@ -118,7 +118,7 @@ public class EnrollController extends Controller {
             enrolment.setExam(exam);
             enrolment.save();
 
-            return redirect("/#/home/");
+            return ok();
         } else {
             return notFound("Exam not found");
         }

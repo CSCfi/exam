@@ -41,12 +41,12 @@
                         function (exam) {
             		
                     		toastr.success("Olet ilmoittautunut tenttiin<br>Muista varata tenttikone");
-                    		$location.path('#/home');
+                    		$location.path('/calendar/'+ exam.id);
                         }, 
                         function (error) {
                             toastr.error(error.data);
                         });
-            }
+            };
 
             $scope.enrollList = function() {
                 $location.path('enroll/' + $routeParams.code);
