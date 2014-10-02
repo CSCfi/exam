@@ -144,7 +144,7 @@ public class SitnetUtil {
         return object;
     }
 
-    static public SitnetModel setModifier(SitnetModel object) throws SitnetException {
+    static public SitnetModel setModifier(SitnetModel object) {
 
         User user = UserController.getLoggedUser();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());

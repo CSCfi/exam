@@ -395,6 +395,7 @@ public class Exam extends SitnetModel {
         clone.setCreditType(this.getCreditType());
         clone.setParent(this);
         clone.setAttachment(this.getAttachment());
+        SitnetUtil.setModifier(clone);
         clone.save();
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
@@ -408,7 +409,6 @@ public class Exam extends SitnetModel {
             examsec_copy.setId(null);
             examsec_copy.setExam(clone);
             examsec_copy.setQuestions(null);
-//            examsec_copy.setEbeanTimestamp(null);
 
             if (examsec_copy.getLotteryOn()) {
                 Collections.shuffle(es.getQuestions());
@@ -419,10 +419,11 @@ public class Exam extends SitnetModel {
                     question_copy.setId(null);
                     question_copy.setParent(q);
 
+                    SitnetUtil.setModifier(question_copy);
+
                     switch (q.getType()) {
                         case "MultipleChoiceQuestion": {
                             List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
-
 
                             List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
                             for (MultipleChoiseOption o : options) {
@@ -432,9 +433,11 @@ public class Exam extends SitnetModel {
                             }
                             ((MultipleChoiceQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
                             question_copy.save();
-                        }
+                        }break;
+
                         case "EssayQuestion": {
                             // No need to implement because EssayQuestion doesn't have object relations
+                            question_copy.save();
                         } break;
 
                     }
@@ -462,19 +465,20 @@ public class Exam extends SitnetModel {
                             }
                             ((MultipleChoiceQuestion) question_copy).setOptions(multipleChoiceOptionCopies);
                             question_copy.save();
-                        }
+                        }break;
+
                         case "EssayQuestion": {
                             // No need to implement because EssayQuestion doesn't have object relations
                             // just save it
                             question_copy.save();
-                        }
-                        break;
+                        }break;
                     }
                     examQuestionCopies.add(question_copy);
                 }
             }
 
             examsec_copy.setQuestions(examQuestionCopies);
+            SitnetUtil.setModifier(examsec_copy);
             examsec_copy.save();
             examsec_copy.saveManyToManyAssociations("questions");
 
