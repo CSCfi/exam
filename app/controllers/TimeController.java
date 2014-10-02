@@ -24,7 +24,16 @@ public class TimeController extends Controller {
 
 
     public static Result getExamRemainingTime(Long examId) {
-        User user = UserController.getLoggedUser();
+
+        User user = null;
+        try {
+            user = UserController.getLoggedUser();
+        } catch (Exception ex) {
+        }
+
+        if (user == null) {
+            return forbidden("invalid session");
+        }
 
         ExamParticipation participation = Ebean.find(ExamParticipation.class)
                 .fetch("user")
@@ -34,7 +43,7 @@ public class TimeController extends Controller {
                 .eq("user.id", user.getId())
                 .findUnique();
 
-        if(participation == null) {
+        if (participation == null) {
             return notFound();
         }
 
