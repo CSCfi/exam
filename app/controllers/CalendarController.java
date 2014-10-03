@@ -41,7 +41,7 @@ public class CalendarController extends SitnetController {
         Reservation reservation = enrolment.getReservation();
 
         // if user who removes reservation is not Student himself, send email
-        if( !user.getId().equals(enrolment.getUser().getId())) {
+        if (!user.getId().equals(enrolment.getUser().getId())) {
             EmailComposer.composeReservationCancelationNotification(user, reservation, "");
         }
 
@@ -94,7 +94,7 @@ public class CalendarController extends SitnetController {
 
         ExamMachine machine = getRandomMachine(room, enrolment.getExam(), start, end);
 
-        if(machine == null) {
+        if (machine == null) {
             return notFound();
         }
 
@@ -139,7 +139,7 @@ public class CalendarController extends SitnetController {
         } else {
             for (ExamMachine machine : machines) {
 
-                if(machine.isArchived() || machine.getOutOfService()) {
+                if (machine.isArchived() || machine.getOutOfService()) {
                     continue;
                 }
 
@@ -154,7 +154,7 @@ public class CalendarController extends SitnetController {
             }
         }
 
-        if(candidates.isEmpty()) {
+        if (candidates.isEmpty()) {
             return null;
         }
         Interval wantedTime = new Interval(start, end);
@@ -167,7 +167,7 @@ public class CalendarController extends SitnetController {
                 }
                 continue;
             }
-            if(!overlaps) {
+            if (!overlaps) {
                 return machine;
             }
         }
@@ -176,8 +176,14 @@ public class CalendarController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSlotsWithOutAccessibility(String examinput, String roominput, String dateinput) throws MalformedDataException, NotFoundException {
-        return getSlots(examinput,roominput,dateinput, null);
+        return getSlots(examinput, roominput, dateinput, null);
     }
+
+
+    private static DateTime getNow() {
+        return DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
+    }
+
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSlots(String examinput, String roominput, String dateinput, String accessibilityIds) throws NotFoundException {
@@ -223,8 +229,10 @@ public class CalendarController extends SitnetController {
             throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) date(%s)", searchDate, exam.getId(), examEndDateTime));
         }
 
-        if (searchDate.isBeforeNow()) {
-            searchDate = DateTime.now();
+        DateTime now = getNow();
+
+        if (searchDate.isBefore(now)) {
+            searchDate = now;
         }
 
         DateTime current = searchDate;
@@ -233,7 +241,7 @@ public class CalendarController extends SitnetController {
         List<Reservation> reservations = Ebean.find(Reservation.class)
                 .where()
                 .eq("user", user)
-                .gt("startAt", DateTime.now())
+                .gt("startAt", now)
                 .findList();
 
         do {
@@ -248,11 +256,11 @@ public class CalendarController extends SitnetController {
     private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay, List<Reservation> reservations, ArrayList<Integer> wantedAccessibility) {
         Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<String, DayWithFreeTimes>();
 
-        final DateTime now = DateTime.now();
+        final DateTime now = getNow();
 
         final DateTime examStartTime = new DateTime(exam.getExamActiveStartDate());
 
-        if(examStartTime.isAfter(forDay)) {
+        if (examStartTime.isAfter(forDay)) {
             return allPossibleFreeTimeSlots;
         }
 
@@ -264,7 +272,7 @@ public class CalendarController extends SitnetController {
                 boolean notFound = true;
                 for (Accessibility access : roomAccessibility) {
                     int id = access.getId().intValue();
-                    if( id == wantedId){
+                    if (id == wantedId) {
                         notFound = false;
                     }
                 }
@@ -273,7 +281,6 @@ public class CalendarController extends SitnetController {
                 }
             }
         }
-
 
 
         for (ExamMachine examMachine : room.getExamMachines()) {
@@ -286,7 +293,7 @@ public class CalendarController extends SitnetController {
                     boolean notFound = true;
                     for (Accessibility access : examMachineAccessibility) {
                         int id = access.getId().intValue();
-                        if( id == wantedId){
+                        if (id == wantedId) {
                             notFound = false;
                         }
                     }
@@ -296,7 +303,7 @@ public class CalendarController extends SitnetController {
                 }
             }
 
-            if(!machineAccessibilitySatisfied) {
+            if (!machineAccessibilitySatisfied) {
                 continue;
             }
 
@@ -312,7 +319,7 @@ public class CalendarController extends SitnetController {
                 final DateTime endTime;
 
                 if (forDay.toLocalDate().equals(now.toLocalDate())) {
-                    startTime = DateTime.now().plusHours(1).withMinuteOfHour(0);
+                    startTime = getNow().plusHours(1).withMinuteOfHour(0);
                 } else {
                     startTime = hours.getStart();
                 }
@@ -369,7 +376,7 @@ public class CalendarController extends SitnetController {
 
                 DateTime freeTimeSlotStartTime = startTime.withMinuteOfHour(0);
 
-                while(freeTimeSlotStartTime.plusHours(1).plusMinutes(shift).isBefore(endTime)) {
+                while (freeTimeSlotStartTime.plusHours(1).plusMinutes(shift).isBefore(endTime)) {
                     freeTimeSlotStartTime = freeTimeSlotStartTime.plusHours(1);
                     possibleTimeSlot = getFreeTimeSlot(room, examMachine, freeTimeSlotStartTime, freeTimeSlotStartTime.plusMinutes(shift));
                     day.getSlots().add(possibleTimeSlot);
@@ -382,8 +389,8 @@ public class CalendarController extends SitnetController {
 
 
                     //user reservations
-                    if(!reservations.isEmpty())  {
-                        for(Reservation reservation :reservations) {
+                    if (!reservations.isEmpty()) {
+                        for (Reservation reservation : reservations) {
 
                             final Interval reservationDuration = reservation.toInterval();
                             //remove if intersects
