@@ -7,6 +7,8 @@
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
 
+                $scope.newExam = {};
+
                 $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section.html";
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_question.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_general.html";
@@ -85,7 +87,16 @@
                             if ($scope.newExam.examType === null) {
                                 // examtype id 2 is Final
                                 ExamRes.examType.insert({eid: $scope.newExam.id, etid: 2}, function (updated_exam) {
+
+
                                     $scope.newExam = updated_exam;
+                                    if ($scope.newExam.examLanguage === null || $scope.newExam.examLanguage === 'fi') {
+                                        $scope.newExam.examLanguage = $scope.examLanguages[0];
+                                    }
+
+                                    if ($scope.newExam.answerLanguage === null) {
+                                        $scope.newExam.answerLanguage = $scope.examAnswerLanguages[0];
+                                    }
                                 }, function (error) {
                                     toastr.error(error.data);
                                 });
