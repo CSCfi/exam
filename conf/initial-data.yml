@@ -956,7 +956,7 @@ courses:
     credits: 5
 
   - !!models.Course
-    organisation: *YTL
+    organisation: *YFL
     code: EKTA170
     name: Hyvä elämä ja etiikka
     type:
