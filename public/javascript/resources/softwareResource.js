@@ -17,7 +17,8 @@
                         sid: "@sid"
                     },
                     {
-                        "add": {method: "PUT"}
+                        "add": {method: "PUT"},
+                        "toggle": {method: "POST"}
                     }),
 
                 softwares: $resource("/softwares",

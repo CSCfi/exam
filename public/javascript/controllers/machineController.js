@@ -10,12 +10,39 @@
                 ExamMachineResource.get({id: $routeParams.id},
                     function (machine) {
                         $scope.machine = machine;
+
+                        SoftwareResource.softwares.query(
+                            function (soft) {
+                                $scope.softwares = soft;
+
+                                for(var i = 0; i < $scope.softwares.length; i++ ) {
+
+                                    for(var j = 0; j < $scope.machine.softwareInfo.length; j++ ) {
+                                        $scope.softwares[i].class = "btn-default";
+
+                                        if ($scope.machine.softwareInfo[j].id == $scope.softwares[i].id) {
+                                            $scope.softwares[i].class = "btn-primary";
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        );
                     },
                     function (error) {
                         toastr.error(error.data);
                     }
                 );
-                $scope.softwares = SoftwareResource.softwares.query();
+
+                $scope.getSoftwarePresent = function(software) {
+
+                    for(var i = 0; i < $scope.machine.softwareInfo.length; i++ ) {
+                        if ($scope.machine.softwareInfo[i].id == software.id)
+                            return "btn-primary";
+                    }
+                    return "btn-default";
+                };
+
 
                 $scope.removeMachine = function (machine) {
                     if (confirm('Poistetaanko kone?')) {
@@ -32,15 +59,32 @@
                     $location.path("/rooms/");
                 };
 
+                $scope.toggleSoftware = function (software) {
+
+                    // make the backend call remove software
+                    SoftwareResource.machine.toggle({mid: $scope.machine.id, sid: software.id},
+                        function (response) {
+                            software.class = (response.software ==='true' ? 'btn-primary' : 'btn-default');
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        });
+                };
+
                 $scope.updateSoftwareInfo = function () {
 
-                    SoftwareResource.machines.reset({mid: $scope.machine.id});
-
-                    angular.forEach($scope.machine.softwareInfo, function(software) {
-                        SoftwareResource.machine.add({mid: $scope.machine.id, sid: software.id});
-                    });
-                    toastr.info("Tenttikone päivitetty.");
-                    $scope.selectedSoftwares($scope.machine);
+                    SoftwareResource.machines.reset({mid: $scope.machine.id},
+                        function () {
+                            angular.forEach($scope.machine.softwareInfo, function(software) {
+                                SoftwareResource.machine.add({mid: $scope.machine.id, sid: software.id});
+                            });
+                            toastr.info("Tenttikone päivitetty.");
+                            $scope.selectedSoftwares($scope.machine);
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 };
 
 

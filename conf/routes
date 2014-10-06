@@ -162,6 +162,7 @@ POST          /machines/:id                                                    c
 DELETE        /machines/:id                                                    controllers.ExamMachineController.removeExamMachine(id: Long)
 
 PUT           /machine/:mid/software/:sid                                      controllers.ExamMachineController.updateExamMachineSoftwareInfo(mid: Long, sid: Long)
+POST          /machine/:mid/software/:sid                                      controllers.ExamMachineController.toggleExamMachineSoftwareInfo(mid: Long, sid: Long)
 PUT           /software_machine/:mid                                           controllers.ExamMachineController.resetExamMachineSoftwareInfo(mid: Long)
 
 GET           /softwares                                                       controllers.ExamMachineController.getSoftwares()

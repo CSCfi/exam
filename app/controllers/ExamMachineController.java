@@ -7,6 +7,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import org.joda.time.DateTime;
 import org.springframework.util.CollectionUtils;
@@ -99,7 +100,33 @@ public class ExamMachineController extends SitnetController {
         machine.getSoftwareInfo().add(software);
         machine.update();
 
-        return ok(Json.toJson(machine));
+        return ok(Json.toJson(machine.getSoftwareInfo()));
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public static Result toggleExamMachineSoftwareInfo(Long mid, Long sid) throws MalformedDataException {
+        ExamMachine machine = Ebean.find(ExamMachine.class, mid);
+        Software software = Ebean.find(Software.class, sid);
+
+        if(machine.getSoftwareInfo().contains(software))
+        {
+            machine.getSoftwareInfo().remove(software);
+            machine.update();
+            ObjectNode part = Json.newObject();
+            part.put("software", "false");
+
+            return ok(Json.toJson(part));
+        }
+        else
+        {
+            machine.getSoftwareInfo().add(software);
+            machine.update();
+
+            ObjectNode part = Json.newObject();
+            part.put("software", "true");
+
+            return ok(Json.toJson(part));
+        }
     }
 
     @Restrict({@Group("ADMIN")})
