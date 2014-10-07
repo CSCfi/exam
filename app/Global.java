@@ -55,23 +55,8 @@ public class Global extends GlobalSettings {
                 Akka.system().dispatcher()
         );
 
-// Todo: in production should use 7 DAYS
-//        Akka.system().scheduler().schedule(
-//                Duration.create(1, TimeUnit.MINUTES),
-//                Duration.create(1, TimeUnit.DAYS),
-//                new WeeklyEmailReport(),
-//                Akka.system().dispatcher()
-//        );
-
-
-
-
         // TODO: WeeklyEmailReport.java unused after this
         weeklyEmailReport();
-
-
-
-
 
         InitialData.insert(app);
         StatisticsController.createReportDirectory();

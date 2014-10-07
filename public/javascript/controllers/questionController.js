@@ -117,6 +117,11 @@
                     );
                 };
 
+                $scope.checkMaxPoints = function(value) {
+                        if(value < 1)
+                        return false;
+                };
+
                 $scope.newEssayQuestion = function () {
                     $scope.questionTemplate = $scope.essayQuestionTemplate;
                     $scope.newQuestion.type = "EssayQuestion";

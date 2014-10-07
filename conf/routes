@@ -224,11 +224,7 @@ GET           /statistics/examenrollments/:id                                  c
 GET           /statistics/student/:id/:from/:to                                controllers.StatisticsController.reportStudentActivity(id: Long  , from: String, to: String)
 
 ############### test test test test test###############
-POST          /test                                                            controllers.TestController.addQuestion()
-GET           /summary                                                         controllers.TestController.getSummary()
-GET           /secure                                                          controllers.TestController.shibbolethHeaders()
-GET           /son                                                             controllers.TestController.son()
-GET           /org                                                             controllers.TestController.org()
+
 GET           /exam-score-static/:code                                         controllers.ExamScoreController.examScoreStatic(code: String)
 POST          /exam-score-test                                                 controllers.ExamScoreController.examScoreTest()
 

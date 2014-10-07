@@ -73,7 +73,7 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <input name="maxScore" type="text" class="col-md-2 form-control" ng-model="newQuestion.maxScore"
-                                           ui-change="questionForm.maxScore.$valid ? updateQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                                           ng-change="checkMaxPoints(newQuestion.maxScore)" ui-change="questionForm.maxScore.$valid ? updateQuestion() : false" required ng-pattern="/^\d*(\.\d+)?$/">
                                 </div>
                             </div>
                         </div>

@@ -27,9 +27,6 @@ ALTER TABLE sitnet_role ADD ebean_timestamp BIGINT DEFAULT 0;
 ALTER TABLE software ADD ebean_timestamp BIGINT DEFAULT 0;
 ALTER TABLE sitnet_users ADD ebean_timestamp BIGINT DEFAULT 0;
 ALTER TABLE user_language ADD ebean_timestamp BIGINT DEFAULT 0;
-ALTER TABLE accessibility ADD ebean_timestamp BIGINT DEFAULT 0;
-ALTER TABLE accessibility ADD ebean_timestamp BIGINT DEFAULT 0;
-ALTER TABLE accessibility ADD ebean_timestamp BIGINT DEFAULT 0;
 
 # --- !Downs
 
@@ -59,6 +56,3 @@ ALTER TABLE sitnet_role DROP ebean_timestamp;
 ALTER TABLE software DROP ebean_timestamp;
 ALTER TABLE sitnet_users DROP ebean_timestamp;
 ALTER TABLE user_language DROP ebean_timestamp;
-ALTER TABLE accessibility DROP ebean_timestamp;
-ALTER TABLE accessibility DROP ebean_timestamp;
-ALTER TABLE accessibility DROP ebean_timestamp;

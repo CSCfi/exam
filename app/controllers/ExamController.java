@@ -348,11 +348,10 @@ public class ExamController extends SitnetController {
             options.setPathProperties("creator", "id, firstName, lastName");
             options.setPathProperties("parent", "id, creator");
             options.setPathProperties("parent.creator", "id, firstName, lastName");
-            options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
             options.setPathProperties("room", "id, name");
             options.setPathProperties("softwares", "id, name");
             options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examType", "id, type");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
             options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
@@ -401,10 +400,9 @@ public class ExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                     "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
-            options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
             options.setPathProperties("room", "id, name roomInstruction roomInstructionEN roomInstructionSV");
             options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examType", "id, type");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
             options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, maxCharacters, evaluationType, evaluatedScore, evaluationCriterias, options, answer, attachment");
@@ -677,9 +675,8 @@ public class ExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, examType, instruction, enrollInstruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                     "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, softwares");
-            options.setPathProperties("course", "id, organisation, code, name, level, type, credits");
+            options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
             options.setPathProperties("softwares", "id, name");
-            options.setPathProperties("course.organisation", "id, code, name, nameAbbreviation, courseUnitInfoUrl, recordsWhitelistIp, vatIdNumber");
             options.setPathProperties("examType", "id, type");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
             options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, options");
