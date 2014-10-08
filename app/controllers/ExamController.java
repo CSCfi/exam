@@ -443,8 +443,13 @@ public class ExamController extends SitnetController {
                 .get();
 
         ex.generateHash();
-        ex.setGradedTime(SitnetUtil.getTime());
-        ex.setGradedByUser(UserController.getLoggedUser());
+
+        // set user only if exam is really graded, not just modified
+        if(ex.getState().equals(Exam.State.GRADED.name()) || ex.getState().equals(Exam.State.GRADED_LOGGED.name()) )
+        {
+            ex.setGradedTime(SitnetUtil.getTime());
+            ex.setGradedByUser(UserController.getLoggedUser());
+        }
         ex.update();
 
         return ok(Json.toJson(ex));

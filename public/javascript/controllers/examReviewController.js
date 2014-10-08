@@ -366,11 +366,32 @@
                 // Called when the review ready button is clicked
                 $scope.examReviewReady = function (reviewed_exam) {
 
-                    $scope.saveFeedback();
+                    if (confirm($translate('sitnet_mark_as_graded_tooltip') +" "+ $translate('sitnet_are_you_sure'))) {
+                        $scope.saveFeedback();
+
+                        var examToReview = {
+                            "id": reviewed_exam.id,
+                            "state": 'GRADED',
+                            "grade": reviewed_exam.grade,
+                            "otherGrading": reviewed_exam.otherGrading,
+                            "totalScore": reviewed_exam.totalScore
+                        };
+
+                        ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
+                            toastr.info("Tentti on tarkastettu.");
+                            $location.path("/exams/reviews/" + reviewed_exam.parent.id);
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    }
+                };
+
+                // called when Save button is clicked
+                $scope.updateExam = function (reviewed_exam) {
 
                     var examToReview = {
                         "id": reviewed_exam.id,
-                        "state": 'GRADED',
+                        "state": reviewed_exam.state,
                         "grade": reviewed_exam.grade,
                         "otherGrading": reviewed_exam.otherGrading,
                         "totalScore": reviewed_exam.totalScore
@@ -378,7 +399,6 @@
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
                         toastr.info("Tentti on tarkastettu.");
-                        $location.path("/exams/reviews/"+ reviewed_exam.parent.id);
                     }, function (error) {
                         toastr.error(error.data);
                     });

@@ -146,12 +146,16 @@
             </div>
 
             <div class="col-md-12 row bottom-padding-2">
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <div style="padding-left: 1em">
+                        <button ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+                    </div>
+                </div>                <div class="col-md-4">
                     <div style="padding-left: 1em">
                         <button ng-click="examReviewReady(examToBeReviewed)" class="btn btn-primary">{{'sitnet_exam_save_review' | translate}}</button>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div style="padding-left: 1em">
                         <div class="col-md-12 top-margin-1"><div class="pull-right"><span>{{ 'sitnet_send_exam_feedback' | translate }}</span> <input type="checkbox" ng-model="sendReviewFeedback" checked/></div></div>
                         <button ng-click="saveExamRecord(examToBeReviewed)" ng-disabled="!isCreator()" class="btn btn-warning pull-right top-margin-1">{{'sitnet_exam_save_register' | translate}}</button>

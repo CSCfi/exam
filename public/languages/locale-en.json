@@ -313,5 +313,7 @@
     "sitnet_enroll_instruction": "Ilmoittautumisen aikana näkyvä ohjeistus",
     "sitnet_state_needs_reservation": "Odottaa huonevarausta",
     "sitnet_enroll_to_exam": "Enroll",
-    "sitnet_answer_attachment": "Answer attachment"
+    "sitnet_answer_attachment": "Answer attachment",
+    "sitnet_mark_as_graded": "Merkitse arvioiduksi",
+    "sitnet_mark_as_graded_tooltip": "Tämän jälkeen opiskelija näkee arvioinnin omalla sivulla."
 }
