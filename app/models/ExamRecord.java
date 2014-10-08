@@ -27,12 +27,29 @@ public class ExamRecord extends Model {
     private User student;
     @OneToOne
     private Exam exam;
-    @OneToOne
-    private ExamScore examScore;
-    @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp timeStamp;
+
+    // This one might be redundant, at the moment we get all course data from Course.java
     @OneToOne
     private CourseUnitInfo courseUnitInfo;
+
+    @OneToOne
+    private ExamScore examScore;
+
+    // what timestamp is this? The moments teacher marked Exam as recorded
+    @Temporal(TemporalType.TIMESTAMP)
+    private Timestamp timeStamp;
+
+    // the moment this record was exported to Education administration system
+    @Temporal(TemporalType.TIMESTAMP)
+    private Timestamp recordedOn;
+
+    public Timestamp getRecordedOn() {
+        return recordedOn;
+    }
+
+    public void setRecordedOn(Timestamp recordedOn) {
+        this.recordedOn = recordedOn;
+    }
 
     public User getTeacher() {
         return teacher;

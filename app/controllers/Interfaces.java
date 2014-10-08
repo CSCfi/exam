@@ -4,10 +4,8 @@ package controllers;
 import Exceptions.NotFoundException;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.Exam;
-import models.ExamParticipation;
-import models.Organisation;
-import models.User;
+import com.google.common.io.ByteStreams;
+import models.*;
 import models.dto.CourseUnitInfo;
 import models.dto.ExamScore;
 import play.Logger;
@@ -72,6 +70,40 @@ public class Interfaces extends SitnetController {
 
     }
 
+    public static Result getNewRecords(String startDate) {
+
+        Date start = null;
+
+        try {
+            start = sdf.parse(startDate);
+        } catch (ParseException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } finally {
+            if(start == null) {
+                return Results.badRequest("date format should be dd.MM.YYYY eg. 17.01.2011");
+            }
+        }
+
+        List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
+                .select("exam_score")
+                .where()
+                .gt("time_stamp", start)
+                .findList();
+
+        if(examRecords == null) {
+            return Results.ok("no records since: " + startDate);
+        }
+
+
+        List<ExamScore> examScores = new ArrayList<ExamScore>();
+        for (ExamRecord record : examRecords) {
+            examScores.add(record.getExamScore());
+        }
+
+        return ok(Json.toJson(examScores));
+    }
+
+
     public static Result getRecords(String vatIdNumber, String startDate) {
 
         //todo: ip limit
@@ -131,7 +163,7 @@ public class Interfaces extends SitnetController {
 
 */
                     examScore.setCourseUnitLevel(exam.getCourse().getLevel());
-                    examScore.setCourseUnitType(exam.getCourse().getType().getName());
+//                    examScore.setCourseUnitType(exam.getCourse().getType().getName());
                     //todo: fix this!
                     examScore.setCreditType("");
                     examScore.setLecturer("");

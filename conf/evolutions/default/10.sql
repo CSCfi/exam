@@ -12,6 +12,7 @@ ALTER TABLE course ADD department varchar(255);
 ALTER TABLE course ADD degree_programme varchar(255);
 ALTER TABLE course ADD campus varchar(255);
 ALTER TABLE course ADD course_material varchar(255);
+ALTER TABLE course ADD course_unit_type varchar(255);
 
 # --- !Downs
 
@@ -27,3 +28,4 @@ ALTER TABLE course DROP department;
 ALTER TABLE course DROP degree_programme;
 ALTER TABLE course DROP campus;
 ALTER TABLE course DROP course_material;
+ALTER TABLE course DROP course_unit_type;

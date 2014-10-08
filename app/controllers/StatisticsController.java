@@ -145,7 +145,7 @@ public class StatisticsController extends SitnetController {
                 dataRow.createCell(3).setCellValue(exam.getCourse().getId() == null ? "" : exam.getCourse().getId().toString());
                 dataRow.createCell(4).setCellValue(exam.getCourse().getName() == null ? "" : exam.getCourse().getName());
                 dataRow.createCell(5).setCellValue(exam.getCourse().getCredits() == null ? "" : Integer.toString(exam.getCourse().getCredits().intValue()));
-                dataRow.createCell(6).setCellValue(exam.getCourse().getType() == null ? "NULL" : exam.getCourse().getType().getCode());   // what is this, after integratio ?
+                dataRow.createCell(6).setCellValue(exam.getCourse().getCourseUnitType() == null ? "NULL" : exam.getCourse().getCourseUnitType());   // what is this, after integratio ?
                 dataRow.createCell(7).setCellValue(exam.getCourse().getLevel() == null ? "" : exam.getCourse().getLevel());
             } else {
                 dataRow.createCell(3).setCellValue("");

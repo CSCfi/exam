@@ -188,6 +188,7 @@ GET           /attachment/exam/:id                                             c
 
 GET           /integration/info/:organisationId/:id                            controllers.Interfaces.getInfo(organisationId: String, id: String)
 GET           /integration/record/:vatIdNumber/:startDate                      controllers.Interfaces.getRecords(vatIdNumber: String, startDate: String)
+GET           /integration/record/:startDate                                   controllers.Interfaces.getNewRecords(startDate: String)
 
 
 
@@ -227,5 +228,4 @@ GET           /statistics/student/:id/:from/:to                                c
 
 GET           /exam-score-static/:code                                         controllers.ExamScoreController.examScoreStatic(code: String)
 POST          /exam-score-test                                                 controllers.ExamScoreController.examScoreTest()
-
 GET           /assets/*file                                                    controllers.Assets.at(path="/public", file)

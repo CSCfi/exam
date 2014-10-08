@@ -30,11 +30,11 @@ public class Course extends Model {
 
     private String level;
 
-    private CourseType type;
-
     private Double credits;
 
     /**** NEW ONES ****/
+    private String courseUnitType;
+
     private String identifier;
 
     private String startDate;
@@ -94,6 +94,14 @@ public class Course extends Model {
 
     public void setCourseImplementation(String courseImplementation) {
         this.courseImplementation = courseImplementation;
+    }
+
+    public String getCourseUnitType() {
+        return courseUnitType;
+    }
+
+    public void setCourseUnitType(String courseUnitType) {
+        this.courseUnitType = courseUnitType;
     }
 
     public String getCreditsLanguage() {
@@ -213,21 +221,12 @@ public class Course extends Model {
         this.name = name;
     }
 
-    public CourseType getType() {
-        return type;
-    }
-
-    public void setType(CourseType type) {
-        this.type = type;
-    }
-
     @Override
     public String toString() {
         return "Course{" +
                 "id=" + id +
                 ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
-                ", type=" + type +
                 ", credits=" + credits +
                 '}';
     }

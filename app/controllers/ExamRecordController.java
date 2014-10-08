@@ -85,7 +85,7 @@ public class ExamRecordController extends SitnetController {
         score.setCourseImplementation(exam.getCourse().getCourseImplementation());
         score.setCourseUnitCode(exam.getCourse().getCode());
         score.setCourseUnitLevel(exam.getCourse().getLevel());
-        score.setCourseUnitType(exam.getCourse().getType().getName());
+        score.setCourseUnitType(exam.getCourse().getCourseUnitType());
         score.setCreditLanguage(exam.getCourse().getCreditsLanguage());
         score.setCreditType(exam.getCreditType());
         score.setIdentifier(exam.getCourse().getIdentifier());
