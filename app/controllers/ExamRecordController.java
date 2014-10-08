@@ -10,6 +10,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -28,23 +29,23 @@ public class ExamRecordController extends SitnetController {
 
     static public Result addExamRecord() throws MalformedDataException {
 
-         Exam exam = Form.form(Exam.class).bindFromRequest(
-                                                         "id",
-                                                         "instruction",
-                                                         "name",
-                                                         "shared",
-                                                         "state",
-                                                         "room",
-                                                         "duration",
-                                                         "grading",
-                                                         "otherGrading",
-                                                         "totalScore",
-                                                         "examLanguage",
-                                                         "answerLanguage",
-                                                         "grade",
-                                                         "creditType",
-                                                         "expanded")
-                                                        .get();
+        Exam exam = Form.form(Exam.class).bindFromRequest(
+                "id",
+                "instruction",
+                "name",
+                "shared",
+                "state",
+                "room",
+                "duration",
+                "grading",
+                "otherGrading",
+                "totalScore",
+                "examLanguage",
+                "answerLanguage",
+                "grade",
+                "creditType",
+                "expanded")
+                .get();
 
         exam.update();
 
@@ -54,33 +55,26 @@ public class ExamRecordController extends SitnetController {
                 .eq("exam.id", exam.getId())
                 .findUnique();
 
-        ExamRecord er = new ExamRecord();
+        ExamRecord record = new ExamRecord();
 
         User student = participation.getUser();
-        er.setExam(exam);
-        er.setStudent(student);
+        User teacher = exam.getGradedByUser();
 
-        // TODO Remember to change graded by user thingy
-        // This could be redundant anyway.
-        er.setTeacher(exam.getGradedByUser());
+        record.setExam(exam);
+        record.setStudent(student);
+        record.setTeacher(teacher);
+        record.setTimeStamp(new Timestamp(new Date().getTime()));
+
 
         ExamScore score = new ExamScore();
 
-        System.out.println(student);
-        List<HakaAttribute> attrs = student.getAttributes();
-
+        score.setStudent(student.getEppn());
+        score.setStudentId(student.getUserIdentifier());
         score.setCredits(exam.getCourse().getCredits().toString());
         score.setExamScore(exam.getTotalScore().toString());
 
-        // TODO: attr might be null
-        if(attrs == null) {
-            score.setStudent("");
-            score.setStudentId("");
-        }
-        else {
-            score.setStudent(getAttribute("eduPersonPrincipalName", attrs));
-            score.setStudentId(getAttribute("schacPersonalUniqueCode", attrs));
-        }
+        score.setLecturer(teacher.getEppn());
+        score.setLecturerId(teacher.getUserIdentifier());
 
         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
         // Record transfer timestamp (date)
@@ -88,33 +82,21 @@ public class ExamRecordController extends SitnetController {
         // Timestamp for exam
         score.setExamDate(sdf.format(participation.getEnded()));
 
-        // TODO Change getGradedByUser if necessary
-        User lecturer = exam.getGradedByUser();
-        System.out.println(lecturer);
-        score.setLecturer(getAttribute("eduPersonPrincipalName", lecturer.getAttributes()));
-        score.setLecturerId(getAttribute("schacPersonalUniqueCode", lecturer.getAttributes()));
-
-
-        // TODO s
-        score.setCourseImplementation("");
-        score.setCourseUnitCode("");
-        score.setCourseUnitLevel("");
-        score.setCourseUnitType("");
-        score.setCreditLanguage("");
-        score.setCreditType("");
-        score.setIdentifier("");
-
+        score.setCourseImplementation(exam.getCourse().getCourseImplementation());
+        score.setCourseUnitCode(exam.getCourse().getCode());
+        score.setCourseUnitLevel(exam.getCourse().getLevel());
+        score.setCourseUnitType(exam.getCourse().getType().getName());
+        score.setCreditLanguage(exam.getCourse().getCreditsLanguage());
+        score.setCreditType(exam.getCreditType());
+        score.setIdentifier(exam.getCourse().getIdentifier());
         score.setGradeScale(exam.getGrading());
-        // What's this? The grade?
         score.setStudentGrade(exam.getGrade());
 
         score.save();
-
-        er.setExamScore(score);
-        er.save();
+        record.setExamScore(score);
+        record.save();
 
         DynamicForm df = Form.form().bindFromRequest();
-
         boolean sendFeedback = Boolean.parseBoolean(df.get("sendFeedback"));
 
         if(sendFeedback) {

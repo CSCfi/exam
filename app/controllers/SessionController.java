@@ -52,8 +52,16 @@ public class SessionController extends SitnetController {
 
 
             if(user != null) {
-                // clear old attributes
-                user.getAttributes().clear();
+
+                // User already exist, but we still need to update some information (all of it=)
+                if(request().getHeader("schacPersonalUniqueCode") == null)
+                    user.setUserIdentifier("");
+                else
+                    user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
+
+                String email = request().getHeader("mail");
+                user.setEmail(email);
+
                 user.save();
 
                 // TODO: should save MOST IMPORTANT attributes only, not all
@@ -105,9 +113,12 @@ public class SessionController extends SitnetController {
 
                 user.setEppn(request().getHeader("eppn"));
 
-                String email = request().getHeader("mail");
-//                String email = (request().getHeader("mail") == null ? request().getHeader("SHIB_mail") : request().getHeader("mail"));
+                if(request().getHeader("schacPersonalUniqueCode") == null)
+                    user.setUserIdentifier("");
+                else
+                    user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
 
+                String email = request().getHeader("mail");
                 user.setEmail(email);
                 user.setLastName(request().getHeader("sn"));
                 user.setFirstName(request().getHeader("displayName"));

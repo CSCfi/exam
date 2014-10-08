@@ -30,6 +30,9 @@ public class User extends Model implements Subject {
     // used identify user
     private String eppn;
 
+    // schacPersonalUniqueCode
+    private String userIdentifier;
+
     private String lastName;
 
     private String firstName;
@@ -73,6 +76,14 @@ public class User extends Model implements Subject {
 
     public void setHasAcceptedUserAgreament(boolean hasAcceptedUserAgreament) {
         this.hasAcceptedUserAgreament = hasAcceptedUserAgreament;
+    }
+
+    public String getUserIdentifier() {
+        return userIdentifier;
+    }
+
+    public void setUserIdentifier(String userIdentifier) {
+        this.userIdentifier = userIdentifier;
     }
 
     public String getEppn() {
