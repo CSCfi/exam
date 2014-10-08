@@ -6,6 +6,8 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.typesafe.config.ConfigFactory;
 import controllers.UserController;
+import models.Exam;
+import models.ExamInspection;
 import models.SitnetModel;
 import models.User;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -153,6 +155,22 @@ public class SitnetUtil {
         object.setModified(currentTime);
 
         return object;
+    }
+
+    static public boolean isInspector(Exam exam) {
+
+        User user = UserController.getLoggedUser();
+        ExamInspection examInspection = Ebean.find(ExamInspection.class)
+                .select("user,exam")
+                .where()
+                .eq("exam.id", exam.getId())
+                .eq("user.id", user.getId())
+                .findUnique();
+
+        if(examInspection == null)
+            return false;
+        else
+            return true;
     }
 
     static public boolean isOwner(SitnetModel object) {

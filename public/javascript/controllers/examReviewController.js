@@ -374,7 +374,9 @@
                             "state": 'GRADED',
                             "grade": reviewed_exam.grade,
                             "otherGrading": reviewed_exam.otherGrading,
-                            "totalScore": reviewed_exam.totalScore
+                            "totalScore": reviewed_exam.totalScore,
+                            "creditType": reviewed_exam.creditType
+
                         };
 
                         ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
@@ -394,7 +396,8 @@
                         "state": reviewed_exam.state,
                         "grade": reviewed_exam.grade,
                         "otherGrading": reviewed_exam.otherGrading,
-                        "totalScore": reviewed_exam.totalScore
+                        "totalScore": reviewed_exam.totalScore,
+                        "creditType": reviewed_exam.creditType
                     };
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
@@ -425,10 +428,11 @@
 
                         var examToRecord = {
                             "id": reviewed_exam.id,
-                            "state": 'GRADED_LOGGED',
+                            "state": "GRADED_LOGGED",
                             "grade": reviewed_exam.grade,
                             "otherGrading": reviewed_exam.otherGrading,
                             "totalScore": reviewed_exam.totalScore,
+                            "creditType": reviewed_exam.creditType,
                             "sendFeedback": $scope.sendReviewFeedback
                         };
 

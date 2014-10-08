@@ -152,13 +152,19 @@
                     </div>
                 </div>                <div class="col-md-4">
                     <div style="padding-left: 1em">
-                        <button ng-click="examReviewReady(examToBeReviewed)" class="btn btn-primary">{{'sitnet_exam_save_review' | translate}}</button>
+                        <button ng-click="examReviewReady(examToBeReviewed)" ng-disabled="!isCreator()" class="btn btn-primary">{{'sitnet_exam_save_review' | translate}}</button>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div style="padding-left: 1em">
-                        <div class="col-md-12 top-margin-1"><div class="pull-right"><span>{{ 'sitnet_send_exam_feedback' | translate }}</span> <input type="checkbox" ng-model="sendReviewFeedback" checked/></div></div>
-                        <button ng-click="saveExamRecord(examToBeReviewed)" ng-disabled="!isCreator()" class="btn btn-warning pull-right top-margin-1">{{'sitnet_exam_save_register' | translate}}</button>
+                        <div class="col-md-12 top-margin-1">
+                            <div class="pull-right"><span>{{ 'sitnet_send_exam_feedback' | translate }}</span>
+                                <input type="checkbox" ng-model="sendReviewFeedback" checked/></div>
+                        </div>
+                        <button ng-click="saveExamRecord(examToBeReviewed)" ng-disabled="!isCreator() || examToBeReviewed.state =='GRADED_LOGGED'"
+                                class="btn btn-warning pull-right top-margin-1">{{'sitnet_exam_save_register' |
+                            translate}}
+                        </button>
                     </div>
                 </div>
 

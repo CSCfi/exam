@@ -1,6 +1,8 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.*;
 import models.dto.ExamScore;
@@ -8,6 +10,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import util.SitnetUtil;
 import util.java.EmailComposer;
 
 import java.sql.Timestamp;
@@ -20,13 +23,8 @@ import java.util.List;
  */
 public class ExamRecordController extends SitnetController {
 
-    static public Result getJson() {
 
-        List<ExamRecord> ers = Ebean.find(ExamRecord.class).findList();
-
-        return ok(Json.toJson(ers.get(0)));
-    }
-
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     static public Result addExamRecord() throws MalformedDataException {
 
         Exam exam = Form.form(Exam.class).bindFromRequest(
@@ -46,6 +44,18 @@ public class ExamRecordController extends SitnetController {
                 "creditType",
                 "expanded")
                 .get();
+
+        Exam ex = Ebean.find(Exam.class)
+                .select("state, creator")
+                .where()
+                .eq("id", exam.getId())
+                .findUnique();
+
+//        if (!SitnetUtil.isOwner(ex) || !UserController.getLoggedUser().hasRole("ADMIN"))
+//            return forbidden("You are not allowed to modify this object");
+            // if this exam is already logged exit.
+        if(ex.getState().equals(Exam.State.GRADED_LOGGED.name()))
+            return forbidden("Exam already GRADED and LOGGED");
 
         exam.update();
 

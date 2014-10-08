@@ -19,7 +19,7 @@ ALTER TABLE exam_room ADD ebean_timestamp BIGINT DEFAULT 0;
 ALTER TABLE exam_type ADD ebean_timestamp BIGINT DEFAULT 0;
 ALTER TABLE general_settings ADD ebean_timestamp BIGINT DEFAULT 0;
 ALTER TABLE haka_attribute ADD ebean_timestamp BIGINT DEFAULT 0;
-ALTER TABLE mail_ADDress ADD ebean_timestamp BIGINT DEFAULT 0;
+ALTER TABLE mail_address ADD ebean_timestamp BIGINT DEFAULT 0;
 ALTER TABLE mime_type ADD ebean_timestamp BIGINT DEFAULT 0;
 ALTER TABLE organisation ADD ebean_timestamp BIGINT DEFAULT 0;
 ALTER TABLE reservation ADD ebean_timestamp BIGINT DEFAULT 0;

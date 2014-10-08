@@ -325,7 +325,9 @@ public class ExamController extends SitnetController {
 
         if (exam == null) {
             return notFound();
-        } else if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") ||
+        }
+        // Todo: oh dear. this is stupid, please fix this. oh and by the way why this method is used for all roles getExam cases
+        else if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isInspector(exam) ||
                 exam.getState().equals("STUDENT_STARTED") || exam.getState().equals("ABORTED") || exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED")) {
             if (exam.getState().equals("STUDENT_STARTED")) {
                 // if exam not over -> return
@@ -452,7 +454,8 @@ public class ExamController extends SitnetController {
         }
         ex.update();
 
-        return ok(Json.toJson(ex));
+//        return ok(Json.toJson(ex));
+        return ok();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
