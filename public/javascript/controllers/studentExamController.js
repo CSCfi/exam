@@ -229,7 +229,8 @@
                             $location.path('/student/doexam/' + clonedExam.hash);
                         }).
                         error(function (error) {
-                            toastr.error(error);
+                            toastr.error($translate(error));
+//                            toastr.error(error);
                         });
 
                 };

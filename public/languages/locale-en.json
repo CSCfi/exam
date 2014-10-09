@@ -315,5 +315,8 @@
     "sitnet_enroll_to_exam": "Enroll",
     "sitnet_answer_attachment": "Answer attachment",
     "sitnet_mark_as_graded": "Merkitse arvioiduksi",
-    "sitnet_mark_as_graded_tooltip": "Tämän jälkeen opiskelija näkee arvioinnin omalla sivulla."
+    "sitnet_mark_as_graded_tooltip": "Tämän jälkeen opiskelija näkee arvioinnin omalla sivulla.",
+    "sitnet_reservation_not_found": "Varausta ei löydy.",
+    "sitnet_reservation_machine_not_found": "Tenttikonetta ei löydy.",
+    "sitnet_wrong_exam_machine": "Olet väärällä tenttikoneella. Sinun pitäisi olla tilassa"
 }

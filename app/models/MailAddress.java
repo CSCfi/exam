@@ -57,4 +57,9 @@ public class MailAddress extends Model {
     public void setCity(String city) {
         this.city = city;
     }
+
+    @Override
+    public String toString() {
+        return street +", "+ city +", "+ zip;
+    }
 }

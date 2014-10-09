@@ -419,6 +419,9 @@ public class StatisticsController extends SitnetController {
                 .orderBy("user.id")
                 .findList();
 
+        if(enrolments == null)
+            return notFound("No Enrolments for this exam");
+
         File file = new File(basePath + name + ".xlsx");
 
         Workbook wb = new XSSFWorkbook();

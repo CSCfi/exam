@@ -239,22 +239,21 @@ public class StudentExamController extends SitnetController {
                         .gt("reservation.endAt", now)
                         .findUnique();
 
-                //et ole ilmoittautunut kokeeseen
                 if(enrolment == null) {
-                    return forbidden("you have no enrolment or reservation at this time");
-                }
-
-                if(enrolment.getReservation() ==  null) {
-                    return forbidden("you have no reservation");
+                    return forbidden("sitnet_reservation_not_found");
                 }
 
                 if(enrolment.getReservation().getMachine() == null ) {
-                    return internalServerError("there is no machine on the reservation");
+                    return internalServerError("sitnet_reservation_machine_not_found");
                 }
 
                 String ip = request().remoteAddress();
                 if(!enrolment.getReservation().getMachine().getIpAddress().equals(ip)){
-                    return forbidden("wrong machine");
+                    ExamRoom examRoom = Ebean.find(ExamRoom.class, enrolment.getReservation().getMachine().getRoom().getId());
+
+                    String message = "sitnet_wrong_exam_machine: "+ examRoom.getName() +" "+ examRoom.getMailAddress().toString()
+                            +" sitnet_exam_machine "+ enrolment.getReservation().getMachine().getName();
+                    return forbidden(message);
                 }
 
                 studentExam.setState("STUDENT_STARTED");
@@ -262,11 +261,6 @@ public class StudentExamController extends SitnetController {
                 studentExam.setParent(blueprint);
                 studentExam.generateHash();
                 studentExam.save();
-
-                // 1. might want try Serialization clone approach
-                // @Version http://blog.matthieuguillermin.fr/2012/11/ebean-and-the-optimisticlockexception/
-                // http://avaje.org/topic-112.html
-
 
                 enrolment.setExam(studentExam);
                 enrolment.save();
@@ -284,7 +278,6 @@ public class StudentExamController extends SitnetController {
             }
         } else {
             //palautetaan olemassa oleva koe, esim. sessio katkennut tms. jatketaan kokeen tekemistä.
-
             setStudentExamContent(options);
 
             return ok(jsonContext.toJsonString(possibleClone, true, options)).as("application/json");
