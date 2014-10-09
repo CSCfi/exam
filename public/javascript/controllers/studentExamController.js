@@ -232,27 +232,6 @@
                             toastr.error(error);
                         });
 
-//                    removed because SIT-510
-//                    $scope.doexam = exam;
-//                    var modalInstance = $modal.open({
-//                        templateUrl: 'assets/templates/dialog_terms_of_use.html',
-//                        backdrop: 'static',
-//                        keyboard: true,
-//                        controller: "ModalInstanceCtrl"
-//                    });
-//
-//                    modalInstance.result.then(function () {
-//                        $http.get('/student/doexam/' + $scope.doexam.hash)
-//                            .success(function (clonedExam) {
-//                                $scope.clonedExam = clonedExam;
-//                                $location.path('/student/doexam/' + clonedExam.hash);
-//                            }).
-//                            error(function (error) {
-//                                console.log('Error happened: ' + error);
-//                            });
-//                    }, function () {
-//                        console.log('Modal dismissed at: ' + new Date());
-//                    });
                 };
 
                 $scope.continueExam = function (exam) {
