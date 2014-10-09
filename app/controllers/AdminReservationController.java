@@ -132,6 +132,15 @@ public class AdminReservationController extends SitnetController {
                 .where()
                 .eq("reservation.id", id)
                 .findUnique();
+
+        ExamParticipation participation = Ebean.find(ExamParticipation.class)
+                .where()
+                .eq("exam.id", enrolment.getExam().getId())
+                .findUnique();
+
+        if(participation != null)
+            return forbidden("Cannot delete: This Enrolment has ExamParticipation." + participation.getId());
+
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id  {} for current user.", id));
         }

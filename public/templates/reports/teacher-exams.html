@@ -7,15 +7,10 @@
 
     <div class="col-md-2">
         <h4>{{'sitnet_teacher' | translate}}</h4>
-        <div class="btn-group" dropdown >
-            <button type="button" class="btn btn-primary dropdown-toggle pointer">
-                {{selectedTeacher.name}}
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-                <li ng-repeat="teacher in teachers" ng-click="setTeacher(teacher)"><a class="pointer-hand">{{teacher.name}}</a></li>
-            </ul>
-        </div>
+        <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedTeacher" ng-change="setTeacher(selectedTeacher)" data-placeholder="Opettaja" style="min-width:50%;">
+            <option value=""></option>
+            <option ng-repeat="teacher in teachers" value="{{teacher.id}}">{{teacher.name}}</option>
+        </select>
     </div>
 
     <!-- Start & End time datepickers -->
@@ -51,7 +46,7 @@
 
     <div class="col-md-2 load-link">
         <h2>
-            <a ng-click="getTeacherExamsByDate(selectedTeacher.id, dateService.startDate, dateService.endDate)"
+            <a ng-click="getTeacherExamsByDate(selectedTeacher, dateService.startDate, dateService.endDate)"
                class="fa-stack fa-lg pointer" download popover-trigger="mouseenter"  popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                 <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>

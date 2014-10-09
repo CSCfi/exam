@@ -196,9 +196,29 @@ public class StatisticsController extends SitnetController {
             options.setPathProperties("examFeedback", "id, comment");
 
             File file = new File(basePath + "tentti_" + exam.getName().toLowerCase().replace(" ", "-") + ".json");
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
+            FileOutputStream stream = null;
+            PrintStream out = null;
+            String content = null;
             try {
+                content = jsonContext.toJsonString(exam, true, options);
+
+                stream = new FileOutputStream(file);
+                out = new PrintStream(stream);
+                out.print(content);
+
+                out.close();
+                stream.close();
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+           /* try {
                 FileWriter writer = new FileWriter(file);
                 String content = jsonContext.toJsonString(exam, true, options);
                 writer.write(content);
@@ -213,11 +233,13 @@ public class StatisticsController extends SitnetController {
                 fis.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
-            }
+            }*/
 
             response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-            return ok(com.ning.http.util.Base64.encode(bos.toByteArray()));
-            //return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+//            return ok(com.ning.http.util.Base64.encode(bos.toByteArray()));
+            return ok(com.ning.http.util.Base64.encode(content.getBytes()));
+//            return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+
         }
         else
             return ok("invalid type: "+ reportType);
@@ -302,19 +324,20 @@ public class StatisticsController extends SitnetController {
             while(iterator.hasNext()) {
                 Exam e = (Exam) iterator.next();
                 if(e.getParent() != null) {
+                    if(e.getState() != null) {
 
-                    switch(e.getState()) {
-                        case "REVIEW":
-                            incrementResult(e.getParent().getId(), review);
-                            break;
-                        case "GRADED":
-                            incrementResult(e.getParent().getId(), graded);
-                            break;
-                        case "GRADED_LOGGED":
-                            incrementResult(e.getParent().getId(), graded_logged);
-                            break;
+                        switch (e.getState()) {
+                            case "REVIEW":
+                                incrementResult(e.getParent().getId(), review);
+                                break;
+                            case "GRADED":
+                                incrementResult(e.getParent().getId(), graded);
+                                break;
+                            case "GRADED_LOGGED":
+                                incrementResult(e.getParent().getId(), graded_logged);
+                                break;
+                        }
                     }
-
                     // removes the child after counting
                     iterator.remove();
                 }
@@ -1104,7 +1127,7 @@ public class StatisticsController extends SitnetController {
             }
 
             // tenttitila
-            if (rol.getReservation() != null) {
+            if (rol.getReservation() != null && rol.getReservation().getMachine() != null) {
                 dataRow.createCell(index++).setCellValue(rol.getReservation().getMachine().getRoom().getId());
                 dataRow.createCell(index++).setCellValue(rol.getReservation().getMachine().getRoom().getName());
                 dataRow.createCell(index++).setCellValue(rol.getReservation().getMachine().getRoom().getRoomCode());

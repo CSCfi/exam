@@ -101,12 +101,18 @@ public class StatisticsUtils {
     }
 
     public static Cell dateCell(Workbook wb, Row row, int index, Timestamp timestamp, String format) {
+
+        if(timestamp == null)
+        {
+            row.createCell(index).setCellValue("");
+            return null;
+        }
+
         CellStyle style = wb.createCellStyle();
         CreationHelper creationHelper = wb.getCreationHelper();
         style.setDataFormat(creationHelper.createDataFormat().getFormat(format));
 
         Cell cell = row.createCell(index);
-        cell.setCellValue(new Date(timestamp.getTime()));
         cell.setCellStyle(style);
 
         return cell;
