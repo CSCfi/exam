@@ -24,6 +24,7 @@
             </div>
 
             <div class="exam-question-container" ng-show="question.expanded">
+                <div class="sitnet-info-text">{{question.instruction}}</div>
                 <div class="question" ng-include="question.template"></div>
                 <div ng-show="question.attachment !== null" class="col-md-6" ng-controller="AttachmentController">
                     <a class="pointer" ng-click="downloadQuestionAttachment(question)"> {{'sitnet_download_attachment' | translate }} <span class="sitnet-text-medium"><small>({{question.attachment.fileName}})</small></span></a>
