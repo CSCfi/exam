@@ -419,6 +419,31 @@ public class StatisticsController extends SitnetController {
                 .orderBy("user.id")
                 .findList();
 
+        Exam proto = Ebean.find(Exam.class, id);
+
+        // is prototype exam
+        if(proto.getParent() == null) {
+            List<Exam> exams = Ebean.find(Exam.class)
+                    .fetch("parent")
+                    .select("is, parent.id")
+                    .where()
+                    .eq("parent.id", id)
+                    .findList();
+
+            for (Exam e : exams) {
+                List<ExamEnrolment> list = Ebean.find(ExamEnrolment.class)
+                        .fetch("user")
+                        .fetch("exam")
+                        .fetch("exam.course")
+                        .where()
+                        .eq("exam.id", e.getId())
+                        .orderBy("user.id")
+                        .findList();
+
+                enrolments.addAll(list);
+            }
+        }
+
         if(enrolments == null)
             return notFound("No Enrolments for this exam");
 
