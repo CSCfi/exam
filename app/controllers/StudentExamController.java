@@ -518,11 +518,4 @@ public class StudentExamController extends SitnetController {
         }
     }
 
-    private static boolean canBeAnswered(){
-
-
-          return true;
-
-
-    }
 }
