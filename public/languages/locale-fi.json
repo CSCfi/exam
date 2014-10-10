@@ -1,4 +1,5 @@
 {
+    "sitnet_abort_exam": "Keskeytä tentin suoritus",
     "sitnet_accept_useragreement": "Käyttäjäehtojen hyväksyminen.",
     "sitnet_active_exams": "Opiskelijoille näkyvät tentit",
     "sitnet_active_period": "Tentin voimassaoloaika",
@@ -323,5 +324,4 @@
     "sitnet_wrong_exam_machine": "Olet väärällä tenttikoneella. Sinun pitäisi olla tilassa",
     "sitnet_exam_has_ended": "Tentti on päättynyt",
     "sitnet_exam_starts": "Tentti alkaa"
-
 }

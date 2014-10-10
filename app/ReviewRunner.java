@@ -1,9 +1,9 @@
 import com.avaje.ebean.Ebean;
-import models.Exam;
-import models.ExamParticipation;
+import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Controller;
+import util.SitnetUtil;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -30,6 +30,19 @@ public class ReviewRunner extends Controller implements Runnable {
         for (ExamParticipation participation : participations) {
             final Exam exam = participation.getExam();
             int duration = exam.getDuration();
+
+            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                    .select("reservation.machine.room.transitionTime")
+                    .fetch("reservation")
+                    .fetch("reservation.machine")
+                    .fetch("reservation.machine.room")
+                    .where()
+                    .eq("exam.id", exam.getId())
+                    .findUnique();
+
+            ExamRoom room = enrolment.getReservation().getMachine().getRoom();
+            int transitionTime = Integer.parseInt(room.getTransitionTime());
+
             DateTime participationTimeLimit
                     = new DateTime(participation.getStarted())
                     .plusMinutes(duration)
@@ -37,10 +50,15 @@ public class ReviewRunner extends Controller implements Runnable {
                             //todo: is there any other edge cases, eg. late participation
                             //todo: or if user can somehow extend room reservation, in late participations
                             //add 15min "safe period" in here.
-                    .plusMinutes(15);
+                    .plusMinutes(transitionTime / 2);
 
             if (participationTimeLimit.isBeforeNow()) {
                 participation.setEnded(new Timestamp(DateTime.now().getMillis()));
+                participation.setDuration(new Timestamp(participation.getEnded().getTime() - participation.getStarted().getTime()));
+
+                GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
+                participation.setDeadline(new Timestamp(participation.getEnded().getTime() + settings.getReviewDeadline()));
+
                 participation.save();
                 String state = Exam.State.REVIEW.toString();
                 Logger.info("Setting exam ({}) state to {}", exam.getId(), state);

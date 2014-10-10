@@ -378,12 +378,8 @@ public class StudentExamController extends SitnetController {
             p.setEnded(SitnetUtil.getTime());
             p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
 
-            // Todo: should not read from application.conf, come up with a better idea
-//            long deadline = ConfigFactory.load().getLong("sitnet.deadline");
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
-
             p.setDeadline(new Timestamp(p.getEnded().getTime() + settings.getReviewDeadline()));
-
             p.save();
         }
 
