@@ -134,7 +134,7 @@ public class CalendarController extends SitnetController {
                 if (machine.isArchived() || machine.getOutOfService()) {
                     continue;
                 }
-                candidates.addAll(machines);
+                candidates.add(machine);
             }
         } else {
             for (ExamMachine machine : machines) {
