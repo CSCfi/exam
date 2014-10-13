@@ -176,6 +176,8 @@
                                     $scope.info = data;
                                     $scope.currentLanguageText = currentLanguage();
                                 });
+
+                            count();
                         }).
                         error(function (data, status, headers, config) {
                             $location.path("/home/");
@@ -473,38 +475,51 @@
 
                 $scope.alarmLine = 300; //if under this, red text. in seconds -> set to 5 minutes
 
+                $scope.timeChecked = false;
                 var getRemainingTime = function () {
                     if ($scope.doexam && $scope.doexam.id) {
                         var req = $http.get('/time/' + $scope.doexam.id);
                         req.success(function (reply) {
-                            $scope.remainingTime = reply;
+                            $scope.timeChecked = true;
+                            console.log("from server: "+ reply);
+                            $scope.remainingTime = parseInt(reply);
                         });
                     }
                 };
 
                 $scope.remainingTime = "";
-                var updateCheck = 30;
+                var updateCheck = 15;
                 var updateInterval = 0;
                 var count = function () {
-                    updateInterval++;
-                    $timeout(count, 1000);
-                    if (updateInterval >= updateCheck) {
-                        updateInterval = 0;
-                        $scope.remainingTime = getRemainingTime();
-                    } else {
-                        $scope.remainingTime--;
-                        return;
-                    }
-                    if ($scope.remainingTime <= 1) {
-                        StudentExamRes.exams.update({id: doexam.id}, function () {
-                            toastr.info("Tentti palautettu");
-                            $location.path("/home/");
-                        }, function () {
+                    if($scope.doexam) {
+                        updateInterval++;
 
-                        });
+                        var remainingTimePoller = $timeout(count, 1000);
+
+                        if (updateInterval >= updateCheck) {
+                            updateInterval = 0;
+                            getRemainingTime();
+                        } else {
+                            $scope.remainingTime--;
+                        }
+
+                        console.log("frontend count: " + $scope.remainingTime);
+
+                        if ($scope.timeChecked === true && $scope.remainingTime < 0) {
+                            $timeout.cancel(remainingTimePoller);
+                            StudentExamRes.exams.update({id: $scope.doexam.id}, function () {
+                                toastr.info("Tentti palautettu");
+                                $scope.doexam = null;
+                                $location.path("/home/");
+                            }, function () {
+
+                            });
+                        }
                     }
                 };
+
                 count(); // start the clock
+
 
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (question) {
