@@ -362,7 +362,6 @@ public class CalendarController extends SitnetController {
 
                 final String theDay = dateFormat.print(startTime);
 
-                final ArrayList<DayWithFreeTimes> possibleFreeSlots = new ArrayList<DayWithFreeTimes>(numberOfPossibleFreeSlots);
 
                 final DayWithFreeTimes day = new DayWithFreeTimes();
                 day.setDate(theDay);
@@ -382,12 +381,13 @@ public class CalendarController extends SitnetController {
                     day.getSlots().add(possibleTimeSlot);
                 }
 
-                for (FreeTimeSlot possibleFreeTimeSlot : day.getSlots()) {
+                Iterator iter = day.getSlots().iterator();
+                while(iter.hasNext()) {
 
-
+                    FreeTimeSlot possibleFreeTimeSlot = (FreeTimeSlot) iter.next();
                     final Interval possibleFreeTimeSlotDuration = new Interval(dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getStart()), dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getEnd()));
 
-
+                    boolean isRemoved = false;
                     //user reservations
                     if (!reservations.isEmpty()) {
                         for (Reservation reservation : reservations) {
@@ -395,10 +395,15 @@ public class CalendarController extends SitnetController {
                             final Interval reservationDuration = reservation.toInterval();
                             //remove if intersects
                             if (possibleFreeTimeSlotDuration.overlaps(reservationDuration)) {
-                                possibleFreeSlots.remove(possibleFreeTimeSlot);
+                                iter.remove();
+                                isRemoved = true;
                             }
                         }
 
+                    }
+
+                    if(isRemoved) {
+                        continue;
                     }
 
                     //reservations for machine
@@ -408,7 +413,7 @@ public class CalendarController extends SitnetController {
 
                         //remove if intersects
                         if (possibleFreeTimeSlotDuration.overlaps(reservationDuration)) {
-                            possibleFreeSlots.remove(possibleFreeTimeSlot);
+                            iter.remove();
                         }
                     }
                 }
