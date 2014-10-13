@@ -5,6 +5,7 @@ import Exceptions.NotFoundException;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.io.ByteStreams;
+import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.dto.CourseUnitInfo;
 import models.dto.ExamScore;
@@ -27,15 +28,18 @@ public class Interfaces extends SitnetController {
     final static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
 
-    public static F.Promise<Result> getInfo(String organisationId, String id) throws NotFoundException {
+    public static F.Promise<Result> getInfo(String code) throws NotFoundException {
 
-        Organisation organisation = Ebean.find(Organisation.class).select("courseUnitInfoUrl").where().eq("id", organisationId).findUnique();
-
-        String url = organisation.getCourseUnitInfoUrl();
+//        String url = organisation.getCourseUnitInfoUrl();
+        String url= ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url");
 
 
         if (url == null || url.isEmpty()) {
-            final List<CourseUnitInfo> list = Ebean.find(CourseUnitInfo.class).where().eq("organisation", organisationId).eq("identifier", id).findList();
+            final List<Course> list = Ebean.find(Course.class)
+                    .where()
+                    .eq("code", code)
+                    .findList();
+
             return F.Promise.promise(new F.Function0<Result>() {
                 public Result apply() {
                     return Results.ok(Json.toJson(list));
@@ -47,11 +51,10 @@ public class Interfaces extends SitnetController {
             URI uri = null;
             if (url != null) {
                 uri = new URI(url);
-
             }
             WS.WSRequestHolder ws = WS.url(url)
                     .setTimeout(10 * 1000)
-                    .setQueryParameter("courseId", id);
+                    .setQueryParameter("courseUnitCode", code);
 
             final F.Promise<Result> reply = ws.get().map( new F.Function<WS.Response, Result>() {
                         public Result apply(WS.Response response) {

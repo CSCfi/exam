@@ -186,7 +186,7 @@ GET           /attachment/exam/:id                                             c
 #### integration ####
 
 
-GET           /integration/info/:organisationId/:id                            controllers.Interfaces.getInfo(organisationId: String, id: String)
+GET           /integration/info/:code                                          controllers.Interfaces.getInfo(code: String)
 GET           /integration/record/:vatIdNumber/:startDate                      controllers.Interfaces.getRecords(vatIdNumber: String, startDate: String)
 GET           /integration/record/:startDate                                   controllers.Interfaces.getNewRecords(startDate: String)
 
