@@ -840,140 +840,120 @@ courses:
     institutionName: "Testing Yliopisto"
     code: 810136P
     name: Johdatus alkeiden perusteisiin
-    type: 
     credits: 5
       
   - &tietokannat !!models.Course
     institutionName: "Testing Yliopisto"
     code: 811380A
     name: Tietokantojen perusteet 
-    type: 
     credits: 7
 
   - &765104P !!models.Course
     institutionName: "Testing Yliopisto"
     code: 765104P
     name: Astronomian perusteet 
-    type: 
     credits: 8
 
   - &811386A !!models.Course
     institutionName: "Testing Yliopisto"
     code: 811386A
     name: Algoritmit
-    type: 
     credits: 5
     
   - &812346A !!models.Course
     institutionName: "Testing Yliopisto"
     code: 812346A
     name: Oliosuuntautunut analyysi ja suunnittelu
-    type: 
     credits: 5
 
   - &ay905061Y !!models.Course
     institutionName: "Testing Yliopisto"
     code: ay905061Y
     name: Arabian peruskurssi II
-    type:
     credits: 5
 
   - &ayA113801 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA113801
     name: Historia 25
-    type:
     credits: 25
 
   - &ayA113301 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA113301
     name: Elämänkatsomustieto 25
-    type:
     credits: 25
 
   - &A110102 !!models.Course
     institutionName: "Testing Yliopisto"
     code: A110102
     name: Englantilainen filologia aineopinnot
-    type:
     credits: 35
 
   - &ayA114001 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA114001
     name: Japani-opinnot perusopintoja
-    type:
     credits: 27
 
   - &ayA110401 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA110401
     name: Suomen kieli
-    type:
     credits: 25
 
   - &ayA111501 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA111501
     name: Valtio-oppi
-    type:
     credits: 25
 
   - &ayA250504 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA250504
     name: Kasvatustiede
-    type:
     credits: 25
 
   - &ay900060A !!models.Course
     institutionName: "Testing Yliopisto"
     code: ay900060A
     name: Tekniikan viestintä
-    type:
     credits: 2
 
   - &ay464085A !!models.Course
     institutionName: "Testing Yliopisto"
     code: ay464085A
     name: Tuotesuojaus
-    type:
     credits: 3.5
 
   - &5010107K !!models.Course
     institutionName: "Testing Yliopisto"
     code: 5010107K
     name: Tilastollisten menetelmien työpaja jatko-opiskelijoille
-    type:
     credits: 5
 
   - &5119161 !!models.Course
     institutionName: "Testing Yliopisto"
     code: 5119161
     name: Sustainability and Natural Resources
-    type:
     credits: 5
 
   - !!models.Course
     institutionName: "Testing Yliopisto"
     code: EKTA170
     name: Hyvä elämä ja etiikka
-    type:
     credits: 5
 
   - !!models.Course
     institutionName: "Testing Yliopisto"
     code: ERIA279
     name: Kandidaatin kypsyysnäyte
-    type:
     credits: 0
 
   - !!models.Course
     institutionName: "Testing Yliopisto"
     code: ITKS452
     name: Requirements Engineering
-    type:
     credits: 5
 
 ################################################################
