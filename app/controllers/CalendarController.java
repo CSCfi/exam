@@ -397,6 +397,7 @@ public class CalendarController extends SitnetController {
                             if (possibleFreeTimeSlotDuration.overlaps(reservationDuration)) {
                                 iter.remove();
                                 isRemoved = true;
+                                break;
                             }
                         }
 
