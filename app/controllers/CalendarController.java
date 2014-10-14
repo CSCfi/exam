@@ -415,6 +415,7 @@ public class CalendarController extends SitnetController {
                         //remove if intersects
                         if (possibleFreeTimeSlotDuration.overlaps(reservationDuration)) {
                             iter.remove();
+                            break;
                         }
                     }
                 }
