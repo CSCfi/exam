@@ -2,7 +2,7 @@ package controllers;
 
 import com.avaje.ebean.Ebean;
 import models.Exam;
-import models.ExamParticipation;
+import models.ExamEnrolment;
 import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
@@ -35,23 +35,24 @@ public class TimeController extends Controller {
             return forbidden("invalid session");
         }
 
-        ExamParticipation participation = Ebean.find(ExamParticipation.class)
-                .fetch("user")
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
                 .fetch("exam")
                 .where()
                 .eq("exam.id", examId)
                 .eq("user.id", user.getId())
                 .findUnique();
 
-        if (participation == null) {
+
+        if (enrolment == null) {
             return notFound();
         }
 
-        Exam exam = participation.getExam();
+        Exam exam = enrolment.getExam();
 
         final Seconds examDuration = Minutes.minutes(exam.getDuration()).toStandardSeconds();
         final DateTime now = DateTime.now();
-        final DateTime started = new DateTime(participation.getStarted());
+        final DateTime started = new DateTime(enrolment.getReservation().getStartAt());
         final Seconds tau = Seconds.secondsBetween(started, now);
 
         return ok(String.valueOf(examDuration.minus(tau).getSeconds()));
