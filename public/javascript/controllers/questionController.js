@@ -118,8 +118,10 @@
                 };
 
                 $scope.checkMaxPoints = function(value) {
-                        if(value < 1)
+                    if(value < 1)
                         return false;
+                    else
+                        return true;
                 };
 
                 $scope.newEssayQuestion = function () {
