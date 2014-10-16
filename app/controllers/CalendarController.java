@@ -435,6 +435,16 @@ public class CalendarController extends SitnetController {
                 }
             }
         }
+            /*
+        Iterator it = allPossibleFreeTimeSlots.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pairs = (Map.Entry) it.next();
+            if (pairs.getValue() == null) {
+                it.remove();
+            }
+        }
+
+              */
         return allPossibleFreeTimeSlots;
     }
 
