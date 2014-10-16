@@ -147,31 +147,34 @@ public class ExamMachineController extends SitnetController {
     @Restrict(@Group({"ADMIN"}))
     public static Result removeExamMachine(Long id) throws MalformedDataException {
 
-        ExamMachine machine = Ebean.find(ExamMachine.class, id);
+        // SIT-690
+        return forbidden("Tenttikoneen poistaminen estetty väliaikaisesti");
 
-        List<Reservation> reservations = Ebean.find(Reservation.class).where().eq("machine.id", id).gt("endAt", DateTime.now()).findList();
-
-        if(!CollectionUtils.isEmpty(reservations)) {
-            Iterator i = reservations.iterator();
-            while(i.hasNext()) {
-                Reservation reservation = (Reservation) i.next();
-
-                List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).where().eq("reservation.id", reservation.getId()).findList();
-
-                if(!CollectionUtils.isEmpty(enrolments)) {
-                       for(ExamEnrolment enrollment : enrolments) {
-                           enrollment.setReservation(null);
-                           enrollment.update();
-                       }
-                }
-                reservation.delete();
-            }
-        }
-
-        machine.setArchived(true);
-        machine.update();
-
-        return ok();
+//        ExamMachine machine = Ebean.find(ExamMachine.class, id);
+//
+//        List<Reservation> reservations = Ebean.find(Reservation.class).where().eq("machine.id", id).gt("endAt", DateTime.now()).findList();
+//
+//        if(!CollectionUtils.isEmpty(reservations)) {
+//            Iterator i = reservations.iterator();
+//            while(i.hasNext()) {
+//                Reservation reservation = (Reservation) i.next();
+//
+//                List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).where().eq("reservation.id", reservation.getId()).findList();
+//
+//                if(!CollectionUtils.isEmpty(enrolments)) {
+//                       for(ExamEnrolment enrollment : enrolments) {
+//                           enrollment.setReservation(null);
+//                           enrollment.update();
+//                       }
+//                }
+//                reservation.delete();
+//            }
+//        }
+//
+//        machine.setArchived(true);
+//        machine.update();
+//
+//        return ok();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
