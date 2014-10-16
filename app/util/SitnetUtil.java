@@ -11,6 +11,8 @@ import models.ExamInspection;
 import models.SitnetModel;
 import models.User;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -208,8 +210,8 @@ public class SitnetUtil {
         }
     }
 
-    static public Timestamp getTime() {
-        return new Timestamp(new Date().getTime());
+    static public Timestamp getNowTime() {
+        return new Timestamp(DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now())).getMillis());
     }
 
     public static boolean copyFile(File sourceFile, File destFile) throws IOException {

@@ -23,6 +23,7 @@ import play.mvc.Results;
 import play.mvc.SimpleResult;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
+import util.SitnetUtil;
 import util.java.EmailComposer;
 
 import java.lang.reflect.Method;
@@ -192,7 +193,7 @@ public class Global extends GlobalSettings {
 
         //todo: widen the range, to see upcoming enrolments
         //todo: add cases for these
-        Timestamp now = new Timestamp(DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now())).getMillis());
+        Timestamp now = SitnetUtil.getNowTime();
 
 
         Logger.debug(now.toString());

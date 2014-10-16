@@ -226,7 +226,7 @@ public class StudentExamController extends SitnetController {
         // tehdään uusi koe opiskelijalle "oletus"
         if (possibleClone == null) {
 
-            Timestamp now = new Timestamp(DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now())).getMillis());
+            Timestamp now = SitnetUtil.getNowTime();
             DateTime jodaNow = DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
             String clientIP = request().remoteAddress();
 
@@ -323,7 +323,7 @@ public class StudentExamController extends SitnetController {
             ExamParticipation examParticipation = new ExamParticipation();
             examParticipation.setUser(user);
             examParticipation.setExam(studentExam);
-            examParticipation.setStarted(new Timestamp(new Date().getTime()));
+            examParticipation.setStarted(now);
             examParticipation.save();
             user.getParticipations().add(examParticipation);
 
@@ -375,7 +375,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if(p != null) {
-            p.setEnded(SitnetUtil.getTime());
+            p.setEnded(SitnetUtil.getNowTime());
             p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
@@ -401,7 +401,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if(p != null) {
-            p.setEnded(SitnetUtil.getTime());
+            p.setEnded(SitnetUtil.getNowTime());
             p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);

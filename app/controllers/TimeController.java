@@ -3,8 +3,10 @@ package controllers;
 import com.avaje.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
+import models.ExamParticipation;
 import models.User;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
 import org.joda.time.format.DateTimeFormat;
@@ -43,19 +45,14 @@ public class TimeController extends Controller {
                 .eq("user.id", user.getId())
                 .findUnique();
 
-
         if (enrolment == null) {
             return notFound();
         }
 
-        Exam exam = enrolment.getExam();
+        final DateTime now =  DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
+        final Seconds timeLeft = Seconds.secondsBetween(now, new DateTime(enrolment.getReservation().getEndAt()));
 
-        final Seconds examDuration = Minutes.minutes(exam.getDuration()).toStandardSeconds();
-        final DateTime now = DateTime.now();
-        final DateTime started = new DateTime(enrolment.getReservation().getStartAt());
-        final Seconds tau = Seconds.secondsBetween(started, now);
-
-        return ok(String.valueOf(examDuration.minus(tau).getSeconds()));
+        return ok(String.valueOf(timeLeft.getSeconds()));
     }
 
 }
