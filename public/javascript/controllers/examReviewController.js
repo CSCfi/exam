@@ -202,6 +202,11 @@
                     return answer ? answer.replace(/\n/g, '') : '';
                 };
 
+                $scope.getName = function(question) {
+
+                    return question.type +"_"+  question.id;
+                };
+
                 $scope.scoreEssayAnswer = function (question) {
                     if (question.answer === null) {
                         question.evaluatedScore = 0;
@@ -444,5 +449,6 @@
                         });
                     }
                 };
-            }]);
+
+                }]);
 }());
