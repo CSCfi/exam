@@ -225,10 +225,6 @@ public class CalendarController extends SitnetController {
         DateTime examEndDateTime = new DateTime(exam.getExamActiveEndDate());
         DateTime searchDate = LocalDate.parse(dateinput, dateFormat).toDateTime(LocalTime.now());
 
-        if (searchDate.isAfter(examEndDateTime)) {
-            throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) date(%s)", searchDate, exam.getId(), examEndDateTime));
-        }
-
         DateTime now = getNow();
 
         if (searchDate.isBefore(now)) {
@@ -236,6 +232,11 @@ public class CalendarController extends SitnetController {
         }
 
         DateTime current = searchDate;
+
+        if (searchDate.toLocalDate().isAfter(examEndDateTime.toLocalDate())) {
+            throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) date(%s)", searchDate, exam.getId(), examEndDateTime));
+        }
+
         Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<String, DayWithFreeTimes>();
 
         List<Reservation> reservations = Ebean.find(Reservation.class)
@@ -244,11 +245,20 @@ public class CalendarController extends SitnetController {
                 .gt("startAt", now)
                 .findList();
 
+        System.out.println(searchDate);
+        System.out.println(examEndDateTime);
+
         do {
             final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, current, reservations, wantedAccessibility);
-            current = current.plusDays(1);
             allPossibleFreeTimeSlots.putAll(slots);
-        } while (current.minusDays(1).isBefore(examEndDateTime));
+
+            System.out.println("current "+ current);
+
+            if(current.toLocalDate().isAfter(examEndDateTime.toLocalDate()))
+                break;
+            current = current.plusDays(1);
+
+        } while (true);
 
         return ok(Json.toJson(allPossibleFreeTimeSlots));
     }
@@ -324,7 +334,7 @@ public class CalendarController extends SitnetController {
                     startTime = hours.getStart();
                 }
 
-                final DateTime examEnd = new DateTime(exam.getExamActiveEndDate());
+                final DateTime examEnd = new DateTime(exam.getExamActiveEndDate()).plusDays(1).toDateMidnight().toDateTime();
 
                 if (forDay.toLocalDate().equals(examEnd.toLocalDate())) {
                     endTime = examEnd;
