@@ -40,30 +40,32 @@ public class ReviewRunner extends Controller implements Runnable {
                     .eq("exam.id", exam.getId())
                     .findUnique();
 
-            ExamRoom room = enrolment.getReservation().getMachine().getRoom();
-            int transitionTime = Integer.parseInt(room.getTransitionTime());
+            if(enrolment.getReservation() != null) {
+                ExamRoom room = enrolment.getReservation().getMachine().getRoom();
+                int transitionTime = Integer.parseInt(room.getTransitionTime());
 
-            DateTime participationTimeLimit
-                    = new DateTime(participation.getStarted())
-                    .plusMinutes(duration)
-                            //todo: room translatation time?
-                            //todo: is there any other edge cases, eg. late participation
-                            //todo: or if user can somehow extend room reservation, in late participations
-                            //add 15min "safe period" in here.
-                    .plusMinutes(transitionTime / 2);
+                DateTime participationTimeLimit
+                        = new DateTime(participation.getStarted())
+                        .plusMinutes(duration)
+                                //todo: room translatation time?
+                                //todo: is there any other edge cases, eg. late participation
+                                //todo: or if user can somehow extend room reservation, in late participations
+                                //add 15min "safe period" in here.
+                        .plusMinutes(transitionTime / 2);
 
-            if (participationTimeLimit.isBeforeNow()) {
-                participation.setEnded(new Timestamp(DateTime.now().getMillis()));
-                participation.setDuration(new Timestamp(participation.getEnded().getTime() - participation.getStarted().getTime()));
+                if (participationTimeLimit.isBeforeNow()) {
+                    participation.setEnded(new Timestamp(DateTime.now().getMillis()));
+                    participation.setDuration(new Timestamp(participation.getEnded().getTime() - participation.getStarted().getTime()));
 
-                GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
-                participation.setDeadline(new Timestamp(participation.getEnded().getTime() + settings.getReviewDeadline()));
+                    GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
+                    participation.setDeadline(new Timestamp(participation.getEnded().getTime() + settings.getReviewDeadline()));
 
-                participation.save();
-                String state = Exam.State.REVIEW.toString();
-                Logger.info("Setting exam ({}) state to {}", exam.getId(), state);
-                exam.setState(state);
-                exam.save();
+                    participation.save();
+                    String state = Exam.State.REVIEW.toString();
+                    Logger.info("Setting exam ({}) state to {}", exam.getId(), state);
+                    exam.setState(state);
+                    exam.save();
+                }
             }
         }
     }
