@@ -17,6 +17,34 @@
                 $scope.localInspections = [];
                 $scope.examGrading = [];
 
+                // http://www.stat.fi/meta/luokitukset/kieli/001-2003/index.html
+                $scope.selectedLanguage;
+                $scope.languages = ["abhaasi","afar","afgaani, pašto","afrikaans","aimara","akan","albania","ambo, ndonga",
+                    "amhara","arabia","aragonia","armenia","assami","avaari","avesta","azeri","baškiiri","bambara","baski",
+                    "bengali","bhutani, dzongkha","bihari","bislama","bosnia","bretoni","bulgaria","burma","chamorro","cree",
+                    "divehi, malediivi","eesti, viro","englanti","eskimo","espanja","esperanto","eteländebele","ewe","fidži",
+                    "friisi","fulani, fulfulde","fääri","galicia","galla, afan oromo, oromo","ganda, luganda","georgia, gruusia",
+                    "grönlanti","guarani","gudžarati, gujarati","haiti, haitin kreoli","hausa","heprea, ivrit","herero","hindi",
+                    "hiri-motu","hollanti","ido","igbo","iiri","indonesia, bahasa indonésia","interlingua","interlingue","inupiak",
+                    "islanti","italia","jaava","japani","jiddi, jiddiš","joruba","kašmiri","kannada","kanuri","katalaani","kazakki",
+                    "ketšua","khmer, kambodža","kiina","kikongo, kongo","kikuju","kirgiisi","kirjanorja","kirkkoslaavi","komi","korea",
+                    "korni","korsika","kreikka","kroatia","kuanjama","kurdi","kymri, wales","lao","latina","latvia, lätti","letzeburg, luxemburg",
+                    "liettua","lingala","limburgi","luba-katanga","makedonia","malagasi, madagassi","malaiji","malajalam","malta",
+                    "manx","maori","marathi","marshallese","moldavia","mongoli","nauru","navaho","nepali","njandža, tšewa","norja",
+                    "ojibwa","oksitaani, provensaali","orija","osseetti","pali","pandžabi","persia","pohjoisndebele","pohjois-ji",
+                    "portugali","puola","ranska","retoromaani","romania","ruanda, kinjaruanda, njaruanda","rundi, kirundi","ruotsi",
+                    "saame","saksa","samoa","sango","sanskrit","sardi","serbia","serbokroatia","shona","sindhi","singali","siswati, swazi",
+                    "skotti, gaeli","slovakki","sloveeni","somali","sotho, sesotho","suahili","sunda","suomi","tšekki","tšetšeeni",
+                    "tšuang","tšuvassi","tšwana, setšwana","tadžikki","tagalog, pilipino","tahiti","tamili","tanska","tataari","telugu",
+                    "thai","tigrinja","tiibet","tonga","tsonga","turkki","turkmeeni","twi","uiguuri","ukraina","unkari","urdu","uusnorja",
+                    "uzbekki","valkovenäjä","venda","venäjä","vietnam","volapük","walloon","wolof","xhosa","zulu"];
+
+                $scope.setLanguage = function(lang) {
+                    $scope.selectedLanguage = lang;
+                    $scope.examToBeReviewed.answerLanguage = lang;
+                };
+
+
                 if ($routeParams.id === undefined) {
                     // Todo: Should not come here, redirect to homepage if comes?
                 }
@@ -25,6 +53,7 @@
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
                             $scope.examToBeReviewed = exam;
+                            $scope.selectedLanguage = exam.answerLanguage;
 
                             $scope.isCreator = function () {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
@@ -402,7 +431,8 @@
                         "grade": reviewed_exam.grade,
                         "otherGrading": reviewed_exam.otherGrading,
                         "totalScore": reviewed_exam.totalScore,
-                        "creditType": reviewed_exam.creditType
+                        "creditType": reviewed_exam.creditType,
+                        "answerLanguage": $scope.selectedLanguage
                     };
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
@@ -438,7 +468,8 @@
                             "otherGrading": reviewed_exam.otherGrading,
                             "totalScore": reviewed_exam.totalScore,
                             "creditType": reviewed_exam.creditType,
-                            "sendFeedback": $scope.sendReviewFeedback
+                            "sendFeedback": $scope.sendReviewFeedback,
+                            "answerLanguage": $scope.selectedLanguage
                         };
 
                         ExamRes.saveRecord.add(examToRecord, function (exam) {

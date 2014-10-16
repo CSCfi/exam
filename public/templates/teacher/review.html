@@ -55,8 +55,8 @@
                             </li>
                         </ul>
                     </div>
-                    <input name="grade" type="text" class="form-control" ng-disabled="!isCreator()"
-                           ng-model="examToBeReviewed.grade" reqiured>
+                    <input name="examGrade" type="text" class="form-control" ng-disabled="!isCreator()"
+                           ng-model="examToBeReviewed.grade" required>
                 </div>
             </div>
             <div class="col-md-6">
@@ -70,6 +70,18 @@
             </div>
         </div>
 
+
+        <div class="col-md-12">
+            <!-- Suorituskieli -->
+            <div class="col-md-12">
+                <div class="sitnet-info-text">{{'sitnet_exam_record_language' | translate}}</div>
+                <select name="answerLanguage" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedLanguage"
+                        ng-change="setLanguage(selectedLanguage)" data-placeholder="{{'sitnet_exam_record_language' | translate}}" required>
+                    <option value=""></option>
+                    <option ng-repeat="lang in languages" value="{{lang}}">{{lang}}</option>
+                </select>
+            </div>
+        </div>
         <!--Commented out from UI on: 18.08.2014 ProRy-->
         <!--<div class="row">-->
         <!--<div class="col-md-6" ng-hide="showOtherGrading">-->
