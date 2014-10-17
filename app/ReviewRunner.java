@@ -54,7 +54,7 @@ public class ReviewRunner extends Controller implements Runnable {
                         .plusMinutes(transitionTime / 2);
 
                 if (participationTimeLimit.isBeforeNow()) {
-                    participation.setEnded(new Timestamp(DateTime.now().getMillis()));
+                    participation.setEnded(SitnetUtil.getNowTime());
                     participation.setDuration(new Timestamp(participation.getEnded().getTime() - participation.getStarted().getTime()));
 
                     GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
