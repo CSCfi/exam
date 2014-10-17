@@ -1,0 +1,197 @@
+######################################################################
+#
+# Production initial-data
+#
+# Halutessa tämän tiedoston tiedot voidaan ladata tietokantaan
+# ensimmäisen käynnistyksen yhteydessä
+#
+# ks. Global.java
+#
+######################################################################
+
+
+user-roles:
+    - &role-admin !!models.SitnetRole
+      name: ADMIN
+
+    - &role-student !!models.SitnetRole
+      name: STUDENT
+
+    - &role-teacher !!models.SitnetRole
+      name: TEACHER
+
+######################################################################
+
+user_languages:
+    - &suomi !!models.UserLanguage
+      nativeLanguageCode: fi
+      nativeLanguageName: Suomi
+      UILanguageCode: fi
+      UILanguageName: Suomi
+
+    - &englanti !!models.UserLanguage
+      nativeLanguageCode: en
+      nativeLanguageName: Englanti
+      UILanguageCode: en
+      UILanguageName: Englanti
+
+    - &ruotsi !!models.UserLanguage
+      nativeLanguageCode: sv
+      nativeLanguageName: ruotsi
+      UILanguageCode: sv
+      UILanguageName: ruotsi
+
+################################################################
+users:
+
+    - !!models.User
+      email:      sitnetad@funet.fi
+      eppn:       sitnetad@funet.fi
+      firstName:  Exam
+      lastName:   Admnistrator
+      password:   c74626d3eca0613f356cd34ecd1301c5  #sitnetad, works only in DEBUG mode, not used in HAKA login
+      roles:
+            - *role-admin
+      userLanguage: *suomi
+
+######################################################################
+
+exam-types:
+
+  - &partial !!models.ExamType
+    type: Osasuoritus
+
+  - &final !!models.ExamType
+    type: Loppusuoritus
+
+  - &maturity !!models.ExamType
+    type: Kypsyysnäyte
+
+################################################################
+
+grades:
+
+    # viisiportainen
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: HYV
+    description: hyväksytty
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 1
+    description:
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 2
+    description:
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 3
+    description:
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 4
+    description:
+
+  - !!models.Grade
+    scale: Viisiportainen
+    grade: 5
+    description:
+
+    # hyväksytty
+  - !!models.Grade
+    scale: Hyväksytty
+    grade: HYV
+    description: hyväksytty
+
+    # toinen kotimainen
+  - !!models.Grade
+    scale: Toinen kotimainen
+    grade: TT
+    description: tyydyttävät tiedot
+
+  - !!models.Grade
+    scale: Toinen kotimainen
+    grade: HT
+    description: hyvät tiedot
+
+    #näytetyö
+  - !!models.Grade
+    scale: Näytetyö
+    grade: HYV
+    description: hyväksytty
+
+  - !!models.Grade
+    scale: Näytetyö
+    grade: KH
+    description: kiittäen hyväksytty
+
+    #tutkielma
+  - !!models.Grade
+    scale: Tutkielma
+    grade: A
+    description: approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: B
+    description: lubenter approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: N
+    description: non sine laude approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: C
+    description: cum laude approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: M
+    description: magna cum laude approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: E
+    description: eximia cum laude approbatur
+
+  - !!models.Grade
+    scale: Tutkielma
+    grade: L
+    description: laudatur
+
+    #ei käytössä - asteikko
+  - !!models.Grade
+    scale: EiKaytossa
+    grade: Arvosana ei kaytossa
+    description: Arvosana ei käytössä
+
+
+################################################################
+
+softwares:
+  - &Matematica !!models.Software
+    name: Matematica
+
+  - &Firefox !!models.Software
+    name: Firefox
+
+  - &Excel !!models.Software
+    name: Excel
+
+  - &Mathcad !!models.Software
+    name: Mathcad
+
+  - &Notepad !!models.Software
+    name: Notepad
+
+general-settings:
+  - !!models.GeneralSettings
+    eula: "Käyttäjäehdot..."
+    reviewDeadline: 14

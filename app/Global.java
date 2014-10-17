@@ -2,6 +2,7 @@ import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import com.avaje.ebean.Ebean;
+import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
 import models.questions.QuestionInterface;
@@ -275,49 +276,66 @@ public class Global extends GlobalSettings {
         public static void insert(Application app) {
             if (Ebean.find(User.class).findRowCount() == 0) {
 
-                 @SuppressWarnings("unchecked")
-                 Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
+                String productionData = ConfigFactory.load().getString("sitnet.production.initial.data");
 
-                // HUOM, järjestyksellä on väliä
-                Ebean.save(all.get("user-roles"));
-                Ebean.save(all.get("user_languages"));
-                Ebean.save(all.get("organisations"));
-                Ebean.save(all.get("attachments"));
-                Ebean.save(all.get("users"));
-                Ebean.save(all.get("question_essay"));
-                Ebean.save(all.get("question_multiple_choice"));
-                Ebean.save(all.get("courses"));
-                Ebean.save(all.get("comments"));
-                Ebean.save(all.get("exam-types"));
-                Ebean.save(all.get("exams"));
-                Ebean.save(all.get("exam-sections"));
-                Ebean.save(all.get("exam-participations"));
-                Ebean.save(all.get("exam-inspections"));
-                Ebean.save(all.get("mail-addresses"));
-                Ebean.save(all.get("calendar-events"));
-                Ebean.save(all.get("softwares"));
-                Ebean.save(all.get("exam-rooms"));
-                Ebean.save(all.get("exam-machines"));
-                Ebean.save(all.get("exam-room-reservations"));
-                Ebean.save(all.get("exam-enrolments"));
-                Ebean.save(all.get("user-agreament"));
-                Ebean.save(all.get("grades"));
+                // Should we load test data
+                if(productionData.equals("false")) {
 
+                    @SuppressWarnings("unchecked")
+                    Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
 
-                // generate hashes for questions
-                List<QuestionInterface> questions = (List) all.get("question_multiple_choice");
-                for (QuestionInterface q : questions) {
-                    q.generateHash();
+                    // HUOM, järjestyksellä on väliä
+                    Ebean.save(all.get("user-roles"));
+                    Ebean.save(all.get("user_languages"));
+                    Ebean.save(all.get("organisations"));
+                    Ebean.save(all.get("attachments"));
+                    Ebean.save(all.get("users"));
+                    Ebean.save(all.get("question_essay"));
+                    Ebean.save(all.get("question_multiple_choice"));
+                    Ebean.save(all.get("courses"));
+                    Ebean.save(all.get("comments"));
+                    Ebean.save(all.get("exam-types"));
+                    Ebean.save(all.get("exams"));
+                    Ebean.save(all.get("exam-sections"));
+                    Ebean.save(all.get("exam-participations"));
+                    Ebean.save(all.get("exam-inspections"));
+                    Ebean.save(all.get("mail-addresses"));
+                    Ebean.save(all.get("calendar-events"));
+                    Ebean.save(all.get("softwares"));
+                    Ebean.save(all.get("exam-rooms"));
+                    Ebean.save(all.get("exam-machines"));
+                    Ebean.save(all.get("exam-room-reservations"));
+                    Ebean.save(all.get("exam-enrolments"));
+                    Ebean.save(all.get("user-agreament"));
+                    Ebean.save(all.get("grades"));
+
+                    // generate hashes for questions
+                    List<QuestionInterface> questions = (List) all.get("question_multiple_choice");
+                    for (QuestionInterface q : questions) {
+                        q.generateHash();
+                    }
+                    Ebean.save(questions);
+
+                    // generate hashes for questions
+                    List<Exam> exams = (List) all.get("exams");
+                    for (Exam e : exams) {
+                        e.generateHash();
+                    }
+                    Ebean.save(exams);
                 }
-                Ebean.save(questions);
+                else if(productionData.equals("true")) {
 
-                // generate hashes for questions
-                List<Exam> exams = (List) all.get("exams");
-                for (Exam e : exams) {
-                    e.generateHash();
+                    @SuppressWarnings("unchecked")
+                    Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
+
+                    Ebean.save(all.get("user-roles"));
+                    Ebean.save(all.get("user_languages"));
+                    Ebean.save(all.get("users"));
+                    Ebean.save(all.get("exam-types"));
+                    Ebean.save(all.get("softwares"));
+                    Ebean.save(all.get("grades"));
+                    Ebean.save(all.get("general-settings"));
                 }
-                Ebean.save(exams);
-
             }
         }
     }
