@@ -1,9 +1,21 @@
 <!-- Included from review_multiplechoice_question.html -->
     <td>{{$index + 1}}</td>
     <td><i class="fa fa-2x fa-edit"></i></td>
-    <td ng-bind-html="question.question"> {{question.question}} </td>
+    <td>
+        <span ng-bind-html="question.question">{{question.question}}</span>
+        <div ng-show="question.attachment" class="col-md-6" ng-controller="AttachmentController">
+            {{'sitnet_question_attachment' | translate}}
+            <a class="pointer" ng-click="downloadQuestionAttachment(question)">{{question.attachment.fileName}}</a>
+        </div>
+    </td>
     <td>{{question.evaluationCriterias}}</td>
-    <td ng-bind-html="removeNewLines({{ question.answer.answer }})"></td>
+    <td>
+        <span ng-bind-html="removeNewLines({{ question.answer.answer }})"></span>
+        <div ng-show="question.answer.attachment" class="col-md-6" ng-controller="AttachmentController">
+            {{'sitnet_answer_attachment' | translate}}
+            <a class="pointer" ng-click="downloadQuestionAnswerAttachment(question, examToBeReviewed.hash)">{{question.answer.attachment.fileName}}</a>
+        </div>
+    </td>
     <td>
         <div class="col-md-12 text-center">
             <span class="row" ng-show="question.evaluationType == 'Points'">

@@ -32,9 +32,12 @@
         </div>
 
         <div class="col-md-12 top-padding-2">
-            <div class="col-md-12">
+            <div class="col-md-6">
                 {{'sitnet_total_score' | translate}}: {{getExamTotalScore(examToBeReviewed)}} / {{
                 getExamMaxPossibleScore(examToBeReviewed) }}
+            <div ng-show="examToBeReviewed.attachment" class="col-md-6" ng-controller="AttachmentController">
+                {{'sitnet_exam_attacment' | translate}}
+                <a class="pointer" ng-click="downloadExamAttachment(examToBeReviewed)">{{examToBeReviewed.attachment.fileName}}</a>
             </div>
         </div>
     </div>
