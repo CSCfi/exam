@@ -12,7 +12,7 @@ CKEDITOR.dialog.add( 'mathjax', function( editor ) {
 
 	return {
 		title: lang.title,
-		minWidth: 350,
+		minWidth: 460,
 		minHeight: 100,
 		contents: [
 			{
@@ -20,8 +20,11 @@ CKEDITOR.dialog.add( 'mathjax', function( editor ) {
 				elements: [
 					{
 						id: 'equation',
-						type: 'textarea',
-						label: lang.dialogInput,
+						type: 'html',
+                        html:
+                            '<textarea rows="6" cols="50" class="cke_dialog_ui_input_textarea ">' +
+                            '</textarea>',
+//						label: lang.dialogInput,
 
 						onLoad: function( widget ) {
 							var that = this;

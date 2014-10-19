@@ -117,5 +117,16 @@
                     });
                 }
             };
-        }]);
+        }])
+
+        .directive('mathjax',function(){
+            return {
+                restrict: 'EA',
+                link: function(scope, element, attrs) {
+                    scope.$watch(attrs.ngModel, function () {
+                        MathJax.Hub.Queue(['Typeset',MathJax.Hub,element.get(0)]);
+                    });
+                }
+            };
+        });
 }());

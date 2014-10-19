@@ -2,7 +2,7 @@
     <td>{{$index + 1}}</td>
     <td><i class="fa fa-2x fa-list-ul"></i></td>
     <td>
-        <span ng-bind-html="question.question">{{question.question}}</span>
+        <span mathjax ng-bind-html="question.question">{{question.question}}</span>
         <div ng-show="question.attachment" class="col-md-6" ng-controller="AttachmentController">
             {{'sitnet_question_attachment' | translate}}
             <a class="pointer" ng-click="downloadQuestionAttachment(question)">{{question.attachment.fileName}}</a>

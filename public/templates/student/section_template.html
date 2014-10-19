@@ -12,7 +12,7 @@
                 </span>
 
                 <span ng-click="question.expanded = !question.expanded; chevronClicked(question);"
-                class="question-text pointer pull-left col-md-8" ng-bind-html="question.question"></span>
+                class="question-text pointer pull-left col-md-8" mathjax ng-bind-html="question.question" mathjax></span>
                 <span class="question-text pull-left col-md-2" ng-click="question.expanded = !question.expanded; chevronClicked(question);">
                     ({{question.maxScore}} {{'sitnet_unit_points' | translate}})
                 </span>

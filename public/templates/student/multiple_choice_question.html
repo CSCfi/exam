@@ -6,7 +6,7 @@
                 <i class="fa fa-square fa-stack-2x"></i>
                 <i class="fa-stack-1x sitnet-black">{{question.id}}.</i>
             </span>
-            <span class="sitnet-white" ng-bind-html="question.question"></span>
+            <span class="sitnet-white" mathjax ng-bind-html="question.question"></span>
 			<span ng-click="question.expanded = !question.expanded" class="pull-right fa-stack fa-lg">
                 <i ng-class="question.expanded ? 'sitnet-white' : 'sitnet-student-darkgreen'"
                    class="fa fa-square fa-stack-2x section-header-icon-square">
