@@ -1,5 +1,7 @@
 package controllers;
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.Exam;
 import models.ExamEnrolment;
@@ -20,11 +22,13 @@ public class TimeController extends Controller {
     private static DateTimeFormatter format = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
 
 
+    @Restrict({@Group("STUDENT")})
     public static Result getTime() {
         return ok(DateTime.now().toString(format));
     }
 
 
+    @Restrict({@Group("STUDENT")})
     public static Result getExamRemainingTime(Long examId) {
 
         User user = null;

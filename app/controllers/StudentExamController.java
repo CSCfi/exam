@@ -188,6 +188,7 @@ public class StudentExamController extends SitnetController {
         }
     }
 
+    @Restrict({@Group("STUDENT")})
     public static Result createExam(String hash, User user) throws UnauthorizedAccessException {
 
         Exam blueprint = Ebean.find(Exam.class)

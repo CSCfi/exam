@@ -5,7 +5,7 @@ POST          /login                                                           c
 #POST          /shiblogin                                            controllers.SessionController.shiblogin()
 POST          /logout                                                          controllers.SessionController.logout()
 GET           /ping                                                            controllers.SessionController.ping()
-GET           /secreturl                                                       controllers.SessionController.getAttributes()
+#GET           /secreturl                                                       controllers.SessionController.getAttributes()
 
 
 ############### User interface ###############
@@ -226,6 +226,8 @@ GET           /statistics/student/:id/:from/:to                                c
 
 ############### test test test test test###############
 
-GET           /exam-score-static/:code                                         controllers.ExamScoreController.examScoreStatic(code: String)
-POST          /exam-score-test                                                 controllers.ExamScoreController.examScoreTest()
+#GET           /exam-score-static/:code                                         controllers.ExamScoreController.examScoreStatic(code: String)
+#POST          /exam-score-test                                                 controllers.ExamScoreController.examScoreTest()
+
+#######################################################
 GET           /assets/*file                                                    controllers.Assets.at(path="/public", file)

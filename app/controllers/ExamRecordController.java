@@ -25,7 +25,7 @@ public class ExamRecordController extends SitnetController {
 
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    static public Result addExamRecord() throws MalformedDataException {
+    public static Result addExamRecord() throws MalformedDataException {
 
         Exam exam = Form.form(Exam.class).bindFromRequest(
                 "id",

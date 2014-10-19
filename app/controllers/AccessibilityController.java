@@ -27,6 +27,7 @@ public class AccessibilityController extends SitnetController {
         return ok();
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getAccessibilities() {
         List<Accessibility> accessibilities = Ebean.find(Accessibility.class).findList();
         return ok(Json.toJson(accessibilities));
