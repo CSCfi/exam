@@ -12,7 +12,7 @@ CKEDITOR.editorConfig = function( config ) {
         'contextmenu,resize,button,toolbar,elementspath,enterkey,entities,popup,filebrowser,floatingspace,' +
         'listblock,richcombo,format,horizontalrule,htmlwriter,wysiwygarea,indent,indentlist,fakeobjects,link,' +
         'list,magicline,maximize,pastetext,pastefromword,removeformat,sourcearea,specialchar,menubutton,scayt,' +
-        'stylescombo,tab,table,tabletools,undo,wsc,pbckcode,codemirror,texzilla,lineutils,widget,mathjax,language';
+        'stylescombo,tab,table,tabletools,undo,wsc,pbckcode,codemirror,lineutils,widget,mathjax,language';
 
 	config.skin = 'moono';
 	// %REMOVE_END%
