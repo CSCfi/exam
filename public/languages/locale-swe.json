@@ -331,5 +331,7 @@
     "sitnet_wrong_exam_machine": "Du är på fel dator. Du borde vara i ",
     "sitnet_exam_has_ended": "Tenten är över",
     "sitnet_exam_starts": "Tenten börjar",
-    "sitnet_exam_record_language": "Prestationsspråk"
+    "sitnet_exam_record_language": "Prestationsspråk",
+
+    "sitnet_reservations": "Bokningar"
 }

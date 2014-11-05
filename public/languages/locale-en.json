@@ -331,5 +331,7 @@
     "sitnet_wrong_exam_machine": "You are on a wrong computer. You should be in",
     "sitnet_exam_has_ended": "The exam has ended.",
     "sitnet_exam_starts": "The exam starts",
-    "sitnet_exam_record_language": "Registration language"
+    "sitnet_exam_record_language": "Registration language",
+
+    "sitnet_reservations": "Reservations"
 }

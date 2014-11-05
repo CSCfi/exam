@@ -331,5 +331,11 @@
     "sitnet_wrong_exam_machine": "Olet väärällä tenttikoneella. Sinun pitäisi olla tilassa",
     "sitnet_exam_has_ended": "Tentti on päättynyt",
     "sitnet_exam_starts": "Tentti alkaa",
-    "sitnet_exam_record_language": "Suorituskieli"
+    "sitnet_exam_record_language": "Suorituskieli",
+
+    "sitnet_reservations": "Varaukset"
+
+
+
+
 }
