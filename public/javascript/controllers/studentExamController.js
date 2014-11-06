@@ -197,12 +197,12 @@
                                 tmp = $scope.info.reservation.machine.room.roomInstruction;
                             }
                             break;
-                        case "swe":
+                        case "sv":
                             if ($scope.info.reservation.machine.room.roomInstructionSV) {
                                 tmp = $scope.info.reservation.machine.room.roomInstructionSV;
                             }
                             break;
-                        case "eng":
+                        case "en":
                             if ($scope.info.reservation.machine.room.roomInstructionEN) {
                                 tmp = $scope.info.reservation.machine.room.roomInstructionEN;
                             }

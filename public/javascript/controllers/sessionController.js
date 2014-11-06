@@ -48,15 +48,7 @@
 
                 $scope.switchLanguage = function (key) {
                     $translate.uses(key);
-                    if(key == 'fi') {
-                        tmhDynamicLocale.set('fi');
-                    }
-                    else if (key == 'swe') {
-                        tmhDynamicLocale.set('sv');
-                    }
-                    else if (key == 'en') {
-                        tmhDynamicLocale.set('en');
-                    }
+                    tmhDynamicLocale.set(key);
                 };
 
                 var dialog;

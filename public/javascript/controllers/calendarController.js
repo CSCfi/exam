@@ -1,17 +1,16 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService', 'StudentExamRes',
-            function ($scope, $http, $location, $translate, $modal, $routeParams, $sessionService, StudentExamRes) {
+        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService', '$locale',
+            function ($scope, $http, $location, $translate, $modal, $routeParams, $sessionService, $locale) {
 
             var enrolmentId = $routeParams.enrolment;
             $scope.user = $sessionService.user;
 
             var formatMoment = function (data) {
-                var months = ['tammikuu', 'helmikuu', 'maaliskuu', 'huhtikuu', 'toukokuu', 'kesäkuu', 'heinäkuu', 'elokuu', 'syyskuu', 'lokakuu', 'marraskuu', 'joulukuu'];
-                var month = data.month();
+                data.locale($locale.id.substring(0,2));
                 $scope.selectedMonth = {
-                    display: months[month] + ' ' + data.year(),
+                    display: data.format("MMMM YYYY"),
                     data: data
                 };
             };
@@ -56,6 +55,10 @@
             $scope.formatDate = function (stamp) {
                 return moment(stamp, 'DD.MM.YYYY HH:mm').format('DD.MM.');
             };
+
+            $scope.$on('$localeChangeSuccess', function() {
+                formatMoment($scope.selectedMonth.data);
+            });
 
             $scope.createReservation = function (slot) {
 
