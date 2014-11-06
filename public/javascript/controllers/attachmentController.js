@@ -6,11 +6,11 @@
 
             $scope.removeQuestionAttachment = function (question) {
 
-                if (confirm("Oletko varma?")) {
+                if (confirm($translate("sitnet_are_you_sure"))) {
                     AttachmentRes.questionAttachment.remove({id: question.id},
 
                         function () {
-                            toastr.info("Liite poistettu.");
+                            toastr.info($translate("sitnet_attachment_removed"));
                             question.attachment = null;
                         }, function (error) {
                             toastr.error(error.data);
@@ -20,11 +20,11 @@
 
             $scope.removeQuestionAnswerAttachment = function (question, hash) {
 
-                if (confirm("Oletko varma?")) {
+                if (confirm($translate("sitnet_are_you_sure"))) {
                     AttachmentRes.questionAnswerAttachment.remove({qid: question.id, hash: hash},
 
                         function () {
-                            toastr.info("Liite poistettu.");
+                            toastr.info($translate("sitnet_attachment_removed"));
                             question.attachment = null;
 
                         }, function (error) {
@@ -36,7 +36,7 @@
             $scope.downloadQuestionAttachment = function (question) {
 
             $http({method: 'GET', url: '/attachment/question/' + question.id}).
-                success(function(data, status, headers, config) {
+                success(function(data) {
 
                         var element = angular.element('<a/>');
                         element.attr({
@@ -53,7 +53,7 @@
             $scope.downloadQuestionAnswerAttachment = function (question, hash) {
 
                 $http({method: 'GET', url: '/attachment/question/' + question.id + '/answer/' + hash}).
-                    success(function(data, status, headers, config) {
+                    success(function(data) {
 
                         var element = angular.element('<a/>');
                         element.attr({
@@ -69,11 +69,11 @@
 
             $scope.removeExamAttachment = function (exam) {
 
-                if (confirm("Oletko varma?")) {
+                if (confirm($translate("sitnet_are_you_sure"))) {
                     AttachmentRes.examAttachment.remove({id: exam.id},
 
                         function () {
-                            toastr.info("Liite poistettu.");
+                            toastr.info($translate("sitnet_attachment_removed"));
                             exam.attachment = null;
                             //$location.path("/exams");
                         }, function (error) {
@@ -85,7 +85,7 @@
             $scope.downloadExamAttachment = function (exam) {
 
                 $http({method: 'GET', url: '/attachment/exam/' + exam.id}).
-                    success(function(data, status, headers, config) {
+                    success(function(data) {
 
                         var element = angular.element('<a/>');
                         element.attr({

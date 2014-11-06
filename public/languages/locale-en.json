@@ -333,5 +333,8 @@
     "sitnet_exam_starts": "The exam starts",
     "sitnet_exam_record_language": "Registration language",
 
-    "sitnet_reservations": "Reservations"
+    "sitnet_reservations": "Reservations",
+    "sitnet_attachment_removed": "Attachment removed",
+    "sitnet_attachment_not_chosen": "No attachment chosen"
+
 }

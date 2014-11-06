@@ -218,7 +218,7 @@ public class CalendarController extends SitnetController {
                 .findUnique();
 
         if (room == null) {
-            throw new NotFoundException(String.format("No room with id: (%s)", room.getId()));
+            throw new NotFoundException(String.format("No room with id: (%s)", examRoomId));
         }
 
         Exam exam = examEnrolment.getExam();

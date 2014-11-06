@@ -333,5 +333,8 @@
     "sitnet_exam_starts": "Tenten börjar",
     "sitnet_exam_record_language": "Prestationsspråk",
 
-    "sitnet_reservations": "Bokningar"
+    "sitnet_reservations": "Bokningar",
+    "sitnet_attachment_removed": "Bilagan raderad",
+    "sitnet_attachment_not_chosen": "Ingen bilag vald"
+
 }

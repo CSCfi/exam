@@ -1,20 +1,14 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('AdminReservationController', ['$scope', '$translate', '$location', '$http', 'SITNET_CONF', 'AdminReservationResource', 'dateService',
-            function ($scope, $translate, $location, $http, SITNET_CONF, AdminReservationResource, dateService) {
+        .controller('AdminReservationController', ['$scope', '$location', '$http', 'SITNET_CONF', 'AdminReservationResource', 'dateService',
+            function ($scope, $location, $http, SITNET_CONF, AdminReservationResource, dateService) {
 
                 $scope.dateService = dateService;
 
                 $scope.examReservations = SITNET_CONF.TEMPLATES_PATH + "admin/reservations.html";
 
                 $scope.reservationDetails = SITNET_CONF.TEMPLATES_PATH + "admin/reservation_details.html";
-
-                $scope.selectedStudent;
-                $scope.selectedExamRoom;
-                $scope.selectedExam;
-                $scope.enrolments;
-
 
                 AdminReservationResource.students.query(null,
                     function (students) {
@@ -147,8 +141,8 @@
 
                 $scope.removeReservation = function (enrolment) {
                     AdminReservationResource.reservationDeletion.remove({id: enrolment.reservation.id}, null,
-                    function (result) {
-                        $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1)
+                    function () {
+                        $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1);
                         $location.path("admin/reservations/")
                     }, function (error) {
                         toastr.error(error.data);

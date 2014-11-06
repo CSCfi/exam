@@ -232,27 +232,10 @@
                         }).
                         error(function (error) {
 
-                            toastr.error($scope.parseError(error));
+                            toastr.error(error);
 
                         });
 
-                };
-
-                $scope.parseError = function (error) {
-                    var elements = error.split(" ");
-                    var replace = [];
-
-                    for (var i = 0; i < elements.length; i++) {
-                        if (elements[i].match('^sitnet_.*')) {
-                            replace[i] = elements[i];
-                        }
-                    }
-
-                    for (var i = 0; i < replace.length; i++) {
-                        error = error.replace(replace[i], $translate(replace[i]));
-                    }
-
-                    return error;
                 };
 
                 $scope.continueExam = function (exam) {

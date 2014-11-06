@@ -709,6 +709,9 @@
                     }
                 };
 
+
+
+
                 $scope.selectFile = function () {
 
                     // Save question before entering attachment to not lose data.
@@ -723,6 +726,10 @@
                         $scope.submit = function (exam) {
 
                             var file = $scope.attachmentFile;
+                            if (file === undefined) {
+                                toastr.error($translate("sitnet_attachment_not_chosen"));
+                                return;
+                            }
                             var url = "attachment/exam";
                             //$scope.fileUpload.uploadAttachment(file, url);
                             var fd = new FormData();
@@ -743,7 +750,7 @@
                         };
                         // Cancel button is pressed in the modal dialog
                         $scope.cancel = function () {
-                            $modalInstance.dismiss('Canceled');
+                            $modalInstance.dismiss("Cancelled");
                         };
                     };
 
@@ -754,13 +761,10 @@
                         controller: ctrl
                     });
 
-                    modalInstance.result.then(function (resp) {
+                    modalInstance.result.then(function () {
                         // OK button
                         modalInstance.dismiss();
                         $location.path('/exams/'+ $scope.newExam.id);
-                    }, function () {
-                        modalInstance.dismiss();
-                        // Cancel button
                     });
                 };
 
