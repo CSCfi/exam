@@ -5,12 +5,14 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Update;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.GeneralSettings;
 import models.User;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.util.List;
 
@@ -70,5 +72,12 @@ public class SettingsController  extends SitnetController {
         gs.update();
 
         return ok(Json.toJson(gs));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    public static Result getHostname() {
+        ObjectNode node = Json.newObject();
+        node.put("hostname", SitnetUtil.getHostName());
+        return ok(Json.toJson(node));
     }
 }

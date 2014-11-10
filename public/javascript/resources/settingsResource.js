@@ -13,6 +13,11 @@
                     "/settings", null,
                     {
                         "update": { method: 'PUT'}
+                    }),
+                hostname: $resource(
+                    "/settings/hostname", null,
+                    {
+                        "get": { method: 'GET'}
                     })
             }
         }]);

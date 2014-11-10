@@ -212,6 +212,8 @@ GET           /calendar/roomAccessbility/:id                                   c
 GET           /agreement                                                       controllers.SettingsController.getUserAgreement()
 PUT           /agreement                                                       controllers.SettingsController.updateUserAgreement()
 PUT           /settings                                                        controllers.SettingsController.updateSettings()
+GET           /settings/hostname                                               controllers.SettingsController.getHostname()
+
 ################# Statistics interface ##################
 
 

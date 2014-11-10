@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'RoomResource', 'SoftwareResource', 'dateService',
-            function ($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, RoomResource, SoftwareResource, dateService) {
+        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'RoomResource', 'SoftwareResource', 'SettingsResource', 'dateService',
+            function ($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, RoomResource, SoftwareResource, SettingsResource, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
@@ -114,6 +114,8 @@
                         }
                     );
                 }
+
+                $scope.hostname = SettingsResource.hostname.get();
 
                 $scope.softwares = SoftwareResource.softwares.query();
 
