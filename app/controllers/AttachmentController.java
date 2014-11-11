@@ -116,10 +116,11 @@ public class AttachmentController extends SitnetController {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                // TODO: send mail to admin? Could indicate an OOM.
             }
 
             if (attachment == null) {
-                return notFound("Error creating attachment");
+                return notFound("sitnet_error_creating_attachment");
             } else {
                 JsonContext jsonContext = Ebean.createJsonContext();
                 JsonWriteOptions options = new JsonWriteOptions();
@@ -197,7 +198,7 @@ public class AttachmentController extends SitnetController {
             }
 
             if (attachment == null) {
-                return notFound("Error creating attachment");
+                return notFound("sitnet_error_creating_attachment");
             } else {
                 JsonContext jsonContext = Ebean.createJsonContext();
                 JsonWriteOptions options = new JsonWriteOptions();
@@ -309,7 +310,7 @@ public class AttachmentController extends SitnetController {
             }
 
             if (attachment == null) {
-                return notFound("Error creating attachment");
+                return notFound("sitnet_error_creating_attachment");
             } else {
                 JsonContext jsonContext = Ebean.createJsonContext();
                 JsonWriteOptions options = new JsonWriteOptions();

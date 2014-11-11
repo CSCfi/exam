@@ -335,6 +335,18 @@
 
     "sitnet_reservations": "Bokningar",
     "sitnet_attachment_removed": "Bilagan raderad",
-    "sitnet_attachment_not_chosen": "Ingen bilag vald"
+    "sitnet_attachment_not_chosen": "Ingen bilag vald",
+    "sitnet_unable_to_remove_reservation": "Omöjligt att radera bokning eftersom den är associerad med tentanmälan",
+    "sitnet_error_creating_attachment": "Systemfel vid skapning av bilag",
+    "sitnet_error_access_forbidden": "Du är inte tillåten att utföra operationen",
+    "sitnet_error_enrolment_exists": "Du har redan anmält dig",
+    "sitnet_error_exam_not_found": "Tenten finns ej",
+    "sitnet_error_exam_already_graded_logged": "Tenten är redan utvärderad och registrerad",
+    "sitnet_error_unauthenticated": "Okänt användarnamn eller felaktigt lösenord",
+    "sitnet_error_role_not_found": "Användarrol finns ej",
+    "sitnet_error_no_enrolments_for_exam": "Anmälningar för tenten finns ej",
+    "sitnet_error_creating_exam": "Systemfel vid skapning av tenten",
+    "sitnet_error_invalid_session": "Felaktig session"
+
 
 }

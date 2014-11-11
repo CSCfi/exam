@@ -38,7 +38,7 @@ public class TimeController extends Controller {
         }
 
         if (user == null) {
-            return forbidden("invalid session");
+            return forbidden("sitnet_error_invalid_session");
         }
 
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)

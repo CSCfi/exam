@@ -179,7 +179,6 @@ public class ExamMachineController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSoftwares() {
-        Logger.debug("getting software list");
         List<Software> softwares = Ebean.find(Software.class).orderBy("name").findList();
 
         return ok(Json.toJson(softwares));
@@ -212,7 +211,6 @@ public class ExamMachineController extends SitnetController {
 
     @Restrict(@Group({"ADMIN"}))
     public static Result removeSoftware(Long id) throws MalformedDataException {
-        Logger.debug("delete software");
         Software software = Ebean.find(Software.class, id);
         software.delete();
 
@@ -224,7 +222,7 @@ public class ExamMachineController extends SitnetController {
         JsonNode json = request().body().asJson();
         final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
         ExamRoom room = Ebean.find(ExamRoom.class, id);
-        room.setAccessibility(new ArrayList<Accessibility>());
+        room.setAccessibility(new ArrayList<>());
         room.save();
         for(String aid : ids){
             System.out.println(aid);

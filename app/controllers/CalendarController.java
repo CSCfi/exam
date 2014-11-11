@@ -484,7 +484,7 @@ public class CalendarController extends SitnetController {
 
 
         final List<Interval> roomWorkingHours = room.getWorkingHoursForDate(date);
-        final List<WorkingHours> workingHoursList = new ArrayList<WorkingHours>();
+        final List<WorkingHours> workingHoursList = new ArrayList<>();
 
         if (roomWorkingHours == null || roomWorkingHours.isEmpty()) {
             return workingHoursList;

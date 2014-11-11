@@ -306,7 +306,7 @@ public class ExamController extends SitnetController {
 
             return ok("Exam deleted");
         } else
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
 
     }
 
@@ -338,7 +338,7 @@ public class ExamController extends SitnetController {
                         .findUnique();
 
                 if (participation != null && participation.getStarted().getTime() + ((15 + exam.getDuration()) * 60 * 1000) < new Date().getTime()) {
-                    return forbidden("You are not allowed to modify this object");
+                    return forbidden("sitnet_error_access_forbidden");
                 }
 
             }
@@ -367,7 +367,7 @@ public class ExamController extends SitnetController {
 
             return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
         } else {
-            return forbidden("You are not allowed to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -419,7 +419,7 @@ public class ExamController extends SitnetController {
 
             return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
         } else {
-            return forbidden("You are not allowed to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -696,7 +696,7 @@ public class ExamController extends SitnetController {
 
             return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
         } else {
-            return forbidden("You are not allowed to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -785,7 +785,7 @@ public class ExamController extends SitnetController {
             section.save();
             return ok(Json.toJson(section));
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -799,7 +799,7 @@ public class ExamController extends SitnetController {
             exam.save();
             return ok(Json.toJson(exam));
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -813,7 +813,7 @@ public class ExamController extends SitnetController {
             exam.save();
             return ok(Json.toJson(exam));
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -829,7 +829,7 @@ public class ExamController extends SitnetController {
 
             return ok(Json.toJson(exam));
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -897,7 +897,7 @@ public class ExamController extends SitnetController {
             }
 
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -969,7 +969,7 @@ public class ExamController extends SitnetController {
             }
 
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -986,7 +986,7 @@ public class ExamController extends SitnetController {
             question.delete();
             return ok(Json.toJson(section));
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -1001,7 +1001,7 @@ public class ExamController extends SitnetController {
             section.save();
             return ok(Json.toJson(section));
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -1015,7 +1015,7 @@ public class ExamController extends SitnetController {
             section.delete();
             return ok();
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -1099,7 +1099,7 @@ public class ExamController extends SitnetController {
 
             return ok(Json.toJson(sections));
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 
@@ -1120,7 +1120,7 @@ public class ExamController extends SitnetController {
 
             return ok("removed");
         } else {
-            return forbidden("You don't have the permission to modify this object");
+            return forbidden("sitnet_error_access_forbidden");
         }
     }
 

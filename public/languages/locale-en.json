@@ -335,6 +335,19 @@
 
     "sitnet_reservations": "Reservations",
     "sitnet_attachment_removed": "Attachment removed",
-    "sitnet_attachment_not_chosen": "No attachment chosen"
+    "sitnet_attachment_not_chosen": "No attachment chosen",
+    "sitnet_unable_to_remove_reservation": "Reservation can't be removed because it is associated with an exam booking",
+    "sitnet_error_creating_attachment": "Internal error occurred while creating attachment",
+    "sitnet_error_no_reservation_for_user": "No reservation exists for user",
+    "sitnet_error_access_forbidden": "You are not authorized to perform this action",
+    "sitnet_error_enrolment_exists": "You are already enrolled",
+    "sitnet_error_exam_not_found": "Exam not found",
+    "sitnet_error_exam_already_graded_logged": "Exam is already graded and registered",
+    "sitnet_error_unauthenticated": "Unknown username or invalid password",
+    "sitnet_error_role_not_found": "User role not found",
+    "sitnet_error_no_enrolments_for_exam": "Exam has no enrolments",
+    "sitnet_error_creating_exam": "Internal error occurred while creating exam",
+    "sitnet_error_invalid_session": "Invalid session"
+
 
 }

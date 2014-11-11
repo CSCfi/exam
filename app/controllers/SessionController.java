@@ -37,7 +37,7 @@ public class SessionController extends SitnetController {
                     .eq("password", md5psswd).findUnique();
 
             if (user == null) {
-                return unauthorized("Incorrect username or password.");
+                return unauthorized("sitnet_error_unauthenticated");
             }
         }
         else if(loginType.equals("HAKA"))
@@ -142,7 +142,7 @@ public class SessionController extends SitnetController {
                 Logger.debug("unscoped-affiliation: "+ shibRole);
                 SitnetRole srole = getRole(shibRole);
                 if(srole == null)
-                    return notFound("Cannot assign role "+ shibRole);
+                    return notFound("sitnet_error_role_not_found " + shibRole);
                 else
                     ((List<SitnetRole>)user.getRoles()).add(srole);
 

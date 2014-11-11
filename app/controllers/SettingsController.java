@@ -56,6 +56,7 @@ public class SettingsController  extends SitnetController {
 
         return ok(Json.toJson(gs));
     }
+
     @Restrict({ @Group("ADMIN")})
     public static Result updateSettings() throws MalformedDataException {
 

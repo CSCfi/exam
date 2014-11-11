@@ -335,6 +335,19 @@
 
     "sitnet_reservations": "Varaukset",
     "sitnet_attachment_removed": "Liite poistettu",
-    "sitnet_attachment_not_chosen": "Liitetiedostoa ei valittu"
+    "sitnet_attachment_not_chosen": "Liitetiedostoa ei valittu",
+    "sitnet_unable_to_remove_reservation": "Varausta ei voida poistaa, koska siihen liittyy tentti-ilmoittautuminen",
+    "sitnet_error_creating_attachment": "Järjestelmävirhe liittetiedostoa luotaessa",
+    "sitnet_error_access_forbidden": "Sinulla ei ole oikeuksia tehdä valittua toimenpidettä",
+    "sitnet_error_enrolment_exists": "Olet jo ilmoittautunut",
+    "sitnet_error_exam_not_found": "Tenttiä ei löytynyt",
+    "sitnet_error_exam_already_graded_logged": "Tentti on jo arvioitu ja rekisteröity",
+    "sitnet_error_unauthenticated": "Tuntematon käyttäjätunnus tai väärä salasana",
+    "sitnet_error_role_not_found": "Käyttäjäroolia ei löytynyt",
+    "sitnet_error_no_enrolments_for_exam": "Tenttiin ilmoittautuneita ei ole",
+    "sitnet_error_creating_exam": "Järjestelmävirhe koetta luotaessa",
+    "sitnet_error_invalid_session": "Virheellinen istunto"
+
+
 
 }

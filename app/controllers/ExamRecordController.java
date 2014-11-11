@@ -55,7 +55,7 @@ public class ExamRecordController extends SitnetController {
 //            return forbidden("You are not allowed to modify this object");
             // if this exam is already logged exit.
         if(ex.getState().equals(Exam.State.GRADED_LOGGED.name()))
-            return forbidden("Exam already GRADED and LOGGED");
+            return forbidden("sitnet_error_exam_already_graded_logged");
 
         exam.update();
 

@@ -108,7 +108,7 @@ public class EnrollController extends Controller {
                 .findUnique();
 
         if (enrolment != null) {
-            return forbidden("Enrolment already exist");
+            return forbidden("sitnet_error_enrolment_exists");
         }
 
         if (exam != null) {
@@ -120,7 +120,7 @@ public class EnrollController extends Controller {
 
             return ok();
         } else {
-            return notFound("Exam not found");
+            return notFound("sitnet_error_exam_not_found");
         }
     }
 
@@ -146,7 +146,7 @@ public class EnrollController extends Controller {
 
             return ok();
         } else {
-            return notFound("Exam not found");
+            return notFound("sitnet_error_exam_not_found");
         }
     }
 

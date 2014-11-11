@@ -25,9 +25,6 @@ import java.util.List;
 
 public class AdminReservationController extends SitnetController {
 
-    private static final String playPath = Play.application().path().getAbsolutePath();
-
-
     @Restrict({@Group("ADMIN")})
     public static Result getExams() {
 
@@ -133,21 +130,27 @@ public class AdminReservationController extends SitnetController {
                 .eq("reservation.id", id)
                 .findUnique();
 
+        if (enrolment == null) {
+            throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
+        }
+
         ExamParticipation participation = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", enrolment.getExam().getId())
                 .findUnique();
 
-        if(participation != null)
-            return forbidden("Cannot delete: This Enrolment has ExamParticipation." + participation.getId());
-
-        if (enrolment == null) {
-            throw new NotFoundException(String.format("No reservation with id  {} for current user.", id));
+        if(participation != null) {
+            return forbidden(String.format("sitnet_unable_to_remove_reservation (id=%d).", participation.getId()));
         }
-        Reservation reservation = enrolment.getReservation();
-        User student = enrolment.getUser();
-        EmailComposer.composeReservationCancelationNotification(student, reservation, "");
 
+        Reservation reservation = enrolment.getReservation();
+        // Lets not send emails about historical reservations
+        if (reservation.getEndAt().before(new Date())) {
+            User student = enrolment.getUser();
+            EmailComposer.composeReservationCancelationNotification(student, reservation, "");
+        }
+
+        // TODO: do we need to keep these for history purposes?
         enrolment.setReservation(null);
         Ebean.save(enrolment);
         Ebean.delete(Reservation.class, id);

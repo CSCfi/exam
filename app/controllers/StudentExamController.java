@@ -197,7 +197,10 @@ public class StudentExamController extends SitnetController {
                 .eq("hash", hash)
                 .eq("parent", null)
                 .findUnique();
-
+        //ko. hashilla ei ole koetta olemassa
+        if (blueprint == null) {
+            return notFound();
+        }
 
         Exam possibleClone = Ebean.find(Exam.class)
                 .fetch("examSections")
@@ -206,11 +209,6 @@ public class StudentExamController extends SitnetController {
                 .ne("parent", null)
                 .orderBy("examSections.id, id desc")
                 .findUnique();
-
-        //ko. hashilla ei ole koetta olemassa
-        if (blueprint == null && possibleClone == null) {
-            return notFound();
-        }
 
         //aloitettu koe
         if(possibleClone != null) {
@@ -293,7 +291,7 @@ public class StudentExamController extends SitnetController {
 
                 // early
                 if(jodaNow.isBefore(startAt))
-                    return forbidden("sitnet_exam_starts " +dateTimeFormat.print(startAt.getMillis()));
+                    return forbidden("sitnet_exam_starts " + dateTimeFormat.print(startAt.getMillis()));
             }
 
             /*
@@ -310,7 +308,7 @@ public class StudentExamController extends SitnetController {
              */
             Exam studentExam = (Exam) blueprint.clone();
             if (studentExam == null)
-                return notFound("Failed to create Exam, please contact Administration");
+                return notFound("sitnet_error_creating_exam");
 
             studentExam.setState("STUDENT_STARTED");
             studentExam.setCreator(user);

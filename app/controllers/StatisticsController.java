@@ -445,7 +445,7 @@ public class StatisticsController extends SitnetController {
         }
 
         if(enrolments == null)
-            return notFound("No Enrolments for this exam");
+            return notFound("sitnet_error_no_enrolments_for_exam");
 
         File file = new File(basePath + name + ".xlsx");
 
