@@ -35,7 +35,7 @@ public class CalendarController extends SitnetController {
                 .eq("reservation.id", id)
                 .findUnique();
         if (enrolment == null) {
-            throw new NotFoundException(String.format("No reservation with id  {} for current user.", id));
+            throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
 
         Reservation reservation = enrolment.getReservation();
@@ -165,7 +165,6 @@ public class CalendarController extends SitnetController {
                 if (reservationInterval.overlaps(wantedTime)) {
                     overlaps = true;
                 }
-                continue;
             }
             if (!overlaps) {
                 return machine;
@@ -237,7 +236,7 @@ public class CalendarController extends SitnetController {
             throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) date(%s)", searchDate, exam.getId(), examEndDateTime));
         }
 
-        Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<String, DayWithFreeTimes>();
+        Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<>();
 
         List<Reservation> reservations = Ebean.find(Reservation.class)
                 .where()
@@ -264,7 +263,8 @@ public class CalendarController extends SitnetController {
     }
 
     private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay, List<Reservation> reservations, ArrayList<Integer> wantedAccessibility) {
-        Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<String, DayWithFreeTimes>();
+
+        Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<>();
 
         final DateTime now = getNow();
 
@@ -356,15 +356,10 @@ public class CalendarController extends SitnetController {
 
                 examDuration = exam.getDuration();
 
-                int transitionTime = 0;
-                try {
-                    transitionTime = Integer.parseInt(room.getTransitionTime());
-                } catch (Throwable t) {
-                }
+                final int transitionTime = Integer.parseInt(room.getTransitionTime());
+                final int shift = examDuration + transitionTime;
 
-                int timeForSingleExam = examDuration + transitionTime;
-
-                int numberOfPossibleFreeSlots = (int) Math.floor(machineOpenDuration.getStandardMinutes() / timeForSingleExam);
+                int numberOfPossibleFreeSlots = (int) Math.floor(machineOpenDuration.getStandardMinutes() / shift);
 
                 if (numberOfPossibleFreeSlots <= 0) {
                     continue;
@@ -376,16 +371,13 @@ public class CalendarController extends SitnetController {
                 final DayWithFreeTimes day = new DayWithFreeTimes();
                 day.setDate(theDay);
 
-
-                final int shift = examDuration + transitionTime;
-
                 DateTime freeTimeSlotEndTime = startTime.plusMinutes(shift);
                 FreeTimeSlot possibleTimeSlot = getFreeTimeSlot(room, examMachine, startTime, freeTimeSlotEndTime);
                 day.getSlots().add(possibleTimeSlot);
 
                 DateTime freeTimeSlotStartTime = startTime.withMinuteOfHour(0);
 
-                while (freeTimeSlotStartTime.plusHours(1).plusMinutes(shift).isBefore(endTime)) {
+                while (isBeforeOrEquals(freeTimeSlotStartTime.plusHours(1).plusMinutes(shift), endTime)) {
                     freeTimeSlotStartTime = freeTimeSlotStartTime.plusHours(1);
                     possibleTimeSlot = getFreeTimeSlot(room, examMachine, freeTimeSlotStartTime, freeTimeSlotStartTime.plusMinutes(shift));
                     day.getSlots().add(possibleTimeSlot);
@@ -498,5 +490,9 @@ public class CalendarController extends SitnetController {
         }
 
         return workingHoursList;
+    }
+
+    private static boolean isBeforeOrEquals(DateTime date1, DateTime date2) {
+        return date1.isBefore(date2) || date1.equals(date2);
     }
 }

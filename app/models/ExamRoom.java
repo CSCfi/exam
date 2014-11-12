@@ -358,7 +358,7 @@ public class ExamRoom extends Model {
     @Transient
     private List<Interval> getFromDefaultHours(LocalDate date) {
         String day = getWeekDay(date);
-        final List<Interval> intervals = new ArrayList<Interval>();
+        final List<Interval> intervals = new ArrayList<>();
         for(DefaultWorkingHours defaultHour : this.defaultWorkingHours) {
             if(defaultHour.getDay().equals(day)) {
                 final LocalTime start = new LocalTime(defaultHour.getStartTime().getTime());
