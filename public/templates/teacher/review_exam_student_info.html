@@ -30,15 +30,15 @@
         <div class="col-md-2">
             <div class="sitnet-info-text">{{'sitnet_room_default_working_hours_start' | translate}}</div>
             <div class="input-group">
-                <div>{{userInfo.started | date:'HH:mm:ss'}}</div>
+                <div>{{userInfo.started | date:'dd.MM.yyyy HH:mm'}}</div>
             </div>
         </div>
 
-        <!-- Course scope field -->
+        <!-- Exam ended at -->
         <div class="col-md-2">
             <div class="sitnet-info-text">{{'sitnet_room_default_working_hours_end' | translate}}</div>
             <div class="input-group">
-                <div>{{userInfo.ended | date:'HH:mm:ss'}}</div>
+                <div>{{userInfo.ended | date:'dd.MM.yyyy HH:mm'}}</div>
             </div>
         </div>
 
@@ -46,15 +46,8 @@
         <div class="col-md-2">
             <div class="sitnet-info-text">{{'sitnet_exam_duration' | translate}}</div>
             <div class="input-group">
-                <div>{{userInfo.duration | date: 'HH:mm:ss'}}</div>
+                <div>{{userInfo.duration | date:'HH:mm'}}</div>
             </div>
         </div>
 
-        <!-- Faculty name field -->
-        <div class="col-md-2">
-            <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}</div>
-            <div class="input-group">
-                <div></div>
-            </div>
-        </div>
     </div>
