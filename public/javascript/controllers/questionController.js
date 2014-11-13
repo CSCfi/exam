@@ -343,9 +343,6 @@
 
                 $scope.selectFile = function () {
 
-                    // Save question before entering attachment to not lose data.
-                    $scope.saveQuestion();
-
                     var question = $scope.newQuestion;
 
                     var ctrl = function ($scope, $modalInstance) {
