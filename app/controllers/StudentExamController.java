@@ -378,7 +378,9 @@ public class StudentExamController extends SitnetController {
             p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
-            p.setDeadline(new Timestamp(p.getEnded().getTime() + settings.getReviewDeadline()));
+            int deadlineDays = (int) settings.getReviewDeadline();
+            Timestamp deadline = new Timestamp(new DateTime(p.getEnded()).plusDays(deadlineDays).getMillis());
+            p.setDeadline(deadline);
             p.save();
         }
 
