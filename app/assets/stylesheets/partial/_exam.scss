@@ -17,7 +17,7 @@
       margin-bottom: 0.5em;
       font-size: 1.3em;
     }
-}
+  }
 
 .exam-general-information-header {
     padding-top: 1em;
@@ -258,6 +258,15 @@
   border-top: $sitnet-common-light solid 0.15em;
   box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
 }
+
+    .ellipsis-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+      float:left;
+      display: inline;
+    }
 
 //  -webkit-touch-callout: none;
 //  -webkit-user-select: none;

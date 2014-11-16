@@ -347,7 +347,9 @@
     "sitnet_error_role_not_found": "User role not found",
     "sitnet_error_no_enrolments_for_exam": "Exam has no enrolments",
     "sitnet_error_creating_exam": "Internal error occurred while creating exam",
-    "sitnet_error_invalid_session": "Invalid session"
+    "sitnet_error_invalid_session": "Invalid session",
+    "sitnet_feedback": "Palaute"
+
 
 
 }

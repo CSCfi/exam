@@ -118,6 +118,27 @@
                                     }
                                 });
                             };
+                            $scope.openEssayDialog = function(question){
+
+                                var modalInstance = $modal.open({
+                                    templateUrl: 'assets/templates/teacher/essay-review/essay-review-dialog.html',
+                                    backdrop: 'true',
+                                    keyboard: true,
+                                    windowClass: 'essay-dialog',
+                                    controller: 'EssayReviewController',
+                                    resolve: { question: function () { return question; } }
+                                });
+
+                                modalInstance.result.then(function (inspectors) {
+                                    // OK button clicked
+
+                                }, function () {
+                                    // Cancel button clicked
+
+                                });
+
+
+                            };
 
                             // get global exam inspections ->
                             ExamRes.inspections.get({id: $scope.examToBeReviewed.parent.id},

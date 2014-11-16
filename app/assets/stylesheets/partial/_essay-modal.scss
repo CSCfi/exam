@@ -1,0 +1,37 @@
+#essay-modal {
+
+  margin: 1.5em;
+
+  .question-box {
+    padding-top: 1em;
+    padding-bottom: 0.5em;
+    color: $sitnet-teacher-turquoise-dark-active;
+    border-bottom: 1px solid $sitnet-grey;
+  }
+
+  .answer-box {
+    background-color: $sitnet-essay-review-background;
+    padding-top: 1em;
+    padding-bottom: 0.5em;
+  }
+
+  .evaluation-box {
+    padding-top: 1em;
+    padding-bottom: 0.5em;
+    color: gray;
+    border-left: 1px solid $sitnet-grey;
+  }
+
+  .question-text {
+    color: grey;
+    font-style: italic;
+    margin-top: 1em;
+    font-size: 1em;
+  }
+
+  .modal.modal-dialog {
+    width:1200px;
+    margin-left:-350px
+  }
+
+}

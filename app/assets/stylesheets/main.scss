@@ -15,6 +15,14 @@
 @import "partial/form-validation";
 @import "partial/calendar";
 @import "partial/settings";
+@import "partial/essay-modal";
+
+
+.essay-dialog .modal-dialog {
+  width: 80%;
+  margin-left: 17%;
+  min-width: 400px;
+}
 
 html {
   font-family: $font;

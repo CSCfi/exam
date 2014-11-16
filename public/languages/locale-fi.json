@@ -346,7 +346,8 @@
     "sitnet_error_role_not_found": "Käyttäjäroolia ei löytynyt",
     "sitnet_error_no_enrolments_for_exam": "Tenttiin ilmoittautuneita ei ole",
     "sitnet_error_creating_exam": "Järjestelmävirhe koetta luotaessa",
-    "sitnet_error_invalid_session": "Virheellinen istunto"
+    "sitnet_error_invalid_session": "Virheellinen istunto",
+    "sitnet_feedback": "Palaute"
 
 
 
