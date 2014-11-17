@@ -176,6 +176,7 @@ public class SessionController extends SitnetController {
         result.put("lastname", user.getLastName());
         result.put("roles", Json.toJson(user.getRoles()));
         result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
+        response().setCookie("XSRF-TOKEN", SitnetUtil.encodeMD5(user.getUserIdentifier()));
         return ok(result);
     }
 
@@ -261,6 +262,7 @@ public class SessionController extends SitnetController {
         } else {
             Cache.remove(key);
         }
+        response().discardCookie("XSRF-TOKEN");
         return ok();
     }
 

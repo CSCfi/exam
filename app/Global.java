@@ -39,7 +39,6 @@ public class Global extends GlobalSettings {
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
 
 
-
     @Override
     public void onStart(Application app) {
 
@@ -185,6 +184,26 @@ public class Global extends GlobalSettings {
         }
 
         User user = Ebean.find(User.class, session.getUserId());
+        if (user != null) {
+            String csrfToken = SitnetUtil.encodeMD5(user.getUserIdentifier());
+            if (!csrfToken.equals(request.getHeader("X-XSRF-TOKEN"))) {
+                // Cross site forgery attempt?
+                Logger.warn("XSRF-TOKEN mismatch!");
+                return new Action.Simple() {
+
+                    @Override
+                    public Promise<SimpleResult> call(Http.Context context) throws Throwable {
+                        F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
+                            @Override
+                            public SimpleResult apply() throws Throwable {
+                                return Action.badRequest("");
+                            }
+                        });
+                        return promise;
+                    }
+                };
+            }
+        }
         if (user == null || !user.hasRole("STUDENT")) {
             return super.onRequest(request, actionMethod);
         }
