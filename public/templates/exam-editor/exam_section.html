@@ -44,7 +44,7 @@
 	               ng-model="section.lotteryOn">Arvo kysymykset</input>
 	    </span>
 	    <span ng-show="section.lotteryOn">
-	        <input type="number" name="" min="0" value="1" max="{{section.questions.length}}"
+	        <input type="number" name="" min="1" value="1" max="{{section.questions.length}}"
 	               ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)" autofocus>
 	    </span>
 	    <span ng-show="section.lotteryOn">/ {{section.questions.length}}</span>

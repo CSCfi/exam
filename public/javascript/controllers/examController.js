@@ -666,16 +666,10 @@
 
                 $scope.updateLotteryCount = function (section) {
 
-                    if (section.lotteryItemCount > section.questions.length) {
-                        toastr.warning("Arvonnassa ei voi olla enemmän kysymyksiä kuin osioon on lisättynä.");
-                        section.lotteryItemCount = section.questions.length;
+                    if (section.lotteryItemCount == undefined || section.lotteryItemCount == 0) {
+                        toastr.warning("Arvonnassa tulee olla kysymyksiä vähintään yksi ja enintään osioon lisättyjen kysymysten määrä.");
+                        section.lotteryItemCount = section.lotteryItemCount == 0 ? 1 : section.questions.length;
                     }
-
-                    else if (section.lotteryItemCount < 1) {
-                        toastr.warning("Arvonnassa täytyy olla vähintään yksi kysymys.");
-                        section.lotteryItemCount = 1;
-                    }
-
                     else {
                         ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
                             section = sec;
