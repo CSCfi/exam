@@ -752,6 +752,7 @@ public class ExamController extends SitnetController {
         inspection.setUser(UserController.getLoggedUser());
         inspection.save();
 
+        exam.setExpanded(true);
         exam.save();
 
         // return only id, its all we need at this point
