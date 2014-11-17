@@ -2,9 +2,9 @@ package controllers;
 
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
+import be.objectify.deadbolt.core.models.Role;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import be.objectify.deadbolt.core.models.Role;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
@@ -16,6 +16,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class SessionController extends SitnetController {
@@ -24,11 +25,10 @@ public class SessionController extends SitnetController {
 
         User user;
 
-        String loginType= ConfigFactory.load().getString("sitnet.login");
-        if(loginType.equals("DEBUG"))
-        {
+        String loginType = ConfigFactory.load().getString("sitnet.login");
+        if (loginType.equals("DEBUG")) {
             Credentials credentials = bindForm(Credentials.class);
-            Logger.debug("User login with username: {} and password: ***", credentials.getUsername() +"@funet.fi");
+            Logger.debug("User login with username: {} and password: ***", credentials.getUsername() + "@funet.fi");
             if (credentials.getPassword() == null || credentials.getUsername() == null) {
                 return unauthorized("sitnet_error_unauthenticated");
             }
@@ -36,14 +36,13 @@ public class SessionController extends SitnetController {
             String md5psswd = SitnetUtil.encodeMD5(credentials.getPassword());
             user = Ebean.find(User.class)
                     .select("id, eppn, email, firstName, lastName, userLanguage")
-                    .where().eq("eppn", credentials.getUsername() +"@funet.fi")
+                    .where().eq("eppn", credentials.getUsername() + "@funet.fi")
                     .eq("password", md5psswd).findUnique();
 
             if (user == null) {
                 return unauthorized("sitnet_error_unauthenticated");
             }
-        }
-        else {
+        } else {
             if (loginType.equals("HAKA")) {
                 String eppn = request().getHeader("eppn");
 
@@ -56,10 +55,11 @@ public class SessionController extends SitnetController {
                 if (user != null) {
 
                     // User already exist, but we still need to update some information (all of it=)
-                    if (request().getHeader("schacPersonalUniqueCode") == null)
+                    if (request().getHeader("schacPersonalUniqueCode") == null) {
                         user.setUserIdentifier("");
-                    else
+                    } else {
                         user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
+                    }
 
                     String email = request().getHeader("mail");
                     user.setEmail(email);
@@ -113,20 +113,21 @@ public class SessionController extends SitnetController {
 //                }
 //                user.setAttributes(attrs);
 
-                    user.setEppn(request().getHeader("eppn"));
+                    user.setEppn(eppn);
 
-                    if (request().getHeader("schacPersonalUniqueCode") == null)
+                    if (request().getHeader("schacPersonalUniqueCode") == null) {
                         user.setUserIdentifier("");
-                    else
+                    } else {
                         user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
+                    }
 
                     String email = request().getHeader("mail");
                     user.setEmail(email);
-                    user.setLastName(request().getHeader("sn"));
-                    user.setFirstName(request().getHeader("displayName"));
+                    user.setLastName(toUtf8(request().getHeader("sn")));
+                    user.setFirstName(toUtf8(request().getHeader("displayName")));
 
                     String language = request().getHeader("preferredLanguage");
-                    if (language != null && (language.length() > 0)) {
+                    if (language != null && !language.isEmpty()) {
                         user.getUserLanguage().setNativeLanguageCode(language);
                         user.getUserLanguage().setUILanguageCode(language);
                     } else {
@@ -141,10 +142,11 @@ public class SessionController extends SitnetController {
                     String shibRole = request().getHeader("unscoped-affiliation");
                     Logger.debug("unscoped-affiliation: " + shibRole);
                     SitnetRole role = (SitnetRole) getRole(shibRole);
-                    if (role == null)
+                    if (role == null) {
                         return notFound("sitnet_error_role_not_found " + shibRole);
-                    else
+                    } else {
                         user.getRoles().add(role);
+                    }
 
                     user.save();
                 }
@@ -158,10 +160,10 @@ public class SessionController extends SitnetController {
 
         String token;
 
-        if(loginType.equals("HAKA")) {
-          token = request().getHeader("Shib-Session-ID");
+        if (loginType.equals("HAKA")) {
+            token = request().getHeader("Shib-Session-ID");
         } else {
-          token = UUID.randomUUID().toString();
+            token = UUID.randomUUID().toString();
         }
 
         Session session = new Session();
@@ -187,12 +189,12 @@ public class SessionController extends SitnetController {
         Map<String, String[]> attributes = request().headers();
         String output = "";
 
-        for (Map.Entry<String,String[]> entry : attributes.entrySet()) {
+        for (Map.Entry<String, String[]> entry : attributes.entrySet()) {
 
             String key = entry.getKey();
             String[] value = entry.getValue();
 
-            output += key +"\t";
+            output += key + "\t";
             output += Arrays.toString(value);
             output += "\n";
         }
@@ -206,11 +208,9 @@ public class SessionController extends SitnetController {
         String roleName = null;
         if (roles.get("STUDENT").contains(affiliation)) {
             roleName = "STUDENT";
-        }
-        else if(roles.get("ADMIN").contains(affiliation)) {
+        } else if (roles.get("ADMIN").contains(affiliation)) {
             roleName = "ADMIN";
-        }
-        else if (roles.get("TEACHER").contains(affiliation)) {
+        } else if (roles.get("TEACHER").contains(affiliation)) {
             roleName = "TEACHER";
         }
         return roleName == null ? null : Ebean.find(SitnetRole.class)
@@ -219,8 +219,7 @@ public class SessionController extends SitnetController {
                 .findUnique();
     }
 
-    static private Map<String, List<String>> getRoles()
-    {
+    static private Map<String, List<String>> getRoles() {
         String[] students = ConfigFactory.load().getString("sitnet.roles.student").split(",");
         String[] teachers = ConfigFactory.load().getString("sitnet.roles.teacher").split(",");
         String[] admins = ConfigFactory.load().getString("sitnet.roles.admin").split(",");
@@ -228,19 +227,19 @@ public class SessionController extends SitnetController {
         Map<String, List<String>> roles = new HashMap<>();
 
         List<String> studentRoles = new ArrayList<>();
-        for(int i = 0; i<students.length; i++) {
+        for (int i = 0; i < students.length; i++) {
             studentRoles.add(students[i].trim());
         }
         roles.put("STUDENT", studentRoles);
 
         List<String> teacherRoles = new ArrayList<>();
-        for(int i = 0; i<teachers.length; i++) {
+        for (int i = 0; i < teachers.length; i++) {
             teacherRoles.add(teachers[i].trim());
         }
         roles.put("TEACHER", teacherRoles);
 
         List<String> adminRoles = new ArrayList<>();
-        for(int i = 0; i<admins.length; i++) {
+        for (int i = 0; i < admins.length; i++) {
             adminRoles.add(admins[i].trim());
         }
         roles.put("ADMIN", adminRoles);
@@ -254,7 +253,7 @@ public class SessionController extends SitnetController {
         String loginType = ConfigFactory.load().getString("sitnet.login");
         if (loginType.equals("HAKA")) {
             Session session = (Session) Cache.get(key);
-            if(session == null) {
+            if (session == null) {
                 return ok();
             }
             session.setValid(false);
@@ -270,4 +269,11 @@ public class SessionController extends SitnetController {
     public static Result ping() {
         return ok("pong");
     }
+
+    private static String toUtf8(String src) {
+        String latin = new String(src.getBytes(), Charset.forName("ISO-8859-1"));
+        return new String(latin.getBytes(), Charset.forName("UTF-8"));
+    }
+
+
 }
