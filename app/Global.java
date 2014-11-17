@@ -6,8 +6,6 @@ import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
 import models.questions.QuestionInterface;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -60,7 +58,7 @@ public class Global extends GlobalSettings {
         // TODO: WeeklyEmailReport.java unused after this
         weeklyEmailReport();
 
-        InitialData.insert(app);
+        InitialData.insert();
         StatisticsController.createReportDirectory();
     }
 
@@ -273,7 +271,7 @@ public class Global extends GlobalSettings {
     }
 
     private static class InitialData {
-        public static void insert(Application app) {
+        public static void insert() {
             if (Ebean.find(User.class).findRowCount() == 0) {
 
                 String productionData = ConfigFactory.load().getString("sitnet.production.initial.data");
@@ -282,7 +280,7 @@ public class Global extends GlobalSettings {
                 if(productionData.equals("false")) {
 
                     @SuppressWarnings("unchecked")
-                    Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
+                    Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
 
                     // HUOM, järjestyksellä on väliä
                     Ebean.save(all.get("user-roles"));
@@ -310,16 +308,16 @@ public class Global extends GlobalSettings {
                     Ebean.save(all.get("grades"));
 
                     // generate hashes for questions
-                    List<QuestionInterface> questions = (List) all.get("question_multiple_choice");
-                    for (QuestionInterface q : questions) {
-                        q.generateHash();
+                    List<Object> questions = all.get("question_multiple_choice");
+                    for (Object q : questions) {
+                        ((QuestionInterface)q).generateHash();
                     }
                     Ebean.save(questions);
 
                     // generate hashes for questions
-                    List<Exam> exams = (List) all.get("exams");
-                    for (Exam e : exams) {
-                        e.generateHash();
+                    List<Object> exams = all.get("exams");
+                    for (Object e : exams) {
+                        ((Exam)e).generateHash();
                     }
                     Ebean.save(exams);
                 }

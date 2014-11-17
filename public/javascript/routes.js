@@ -35,6 +35,8 @@
             $routeProvider.when('/softwares/update/:id/:name', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
             $routeProvider.when('/softwares/:id', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
             $routeProvider.when('/softwares/add/:name', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
+            $routeProvider.when('/unauthorized', { templateUrl: tmpl + '403.html'});
+
 
             /* Student */
             $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'student/exam.html', controller: 'StudentExamController'});

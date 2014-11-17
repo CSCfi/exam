@@ -24,7 +24,7 @@
                             return response;
                         },
                         'responseError': function (response) {
-                            if (response.data) {
+                            if (typeof response.data === "string" || response.data instanceof String) {
                                 var parts = response.data.split(" ");
                                 for (var i = 0; i < parts.length; i++) {
                                     if (parts[i].substring(0, 7) === "sitnet_") {

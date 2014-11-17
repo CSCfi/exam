@@ -16,7 +16,6 @@ import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.chrono.GregorianChronology;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
@@ -25,8 +24,6 @@ import play.mvc.Result;
 import util.SitnetUtil;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -47,11 +44,10 @@ public class StudentExamController extends SitnetController {
                 .eq("user.id", user.getId())
                 .findList();
 
-        List<Exam> exams = new ArrayList<Exam>();
+        List<Exam> exams = new ArrayList<>();
 
-        for (ExamEnrolment e : enrolments)
-        {
-            if(e.getExam().getState().equals("STUDENT_STARTED")) {
+        for (ExamEnrolment e : enrolments) {
+            if (e.getExam().getState().equals("STUDENT_STARTED")) {
                 // if exam not over -> return
                 ExamParticipation participation = Ebean.find(ExamParticipation.class)
                         .fetch("exam")
@@ -59,7 +55,7 @@ public class StudentExamController extends SitnetController {
                         .eq("exam.id", e.getExam().getId())
                         .findUnique();
 
-                if(participation != null && participation.getStarted().getTime() + ((e.getExam().getDuration()) * 60 * 1000) > new Date().getTime()) {
+                if (participation != null && participation.getStarted().getTime() + ((e.getExam().getDuration()) * 60 * 1000) > new Date().getTime()) {
                     exams.add(e.getExam());
                 }
 
@@ -74,25 +70,19 @@ public class StudentExamController extends SitnetController {
     @Restrict({@Group("STUDENT")})
     public static Result getFinishedExams(Long uid) {
         Logger.debug("getFinishedExams()");
-
-        String oql = null;
-        Query<Exam> query = null;
-
         User user = UserController.getLoggedUser();
-        if(user.hasRole("STUDENT")) {
-            oql = "find exam " +
-                    "fetch examSections " +
-                    "fetch course " +
-                    "where (state=:review or state=:graded or state=:graded_logged or state=:aborted) " +
-                    "and (creator.id=:userid)";
+        String oql = "find exam " +
+                "fetch examSections " +
+                "fetch course " +
+                "where (state=:review or state=:graded or state=:graded_logged or state=:aborted) " +
+                "and (creator.id=:userid)";
 
-            query = Ebean.createQuery(Exam.class, oql);
-            query.setParameter("review", "REVIEW");
-            query.setParameter("graded", "GRADED");
-            query.setParameter("graded_logged", "GRADED_LOGGED");
-            query.setParameter("aborted", "ABORTED");
-            query.setParameter("userid", user.getId());
-        }
+        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
+        query.setParameter("review", "REVIEW");
+        query.setParameter("graded", "GRADED");
+        query.setParameter("graded_logged", "GRADED_LOGGED");
+        query.setParameter("aborted", "ABORTED");
+        query.setParameter("userid", user.getId());
 
         List<Exam> finishedExams = query.findList();
 
@@ -110,7 +100,7 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result getExamGeneralInfo(Long id)  {
+    public static Result getExamGeneralInfo(Long id) {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
@@ -140,9 +130,9 @@ public class StudentExamController extends SitnetController {
                 .where()
                 .eq("user.id", uid)
                 .disjunction()
-                    .eq("exam.state", "PUBLISHED")
-                    .eq("exam.state", "STUDENT_STARTED")
-                    //.eq("exam.state", "ABORTED")
+                .eq("exam.state", "PUBLISHED")
+                .eq("exam.state", "STUDENT_STARTED")
+                        //.eq("exam.state", "ABORTED")
                 .endJunction()
                 .findList();
 
@@ -211,7 +201,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         //aloitettu koe
-        if(possibleClone != null) {
+        if (possibleClone != null) {
             String state = possibleClone.getState();
             //kokeen tila on jokin muu kuin käynnissäoleva
             if (!state.equals(Exam.State.STUDENT_STARTED.toString())) {
@@ -246,13 +236,11 @@ public class StudentExamController extends SitnetController {
 
             // exam and enrolment found. Is student on the right machine?
 
-            if (possibeEnrolment.getReservation() == null)
+            if (possibeEnrolment.getReservation() == null) {
                 return forbidden("sitnet_reservation_not_found");
-
-            else if (possibeEnrolment.getReservation().getMachine() == null)
+            } else if (possibeEnrolment.getReservation().getMachine() == null) {
                 return forbidden("sitnet_reservation_machine_not_found");
-
-            else if (!possibeEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+            } else if (!possibeEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
                 ExamRoom examRoom = Ebean.find(ExamRoom.class)
                         .fetch("mailAddress")
                         .where()
@@ -260,8 +248,8 @@ public class StudentExamController extends SitnetController {
                         .findUnique();
 
                 String message = "sitnet_wrong_exam_machine " + examRoom.getName()
-                        + ", " +examRoom.getMailAddress().toString()
-                + ", sitnet_exam_machine " + possibeEnrolment.getReservation().getMachine().getName();
+                        + ", " + examRoom.getMailAddress().toString()
+                        + ", sitnet_exam_machine " + possibeEnrolment.getReservation().getMachine().getName();
 
                 return forbidden(message);
             }
@@ -286,12 +274,16 @@ public class StudentExamController extends SitnetController {
                 DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
 
                 // too late
-                if(jodaNow.isAfter(endAt))
+                if (jodaNow.isAfter(endAt)) {
                     return forbidden("sitnet_exam_has_ended " + dateTimeFormat.print(endAt.getMillis()));
-
+                }
                 // early
-                if(jodaNow.isBefore(startAt))
+                else if (jodaNow.isBefore(startAt)) {
                     return forbidden("sitnet_exam_starts " + dateTimeFormat.print(startAt.getMillis()));
+                } else {
+                    Logger.error("enrolment not found when it was supposed to");
+                    return internalServerError();
+                }
             }
 
             /*
@@ -307,8 +299,9 @@ public class StudentExamController extends SitnetController {
             *
              */
             Exam studentExam = (Exam) blueprint.clone();
-            if (studentExam == null)
+            if (studentExam == null) {
                 return notFound("sitnet_error_creating_exam");
+            }
 
             studentExam.setState("STUDENT_STARTED");
             studentExam.setCreator(user);
@@ -352,14 +345,14 @@ public class StudentExamController extends SitnetController {
         options.setPathProperties("examSections.questions.answer", "id, type, option, attachment, answer");
         options.setPathProperties("examSections.questions.answer.option", "id, option");
         options.setPathProperties("examSections.questions.attachment", "fileName");
-        options.setPathProperties("examSections.questions.options", "id, option" );
+        options.setPathProperties("examSections.questions.options", "id, option");
         options.setPathProperties("examSections.questions.comments", "id, comment");
     }
 
     @Restrict({@Group("STUDENT")})
     public static Result startExam(String hash) throws UnauthorizedAccessException {
         User user = UserController.getLoggedUser();
-        return createExam(hash, user );
+        return createExam(hash, user);
     }
 
     @Restrict({@Group("STUDENT")})
@@ -373,7 +366,7 @@ public class StudentExamController extends SitnetController {
                 .eq("exam.id", id)
                 .findUnique();
 
-        if(p != null) {
+        if (p != null) {
             p.setEnded(SitnetUtil.getNowTime());
             p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
 
@@ -401,7 +394,7 @@ public class StudentExamController extends SitnetController {
                 .eq("exam.id", id)
                 .findUnique();
 
-        if(p != null) {
+        if (p != null) {
             p.setEnded(SitnetUtil.getNowTime());
             p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
 
@@ -445,7 +438,7 @@ public class StudentExamController extends SitnetController {
         EssayQuestion question = Ebean.find(EssayQuestion.class, questionId);
         EssayAnswer previousAnswer = (EssayAnswer) question.getAnswer();
 
-        if(previousAnswer == null) {
+        if (previousAnswer == null) {
             previousAnswer = new EssayAnswer();
         }
 
@@ -459,7 +452,7 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result insertAnswer(String hash, Long qid, Long oid)  {
+    public static Result insertAnswer(String hash, Long qid, Long oid) {
 
         // Todo: onko käyttäjällä aikaa jäljellä tehdä koetta?
 
@@ -469,7 +462,7 @@ public class StudentExamController extends SitnetController {
                 .eq("id", qid)
                 .findUnique();
 
-        if(oid > 0) {
+        if (oid > 0) {
 
             MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
 

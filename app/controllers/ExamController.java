@@ -32,8 +32,8 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExams() {
 
-        String oql = null;
-        Query<Exam> query = null;
+        String oql;
+        Query<Exam> query;
 
         User user = UserController.getLoggedUser();
         if (user.hasRole("TEACHER")) {
@@ -49,7 +49,7 @@ public class ExamController extends SitnetController {
             query.setParameter("saved", "SAVED");
             query.setParameter("is_shared", true);
             query.setParameter("myid", user.getId());
-        } else if (user.hasRole("ADMIN")) {
+        } else { // ADMIN
 
             oql = "find exam "
                     + " fetch examSections "
@@ -101,13 +101,6 @@ public class ExamController extends SitnetController {
 
         Date date = new Date();
         Timestamp timestamp = new Timestamp(date.getTime());
-
-        //Get list of exams that user is assigned to inspect
-        List<ExamInspection> examInspections = Ebean.find(ExamInspection.class)
-                .fetch("exam")
-                .where()
-                .eq("user.id", user.getId())
-                .findList();
 
         // Todo: Oletetaan että tentin luoja on automaattisesti tentin tarkastaja
         List<Exam> activeExams = Ebean.find(Exam.class)
@@ -305,8 +298,9 @@ public class ExamController extends SitnetController {
 
 
             return ok("Exam deleted");
-        } else
+        } else {
             return forbidden("sitnet_error_access_forbidden");
+        }
 
     }
 
@@ -386,6 +380,10 @@ public class ExamController extends SitnetController {
                 .orderBy("examSections.id, id desc")
                 .findUnique();
 
+        if (exam == null) {
+            return notFound();
+        }
+
         for (ExamSection es : exam.getExamSections()) {
 
             if (es.getLotteryOn()) {
@@ -396,9 +394,7 @@ public class ExamController extends SitnetController {
             }
         }
 
-        if (exam == null) {
-            return notFound();
-        } else if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") ||
+        if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") ||
                 exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED")) {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
@@ -449,8 +445,7 @@ public class ExamController extends SitnetController {
         ex.generateHash();
 
         // set user only if exam is really graded, not just modified
-        if(ex.getState().equals(Exam.State.GRADED.name()) || ex.getState().equals(Exam.State.GRADED_LOGGED.name()) )
-        {
+        if (ex.getState().equals(Exam.State.GRADED.name()) || ex.getState().equals(Exam.State.GRADED_LOGGED.name())) {
             ex.setGradedTime(SitnetUtil.getNowTime());
             ex.setGradedByUser(UserController.getLoggedUser());
         }
@@ -545,6 +540,9 @@ public class ExamController extends SitnetController {
         Comment bindComment = bindForm(Comment.class);
 
         Comment comment = Ebean.find(Comment.class, cid);
+        if (comment == null) {
+            return notFound();
+        }
 
         try {
             comment = (Comment) SitnetUtil.setCreator(comment);
@@ -559,16 +557,12 @@ public class ExamController extends SitnetController {
         exam.setExamFeedback(comment);
         exam.save();
 
-        if (comment == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, comment, creator");
-            options.setPathProperties("creator", "id, firstName, lastName");
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, comment, creator");
+        options.setPathProperties("creator", "id, firstName, lastName");
 
-            return ok(jsonContext.toJsonString(comment, true, options)).as("application/json");
-        }
+        return ok(jsonContext.toJsonString(comment, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -841,8 +835,9 @@ public class ExamController extends SitnetController {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
 
             ExamSection section = Ebean.find(ExamSection.class, sid);
-            if (section.getQuestions().contains(question))
+            if (section.getQuestions().contains(question)) {
                 return ok("Tämä kysymys on jo lisätty aihealueeseen.");
+            }
 
             switch (question.getType()) {
                 case "MultipleChoiceQuestion": {
@@ -860,7 +855,7 @@ public class ExamController extends SitnetController {
                     } catch (SitnetException e) {
                         e.printStackTrace();
                     }
-                    clonedQuestion.setOptions(new ArrayList<MultipleChoiseOption>());
+                    clonedQuestion.setOptions(new ArrayList<>());
                     clonedQuestion.save();
                     List<MultipleChoiseOption> options = multiQuestion.getOptions();
                     for (MultipleChoiseOption o : options) {
@@ -909,8 +904,9 @@ public class ExamController extends SitnetController {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
 
             ExamSection section = Ebean.find(ExamSection.class, sid);
-            if (section.getQuestions().contains(question))
+            if (section.getQuestions().contains(question)) {
                 return ok("Tämä kysymys on jo lisätty aihealueeseen.");
+            }
 
             switch (question.getType()) {
                 case "MultipleChoiceQuestion": {
@@ -928,7 +924,7 @@ public class ExamController extends SitnetController {
                     } catch (SitnetException e) {
                         e.printStackTrace();
                     }
-                    clonedQuestion.setOptions(new ArrayList<MultipleChoiseOption>());
+                    clonedQuestion.setOptions(new ArrayList<>());
                     SitnetUtil.setModifier(clonedQuestion);
                     clonedQuestion.save();
                     List<MultipleChoiseOption> options = multiQuestion.getOptions();

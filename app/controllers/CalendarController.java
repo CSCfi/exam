@@ -22,8 +22,8 @@ import java.util.*;
 
 public class CalendarController extends SitnetController {
 
-    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
+    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws MalformedDataException, NotFoundException {
@@ -251,10 +251,11 @@ public class CalendarController extends SitnetController {
             final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, current, reservations, wantedAccessibility);
             allPossibleFreeTimeSlots.putAll(slots);
 
-            System.out.println("current "+ current);
+            System.out.println("current " + current);
 
-            if(current.toLocalDate().isAfter(examEndDateTime.toLocalDate()))
+            if (current.toLocalDate().isAfter(examEndDateTime.toLocalDate())) {
                 break;
+            }
             current = current.plusDays(1);
 
         } while (true);
@@ -262,68 +263,46 @@ public class CalendarController extends SitnetController {
         return ok(Json.toJson(allPossibleFreeTimeSlots));
     }
 
-    private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay, List<Reservation> reservations, ArrayList<Integer> wantedAccessibility) {
+    private static boolean isRoomAccessibilitySatisfied(ExamRoom room, List<Integer> wanted) {
+        List<Accessibility> roomAccessibility = room.getAccessibility();
+        List<Integer> roomAccessibilityIds = new ArrayList<>();
+        for (Accessibility accessibility : roomAccessibility) {
+            roomAccessibilityIds.add(accessibility.getId().intValue());
+        }
+        return roomAccessibilityIds.containsAll(wanted);
+    }
+
+    private static boolean isMachineAccessibilitySatisfied(ExamMachine machine, List<Integer> wanted) {
+        List<Accessibility> machineAccessibility = machine.getAccessibility();
+        List<Integer> machineAccessibilityIds = new ArrayList<>();
+        for (Accessibility accessibility : machineAccessibility) {
+            machineAccessibilityIds.add(accessibility.getId().intValue());
+        }
+        return machineAccessibilityIds.containsAll(wanted);
+    }
+
+
+    private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay, List<Reservation> reservations, List<Integer> wantedAccessibility) {
 
         Map<String, DayWithFreeTimes> allPossibleFreeTimeSlots = new HashMap<>();
-
-        final DateTime now = getNow();
-
         final DateTime examStartTime = new DateTime(exam.getExamActiveStartDate());
 
         if (examStartTime.isAfter(forDay)) {
             return allPossibleFreeTimeSlots;
         }
 
-        boolean roomAccessibilitySatisfied = true;
-
-        if (!wantedAccessibility.isEmpty()) {
-            final List<Accessibility> roomAccessibility = room.getAccessibility();
-            for (Integer wantedId : wantedAccessibility) {
-                boolean notFound = true;
-                for (Accessibility access : roomAccessibility) {
-                    int id = access.getId().intValue();
-                    if (id == wantedId) {
-                        notFound = false;
-                    }
-                }
-                if (notFound) {
-                    roomAccessibilitySatisfied = false;
-                }
-            }
-        }
-
+        boolean roomAccessibilitySatisfied = isRoomAccessibilitySatisfied(room, wantedAccessibility);
+        final DateTime now = getNow();
 
         for (ExamMachine examMachine : room.getExamMachines()) {
-
-            boolean machineAccessibilitySatisfied = true;
-
-            if (!wantedAccessibility.isEmpty() && !roomAccessibilitySatisfied) {
-                final List<Accessibility> examMachineAccessibility = examMachine.getAccessibility();
-                for (Integer wantedId : wantedAccessibility) {
-                    boolean notFound = true;
-                    for (Accessibility access : examMachineAccessibility) {
-                        int id = access.getId().intValue();
-                        if (id == wantedId) {
-                            notFound = false;
-                        }
-                    }
-                    if (notFound) {
-                        machineAccessibilitySatisfied = false;
-                    }
-                }
-            }
-
-            if (!machineAccessibilitySatisfied) {
-                continue;
-            }
 
             if (examMachine.getOutOfService()) {
                 continue;
             }
-
-            final List<WorkingHours> allHoursForDay = calculateWorkingHours(room, forDay.toLocalDate());
-
-            for (WorkingHours hours : allHoursForDay) {
+            if (!roomAccessibilitySatisfied && !isMachineAccessibilitySatisfied(examMachine, wantedAccessibility)) {
+                continue;
+            }
+            for (WorkingHours hours : calculateWorkingHours(room, forDay.toLocalDate())) {
 
                 final DateTime startTime;
                 final DateTime endTime;
@@ -384,7 +363,7 @@ public class CalendarController extends SitnetController {
                 }
 
                 Iterator iter = day.getSlots().iterator();
-                while(iter.hasNext()) {
+                while (iter.hasNext()) {
 
                     FreeTimeSlot possibleFreeTimeSlot = (FreeTimeSlot) iter.next();
                     final Interval possibleFreeTimeSlotDuration = new Interval(dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getStart()), dateTimeFormat.parseDateTime(possibleFreeTimeSlot.getEnd()));
@@ -405,7 +384,7 @@ public class CalendarController extends SitnetController {
 
                     }
 
-                    if(isRemoved) {
+                    if (isRemoved) {
                         continue;
                     }
 
@@ -450,28 +429,6 @@ public class CalendarController extends SitnetController {
         return possibleTimeSlot;
     }
 
-    private static class WorkingHours {
-        private DateTime start;
-        private DateTime end;
-
-        private DateTime getEnd() {
-            return end;
-        }
-
-        private void setEnd(DateTime end) {
-            this.end = end;
-        }
-
-        private DateTime getStart() {
-            return start;
-        }
-
-        private void setStart(DateTime start) {
-            this.start = start;
-        }
-    }
-
-
     private static List<WorkingHours> calculateWorkingHours(ExamRoom room, LocalDate date) {
 
 
@@ -494,5 +451,26 @@ public class CalendarController extends SitnetController {
 
     private static boolean isBeforeOrEquals(DateTime date1, DateTime date2) {
         return date1.isBefore(date2) || date1.equals(date2);
+    }
+
+    private static class WorkingHours {
+        private DateTime start;
+        private DateTime end;
+
+        private DateTime getEnd() {
+            return end;
+        }
+
+        private void setEnd(DateTime end) {
+            this.end = end;
+        }
+
+        private DateTime getStart() {
+            return start;
+        }
+
+        private void setStart(DateTime start) {
+            this.start = start;
+        }
     }
 }

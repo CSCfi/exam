@@ -8,9 +8,7 @@ import models.*;
 import models.dto.ExamScore;
 import play.data.DynamicForm;
 import play.data.Form;
-import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
 import util.java.EmailComposer;
 
 import java.sql.Timestamp;
@@ -120,10 +118,10 @@ public class ExamRecordController extends SitnetController {
 
         for (HakaAttribute ha : attrs) {
 
-            if (ha.getKey() == attrName) {
+            if (ha.getKey().equals(attrName)) {
                 return ha.getValue();
             }
         }
-        return new String("");
+        return null;
     }
 }

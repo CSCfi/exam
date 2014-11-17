@@ -4,6 +4,7 @@ import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.core.models.Role;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
@@ -21,16 +22,18 @@ public class SessionController extends SitnetController {
 
     public static Result login() throws MalformedDataException, UnauthorizedAccessException {
 
-        User user = null;
+        User user;
 
         String loginType= ConfigFactory.load().getString("sitnet.login");
         if(loginType.equals("DEBUG"))
         {
             Credentials credentials = bindForm(Credentials.class);
             Logger.debug("User login with username: {} and password: ***", credentials.getUsername() +"@funet.fi");
+            if (credentials.getPassword() == null || credentials.getUsername() == null) {
+                return unauthorized("sitnet_error_unauthenticated");
+            }
+
             String md5psswd = SitnetUtil.encodeMD5(credentials.getPassword());
-
-
             user = Ebean.find(User.class)
                     .select("id, eppn, email, firstName, lastName, userLanguage")
                     .where().eq("eppn", credentials.getUsername() +"@funet.fi")
@@ -40,31 +43,30 @@ public class SessionController extends SitnetController {
                 return unauthorized("sitnet_error_unauthenticated");
             }
         }
-        else if(loginType.equals("HAKA"))
-        {
-            Map<String, String[]> attributes = request().headers();
-            String eppn = request().getHeader("eppn");
+        else {
+            if (loginType.equals("HAKA")) {
+                String eppn = request().getHeader("eppn");
 
-            user = Ebean.find(User.class)
-                    .where()
-                    .eq("eppn", eppn)
-                    .findUnique();
+                user = Ebean.find(User.class)
+                        .where()
+                        .eq("eppn", eppn)
+                        .findUnique();
 
 
-            if(user != null) {
+                if (user != null) {
 
-                // User already exist, but we still need to update some information (all of it=)
-                if(request().getHeader("schacPersonalUniqueCode") == null)
-                    user.setUserIdentifier("");
-                else
-                    user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
+                    // User already exist, but we still need to update some information (all of it=)
+                    if (request().getHeader("schacPersonalUniqueCode") == null)
+                        user.setUserIdentifier("");
+                    else
+                        user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
 
-                String email = request().getHeader("mail");
-                user.setEmail(email);
+                    String email = request().getHeader("mail");
+                    user.setEmail(email);
 
-                user.save();
+                    user.save();
 
-                // TODO: should save MOST IMPORTANT attributes only, not all
+                    // TODO: should save MOST IMPORTANT attributes only, not all
 //                List<HakaAttribute> attrs = new ArrayList<HakaAttribute>();
 //
 //                for (Map.Entry<String,String[]> entry : attributes.entrySet()) {
@@ -87,9 +89,9 @@ public class SessionController extends SitnetController {
 //                user.setAttributes(attrs);
 //                user.save();
 
-            } else {
-                // First login -> create it
-                user = new User();
+                } else {
+                    // First login -> create it
+                    user = new User();
 
 //                List<HakaAttribute> attrs = new ArrayList<HakaAttribute>();
 //
@@ -111,42 +113,44 @@ public class SessionController extends SitnetController {
 //                }
 //                user.setAttributes(attrs);
 
-                user.setEppn(request().getHeader("eppn"));
+                    user.setEppn(request().getHeader("eppn"));
 
-                if(request().getHeader("schacPersonalUniqueCode") == null)
-                    user.setUserIdentifier("");
-                else
-                    user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
+                    if (request().getHeader("schacPersonalUniqueCode") == null)
+                        user.setUserIdentifier("");
+                    else
+                        user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
 
-                String email = request().getHeader("mail");
-                user.setEmail(email);
-                user.setLastName(request().getHeader("sn"));
-                user.setFirstName(request().getHeader("displayName"));
+                    String email = request().getHeader("mail");
+                    user.setEmail(email);
+                    user.setLastName(request().getHeader("sn"));
+                    user.setFirstName(request().getHeader("displayName"));
 
-                String language = request().getHeader("preferredLanguage");
-                if(language != null && (language.length() > 0)) {
-                    user.getUserLanguage().setNativeLanguageCode(language);
-                    user.getUserLanguage().setUILanguageCode(language);
+                    String language = request().getHeader("preferredLanguage");
+                    if (language != null && (language.length() > 0)) {
+                        user.getUserLanguage().setNativeLanguageCode(language);
+                        user.getUserLanguage().setUILanguageCode(language);
+                    } else {
+                        UserLanguage lang = Ebean.find(UserLanguage.class)
+                                .where()
+                                .eq("nativeLanguageCode", "en")
+                                .findUnique();
+
+                        user.setUserLanguage(lang);
+                    }
+
+                    String shibRole = request().getHeader("unscoped-affiliation");
+                    Logger.debug("unscoped-affiliation: " + shibRole);
+                    SitnetRole role = (SitnetRole) getRole(shibRole);
+                    if (role == null)
+                        return notFound("sitnet_error_role_not_found " + shibRole);
+                    else
+                        user.getRoles().add(role);
+
+                    user.save();
                 }
-                else
-                {
-                    UserLanguage lang = Ebean.find(UserLanguage.class)
-                            .where()
-                            .eq("nativeLanguageCode", "en")
-                            .findUnique();
-
-                    user.setUserLanguage(lang);
-                }
-
-                String shibRole = request().getHeader("unscoped-affiliation");
-                Logger.debug("unscoped-affiliation: "+ shibRole);
-                SitnetRole srole = getRole(shibRole);
-                if(srole == null)
-                    return notFound("sitnet_error_role_not_found " + shibRole);
-                else
-                    ((List<SitnetRole>)user.getRoles()).add(srole);
-
-                user.save();
+            } else {
+                // Login type not supported
+                return badRequest();
             }
         }
 
@@ -195,36 +199,23 @@ public class SessionController extends SitnetController {
         return ok(output);
     }
 
-    static private SitnetRole getRole(String affiliation) {
+    static private Role getRole(String affiliation) {
 
         Map<String, List<String>> roles = getRoles();
-
+        String roleName = null;
         if (roles.get("STUDENT").contains(affiliation)) {
-            SitnetRole srole = Ebean.find(SitnetRole.class)
-                    .where()
-                    .eq("name", "STUDENT")
-                    .findUnique();
-
-            return srole;
+            roleName = "STUDENT";
         }
         else if(roles.get("ADMIN").contains(affiliation)) {
-            SitnetRole srole = Ebean.find(SitnetRole.class)
-                    .where()
-                    .eq("name", "ADMIN")
-                    .findUnique();
-
-            return srole;
+            roleName = "ADMIN";
         }
         else if (roles.get("TEACHER").contains(affiliation)) {
-            SitnetRole srole = Ebean.find(SitnetRole.class)
-                    .where()
-                    .eq("name", "TEACHER")
-                    .findUnique();
-
-            return srole;
+            roleName = "TEACHER";
         }
-        else
-            return null;
+        return roleName == null ? null : Ebean.find(SitnetRole.class)
+                .where()
+                .eq("name", roleName)
+                .findUnique();
     }
 
     static private Map<String, List<String>> getRoles()
@@ -233,21 +224,21 @@ public class SessionController extends SitnetController {
         String[] teachers = ConfigFactory.load().getString("sitnet.roles.teacher").split(",");
         String[] admins = ConfigFactory.load().getString("sitnet.roles.admin").split(",");
 
-        Map<String, List<String>> roles = new HashMap<String, List<String>>();
+        Map<String, List<String>> roles = new HashMap<>();
 
-        List<String> studentRoles = new ArrayList<String>();
+        List<String> studentRoles = new ArrayList<>();
         for(int i = 0; i<students.length; i++) {
             studentRoles.add(students[i].trim());
         }
         roles.put("STUDENT", studentRoles);
 
-        List<String> teacherRoles = new ArrayList<String>();
+        List<String> teacherRoles = new ArrayList<>();
         for(int i = 0; i<teachers.length; i++) {
             teacherRoles.add(teachers[i].trim());
         }
         roles.put("TEACHER", teacherRoles);
 
-        List<String> adminRoles = new ArrayList<String>();
+        List<String> adminRoles = new ArrayList<>();
         for(int i = 0; i<admins.length; i++) {
             adminRoles.add(admins[i].trim());
         }

@@ -1,9 +1,10 @@
 package models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class DayWithFreeTimes {
-    private ArrayList<FreeTimeSlot> slots = new ArrayList<FreeTimeSlot>();
+    private List<FreeTimeSlot> slots = new ArrayList<>();
     private String date;
 
 
@@ -15,11 +16,11 @@ public class DayWithFreeTimes {
         this.date = date;
     }
 
-    public ArrayList<FreeTimeSlot> getSlots() {
+    public List<FreeTimeSlot> getSlots() {
         return slots;
     }
 
-    public void setSlots(ArrayList<FreeTimeSlot> slots) {
+    public void setSlots(List<FreeTimeSlot> slots) {
         this.slots = slots;
     }
 }

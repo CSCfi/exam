@@ -63,29 +63,29 @@ public class EnrollController extends Controller {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public static Result enrollExamInfo(String code, Long id)  {
-  	
-    	Exam exam = Ebean.find(Exam.class)
-    			.fetch("course")
-    			.fetch("room")
-    			.where()
-    			.eq("course.code", code)
-    			.eq("id", id)
-    			.findUnique();
+    public static Result enrollExamInfo(String code, Long id) {
+
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("room")
+                .where()
+                .eq("course.code", code)
+                .eq("id", id)
+                .findUnique();
 
         //Set general info visible
         exam.setExpanded(true);
 
-    	JsonContext jsonContext = Ebean.createJsonContext();
-    	JsonWriteOptions options = new JsonWriteOptions();
-    	options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
-    			+ "grading, room, course, creator, expanded, examType, enrollInstruction, examLanguage, answerLanguage");
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
+                + "grading, room, course, creator, expanded, examType, enrollInstruction, examLanguage, answerLanguage");
         options.setPathProperties("room", "name, roomCode, buildingName, campus");
         options.setPathProperties("examType", "type");
         options.setPathProperties("course", "code, name, level, type, credits");
-    	options.setPathProperties("creator", "firstName, lastName, email");
-        
-    	return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+        options.setPathProperties("creator", "firstName, lastName, email");
+
+        return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
@@ -99,8 +99,11 @@ public class EnrollController extends Controller {
                 .eq("course.code", code)
                 .eq("id", id)
                 .findUnique();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
 
-        // check if enrolment already exist?
+        // check if enrolment already exists?
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("user.id", user.getId())
@@ -111,23 +114,18 @@ public class EnrollController extends Controller {
             return forbidden("sitnet_error_enrolment_exists");
         }
 
-        if (exam != null) {
-            enrolment = new ExamEnrolment();
-            enrolment.setEnrolledOn(now);
-            enrolment.setUser(user);
-            enrolment.setExam(exam);
-            enrolment.save();
+        enrolment = new ExamEnrolment();
+        enrolment.setEnrolledOn(now);
+        enrolment.setUser(user);
+        enrolment.setExam(exam);
+        enrolment.save();
 
-            return ok();
-        } else {
-            return notFound("sitnet_error_exam_not_found");
-        }
+        return ok();
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result deleteEnrolment(String code, Long id) {
 
-        Timestamp now = new Timestamp(new Date().getTime());
         User user = UserController.getLoggedUser();
 
         Exam exam = Ebean.find(Exam.class)

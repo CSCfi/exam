@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
-import play.Play;
 import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
@@ -86,11 +85,11 @@ public class AdminReservationController extends SitnetController {
 //        }
 
         ArrayNode array = JsonNodeFactory.instance.arrayNode();
-        for(User u : students) {
+        for (User u : students) {
             ObjectNode part = Json.newObject();
             part.put("id", u.getId());
-        	part.put("firstName", u.getFirstName());
-        	part.put("lastName", u.getLastName());
+            part.put("firstName", u.getFirstName());
+            part.put("lastName", u.getLastName());
 //        	part.put("schacPersonalUniqueCode", u.getAttributes().get("schacPersonalUniqueCode"));
 //        	part.put("schacPersonalUniqueCode", u.getAttributes().get("schacPersonalUniqueCode"));
 
@@ -104,7 +103,7 @@ public class AdminReservationController extends SitnetController {
 //                part.put(a.getKey(), a.getValue());
 //            }
 
-            part.put("name", new String(u.getFirstName() +" "+u.getLastName()));
+            part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
             array.add(part);
         }
 
@@ -139,7 +138,7 @@ public class AdminReservationController extends SitnetController {
                 .eq("exam.id", enrolment.getExam().getId())
                 .findUnique();
 
-        if(participation != null) {
+        if (participation != null) {
             return forbidden(String.format("sitnet_unable_to_remove_reservation (id=%d).", participation.getId()));
         }
 
@@ -160,7 +159,7 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservations(Long studentId, Long roomId, Long examId ) {
+    public static Result getReservations(Long studentId, Long roomId, Long examId) {
 
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
@@ -266,7 +265,7 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservationsByExam(Long examId, String start, String end ) {
+    public static Result getReservationsByExam(Long examId, String start, String end) {
 
         long startTimestamp = Long.parseLong(start);
         long endTimestamp = Long.parseLong(end);

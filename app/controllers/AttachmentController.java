@@ -13,7 +13,7 @@ import models.answers.AbstractAnswer;
 import models.answers.EssayAnswer;
 import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
-import models.questions.EssayQuestion;
+import play.Logger;
 import play.Play;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
@@ -87,8 +87,8 @@ public class AttachmentController extends SitnetController {
             // TODO Use smarter config
             String basePath = playPath + "/" + uploadPath + "/" + String.valueOf(qid) + "/answer/" + String.valueOf(question.getAnswer().getId());
             File dir = new File(basePath);
-            if (!dir.exists()) {
-                dir.mkdirs();
+            if (dir.mkdirs()) {
+                Logger.info("Created attachment directory");
             }
             String rndFileName = UUID.randomUUID().toString();
             String newFile = basePath + "/" + rndFileName;
@@ -157,15 +157,15 @@ public class AttachmentController extends SitnetController {
             // TODO Use smarter config
             String basePath = playPath + "/" + uploadPath + "/" + String.valueOf(id);
             File dir = new File(basePath);
-            if (!dir.exists()) {
-                dir.mkdirs();
+            if (dir.mkdirs()) {
+                Logger.info("Created attachment directory");
             }
             String rndFileName = UUID.randomUUID().toString();
             String newFile = basePath + "/" + rndFileName;
             Attachment attachment = null;
 
             try {
-                if(SitnetUtil.copyFile(file, new File(newFile))) {
+                if (SitnetUtil.copyFile(file, new File(newFile))) {
 
                     AbstractQuestion question = Ebean.find(AbstractQuestion.class)
                             .fetch("attachment")
@@ -269,15 +269,15 @@ public class AttachmentController extends SitnetController {
             // TODO Use smarter config
             String basePath = playPath + "/" + uploadPath + "/" + String.valueOf(id);
             File dir = new File(basePath);
-            if (!dir.exists()) {
-                dir.mkdirs();
+            if (dir.mkdirs()) {
+                Logger.info("Created attachment directory");
             }
             String rndFileName = UUID.randomUUID().toString();
             String newFile = basePath + "/" + rndFileName;
             Attachment attachment = null;
 
             try {
-                if(SitnetUtil.copyFile(file, new File(newFile))) {
+                if (SitnetUtil.copyFile(file, new File(newFile))) {
 
                     Exam exam = Ebean.find(Exam.class)
                             .fetch("attachment")
@@ -372,6 +372,7 @@ public class AttachmentController extends SitnetController {
         return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result downloadExamAttachment(Long id) {
 
         Exam exam = Ebean.find(Exam.class)

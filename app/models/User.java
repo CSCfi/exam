@@ -40,7 +40,7 @@ public class User extends Model implements Subject {
     private String password;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<SitnetRole> roles;
+    private List<SitnetRole> roles = new ArrayList<>();
 
     @OneToOne
     private UserLanguage userLanguage;
@@ -156,9 +156,7 @@ public class User extends Model implements Subject {
     }
 
     @Override
-    public List<? extends Role> getRoles() {
-        if(roles == null)
-            roles = new ArrayList();
+    public List<SitnetRole> getRoles() {
         return roles;
     }
 

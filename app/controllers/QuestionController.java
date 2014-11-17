@@ -61,7 +61,7 @@ public class QuestionController extends SitnetController {
     public static Result getQuestionsForUser(Long id) {
 
         List<AbstractQuestion> questions = null;
-        List<AbstractQuestion> shared = null;
+        List<AbstractQuestion> shared;
 
         if(UserController.getLoggedUser().hasRole("TEACHER"))
         {
@@ -136,7 +136,7 @@ public class QuestionController extends SitnetController {
                     e.printStackTrace();
                 }
 
-                multipleChoiceQuestion.setOptions(new ArrayList<MultipleChoiseOption>());
+                multipleChoiceQuestion.setOptions(new ArrayList<>());
                 multipleChoiceQuestion.save();
                 List<MultipleChoiseOption> options = ((MultipleChoiceQuestion)question).getOptions();
                 for (MultipleChoiseOption o : options) {
@@ -182,9 +182,6 @@ public class QuestionController extends SitnetController {
             Class<?> clazz = Class.forName("models.questions." + df.get("type"));
             Object question = clazz.newInstance();
 
-            User user = UserController.getLoggedUser();
-            Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-
             question = bindForm(question.getClass());
 
             switch (df.get("type")) {
@@ -225,11 +222,7 @@ public class QuestionController extends SitnetController {
             Ebean.save(question);
             return ok(Json.toJson(question));
 
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
 

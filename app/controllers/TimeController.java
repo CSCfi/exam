@@ -3,13 +3,10 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.Exam;
 import models.ExamEnrolment;
-import models.ExamParticipation;
 import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Minutes;
 import org.joda.time.Seconds;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -31,12 +28,7 @@ public class TimeController extends Controller {
     @Restrict({@Group("STUDENT")})
     public static Result getExamRemainingTime(Long examId) {
 
-        User user = null;
-        try {
-            user = UserController.getLoggedUser();
-        } catch (Exception ex) {
-        }
-
+        User user = UserController.getLoggedUser();
         if (user == null) {
             return forbidden("sitnet_error_invalid_session");
         }

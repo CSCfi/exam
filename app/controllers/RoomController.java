@@ -223,7 +223,7 @@ public class RoomController extends SitnetController {
         if (!ids.isEmpty()) {
             for (String aid : ids) {
                 System.out.println(aid);
-                int accessibilityId = 0;
+                int accessibilityId;
                 try {
                     accessibilityId = Integer.parseInt(aid.trim());
                 } catch (Exception ex) {

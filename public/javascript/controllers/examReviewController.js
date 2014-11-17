@@ -13,6 +13,10 @@
                 $scope.session = sessionService;
                 $scope.user = $scope.session.user;
 
+                if ($scope.user == undefined || $scope.user.isStudent) {
+                    $location.path("/unauthorized");
+                }
+
                 $scope.globalInspections = [];
                 $scope.localInspections = [];
                 $scope.examGrading = [];

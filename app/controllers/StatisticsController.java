@@ -17,6 +17,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.springframework.util.CollectionUtils;
 import play.Play;
+import play.Logger;
 import play.mvc.Result;
 import util.java.StatisticsUtils;
 
@@ -40,7 +41,6 @@ public class StatisticsController extends SitnetController {
     private static final String playPath = Play.application().path().getAbsolutePath();
     private static final String basePath = playPath + "/" + reportsPath +"/";
 
-    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
 
     @Restrict({@Group("ADMIN")})
@@ -89,9 +89,6 @@ public class StatisticsController extends SitnetController {
      *     nimi/opettaja/luontiaika/tentin kesto/status/voimassaoloaika/
      *     opintopistee/opintojakson tunnus/opettaja/arvosana-asteikko/
      *     ohjeteksti/kysymykset/kysymysten pistemäärä/liitteet
-     *
-     * @param id
-     * @return
      */
     @Restrict({@Group("ADMIN")})
     public static Result getExam(Long id, String reportType) {
@@ -103,146 +100,115 @@ public class StatisticsController extends SitnetController {
                 .eq("id", id)
                 .findUnique();
 
-        if(reportType.equals("xlsx")) {
+        File file;
+        Result result;
+        switch (reportType) {
+            case "xlsx":
+                file = new File(basePath + "tentti_" + exam.getName().toLowerCase().replace(" ", "-") + ".xlsx");
 
-            File file = new File(basePath + "tentti_" + exam.getName().toLowerCase().replace(" ", "-") + ".xlsx");
+                Workbook wb = new XSSFWorkbook();
+                Sheet sheet = wb.createSheet(exam.getName());
 
-            Workbook wb = new XSSFWorkbook();
-            Sheet sheet = wb.createSheet(exam.getName());
+                Row headerRow = sheet.createRow(0);
+                headerRow.createCell(0).setCellValue("Omistaja id");
+                headerRow.createCell(1).setCellValue("Etunimi");
+                headerRow.createCell(2).setCellValue("Sukunimi");
 
-            Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("Omistaja id");
-            headerRow.createCell(1).setCellValue("Etunimi");
-            headerRow.createCell(2).setCellValue("Sukunimi");
+                headerRow.createCell(3).setCellValue("Opintojakso id");
+                headerRow.createCell(4).setCellValue("Nimi");
+                headerRow.createCell(5).setCellValue("Opintipisteet");
+                headerRow.createCell(6).setCellValue("Tyyppi");
+                headerRow.createCell(7).setCellValue("Taso");
 
-            headerRow.createCell(3).setCellValue("Opintojakso id");
-            headerRow.createCell(4).setCellValue("Nimi");
-            headerRow.createCell(5).setCellValue("Opintipisteet");
-            headerRow.createCell(6).setCellValue("Tyyppi");
-            headerRow.createCell(7).setCellValue("Taso");
+                headerRow.createCell(8).setCellValue("luotu pvm");
+                headerRow.createCell(9).setCellValue("alkaa");
+                headerRow.createCell(10).setCellValue("loppuu");
+                headerRow.createCell(11).setCellValue("kesto");
+                headerRow.createCell(12).setCellValue("Arvosteluasteikko");
+                headerRow.createCell(13).setCellValue("status");
+                headerRow.createCell(14).setCellValue("liitetiedosto");
+                headerRow.createCell(15).setCellValue("ohjeet");
+                headerRow.createCell(16).setCellValue("jaettu");
 
-            headerRow.createCell(8).setCellValue("luotu pvm");
-            headerRow.createCell(9).setCellValue("alkaa");
-            headerRow.createCell(10).setCellValue("loppuu");
-            headerRow.createCell(11).setCellValue("kesto");
-            headerRow.createCell(12).setCellValue("Arvosteluasteikko");
-            headerRow.createCell(13).setCellValue("status");
-            headerRow.createCell(14).setCellValue("liitetiedosto");
-            headerRow.createCell(15).setCellValue("ohjeet");
-            headerRow.createCell(16).setCellValue("jaettu");
-
-            Row dataRow = sheet.createRow(1);
-            if(exam.getCreator() != null) {
-                dataRow.createCell(0).setCellValue(exam.getCreator().getId() != null ? exam.getCreator().getId().toString() : "");
-                dataRow.createCell(1).setCellValue(exam.getCreator().getFirstName() != null ? exam.getCreator().getFirstName() : "");
-                dataRow.createCell(2).setCellValue(exam.getCreator().getLastName() != null ? exam.getCreator().getLastName() : "");
-            } else {
-                dataRow.createCell(0).setCellValue("");
-                dataRow.createCell(1).setCellValue("");
-                dataRow.createCell(2).setCellValue("");
-            }
-            if(exam.getCourse() != null) {
-                dataRow.createCell(3).setCellValue(exam.getCourse().getId() == null ? "" : exam.getCourse().getId().toString());
-                dataRow.createCell(4).setCellValue(exam.getCourse().getName() == null ? "" : exam.getCourse().getName());
-                dataRow.createCell(5).setCellValue(exam.getCourse().getCredits() == null ? "" : Integer.toString(exam.getCourse().getCredits().intValue()));
-                dataRow.createCell(6).setCellValue(exam.getCourse().getCourseUnitType() == null ? "NULL" : exam.getCourse().getCourseUnitType());   // what is this, after integratio ?
-                dataRow.createCell(7).setCellValue(exam.getCourse().getLevel() == null ? "" : exam.getCourse().getLevel());
-            } else {
-                dataRow.createCell(3).setCellValue("");
-                dataRow.createCell(4).setCellValue("");
-                dataRow.createCell(5).setCellValue("");
-                dataRow.createCell(6).setCellValue("");   // what is this, after integratio ?
-                dataRow.createCell(7).setCellValue("");
-            }
-            dateCell(wb, dataRow, 8, exam.getCreated(), "dd.MM.yyyy");
-            dateCell(wb, dataRow, 9, exam.getExamActiveStartDate(), "dd.MM.yyyy");
-            dateCell(wb, dataRow, 10, exam.getExamActiveEndDate(), "dd.MM.yyyy");
-
-            dataRow.createCell(11).setCellValue(exam.getDuration() == null ? "NULL" : exam.getDuration().toString());
-            dataRow.createCell(12).setCellValue(exam.getGrading());
-            dataRow.createCell(13).setCellValue(exam.getState());
-
-            if (exam.getAttachment() == null)
-                dataRow.createCell(14).setCellValue("");
-            else
-                dataRow.createCell(14).setCellValue(exam.getAttachment().getFilePath() + exam.getAttachment().getFileName());
-            dataRow.createCell(15).setCellValue(exam.getInstruction());
-            dataRow.createCell(16).setCellValue(exam.isShared());
-
-            response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-
-            return ok(com.ning.http.util.Base64.encode(setData(wb, file).toByteArray()));
-
-        } else if(reportType.equals("json")) {
-            if (exam == null) {
-                return notFound();
-            }
-
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
-            options.setPathProperties("parent", "id");
-            options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
-            options.setPathProperties("room", "id, name");
-            options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("examType", "id, type");
-            options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
-            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
-            options.setPathProperties("examSections.questions.answer", "type, option, answer");
-            options.setPathProperties("examSections.questions.answer.option", "id, option, correctOption, score");
-            options.setPathProperties("examSections.questions.options", "id, option" );
-            options.setPathProperties("examSections.questions.comments", "id, comment");
-            options.setPathProperties("examFeedback", "id, comment");
-
-            File file = new File(basePath + "tentti_" + exam.getName().toLowerCase().replace(" ", "-") + ".json");
-//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-            FileOutputStream stream = null;
-            PrintStream out = null;
-            String content = null;
-            try {
-                content = jsonContext.toJsonString(exam, true, options);
-
-                stream = new FileOutputStream(file);
-                out = new PrintStream(stream);
-                out.print(content);
-
-                out.close();
-                stream.close();
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-           /* try {
-                FileWriter writer = new FileWriter(file);
-                String content = jsonContext.toJsonString(exam, true, options);
-                writer.write(content);
-                InputStream fis = new FileInputStream(file);
-
-                byte[] buf = new byte[1024];
-
-                for (int readNum; (readNum = fis.read(buf)) != -1; ) {
-                    bos.write(buf, 0, readNum);
+                Row dataRow = sheet.createRow(1);
+                if (exam.getCreator() != null) {
+                    dataRow.createCell(0).setCellValue(exam.getCreator().getId() != null ? exam.getCreator().getId().toString() : "");
+                    dataRow.createCell(1).setCellValue(exam.getCreator().getFirstName() != null ? exam.getCreator().getFirstName() : "");
+                    dataRow.createCell(2).setCellValue(exam.getCreator().getLastName() != null ? exam.getCreator().getLastName() : "");
+                } else {
+                    dataRow.createCell(0).setCellValue("");
+                    dataRow.createCell(1).setCellValue("");
+                    dataRow.createCell(2).setCellValue("");
                 }
+                if (exam.getCourse() != null) {
+                    dataRow.createCell(3).setCellValue(exam.getCourse().getId() == null ? "" : exam.getCourse().getId().toString());
+                    dataRow.createCell(4).setCellValue(exam.getCourse().getName() == null ? "" : exam.getCourse().getName());
+                    dataRow.createCell(5).setCellValue(exam.getCourse().getCredits() == null ? "" : Integer.toString(exam.getCourse().getCredits().intValue()));
+                    dataRow.createCell(6).setCellValue(exam.getCourse().getCourseUnitType() == null ? "NULL" : exam.getCourse().getCourseUnitType());   // what is this, after integratio ?
+                    dataRow.createCell(7).setCellValue(exam.getCourse().getLevel() == null ? "" : exam.getCourse().getLevel());
+                } else {
+                    dataRow.createCell(3).setCellValue("");
+                    dataRow.createCell(4).setCellValue("");
+                    dataRow.createCell(5).setCellValue("");
+                    dataRow.createCell(6).setCellValue("");   // what is this, after integratio ?
+                    dataRow.createCell(7).setCellValue("");
+                }
+                dateCell(wb, dataRow, 8, exam.getCreated(), "dd.MM.yyyy");
+                dateCell(wb, dataRow, 9, exam.getExamActiveStartDate(), "dd.MM.yyyy");
+                dateCell(wb, dataRow, 10, exam.getExamActiveEndDate(), "dd.MM.yyyy");
 
-                fis.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }*/
+                dataRow.createCell(11).setCellValue(exam.getDuration() == null ? "NULL" : exam.getDuration().toString());
+                dataRow.createCell(12).setCellValue(exam.getGrading());
+                dataRow.createCell(13).setCellValue(exam.getState());
 
-            response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-//            return ok(com.ning.http.util.Base64.encode(bos.toByteArray()));
-            return ok(com.ning.http.util.Base64.encode(content.getBytes()));
-//            return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+                if (exam.getAttachment() == null)
+                    dataRow.createCell(14).setCellValue("");
+                else
+                    dataRow.createCell(14).setCellValue(exam.getAttachment().getFilePath() + exam.getAttachment().getFileName());
+                dataRow.createCell(15).setCellValue(exam.getInstruction());
+                dataRow.createCell(16).setCellValue(exam.isShared());
 
+                response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+
+                result = ok(com.ning.http.util.Base64.encode(setData(wb, file).toByteArray()));
+                break;
+            case "json":
+                if (exam == null) {
+                    result = notFound();
+                    break;
+                }
+                JsonContext jsonContext = Ebean.createJsonContext();
+                JsonWriteOptions options = new JsonWriteOptions();
+                options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
+                        "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
+                options.setPathProperties("parent", "id");
+                options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
+                options.setPathProperties("room", "id, name");
+                options.setPathProperties("attachment", "id, fileName");
+                options.setPathProperties("examType", "id, type");
+                options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
+                options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
+                options.setPathProperties("examSections.questions.answer", "type, option, answer");
+                options.setPathProperties("examSections.questions.answer.option", "id, option, correctOption, score");
+                options.setPathProperties("examSections.questions.options", "id, option");
+                options.setPathProperties("examSections.questions.comments", "id, comment");
+                options.setPathProperties("examFeedback", "id, comment");
+
+                file = new File(basePath + "tentti_" + exam.getName().toLowerCase().replace(" ", "-") + ".json");
+                String content = jsonContext.toJsonString(exam, true, options);
+                try (FileOutputStream fos = new FileOutputStream(file); PrintStream ps = new PrintStream(fos)) {
+                        ps.print(content);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+                result = ok(com.ning.http.util.Base64.encode(content.getBytes()));
+                break;
+            default:
+                result = ok("invalid type: " + reportType);
+                break;
         }
-        else
-            return ok("invalid type: "+ reportType);
+        return result;
     }
 
     /**
@@ -257,8 +223,8 @@ public class StatisticsController extends SitnetController {
         final DateTime start = DateTime.parse(from, dateFormat);
         final DateTime end = DateTime.parse(to, dateFormat);
 
-        String s = from.toString().replace(".", "-");
-        String t = to.toString().replace(".", "-");
+        String s = from.replace(".", "-");
+        String t = to.replace(".", "-");
         String name = "luodut_tentit_" + s + "_" + t;
 
         List<Exam> exams = Ebean.find(Exam.class)
@@ -352,18 +318,12 @@ public class StatisticsController extends SitnetController {
 
                         sheet.autoSizeColumn(i,true);
 
-                        String type = "",
-                               code = "",
-                               state = "",
-                               examname = "",
-                               credits = "";
-
                         // null checking to prevent excel from failing ->
-                        type = e.getExamType() != null && e.getExamType().getType() != null ? e.getExamType().getType() : "";
-                        code = e.getCourse() != null && e.getCourse().getCode() != null ? e.getCourse().getCode() : "";
-                        state = e.getState() != null ? e.getState() : "";
-                        examname = e.getName() != null ? e.getName() : "";
-                        credits = e.getCourse() != null && e.getCourse().getCredits() != null ? Integer.toString(e.getCourse().getCredits().intValue()) : "";
+                        String type = e.getExamType() != null && e.getExamType().getType() != null ? e.getExamType().getType() : "";
+                        String code = e.getCourse() != null && e.getCourse().getCode() != null ? e.getCourse().getCode() : "";
+                        String state = e.getState() != null ? e.getState() : "";
+                        String examname = e.getName() != null ? e.getName() : "";
+                        String credits = e.getCourse() != null && e.getCourse().getCredits() != null ? Integer.toString(e.getCourse().getCredits().intValue()) : "";
 
                         switch(i) {
                             case 0: addCell(dataRow, i, examname); break;
@@ -396,14 +356,12 @@ public class StatisticsController extends SitnetController {
      * ja klon aika,
      * suoritusaika
      * (vastauksen tallettumisen pvm ja klo).
-
-     Kysymys: löytyykö tietoa varauksen peruuttamisesta,
-     eli jos joku on varannut tietylle tentille paikan mutta peruuttanut sen?
-     Jos löytyy niin siitäkin olisi kiva saada varauksen statustieto: peruutettu.
-
-     Tällä olisi tarpeen saada kiinni myös sellaiset jotka ovat varanneet tenttiin paikan mutta eivät ole peruneet sitä eivätkä tule tenttiin lainkaan.
-     * @param id
-     * @return
+     *
+     * Kysymys: löytyykö tietoa varauksen peruuttamisesta,
+     * eli jos joku on varannut tietylle tentille paikan mutta peruuttanut sen?
+     * Jos löytyy niin siitäkin olisi kiva saada varauksen statustieto: peruutettu.
+     *
+     * Tällä olisi tarpeen saada kiinni myös sellaiset jotka ovat varanneet tenttiin paikan mutta eivät ole peruneet sitä eivätkä tule tenttiin lainkaan.
      */
     @Restrict({@Group("ADMIN")})
     public static Result getExamEnrollments(Long id) {
@@ -539,8 +497,8 @@ public class StatisticsController extends SitnetController {
         final DateTime start = DateTime.parse(from, dateFormat);
         final DateTime end = DateTime.parse(to, dateFormat);
 
-        String s = from.toString().replace(".", "-");
-        String t = to.toString().replace(".", "-");
+        String s = from.replace(".", "-");
+        String t = to.replace(".", "-");
         String name = "suoritukset_" + s + "_" + t;
 
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
@@ -594,13 +552,9 @@ public class StatisticsController extends SitnetController {
 
                     sheet.autoSizeColumn(i,true);
 
-                    String code = "",
-                           courseName = "",
-                           credits = "";
-
-                    code = e.getExam().getCourse() == null || e.getExam().getCourse().getCode() == null ? "" : e.getExam().getCourse().getCode();
-                    courseName = e.getExam().getCourse() == null || e.getExam().getCourse().getName() == null ? "" : e.getExam().getCourse().getName();
-                    credits = e.getExam().getCourse() == null || e.getExam().getCourse().getCredits() == null ? "" : Integer.toString(e.getExam().getCourse().getCredits().intValue());
+                    String code = e.getExam().getCourse() == null || e.getExam().getCourse().getCode() == null ? "" : e.getExam().getCourse().getCode();
+                    String courseName = e.getExam().getCourse() == null || e.getExam().getCourse().getName() == null ? "" : e.getExam().getCourse().getName();
+                    String credits = e.getExam().getCourse() == null || e.getExam().getCourse().getCredits() == null ? "" : Integer.toString(e.getExam().getCourse().getCredits().intValue());
 
                     switch(i) {
                         case 0: addCell(dataRow, i, e.getUser().getFirstName() + " " + e.getUser().getLastName()); break;
@@ -835,7 +789,7 @@ public class StatisticsController extends SitnetController {
         headerRow.createCell(i++).setCellValue("arvosana-asteikko");
         headerRow.createCell(i++).setCellValue("arvosana");
         headerRow.createCell(i++).setCellValue("arvioitu pvm");
-        headerRow.createCell(i++).setCellValue("Suoritustyyppi");
+        headerRow.createCell(i).setCellValue("Suoritustyyppi");
 
         if(!CollectionUtils.isEmpty(participations)) {
             for (ExamParticipation p : participations) {
@@ -960,7 +914,7 @@ public class StatisticsController extends SitnetController {
                     dataRow.createCell(j++).setCellValue("");
                 }
 
-                dataRow.createCell(j++).setCellValue(p.getExam().getCreditType() == null ? "" : p.getExam().getCreditType());
+                dataRow.createCell(j).setCellValue(p.getExam().getCreditType() == null ? "" : p.getExam().getCreditType());
 
             }
         }
@@ -977,8 +931,8 @@ public class StatisticsController extends SitnetController {
         String basePath = playPath + "/" + reportsPath +"/";
 
         File dir = new File(basePath);
-        if (!dir.exists()) {
-            dir.mkdirs();
+        if (dir.mkdirs()) {
+            Logger.info("Report directory created");
         }
     }
 
@@ -1035,7 +989,7 @@ public class StatisticsController extends SitnetController {
         headerRow.createCell(index++).setCellValue("Etunimi");
         headerRow.createCell(index++).setCellValue("Sukunimi");
         headerRow.createCell(index++).setCellValue("Email");
-        headerRow.createCell(index++).setCellValue("Kieli");
+        headerRow.createCell(index).setCellValue("Kieli");
 
         Row dataRow = student_sheet.createRow(1);
 
@@ -1046,7 +1000,7 @@ public class StatisticsController extends SitnetController {
         dataRow.createCell(index++).setCellValue(student.getFirstName());
         dataRow.createCell(index++).setCellValue(student.getLastName());
         dataRow.createCell(index++).setCellValue(student.getEmail());
-        dataRow.createCell(index++).setCellValue(student.getUserLanguage().getNativeLanguageName());
+        dataRow.createCell(index).setCellValue(student.getUserLanguage().getNativeLanguageName());
 
         //***************************************************************
         //Participations sheet
@@ -1093,7 +1047,7 @@ public class StatisticsController extends SitnetController {
         headerRow.createCell(index++).setCellValue("arvosana-asteikko");
         headerRow.createCell(index++).setCellValue("arvosana");
         headerRow.createCell(index++).setCellValue("arvioitu pvm");
-        headerRow.createCell(index++).setCellValue("Suoritustyyppi");
+        headerRow.createCell(index).setCellValue("Suoritustyyppi");
 
 
         for(ExamEnrolment rol : enrolments) {
@@ -1113,11 +1067,12 @@ public class StatisticsController extends SitnetController {
             dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getUser().getEmail());
 
             // teacher
-            if (pa != null && pa.getExam().getGradedByUser() != null) {
-                dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getExam().getGradedByUser().getId() + "");
-                dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getExam().getGradedByUser().getFirstName());
-                dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getExam().getGradedByUser().getLastName());
-                dataRow.createCell(index++).setCellValue(pa == null ? "" : pa.getExam().getGradedByUser().getEmail());
+            User gradedBy;
+            if (pa != null && (gradedBy = pa.getExam().getGradedByUser()) != null) {
+                dataRow.createCell(index++).setCellValue(gradedBy.getId() + "");
+                dataRow.createCell(index++).setCellValue(gradedBy.getFirstName());
+                dataRow.createCell(index++).setCellValue(gradedBy.getLastName());
+                dataRow.createCell(index++).setCellValue(gradedBy.getEmail());
             } else {
                 dataRow.createCell(index++).setCellValue("");
                 dataRow.createCell(index++).setCellValue("");
@@ -1173,8 +1128,6 @@ public class StatisticsController extends SitnetController {
                 dataRow.createCell(index++).setCellValue("");
             }
 
-
-
             dataRow.createCell(index++).setCellValue(rol.getExam().getCourse().getName());
             dataRow.createCell(index++).setCellValue(rol.getExam().getCourse().getCode());
             dataRow.createCell(index++).setCellValue(rol.getExam().getId());
@@ -1191,7 +1144,7 @@ public class StatisticsController extends SitnetController {
             else {
                 dataRow.createCell(index++).setCellValue("");
             }
-            dataRow.createCell(index++).setCellValue(rol.getExam().getCreditType());
+            dataRow.createCell(index).setCellValue(rol.getExam().getCreditType());
 
         }
 
