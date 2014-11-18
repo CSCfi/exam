@@ -89,16 +89,6 @@
                     );
                 };
 
-                $scope.newEssayQuestion = function () {
-                    $scope.questionTemplate = $scope.essayQuestionTemplate;
-                    $scope.newQuestion.type = "EssayQuestion";
-                    $scope.newQuestion.evaluationType = "Points";
-                    // Sanan keskimääräinen pituus = 7.5 merkkiä
-                    // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
-                    $scope.newQuestion.maxCharacters = 500;
-                    $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
-                };
-
                 $scope.estimateWords = function () {
                     $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
                 };

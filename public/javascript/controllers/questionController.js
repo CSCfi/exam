@@ -23,26 +23,6 @@
 
                 $scope.answerState = "";
 
-                $scope.setQuestionType = function () {
-                    switch ($scope.selectedType) {
-                        case 'EssayQuestion':
-                            $scope.questionTemplate = $scope.essayQuestionTemplate;
-                            $scope.newQuestion.type = "EssayQuestion";
-                            //$scope.newQuestion.evaluationType = "Points";
-                            // Sanan keskimääräinen pituus = 7.5 merkkiä
-                            // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
-                            //$scope.newQuestion.maxCharacters = 500;
-                            //$scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
-                            break;
-
-                        case 'MultipleChoiceQuestion':
-                            $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
-                            $scope.newQuestion.type = "MultipleChoiceQuestion";
-                            $scope.newQuestion.evaluationType = "Points";
-                            break;
-                    }
-                }
-
                 if($routeParams.editId) {
                     QuestionRes.questions.get({id: $routeParams.editId},
                         function (question) {
@@ -71,7 +51,24 @@
                     );
                 }
 
+                $scope.setQuestionType = function () {
+                    switch ($scope.selectedType) {
+                        case 'EssayQuestion':
+                            $scope.questionTemplate = $scope.essayQuestionTemplate;
+                            $scope.newQuestion.type = "EssayQuestion";
+                            $scope.newQuestion.evaluationType = "Points";
+                            // Sanan keskimääräinen pituus = 7.5 merkkiä
+                            // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
+                            $scope.newQuestion.maxCharacters = 500;
+                            $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
+                            break;
 
+                        case 'MultipleChoiceQuestion':
+                            $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
+                            $scope.newQuestion.type = "MultipleChoiceQuestion";
+                            break;
+                    }
+                }
 //                http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
                 $scope.createQuestion = function (type) {
                     var newQuestion = {
@@ -115,23 +112,6 @@
                             toastr.error(error.data);
                         }
                     );
-                };
-
-                $scope.checkMaxPoints = function(value) {
-                    if(value < 1)
-                        return false;
-                    else
-                        return true;
-                };
-
-                $scope.newEssayQuestion = function () {
-                    $scope.questionTemplate = $scope.essayQuestionTemplate;
-                    $scope.newQuestion.type = "EssayQuestion";
-                    $scope.newQuestion.evaluationType = "Points";
-                    // Sanan keskimääräinen pituus = 7.5 merkkiä
-                    // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
-                    $scope.newQuestion.maxCharacters = 500;
-                    $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
                 };
 
                 $scope.estimateWords = function () {
@@ -201,6 +181,7 @@
                     }
                 };
 
+
                 $scope.updateQuestion = function () {
 
                     // common to all type of questions
@@ -212,7 +193,7 @@
                         "shared": $scope.newQuestion.shared,
                         "instruction": $scope.newQuestion.instruction,
                         "evaluationCriterias": $scope.newQuestion.evaluationCriterias
-                    }
+                    };
 
                     // update question specific attributes
                     switch (questionToUpdate.type) {
@@ -222,7 +203,6 @@
                             break;
 
                         case 'MultipleChoiceQuestion':
-
                             break;
                     };
 

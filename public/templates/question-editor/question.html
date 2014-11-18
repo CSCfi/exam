@@ -12,31 +12,6 @@
         <div class="question-editor-form" style="padding: 2em">
             <div class="col-md-12">
                 <form name="questionForm" novalidate style="margin-bottom: 2em">
-                    <!--Commented out: SIT-414-->
-                    <!--<div class="row">-->
-                        <!--<div class="col-md-12">-->
-                            <!--<div class="sitnet-info-text">-->
-                                <!--<div class="checkbox">-->
-                                    <!--<label>-->
-                                        <!--<br>-->
-                                        <!--<input type="checkbox" ng-model="newQuestion.shared" ui-change="updateQuestion()"> {{'sitnet_share_this_question' | translate}}-->
-                                    <!--</label>-->
-                                <!--</div>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                    <!--<br>-->
-                    <!--<div class="row">-->
-                        <!--<div class="sitnet-info-text col-md-12">-->
-                            <!--{{'sitnet_question_type' | translate}}-->
-                            <!--<select  class="form-control" ng-model="selectedType" ng-change="setQuestionType()"-->
-                                     <!--ng-options="key as value for (key, value) in questionTypes"  >-->
-                            <!--</select>-->
-                        <!--</div>-->
-                    <!--</div>-->
-
-                    <!--<br>-->
-
                     <!-- Question header -->
                     <div class="row">
                         <div class="col-md-12">
@@ -52,47 +27,34 @@
 
                     <!-- Question fields -->
 
-                    <!-- Essay -->
+                    <!-- EVALUATION TYPE-->
                     <div ng-show="selectedType == 'EssayQuestion'">
                         <div class="sitnet-info-text">
                             {{'sitnet_evaluation_type' | translate}}
                             <div class="row">
                                 <div class="col-md-3">
                                     <select class="form-control" ng-model="newQuestion.evaluationType"
-                                        ui-change="updateQuestion(); questionForm.evaluationType.$valid ? updateQuestion() : false" required ng-pattern="/^(?!\s*$).+/">
+                                            ng-change="updateQuestion()" ng-required="selectedType == 'EssayQuestion'">
                                         <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
                                         <option value="Select">{{ 'sitnet_evaluation_select' | translate }}</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
-                        <!-- POINTS -->
-                        <div class="sitnet-info-text" ng-show="selectedType == 'EssayQuestion' && newQuestion.evaluationType == 'Points'">
-                            {{'sitnet_max_score' | translate}}
-                            <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero ja suurempi kuin 0</label>
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <input name="maxScore" type="number" class="col-md-2 form-control" ng-model="newQuestion.maxScore"
-                                           ng-change="checkMaxPoints(newQuestion.maxScore)" ui-change="questionForm.maxScore.$valid ? updateQuestion() : false"
-                                           min="1" required>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- SELECT -->
-                        <div class="sitnet-info-text" ng-show="selectedType == 'EssayQuestion' && newQuestion.evaluationType == 'Points'" ng-model="newQuestion.maxScore">
-                        </div>
                     </div>
 
-                    <!-- Multi -->
-                    <div ng-show="selectedType == 'MultipleChoiceQuestion'">
+                    <!-- POINTS -->
+                    <div ng-show="selectedType == 'MultipleChoiceQuestion' ||  newQuestion.evaluationType == 'Points'">
                         <div class="sitnet-info-text">
                             {{'sitnet_max_score' | translate}}
-                            <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero ja suurempi kuin 0</label>
+                            <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero ja
+                                suurempi kuin 0</label>
                             <div class="row">
-                                <div class="col-md-2">
-                                    <input name="maxScore" type="number" class="col-md-2 form-control" ng-model="newQuestion.maxScore"
-                                           ng-change=checkMaxPoints(newQuestion.maxScore)" ui-change="questionForm.maxScore.$valid ? updateQuestion() : false"
-                                           min="1" required>
+                                <div class="col-md-3">
+                                    <input name="maxScore" type="text" class="col-md-2 form-control"
+                                           ng-model="newQuestion.maxScore"
+                                           ng-pattern="/^([1-9][0-9]*)$/"
+                                           ng-required="newQuestion.evaluationType=='Points'">
                                 </div>
                             </div>
                         </div>
