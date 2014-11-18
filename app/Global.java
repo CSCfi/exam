@@ -185,9 +185,8 @@ public class Global extends GlobalSettings {
 
         User user = Ebean.find(User.class, session.getUserId());
         if (user != null) {
-            String csrfToken = SitnetUtil.encodeMD5(user.getUserIdentifier());
-            if (!csrfToken.equals(request.getHeader("X-XSRF-TOKEN"))) {
-                // Cross site forgery attempt?
+            if (!session.getXsrfToken().equals(request.getHeader("X-XSRF-TOKEN"))) {
+                // Cross site request forgery attempt?
                 Logger.warn("XSRF-TOKEN mismatch!");
                 return new Action.Simple() {
 
@@ -196,7 +195,7 @@ public class Global extends GlobalSettings {
                         F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
                             @Override
                             public SimpleResult apply() throws Throwable {
-                                return Action.badRequest("");
+                                return Action.badRequest("WARNING: Can't verify CSRF token authenticity!");
                             }
                         });
                         return promise;

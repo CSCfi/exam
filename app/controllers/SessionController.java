@@ -170,6 +170,7 @@ public class SessionController extends SitnetController {
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
         session.setValid(true);
+        session.setXsrfToken();
         Cache.set(SITNET_CACHE_KEY + token, session);
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
@@ -178,7 +179,7 @@ public class SessionController extends SitnetController {
         result.put("lastname", user.getLastName());
         result.put("roles", Json.toJson(user.getRoles()));
         result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
-        response().setCookie("XSRF-TOKEN", SitnetUtil.encodeMD5(user.getUserIdentifier()));
+        response().setCookie("XSRF-TOKEN", session.getXsrfToken());
         return ok(result);
     }
 
