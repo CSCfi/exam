@@ -79,7 +79,7 @@
             <div class="col-md-12">
                 <div class="sitnet-info-text">{{'sitnet_exam_record_language' | translate}}</div>
                 <select name="answerLanguage" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedLanguage"
-                        ng-change="setLanguage(selectedLanguage)" data-placeholder="{{'sitnet_exam_record_language' | translate}}" required>
+                    ng-change="setLanguage(selectedLanguage)" data-placeholder="{{'sitnet_exam_record_language' | translate}}" required>
                     <option value=""></option>
                     <option ng-repeat="lang in languages" value="{{lang}}">{{lang}}</option>
                 </select>
@@ -181,7 +181,7 @@
                 <div class="col-md-4">
                     <div style="padding-left: 1em">
                         <button ng-click="examReviewReady(examToBeReviewed)"
-                                ng-disabled="!isCreator() || examToBeReviewed.state =='GRADED_LOGGED' || !examForm.$valid"
+                                ng-disabled="!isCreator() || examToBeReviewed.state =='GRADED_LOGGED' || !examForm.$valid || examForm.answerLanguage.$pristine"
                                 class="btn btn-primary">{{'sitnet_exam_save_review' | translate}}
                         </button>
                     </div>
@@ -193,7 +193,7 @@
                                 <input type="checkbox" ng-model="sendReviewFeedback" checked/></div>
                         </div>
                         <button ng-click="saveExamRecord(examToBeReviewed)"
-                                ng-disabled="!isCreator() || examToBeReviewed.state =='GRADED_LOGGED' || !examForm.$valid"
+                                ng-disabled="!isCreator() || examToBeReviewed.state =='GRADED_LOGGED' || !examForm.$valid || examForm.answerLanguage.$pristine"
                                 class="btn btn-warning pull-right top-margin-1">{{'sitnet_exam_save_register' |
                             translate}}
                         </button>
