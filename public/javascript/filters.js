@@ -20,13 +20,17 @@
             return function(html) {
                 var div = document.createElement("div");
                 div.innerHTML = html;
-                var text = div.textContent || div.innerText || "";
-                return text.replace(/(^"|"$|\\n)/g,"").replace(/\s+/g, ' ').trim();
+                return div.textContent || div.innerText || "";
+            };
+        })
+        .filter('charcount', function() {
+            return function(text) {
+                return text.replace(/(^"|"$|\\n)/g,"").replace(/\s+/g, ' ').trim().length;
             };
         })
         .filter('wordcount', function() {
             return function(text) {
-                return text.split(" ").length;
+                return text.replace(/(\S\.)(?!\s)/g, "$1 ").replace(/(^"|"$|\\n)/g, '').match(/\S+/g).length;
             };
         });
 }());

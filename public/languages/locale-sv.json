@@ -347,7 +347,11 @@
     "sitnet_error_no_enrolments_for_exam": "Anmälningar för tenten finns ej",
     "sitnet_error_creating_exam": "Systemfel vid skapning av tenten",
     "sitnet_error_invalid_session": "Felaktig session",
-    "sitnet_feedback": "Palaute"
+    "sitnet_feedback": "Palaute",
+
+    "sitnet_approximately": "Ungefärt",
+    "sitnet_words": "ord",
+    "sitnet_characters": "tecknen"
 
 
 
