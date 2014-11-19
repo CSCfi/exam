@@ -16,6 +16,8 @@
             </div>
 
             <div class="col-md-12" ng-bind-html="removeNewLines({{question.answer.answer}})"></div>
+            <div class="col-md-12 sitnet-info-text">Total: {{ question.answer.answer | striphtml | wordcount }} words, {{
+                (question.answer.answer | striphtml).length }} characters. </div>
         </div>
 
         <!--Teacher evaluation criterias, points and feedback-->
