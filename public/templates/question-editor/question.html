@@ -1,7 +1,10 @@
 <div id="question-editor" ng-controller="QuestionCtrl">
     <div id="sitnet-header" class="header">
         <div class="header-wrapper col-md-9">
-                <span ng-show="newQuestion.state == 'NEW' ? true : false" class="header-text">{{'sitnet_questions_new' | translate}}</span>
+                <div ng-show="newQuestion.state == 'NEW' ? true : false">
+                    <span ng-show="selectedType == 'EssayQuestion'" class="header-text">{{'sitnet_questions_new_essay' | translate}}</span>
+                    <span ng-show="selectedType == 'MultipleChoiceQuestion'" class="header-text">{{'sitnet_questions_new_multiplechoice' | translate}}</span>
+                </div>
                 <span ng-hide="newQuestion.state == 'NEW' ? true : false" class="header-text">{{'sitnet_questions_edit' | translate}}</span>
         </div>
         <div class="header-wrapper col-md-3">

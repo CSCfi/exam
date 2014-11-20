@@ -351,8 +351,8 @@
 
     "sitnet_approximately": "Ungefärt",
     "sitnet_words": "ord",
-    "sitnet_characters": "tecknen"
-
-
+    "sitnet_characters": "tecken",
+    "sitnet_questions_new_essay": "Ny essäfråga",
+    "sitnet_questions_new_multiplechoice": "Ny alternativfråga"
 
 }

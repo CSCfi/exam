@@ -352,9 +352,9 @@
 
     "sitnet_approximately": "Approximately",
     "sitnet_words": "words",
-    "sitnet_characters": "characters"
-
-
+    "sitnet_characters": "characters",
+    "sitnet_questions_new_essay": "New essay question",
+    "sitnet_questions_new_multiplechoice": "New multiple choice question"
 
 
 }

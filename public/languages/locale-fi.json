@@ -351,9 +351,9 @@
 
     "sitnet_approximately": "Arviolta",
     "sitnet_words": "sanaa",
-    "sitnet_characters": "merkkiä"
-
-
+    "sitnet_characters": "merkkiä",
+    "sitnet_questions_new_essay": "Uusi esseekysymys",
+    "sitnet_questions_new_multiplechoice": "Uusi monivalintakysymys"
 
 
 }
