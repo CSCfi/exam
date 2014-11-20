@@ -76,16 +76,24 @@
                                   placeholder="{{'sitnet_correct_answer_should_have' | translate}}">
                         </textarea>
                     </div>
+
                     <div ng-controller="AttachmentController">
-                        <div class="sitnet-info-text">
-                            {{'sitnet_question_attachment' | translate}}
+                        <div class="row sitnet-info-text">
+                            <div class="col-md-3">{{ 'sitnet_question_attachment' | translate }}</div>
+                            <div class="col-md-9">
+                                <button ng-click="selectFile()"
+                                    class="btn btn-primary">{{ 'sitnet_attach_file' | translate }}
+                                </button>
+                            </div>
                         </div>
-                        <div ng-show="newQuestion.attachment !== null">
-                            <a class="pointer" ng-click="downloadQuestionAttachment(newQuestion)">{{newQuestion.attachment.fileName}}  </a>
-                            <span class="sitnet-red pointer" ng-click="removeQuestionAttachment(newQuestion)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
+                        <div ng-show="newQuestion.attachment !== null" class="row col-md-12">
+                            <a class="pointer"
+                               ng-click="downloadQuestionAttachment(newQuestion)">{{ newQuestion.attachment.fileName }}</a>
+                            <span class="sitnet-red pointer"
+                               ng-click="removeQuestionAttachment(newQuestion)">
+                                <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
+                            </span>
                         </div>
-                        <br>
-                        <button ng-click="selectFile()" class="btn btn-primary pull-left">{{'sitnet_attach_file' | translate}}</button>
                     </div>
 
                      <!--ng-show="selectedType"-->
