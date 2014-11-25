@@ -338,7 +338,7 @@
     "sitnet_attachment_not_chosen": "Ingen bilag vald",
     "sitnet_unable_to_remove_reservation": "Omöjligt att radera bokning eftersom den är associerad med tentanmälan",
     "sitnet_error_creating_attachment": "Systemfel vid skapning av bilag",
-    "sitnet_error_no_reservation_for_user": "Bokning for användaren finns ej"
+    "sitnet_error_no_reservation_for_user": "Bokning for användaren finns ej",
     "sitnet_error_access_forbidden": "Du är inte tillåten att utföra operationen",
     "sitnet_error_enrolment_exists": "Du har redan anmält dig",
     "sitnet_error_exam_not_found": "Tenten finns ej",
