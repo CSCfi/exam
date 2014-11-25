@@ -38,7 +38,6 @@ public class Global extends GlobalSettings {
     public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 15;
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
 
-
     @Override
     public void onStart(Application app) {
 
@@ -154,18 +153,19 @@ public class Global extends GlobalSettings {
 
     @Override
     public Action onRequest(Request request, Method actionMethod) {
-
-
-        String token = request.getHeader(SITNET_TOKEN_HEADER_KEY);
+        String loginType = ConfigFactory.load().getString("sitnet.login");
+        String token =  request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
         AuditLogger.log(request, actionMethod, session);
 
         if(session == null) {
+            Logger.info("Session with token {} not found", token);
             return super.onRequest(request, actionMethod);
         }
 
         //ugh, this works, apparently. I don't like play.
         if (!session.isValid()) {
+            Logger.warn("Session #{} is marked as invalid", token);
             return new Action.Simple() {
                 public Promise<SimpleResult> call(final Http.Context ctx) throws Throwable {
                     F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
@@ -188,7 +188,8 @@ public class Global extends GlobalSettings {
             if (!session.getXsrfToken().equals(request.getHeader("X-XSRF-TOKEN"))) {
                 // Cross site request forgery attempt?
                 Logger.warn("XSRF-TOKEN mismatch!");
-                return new Action.Simple() {
+                // Lets not go too there just yet, looks like this happens with HAKA logins if user opens a new tab
+                /*return new Action.Simple() {
 
                     @Override
                     public Promise<SimpleResult> call(Http.Context context) throws Throwable {
@@ -200,7 +201,7 @@ public class Global extends GlobalSettings {
                         });
                         return promise;
                     }
-                };
+                };*/
             }
         }
         if (user == null || !user.hasRole("STUDENT")) {
