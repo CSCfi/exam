@@ -18,7 +18,9 @@
                     <!-- Question header -->
                     <div class="row">
                         <div class="col-md-12">
-                            <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question" ui-change="updateQuestion()" placeholder="{{'sitnet_question_write_name' | translate}}">
+                            <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question"
+                                      ui-change="updateQuestion()"
+                                      required placeholder="{{'sitnet_question_write_name' | translate}}">
                             </textarea>
                         </div>
                     </div>
@@ -50,11 +52,12 @@
                     <div ng-show="selectedType == 'MultipleChoiceQuestion' ||  newQuestion.evaluationType == 'Points'">
                         <div class="sitnet-info-text">
                             {{'sitnet_max_score' | translate}}
-                            <label ng-hide="questionForm.maxScore.$valid"> kentän arvon on oltava numero ja
-                                suurempi kuin 0</label>
+                            <label ng-hide="questionForm.maxScore.$valid">{{ 'sitnet_positive_integer_required'
+                                |translate }}</label>
                             <div class="row">
                                 <div class="col-md-3">
                                     <input name="maxScore" type="text" class="col-md-2 form-control"
+                                           ui-change="updateQuestion()"
                                            ng-model="newQuestion.maxScore"
                                            ng-pattern="/^([1-9][0-9]*)$/"
                                            ng-required="newQuestion.evaluationType=='Points'">

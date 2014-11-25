@@ -76,13 +76,13 @@
                         function (value) {
 
                             if (value.length > 0) {
-                                toastr.success("Päätä avoin tentti ennen uloskirjautumista");
+                                toastr.success($translate('sitnet_finish_exam_before_logout'));
                             } else {
                                 $scope.dologout();
                             }
                         },
                         function (error) {
-                            toastr.success(error, "Jotain odottamatonta tapahtui!");
+                            toastr.success(error, $translate('sitnet_internal_error'));
                         });
                 };
 

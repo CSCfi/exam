@@ -335,7 +335,7 @@
                             // Todo: tässä vaiheessa pitäisi tehdä paljon muitakin tarkistuksia
 
 
-                            toastr.info("Tentti palautettu");
+                            toastr.info($translate('sitnet_exam_returned'));
                             $location.path("/home/");
 
                         }, function () {
@@ -351,7 +351,7 @@
                         $rootScope.$broadcast('endExam');
 
                         StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
-                            toastr.info("Tentti keskeytetty.");
+                            toastr.info($translate('sitnet_exam_aborted'));
                             $location.path("/home/");
 
                         }, function () {
@@ -363,7 +363,7 @@
                 // SIT-657, temporary solution
                 $scope.logoutFromExam = function (doexam) {
 
-                    if (confirm('Oletko varma että haluat kuirjautua ulos?')) {
+                    if (confirm($translate('sitnet_confirm_logout'))) {
 
                         $location.path("/logout/");
 
@@ -378,7 +378,7 @@
                     StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id},
                         function (updated_answer) {
                             question.answer = updated_answer;
-                            toastr.info("Vastaus lisätty kysymykseen.");
+                            toastr.info($translate('sitnet_question_answered'));
                         }, function (error) {
 
                         });
@@ -395,7 +395,7 @@
                     var msg = {};
                     msg.answer = answer;
                     StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
-                        toastr.info("Vastaus lisätty kysymykseen.");
+                        toastr.info($translate("sitnet_question_answered"));
                     }, function () {
 
                     });
@@ -491,7 +491,7 @@
                         if ($scope.timeChecked === true && $scope.remainingTime < 0) {
                             $timeout.cancel(remainingTimePoller);
                             StudentExamRes.exams.update({id: $scope.doexam.id}, function () {
-                                toastr.info("Tentti palautettu");
+                                toastr.info($translate("sitnet_exam_returned"));
                                 $scope.doexam = null;
                                 $location.path("/home/");
                             }, function () {
@@ -566,7 +566,7 @@
                                 function (updated_answer) {
                                     question.answer = updated_answer;
                                     $scope.questionTemp.answer = updated_answer;
-                                    toastr.info("Vastaus lisätty kysymykseen.");
+                                    toastr.info($translate("sitnet_question_answered"));
                                 }, function (error) {
                                 });
 

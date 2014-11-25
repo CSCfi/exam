@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('TimepickerController', ['$scope', '$routeParams', 'RoomResource', 'dateService',
-            function ($scope, $routeParams, RoomResource, dateService) {
+        .controller('TimepickerController', ['$scope', '$routeParams', 'RoomResource', 'dateService', '$translate',
+            function ($scope, $routeParams, RoomResource, dateService, $translate) {
 
                 $scope.dateService = dateService;
                 $scope.exceptionStartTime = new Date();
@@ -46,7 +46,7 @@
 
                     if ($scope.endTime < $scope.startTime) {
                         $scope.endTime = $scope.startTime;
-                        toastr.success("Loppuaika ei voi olla pienempi kuin alkuaika!");
+                        toastr.error($translate('sitnet_endtime_before_starttime'));
                     }
 
                     console.log('End time changed to: ' + $scope.endTime);
@@ -69,7 +69,7 @@
 
                     if ($scope.exceptionEndTime < $scope.exceptionStartTime) {
                         $scope.exceptionEndTime = $scope.exceptionStartTime;
-                        toastr.success("Loppuaika ei voi olla pienempi kuin alkuaika!");
+                        toastr.error($translate('sitnet_endtime_before_starttime'));
                     }
 
                     console.log('Exception end time changed to: ' + $scope.exceptionEndTime);
@@ -83,7 +83,7 @@
 
                     RoomResource.workinghours.update({id: calendarEvent.id}, calendarEvent,
                             function (workingHours) {
-                            toastr.info("Tenttitilan oletusajat päivitetty.");
+                            toastr.info($translate('sitnet_default_opening_hours_updated'));
                             console.log('Updated start time hours: ' + workingHours.startTime);
                         },
                         function (error) {

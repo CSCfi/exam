@@ -109,7 +109,7 @@
                                 // if there's an error you should see it here
                             });
                     } else {
-                        toastr.error("Valitse opiskelija");
+                        toastr.error($translate('sitnet_choose_student'));
                     }
                 };
 
@@ -157,7 +157,7 @@
                                 // if there's an error you should see it here
                             });
                     } else {
-                        toastr.error("Valitse tentti");
+                        toastr.error($translate('sitnet_choose_exam'));
                     }
                 };
 
@@ -180,7 +180,7 @@
                                 // if there's an error you should see it here
                             });
                     } else {
-                        toastr.error("Valitse tentti");
+                        toastr.error($translate('sitnet_choose_exam'));
                     }
                 };
 
@@ -228,7 +228,7 @@
                                 // if there's an error you should see it here
                             });
                     } else {
-                        toastr.error("Valitse opettaja");
+                        toastr.error($translate('sitnet_choose_teacher'));
                     }
                 };
 
@@ -254,7 +254,7 @@
                                 // if there's an error you should see it here
                             });
                     } else {
-                        toastr.error("Valitse tila");
+                        toastr.error($translate('sitnet_choose_room'));
                     }
                 };
 

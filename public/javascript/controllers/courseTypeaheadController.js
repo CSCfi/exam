@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CourseTypeaheadCtrl', ['$http', '$scope', 'limitToFilter', 'CourseRes', 'ExamRes',
-            function ($http, $scope, limitToFilter, CourseRes, ExamRes) {
+        .controller('CourseTypeaheadCtrl', ['$http', '$scope', 'limitToFilter', 'CourseRes', 'ExamRes', '$translate',
+            function ($http, $scope, limitToFilter, CourseRes, ExamRes, $translate) {
 
             $scope.getCourses = function(filter, criteria) {
                 return CourseRes.courses.query({filter: filter, q: criteria}).$promise.then(
@@ -23,7 +23,7 @@
                 console.log(exam);
 
                 ExamRes.course.update({eid: exam.id, cid: $item.id}, function (updated_exam) {
-                    toastr.success("Kurssi lisätty tenttiin.");
+                    toastr.success($translate('sitnet_exam_associated_with_course'));
                     $scope.newExam = updated_exam;
                 }, function (error) {
                     toastr.error(error.data);
