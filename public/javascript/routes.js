@@ -28,7 +28,7 @@
             /* extra */
             $routeProvider.when('/user', { templateUrl: tmpl + 'user.html', controller: 'UserCtrl'});
             $routeProvider.when('/login', { templateUrl: tmpl + 'login.html', controller: 'SessionCtrl' });
-            $routeProvider.when('/logout', { templateUrl: tmpl + 'logout.html', controller: 'SessionCtrl' });
+            $routeProvider.when('/logout', { templateUrl: tmpl + 'login.html', controller: 'SessionCtrl' });
             $routeProvider.when('/machines/:id', { templateUrl: tmpl + 'admin/machine.html', controller: 'MachineCtrl'});
             $routeProvider.when('/softwares', { templateUrl: tmpl + 'admin/software.html', controller: 'RoomCtrl'});
             $routeProvider.when('/accessibility', { templateUrl: tmpl + 'admin/accessibility.html', controller: 'AccessibilityCtrl'});
