@@ -424,6 +424,9 @@
     "sitnet_exam_aborted": "Exam aborted",
     "sitnet_confirm_logout": "Sure you want to log out?",
     "sitnet_endtime_before_starttime": "End time can not occur before start time",
-    "sitnet_section_name": "Section name"
+    "sitnet_section_name": "Section name",
+    "sitnet_write_question_below": "Write question in the editor below",
+    "sitnet_option_updated": "Option updated",
+    "sitnet_new_question_draft": "New question draft"
 
 }

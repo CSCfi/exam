@@ -114,7 +114,7 @@
                 };
 
                 $scope.estimateWords = function () {
-                    $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
+                    $scope.newQuestion.words = Math.ceil($scope.newQuestion.maxCharacters / 7.5) || 0;
                     return $scope.newQuestion.words;
                 };
 
@@ -208,7 +208,7 @@
                 };
 
                 $scope.deleteQuestion = function (question) {
-                    if (confirm('Poistetaanko kysymys?')) {
+                    if (confirm($translate("sitnet_remove_question"))) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
                         QuestionRes.questions.delete({'id': question.id}), function () {
@@ -268,7 +268,7 @@
                 $scope.updateOption = function (option) {
                     QuestionRes.options.update({oid: option.id}, option,
                         function (response) {
-                            toastr.info($translate('sitnet_correct_option_updated'));
+                            toastr.info($translate('sitnet_option_updated'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -286,7 +286,7 @@
 
                                 QuestionRes.options.update({oid: optionId}, option,
                                     function (response) {
-//                                        toastr.info("Oikea vaihtoehto päivitetty");
+                                        toastr.info($translate('sitnet_correct_option_updated'));
                                     }, function (error) {
                                         toastr.error(error.data);
                                     }

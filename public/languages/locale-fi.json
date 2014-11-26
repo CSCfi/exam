@@ -424,7 +424,8 @@
     "sitnet_exam_aborted": "Tentti keskeytetty",
     "sitnet_confirm_logout": "Oletko varma, että haluat kirjautua ulos?",
     "sitnet_endtime_before_starttime": "Lopetusaika ei voi olla ennen aloitusaikaa",
-    "sitnet_section_name": "Osion nimi"
-
-
+    "sitnet_section_name": "Osion nimi",
+    "sitnet_write_question_below": "Kirjoita kysymys alla olevaan editoriin",
+    "sitnet_option_updated": "Vastausvaihtoehto päivitetty",
+    "sitnet_new_question_draft": "Uusi kysymysluonnos"
 }

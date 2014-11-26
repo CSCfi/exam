@@ -16,9 +16,12 @@
             <div class="col-md-12">
                 <form name="questionForm" novalidate style="margin-bottom: 2em">
                     <!-- Question header -->
+                    <label ng-hide="questionForm.editor.$valid">
+                        <span style="color: red">{{ 'sitnet_write_question_below' | translate }}</span>
+                    </label>
                     <div class="row">
                         <div class="col-md-12">
-                            <textarea ck-editor rows="10" cols="80" ng-model="newQuestion.question"
+                            <textarea name="editor" ck-editor rows="10" cols="80" ng-model="newQuestion.question"
                                       ui-change="updateQuestion()"
                                       required placeholder="{{'sitnet_question_write_name' | translate}}">
                             </textarea>

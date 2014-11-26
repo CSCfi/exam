@@ -60,10 +60,11 @@
 
 //                http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
                 $scope.createQuestion = function (type) {
-                    var newQuestion = {
-                        type: type
-//                        question: $translate("sitnet_question_write_name")
-                    }
+                    var newQuestion;
+                    newQuestion = {
+                        type: type,
+                        question: $translate('sitnet_new_question_draft')
+                    };
 
                     QuestionRes.questions.create(newQuestion,
                         function (response) {
