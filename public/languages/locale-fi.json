@@ -423,7 +423,8 @@
     "sitnet_exam_returned": "Tentti palautettu",
     "sitnet_exam_aborted": "Tentti keskeytetty",
     "sitnet_confirm_logout": "Oletko varma, että haluat kirjautua ulos?",
-    "sitnet_endtime_before_starttime": "Lopetusaika ei voi olla ennen aloitusaikaa"
+    "sitnet_endtime_before_starttime": "Lopetusaika ei voi olla ennen aloitusaikaa",
+    "sitnet_section_name": "Osion nimi"
 
 
 }

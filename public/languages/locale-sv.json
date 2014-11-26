@@ -423,6 +423,7 @@
     "sitnet_exam_returned": "Tenten återlämnad",
     "sitnet_exam_aborted": "Tenten avbruten",
     "sitnet_conform_logout": "Säker att du vill logga ut?",
-    "sitnet_endtime_before_starttime": "Starttid kan inte vara senare än sluttid"
+    "sitnet_endtime_before_starttime": "Starttid kan inte vara senare än sluttid",
+    "sitnet_section_name": "Områdets namn"
 
 }

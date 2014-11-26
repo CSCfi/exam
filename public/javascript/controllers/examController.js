@@ -318,7 +318,7 @@
 
                     ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
                         section = sec;
-                        toastr.info($translate("sitnet_section_uppdated"));
+                        toastr.info($translate("sitnet_section_updated"));
                     }, function (error) {
                         toastr.error(error.data);
                     });

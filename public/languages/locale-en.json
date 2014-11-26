@@ -140,7 +140,7 @@
     "sitnet_indication_new_feedback": "New exam feedback",
     "sitnet_indication_new_participants": "New exam bookings",
     "sitnet_info_deadline": "How many days a teacher has to assess an exam",
-    "sitnet_inform_student_manually": "Ilmoita oppilaille tenttikoneen poistosta manuaalisesti",
+    "sitnet_inform_student_manually": "Inform students manually about computer removal",
     "sitnet_inspection_status": "Assessment status",
     "sitnet_inspector_name": "Examiner's name",
     "sitnet_instruction": "Instructions your teacher has provided",
@@ -423,7 +423,7 @@
     "sitnet_exam_returned": "Exam returned",
     "sitnet_exam_aborted": "Exam aborted",
     "sitnet_confirm_logout": "Sure you want to log out?",
-    "sitnet_endtime_before_starttime": "Endtime can not occur before starttime"
-
+    "sitnet_endtime_before_starttime": "End time can not occur before start time",
+    "sitnet_section_name": "Section name"
 
 }
