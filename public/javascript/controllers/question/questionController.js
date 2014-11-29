@@ -1,16 +1,13 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('QuestionCtrl', ['$scope', '$http', '$modal', '$routeParams', '$location', '$translate', 'QuestionRes', 'ExamRes', 'sessionService', 'SITNET_CONF',
-            function($scope, $http, $modal, $routeParams, $location, $translate, QuestionRes, ExamRes, sessionService, SITNET_CONF) {
+        .controller('QuestionCtrl', ['$scope', '$http', '$modal', '$routeParams', '$location', '$translate', 'QuestionRes', 'ExamRes', 'SITNET_CONF',
+            function($scope, $http, $modal, $routeParams, $location, $translate, QuestionRes, ExamRes, SITNET_CONF) {
 
-                $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
-                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
-                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
 
-                $scope.questionListingMultipleChoice = SITNET_CONF.TEMPLATES_PATH + "question-listing/multiplechoice_questions.html";
-                $scope.questionListingEssay = SITNET_CONF.TEMPLATES_PATH + "question-listing/essay_questions.html";
+                var essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
+                var multiChoiceQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
 
                 $scope.questionTemplate = null;
                 $scope.returnURL = null;
@@ -19,7 +16,6 @@
                     MultipleChoiceQuestion: 'Monivalinta yksi oikein',
                     EssayQuestion: 'Essee'
                 };
-                $scope.answerState = "";
 
                 if ($routeParams.editId) {
                     QuestionRes.questions.get({id: $routeParams.editId},
@@ -51,49 +47,17 @@
                 $scope.setQuestionType = function() {
                     switch ($scope.newQuestion.type) {
                         case 'EssayQuestion':
-                            $scope.questionTemplate = $scope.essayQuestionTemplate;
+                            $scope.questionTemplate = essayQuestionTemplate;
                             $scope.newQuestion.evaluationType = $scope.newQuestion.evaluationType || "Points";
                             $scope.estimateWords();
                             break;
 
                         case 'MultipleChoiceQuestion':
-                            $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
+                            $scope.questionTemplate = multiChoiceQuestionTemplate;
                             $scope.newQuestion.type = "MultipleChoiceQuestion";
                             break;
                     }
                 }
-//                http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
-                $scope.createQuestion = function(type) {
-                    var newQuestion = {
-                        type: type
-//                        question: $translate("sitnet_question_write_name")
-                    }
-
-                    if ($routeParams.examId === undefined) {
-                        QuestionRes.questions.create(newQuestion,
-                            function(response) {
-                                toastr.info($translate("sitnet_question_added"));
-                                $location.path("/questions/" + response.id);
-                            }, function(error) {
-                                toastr.error(error.data);
-                            }
-                        );
-                    }
-                    else {
-                        QuestionRes.questions.create(newQuestion,
-                            function(response) {
-                                toastr.info($translate("sitnet_question_added"));
-                                $location.path("/exams/" + $routeParams.examId);
-                            }, function(error) {
-                                toastr.error(error.data);
-                            }
-                        );
-                    }
-                };
-
-                $scope.createQuestionLibrary = function() {
-                    toastr.info("Toimintoa ei ole vielä toteutettu");
-                };
 
                 $scope.copyQuestion = function(question) {
 
@@ -112,9 +76,8 @@
                     return $scope.newQuestion.words;
                 };
 
-                $scope.saveQuestion = function() {
 
-                    // common to all type of questions
+                var update = function() {
                     var questionToUpdate = {
                         "id": $scope.newQuestion.id,
                         "type": $scope.newQuestion.type,
@@ -133,10 +96,8 @@
                             break;
 
                         case 'MultipleChoiceQuestion':
-
                             break;
                     }
-
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
                         function(response) {
                             toastr.info($translate("sitnet_question_saved"));
@@ -144,6 +105,12 @@
                             toastr.error(error.data);
                         }
                     );
+                };
+
+
+                $scope.saveQuestion = function() {
+
+                    update();
 
                     //Set return URL pointing back to questions main page if we created question there
                     if ($routeParams.examId === undefined) {
@@ -173,50 +140,10 @@
                     $scope.updateQuestion();
                 };
 
-
                 $scope.updateQuestion = function() {
-
-                    // common to all type of questions
-                    var questionToUpdate = {
-                        "id": $scope.newQuestion.id,
-                        "type": $scope.newQuestion.type,
-                        "maxScore": $scope.newQuestion.maxScore,
-                        "question": $scope.newQuestion.question,
-                        "shared": $scope.newQuestion.shared,
-                        "instruction": $scope.newQuestion.instruction,
-                        "evaluationCriterias": $scope.newQuestion.evaluationCriterias
-                    };
-
-                    // update question specific attributes
-                    switch (questionToUpdate.type) {
-                        case 'EssayQuestion':
-                            questionToUpdate.maxCharacters = $scope.newQuestion.maxCharacters;
-                            questionToUpdate.evaluationType = $scope.newQuestion.evaluationType;
-                            break;
-
-                        case 'MultipleChoiceQuestion':
-                            break;
-                    }
-                    ;
-
-                    QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
-                        function(response) {
-                            toastr.info($translate("sitnet_question_saved"));
-                        }, function(error) {
-                            toastr.error(error.data);
-                        }
-                    );
+                    update();
                 };
 
-                $scope.deleteQuestion = function(question) {
-                    if (confirm($translate("sitnet_remove_question"))) {
-                        $scope.questions.splice($scope.questions.indexOf(question), 1);
-
-                        QuestionRes.questions.delete({'id': question.id}), function() {
-                            toastr.info($translate("sitnet_question_removed"));
-                        };
-                    }
-                };
 
                 $scope.addNewOption = function(newQuestion) {
 
@@ -261,11 +188,8 @@
                         }
                     );
 
-                }
+                };
 
-                $scope.editQuestion = function(question) {
-
-                }
 
                 $scope.updateOption = function(option) {
                     QuestionRes.options.update({oid: option.id}, option,
@@ -275,7 +199,7 @@
                             toastr.error(error.data);
                         }
                     );
-                }
+                };
 
                 $scope.correctAnswerToggled = function(optionId, newQuestion) {
 
@@ -301,17 +225,13 @@
 
                                 QuestionRes.options.update({oid: optionId}, option,
                                     function(response) {
-//                                        toastr.info("Edellinen oikea vaihtoehto päivitetty");
                                     }, function(error) {
                                         toastr.error(error.data);
                                     }
                                 );
                             }
                         }
-                    })
-
-                    // Save changes to database
-
+                    });
                 };
 
                 $scope.selectFile = function() {

@@ -13,13 +13,19 @@
             /* main navigation */
             $routeProvider.when('/home', { templateUrl: tmpl + 'home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'question-listing/questions.html', controller: 'QuestionListingController'});
-            $routeProvider.when('/questions/:id/exam/:examId/section/:sectionId', { templateUrl: tmpl + 'question-editor/question.html'});
-            $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question-editor/question.html'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamController'});
+
+            // create question from exam
+            $routeProvider.when('/questions/:id/exam/:examId/section/:sectionId', { templateUrl: tmpl + 'question-editor/question.html'});
+            // select from querylist
+            $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question-editor/question.html'});
+            // edit question from exam
             $routeProvider.when('/exams/:examId/section/:sectionId/edit/:editId', { templateUrl: tmpl + 'question-editor/question.html'});
+
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam-editor/exam.html', controller: 'ExamController'});
             $routeProvider.when('/exampreview/:id', { templateUrl: tmpl + 'exam-editor/exam.html', controller: 'ExamController'});
+
             $routeProvider.when('/calendar/:enrolment?', { templateUrl: tmpl + 'calendar.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});
 
