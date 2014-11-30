@@ -17,32 +17,20 @@
                     EssayQuestion: 'Essee'
                 };
 
-                if ($routeParams.editId) {
-                    QuestionRes.questions.get({id: $routeParams.editId},
-                        function(question) {
-                            $scope.newQuestion = question;
-                            $scope.setQuestionType();
-                        },
-                        function(error) {
-                            toastr.error(error.data);
+                var qid = $routeParams.editId || $routeParams.id;
+
+                QuestionRes.questions.get({id: qid},
+                    function(question) {
+                        $scope.newQuestion = question;
+                        $scope.setQuestionType();
+                        if ($routeParams.editId == undefined && $scope.newQuestion.evaluationType == 'Select') {
+                            $scope.newQuestion.maxScore = undefined; // will screw up validation otherwise
                         }
-                    );
-                } else if ($routeParams.id === undefined) {
-                    $scope.questions = QuestionRes.questions.query();
-                } else {
-                    QuestionRes.questions.get({id: $routeParams.id},
-                        function(value) {
-                            $scope.newQuestion = value;
-                            $scope.setQuestionType();
-                            if ($scope.newQuestion.evaluationType == 'Select') {
-                                $scope.newQuestion.maxScore = undefined;
-                            }
-                        },
-                        function(error) {
-                            toastr.error(error.data);
-                        }
-                    );
-                }
+                    },
+                    function(error) {
+                        toastr.error(error.data);
+                    }
+                );
 
                 $scope.setQuestionType = function() {
                     switch ($scope.newQuestion.type) {
@@ -57,7 +45,7 @@
                             $scope.newQuestion.type = "MultipleChoiceQuestion";
                             break;
                     }
-                }
+                };
 
                 $scope.copyQuestion = function(question) {
 
@@ -99,7 +87,7 @@
                             break;
                     }
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
-                        function(response) {
+                        function() {
                             toastr.info($translate("sitnet_question_saved"));
                         }, function(error) {
                             toastr.error(error.data);
@@ -125,7 +113,7 @@
                     //Also bind the question to section of the exam at this point
                     else {
                         $scope.returnURL = "/exams/" + $routeParams.examId;
-                        ExamRes.questions.insert({eid: $routeParams.examId, sid: $routeParams.sectionId, qid: $scope.newQuestion.id}, function(section) {
+                        ExamRes.questions.insert({eid: $routeParams.examId, sid: $routeParams.sectionId, qid: $scope.newQuestion.id}, function() {
                             toastr.info($translate("sitnet_question_added_to_section"));
                         }, function(error) {
                             toastr.error(error.data);
@@ -168,9 +156,7 @@
                 $scope.radioChecked = function(option) {
                     option.correctOption = true;
 
-                    var checkbox = document.getElementById(option.id);
-
-                    angular.forEach($scope.newQuestion.options, function(value, index) {
+                    angular.forEach($scope.newQuestion.options, function(value) {
                         if (value.id != option.id) {
                             value.correctOption = false;
                         }
@@ -180,7 +166,7 @@
                 $scope.removeOption = function(option) {
 
                     QuestionRes.options.delete({qid: null, oid: option.id},
-                        function(response) {
+                        function() {
                             $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
                             toastr.info($translate('sitnet_option_removed'));
                         }, function(error) {
@@ -193,7 +179,7 @@
 
                 $scope.updateOption = function(option) {
                     QuestionRes.options.update({oid: option.id}, option,
-                        function(response) {
+                        function() {
                             toastr.info($translate('sitnet_option_updated'));
                         }, function(error) {
                             toastr.error(error.data);
@@ -211,7 +197,7 @@
                                 option.correctOption = true;
 
                                 QuestionRes.options.update({oid: optionId}, option,
-                                    function(response) {
+                                    function() {
                                         toastr.info($translate('sitnet_correct_option_updated'));
                                     }, function(error) {
                                         toastr.error(error.data);
@@ -276,7 +262,7 @@
                         controller: ctrl
                     });
 
-                    modalInstance.result.then(function(resp) {
+                    modalInstance.result.then(function() {
                         // OK button
                         $location.path('/questions/' + $scope.newQuestion.id);
                     }, function() {

@@ -1,13 +1,13 @@
-(function () {
+(function() {
     'use strict';
     angular.module("sitnet.controllers")
         .controller('QuestionListingController', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes',
-            function ($scope, $routeParams, $location, $translate, QuestionRes) {
+            function($scope, $routeParams, $location, $translate, QuestionRes) {
 
 
                 $scope.questions = QuestionRes.questionlist.query({id: $scope.session.user.id});
 
-                $scope.createQuestion = function (type) {
+                $scope.createQuestion = function(type) {
                     var newQuestion;
                     newQuestion = {
                         type: type,
@@ -15,16 +15,14 @@
                     };
 
                     QuestionRes.questions.create(newQuestion,
-                        function (response) {
+                        function(response) {
                             toastr.info($translate('sitnet_question_added'));
                             $location.path("/questions/" + response.id);
-                        }, function (error) {
-                            toastr.error(error.data);
                         }
                     );
-                }
+                };
 
-                $scope.deleteQuestion = function (question) {
+                $scope.deleteQuestion = function(question) {
                     if (confirm($translate('sitnet_remove_question'))) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
