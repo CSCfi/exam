@@ -573,8 +573,8 @@ public class ExamController extends SitnetController {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("examSections")
-                .fetch("room")
                 .fetch("softwares")
+                .fetch("attachment")
                 .where()
                 .eq("id", id)
                 .order().asc("examSections.id") // SIT-492
@@ -678,16 +678,18 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, examType, instruction, enrollInstruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, softwares");
+                    "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, softwares, attachment");
             options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
             options.setPathProperties("softwares", "id, name");
+            options.setPathProperties("attachment", "id, fileName");
             options.setPathProperties("examType", "id, type");
-            options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
-            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluatedScore, options");
+            options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, " +
+                    "lotteryItemCount");
+            options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, " +
+                    "evaluatedScore, options");
             options.setPathProperties("examSections.questions.options", "id, option");
             options.setPathProperties("examSections.questions.comments", "id, comment");
             options.setPathProperties("examFeedback", "id, comment");
-
             return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
         } else {
             return forbidden("sitnet_error_access_forbidden");
