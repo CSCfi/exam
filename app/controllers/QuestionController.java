@@ -137,6 +137,7 @@ public class QuestionController extends SitnetController {
                 }
 
                 multipleChoiceQuestion.setOptions(new ArrayList<>());
+                multipleChoiceQuestion.setAttachment(question.getAttachment());
                 multipleChoiceQuestion.save();
                 List<MultipleChoiseOption> options = ((MultipleChoiceQuestion)question).getOptions();
                 for (MultipleChoiseOption o : options) {
@@ -159,6 +160,7 @@ public class QuestionController extends SitnetController {
 
                 AbstractAnswer answer = question.getAnswer();
                 essayQuestion.setAnswer(answer);
+                essayQuestion.setAttachment(question.getAttachment());
                 essayQuestion.save();
 
                 break;
