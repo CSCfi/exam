@@ -1,8 +1,8 @@
-(function () {
+(function() {
     'use strict';
     angular.module("sitnet.controllers")
         .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'QuestionRes',
-            function ($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, QuestionRes) {
+            function($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, QuestionRes) {
 
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section_general.html";
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section.html";
@@ -23,26 +23,25 @@
 
                 // TODO: localize
                 // http://www.stat.fi/meta/luokitukset/kieli/001-2003/index.html
-                $scope.selectedLanguage;
-                $scope.languages = ["abhaasi","afar","afgaani, pašto","afrikaans","aimara","akan","albania","ambo, ndonga",
-                    "amhara","arabia","aragonia","armenia","assami","avaari","avesta","azeri","baškiiri","bambara","baski",
-                    "bengali","bhutani, dzongkha","bihari","bislama","bosnia","bretoni","bulgaria","burma","chamorro","cree",
-                    "divehi, malediivi","eesti, viro","englanti","eskimo","espanja","esperanto","eteländebele","ewe","fidži",
-                    "friisi","fulani, fulfulde","fääri","galicia","galla, afan oromo, oromo","ganda, luganda","georgia, gruusia",
-                    "grönlanti","guarani","gudžarati, gujarati","haiti, haitin kreoli","hausa","heprea, ivrit","herero","hindi",
-                    "hiri-motu","hollanti","ido","igbo","iiri","indonesia, bahasa indonésia","interlingua","interlingue","inupiak",
-                    "islanti","italia","jaava","japani","jiddi, jiddiš","joruba","kašmiri","kannada","kanuri","katalaani","kazakki",
-                    "ketšua","khmer, kambodža","kiina","kikongo, kongo","kikuju","kirgiisi","kirjanorja","kirkkoslaavi","komi","korea",
-                    "korni","korsika","kreikka","kroatia","kuanjama","kurdi","kymri, wales","lao","latina","latvia, lätti","letzeburg, luxemburg",
-                    "liettua","lingala","limburgi","luba-katanga","makedonia","malagasi, madagassi","malaiji","malajalam","malta",
-                    "manx","maori","marathi","marshallese","moldavia","mongoli","nauru","navaho","nepali","njandža, tšewa","norja",
-                    "ojibwa","oksitaani, provensaali","orija","osseetti","pali","pandžabi","persia","pohjoisndebele","pohjois-ji",
-                    "portugali","puola","ranska","retoromaani","romania","ruanda, kinjaruanda, njaruanda","rundi, kirundi","ruotsi",
-                    "saame","saksa","samoa","sango","sanskrit","sardi","serbia","serbokroatia","shona","sindhi","singali","siswati, swazi",
-                    "skotti, gaeli","slovakki","sloveeni","somali","sotho, sesotho","suahili","sunda","suomi","tšekki","tšetšeeni",
-                    "tšuang","tšuvassi","tšwana, setšwana","tadžikki","tagalog, pilipino","tahiti","tamili","tanska","tataari","telugu",
-                    "thai","tigrinja","tiibet","tonga","tsonga","turkki","turkmeeni","twi","uiguuri","ukraina","unkari","urdu","uusnorja",
-                    "uzbekki","valkovenäjä","venda","venäjä","vietnam","volapük","walloon","wolof","xhosa","zulu"];
+                $scope.languages = ["abhaasi", "afar", "afgaani, pašto", "afrikaans", "aimara", "akan", "albania", "ambo, ndonga",
+                    "amhara", "arabia", "aragonia", "armenia", "assami", "avaari", "avesta", "azeri", "baškiiri", "bambara", "baski",
+                    "bengali", "bhutani, dzongkha", "bihari", "bislama", "bosnia", "bretoni", "bulgaria", "burma", "chamorro", "cree",
+                    "divehi, malediivi", "eesti, viro", "englanti", "eskimo", "espanja", "esperanto", "eteländebele", "ewe", "fidži",
+                    "friisi", "fulani, fulfulde", "fääri", "galicia", "galla, afan oromo, oromo", "ganda, luganda", "georgia, gruusia",
+                    "grönlanti", "guarani", "gudžarati, gujarati", "haiti, haitin kreoli", "hausa", "heprea, ivrit", "herero", "hindi",
+                    "hiri-motu", "hollanti", "ido", "igbo", "iiri", "indonesia, bahasa indonésia", "interlingua", "interlingue", "inupiak",
+                    "islanti", "italia", "jaava", "japani", "jiddi, jiddiš", "joruba", "kašmiri", "kannada", "kanuri", "katalaani", "kazakki",
+                    "ketšua", "khmer, kambodža", "kiina", "kikongo, kongo", "kikuju", "kirgiisi", "kirjanorja", "kirkkoslaavi", "komi", "korea",
+                    "korni", "korsika", "kreikka", "kroatia", "kuanjama", "kurdi", "kymri, wales", "lao", "latina", "latvia, lätti", "letzeburg, luxemburg",
+                    "liettua", "lingala", "limburgi", "luba-katanga", "makedonia", "malagasi, madagassi", "malaiji", "malajalam", "malta",
+                    "manx", "maori", "marathi", "marshallese", "moldavia", "mongoli", "nauru", "navaho", "nepali", "njandža, tšewa", "norja",
+                    "ojibwa", "oksitaani, provensaali", "orija", "osseetti", "pali", "pandžabi", "persia", "pohjoisndebele", "pohjois-ji",
+                    "portugali", "puola", "ranska", "retoromaani", "romania", "ruanda, kinjaruanda, njaruanda", "rundi, kirundi", "ruotsi",
+                    "saame", "saksa", "samoa", "sango", "sanskrit", "sardi", "serbia", "serbokroatia", "shona", "sindhi", "singali", "siswati, swazi",
+                    "skotti, gaeli", "slovakki", "sloveeni", "somali", "sotho, sesotho", "suahili", "sunda", "suomi", "tšekki", "tšetšeeni",
+                    "tšuang", "tšuvassi", "tšwana, setšwana", "tadžikki", "tagalog, pilipino", "tahiti", "tamili", "tanska", "tataari", "telugu",
+                    "thai", "tigrinja", "tiibet", "tonga", "tsonga", "turkki", "turkmeeni", "twi", "uiguuri", "ukraina", "unkari", "urdu", "uusnorja",
+                    "uzbekki", "valkovenäjä", "venda", "venäjä", "vietnam", "volapük", "walloon", "wolof", "xhosa", "zulu"];
 
                 $scope.setLanguage = function(lang) {
                     $scope.selectedLanguage = lang;
@@ -56,15 +55,14 @@
                 // Get the exam that was specified in the URL
                 else {
                     ExamRes.exams.get({id: $routeParams.id},
-                        function (exam) {
+                        function(exam) {
                             $scope.examToBeReviewed = exam;
-                            $scope.selectedLanguage = exam.answerLanguage;
-
-                            $scope.isCreator = function () {
+                            $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
+                            $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
                             };
 
-                            switch($scope.examToBeReviewed.grading) {
+                            switch ($scope.examToBeReviewed.grading) {
                                 case "0-5":
                                     $scope.examGrading = ["0", "1", "2", "3", "4", "5"];
                                     break;
@@ -87,7 +85,6 @@
                                     break;
                             }
 
-                            $scope.scope = $scope;
                             $scope.reviewStatus = [
                                 {
                                     "key": true,
@@ -99,11 +96,11 @@
                                 }
                             ];
 
-                            $scope.isLocalReady = function (userId) {
+                            $scope.isLocalReady = function(userId) {
                                 var ready = false;
-                                if($scope.localInspections.length > 0) {
-                                    angular.forEach($scope.localInspections, function(localInspection){
-                                        if(localInspection.user.id && localInspection.user.id === userId) {
+                                if ($scope.localInspections.length > 0) {
+                                    angular.forEach($scope.localInspections, function(localInspection) {
+                                        if (localInspection.user && localInspection.user.id && localInspection.user.id === userId) {
                                             ready = localInspection.ready;
                                         }
                                     });
@@ -111,19 +108,19 @@
                                 return ready;
                             };
 
-                            $scope.toggleReady = function () {
-                                angular.forEach($scope.localInspections, function(localInspection){
-                                    if(localInspection.user.id === $scope.user.id) {
+                            $scope.toggleReady = function() {
+                                angular.forEach($scope.localInspections, function(localInspection) {
+                                    if (localInspection.user.id === $scope.user.id) {
                                         // toggle ready ->
-                                        ExamRes.inspectionReady.update({id: localInspection.id, ready: $scope.reviewReady}, function (result) {
+                                        ExamRes.inspectionReady.update({id: localInspection.id, ready: $scope.reviewReady}, function(result) {
                                             toastr.info($translate('sitnet_exam_updated'));
-                                        }, function (error) {
+                                        }, function(error) {
                                             toastr.error(error.data);
                                         });
                                     }
                                 });
                             };
-                            $scope.openEssayDialog = function(question){
+                            $scope.openEssayDialog = function(question) {
 
                                 var modalInstance = $modal.open({
                                     templateUrl: 'assets/templates/teacher/essay-review/essay-review-dialog.html',
@@ -131,13 +128,15 @@
                                     keyboard: true,
                                     windowClass: 'essay-dialog',
                                     controller: 'EssayReviewController',
-                                    resolve: { question: function () { return question; } }
+                                    resolve: { question: function() {
+                                        return question;
+                                    } }
                                 });
 
-                                modalInstance.result.then(function (inspectors) {
+                                modalInstance.result.then(function(inspectors) {
                                     // OK button clicked
 
-                                }, function () {
+                                }, function() {
                                     // Cancel button clicked
 
                                 });
@@ -147,23 +146,23 @@
 
                             // get global exam inspections ->
                             ExamRes.inspections.get({id: $scope.examToBeReviewed.parent.id},
-                                function (globals) {
+                                function(globals) {
                                     $scope.globalInspections = globals;
 
                                     // get local inspections if more than one inspector ->
-                                    if($scope.globalInspections && $scope.globalInspections.length > 1) {
+                                    if ($scope.globalInspections && $scope.globalInspections.length > 1) {
 
                                         // get single exam inspections ->
                                         ExamRes.inspections.get({id: $scope.examToBeReviewed.id},
-                                            function (locals) {
+                                            function(locals) {
 
                                                 var isCurrentUserInspectionCreated = false;
                                                 $scope.localInspections = locals;
 
                                                 // created local inspections, if not created ->
-                                                if($scope.localInspections.length > 0) {
-                                                    angular.forEach($scope.localInspections, function(localInspection){
-                                                        if(localInspection.user.id === $scope.user.id) {
+                                                if ($scope.localInspections.length > 0) {
+                                                    angular.forEach($scope.localInspections, function(localInspection) {
+                                                        if (localInspection.user.id === $scope.user.id) {
                                                             isCurrentUserInspectionCreated = true;
                                                             $scope.reviewReady = localInspection.ready;
                                                         }
@@ -171,36 +170,36 @@
                                                 }
 
                                                 // if user doesn't already have an inspection, create, otherwise skip ->
-                                                if(isCurrentUserInspectionCreated === false) {
-                                                    ExamRes.localInspection.insert({eid: $scope.examToBeReviewed.id, uid: $scope.user.id}, function (newLocalInspection) {
+                                                if (isCurrentUserInspectionCreated === false) {
+                                                    ExamRes.localInspection.insert({eid: $scope.examToBeReviewed.id, uid: $scope.user.id}, function(newLocalInspection) {
                                                         $scope.localInspections.push(newLocalInspection);
                                                         $scope.reviewReady = false;
-                                                    }, function (error) {
+                                                    }, function(error) {
 
                                                     });
                                                 }
                                             },
-                                            function (error) {
+                                            function(error) {
                                                 toastr.error(error.data);
                                             }
                                         );
                                     }
                                 },
-                                function (error) {
+                                function(error) {
                                     toastr.error(error.data);
                                 }
                             );
                         },
-                        function (error) {
+                        function(error) {
                             toastr.error(error.data);
                         }
                     );
 
                     ExamRes.studentInfo.get({id: $routeParams.id},
-                        function (info) {
+                        function(info) {
                             $scope.userInfo = info;
                         },
-                        function (error) {
+                        function(error) {
                             toastr.error(error.data);
                         }
                     );
@@ -209,7 +208,7 @@
 
                 $scope.printExamDuration = function(exam) {
 
-                    if(exam && exam.duration) {
+                    if (exam && exam.duration) {
                         var h = 0;
                         var d = exam.duration;
 
@@ -233,7 +232,7 @@
                     }
                 };
 
-                $scope.scoreMultipleChoiceAnswer = function (question) {
+                $scope.scoreMultipleChoiceAnswer = function(question) {
                     var score = 0;
 
                     if (question.answer === null) {
@@ -241,12 +240,12 @@
                         return 0;
                     }
 
-                    if(question.answer.option.correctOption === true) {
+                    if (question.answer.option.correctOption === true) {
                         score = question.maxScore;
                         question.backgroundColor = 'green';
                     }
 
-                    if(question.answer.option.correctOption === false) {
+                    if (question.answer.option.correctOption === false) {
                         question.backgroundColor = 'red';
                     }
 
@@ -259,19 +258,21 @@
 
                 $scope.getName = function(question) {
 
-                    return question.type +"_"+  question.id;
+                    return question.type + "_" + question.id;
                 };
 
-                $scope.scoreEssayAnswer = function (question) {
+                $scope.scoreEssayAnswer = function(question) {
                     if (question.answer === null) {
                         question.evaluatedScore = 0;
                     }
                 };
 
-                $scope.range = function(min, max, step){
+                $scope.range = function(min, max, step) {
                     step = (step === undefined) ? 1 : step;
                     var input = [];
-                    for (var i = min; i <= max; i += step) input.push(i);
+                    for (var i = min; i <= max; i += step) {
+                        input.push(i);
+                    }
                     return input;
                 };
 
@@ -286,15 +287,15 @@
                                     question.backgroundColor = 'grey';
                                     return 0;
                                 }
-                                if(question.answer.option.correctOption === true) {
+                                if (question.answer.option.correctOption === true) {
                                     score = score + question.maxScore;
                                 }
                                 break;
                             case "EssayQuestion":
 
-                                if(question.evaluatedScore) {
+                                if (question.evaluatedScore) {
                                     var number = parseFloat(question.evaluatedScore);
-                                    if(angular.isNumber(number)){
+                                    if (angular.isNumber(number)) {
                                         score = score + number;
                                     }
                                 }
@@ -359,27 +360,27 @@
                 };
 
                 // Called when the chevron is clicked
-                $scope.chevronClicked = function (question) {
+                $scope.chevronClicked = function(question) {
                 };
 
-                $scope.insertEssayScore = function (question) {
+                $scope.insertEssayScore = function(question) {
                     var questionToUpdate = {
                         "id": question.id,
                         "type": question.type,
                         "expanded": question.expanded,
                         "evaluatedScore": question.evaluatedScore,
                         "maxScore": question.maxScore                   // workaround for     @Column(columnDefinition="numeric default 0")
-                                                                        // without this question will be updated with default value
+                        // without this question will be updated with default value
                     };
 
-                    QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function (q) {
+                    QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function(q) {
 //                        question = q;
-                    }, function (error) {
+                    }, function(error) {
                         toastr.error(error.data);
                     });
                 };
 
-                $scope.insertCreditType = function (exam) {
+                $scope.insertCreditType = function(exam) {
 
                     var examToReview = {
                         "id": exam.id,
@@ -387,19 +388,19 @@
                     };
 
 
-                    ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
+                    ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
                         toastr.info($translate("sitnet_exam_updated"));
-                    }, function (error) {
+                    }, function(error) {
                         toastr.error(error.data);
                     });
                 };
 
-                $scope.setExamGrade = function (grade) {
+                $scope.setExamGrade = function(grade) {
                     $scope.examToBeReviewed.grade = grade;
                 };
 
                 // Called when the save feedback button is clicked
-                $scope.saveFeedback = function () {
+                $scope.saveFeedback = function() {
 
                     var examFeedback = {
                         "comment": $scope.examToBeReviewed.examFeedback.comment
@@ -407,26 +408,26 @@
 
                     // Update comment
                     if ($scope.examToBeReviewed.examFeedback.id) {
-                        ExamRes.comment.update({eid: $scope.examToBeReviewed.id, cid: $scope.examToBeReviewed.examFeedback.id}, examFeedback, function (exam) {
+                        ExamRes.comment.update({eid: $scope.examToBeReviewed.id, cid: $scope.examToBeReviewed.examFeedback.id}, examFeedback, function(exam) {
                             toastr.info($translate("sitnet_comment_updated"));
-                        }, function (error) {
+                        }, function(error) {
                             toastr.error(error.data);
                         });
-                    // Insert new comment
+                        // Insert new comment
                     } else {
-                        ExamRes.comment.insert({eid: $scope.examToBeReviewed.id, cid: 0}, examFeedback, function (comment) {
+                        ExamRes.comment.insert({eid: $scope.examToBeReviewed.id, cid: 0}, examFeedback, function(comment) {
                             toastr.info($translate("sitnet_comment_added"));
                             $scope.examToBeReviewed.examFeedback.comment = comment;
-                        }, function (error) {
+                        }, function(error) {
                             toastr.error(error.data);
                         });
                     }
                 };
 
                 // Called when the review ready button is clicked
-                $scope.examReviewReady = function (reviewed_exam) {
+                $scope.examReviewReady = function(reviewed_exam) {
 
-                    if (confirm($translate('sitnet_mark_as_graded_tooltip') +" "+ $translate('sitnet_are_you_sure'))) {
+                    if (confirm($translate('sitnet_mark_as_graded_tooltip') + " " + $translate('sitnet_are_you_sure'))) {
                         $scope.saveFeedback();
 
                         var examToReview = {
@@ -439,17 +440,17 @@
 
                         };
 
-                        ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
+                        ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
                             toastr.info($translate('sitnet_exam_reviewed'));
                             $location.path("/exams/reviews/" + reviewed_exam.parent.id);
-                        }, function (error) {
+                        }, function(error) {
                             toastr.error(error.data);
                         });
                     }
                 };
 
                 // called when Save button is clicked
-                $scope.updateExam = function (reviewed_exam) {
+                $scope.updateExam = function(reviewed_exam) {
 
                     var examToReview = {
                         "id": reviewed_exam.id,
@@ -461,9 +462,9 @@
                         "answerLanguage": $scope.selectedLanguage
                     };
 
-                    ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
+                    ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
                         toastr.info($translate('sitnet_exam_reviewed'));
-                    }, function (error) {
+                    }, function(error) {
                         toastr.error(error.data);
                     });
                 };
@@ -471,19 +472,19 @@
                 $scope.message = "";
 
                 // called when send email button is clicked
-                $scope.sendEmailMessage = function () {
+                $scope.sendEmailMessage = function() {
 
-                    ExamRes.email.inspection({eid: $scope.examToBeReviewed.id, msg: $scope.message}, function (response) {
+                    ExamRes.email.inspection({eid: $scope.examToBeReviewed.id, msg: $scope.message}, function(response) {
                         toastr.info($translate("sitnet_email_sent"));
                         $scope.message = "";
-                    }, function (error) {
+                    }, function(error) {
                         toastr.error(error.data);
                     });
                 };
 
                 $scope.sendReviewFeedback = true;
 
-                $scope.saveExamRecord = function (reviewed_exam) {
+                $scope.saveExamRecord = function(reviewed_exam) {
 
                     if (confirm($translate('sitnet_confirm_record_review'))) {
 
@@ -498,14 +499,14 @@
                             "answerLanguage": $scope.selectedLanguage
                         };
 
-                        ExamRes.saveRecord.add(examToRecord, function (exam) {
+                        ExamRes.saveRecord.add(examToRecord, function(exam) {
                             toastr.info($translate('sitnet_review_recorded'));
                             $location.path("exams/reviews/" + reviewed_exam.parent.id);
-                        }, function (error) {
+                        }, function(error) {
                             toastr.error(error.data);
                         });
                     }
                 };
 
-                }]);
+            }]);
 }());

@@ -78,10 +78,12 @@
             <!-- Suorituskieli -->
             <div class="col-md-12">
                 <div class="sitnet-info-text">{{'sitnet_exam_record_language' | translate}}</div>
-                <select name="answerLanguage" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedLanguage"
-                    ng-change="setLanguage(selectedLanguage)" data-placeholder="{{'sitnet_exam_record_language' | translate}}" required>
-                    <option value=""></option>
-                    <option ng-repeat="lang in languages" value="{{lang}}">{{lang}}</option>
+                <select name="answerLanguage" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+                        ng-model="selectedLanguage"
+                    ng-change="setLanguage(selectedLanguage)" required>
+                    <option value="">{{'sitnet_choose' | translate}}</option>
+                    <option ng-repeat="lang in languages" value="{{lang}}"
+                            ng-selected="{{lang == selectedLanguage}}">{{lang}}</option>
                 </select>
             </div>
         </div>
@@ -134,7 +136,7 @@
                             </div>
                             <div class="col-md-6 vertical-padding-1">
                                 <span class="col-md-6 input-group-sm row">
-                                    <select ng-model="scope.reviewReady" class="form-control"
+                                    <select ng-model="reviewReady" class="form-control"
                                             ng-options="s.key as s.value for s in reviewStatus"
                                             ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
 
