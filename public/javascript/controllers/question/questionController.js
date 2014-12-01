@@ -12,11 +12,6 @@
                 $scope.questionTemplate = null;
                 $scope.returnURL = null;
 
-                $scope.questionTypes = {
-                    MultipleChoiceQuestion: 'Monivalinta yksi oikein',
-                    EssayQuestion: 'Essee'
-                };
-
                 var qid = $routeParams.editId || $routeParams.id;
 
                 QuestionRes.questions.get({id: qid},
@@ -64,7 +59,6 @@
                     return $scope.newQuestion.words;
                 };
 
-
                 var update = function() {
                     var questionToUpdate = {
                         "id": $scope.newQuestion.id,
@@ -95,6 +89,18 @@
                     );
                 };
 
+                $scope.deleteQuestion = function() {
+                    if (confirm($translate('sitnet_remove_question'))) {
+                        QuestionRes.questions.delete({'id': $scope.newQuestion.id}, function() {
+                            toastr.info($translate('sitnet_question_removed'));
+                            if ($routeParams.examId === undefined) {
+                                $location.path("/questions/");
+                            } else {
+                                $location.path("/exams/" + $routeParams.examId);
+                            }
+                        });
+                    }
+                };
 
                 $scope.saveQuestion = function() {
 
@@ -117,7 +123,7 @@
                             toastr.info($translate("sitnet_question_added_to_section"));
                         }, function(error) {
                             toastr.error(error.data);
-                        })
+                        });
                     }
                 };
 
