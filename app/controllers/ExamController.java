@@ -860,7 +860,7 @@ public class ExamController extends SitnetController {
                     } catch (SitnetException e) {
                         e.printStackTrace();
                     }
-                    clonedQuestion.setOptions(new ArrayList<>());
+                    clonedQuestion.getOptions().clear();
                     clonedQuestion.save();
                     List<MultipleChoiseOption> options = multiQuestion.getOptions();
                     for (MultipleChoiseOption o : options) {
@@ -929,7 +929,7 @@ public class ExamController extends SitnetController {
                     } catch (SitnetException e) {
                         e.printStackTrace();
                     }
-                    clonedQuestion.setOptions(new ArrayList<>());
+                    clonedQuestion.getOptions().clear();
                     SitnetUtil.setModifier(clonedQuestion);
                     clonedQuestion.save();
                     List<MultipleChoiseOption> options = multiQuestion.getOptions();

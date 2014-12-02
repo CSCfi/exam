@@ -136,7 +136,7 @@ public class QuestionController extends SitnetController {
                     e.printStackTrace();
                 }
 
-                multipleChoiceQuestion.setOptions(new ArrayList<>());
+                multipleChoiceQuestion.getOptions().clear();
                 multipleChoiceQuestion.setAttachment(question.getAttachment());
                 multipleChoiceQuestion.save();
                 List<MultipleChoiseOption> options = ((MultipleChoiceQuestion)question).getOptions();

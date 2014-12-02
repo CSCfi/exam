@@ -4,8 +4,8 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.io.*;
 import java.sql.Timestamp;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 
 /**
@@ -13,7 +13,8 @@ import java.util.Map;
  */
 public class StatisticsUtils {
 
-    private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy"); // ! java.text format not joda
+    private static final DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy"); // ! java.text
+    // format not joda
 
     public static ByteArrayOutputStream setData(Workbook wb, File file) {
 
@@ -41,7 +42,7 @@ public class StatisticsUtils {
 
     public static void addHeader(Sheet sheet, String[] headers, int row, final int SIZE) {
         Row headerRow = sheet.createRow(row);
-        for(int i = 0; i < SIZE; i++) {
+        for (int i = 0; i < SIZE; i++) {
             headerRow.createCell(i).setCellValue(headers[i]);
 
         }
@@ -59,7 +60,7 @@ public class StatisticsUtils {
     }
 
     public static void addCell(Row dataRow, int index, String content) {
-        if(content == null) {
+        if (content == null) {
             dataRow.createCell(index).setCellValue("");
         } else {
             dataRow.createCell(index).setCellValue(content);
@@ -68,7 +69,7 @@ public class StatisticsUtils {
 
     public static void addDateCell(CellStyle style, Row dataRow, int index, Timestamp time) {
         Cell cell = dataRow.createCell(index);
-        if(time == null) {
+        if (time == null) {
             cell.setCellValue("");
         } else {
             cell.setCellStyle(style);
@@ -79,15 +80,16 @@ public class StatisticsUtils {
     }
 
     public static void addDateBetweenCell(Row dataRow, int index, Timestamp from, Timestamp to) {
-        if(from == null || to == null) {
+        if (from == null || to == null) {
             dataRow.createCell(index).setCellValue("");
         } else {
-            dataRow.createCell(index).setCellValue(from.toLocalDateTime().toLocalDate().format(dateFormat).toString() + " - " + to.toLocalDateTime().toLocalDate().format(dateFormat).toString());
+            dataRow.createCell(index).setCellValue(
+                    String.format("%s - %s", dateFormat.format(from), dateFormat.format(to)));
         }
     }
 
-    public static void incrementResult(Long id, Map<Long,Integer> map) {
-        if(map.get(id) == null) {
+    public static void incrementResult(Long id, Map<Long, Integer> map) {
+        if (map.get(id) == null) {
             map.put(id, 1);
         } else {
             int i = map.get(id);
@@ -102,8 +104,7 @@ public class StatisticsUtils {
 
     public static Cell dateCell(Workbook wb, Row row, int index, Timestamp timestamp, String format) {
 
-        if(timestamp == null)
-        {
+        if (timestamp == null) {
             row.createCell(index).setCellValue("");
             return null;
         }

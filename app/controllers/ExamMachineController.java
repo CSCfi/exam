@@ -222,7 +222,7 @@ public class ExamMachineController extends SitnetController {
         JsonNode json = request().body().asJson();
         final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
         ExamRoom room = Ebean.find(ExamRoom.class, id);
-        room.setAccessibility(new ArrayList<>());
+        room.getAccessibility().clear();
         room.save();
         for(String aid : ids){
             System.out.println(aid);

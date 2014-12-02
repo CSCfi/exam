@@ -18,22 +18,23 @@ import java.util.List;
 @DiscriminatorValue("MultipleChoiceQuestion")
 public class MultipleChoiceQuestion extends AbstractQuestion implements QuestionInterface {
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "question")
+    @JsonManagedReference
+    private List<MultipleChoiseOption> options = new ArrayList<>();
+
+
     public MultipleChoiceQuestion() {
         this.type = this.getClass().getSimpleName();
     }
-
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy="question")
-    @JsonManagedReference
-    private List<MultipleChoiseOption> options;
 
     @Override
     public String generateHash() {
 
         String attributes = question + instruction;
 
-        for(MultipleChoiseOption option : options)
+        for (MultipleChoiseOption option : options) {
             attributes += option.getOption();
+        }
 
         this.hash = SitnetUtil.encodeMD5(attributes);
         Logger.debug("Question hash: " + this.hash);
@@ -46,8 +47,6 @@ public class MultipleChoiceQuestion extends AbstractQuestion implements Question
     }
 
     public List<MultipleChoiseOption> getOptions() {
-        if(options == null)
-            options = new ArrayList<MultipleChoiseOption>();
         return options;
     }
 
@@ -62,7 +61,7 @@ public class MultipleChoiceQuestion extends AbstractQuestion implements Question
                 '}';
     }
 
-	@Override
+    @Override
     public Object clone() {
 
         return SitnetUtil.getClone(this);

@@ -217,7 +217,7 @@ public class RoomController extends SitnetController {
         final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
-        room.setAccessibility(new ArrayList<>());
+        room.getAccessibility().clear();
         room.save();
 
         if (!ids.isEmpty()) {

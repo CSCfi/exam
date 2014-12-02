@@ -25,6 +25,7 @@ import scala.concurrent.duration.FiniteDuration;
 import util.SitnetUtil;
 import util.java.EmailComposer;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
@@ -269,8 +270,7 @@ public class Global extends GlobalSettings {
                             room.getRoomCode() + ":::" +
                             machine.getName() ;
 
-
-            headers.put("x-sitnet-wrong-machine", Base64.getEncoder().encodeToString(info.getBytes()));
+            headers.put("x-sitnet-wrong-machine", DatatypeConverter.printBase64Binary(info.getBytes()));
             //todo: add note, about wrong machine?
             return new AddHeader( super.onRequest(request, actionMethod), headers);
         }
