@@ -25,6 +25,7 @@ import scala.concurrent.duration.FiniteDuration;
 import util.SitnetUtil;
 import util.java.EmailComposer;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.*;
@@ -90,9 +91,13 @@ public class Global extends GlobalSettings {
                         .where()
                         .eq("roles.name", "TEACHER")
                         .findList();
-
-                for (User teacher : teachers) {
-                    EmailComposer.composeWeeklySummary(teacher);
+                try {
+                    for (User teacher : teachers) {
+                        EmailComposer.composeWeeklySummary(teacher);
+                    }
+                } catch (IOException e) {
+                    Logger.error("Failed to read email template from disk!", e);
+                    e.printStackTrace();
                 }
             }
         };
@@ -101,7 +106,7 @@ public class Global extends GlobalSettings {
 
     @Override
     public Promise<SimpleResult> onError(Http.RequestHeader request, final Throwable t) {
-        F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
+        return F.Promise.promise(new F.Function0<SimpleResult>() {
             public SimpleResult apply() {
                 Throwable cause = t.getCause();
                 String errorMessage = cause.getMessage();
@@ -120,7 +125,6 @@ public class Global extends GlobalSettings {
                 return Results.internalServerError(Json.toJson(errorMessage));
             }
         });
-        return promise;
     }
 
     @Override
@@ -168,13 +172,12 @@ public class Global extends GlobalSettings {
             Logger.warn("Session #{} is marked as invalid", token);
             return new Action.Simple() {
                 public Promise<SimpleResult> call(final Http.Context ctx) throws Throwable {
-                    F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
+                    return F.Promise.promise(new F.Function0<SimpleResult>() {
                         public SimpleResult apply() {
                             ctx.response().getHeaders().put(SITNET_FAILURE_HEADER_KEY, "Invalid token");
                             return Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.");
                         }
                     });
-                    return promise;
                 }
             };
         }
@@ -275,18 +278,6 @@ public class Global extends GlobalSettings {
         String hash = enrolment.getExam().getHash();
         headers.put("x-sitnet-start-exam", hash);
         return new AddHeader( super.onRequest(request, actionMethod), headers);
-    }
-
-    private class InvalidTokenAction extends Action {
-        @Override
-        public Promise<SimpleResult> call(Http.Context context) throws Throwable {
-            F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
-                public SimpleResult apply() {
-                    return Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.");
-                }
-            });
-            return promise;
-        }
     }
 
     private static class InitialData {

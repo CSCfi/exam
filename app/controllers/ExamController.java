@@ -17,6 +17,7 @@ import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import org.springframework.util.CollectionUtils;
+import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
@@ -24,6 +25,7 @@ import play.mvc.Result;
 import util.SitnetUtil;
 import util.java.EmailComposer;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.*;
 
@@ -1381,11 +1383,15 @@ public class ExamController extends SitnetController {
         inspection.getComment().save();
         inspection.save();
 
+        Exam source = exam.getParent() == null ? exam : exam.getParent();
+
         // SITNET-295
-        if (exam.getParent() == null) {
-            EmailComposer.composeExamReviewedRequest(recipient, UserController.getLoggedUser(), exam, inspection.getComment().getComment());
-        } else {
-            EmailComposer.composeExamReviewedRequest(recipient, UserController.getLoggedUser(), exam.getParent(), inspection.getComment().getComment());
+        try {
+            EmailComposer.composeExamReviewedRequest(recipient, UserController.getLoggedUser(), source,
+                    inspection.getComment().getComment());
+        } catch (IOException e) {
+            Logger.error("Failure to access message template on disk", e);
+            e.printStackTrace();
         }
 
         return ok(Json.toJson(inspection));
@@ -1428,10 +1434,14 @@ public class ExamController extends SitnetController {
             return notFound();
         }
 
-        for (ExamInspection inspection : inspections) {
-            EmailComposer.composeInspectionMessage(inspection.getUser(), UserController.getLoggedUser(), exam, msg);
+        try {
+            for (ExamInspection inspection : inspections) {
+                EmailComposer.composeInspectionMessage(inspection.getUser(), UserController.getLoggedUser(), exam, msg);
+            }
+        } catch (IOException e) {
+            Logger.error("Failure to access message template on disk", e);
+            return internalServerError("sitnet_internal_error");
         }
-
         return ok();
     }
 
