@@ -109,7 +109,7 @@ public class ExamController extends SitnetController {
                 .fetch("course")
                 .where()
                 .eq("creator.id", user.getId())
-                .ne("state", "SAVED")
+                .ne("state", Exam.State.SAVED.toString())
                 .betweenProperties("examActiveStartDate", "examActiveEndDate", timestamp)
                 .findList();
 
@@ -141,6 +141,7 @@ public class ExamController extends SitnetController {
                 .fetch("exam")
                 .fetch("exam.parent")
                 .where()
+                .eq("exam.state", Exam.State.PUBLISHED.toString())
                 .disjunction()
                 .eq("user.id", user.getId())
                 .eq("assignedBy.id", user.getId())
