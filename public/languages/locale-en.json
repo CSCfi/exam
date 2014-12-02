@@ -427,6 +427,12 @@
     "sitnet_section_name": "Section name",
     "sitnet_write_question_below": "Write question in the editor below",
     "sitnet_option_updated": "Option updated",
-    "sitnet_new_question_draft": "New question draft"
+    "sitnet_new_question_draft": "New question draft",
+
+    "sitnet_unpublish_exam": "Unpublish",
+    "sitnet_unpublish_exam_confirm_dialog_title": "Unpublish exam",
+    "sitnet_unpublish_exam_confirm": "Are you sure you want to unpublish the exam? After unpublishing the exam students can not enroll on it.",
+    "sitnet_exam_unpublished": "Exam unpublished",
+    "sitnet_unpublish_not_possible": "Exam can not be unpublished since students already have enrolled on it"
 
 }

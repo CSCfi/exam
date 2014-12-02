@@ -427,5 +427,12 @@
     "sitnet_section_name": "Osion nimi",
     "sitnet_write_question_below": "Kirjoita kysymys alla olevaan editoriin",
     "sitnet_option_updated": "Vastausvaihtoehto päivitetty",
-    "sitnet_new_question_draft": "Uusi kysymysluonnos"
+    "sitnet_new_question_draft": "Uusi kysymysluonnos",
+
+    "sitnet_unpublish_exam": "Peruuta julkaisu",
+    "sitnet_unpublish_exam_confirm_dialog_title": "Tentin julkaisun peruutus",
+    "sitnet_unpublish_exam_confirm": "Oletko varma että haluat peruuttaa tentin julkaisun? Peruutuksen jälkeen opiskelijat eivät voi ilmoittautua tenttiin.",
+    "sitnet_exam_unpublished": "Tentin julkaisu peruttu",
+    "sitnet_unpublish_not_possible": "Tentin julkaisua ei voi perua, sillä tenttiin on jo ilmoittautunut opiskelijoita"
+
 }
