@@ -433,6 +433,9 @@
     "sitnet_unpublish_exam_confirm_dialog_title": "Tentin julkaisun peruutus",
     "sitnet_unpublish_exam_confirm": "Oletko varma että haluat peruuttaa tentin julkaisun? Peruutuksen jälkeen opiskelijat eivät voi ilmoittautua tenttiin.",
     "sitnet_exam_unpublished": "Tentin julkaisu peruttu",
-    "sitnet_unpublish_not_possible": "Tentin julkaisua ei voi perua, sillä tenttiin on jo ilmoittautunut opiskelijoita"
+    "sitnet_unpublish_not_possible": "Tentin julkaisua ei voi perua, sillä tenttiin on jo ilmoittautunut opiskelijoita",
+    "sitnet_instructions": "Ohjeet",
+    "sitnet_view": "Katso tästä",
+    "sitnet_display_free_time_slots": "Vapaat ajat"
 
 }

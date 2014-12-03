@@ -46,7 +46,7 @@
                 {
                     "get": {method: "GET", params: { eid: "@eid" }}
                 }),
-                
+
                 multipleChoiseAnswer: $resource("/student/exams/:hash/question/:qid/option/:oid",
                 {
                     hash: "@hash", qid: "@qid", oid: "@oid"
@@ -71,6 +71,13 @@
                 },
                 {
                     "get": { method: "GET", isArray:true, params: { id: "@id" }}
+                }),
+                reservationInstructions: $resource("/student/exams/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "get": { method: "GET", isArray:false, params: { id: "@id" }}
                 })
             };
         }]);

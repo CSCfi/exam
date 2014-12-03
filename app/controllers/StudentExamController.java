@@ -7,6 +7,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.answers.EssayAnswer;
 import models.answers.MultipleChoiseAnswer;
@@ -113,7 +114,8 @@ public class StudentExamController extends SitnetController {
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, grade, examActiveStartDate, examActiveEndDate, duration, grading, room, course, creator, examFeedback, gradedByUser");
+        options.setRootPathProperties("id, name, grade, examActiveStartDate, examActiveEndDate, duration, grading, " +
+                "room, course, creator, examFeedback, gradedByUser, enrollment, enrollInstruction");
         options.setPathProperties("course", "code, name, level, type, credits");
         options.setPathProperties("creator", "firstName, lastName, email");
         options.setPathProperties("examFeedback", "comment");
@@ -145,7 +147,7 @@ public class StudentExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction");
             options.setPathProperties("exam.course", "name, code");
             options.setPathProperties("reservation", "id, startAt, endAt, machine");
             options.setPathProperties("reservation.machine", "name");
@@ -155,6 +157,17 @@ public class StudentExamController extends SitnetController {
 
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
         }
+    }
+
+    @Restrict({@Group("STUDENT")})
+    public static Result getReservationInstructions(Long eid) {
+        Exam exam = Ebean.find(Exam.class).where().eq("id", eid).findUnique();
+        if (exam == null) {
+            return notFound();
+        }
+        ObjectNode node = Json.newObject();
+        node.put("enrollInstructions", exam.getEnrollInstruction());
+        return ok(Json.toJson(node));
     }
 
     @Restrict({@Group("STUDENT")})

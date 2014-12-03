@@ -307,7 +307,7 @@ public class ExamController extends SitnetController {
 
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({@Group("STUDENT"), @Group("TEACHER"), @Group("ADMIN")})
     public static Result getExam(Long id) {
 
         Exam exam = Ebean.find(Exam.class)

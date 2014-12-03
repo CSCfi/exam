@@ -433,5 +433,9 @@
     "sitnet_unpublish_exam_confirm_dialog_title": "Avbryt tentens publikation",
     "sitnet_unpublish_exam_confirm": "Är du säker på att du vill avbryta publikation av tenten? Efter det kan studerandena inte boka tenttider.",
     "sitnet_exam_unpublished": "Tentens publikation avbrutit",
-    "sitnet_unpublish_not_possible": "Tentens publikation kan inte avbrytas för att studenter har redan anmält sig på den"
+    "sitnet_unpublish_not_possible": "Tentens publikation kan inte avbrytas för att studenter har redan anmält sig på den",
+    "sitnet_instructions": "Anvisning",
+    "sitnet_view": "Se här",
+    "sitnet_display_free_time_slots": "Fria tider"
+
 }
