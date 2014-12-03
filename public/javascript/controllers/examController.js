@@ -651,6 +651,8 @@
                     return errors;
                 };
 
+                // TODO: this controller should be split on a per-view basis to avoid having this kind of duplication
+
                 $scope.deleteExam = function(exam) {
                     if (confirm($translate('sitnet_remove_exam'))) {
 
@@ -658,6 +660,18 @@
                             toastr.success($translate('sitnet_exam_removed'));
                             $scope.exams.splice($scope.exams.indexOf(exam), 1);
 
+                        }, function(error) {
+                            toastr.error(error.data);
+                        });
+                    }
+                };
+
+                $scope.cancelNewExam = function(exam) {
+                    if (confirm($translate('sitnet_remove_exam'))) {
+
+                        ExamRes.exams.remove({id: exam.id}, function(ex) {
+                            toastr.success($translate('sitnet_exam_removed'));
+                            $location.path('/exams/');
                         }, function(error) {
                             toastr.error(error.data);
                         });
@@ -687,7 +701,7 @@
                 $scope.createQuestionFromExamView = function(type, section) {
                     var newQuestion = {
                         type: type
-                    }
+                    };
 
                     QuestionRes.questions.create(newQuestion,
                         function(response) {

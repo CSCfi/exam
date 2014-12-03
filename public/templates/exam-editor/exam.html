@@ -16,14 +16,18 @@
         <div class="row">
             <div class="sitnet-info-text">{{'sitnet_exam_name' | translate}}:</div>
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-9">
                     <input type="text" class="form-control ng-pristine ng-valid "
                            ng-model="newExam.name"
                            ui-change="updateExam()" style="font-size: 1.5em"/>
                 </div>
-                <div class="col-md-2">
-                    <button ng-click="saveExam()" class="btn btn-primary pull-right">
+                <div class="col-md-3">
+                    <button ng-click="saveExam()" class="btn btn-primary"
+                            ng-class="{'pull-right': newExam.state != 'SAVED'}">
                         {{'sitnet_save' | translate}}
+                    </button>
+                    <button ng-hide="newExam.state == 'SAVED' ? false : true" ng-click="cancelNewExam(newExam)"
+                            class="btn btn-warning pull-right">{{'sitnet_button_cancel' | translate}}
                     </button>
                 </div>
             </div>
@@ -46,6 +50,8 @@
             </span>
             <span>
                 <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+                <button ng-hide="newExam.state == 'SAVED' ? false : true" ng-click="cancelNewExam(newExam)"
+                        class="btn btn-warning">{{'sitnet_button_cancel' | translate}}</button>
             </span>
             <span class="pull-right">
                 <button ng-click="previewExam()" class="btn btn-primary">{{'sitnet_preview' | translate}}</button>
