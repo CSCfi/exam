@@ -72,7 +72,7 @@
                     <div class="info-row col-md-12 info-column">
                         <span class="header col-md-3">{{ 'sitnet_instructions' | translate }}:</span>
                         <span class="text col-md-9">
-                            <a ng-if="!enrolment.reservation && enrolment.exam.enrollInstruction"
+                            <a ng-if="enrolment.exam.enrollInstruction"
                                class="sitnet-text-theme"
                                ng-click="showInstructions(enrolment)">{{ 'sitnet_view' | translate }}
                             </a>
