@@ -427,6 +427,8 @@
     "sitnet_section_name": "Områdets namn",
     "sitnet_write_question_below": "Skriv frågan på editor nedanför",
     "sitnet_option_updated": "Svarsalternativet uppdaterad",
-    "sitnet_new_question_draft": "Ny utkast för fråga"
+    "sitnet_new_question_draft": "Ny utkast för fråga",
+    "sitnet_course_not_found": "Course not found",
+    "sitnet_course_added": "Course added"
 
 }

@@ -19,10 +19,7 @@ object CourseController extends Controller with ScalaHacks {
     Action {
       (filterType, criteria) match {
         case (Some(FilterByCode), Some(x)) =>
-          Ebean.find(classOf[Course]).where()
-            .like("code", s"$x%")
-            .orderBy("name desc")
-            .findList()
+          Interfaces.getCourseInfo(x)
         case (Some(FilterByName), Some(x)) if x.size >= CriteriaLengthLimiter =>
           Ebean.find(classOf[Course]).where()
             .ilike("name", s"$x%")

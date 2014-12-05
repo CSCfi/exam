@@ -427,5 +427,7 @@
     "sitnet_section_name": "Osion nimi",
     "sitnet_write_question_below": "Kirjoita kysymys alla olevaan editoriin",
     "sitnet_option_updated": "Vastausvaihtoehto päivitetty",
-    "sitnet_new_question_draft": "Uusi kysymysluonnos"
+    "sitnet_new_question_draft": "Uusi kysymysluonnos",
+    "sitnet_course_not_found": "Opintojaksoa ei löydy",
+    "sitnet_course_added": "Opintojaksoa lisätty"
 }

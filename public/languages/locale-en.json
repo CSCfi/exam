@@ -427,6 +427,7 @@
     "sitnet_section_name": "Section name",
     "sitnet_write_question_below": "Write question in the editor below",
     "sitnet_option_updated": "Option updated",
-    "sitnet_new_question_draft": "New question draft"
-
+    "sitnet_new_question_draft": "New question draft",
+    "sitnet_course_not_found": "Course not found",
+    "sitnet_course_added": "Course added"
 }

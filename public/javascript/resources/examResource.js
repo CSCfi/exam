@@ -59,6 +59,14 @@
                     "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}}
                 }),
 
+                courses: $resource("/courses/insert/:code",
+                {
+                    code: "@code"
+                },
+                {
+                    "insert": {method: "POST", params: { code: "@code"}}
+                }),
+
                 room: $resource("/exams/:eid/room/:rid",
                 {
                     eid: "@eid", rid: "@rid"
