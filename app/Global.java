@@ -191,7 +191,7 @@ public class Global extends GlobalSettings {
                 };*/
             }
         }
-        if (user == null || !user.hasRole("STUDENT")) {
+        if (user == null || !user.hasRole("STUDENT") || request.path().equals("/logout")) {
             return super.onRequest(request, actionMethod);
         }
 
@@ -209,51 +209,63 @@ public class Global extends GlobalSettings {
     }
 
 
-    private Action checkMachine(ExamEnrolment enrolment, Request request, Method method) {
-        String machineIp = enrolment.getReservation().getMachine().getIpAddress();
+    private boolean machineOk(ExamEnrolment enrolment, Request request, Map<String, String> headers) {
+        ExamMachine examMachine = enrolment.getReservation().getMachine();
+        ExamRoom room = examMachine.getRoom();
+
+        String machineIp = examMachine.getIpAddress();
         String remoteIp = request.remoteAddress();
 
         Logger.debug("\nUser   ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
 
-
-        HashMap<String, String> headers = new HashMap<>();
-
         //todo: is there another way to identify/match machines?
         //todo: eg. some transparent proxy that add id header etc.
         if (!remoteIp.equals(machineIp)) {
-            ExamMachine machine = enrolment.getReservation().getMachine();
-            ExamRoom room = machine.getRoom();
+            String message;
+            String header;
 
-            String info = room.getCampus() + ":::" +
-                    room.getBuildingName() + ":::" +
-                    room.getRoomCode() + ":::" +
-                    machine.getName();
-
-            headers.put("x-sitnet-wrong-machine", DatatypeConverter.printBase64Binary(info.getBytes()));
-            return new AddHeader(super.onRequest(request, method), headers);
+            // Is this a known machine?
+            ExamMachine lookedUp = Ebean.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findUnique();
+            if (lookedUp == null) {
+                // IP not known
+                header = "x-sitnet-unknown-machine";
+                message = room.getCampus() + ":::" +
+                        room.getBuildingName() + ":::" +
+                        room.getRoomCode() + ":::" +
+                        examMachine.getName();
+            } else if (lookedUp.getRoom().getId().equals(room.getId())) {
+                // Right room, wrong machine
+                header = "x-sitnet-wrong-machine";
+                message = enrolment.getId().toString() + ":::" + lookedUp.getName();
+            } else {
+                // Wrong room
+                header = "x-sitnet-wrong-room";
+                message = enrolment.getId().toString() + ":::" + lookedUp.getRoom() + ":::" +
+                        lookedUp.getRoom().getRoomCode() + ":::" + lookedUp.getName();
+            }
+            headers.put(header, DatatypeConverter.printBase64Binary(message.getBytes()));
+            return false;
         }
-        return null;
+        return true;
     }
 
     private Action handleOngoingEnrolment(ExamEnrolment enrolment, Request request, Method method) {
-        Action wrongMachine = checkMachine(enrolment, request, method);
-        if (wrongMachine != null) {
-            return wrongMachine;
+        Map<String, String> headers = new HashMap<>();
+        if (!machineOk(enrolment, request, headers)) {
+            return new AddHeader(super.onRequest(request, method), headers);
         }
         String hash = enrolment.getExam().getHash();
-        Map<String, String> headers = new HashMap<>();
         headers.put("x-sitnet-start-exam", hash);
         return new AddHeader(super.onRequest(request, method), headers);
     }
 
 
     private Action handleUpcomingEnrolment(ExamEnrolment enrolment, Request request, Method method) {
-        Action wrongMachine = checkMachine(enrolment, request, method);
-        if (wrongMachine != null) {
-            return wrongMachine;
+        Map<String, String> headers = new HashMap<>();
+        if (!machineOk(enrolment, request, headers)) {
+            return new AddHeader(super.onRequest(request, method), headers);
         }
         String hash = enrolment.getExam().getHash();
-        Map<String, String> headers = new HashMap<>();
         headers.put("x-sitnet-start-exam", hash);
         headers.put("x-sitnet-upcoming-exam", enrolment.getId().toString());
         return new AddHeader(super.onRequest(request, method), headers);

@@ -440,6 +440,13 @@
 
     "sitnet_redirect_to_exam_notice": "Sinut ohjataan tenttiin automaattisesti sen alkaessa",
     "sitnet_redirect_to_exam_offset": "Tentin alkuun",
-    "sitnet_exam_is_about_to_begin": "Seuraava tentti on alkamassa"
+    "sitnet_exam_is_about_to_begin": "Seuraava tentti on alkamassa",
 
+    "sitnet_logged_on_wrong_machine": "Olet kirjautunut väärälle koneelle!",
+    "sitnet_current_wrong_machine_title": "Olet koneella",
+    "sitnet_reserved_machine": "Varaamasi kone",
+    "sitnet_current_wrong_room_title": "Olet tenttimistilassa",
+    "sitnet_reserved_room": "Varaamasi tenttitila",
+    "sitnet_logout_and_login_elsewhere": "Kirjaudu ulos tältä koneelta, siirry oikealle koneelle ja kirjaudu takaisin sisään",
+    "sitnet_reserved_exam": "Varaamanne tenttitapahtuma"
 }

@@ -4,7 +4,8 @@
         .factory('waitingRoomService', [function() {
 
             var enrolmentId;
-            var examHash;
+            var actualRoom;
+            var actualMachine;
 
             var setEnrolmentId = function(id) {
                 enrolmentId = id;
@@ -14,19 +15,32 @@
                 return enrolmentId;
             };
 
-            var setExamHash = function(hash) {
-                examHash = hash;
+            var setError = function(error) {
+                this.error = error;
             };
 
-            var getExamHash = function() {
-                return examHash;
+            var getActualRoom = function() {
+                return actualRoom;
             };
 
+            var setActualRoom = function(room) {
+                actualRoom = room;
+            };
+
+            var getActualMachine = function() {
+                return actualMachine;
+            };
+
+            var setActualMachine = function(machine) {
+                actualMachine = machine;
+            };
             return {
                 setEnrolmentId: setEnrolmentId,
                 getEnrolmentId: getEnrolmentId,
-                getExamHash: getExamHash,
-                setExamHash: setExamHash
+                setActualRoom: setActualRoom,
+                getActualRoom: getActualRoom,
+                setActualMachine: setActualMachine,
+                getActualMachine: getActualMachine
             };
         }]);
 }());

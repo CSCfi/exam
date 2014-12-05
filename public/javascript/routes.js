@@ -48,7 +48,7 @@
             $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'student/exam.html', controller: 'StudentExamController'});
             $routeProvider.when('/feedback/exams/:id', { templateUrl: tmpl + 'student/exam_feedback.html', controller: 'ExamFeedbackController'});
             $routeProvider.when('/student/waitingroom', { templateUrl: tmpl + 'student/waitingroom.html', controller: 'WaitingRoomCtrl'});
-
+            $routeProvider.when('/student/wrongmachine', { templateUrl: tmpl + 'student/wrong_machine.html', controller: 'WrongMachineCtrl'});
 
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'teacher/review.html', controller: 'ExamReviewController'});

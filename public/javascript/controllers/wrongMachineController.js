@@ -1,22 +1,14 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('WaitingRoomCtrl', ['$scope', '$timeout', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService',
-            function($scope, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService) {
+        .controller('WrongMachineCtrl', ['$scope', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService',
+            function($scope, $translate, $location, sessionService, StudentExamRes, waitingRoomService) {
 
                 $scope.session = sessionService;
+                console.log($scope.session.login());
                 $scope.user = $scope.session.user;
 
-                var calculateOffset = function() {
-                    var startsAt = $scope.enrolment.reservation.startAt;
-                    // Kinda terrible hack to get the TZ difference right, the backend should provide us
-                    // with the timezone, but it does not. Problem with datetime format in json serialization?
-                    startsAt = startsAt.substring(0, startsAt.length - 1) + "+02:00";
-                    var offset = Date.parse(startsAt) - new Date().getTime();
-                    return offset;
-                };
-
-                var await = function() {
+                var proceed = function() {
                     if ($scope.user && $scope.user.isStudent) {
                         var eid = waitingRoomService.getEnrolmentId();
                         StudentExamRes.enrolment.get({eid: eid},
@@ -32,15 +24,6 @@
                                         toastr.error(error.data);
                                     }
                                 );
-                                if (!$scope.timeout) {
-                                    var offset = calculateOffset();
-                                    $scope.timeout = $timeout(function() {
-                                        $location.path('/student/doexam/' + $scope.enrolment.exam.hash);
-                                    }, offset);
-                                    toastr.info($translate('sitnet_redirect_to_exam_offset') + " " +
-                                        Math.round(offset / 1000 / 60) + " " + $translate('sitnet_minutes') + ". " +
-                                        $translate('sitnet_redirect_to_exam_notice') + ".");
-                                }
                             },
                             function(error) {
                                 toastr.error(error.data);
@@ -49,9 +32,11 @@
                     }
                 };
 
-                $scope.$on('upcomingExam', function() {
+                $scope.$on('wrongMachine', function() {
                     if (!$scope.enrolment) {
-                        await();
+                        $scope.currentRoom = waitingRoomService.getActualRoom();
+                        $scope.currentMachine = waitingRoomService.getActualMachine();
+                        proceed();
                     }
                 });
 
@@ -73,7 +58,9 @@
                 };
 
                 $scope.getUsername = function() {
-                    return $scope.session.user.firstname + " " + $scope.session.user.lastname;
+                    if ($scope.session.user) {
+                        return $scope.session.user.firstname + " " + $scope.session.user.lastname;
+                    } return "not logged";
                 };
 
             }]);
