@@ -51,7 +51,7 @@ public class Exam extends SitnetModel {
     @Column(columnDefinition = "TEXT")
     private String instruction;
 
-    // Instruction written by teacher, shown during exam
+    // Instruction written by teacher, shown for reservation purposes
     @Column(columnDefinition = "TEXT")
     private String enrollInstruction;
 

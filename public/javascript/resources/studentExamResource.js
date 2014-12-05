@@ -21,12 +21,20 @@
                     "get": {method: "GET", params: { uid: "@uid" }}
                 }),
 
-                enrolments: $resource("/enrolments/:uid",
+                enrolments: $resource("/enrolments/user/:uid",
                 {
                     uid: "@uid"
                 },
                 {
                     "get": {method: "GET", params: { uid: "@uid" }}
+                }),
+
+                enrolment: $resource("/enrolments/:eid",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "get": {method: "GET", params: { eid: "@eid" }}
                 }),
 
                 exam: $resource("/student/exam/abort/:id",
@@ -46,7 +54,7 @@
                 {
                     "get": {method: "GET", params: { eid: "@eid" }}
                 }),
-                
+
                 multipleChoiseAnswer: $resource("/student/exams/:hash/question/:qid/option/:oid",
                 {
                     hash: "@hash", qid: "@qid", oid: "@oid"
@@ -71,6 +79,13 @@
                 },
                 {
                     "get": { method: "GET", isArray:true, params: { id: "@id" }}
+                }),
+                reservationInstructions: $resource("/student/exams/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "get": { method: "GET", isArray:false, params: { id: "@id" }}
                 })
             };
         }]);

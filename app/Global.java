@@ -6,6 +6,7 @@ import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
 import models.questions.QuestionInterface;
+import org.joda.time.LocalDateTime;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -39,6 +40,7 @@ public class Global extends GlobalSettings {
     public static final String SITNET_CACHE_KEY = "user.session.";
     public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 15;
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
+    public static final int SITNET_UPCOMING_EXAM_LOOKAHEAD_MINUTES = 60;
 
     @Override
     public void onStart(Application app) {
@@ -73,7 +75,7 @@ public class Global extends GlobalSettings {
         Date plannedStart = c.getTime();
         Date now = new Date();
         Date nextRun;
-        if(now.after(plannedStart)) {
+        if (now.after(plannedStart)) {
             c.add(Calendar.DAY_OF_WEEK, 5);
             nextRun = c.getTime();
         } else {
@@ -86,7 +88,7 @@ public class Global extends GlobalSettings {
             @Override
             public void run() {
 
-                Logger.info( new Date() + "Running weekly email report");
+                Logger.info(new Date() + "Running weekly email report");
                 List<User> teachers = Ebean.find(User.class)
                         .fetch("roles")
                         .where()
@@ -137,33 +139,14 @@ public class Global extends GlobalSettings {
         });
     }
 
-    private class AddHeader extends Action {
-        private HashMap<String, String> headers;
-        public AddHeader(Action action, HashMap<String, String> headers) {
-            this.headers = headers;
-            this.delegate = action;
-        }
-
-        @Override
-        public Promise<SimpleResult> call(Http.Context context) throws Throwable {
-            final Promise promise = this.delegate.call(context);
-            Http.Response response = context.response();
-
-            for(String key : headers.keySet()){
-                response.setHeader(key, headers.get(key));
-            }
-            return promise;
-        }
-    }
-
     @Override
     public Action onRequest(Request request, Method actionMethod) {
         String loginType = ConfigFactory.load().getString("sitnet.login");
-        String token =  request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
         AuditLogger.log(request, actionMethod, session);
 
-        if(session == null) {
+        if (session == null) {
             Logger.info("Session with token {} not found", token);
             return super.onRequest(request, actionMethod);
         }
@@ -183,7 +166,7 @@ public class Global extends GlobalSettings {
             };
         }
 
-        if(session.getUserId() == null) {
+        if (session.getUserId() == null) {
             return super.onRequest(request, actionMethod);
         }
 
@@ -192,7 +175,7 @@ public class Global extends GlobalSettings {
             if (!session.getXsrfToken().equals(request.getHeader("X-XSRF-TOKEN"))) {
                 // Cross site request forgery attempt?
                 Logger.warn("XSRF-TOKEN mismatch!");
-                // Lets not go too there just yet, looks like this happens with HAKA logins if user opens a new tab
+                // Lets not go there just yet, looks like this happens with HAKA logins if user opens a new tab
                 /*return new Action.Simple() {
 
                     @Override
@@ -213,71 +196,88 @@ public class Global extends GlobalSettings {
         }
 
 
-        //todo: widen the range, to see upcoming enrolments
-        //todo: add cases for these
-        Timestamp now = SitnetUtil.getNowTime();
-
-
-        Logger.debug(now.toString());
-        Logger.debug(now.toString());
-
-
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
-                .fetch("reservation.machine")
-                .fetch("reservation.machine.room")
-                .fetch("exam")
-                .where()
-                .eq("user.id", user.getId())
-                .le("reservation.startAt", now)
-                .gt("reservation.endAt", now)
-                //there should be no overlapping reservations, right?
-                .findList();
-
-
-
-        if(enrolments.isEmpty()) {
-            return super.onRequest(request, actionMethod);
-        }
-
-        ExamEnrolment enrolment = null;
-        for(ExamEnrolment possibleEnrolment : enrolments) {
-            if(possibleEnrolment.getExam().getState().equals("PUBLISHED")) {
-                enrolment = possibleEnrolment;
-                break;
+        ExamEnrolment ongoingEnrolment = getNextEnrolment(user.getId(), 0);
+        if (ongoingEnrolment != null) {
+            return handleOngoingEnrolment(ongoingEnrolment, request, actionMethod);
+        } else {
+            ExamEnrolment upcomingEnrolment = getNextEnrolment(user.getId(), SITNET_UPCOMING_EXAM_LOOKAHEAD_MINUTES);
+            if (upcomingEnrolment != null) {
+                return handleUpcomingEnrolment(upcomingEnrolment, request, actionMethod);
             }
         }
+        return super.onRequest(request, actionMethod);
+    }
 
-        if(enrolment == null) {
-            return super.onRequest(request, actionMethod);
-        }
 
+    private Action checkMachine(ExamEnrolment enrolment, Request request, Method method) {
         String machineIp = enrolment.getReservation().getMachine().getIpAddress();
         String remoteIp = request.remoteAddress();
 
         Logger.debug("\nUser   ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
 
+
         HashMap<String, String> headers = new HashMap<>();
 
         //todo: is there another way to identify/match machines?
         //todo: eg. some transparent proxy that add id header etc.
-        if(!remoteIp.equals(machineIp)) {
+        if (!remoteIp.equals(machineIp)) {
             ExamMachine machine = enrolment.getReservation().getMachine();
             ExamRoom room = machine.getRoom();
 
             String info = room.getCampus() + ":::" +
-                            room.getBuildingName() + ":::" +
-                            room.getRoomCode() + ":::" +
-                            machine.getName() ;
+                    room.getBuildingName() + ":::" +
+                    room.getRoomCode() + ":::" +
+                    machine.getName();
 
             headers.put("x-sitnet-wrong-machine", DatatypeConverter.printBase64Binary(info.getBytes()));
-            //todo: add note, about wrong machine?
-            return new AddHeader( super.onRequest(request, actionMethod), headers);
+            return new AddHeader(super.onRequest(request, method), headers);
         }
+        return null;
+    }
 
+    private Action handleOngoingEnrolment(ExamEnrolment enrolment, Request request, Method method) {
+        Action wrongMachine = checkMachine(enrolment, request, method);
+        if (wrongMachine != null) {
+            return wrongMachine;
+        }
         String hash = enrolment.getExam().getHash();
+        Map<String, String> headers = new HashMap<>();
         headers.put("x-sitnet-start-exam", hash);
-        return new AddHeader( super.onRequest(request, actionMethod), headers);
+        return new AddHeader(super.onRequest(request, method), headers);
+    }
+
+
+    private Action handleUpcomingEnrolment(ExamEnrolment enrolment, Request request, Method method) {
+        Action wrongMachine = checkMachine(enrolment, request, method);
+        if (wrongMachine != null) {
+            return wrongMachine;
+        }
+        String hash = enrolment.getExam().getHash();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("x-sitnet-start-exam", hash);
+        headers.put("x-sitnet-upcoming-exam", enrolment.getId().toString());
+        return new AddHeader(super.onRequest(request, method), headers);
+    }
+
+    private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
+        Timestamp now = SitnetUtil.getNowTime();
+        LocalDateTime future = new LocalDateTime(now).plusMinutes(minutesToFuture);
+        List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .fetch("exam")
+                .where()
+                .eq("user.id", userId)
+                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .le("reservation.startAt", future)
+                .gt("reservation.endAt", now)
+                .orderBy("reservation.startAt")
+                .findList();
+        if (results.isEmpty()) {
+            return null;
+        }
+        return results.get(0);
     }
 
     private static class InitialData {
@@ -287,7 +287,7 @@ public class Global extends GlobalSettings {
                 String productionData = ConfigFactory.load().getString("sitnet.production.initial.data");
 
                 // Should we load test data
-                if(productionData.equals("false")) {
+                if (productionData.equals("false")) {
 
                     @SuppressWarnings("unchecked")
                     Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
@@ -320,18 +320,17 @@ public class Global extends GlobalSettings {
                     // generate hashes for questions
                     List<Object> questions = all.get("question_multiple_choice");
                     for (Object q : questions) {
-                        ((QuestionInterface)q).generateHash();
+                        ((QuestionInterface) q).generateHash();
                     }
                     Ebean.save(questions);
 
                     // generate hashes for questions
                     List<Object> exams = all.get("exams");
                     for (Object e : exams) {
-                        ((Exam)e).generateHash();
+                        ((Exam) e).generateHash();
                     }
                     Ebean.save(exams);
-                }
-                else if(productionData.equals("true")) {
+                } else if (productionData.equals("true")) {
 
                     @SuppressWarnings("unchecked")
                     Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
@@ -345,6 +344,27 @@ public class Global extends GlobalSettings {
                     Ebean.save(all.get("general-settings"));
                 }
             }
+        }
+    }
+
+    private class AddHeader extends Action {
+        private Map<String, String> headers;
+
+        public AddHeader(Action action, Map<String, String> headers) {
+            this.headers = headers;
+            this.delegate = action;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Promise<SimpleResult> call(Http.Context context) throws Throwable {
+            final Promise<SimpleResult> promise = this.delegate.call(context);
+            Http.Response response = context.response();
+
+            for (String key : headers.keySet()) {
+                response.setHeader(key, headers.get(key));
+            }
+            return promise;
         }
     }
 }

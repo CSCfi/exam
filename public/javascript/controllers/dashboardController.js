@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('DashboardCtrl', ['$scope', '$http', '$translate', '$location', 'SITNET_CONF', 'sessionService', 'ExamRes', 'StudentExamRes',
-            function ($scope, $http, $translate, $location, SITNET_CONF, sessionService, ExamRes, StudentExamRes) {
+        .controller('DashboardCtrl', ['$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'StudentExamRes',
+            function ($scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, StudentExamRes) {
 
                 $scope.dashboardToolbarPath = SITNET_CONF.TEMPLATES_PATH + "teacher/toolbar.html";
                 $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/active_exams.html";
@@ -145,6 +145,31 @@
                             toastr.success("ok");
                         });
                     }
+                };
+
+                $scope.showInstructions = function(enrolment) {
+                    var modalController = function($scope, $modalInstance, instructions) {
+                        $scope.instructions = instructions;
+                        $scope.ok = function () {
+                            $modalInstance.close("Accepted");
+                        };
+                    };
+
+                    var modalInstance = $modal.open({
+                        templateUrl: 'assets/templates/dialogs/show_reservation_instructions.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController,
+                        resolve: {
+                            instructions: function () {
+                                return enrolment.exam.enrollInstruction;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function() {
+                        console.log("closed");
+                    });
                 };
 
                 $scope.beforeDate = function(date) {

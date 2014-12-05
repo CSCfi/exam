@@ -16,14 +16,19 @@
         <div class="row">
             <div class="sitnet-info-text">{{'sitnet_exam_name' | translate}}:</div>
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-9">
                     <input type="text" class="form-control ng-pristine ng-valid "
                            ng-model="newExam.name"
                            ui-change="updateExam()" style="font-size: 1.5em"/>
                 </div>
-                <div class="col-md-2">
-                     <button ng-click="saveExam()" class="btn btn-primary pull-right">
-                         {{'sitnet_save' | translate}}</button>
+                <div class="col-md-3">
+                    <button ng-click="saveExam()" class="btn btn-primary"
+                            ng-class="{'pull-right': newExam.state != 'SAVED'}">
+                        {{'sitnet_save' | translate}}
+                    </button>
+                    <button ng-hide="newExam.state == 'SAVED' ? false : true" ng-click="cancelNewExam(newExam)"
+                            class="btn btn-warning pull-right">{{'sitnet_button_cancel' | translate}}
+                    </button>
                 </div>
             </div>
         </div>
@@ -32,10 +37,11 @@
             <div class="bottom-padding-2" ng-include="generalInfoPath"></div>
 
             <div class="col-md-12">
-                <div ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath" ng-repeat="section in newExam.examSections"></div>
+                <div ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath"
+                     ng-repeat="section in newExam.examSections"></div>
             </div>
 
-            </div>
+        </div>
             <span ng-click="addNewSection()" class="create-new">
                 <center>
                     <i class="fa fa-2x fa-hand-o-right"></i>
@@ -44,10 +50,17 @@
             </span>
             <span>
                 <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+                <button ng-hide="newExam.state == 'SAVED' ? false : true" ng-click="cancelNewExam(newExam)"
+                        class="btn btn-warning">{{'sitnet_button_cancel' | translate}}</button>
             </span>
             <span class="pull-right">
                 <button ng-click="previewExam()" class="btn btn-primary">{{'sitnet_preview' | translate}}</button>
-                <button ng-hide="newExam.state == 'PUBLISHED' ? true : false" ng-click="saveAndPublishExam()" class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}</button>
+                <button ng-hide="newExam.state == 'PUBLISHED' ? true : false" ng-click="saveAndPublishExam()"
+                        class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}
+                </button>
+                <button ng-hide="newExam.state == 'PUBLISHED' ? false : true" ng-click="unpublishExam()"
+                        class="btn btn-warning">{{'sitnet_unpublish_exam' | translate }}
+                </button>
             </span>
     </div>
     <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>

@@ -6,8 +6,8 @@
 
             }
         ]).config(['$httpProvider', function ($httpProvider) {
-            $httpProvider.interceptors.push(['$q', '$rootScope' ,'$location', '$translate', 'wrongRoomService',
-                function ($q, $rootScope, $location, $translate, wrongRoomService) {
+            $httpProvider.interceptors.push(['$q', '$rootScope' ,'$location', '$translate', 'wrongRoomService', 'waitingRoomService',
+                function ($q, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
                     return {
                         'response': function (response) {
                             var wrongPlace = response.headers()['x-sitnet-wrong-machine'];
@@ -16,9 +16,17 @@
                                 wrongRoomService.display(location);
                             }
 
-                            var startExam = response.headers()['x-sitnet-start-exam'];
-                            if (startExam) {
-                                $location.path('/student/doexam/' + startExam);
+                            var hash = response.headers()['x-sitnet-start-exam'];
+                            if (hash) {
+                                var enrolmentId = response.headers()['x-sitnet-upcoming-exam'];
+                                if (enrolmentId) {
+                                    waitingRoomService.setEnrolmentId(enrolmentId);
+                                    waitingRoomService.setExamHash(hash);
+                                    $location.path('/student/waitingroom');
+                                    $rootScope.$broadcast('upcomingExam');
+                                } else {
+                                    $location.path('/student/doexam/' + hash);
+                                }
                             }
 
                             return response;

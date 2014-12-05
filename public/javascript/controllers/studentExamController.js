@@ -363,7 +363,7 @@
                 // SIT-657, temporary solution
                 $scope.logoutFromExam = function (doexam) {
 
-                    if (confirm($translate('sitnet_confirm_logout'))) {
+                    if (confirm($translate('sitnet_confirm_turn_exam'))) {
 
                         $location.path("/logout/");
 
