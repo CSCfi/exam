@@ -440,7 +440,7 @@
 
     "sitnet_redirect_to_exam_notice": "You will be automatically forwarded to exam when it begins",
     "sitnet_redirect_to_exam_offset": "Your exam will begin in",
-    "sitnet_exam_is_about_to_begin": "Following exam is about to begin"
+    "sitnet_exam_is_about_to_begin": "Following exam is about to begin",
     "sitnet_new_question_draft": "New question draft",
     "sitnet_course_not_found": "Course not found",
     "sitnet_course_added": "Course added"

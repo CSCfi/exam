@@ -440,7 +440,7 @@
 
     "sitnet_redirect_to_exam_notice": "Sinut ohjataan tenttiin automaattisesti sen alkaessa",
     "sitnet_redirect_to_exam_offset": "Tentin alkuun",
-    "sitnet_exam_is_about_to_begin": "Seuraava tentti on alkamassa"
+    "sitnet_exam_is_about_to_begin": "Seuraava tentti on alkamassa",
 
     "sitnet_new_question_draft": "Uusi kysymysluonnos",
     "sitnet_course_not_found": "Opintojaksoa ei löydy",
