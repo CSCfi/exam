@@ -436,6 +436,9 @@
     "sitnet_unpublish_not_possible": "Tentens publikation kan inte avbrytas för att studenter har redan anmält sig på den",
     "sitnet_instructions": "Anvisning",
     "sitnet_view": "Se här",
-    "sitnet_display_free_time_slots": "Fria tider"
+    "sitnet_display_free_time_slots": "Fria tider",
 
+    "sitnet_redirect_to_exam_notice": "Du skall automatiskt riktas till tenten när den börjar",
+    "sitnet_redirect_to_exam_offset": "Tenten börjar inom",
+    "sitnet_exam_is_about_to_begin": "Följande tent skall snart börja"
 }

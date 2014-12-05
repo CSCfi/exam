@@ -1,0 +1,79 @@
+(function() {
+    'use strict';
+    angular.module("sitnet.controllers")
+        .controller('WaitingRoomCtrl', ['$scope', '$timeout', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService',
+            function($scope, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService) {
+
+                $scope.session = sessionService;
+                $scope.user = $scope.session.user;
+
+                var calculateOffset = function() {
+                    var startsAt = $scope.enrolment.reservation.startAt;
+                    // Kinda terrible hack to get the TZ difference right, the backend should provide us
+                    // with the timezone, but it does not. Problem with datetime format in json serialization?
+                    startsAt = startsAt.substring(0, startsAt.length - 1) + "+02:00";
+                    var offset = Date.parse(startsAt) - new Date().getTime();
+                    toastr.info($translate('sitnet_redirect_to_exam_offset') + " " + Math.round(offset / 1000 / 60)
+                        + " " + $translate('sitnet_minutes') + ". " + $translate('sitnet_redirect_to_exam_notice') + ".");
+                    return offset;
+                };
+
+                var await = function() {
+                    if ($scope.user != null && $scope.user.isStudent) {
+                        var eid = waitingRoomService.getEnrolmentId();
+                        StudentExamRes.enrolment.get({eid: eid},
+                            function(enrolment) {
+                                $scope.enrolment = enrolment;
+                                StudentExamRes.teachers.get({id: enrolment.exam.id},
+                                    function(teachers) {
+                                        enrolment.teachers = teachers.map(function(teacher) {
+                                            return teacher.user.firstName + " " + teacher.user.lastName;
+                                        }).join(", ");
+                                    },
+                                    function(error) {
+                                        toastr.error(error.data);
+                                    }
+                                );
+                                $scope.exam = waitingRoomService.getExamHash();
+                                if (!$scope.timeout) {
+                                    $scope.timeout = $timeout(function() {
+                                        $location.path('/student/doexam/' + $scope.exam);
+                                    }, calculateOffset());
+                                }
+                            },
+                            function(error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
+                };
+
+                $scope.$on('upcomingExam', function() {
+                    if (!$scope.enrolment) {
+                        await();
+                    }
+                });
+
+                $scope.printExamDuration = function(exam) {
+
+                    if (exam && exam.duration) {
+                        var h = Math.floor(exam.duration / 60);
+                        var m = exam.duration % 60;
+                        if (h === 0) {
+                            return m + "min";
+                        } else if (m === 0) {
+                            return h + "h ";
+                        } else {
+                            return h + "h " + m + "min";
+                        }
+                    } else {
+                        return "";
+                    }
+                };
+
+                $scope.getUsername = function() {
+                    return $scope.session.user.firstname + " " + $scope.session.user.lastname;
+                };
+
+            }]);
+}());

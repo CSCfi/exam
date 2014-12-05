@@ -436,6 +436,10 @@
     "sitnet_unpublish_not_possible": "Tentin julkaisua ei voi perua, sillä tenttiin on jo ilmoittautunut opiskelijoita",
     "sitnet_instructions": "Ohjeet",
     "sitnet_view": "Katso tästä",
-    "sitnet_display_free_time_slots": "Vapaat ajat"
+    "sitnet_display_free_time_slots": "Vapaat ajat",
+
+    "sitnet_redirect_to_exam_notice": "Sinut ohjataan tenttiin automaattisesti sen alkaessa",
+    "sitnet_redirect_to_exam_offset": "Tentin alkuun",
+    "sitnet_exam_is_about_to_begin": "Seuraava tentti on alkamassa"
 
 }

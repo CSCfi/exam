@@ -125,6 +125,35 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
+    public static Result getEnrolment(Long eid) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .eq("id", eid)
+                .findUnique();
+
+        if (enrolment == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+            options.setPathProperties("user", "id");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction");
+            options.setPathProperties("exam.course", "name, code");
+            options.setPathProperties("reservation", "id, startAt, endAt, machine");
+            options.setPathProperties("reservation.machine", "name");
+            options.setPathProperties("reservation.machine", "name, room");
+            options.setPathProperties("reservation.machine.room", "name, roomCode");
+
+            return ok(jsonContext.toJsonString(enrolment, true, options)).as("application/json");
+        }
+    }
+
+    @Restrict({@Group("STUDENT")})
     public static Result getEnrolmentsForUser(Long uid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
