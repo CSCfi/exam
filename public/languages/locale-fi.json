@@ -444,5 +444,13 @@
 
     "sitnet_new_question_draft": "Uusi kysymysluonnos",
     "sitnet_course_not_found": "Opintojaksoa ei löydy",
-    "sitnet_course_added": "Opintojaksoa lisätty"
+    "sitnet_course_added": "Opintojaksoa lisätty",
+
+    "sitnet_error_start_date": "Tentin aloituspäivä ei kelpaa",
+    "sitnet_error_end_date": "Tentin päättymispäivä ei kelpaa",
+    "sitnet_error_end_sooner_than_start": "Tentin päättymispäivä on aikaisemmin kuin aloituspäivä",
+    "sitnet_error_end_sooner_than_now": "Tentin päättymispäivä on menneessä",
+    "sitnet_error_exam_empty_name": "Tentin nimi ei kelpaa",
+    "sitnet_error_exam_empty_exam_language": "Tentin kieli ei kelpaa"
+
 }

@@ -441,5 +441,11 @@
     "sitnet_redirect_to_exam_offset": "Tenten börjar inom",
     "sitnet_exam_is_about_to_begin": "Följande tent skall snart börja",
     "sitnet_course_not_found": "Course not found",
-    "sitnet_course_added": "Course added"
+    "sitnet_course_added": "Course added",
+    "sitnet_error_start_date": "Not a valid start date",
+    "sitnet_error_end_date": "Not a valid end date",
+    "sitnet_error_end_sooner_than_start": "End date is sooner than start date",
+    "sitnet_error_end_sooner_than_now": "End date is in the past",
+    "sitnet_error_exam_empty_name": "Not a valid exam name",
+    "sitnet_error_exam_empty_exam_language": "Not a valid exam language"
 }

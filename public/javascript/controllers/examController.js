@@ -415,8 +415,11 @@
                             toastr.info($translate("sitnet_exam_saved"));
                             $scope.newExam = exam;
                         }, function(error) {
-
-                            toastr.error(error.data);
+                            if(error.data.indexOf("sitnet_error_") > 0) {
+                                toastr.error($translate(error.data));
+                            } else {
+                                toastr.error(error.data);
+                            }
                         });
                 };
 
