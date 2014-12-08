@@ -7,6 +7,11 @@
 
             var show = false;
 
+            var zeropad = function(n) {
+                n += '';
+                return n.length > 1 ? n : '0' + n;
+            };
+
             var display = function (data) {
                 if (show) {
                     return;
@@ -25,10 +30,19 @@
                     "timeOut": time,
                     "extendedTimeOut": "0"
                 };
-
-                var message = 'Sinulla on koe menossa sijainnissa: ' + data[0] + ', ' + data[1] + ' huoneessa ' + data[2] + ' koneella ' + data[3];
-
-                toastr.error(message);
+                var startsAt = Date.parse(data[4] + "+02:00");
+                if (startsAt > new Date().getTime()) {
+                    var date = new Date(startsAt);
+                    var hours = zeropad(date.getHours());
+                    var mins = zeropad(date.getMinutes());
+                    toastr.warning('Sinulla on koe alkamassa klo ' + hours + ':' + mins +
+                        ' sijainnissa: ' + data[0] + ', ' + data[1] + ' huoneessa ' + data[2] +
+                        ' koneella ' + data[3]);
+                } else {
+                    var message = 'Sinulla on koe menossa sijainnissa: ' + data[0] + ', ' + data[1] + ' huoneessa ' +
+                        data[2] + ' koneella ' + data[3];
+                    toastr.error(message);
+                }
                 toastr.options = opts;
             };
 

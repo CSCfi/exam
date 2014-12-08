@@ -420,7 +420,7 @@
     "sitnet_finish_exam_before_logout": "Finish your exam before logging out",
     "sitnet_internal_error": "Internal server error occurred",
     "sitnet_positive_integer_required": "Value must be a positive number",
-    "sitnet_exam_returned": "Exam returned",
+    "sitnet_exam_returned": "Your answers have been saved and your teacher has been notified. You will be automatically logged out",
     "sitnet_exam_aborted": "Exam aborted",
     "sitnet_confirm_logout": "Sure you want to log out?",
     "sitnet_endtime_before_starttime": "End time can not occur before start time",
