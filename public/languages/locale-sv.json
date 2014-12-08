@@ -448,5 +448,11 @@
     "sitnet_current_wrong_room_title": "You are in room",
     "sitnet_reserved_room": "Room you booked",
     "sitnet_logout_and_login_elsewhere": "Please log out, move to the right computer and log back in",
-    "sitnet_reserved_exam": "Exam you booked"
+    "sitnet_reserved_exam": "Exam you booked",
+    "sitnet_error_start_date": "Not a valid start date",
+    "sitnet_error_end_date": "Not a valid end date",
+    "sitnet_error_end_sooner_than_start": "End date is sooner than start date",
+    "sitnet_error_end_sooner_than_now": "End date is in the past",
+    "sitnet_error_exam_empty_name": "Not a valid exam name",
+    "sitnet_error_exam_empty_exam_language": "Not a valid exam language"
 }

@@ -451,5 +451,12 @@
     "sitnet_current_wrong_room_title": "Olet tenttimistilassa",
     "sitnet_reserved_room": "Varaamasi tenttitila",
     "sitnet_logout_and_login_elsewhere": "Kirjaudu ulos tältä koneelta, siirry oikealle koneelle ja kirjaudu takaisin sisään",
-    "sitnet_reserved_exam": "Varaamanne tenttitapahtuma"
+    "sitnet_reserved_exam": "Varaamanne tenttitapahtuma",
+    "sitnet_error_start_date": "Tentin aloituspäivä ei kelpaa",
+    "sitnet_error_end_date": "Tentin päättymispäivä ei kelpaa",
+    "sitnet_error_end_sooner_than_start": "Tentin päättymispäivä on aikaisemmin kuin aloituspäivä",
+    "sitnet_error_end_sooner_than_now": "Tentin päättymispäivä on menneessä",
+    "sitnet_error_exam_empty_name": "Tentin nimi ei kelpaa",
+    "sitnet_error_exam_empty_exam_language": "Tentin kieli ei kelpaa"
+
 }

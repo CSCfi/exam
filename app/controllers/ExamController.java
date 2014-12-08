@@ -24,6 +24,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 import util.java.EmailComposer;
+import util.java.ValidationUtil;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -586,6 +587,11 @@ public class ExamController extends SitnetController {
         if (exam == null) {
             return notFound();
         } else if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
+
+            String str = ValidationUtil.validateExamForm(df);
+            if(! str.equalsIgnoreCase("OK")) {
+                return badRequest(str);
+            }
 
             String examName = df.get("name");
             boolean shared = Boolean.parseBoolean(df.get("shared"));
