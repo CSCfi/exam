@@ -69,5 +69,9 @@
                     $scope.links = links();
                 });
 
+                $scope.$on('wrongMachine', function() {
+                    $scope.links = links();
+                });
+
             }]);
 }());

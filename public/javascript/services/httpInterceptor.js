@@ -10,18 +10,33 @@
                 function ($q, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
                     return {
                         'response': function (response) {
-                            var wrongPlace = response.headers()['x-sitnet-wrong-machine'];
-                            if (wrongPlace) {
-                                var location = atob(wrongPlace).split(":::");
+                            var unknownMachine = response.headers()['x-sitnet-unknown-machine'];
+                            var wrongRoom = response.headers()['x-sitnet-wrong-room'];
+                            var wrongMachine = response.headers()['x-sitnet-wrong-machine'];
+                            var hash = response.headers()['x-sitnet-start-exam'];
+                            if (unknownMachine) {
+                                var location = atob(unknownMachine).split(":::");
                                 wrongRoomService.display(location);
                             }
-
-                            var hash = response.headers()['x-sitnet-start-exam'];
-                            if (hash) {
+                            else if (wrongRoom) {
+                                var parts = atob(wrongRoom).split(":::");
+                                waitingRoomService.setEnrolmentId(parts[0]);
+                                waitingRoomService.setActualRoom(parts[1] + " (" + parts[2] + ")");
+                                waitingRoomService.setActualMachine(parts[3]);
+                                $location.path('/student/wrongmachine');
+                                $rootScope.$broadcast('wrongMachine');
+                            }
+                            else if (wrongMachine) {
+                                var parts = atob(wrongMachine).split(":::");
+                                waitingRoomService.setEnrolmentId(parts[0]);
+                                waitingRoomService.setActualMachine(parts[1]);
+                                $location.path('/student/wrongmachine');
+                                $rootScope.$broadcast('wrongMachine');
+                            }
+                            else if (hash) {
                                 var enrolmentId = response.headers()['x-sitnet-upcoming-exam'];
                                 if (enrolmentId) {
                                     waitingRoomService.setEnrolmentId(enrolmentId);
-                                    waitingRoomService.setExamHash(hash);
                                     $location.path('/student/waitingroom');
                                     $rootScope.$broadcast('upcomingExam');
                                 } else {
