@@ -16,7 +16,8 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 public class SessionController extends SitnetController {
@@ -223,9 +224,11 @@ public class SessionController extends SitnetController {
     }
 
     private static String toUtf8(String src) {
-        String latin = new String(src.getBytes(), Charset.forName("ISO-8859-1"));
-        return new String(latin.getBytes(), Charset.forName("UTF-8"));
+        try {
+            return URLDecoder.decode(src, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
-
 
 }
