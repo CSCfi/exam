@@ -232,7 +232,8 @@ public class Global extends GlobalSettings {
                 message = room.getCampus() + ":::" +
                         room.getBuildingName() + ":::" +
                         room.getRoomCode() + ":::" +
-                        examMachine.getName();
+                        examMachine.getName() + ":::" +
+                        enrolment.getReservation().getStartAt();
             } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                 // Right room, wrong machine
                 header = "x-sitnet-wrong-machine";

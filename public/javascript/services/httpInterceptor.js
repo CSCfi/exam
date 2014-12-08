@@ -10,16 +10,21 @@
                 function ($q, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
                     return {
                         'response': function (response) {
+
+                            var b64_to_utf8 = function(data) {
+                                return decodeURIComponent(escape(atob(data)));
+                            };
+
                             var unknownMachine = response.headers()['x-sitnet-unknown-machine'];
                             var wrongRoom = response.headers()['x-sitnet-wrong-room'];
                             var wrongMachine = response.headers()['x-sitnet-wrong-machine'];
                             var hash = response.headers()['x-sitnet-start-exam'];
                             if (unknownMachine) {
-                                var location = atob(unknownMachine).split(":::");
+                                var location = b64_to_utf8(unknownMachine).split(":::");
                                 wrongRoomService.display(location);
                             }
                             else if (wrongRoom) {
-                                var parts = atob(wrongRoom).split(":::");
+                                var parts = b64_to_utf8(wrongRoom).split(":::");
                                 waitingRoomService.setEnrolmentId(parts[0]);
                                 waitingRoomService.setActualRoom(parts[1] + " (" + parts[2] + ")");
                                 waitingRoomService.setActualMachine(parts[3]);
@@ -27,7 +32,7 @@
                                 $rootScope.$broadcast('wrongMachine');
                             }
                             else if (wrongMachine) {
-                                var parts = atob(wrongMachine).split(":::");
+                                var parts = b64_to_utf8(wrongMachine).split(":::");
                                 waitingRoomService.setEnrolmentId(parts[0]);
                                 waitingRoomService.setActualMachine(parts[1]);
                                 $location.path('/student/wrongmachine');

@@ -420,7 +420,7 @@
     "sitnet_finish_exam_before_logout": "Päätä avoin tentti ennen uloskirjautumista",
     "sitnet_internal_error": "Järjestelmävirhe",
     "sitnet_positive_integer_required": "Arvon pitää olla positiivinen kokonaisluku",
-    "sitnet_exam_returned": "Tentti palautettu",
+    "sitnet_exam_returned": "Vastauksesi on tallennettu ja palautuksestasi on lähetetty tieto opettajalle. Sinut kirjataan ulos automaattisesti",
     "sitnet_exam_aborted": "Tentti keskeytetty",
     "sitnet_confirm_logout": "Oletko varma, että haluat kirjautua ulos?",
     "sitnet_endtime_before_starttime": "Lopetusaika ei voi olla ennen aloitusaikaa",

@@ -336,7 +336,7 @@
 
 
                             toastr.info($translate('sitnet_exam_returned'));
-                            $location.path("/home/");
+                            $location.path("/logout/");
 
                         }, function () {
 

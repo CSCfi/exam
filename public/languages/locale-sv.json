@@ -420,7 +420,7 @@
     "sitnet_finish_exam_before_logout": "Avsluta tenten innan du loggar ut",
     "sitnet_internal_error": "Internt fel",
     "sitnet_positive_integer_required": "Värdet måste vara positivt nummer",
-    "sitnet_exam_returned": "Tenten återlämnad",
+    "sitnet_exam_returned": "Dina svar har sparats och din lärare har informerats. Du skall nu automatiskt loggas ut.",
     "sitnet_exam_aborted": "Tenten avbruten",
     "sitnet_conform_logout": "Säker att du vill logga ut?",
     "sitnet_endtime_before_starttime": "Starttid kan inte vara senare än sluttid",
