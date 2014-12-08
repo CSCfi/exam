@@ -68,6 +68,14 @@ public class Interfaces extends SitnetController {
     public static List<Course> getCourseInfo(String code) throws NotFoundException {
 
         String url= ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url");
+        boolean isActive = false;
+
+        try {
+            isActive = ConfigFactory.load().getBoolean("sitnet.integration.courseUnitInfo.active");
+        } catch(Exception e) {
+            isActive = false;
+        }
+
 
         List<Course> list = Ebean.find(Course.class).where().like("code", code + "%").orderBy("name desc").findList();
 
@@ -77,82 +85,83 @@ public class Interfaces extends SitnetController {
         }
         list = new ArrayList<>();
 
-        try {
-            WS.WSRequestHolder ws = WS.url(url)
-                    .setTimeout(10 * 1000)
-                    .setQueryParameter("courseUnitCode", code);
+        if(isActive) {
+            try {
+                WS.WSRequestHolder ws = WS.url(url)
+                        .setTimeout(10 * 1000)
+                        .setQueryParameter("courseUnitCode", code);
 
 
-            final F.Promise<WS.Response> reply = ws.get();
-            final WS.Response response = reply.get(1000 * 10);
+                final F.Promise<WS.Response> reply = ws.get();
+                final WS.Response response = reply.get(1000 * 10);
 
-            if(response != null && response.getStatus() == 200) {
+                if (response != null && response.getStatus() == 200) {
 
-                for (JsonNode json : response.asJson()) {
+                    for (JsonNode json : response.asJson()) {
 
-                    // if not Course json, failed answer can contain other kind of text like "Opintokohde xxxxxxx ei löytynyt Oodista"
-                    if (json.has("identifier")) {
+                        // if not Course json, failed answer can contain other kind of text like "Opintokohde xxxxxxx ei löytynyt Oodista"
+                        if (json.has("identifier")) {
 
-                        if (Logger.isDebugEnabled()) {
-                            Logger.debug("*** returned object ***");
-                            Iterator i = json.fieldNames();
-                            while (i.hasNext()) {
-                                String s = (String) i.next();
-                                Logger.debug("*   " + s + ": " + json.get(s));
+                            if (Logger.isDebugEnabled()) {
+                                Logger.debug("*** returned object ***");
+                                Iterator i = json.fieldNames();
+                                while (i.hasNext()) {
+                                    String s = (String) i.next();
+                                    Logger.debug("*   " + s + ": " + json.get(s));
+                                }
+                                Logger.debug("***********************");
                             }
-                            Logger.debug("***********************");
+
+                            Course course = new Course();
+
+                            course.setId(0L);
+
+                            // will throw nullpointer if column missing, check all columns
+                            try {
+                                if (json.has("courseUnitTitle")) {
+                                    course.setName(json.get("courseUnitTitle").asText());
+                                }
+                                if (json.has("courseUnitCode")) {
+                                    course.setCode(json.get("courseUnitCode").asText());
+                                }
+                                if (json.has("courseUnitType")) {
+                                    course.setCourseUnitType(json.get("courseUnitType").asText());
+                                }
+                                if (json.has("startDate")) {
+                                    course.setStartDate(json.get("startDate").asText());
+                                }
+                                if (json.has("credits")) {
+                                    course.setCredits(json.get("credits").asDouble());
+                                }
+                                if (json.has("identifier")) {
+                                    course.setIdentifier(json.get("identifier").asText());
+                                }
+                                if (json.has("institutionName")) {
+                                    course.setInstitutionName(json.get("institutionName").asText());
+                                }
+
+                                // in array form
+                                course.setCampus(getFirstChildNameValue(json, "campus"));
+                                course.setDegreeProgramme(getFirstChildNameValue(json, "degreeProgramme"));
+                                course.setDepartment(getFirstChildNameValue(json, "department"));
+                                course.setLecturer(getFirstChildNameValue(json, "lecturer"));
+                                course.setGradeScale(getFirstChildNameValue(json, "gradeScale"));
+                                course.setCreditsLanguage(getFirstChildNameValue(json, "creditsLanguage"));
+
+                            } catch (Exception e) {
+                                Logger.error("error in interface course mapping", e);
+                            }
+
+                            list.add(course);
                         }
 
-                        Course course = new Course();
-
-                        course.setId(0L);
-
-                        // will throw nullpointer if column missing, check all columns
-                        try {
-                            if (json.has("courseUnitTitle")) {
-                                course.setName(json.get("courseUnitTitle").asText());
-                            }
-                            if (json.has("courseUnitCode")) {
-                                course.setCode(json.get("courseUnitCode").asText());
-                            }
-                            if (json.has("courseUnitType")) {
-                                course.setCourseUnitType(json.get("courseUnitType").asText());
-                            }
-                            if (json.has("startDate")) {
-                                course.setStartDate(json.get("startDate").asText());
-                            }
-                            if (json.has("credits")) {
-                                course.setCredits(json.get("credits").asDouble());
-                            }
-                            if (json.has("identifier")) {
-                                course.setIdentifier(json.get("identifier").asText());
-                            }
-                            if (json.has("institutionName")) {
-                                course.setInstitutionName(json.get("institutionName").asText());
-                            }
-
-                            // in array form
-                            course.setCampus(getFirstChildNameValue(json, "campus"));
-                            course.setDegreeProgramme(getFirstChildNameValue(json, "degreeProgramme"));
-                            course.setDepartment(getFirstChildNameValue(json, "department"));
-                            course.setLecturer(getFirstChildNameValue(json, "lecturer"));
-                            course.setGradeScale(getFirstChildNameValue(json, "gradeScale"));
-                            course.setCreditsLanguage(getFirstChildNameValue(json, "creditsLanguage"));
-
-                        } catch (Exception e) {
-                            Logger.error("error in interface course mapping", e);
-                        }
-
-                        list.add(course);
                     }
-
                 }
+
+            } catch (Exception ex) {
+                throw new NotFoundException(ex.getMessage());
             }
-
-        } catch (Exception ex) {
-            throw new NotFoundException(ex.getMessage());
         }
-
         Logger.debug("returning elements: " + list.size());
 
         return list;
