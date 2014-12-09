@@ -10,10 +10,7 @@ import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /*
  * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
@@ -400,7 +397,10 @@ public class Exam extends SitnetModel {
 
         List<ExamSection> examSectionsCopies = createNewExamSectionList();
 
-        for (ExamSection es : this.getExamSections()) {
+        List<ExamSection> examSections = this.getExamSections();
+        Collections.sort(examSections, sortSectionsByIdDesc());
+
+        for (ExamSection es : examSections) {
 
             // New arrays are needed for every examsection
             List<AbstractQuestion> examQuestionCopies = createNewExamQuestionList();
@@ -446,8 +446,10 @@ public class Exam extends SitnetModel {
             }
 
             else {
+                List<AbstractQuestion> questions = es.getQuestions();
+                Collections.sort(questions, sortQuestionsByIdDesc());
 
-                for (AbstractQuestion q : es.getQuestions()) {
+                for (AbstractQuestion q : questions) {
 
                     AbstractQuestion question_copy = (AbstractQuestion) q._ebean_createCopy();
                     question_copy.setId(null);
@@ -477,6 +479,8 @@ public class Exam extends SitnetModel {
                 }
             }
 
+            Collections.sort(examQuestionCopies, sortQuestionsByIdDesc());
+
             examsec_copy.setQuestions(examQuestionCopies);
             SitnetUtil.setModifier(examsec_copy);
             examsec_copy.save();
@@ -485,10 +489,44 @@ public class Exam extends SitnetModel {
             examSectionsCopies.add(examsec_copy);
         }
 
+        Collections.sort(examSectionsCopies, sortSectionsByIdDesc());
+
         clone.setExamSections(examSectionsCopies);
         clone.generateHash();
 
         return clone;
+    }
+
+    private static Comparator<ExamSection> sortSectionsByIdDesc() {
+        return new Comparator<ExamSection>() {
+            @Override
+            public int compare(ExamSection o1, ExamSection o2) {
+                Long l = o1.getId() - o2.getId();
+                int i = 0;
+                try {
+                    i = l.intValue();
+                } catch(Exception e) {
+
+                }
+                return i;
+            }
+        };
+    }
+
+    private static Comparator<AbstractQuestion> sortQuestionsByIdDesc() {
+        return new Comparator<AbstractQuestion>() {
+            @Override
+            public int compare(AbstractQuestion o1, AbstractQuestion o2) {
+                Long l = o1.getId() - o2.getId();
+                int i = 0;
+                try {
+                    i = l.intValue();
+                } catch(Exception e) {
+
+                }
+                return i;
+            }
+        };
     }
 
     public List<ExamSection> createNewExamSectionList() {
