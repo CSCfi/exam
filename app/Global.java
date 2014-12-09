@@ -85,6 +85,9 @@ public class Global extends GlobalSettings {
     }
 
     private void weeklyEmailReport() {
+        // TODO: store the time of last dispatch in db so we know if scheduler was not run and send an extra report
+        // in that case?
+        
         // Every Monday at 6AM
         LocalDateTime now = new LocalDateTime();
         LocalDateTime nextRun = getNextMonday(now.withHourOfDay(6).withMinuteOfHour(0).withSecondOfMinute(0));
