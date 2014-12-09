@@ -285,6 +285,7 @@ public class StudentExamController extends SitnetController {
             } else if (possibeEnrolment.getReservation().getMachine() == null) {
                 return forbidden("sitnet_reservation_machine_not_found");
             } else if (!possibeEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+
                 ExamRoom examRoom = Ebean.find(ExamRoom.class)
                         .fetch("mailAddress")
                         .where()
@@ -310,6 +311,7 @@ public class StudentExamController extends SitnetController {
                     .findUnique();
 
             // Wrong moment in time. Student is early or late
+
             if (enrolment == null) {
 
                 DateTime endAt = new DateTime(possibeEnrolment.getReservation().getEndAt().getTime());
