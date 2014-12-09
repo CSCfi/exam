@@ -33,11 +33,13 @@
                 };
 
                 var cancelAutosavers = function() {
-                    angular.forEach($scope.doexam.examSections, function(section) {
-                        if (section.autosaver) {
-                            $interval.cancel(section.autosaver);
-                        }
-                    });
+                    if ($scope.doexam) {
+                        angular.forEach($scope.doexam.examSections, function(section) {
+                            if (section.autosaver) {
+                                $interval.cancel(section.autosaver);
+                            }
+                        });
+                    }
                 }
 
                 $scope.$on('$destroy', function() {
