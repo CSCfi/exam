@@ -16,7 +16,8 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 public class SessionController extends SitnetController {
@@ -44,7 +45,7 @@ public class SessionController extends SitnetController {
             }
         } else {
             if (loginType.equals("HAKA")) {
-                String eppn = request().getHeader("eppn");
+                String eppn = toUtf8(request().getHeader("eppn"));
 
                 user = Ebean.find(User.class)
                         .where()
@@ -61,7 +62,7 @@ public class SessionController extends SitnetController {
                         user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
                     }
 
-                    String email = request().getHeader("mail");
+                    String email = toUtf8(request().getHeader("mail"));
                     user.setEmail(email);
                     user.save();
                 } else {
@@ -72,7 +73,7 @@ public class SessionController extends SitnetController {
                     if (request().getHeader("schacPersonalUniqueCode") == null) {
                         user.setUserIdentifier("");
                     } else {
-                        user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
+                        user.setUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode")));
                     }
 
                     String email = request().getHeader("mail");
@@ -80,7 +81,7 @@ public class SessionController extends SitnetController {
                     user.setLastName(toUtf8(request().getHeader("sn")));
                     user.setFirstName(toUtf8(request().getHeader("displayName")));
 
-                    String language = request().getHeader("preferredLanguage");
+                    String language = toUtf8(request().getHeader("preferredLanguage"));
                     if (language != null && !language.isEmpty()) {
                         user.getUserLanguage().setNativeLanguageCode(language);
                         user.getUserLanguage().setUILanguageCode(language);
@@ -93,7 +94,7 @@ public class SessionController extends SitnetController {
                         user.setUserLanguage(lang);
                     }
 
-                    String shibRole = request().getHeader("unscoped-affiliation");
+                    String shibRole = toUtf8(request().getHeader("unscoped-affiliation"));
                     Logger.debug("unscoped-affiliation: " + shibRole);
                     SitnetRole role = (SitnetRole) getRole(shibRole);
                     if (role == null) {
@@ -111,7 +112,8 @@ public class SessionController extends SitnetController {
         }
 
         // User exists in the system -> log in
-        String token = loginType.equals("HAKA") ? request().getHeader("Shib-Session-ID") : UUID.randomUUID().toString();
+        String token = loginType.equals("HAKA") ? toUtf8(request().getHeader("Shib-Session-ID")) : UUID.randomUUID()
+                .toString();
 
         Session session = new Session();
         session.setSince(DateTime.now());
@@ -223,9 +225,14 @@ public class SessionController extends SitnetController {
     }
 
     private static String toUtf8(String src) {
-        String latin = new String(src.getBytes(), Charset.forName("ISO-8859-1"));
-        return new String(latin.getBytes(), Charset.forName("UTF-8"));
+        if (src == null) {
+            return null;
+        }
+        try {
+            return URLDecoder.decode(src, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
-
 
 }

@@ -1,12 +1,15 @@
 import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
+import akka.actor.Cancellable;
 import com.avaje.ebean.Ebean;
 import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
 import models.questions.QuestionInterface;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDateTime;
+import org.joda.time.Seconds;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -42,6 +45,16 @@ public class Global extends GlobalSettings {
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
     public static final int SITNET_UPCOMING_EXAM_LOOKAHEAD_MINUTES = 60;
 
+    private Cancellable reportSender;
+
+    @Override
+    public void onStop(Application app) {
+        if (reportSender != null && !reportSender.isCancelled()) {
+            reportSender.cancel();
+        }
+        super.onStop(app);
+    }
+
     @Override
     public void onStart(Application app) {
 
@@ -62,27 +75,20 @@ public class Global extends GlobalSettings {
 
         InitialData.insert();
         StatisticsController.createReportDirectory();
+
+        super.onStart(app);
     }
 
-    // TODO: quick fix, experimental scheduler from:
-    // http://davidchang168.blogspot.fi/2014/05/how-to-schedule-cron-jobs-in-play-2.html
+    private LocalDateTime getNextMonday(LocalDateTime date) {
+        return date.plusWeeks(date.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1).withDayOfWeek
+                (DateTimeConstants.MONDAY);
+    }
+
     private void weeklyEmailReport() {
-        Long delayInSeconds;
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.HOUR_OF_DAY, 19);
-        c.set(Calendar.MINUTE, 40);
-        c.set(Calendar.SECOND, 0);
-        Date plannedStart = c.getTime();
-        Date now = new Date();
-        Date nextRun;
-        if (now.after(plannedStart)) {
-            c.add(Calendar.DAY_OF_WEEK, 5);
-            nextRun = c.getTime();
-        } else {
-            nextRun = c.getTime();
-        }
-        delayInSeconds = (nextRun.getTime() - now.getTime()) / 1000; //To convert milliseconds to seconds.
-        FiniteDuration delay = FiniteDuration.create(delayInSeconds, TimeUnit.SECONDS);
+        // Every Monday at 6AM
+        LocalDateTime now = new LocalDateTime();
+        LocalDateTime nextRun = getNextMonday(now.withHourOfDay(6).withMinuteOfHour(0).withSecondOfMinute(0));
+        FiniteDuration delay = FiniteDuration.create(Seconds.secondsBetween(now, nextRun).getSeconds(), TimeUnit.SECONDS);
         FiniteDuration frequency = FiniteDuration.create(7, TimeUnit.DAYS);
         Runnable showTime = new Runnable() {
             @Override
@@ -104,7 +110,7 @@ public class Global extends GlobalSettings {
                 }
             }
         };
-        Akka.system().scheduler().schedule(delay, frequency, showTime, Akka.system().dispatcher());
+        reportSender = Akka.system().scheduler().schedule(delay, frequency, showTime, Akka.system().dispatcher());
     }
 
     @Override
