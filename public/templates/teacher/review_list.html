@@ -195,7 +195,10 @@
                             <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
                             <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                             <td class="table-column-examcode">{{examReview.exam.course.code}}</td>
-                            <td class="table-column-examname">{{examReview.exam.name}}</td>
+                            <td class="table-column-examname">
+                                <span ng-show="isLongerThanSixMonths(examReview.exam.gradedTime)">{{examReview.exam.name}}</span>
+                                <a ng-show="!isLongerThanSixMonths(examReview.exam.gradedTime)" href="#/exams/review/{{examReview.exam.id}}">{{examReview.exam.name}}</a>
+                            </td>
                             <td class="table-column-examname">{{examReview.user.firstName}} {{examReview.user.lastName}}</td>
                             <td class="table-column-open-until">{{examReview.exam.grade}}</td>
                             <td class="table-column-open-until">{{examReview.exam.gradedTime | date:'dd.MM.yyyy'}}</td>

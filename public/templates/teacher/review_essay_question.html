@@ -21,15 +21,14 @@
     <td>
         <div class="col-md-12 text-center">
             <span class="row" ng-show="question.evaluationType == 'Points'">
-                <select  class="form-control" ng-model="question.evaluatedScore"
-                        ng-change="insertEssayScore(question)">
+                <select class="form-control" ng-model="question.evaluatedScore" ng-change="insertEssayScore(question)" ng-disabled="isReadOnly">
                     <option ng-repeat="i in range(0, question.maxScore, 1)" value="{{ i }}"
                             ng-selected="question.evaluatedScore == i">{{ i }} / {{question.maxScore}}
                     </option>
                 </select>
             </span>
             <span ng-show="question.evaluationType == 'Select'">
-                <select name="{{getName(question)}}" class="form-control" ng-model="question.evaluatedScore"
+                <select name="{{getName(question)}}" class="form-control" ng-model="question.evaluatedScore" ng-disabled="isReadOnly"
                         ng-change="insertEssayScore(question)">
                     <option value="1" ng-selected="question.evaluatedScore == 1">{{ 'sitnet_approved' | translate }}</option>
                     <option value="0" ng-selected="question.evaluatedScore == 0">{{ 'sitnet_rejected' | translate }}</option>

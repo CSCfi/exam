@@ -61,6 +61,7 @@
                             $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
                             };
+                            $scope.isReadOnly = exam.state && exam.state === "GRADED_LOGGED";
 
                             switch ($scope.examToBeReviewed.grading) {
                                 case "0-5":

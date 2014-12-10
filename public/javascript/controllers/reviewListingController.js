@@ -56,7 +56,13 @@
                     );
                 }
 
+                $scope.isLongerThanSixMonths = function(gradedDate) {
 
+                    var sixMonths = 1000 * 60 * 60 * 24 * 182;
+                    var graded = Date.parse(gradedDate);
+
+                    return new Date().getTime() > graded + sixMonths;
+                }
 
                 $scope.printExamDuration = function(exam) {
 
