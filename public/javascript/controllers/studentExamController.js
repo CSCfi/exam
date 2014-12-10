@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('StudentExamController', ['$rootScope', '$scope', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes',
-            function($rootScope, $scope, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, QuestionRes) {
+        .controller('StudentExamController', ['$rootScope', '$scope', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', '$q',
+            function($rootScope, $scope, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, $q) {
 
                 $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
@@ -32,7 +32,7 @@
                     $scope.doExam($routeParams.hash);
                 };
 
-                var cancelAutosavers = function() {
+                function cancelAutosavers() {
                     if ($scope.doexam) {
                         angular.forEach($scope.doexam.examSections, function(section) {
                             if (section.autosaver) {
@@ -142,7 +142,7 @@
                                 msg.answer = question.answer.answer;
                                 StudentExamRes.essayAnswer.saveEssay(params, msg, function() {
                                     question.autosaved = new Date();
-                                    question.setQuestionColors(question);
+                                    $scope.setQuestionColors(question);
                                 }, function() {
                                 });
                             }
@@ -151,16 +151,15 @@
                 };
 
 
-
-                function sortAscByIds(a,b) {
+                function sortAscByIds(a, b) {
                     return parseInt(b.id) - parseInt(a.id);
                 }
 
-                function sortDescByIds(a,b) {
+                function sortDescByIds(a, b) {
                     return parseInt(a.id) - parseInt(b.id);
                 }
 
-                $scope.doExam = function (hash) {
+                $scope.doExam = function(hash) {
                     $http.get('/student/doexam/' + $routeParams.hash)
                         .success(function(data, status, headers, config) {
                             $rootScope.$broadcast('startExam');
@@ -169,9 +168,9 @@
                             $scope.activeSection = $scope.doexam.examSections[0];
 
                             // set sections and question numbering
-                            angular.forEach($scope.doexam.examSections.sort(sortDescByIds), function (section, index) {
+                            angular.forEach($scope.doexam.examSections.sort(sortDescByIds), function(section, index) {
                                 section.index = index + 1;
-                                angular.forEach(section.questions.sort(sortDescByIds), function (question, index) {
+                                angular.forEach(section.questions.sort(sortDescByIds), function(question, index) {
                                     question.index = index + 1;
                                 });
                             });
@@ -213,7 +212,7 @@
                             count();
                             $scope.activeSection.autosaver = getAutosaver();
                         }).
-                    error(function(data, status, headers, config) {
+                        error(function(data, status, headers, config) {
                             $location.path("/home/");
                         });
                 };
@@ -286,7 +285,7 @@
                     $scope.switchButtons(section);
 
                     // Loop through all questions in the active section
-                    angular.forEach($scope.activeSection.questions, function(question, index) {
+                    angular.forEach($scope.activeSection.questions, function(question) {
 
                         var template = "";
                         switch (question.type) {
@@ -312,7 +311,7 @@
                     $scope.activeSection.autosaver = getAutosaver();
                 };
 
-                $scope.setPreviousSection = function (exam, activeSection) {
+                $scope.setPreviousSection = function(exam, activeSection) {
 //                    var sectionCount = exam.examSections.length;
 
                     if (!$scope.guide) {
@@ -333,7 +332,7 @@
                     }
                 };
 
-                $scope.setNextSection = function (exam, activeSection) {
+                $scope.setNextSection = function(exam, activeSection) {
                     var sectionCount = exam.examSections.length;
 
                     if ($scope.guide) {
@@ -431,59 +430,21 @@
                     });
                 };
 
+                function zeropad(n) {
+                    n += '';
+                    return n.length > 1 ? n : '0' + n;
+                }
+
+
                 $scope.formatRemainingTime = function(time) {
-
-                    var remaining = 0;
-                    var minutes = time / 60;
-                    if (minutes > 1) {
-                        minutes = (minutes | 0);
-                        var seconds = time - ( minutes * 60 );
-                        if (minutes < 60) {
-                            if (minutes > 9) {
-                                if (seconds > 9) {
-                                    remaining = minutes + ":" + seconds + '';
-                                } else {
-                                    remaining = minutes + ":0" + seconds + '';
-                                }
-                            } else {
-                                if (seconds > 9) {
-                                    remaining = "0" + minutes + ":" + seconds + '';
-                                } else {
-                                    remaining = "0" + minutes + ":0" + seconds + '';
-                                }
-                            }
-                        } else {
-                            var h = 0;
-                            while (minutes > 59) {
-                                h++;
-                                minutes = minutes - 60;
-                            }
-                            if (minutes > 9) {
-                                if (seconds > 9) {
-                                    remaining = h + ":" + minutes + ":" + seconds + '';
-                                } else {
-                                    remaining = h + ":" + minutes + ":0" + seconds + '';
-                                }
-                            } else {
-                                if (seconds > 9) {
-                                    remaining = h + ":0" + minutes + ":" + seconds + '';
-                                } else {
-                                    remaining = h + ":0" + minutes + ":0" + seconds + '';
-                                }
-                            }
-
-                        }
-                    } else {
-                        if (time >= 0) {
-                            remaining = time + 's';
-                        } else {
-                            remaining = "";
-                            updateInterval = 30;
-                        }
+                    if (time <= 0) {
+                        updateInterval = 30;
+                        return '';
                     }
-
-                    return remaining;
-
+                    var hours = Math.floor(time / 60 / 60);
+                    var minutes = Math.floor(time / 60) % 60;
+                    var seconds = time % 60;
+                    return hours + ":" + zeropad(minutes) + ":" + zeropad(seconds);
                 };
 
                 $scope.alarmLine = 300; //if under this, red text. in seconds -> set to 5 minutes
@@ -499,6 +460,32 @@
                         });
                     }
                 };
+
+                function onTimeout() {
+                    $timeout.cancel($scope.remainingTimePoller);
+                    // Loop through all essay questions in the active section
+                    var promises = [];
+                    angular.forEach($scope.activeSection.questions, function(question) {
+                        var answer = question.answer ? question.answer.answer : '';
+                        if (question.type === "EssayQuestion" && answer.length > 0) {
+                            var params = {
+                                hash: $scope.doexam.hash,
+                                qid: question.id
+                            };
+                            var msg = {answer: answer};
+                            promises.push(StudentExamRes.essayAnswer.saveEssay(params, msg));
+                        }
+                    });
+                    // Finally save the exam and logout
+                    $q.all(promises).then(function() {
+                        StudentExamRes.exams.update({id: $scope.doexam.id}, function() {
+                            toastr.info($translate("sitnet_exam_time_is_up"));
+                            $location.path("/logout");
+                        }, function() {
+
+                        });
+                    });
+                }
 
                 $scope.remainingTime = "";
                 var updateCheck = 15;
@@ -519,13 +506,7 @@
                         // console.log("frontend count: " + $scope.remainingTime);
 
                         if ($scope.timeChecked === true && $scope.remainingTime < 0) {
-                            $timeout.cancel($scope.remainingTimePoller);
-                            StudentExamRes.exams.update({id: $scope.doexam.id}, function() {
-                                toastr.info($translate("sitnet_exam_returned"));
-                                $location.path("/logout");
-                            }, function() {
-
-                            });
+                            onTimeout();
                         }
                     }
                 };

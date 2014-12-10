@@ -25,7 +25,7 @@
                         toastr.success($translate("sitnet_logout_success"));
                         delete $scope.session.user;
                         $rootScope.$broadcast('userUpdated');
-                        $location.path('/login');
+                        //$location.path('/login'); // should forward to some "you are logged out" page?
                     });
                 };
 

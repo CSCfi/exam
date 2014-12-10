@@ -455,5 +455,6 @@
     "sitnet_error_end_sooner_than_start": "End date is sooner than start date",
     "sitnet_error_end_sooner_than_now": "End date is in the past",
     "sitnet_error_exam_empty_name": "Not a valid exam name",
-    "sitnet_error_exam_empty_exam_language": "Not a valid exam language"
+    "sitnet_error_exam_empty_exam_language": "Not a valid exam language",
+    "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned"
 }
