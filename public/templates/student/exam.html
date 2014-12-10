@@ -54,13 +54,13 @@
         <div class="row exam-navigation">
             <div class="col-sm-6 col-md-5 col-md-offset-1">
                 <!-- PREVIOUS SECTION BUTTON -->
-                <a class="blue_button_left" ng-show="previousButton && !guide" ng-click="setPreviousSection(doexam, activeSection)">
+                <a class="blue_button_left" ng-show="previousButton && !guide" ng-click="setPreviousSection(doexam)">
                     <i class="fa fa-arrow-left sitnet-text-theme"><span>{{ previousButtonText }}</span></i>
                 </a>
             </div>
             <div class="col-sm-6 col-md-5 col-md-offset-1">
                 <!-- NEXT SECTION BUTTON -->
-                <a class="blue_button_right" ng-show="nextButton" ng-click="setNextSection(doexam, activeSection)">
+                <a class="blue_button_right" ng-show="nextButton" ng-click="setNextSection(doexam)">
                     <span>{{ nextButtonText }} </span><i class="fa fa-arrow-right sitnet-text-theme icon_to_right"></i>
                 </a>
             </div>

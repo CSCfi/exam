@@ -455,5 +455,7 @@
     "sitnet_error_exam_empty_name": "Not a valid exam name",
     "sitnet_error_exam_empty_exam_language": "Not a valid exam language",
     "sitnet_participation_enrolled": "Responses/Bookings",
-    "sitnet_participation_reviewed": "Without Grade"
+    "sitnet_participation_reviewed": "Without Grade",
+    "sitnet_error_exam_empty_exam_language": "Not a valid exam language",
+    "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned"
 }
