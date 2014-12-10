@@ -129,7 +129,7 @@
     "sitnet_exit_feedback": "Poistu palautteesta",
     "sitnet_exit_preview": "Poistu esikatselusta",
     "sitnet_faculty_name": "Organisaatio",
-    "sitnet_finished_exams": "Päättyneet tentit",
+    "sitnet_finished_exams": "Suljetut tentit",
     "sitnet_grade": "Arvosana",
     "sitnet_grade_scale": "Arvosana-asteikko",
     "sitnet_graded": "Arvioitu",
@@ -173,8 +173,6 @@
     "sitnet_not_published_exams": "Julkaisemattomat tentit",
     "sitnet_out_of_service": "Poissa käytöstä",
     "sitnet_own": "Oma",
-    "sitnet_participation_enrolled": "Vastanneet/Ilmoittautuneet",
-    "sitnet_participation_reviewed": "Arvioidut/Vastanneet",
     "sitnet_password": "Salasana",
     "sitnet_placeholder_write_instruction": "Kirjoita ohjeet tähän",
     "sitnet_preview": "Esikatsele tentti",
@@ -271,7 +269,7 @@
     "sitnet_student": "Opiskelija",
     "sitnet_student_basic_information": "Opiskelijan perustiedot",
     "sitnet_teacher": "Opettaja",
-    "sitnet_teachers": "Opettajat",
+    "sitnet_teachers": "Opettaja(t)",
     "sitnet_teachers_comment": "Tentin palaute",
     "sitnet_time_range": "Ajanjakso",
     "sitnet_today": "Tänään",
@@ -457,6 +455,8 @@
     "sitnet_error_end_sooner_than_start": "Tentin päättymispäivä on aikaisemmin kuin aloituspäivä",
     "sitnet_error_end_sooner_than_now": "Tentin päättymispäivä on menneessä",
     "sitnet_error_exam_empty_name": "Tentin nimi ei kelpaa",
-    "sitnet_error_exam_empty_exam_language": "Tentin kieli ei kelpaa"
+    "sitnet_error_exam_empty_exam_language": "Tentin kieli ei kelpaa",
+    "sitnet_participation_enrolled": "Ilmoittautuneet",
+    "sitnet_participation_reviewed": "Arvioimatta"
 
 }

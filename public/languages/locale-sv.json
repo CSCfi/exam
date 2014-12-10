@@ -173,8 +173,6 @@
     "sitnet_not_published_exams": "Opublicerade tenter",
     "sitnet_out_of_service": "Ur bruk",
     "sitnet_own": "Eget",
-    "sitnet_participation_enrolled": "Besvarade/Anmälda",
-    "sitnet_participation_reviewed": "Utvärderade/Besvarade",
     "sitnet_password": "Lösenord",
     "sitnet_placeholder_write_instruction": "Skriv anvisningen här",
     "sitnet_preview": "Förhandsvisa tent",
@@ -454,5 +452,7 @@
     "sitnet_error_end_sooner_than_start": "End date is sooner than start date",
     "sitnet_error_end_sooner_than_now": "End date is in the past",
     "sitnet_error_exam_empty_name": "Not a valid exam name",
-    "sitnet_error_exam_empty_exam_language": "Not a valid exam language"
+    "sitnet_error_exam_empty_exam_language": "Not a valid exam language",
+    "sitnet_participation_enrolled": "Anmälda",
+    "sitnet_participation_reviewed": "Utvärderade"
 }
