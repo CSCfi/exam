@@ -18,13 +18,15 @@
 <div id="dashboard" class="row base">
 
     <div class="row">
-        <div class="col-md-12  exams-table-title-area">
+        <div ng-hide="!enrolment" class="col-md-12  exams-table-title-area">
             <span class="exams-list-title-text pull-left">{{'sitnet_exam_is_about_to_begin' | translate}}</span>
         </div>
+        <div ng-hide="enrolment" class="col-md-12  exams-table-title-area">
+            <span class="exams-list-title-text pull-left">Sinulla ei ole tenttejä tälle päivälle</span>
+        </div>
     </div>
-
     <div class="row" ng-controller="WaitingRoomCtrl">
-        <div class="col-md-11 pull-left bottom-padding-2 light-table">
+        <div ng-hide="!enrolment" class="col-md-11 pull-left bottom-padding-2 light-table">
             <div class="col-md-3 pull-left">
                 <div class="info-row col-md-12 pull-left">
                     <div class="info-row col-md-12 info-column info-header-bolditalic">{{enrolment.exam.name}} - {{enrolment.exam.course.code}}</div>
@@ -80,7 +82,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div ng-hide="!enrolment" class="row">
         <div class="col-md-12  exams-table-title-area">
             <span class="sitnet-text-theme pull-left">{{ 'sitnet_redirect_to_exam_notice' | translate }}</span>
         </div>

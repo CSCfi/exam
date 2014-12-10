@@ -7,9 +7,7 @@ import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
 import models.questions.QuestionInterface;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDateTime;
-import org.joda.time.Seconds;
+import org.joda.time.*;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -46,11 +44,15 @@ public class Global extends GlobalSettings {
     public static final int SITNET_UPCOMING_EXAM_LOOKAHEAD_MINUTES = 60;
 
     private Cancellable reportSender;
+    private Cancellable reviewRunner;
 
     @Override
     public void onStop(Application app) {
         if (reportSender != null && !reportSender.isCancelled()) {
             reportSender.cancel();
+        }
+        if (reviewRunner != null && !reviewRunner.isCancelled()) {
+            reviewRunner.cancel();
         }
         super.onStop(app);
     }
@@ -63,7 +65,7 @@ public class Global extends GlobalSettings {
 
         //todo: make these interval and start times configurable via configuration files
 
-        Akka.system().scheduler().schedule(
+        reviewRunner = Akka.system().scheduler().schedule(
                 Duration.create(SITNET_EXAM_REVIEWER_START_AFTER_MINUTES, TimeUnit.MINUTES),
                 Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                 new ReviewRunner(),
@@ -88,7 +90,7 @@ public class Global extends GlobalSettings {
         // TODO: store the time of last dispatch in db so we know if scheduler was not run and send an extra report
         // in that case?
         
-        // Every Monday at 6AM
+        // Every Monday at 6AM UTC
         LocalDateTime now = new LocalDateTime();
         LocalDateTime nextRun = getNextMonday(now.withHourOfDay(6).withMinuteOfHour(0).withSecondOfMinute(0));
         FiniteDuration delay = FiniteDuration.create(Seconds.secondsBetween(now, nextRun).getSeconds(), TimeUnit.SECONDS);
@@ -209,23 +211,36 @@ public class Global extends GlobalSettings {
         if (ongoingEnrolment != null) {
             return handleOngoingEnrolment(ongoingEnrolment, request, actionMethod);
         } else {
-            ExamEnrolment upcomingEnrolment = getNextEnrolment(user.getId(), SITNET_UPCOMING_EXAM_LOOKAHEAD_MINUTES);
+            DateTime now = new DateTime();
+            int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
+            ExamEnrolment upcomingEnrolment = getNextEnrolment(user.getId(), lookAheadMinutes);
             if (upcomingEnrolment != null) {
                 return handleUpcomingEnrolment(upcomingEnrolment, request, actionMethod);
+            } else if (isOnExamMachine(request)) {
+                // User is logged on an exam machine but has no exams for today
+                Map<String, String> headers = new HashMap<>();
+                headers.put("x-sitnet-upcoming-exam", "none");
+                return new AddHeader(super.onRequest(request, actionMethod), headers);
+            } else {
+                return super.onRequest(request, actionMethod);
             }
         }
-        return super.onRequest(request, actionMethod);
+    }
+
+    private boolean isOnExamMachine(Request request) {
+        return Ebean.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findUnique() != null;
     }
 
 
-    private boolean machineOk(ExamEnrolment enrolment, Request request, Map<String, String> headers) {
+    private boolean machineOk(ExamEnrolment enrolment, Request request, Map<String,
+            String> headers) {
         ExamMachine examMachine = enrolment.getReservation().getMachine();
         ExamRoom room = examMachine.getRoom();
 
         String machineIp = examMachine.getIpAddress();
         String remoteIp = request.remoteAddress();
 
-        Logger.debug("\nUser   ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
+        Logger.debug("\nUser ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
 
         //todo: is there another way to identify/match machines?
         //todo: eg. some transparent proxy that add id header etc.
