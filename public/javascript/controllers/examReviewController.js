@@ -9,6 +9,8 @@
                 $scope.multiplechoiceQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_multiplechoice_question.html";
                 $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_essay_question.html";
                 $scope.studentInfoTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_student_info.html";
+                $scope.previousParticipationPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_previous_participation.html";
+
 
                 $scope.session = sessionService;
                 $scope.user = $scope.session.user;
@@ -57,6 +59,12 @@
                     ExamRes.exams.get({id: $routeParams.id},
                         function(exam) {
                             $scope.examToBeReviewed = exam;
+
+                            // get previous participations ->
+                            ExamRes.examParticipationsOfUser.query(
+                                {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
+                                    $scope.previousParticipations = participations;
+                            });
                             $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
                             $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;

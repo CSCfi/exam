@@ -204,7 +204,14 @@
                 {
                     "get": {method: "GET", params: { eid: "@eid" }}
                 }),
-
+                examParticipationsOfUser: $resource("/examparticipations/:eid/:uid",
+                {
+                    eid: "@eid",
+                    uid: "@uid"
+                },
+                {
+                   "get": {method: "GET", params: { eid: "@eid", uid: "@uid"}}
+                }),
                 examParticipationsAndReviews: $resource("/examparticipationsandreviews/:eid",
                 {
                     eid: "@eid"

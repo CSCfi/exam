@@ -1179,6 +1179,26 @@ public class ExamController extends SitnetController {
         }
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getParticipationsForExamAndUser(Long eid, Long uid) {
+        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+                .fetch("exam")
+                .fetch("exam.parent")
+                .where()
+                .eq("exam.parent.id", eid)
+                .eq("user.id", uid)
+                .disjunction()
+                .eq("exam.state", Exam.State.GRADED_LOGGED)
+                .eq("exam.state", Exam.State.ARCHIVED)
+                .endJunction()
+                .findList();
+        JsonContext context = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("started, exam");
+        options.setPathProperties("exam", "id, grade");
+        return ok(context.toJsonString(participations, true, options)).as("application/json");
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getEnrolmentsForExam(Long eid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
