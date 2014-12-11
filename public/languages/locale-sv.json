@@ -455,5 +455,6 @@
     "sitnet_error_exam_empty_exam_language": "Not a valid exam language",
     "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned",
     "sitnet_participation_enrolled": "Anmälda",
-    "sitnet_participation_reviewed": "Utvärderade"
+    "sitnet_participation_reviewed": "Utvärderade",
+    "sitnet_date_time": "Datum och tid"
 }
