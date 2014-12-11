@@ -72,7 +72,6 @@
     "sitnet_exam_credit": "Opintopisteet",
     "sitnet_exam_credit_type": "Suoritustyyppi",
     "sitnet_exam_credit_type_final": "Kokonaissuoritus (kurssisuoritus muodostuu vain tästä tentistä)",
-    "sitnet_exam_credit_type_maturity": "Kypsyysnäyte",
     "sitnet_exam_credit_type_partial": "Osasuoritus (kurssin suoritukseen vaaditaan muutakin kuin tämä tentti)",
     "sitnet_exam_draw_questions": "Kysymysten arvonta",
     "sitnet_exam_duration": "Tentin kesto",

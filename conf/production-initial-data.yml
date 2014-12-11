@@ -64,9 +64,6 @@ exam-types:
   - &final !!models.ExamType
     type: Loppusuoritus
 
-  - &maturity !!models.ExamType
-    type: Kypsyysnäyte
-
 ################################################################
 
 grades:

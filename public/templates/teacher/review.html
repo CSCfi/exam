@@ -56,11 +56,10 @@
                 </div>
                 <div class="col-md-6">
                     <div class="sitnet-info-text">{{'sitnet_exam_choose_credit_type' | translate}}:</div>
-                    <select name="creditType" class="form-control" ng-model="examToBeReviewed.creditType" ng-disabled="isReadOnly"
-                            ng-change="insertCreditType(examToBeReviewed)" required>
+                    <select name="creditType" class="form-control" ng-model="examToBeReviewed.creditType"
+                            ng-disabled="isReadOnly" required>
                         <option value="Partial">{{'sitnet_exam_credit_type_partial' | translate}}</option>
                         <option value="Final" selected>{{'sitnet_exam_credit_type_final' | translate}}</option>
-                        <option value="Maturity">{{'sitnet_exam_credit_type_maturity' | translate}}</option>
                     </select>
                 </div>
             </div>
@@ -183,7 +182,7 @@
                     <div class="col-md-4">
                         <div style="padding-left: 1em" ng-show="!isReadOnly">
                             <button ng-click="examReviewReady(examToBeReviewed)"
-                                    ng-disabled="!isCreator() || isReadOnly || !examForm.$valid || examForm.answerLanguage.$pristine"
+                                    ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
                                     class="btn btn-primary">{{'sitnet_exam_save_review' | translate}}
                             </button>
                         </div>
@@ -195,7 +194,7 @@
                                     <input type="checkbox" ng-model="sendReviewFeedback" checked/></div>
                             </div>
                             <button ng-click="saveExamRecord(examToBeReviewed)"
-                                    ng-disabled="!isCreator() || isReadOnly || !examForm.$valid || examForm.answerLanguage.$pristine"
+                                    ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
                                     class="btn btn-warning pull-right top-margin-1">{{'sitnet_exam_save_register' |
                                 translate}}
                             </button>

@@ -72,7 +72,6 @@
     "sitnet_exam_credit": "Studiepoäng",
     "sitnet_exam_credit_type": "Examinationstyp",
     "sitnet_exam_credit_type_final": "Slutexamination (kursvitsordet består av endast tenten)",
-    "sitnet_exam_credit_type_maturity": "Maturitet",
     "sitnet_exam_credit_type_partial": "Delvis examination (kursvitsotdet består också av annat än tenten)",
     "sitnet_exam_draw_questions": "Lotta ut frågor",
     "sitnet_exam_duration": "Tentens längd",
