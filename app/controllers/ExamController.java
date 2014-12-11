@@ -4,10 +4,7 @@ import Exceptions.MalformedDataException;
 import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Expr;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.Query;
+import com.avaje.ebean.*;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -35,37 +32,24 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExams() {
 
-        String oql;
-        Query<Exam> query;
-
         User user = UserController.getLoggedUser();
+        ExpressionList expr = Ebean.find(Exam.class)
+                .fetch("examSections")
+                .fetch("course")
+                .where()
+                .disjunction()
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.SAVED.toString())
+                .eq("state", Exam.State.DRAFT.toString())
+                .endJunction();
         if (user.hasRole("TEACHER")) {
-            oql = "find exam " +
-                    "fetch examSections " +
-                    "fetch course " +
-                    "where (state=:published or state=:saved) " +
-                    "and (shared=:is_shared or creator.id=:myid)";
-//                  "and (shared:shared or creator.id:myid)";
-
-            query = Ebean.createQuery(Exam.class, oql);
-            query.setParameter("published", "PUBLISHED");
-            query.setParameter("saved", "SAVED");
-            query.setParameter("is_shared", true);
-            query.setParameter("myid", user.getId());
-        } else { // ADMIN
-
-            oql = "find exam "
-                    + " fetch examSections "
-                    + " fetch course "
-                    + " where state=:published or state=:saved";
-
-            query = Ebean.createQuery(Exam.class, oql);
-            query.setParameter("published", "PUBLISHED");
-            query.setParameter("saved", "SAVED");
+            expr = expr
+                    .disjunction()
+                    .eq("shared", true)
+                    .eq("creator.id", user.getId())
+                    .endJunction();
         }
-
-        List<Exam> exams = query.findList();
-
+        List<Exam> exams = expr.findList();
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
@@ -111,6 +95,7 @@ public class ExamController extends SitnetController {
                 .where()
                 .eq("creator.id", user.getId())
                 .ne("state", Exam.State.SAVED.toString())
+                .ne("state", Exam.State.DRAFT.toString())
                 .betweenProperties("examActiveStartDate", "examActiveEndDate", timestamp)
                 .findList();
 
@@ -166,13 +151,6 @@ public class ExamController extends SitnetController {
                         distinctList.add(e);
                     }
                 }
-
-//              java 1.8 ->
-/*
-                examInspections.stream().filter(e -> !exams.contains(e.getExam())).forEach(e -> {
-                   exams.add(e.getExam());
-                   distinctList.add(e);
-                });*/
             }
         }
         // -- fix end
@@ -589,7 +567,7 @@ public class ExamController extends SitnetController {
         } else if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
 
             String str = ValidationUtil.validateExamForm(df);
-            if(! str.equalsIgnoreCase("OK")) {
+            if (!str.equalsIgnoreCase("OK")) {
                 return badRequest(str);
             }
 
@@ -731,8 +709,7 @@ public class ExamController extends SitnetController {
 
         Exam exam = new Exam();
         exam.setName("Kirjoita tentin nimi tähän");
-        // Decided to drop the DRAFT state from the whole project
-        exam.setState("SAVED");
+        exam.setState(Exam.State.DRAFT.toString());
         try {
             SitnetUtil.setCreator(exam);
         } catch (SitnetException e) {
@@ -1055,7 +1032,7 @@ public class ExamController extends SitnetController {
         Exam ex = bindForm(Exam.class);
 
         switch (ex.getState()) {
-            case "SAVED": {
+            case "DRAFT": {
                 ex.setId(null);
                 try {
                     SitnetUtil.setCreator(ex);

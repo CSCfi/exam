@@ -229,7 +229,7 @@ public class StudentExamController extends SitnetController {
                 .fetch("examSections")
                 .where()
                 .eq("hash", hash)
-                .eq("parent", null)
+                //.eq("parent", null)
                 .findUnique();
         //ko. hashilla ei ole koetta olemassa
         if (blueprint == null) {
@@ -296,7 +296,7 @@ public class StudentExamController extends SitnetController {
                         + ", " + examRoom.getMailAddress().toString()
                         + ", sitnet_exam_machine " + possibeEnrolment.getReservation().getMachine().getName();
 
-                return forbidden(message);
+                //return forbidden(message);
             }
 
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)

@@ -12,16 +12,11 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.*;
 
-/*
- * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
- * 
- * Kuvaa Sitnettiin tallennettavan tentin rakenteen
- * 
- */
 @Entity
 public class Exam extends SitnetModel {
 
     public enum State {
+        DRAFT,
         SAVED,
         PUBLISHED,
         REVIEW,          // OPISKELIJHA ON PALAUTTANUT TENTIN
