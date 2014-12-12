@@ -83,17 +83,16 @@
             };
 
             $scope.downloadExamAttachment = function (exam) {
-
-                $http({method: 'GET', url: '/attachment/exam/' + exam.id}).
+                $http.get('/attachment/exam/' + exam.id, {responseType: 'arrayBuffer'}).
                     success(function(data) {
-
-                        var element = angular.element('<a/>');
-                        element.attr({
-                            href: 'data:application/octet-stream;charset=utf-8; base64,' + encodeURI(data),
-                            target: '_blank',
-                            download: exam.attachment.fileName
-                        })[0].click();
-
+                        var byteString = atob(data);
+                        var ab = new ArrayBuffer(byteString.length);
+                        var ia = new Uint8Array(ab);
+                        for (var i = 0; i < byteString.length; i++) {
+                            ia[i] = byteString.charCodeAt(i);
+                        }
+                        var blob = new Blob([ia], {type: "application/octet-stream"});
+                        saveAs(blob, exam.attachment.fileName);
                     }, function (error) {
                         toastr.error(error.data);
                     });
