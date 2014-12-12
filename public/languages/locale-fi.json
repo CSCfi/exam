@@ -458,5 +458,10 @@
     "sitnet_exam_time_is_up": "Tenttiaika on umpeutunut, vastaus on automaattitallennettu ja tenttisi on palautettu",
     "sitnet_participation_enrolled": "Ilmoittautuneet",
     "sitnet_participation_reviewed": "Arvioimatta",
-    "sitnet_date_time": "Päivämäärä ja aika"
+    "sitnet_date_time": "Päivämäärä ja aika",
+
+    "sitnet_view_answers": "Katso vastaukset",
+    "sitnet_student_and_exam_info": "Opiskelija ja tenttiaika",
+    "sitnet_time_of_exam_participation": "Tentin suoritusaika",
+    "sitnet_previous_exam_participations": "Aikaisemmat suorituskerrat"
 }

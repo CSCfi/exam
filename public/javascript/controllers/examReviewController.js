@@ -215,26 +215,21 @@
 
                 }
 
+                $scope.viewAnswers = function(examId) {
+                    window.open("/#/exams/review/" + examId, "_blank");
+                };
+
                 $scope.printExamDuration = function(exam) {
 
                     if (exam && exam.duration) {
-                        var h = 0;
-                        var d = exam.duration;
-
-                        while (d > 0) {
-                            if (d - 60 >= 0) {
-                                h++;
-                                d = d - 60;
-                            } else {
-                                break;
-                            }
-                        }
+                        var h = Math.floor(exam.duration / 60);
+                        var m = exam.duration % 60;
                         if (h === 0) {
-                            return d + "min";
-                        } else if (d === 0) {
+                            return m + "min";
+                        } else if (m === 0) {
                             return h + "h ";
                         } else {
-                            return h + "h " + d + "min";
+                            return h + "h " + m + "min";
                         }
                     } else {
                         return "";
@@ -384,21 +379,6 @@
 
                     QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function(q) {
 //                        question = q;
-                    }, function(error) {
-                        toastr.error(error.data);
-                    });
-                };
-
-                $scope.insertCreditType = function(exam) {
-
-                    var examToReview = {
-                        "id": exam.id,
-                        "creditType": $scope.examToBeReviewed.creditType
-                    };
-
-
-                    ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
-                        toastr.info($translate("sitnet_exam_updated"));
                     }, function(error) {
                         toastr.error(error.data);
                     });

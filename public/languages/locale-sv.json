@@ -455,5 +455,10 @@
     "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned",
     "sitnet_participation_enrolled": "Anmälda",
     "sitnet_participation_reviewed": "Utvärderade",
-    "sitnet_date_time": "Datum och tid"
+    "sitnet_date_time": "Datum och tid",
+    "sitnet_view_answers": "Visa svar",
+    "sitnet_student_and_exam_info": "Student och tenttid",
+    "sitnet_time_of_exam_participation": "Tenttid",
+    "sitnet_previous_exam_participations": "Tidigare insatser"
+
 }
