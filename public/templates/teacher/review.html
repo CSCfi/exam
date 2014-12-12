@@ -30,7 +30,10 @@
         <div class="exam-wrapper">
             <!-- General Information -->
             <div class="exam-general-information" ng-include="generalInfoPath"></div>
-            <div class="exam-sections">
+            <div class="exam-general-information">
+                    <div class="row sitnet-info-text-bold">{{'sitnet_questions' | translate}}:</div>
+            </div>
+            <div class="exam-sections-compact">
                 <div ng-include="reviewSectionPath" ng-repeat="section in examToBeReviewed.examSections"></div>
             </div>
         </div>
