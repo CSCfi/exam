@@ -30,3 +30,11 @@
         <p mathjax ng-bind-html="examToBeReviewed.instruction"></p>
     </div>
 </div>
+
+<div class="row" ng-controller="AttachmentController">
+    <div class="sitnet-info-text-bold">{{'sitnet_exam_attacment' | translate}}:</div>
+    <div class="sitnet-info-text-compact" ng-hide="examToBeReviewed.attachment">N/A</div>
+    <div class="sitnet-info-text-compact" ng-show="examToBeReviewed.attachment">
+        <a class="pointer" ng-click="downloadExamAttachment(examToBeReviewed)">{{examToBeReviewed.attachment.fileName}}</a>
+    </div>
+</div>

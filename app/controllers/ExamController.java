@@ -1188,8 +1188,8 @@ public class ExamController extends SitnetController {
                 .eq("user.id", uid)
                 .eq("exam.parent.id", eid)
                 .disjunction()
-                .eq("exam.state", Exam.State.GRADED_LOGGED)
-                .eq("exam.state", Exam.State.ARCHIVED)
+                .eq("exam.state", Exam.State.GRADED_LOGGED.toString())
+                .eq("exam.state", Exam.State.ARCHIVED.toString())
                 .endJunction()
                 .findList();
         JsonContext context = Ebean.createJsonContext();
