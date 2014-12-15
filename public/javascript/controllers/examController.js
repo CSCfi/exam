@@ -63,7 +63,7 @@
 
                 $scope.examTypes = [
                     "Osasuoritus",
-                    "Loppusuoritus",
+                    "Loppusuoritus"
                 ];
 
                 if (($routeParams.id === undefined) && !$scope.user.isStudent) {

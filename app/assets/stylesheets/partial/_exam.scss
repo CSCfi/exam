@@ -277,6 +277,17 @@
     display: inline;
   }
 
+  .review-question {
+    border: $sitnet-common-light solid 0.15em;
+    border-radius: 25px;
+    margin: 0.75em;
+    padding: 0.5em;
+  }
+
+  .review-question-value {
+    text-indent: 1em;
+  }
+
 
 
   //  -webkit-touch-callout: none;

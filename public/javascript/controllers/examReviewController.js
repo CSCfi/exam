@@ -64,7 +64,7 @@
                             ExamRes.examParticipationsOfUser.query(
                                 {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
                                     $scope.previousParticipations = participations;
-                            });
+                                });
                             $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
                             $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
@@ -363,8 +363,16 @@
                     }
                 };
 
-                // Called when the chevron is clicked
-                $scope.chevronClicked = function(question) {
+                $scope.truncate = function(answer, offset) {
+                    if (offset < answer.length) {
+                        return answer.substring(0, offset) + " ...";
+                    } else {
+                        return answer;
+                    }
+                };
+
+                $scope.toggleAnswerExpansion = function(question) {
+                    question.answer.expanded = !question.answer.expanded;
                 };
 
                 $scope.insertEssayScore = function(question) {

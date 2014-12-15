@@ -1,38 +1,105 @@
 <!-- Included from review_multiplechoice_question.html -->
-    <td>{{$index + 1}}</td>
-    <td><i class="fa fa-2x fa-edit" ng-click="openEssayDialog(question)"></i></td>
-    <td>
-        <span mathjax ng-bind-html="question.question">{{question.question}}</span>
-        <div ng-show="question.attachment" class="col-md-6" ng-controller="AttachmentController">
-            {{'sitnet_question_attachment' | translate}}
+<div class="row review-question">
+    <!-- question -->
+    <div class="row">
+        <div class="col-md-1">
+            <span ng-click="toggleAnswerExpansion(question)" class="fa-stack fa-lg pointer-hand">
+                <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
+                <i ng-class="question.answer.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"
+                   class="sitnet-white fa fa-chevron-right fa-stack-1x"></i>
+            </span>
+        </div>
+        <div class="col-md-11 sitnet-info-text-bold">{{ 'sitnet_question' | translate }}:</div>
+    </div>
+    <div class="row">
+        <div class="col-md-11 col-md-offset-1 sitnet-info-text review-question-value">
+            <span mathjax ng-bind-html="question.question"></span>
+        </div>
+    </div>
+    <!-- question attachment -->
+    <div class="row" ng-show="question.answer.expanded" ng-controller="AttachmentController">
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_question_attachment' | translate
+            }}:</div>
+        <div class="col-md-8 sitnet-info-text" ng-hide="question.attachment">N/A</div>
+        <div class="col-md-8 sitnet-info-text" ng-show="question.attachment">
             <a class="pointer" ng-click="downloadQuestionAttachment(question)">{{question.attachment.fileName}}</a>
         </div>
-    </td>
-    <td class="ellipsis-text">{{question.evaluationCriterias}}</td>
-    <td>
-        <a class="pointer" ng-click="openEssayDialog(question)">
-            <span class="ellipsis-text" ng-bind-html="removeNewLines({{ question.answer.answer }})"></span>
-        </a>
-        <div ng-show="question.answer.attachment" class="col-md-6" ng-controller="AttachmentController">
-            {{'sitnet_answer_attachment' | translate}}
-            <a class="pointer" ng-click="downloadQuestionAnswerAttachment(question, examToBeReviewed.hash)">{{question.answer.attachment.fileName}}</a>
+    </div>
+    <!-- question evaluation criteria -->
+    <div class="row" ng-show="question.answer.expanded && question.evaluationCriterias">
+        <div class="col-md-11 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_exam_evaluation_criteria' |
+            translate}}:
         </div>
-    </td>
-    <td>
-        <div class="col-md-12 text-center">
-            <span class="row" ng-show="question.evaluationType == 'Points'">
+    </div>
+    <div class="row" ng-show="question.answer.expanded && question.evaluationCriterias">
+        <div class="col-md-11 col-md-offset-1 sitnet-info-text review-question-value"
+             ng-bind-html="question.evaluationCriterias">
+        </div>
+    </div>
+    <!-- question instructions -->
+    <div class="row" ng-show="question.answer.expanded && question.instruction">
+        <div class="col-md-11 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_instructions' |
+            translate}}:
+        </div>
+    </div>
+    <div class="row" ng-show="question.answer.expanded && question.instruction">
+        <div class="col-md-11 col-md-offset-1 sitnet-info-text review-question-value"
+             ng-bind-html="question.instruction">
+        </div>
+    </div>
+    <!-- answer -->
+    <div class="row">
+        <div class="col-md-11 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_exam_answer' | translate }}:</div>
+    </div>
+    <div class="row">
+        <div class="col-md-11 col-md-offset-1 sitnet-info-text review-question-value">
+            <span ng-show="question.answer.expanded" mathjax ng-bind-html="question.answer.answer"></span>
+            <span ng-hide="question.answer.expanded" mathjax ng-bind-html="truncate(question.answer.answer, 360)"></span>
+        </div>
+    </div>
+    <!-- answer attachment -->
+    <div class="row" ng-show="question.answer.expanded" ng-controller="AttachmentController">
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_answer_attachment' | translate }}:</div>
+        <div class="col-md-8 sitnet-info-text" ng-hide="question.answer.attachment">N/A</div>
+        <div class="col-md-8 sitnet-info-text" ng-show="question.answer.attachment">
+            <a class="pointer" ng-click="downloadQuestionAnswerAttachment(question, examToBeReviewed.hash)">
+                {{question.answer.attachment.fileName}}</a>
+        </div>
+    </div>
+    <!-- answer length & recommended length-->
+    <div class="row" ng-show="question.answer.expanded">
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold">{{ 'Vastauksen pituus' | translate}}:</div>
+        <div class="col-md-8 sitnet-info-text">
+            {{ 'sitnet_approximately' | translate }}
+            {{ question.answer.answer | striphtml | wordcount }} {{'sitnet_words' | translate }},
+            {{ question.answer.answer | striphtml | charcount }} {{'sitnet_characters' | translate }}
+        </div>
+    </div>
+    <div class="row" ng-show="question.answer.expanded">
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_essay_length_recommendation' |
+            translate}}:</div>
+        <div class="col-md-8 sitnet-info-text">{{ question.maxCharacters }}</div>
+    </div>
+    <!-- grade -->
+    <div class="row">
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold" ng-show="question.evaluationType === 'Points'">{{
+            'sitnet_word_points' | translate}}:</div>
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold" ng-hide="question.evaluationType === 'Points'">{{
+            'sitnet_comments' | translate}}:</div>
+        <div class="col-md-3">
+            <span ng-show="question.evaluationType === 'Points'">
                 <select class="form-control" ng-model="question.evaluatedScore" ng-change="insertEssayScore(question)" ng-disabled="isReadOnly">
                     <option ng-repeat="i in range(0, question.maxScore, 1)" value="{{ i }}"
                             ng-selected="question.evaluatedScore == i">{{ i }} / {{question.maxScore}}
                     </option>
                 </select>
             </span>
-            <span ng-show="question.evaluationType == 'Select'">
-                <select name="{{getName(question)}}" class="form-control" ng-model="question.evaluatedScore" ng-disabled="isReadOnly"
-                        ng-change="insertEssayScore(question)">
+            <span ng-show="question.evaluationType === 'Select'">
+                <select class="form-control" ng-model="question.evaluatedScore" ng-change="insertEssayScore(question)" ng-disabled="isReadOnly">
                     <option value="1" ng-selected="question.evaluatedScore == 1">{{ 'sitnet_approved' | translate }}</option>
                     <option value="0" ng-selected="question.evaluatedScore == 0">{{ 'sitnet_rejected' | translate }}</option>
                 </select>
             </span>
         </div>
-    </td>
+    </div>
+</div>
