@@ -1,20 +1,65 @@
-<!-- Included from review_multiplechoice_question.html -->
-    <td>{{$index + 1}}</td>
-    <td><i class="fa fa-2x fa-list-ul"></i></td>
-    <td>
-        <span mathjax ng-bind-html="question.question">{{question.question}}</span>
-        <div ng-show="question.attachment" class="col-md-6" ng-controller="AttachmentController">
-            {{'sitnet_question_attachment' | translate}}
+<div class="row review-question">
+    <!-- question -->
+    <div class="row">
+        <div class="col-md-1">
+            <span ng-click="toggleAnswerExpansion(question)" class="fa-stack fa-lg pointer-hand">
+                <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
+                <i ng-class="question.answer.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"
+                   class="sitnet-white fa fa-chevron-right fa-stack-1x"></i>
+            </span>
+        </div>
+        <div class="col-md-11 sitnet-info-text-bold">{{ 'sitnet_question' | translate }}:</div>
+    </div>
+    <div class="row">
+        <div class="col-md-11 col-md-offset-1 sitnet-info-text review-question-value">
+            <span mathjax ng-bind-html="question.question"></span>
+        </div>
+    </div>
+    <!-- question attachment -->
+    <div class="row" ng-show="question.answer.expanded" ng-controller="AttachmentController">
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_question_attachment' | translate
+            }}:</div>
+        <div class="col-md-8 sitnet-info-text" ng-hide="question.attachment">N/A</div>
+        <div class="col-md-8 sitnet-info-text" ng-show="question.attachment">
             <a class="pointer" ng-click="downloadQuestionAttachment(question)">{{question.attachment.fileName}}</a>
         </div>
-    </td>
-    <!--<td><span ng-repeat="option in question.options | filter: {correctOption: true}">{{option.option}}</span></td>-->
-    <td>{{question.evaluationCriterias}}</td>
-    <td>
-        <span>{{question.answer.option.option}}</span>
-        <div ng-show="question.answer.attachment" class="col-md-6" ng-controller="AttachmentController">
-            {{'sitnet_answer_attachment' | translate}}
-            <a class="pointer" ng-click="downloadQuestionAnswerAttachment(question, examToBeReviewed.hash)">{{question.answer.attachment.fileName}}</a>
+    </div>
+    <!-- answer -->
+    <div class="row">
+        <div class="col-md-11 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_exam_answer' | translate }}:</div>
+    </div>
+    <!-- compact -->
+    <div class="row" ng-hide="question.answer.expanded">
+        <div class="col-md-6 col-md-offset-1 sitnet-info-text review-question-value">
+            <span mathjax ng-bind-html="question.answer.option.option"></span>
         </div>
-    </td>
-    <td>{{scoreMultipleChoiceAnswer(question)}} / {{question.maxScore}}</td>
+        <div class="col-md-5 sitnet-info-text" ng-style="{color: question.backgroundColor}">
+            <span ng-if="question.answer.option.correctOption === true">({{'sitnet_multiplechoice_question_correct' |
+                translate}})</span>
+            <span ng-if="question.answer.option.correctOption === false">({{'sitnet_multiplechoice_question_incorrect' |
+                translate}})</span>
+        </div>
+    </div>
+    <!-- full -->
+        <div class="row" ng-show="question.answer.expanded" ng-repeat="option in question.options">
+            <div class="col-md-6 col-md-offset-1 review-question-value"
+                 ng-class="option.option === question.answer.option.option ? 'sitnet-info-text-bold' : 'sitnet-info-text'">
+                {{option.option}}
+            </div>
+            <div class="col-md-2 sitnet-info-text" ng-style="{color: question.backgroundColor}">
+                <span ng-if="option.correctOption === true"
+                      style="color: green;">({{'sitnet_multiplechoice_question_correct' |
+                    translate}})</span>
+                <span ng-if="option.correctOption === false"
+                      style="color:red;">({{'sitnet_multiplechoice_question_incorrect' |
+                    translate}})</span>
+            </div>
+        </div>
+    
+    <!-- grade -->
+    <div class="row">
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_word_points' | translate }}:</div>
+        <div class="col-md-3 sitnet-info-text">{{scoreMultipleChoiceAnswer(question)}} / {{question.maxScore}}</div>
+    </div>
+
+</div>
