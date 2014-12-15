@@ -72,7 +72,6 @@
     "sitnet_exam_credit": "Opintopisteet",
     "sitnet_exam_credit_type": "Suoritustyyppi",
     "sitnet_exam_credit_type_final": "Kokonaissuoritus (kurssisuoritus muodostuu vain tästä tentistä)",
-    "sitnet_exam_credit_type_maturity": "Kypsyysnäyte",
     "sitnet_exam_credit_type_partial": "Osasuoritus (kurssin suoritukseen vaaditaan muutakin kuin tämä tentti)",
     "sitnet_exam_draw_questions": "Kysymysten arvonta",
     "sitnet_exam_duration": "Tentin kesto",
@@ -459,7 +458,13 @@
     "sitnet_exam_time_is_up": "Tenttiaika on umpeutunut, vastaus on automaattitallennettu ja tenttisi on palautettu",
     "sitnet_participation_enrolled": "Ilmoittautuneet",
     "sitnet_participation_reviewed": "Arvioimatta",
+    "sitnet_date_time": "Päivämäärä ja aika",
+    "sitnet_participation_reviewed": "Arvioimatta",
     "sitnet_session_will_expire_soon": "Istunto on loppumassa",
-    "sitnet_continue_session": "Jatka istuntoa"
+    "sitnet_continue_session": "Jatka istuntoa",
 
+    "sitnet_view_answers": "Katso vastaukset",
+    "sitnet_student_and_exam_info": "Opiskelija ja tenttiaika",
+    "sitnet_time_of_exam_participation": "Tentin suoritusaika",
+    "sitnet_previous_exam_participations": "Aikaisemmat suorituskerrat"
 }

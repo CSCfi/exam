@@ -1,18 +1,12 @@
-<div class="section-header">
+<div class="section-header-compact">
         <!-- $index gives the ng-repeat loop items index starting from 0 -->
         <span class="section-header-number">{{$index + 1}}.</span>
     <span> {{section.name}} </span>
-    <span ng-click="section.expanded = !section.expanded; expandSection(section)" class="pull-right fa-stack fa-lg pointer-hand">
-        <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-        <i ng-class="section.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
-           class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-    </span>
-    <span class="pull-right">{{ 'sitnet_total_section_points' | translate }}: {{getSectionTotalScore(section)}} /
-        {{getSectionMaxScore(section)}} </span>
+
 </div>
 </div>
 
-<div id="question-editor" class="" ng-show="section.expanded">
+<div id="question-editor" class="">
     <table class="table table-bordered">
         <thead>
             <tr style="background-color: lightgrey">
@@ -32,9 +26,4 @@
             </tr>
         </tbody>
     </table>
-
-    <div>
-        {{ 'sitnet_total_section_points' | translate }}: {{getSectionTotalScore(section)}} /
-        {{getSectionMaxScore(section)}}
-    </div>
 </div>

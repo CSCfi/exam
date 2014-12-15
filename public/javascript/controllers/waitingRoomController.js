@@ -50,7 +50,7 @@
                 };
 
                 $scope.$on('upcomingExam', function() {
-                    if (!$scope.enrolment) {
+                    if (waitingRoomService.getEnrolmentId() && !$scope.enrolment) {
                         await();
                     }
                 });

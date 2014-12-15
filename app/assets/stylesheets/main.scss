@@ -65,6 +65,18 @@ body {
   margin-top: 1em;
 }
 
+.sitnet-info-text-compact {
+  color: grey;
+  font-style: italic;
+}
+
+.sitnet-info-text-bold {
+  color: grey;
+  font-style: italic;
+  margin-top: 1em;
+  font-weight: bold;
+}
+
 .sitnet-dark-green {
   color: $sitnet-dark-green;
 }

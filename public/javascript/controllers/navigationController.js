@@ -23,7 +23,7 @@
                         teacher = user.isTeacher || false;
 
                     // Do not show if waiting for exam to begin
-                    var dashboardVisible = waitingRoomService.getEnrolmentId() == undefined && (student || admin || teacher);
+                    var dashboardVisible = waitingRoomService.getEnrolmentId() === undefined && (student || admin || teacher);
 
                     return [
                         {href: "#/home", visible: dashboardVisible, class: "fa-home", name: $translate("sitnet_dashboard")},

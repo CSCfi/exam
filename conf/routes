@@ -48,6 +48,8 @@ GET                                      /reviewerexams                         
 GET                                      /examenrolments/:eid                                             controllers.ExamController.getEnrolmentsForExam(eid: Long)
 GET                                      /examenrolmentswithreservations/:eid                             controllers.ExamController.getEnrolmentsWithReservationsForExam(eid: Long)
 GET                                      /examparticipations/:eid                                         controllers.ExamController.getParticipationsForExam(eid: Long)
+GET                                      /examparticipations/:eid/:uid                                    controllers.ExamController.getParticipationsForExamAndUser(eid: Long, uid: Long)
+
 GET                                      /examparticipationsandreviews/:eid                               controllers.ExamController.getParticipationsAndReviewedForExam(eid: Long)
 POST                                     /exams/:eid/examtype/:etid                                       controllers.ExamController.insertExamType(eid: Long, etid: Long)
 POST                                     /exam/record                                                     controllers.ExamRecordController.addExamRecord()

@@ -22,6 +22,7 @@
                             var wrongMachine = response.headers()['x-sitnet-wrong-machine'];
                             var hash = response.headers()['x-sitnet-start-exam'];
 
+                            var enrolmentId = response.headers()['x-sitnet-upcoming-exam'];
                             if (unknownMachine) {
                                 var location = b64_to_utf8(unknownMachine).split(":::");
                                 wrongRoomService.display(location);
@@ -42,7 +43,6 @@
                                 $rootScope.$broadcast('wrongMachine');
                             }
                             else if (hash) {
-                                var enrolmentId = response.headers()['x-sitnet-upcoming-exam'];
                                 if (enrolmentId) {
                                     waitingRoomService.setEnrolmentId(enrolmentId);
                                     $location.path('/student/waitingroom');
@@ -50,6 +50,11 @@
                                 } else {
                                     $location.path('/student/doexam/' + hash);
                                 }
+                            } else if (enrolmentId) {
+                                // no exams for today
+                                waitingRoomService.setEnrolmentId(null);
+                                $location.path('/student/waitingroom');
+                                $rootScope.$broadcast('upcomingExam');
                             }
 
                             else if(!sessionService.user) {

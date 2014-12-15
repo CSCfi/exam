@@ -72,7 +72,6 @@
     "sitnet_exam_credit": "Study points",
     "sitnet_exam_credit_type": "Type of examination",
     "sitnet_exam_credit_type_final": "Full examination (the exam makes the whole course grade)",
-    "sitnet_exam_credit_type_maturity": "Maturity exam",
     "sitnet_exam_credit_type_partial": "Partial examination (the exam makes only part of the course grade)",
     "sitnet_exam_draw_questions": "Draw questions",
     "sitnet_exam_duration": "Exam duration",
@@ -456,6 +455,13 @@
     "sitnet_error_exam_empty_exam_language": "Not a valid exam language",
     "sitnet_participation_enrolled": "Responses/Bookings",
     "sitnet_participation_reviewed": "Without Grade",
+    "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned",
+    "sitnet_date_time": "Date and time",
+    "sitnet_view_answers": "View answers",
+
+    "sitnet_student_and_exam_info": "Student and time of exam",
+    "sitnet_time_of_exam_participation": "Time of participation",
+    "sitnet_previous_exam_participations": "Previous participations",
     "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned",
     "sitnet_session_will_expire_soon": "Session will expire soon",
     "sitnet_continue_session": "Continue session"

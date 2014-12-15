@@ -23,10 +23,10 @@
                 </div>
                 <div class="col-md-3">
                     <button ng-click="saveExam()" class="btn btn-primary"
-                            ng-class="{'pull-right': newExam.state != 'SAVED'}">
+                            ng-class="{'pull-right': newExam.state != 'DRAFT'}">
                         {{'sitnet_save' | translate}}
                     </button>
-                    <button ng-hide="newExam.state == 'SAVED' ? false : true" ng-click="cancelNewExam(newExam)"
+                    <button ng-hide="newExam.state === 'DRAFT' ? false : true" ng-click="cancelNewExam(newExam)"
                             class="btn btn-warning pull-right">{{'sitnet_button_cancel' | translate}}
                     </button>
                 </div>
@@ -50,15 +50,15 @@
             </span>
             <span>
                 <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
-                <button ng-hide="newExam.state == 'SAVED' ? false : true" ng-click="cancelNewExam(newExam)"
+                <button ng-hide="newExam.state === 'DRAFT' ? false : true" ng-click="cancelNewExam(newExam)"
                         class="btn btn-warning">{{'sitnet_button_cancel' | translate}}</button>
             </span>
             <span class="pull-right">
                 <button ng-click="previewExam()" class="btn btn-primary">{{'sitnet_preview' | translate}}</button>
-                <button ng-hide="newExam.state == 'PUBLISHED' ? true : false" ng-click="saveAndPublishExam()"
+                <button ng-hide="newExam.state === 'PUBLISHED' ? true : false" ng-click="saveAndPublishExam()"
                         class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}
                 </button>
-                <button ng-hide="newExam.state == 'PUBLISHED' ? false : true" ng-click="unpublishExam()"
+                <button ng-hide="newExam.state === 'PUBLISHED' ? false : true" ng-click="unpublishExam()"
                         class="btn btn-warning">{{'sitnet_unpublish_exam' | translate }}
                 </button>
             </span>

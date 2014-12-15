@@ -9,6 +9,8 @@
                 $scope.multiplechoiceQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_multiplechoice_question.html";
                 $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_essay_question.html";
                 $scope.studentInfoTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_student_info.html";
+                $scope.previousParticipationPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_previous_participation.html";
+
 
                 $scope.session = sessionService;
                 $scope.user = $scope.session.user;
@@ -57,6 +59,12 @@
                     ExamRes.exams.get({id: $routeParams.id},
                         function(exam) {
                             $scope.examToBeReviewed = exam;
+
+                            // get previous participations ->
+                            ExamRes.examParticipationsOfUser.query(
+                                {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
+                                    $scope.previousParticipations = participations;
+                            });
                             $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
                             $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
@@ -207,26 +215,21 @@
 
                 }
 
+                $scope.viewAnswers = function(examId) {
+                    window.open("/#/exams/review/" + examId, "_blank");
+                };
+
                 $scope.printExamDuration = function(exam) {
 
                     if (exam && exam.duration) {
-                        var h = 0;
-                        var d = exam.duration;
-
-                        while (d > 0) {
-                            if (d - 60 >= 0) {
-                                h++;
-                                d = d - 60;
-                            } else {
-                                break;
-                            }
-                        }
+                        var h = Math.floor(exam.duration / 60);
+                        var m = exam.duration % 60;
                         if (h === 0) {
-                            return d + "min";
-                        } else if (d === 0) {
+                            return m + "min";
+                        } else if (m === 0) {
                             return h + "h ";
                         } else {
-                            return h + "h " + d + "min";
+                            return h + "h " + m + "min";
                         }
                     } else {
                         return "";
@@ -376,21 +379,6 @@
 
                     QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function(q) {
 //                        question = q;
-                    }, function(error) {
-                        toastr.error(error.data);
-                    });
-                };
-
-                $scope.insertCreditType = function(exam) {
-
-                    var examToReview = {
-                        "id": exam.id,
-                        "creditType": $scope.examToBeReviewed.creditType
-                    };
-
-
-                    ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
-                        toastr.info($translate("sitnet_exam_updated"));
                     }, function(error) {
                         toastr.error(error.data);
                     });

@@ -64,7 +64,6 @@
                 $scope.examTypes = [
                     "Osasuoritus",
                     "Loppusuoritus",
-                    "Kypsyysnäyte"
                 ];
 
                 if (($routeParams.id === undefined) && !$scope.user.isStudent) {
@@ -394,15 +393,13 @@
                     var examToSave = {
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
-//                            "course": $scope.newExam.course,
                         "examType": $scope.newExam.examType,
                         "instruction": $scope.newExam.instruction,
                         "enrollInstruction": $scope.newExam.enrollInstruction,
-                        "state": ($scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED' : 'SAVED'),
+                        "state": $scope.newExam.state,
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": $scope.dateService.startTimestamp,
                         "examActiveEndDate": $scope.dateService.endTimestamp,
-//                            "room": $scope.newExam.room,
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.grading,
                         "examLanguage": $scope.newExam.examLanguage,
@@ -461,6 +458,8 @@
                 // Called when Save button is clicked
                 $scope.saveExam = function() {
 
+                    var newState = $scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED' : 'SAVED';
+
                     var examToSave = {
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
@@ -468,7 +467,7 @@
                         "enrollInstruction": $scope.newExam.enrollInstruction,
 
                         // if exam is already PUBLISHED save it as PUBLISHED
-                        "state": ($scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED' : 'SAVED'),
+                        "state": newState,
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": $scope.dateService.startTimestamp,
                         "examActiveEndDate": $scope.dateService.endTimestamp,
@@ -482,6 +481,7 @@
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function(exam) {
                             toastr.info($translate("sitnet_exam_saved"));
+                            $scope.newExam.state = newState;
 //                        $location.path("/exams");
                         }, function(error) {
                             toastr.error(error.data);

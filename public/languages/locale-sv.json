@@ -72,7 +72,6 @@
     "sitnet_exam_credit": "Studiepoäng",
     "sitnet_exam_credit_type": "Examinationstyp",
     "sitnet_exam_credit_type_final": "Slutexamination (kursvitsordet består av endast tenten)",
-    "sitnet_exam_credit_type_maturity": "Maturitet",
     "sitnet_exam_credit_type_partial": "Delvis examination (kursvitsotdet består också av annat än tenten)",
     "sitnet_exam_draw_questions": "Lotta ut frågor",
     "sitnet_exam_duration": "Tentens längd",
@@ -455,6 +454,13 @@
     "sitnet_error_exam_empty_exam_language": "Not a valid exam language",
     "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned",
     "sitnet_participation_enrolled": "Anmälda",
+    "sitnet_participation_reviewed": "Utvärderade",
+    "sitnet_date_time": "Datum och tid",
+    "sitnet_view_answers": "Visa svar",
+    "sitnet_student_and_exam_info": "Student och tenttid",
+    "sitnet_time_of_exam_participation": "Tenttid",
+    "sitnet_previous_exam_participations": "Tidigare insatser",
+
     "sitnet_participation_reviewed": "Utvärderade",
     "sitnet_session_will_expire_soon": "Session will expire soon",
     "sitnet_continue_session": "Continue session"
