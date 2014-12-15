@@ -41,8 +41,8 @@
         });
         $translateProvider.preferredLanguage('fi');
     }]);
-    sitnet.run(['$http', '$modal', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
-        function ($http, $modal, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
+    sitnet.run(['$http', '$interval', '$modal', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
+        function ($http, $interval, $modal, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
 
             $localStorage["LOCATION.PATH"] = $location.path();
 
@@ -54,6 +54,33 @@
                 $http.defaults.headers.common = header;
                 sessionService.user = user;
             }
+            var PING_INTERVAL = 60 * 1000;
+
+            var checkSession = $interval(function () {
+                $http.get('/checkSession').success(function (data, status, headers, config) {
+                    if (data === "alarm") {
+                        toastr.options = {
+                            "closeButton": false,
+                            "debug": false,
+                            "progressBar": false,
+                            "positionClass": "toast-top-right",
+                            "showDuration": "0",
+                            "hideDuration": "0",
+                            "timeOut": "30000",
+                            "extendedTimeOut": "1000",
+                            "tapToDismiss": false
+                        },
+                            toastr.options.preventDuplicates = true,
+                            toastr.warning($translate("sitnet_session_will_expire_soon") + "  " + "<button onclick=\"javascript:$http.get('/extendSession')\">" + $translate("sitnet_continue_session") + "</button>");
+                    } else if (data === "no_session") {
+                        $location.path("/logout")
+                    }
+                }).
+                error(function (data, status, headers, config) {
+
+                });
+            }, PING_INTERVAL);
+
             var login = function () {
                 var credentials = {
                     username: '',
@@ -96,6 +123,9 @@
                     authService.loginConfirmed();
                     $rootScope.$broadcast('userUpdated');
                     toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
+
+                    checkSession();
+
                     if (sessionUser.isStudent) {
 
                         if (!sessionUser.hasAcceptedUserAgreament) {
@@ -131,6 +161,7 @@
 
                         }
                     }
+                    $interval.cancel(checkSession());
                     if($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
                         $location.path($localStorage["LOCATION.PATH"]);
                         $localStorage["LOCATION.PATH"] = "";
@@ -148,6 +179,7 @@
                     }
 
                 });
+
             };
             login();
 

@@ -18,6 +18,8 @@ import util.SitnetUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class SessionController extends SitnetController {
@@ -29,7 +31,9 @@ public class SessionController extends SitnetController {
         String loginType = ConfigFactory.load().getString("sitnet.login");
         if (loginType.equals("DEBUG")) {
             Credentials credentials = bindForm(Credentials.class);
+
             Logger.debug("User login with username: {} and password: ***", credentials.getUsername() + "@funet.fi");
+
             if (credentials.getPassword() == null || credentials.getUsername() == null) {
                 return unauthorized("sitnet_error_unauthenticated");
             }
@@ -220,9 +224,59 @@ public class SessionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result ping() {
-        return ok("pong");
+    public static Result extendSession() {
+
+        final String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
+        final String key = SITNET_CACHE_KEY + token;
+        Session session = (Session) Cache.get(key);
+
+        if(session == null) {
+            return unauthorized();
+        }
+
+        session.setSince(DateTime.now());
+        Cache.set(SITNET_CACHE_KEY + token, session);
+
+        return ok();
     }
+
+    public static Result checkSession() {
+
+        final String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
+        final String key = SITNET_CACHE_KEY + token;
+        Session session = (Session) Cache.get(key);
+
+        if(session == null) {
+            return ok("no_session");
+        }
+
+        final long timeOut = SITNET_TIMEOUT_MINUTES * 60 * 1000;
+        final long sessionTime = session.getSince().getMillis();
+        final long end = sessionTime + timeOut;
+        final long now = DateTime.now().getMillis();
+        final long alarmTime = end - (2 * 60 * 1000); // now - 2 minutes
+
+        if(Logger.isDebugEnabled()) {
+            DateFormat df = new SimpleDateFormat("HH:mm:ss");
+            Logger.debug(" - current time: " + df.format(now));
+            Logger.debug(" - session ends: " + df.format(end));
+        }
+
+        // session has 2 minutes left
+        if(now > alarmTime && now < end) {
+            return ok("alarm");
+        }
+
+        // session ended check
+        if(now > end) {
+            return ok("no_session");
+        }
+
+        return ok();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public static Result ping() {return ok("pong");}
 
     private static String toUtf8(String src) {
         if (src == null) {

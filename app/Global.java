@@ -7,12 +7,14 @@ import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
 import models.questions.QuestionInterface;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDateTime;
 import org.joda.time.Seconds;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
+import play.api.mvc.Handler;
 import play.cache.Cache;
 import play.libs.Akka;
 import play.libs.F;
@@ -122,6 +124,9 @@ public class Global extends GlobalSettings {
             public SimpleResult apply() {
                 Throwable cause = t.getCause();
                 String errorMessage = cause.getMessage();
+
+                if(Logger.isDebugEnabled()) {Logger.debug("onError: " + errorMessage);}
+
                 if (cause instanceof UnauthorizedAccessException) {
                     return Results.forbidden(Json.toJson(errorMessage));
                 }
@@ -141,6 +146,7 @@ public class Global extends GlobalSettings {
 
     @Override
     public Promise<SimpleResult> onBadRequest(Http.RequestHeader request, final String error) {
+        if(Logger.isDebugEnabled()) {Logger.debug("onBadRequest: " + error);}
         return F.Promise.promise(new F.Function0<SimpleResult>() {
             public SimpleResult apply() {
                 return Results.badRequest(Json.toJson(new ApiError(error)));
@@ -149,7 +155,23 @@ public class Global extends GlobalSettings {
     }
 
     @Override
-    public Action onRequest(Request request, Method actionMethod) {
+    public Handler onRouteRequest(Http.RequestHeader request) {
+
+        String loginType = ConfigFactory.load().getString("sitnet.login");
+        String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
+
+        if(session != null && request.path().indexOf("checkSession") == -1) {
+            session.setSince(DateTime.now());
+            Cache.set(SITNET_CACHE_KEY + token, session);
+        }
+
+        return super.onRouteRequest(request);
+    }
+
+    @Override
+    public Action onRequest(final Request request, Method actionMethod) {
+
         String loginType = ConfigFactory.load().getString("sitnet.login");
         String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
@@ -159,7 +181,6 @@ public class Global extends GlobalSettings {
             Logger.info("Session with token {} not found", token);
             return super.onRequest(request, actionMethod);
         }
-
         //ugh, this works, apparently. I don't like play.
         if (!session.isValid()) {
             Logger.warn("Session #{} is marked as invalid", token);
@@ -204,7 +225,6 @@ public class Global extends GlobalSettings {
             return super.onRequest(request, actionMethod);
         }
 
-
         ExamEnrolment ongoingEnrolment = getNextEnrolment(user.getId(), 0);
         if (ongoingEnrolment != null) {
             return handleOngoingEnrolment(ongoingEnrolment, request, actionMethod);
@@ -214,6 +234,7 @@ public class Global extends GlobalSettings {
                 return handleUpcomingEnrolment(upcomingEnrolment, request, actionMethod);
             }
         }
+
         return super.onRequest(request, actionMethod);
     }
 

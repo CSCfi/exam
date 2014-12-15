@@ -1,6 +1,8 @@
 
 GET                                      /                                                                controllers.Index.index()
 
+GET                                      /checkSession                                                    controllers.SessionController.checkSession()
+GET                                      /extendSession                                                   controllers.SessionController.extendSession()
 POST                                     /login                                                           controllers.SessionController.login()
 #POST          /shiblogin                                            controllers.SessionController.shiblogin()
 POST                                     /logout                                                          controllers.SessionController.logout()

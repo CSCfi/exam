@@ -458,6 +458,8 @@
     "sitnet_error_exam_empty_exam_language": "Tentin kieli ei kelpaa",
     "sitnet_exam_time_is_up": "Tenttiaika on umpeutunut, vastaus on automaattitallennettu ja tenttisi on palautettu",
     "sitnet_participation_enrolled": "Ilmoittautuneet",
-    "sitnet_participation_reviewed": "Arvioimatta"
+    "sitnet_participation_reviewed": "Arvioimatta",
+    "sitnet_session_will_expire_soon": "Istunto on loppumassa",
+    "sitnet_continue_session": "Jatka istuntoa"
 
 }

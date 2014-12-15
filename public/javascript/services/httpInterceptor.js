@@ -6,8 +6,10 @@
 
             }
         ]).config(['$httpProvider', function ($httpProvider) {
-            $httpProvider.interceptors.push(['$q', '$rootScope' ,'$location', '$translate', 'wrongRoomService', 'waitingRoomService',
-                function ($q, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
+            $httpProvider.interceptors.push(['$q', 'sessionService', '$rootScope' ,'$location', '$translate', 'wrongRoomService', 'waitingRoomService',
+                function ($q, sessionService, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
+
+
                     return {
                         'response': function (response) {
 
@@ -19,6 +21,7 @@
                             var wrongRoom = response.headers()['x-sitnet-wrong-room'];
                             var wrongMachine = response.headers()['x-sitnet-wrong-machine'];
                             var hash = response.headers()['x-sitnet-start-exam'];
+
                             if (unknownMachine) {
                                 var location = b64_to_utf8(unknownMachine).split(":::");
                                 wrongRoomService.display(location);
@@ -47,6 +50,10 @@
                                 } else {
                                     $location.path('/student/doexam/' + hash);
                                 }
+                            }
+
+                            else if(!sessionService.user) {
+                                $location.path('/logout');
                             }
 
                             return response;
