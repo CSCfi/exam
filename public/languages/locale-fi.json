@@ -434,15 +434,12 @@
     "sitnet_instructions": "Ohjeet",
     "sitnet_view": "Katso tästä",
     "sitnet_display_free_time_slots": "Vapaat ajat",
-
     "sitnet_redirect_to_exam_notice": "Sinut ohjataan tenttiin automaattisesti sen alkaessa",
     "sitnet_redirect_to_exam_offset": "Tentin alkuun",
     "sitnet_exam_is_about_to_begin": "Seuraava tentti on alkamassa",
-
     "sitnet_course_not_found": "Opintojaksoa ei löydy",
     "sitnet_course_added": "Opintojaksoa lisätty",
     "sitnet_logged_on_wrong_machine": "Olet kirjautunut väärälle koneelle!",
-
     "sitnet_current_wrong_machine_title": "Olet koneella",
     "sitnet_reserved_machine": "Varaamasi kone",
     "sitnet_current_wrong_room_title": "Olet tenttimistilassa",
@@ -455,16 +452,16 @@
     "sitnet_error_end_sooner_than_now": "Tentin päättymispäivä on menneessä",
     "sitnet_error_exam_empty_name": "Tentin nimi ei kelpaa",
     "sitnet_error_exam_empty_exam_language": "Tentin kieli ei kelpaa",
-    "sitnet_exam_time_is_up": "Tenttiaika on umpeutunut, vastaus on automaattitallennettu ja tenttisi on palautettu",
     "sitnet_participation_enrolled": "Ilmoittautuneet",
     "sitnet_participation_reviewed": "Arvioimatta",
+    "sitnet_exam_time_is_up": "Tenttiaika on umpeutunut, vastaus on automaattitallennettu ja tenttisi on palautettu",
     "sitnet_date_time": "Päivämäärä ja aika",
-    "sitnet_participation_reviewed": "Arvioimatta",
+    "sitnet_view_answers": "Katso vastaukset",
     "sitnet_session_will_expire_soon": "Istunto on loppumassa",
     "sitnet_continue_session": "Jatka istuntoa",
-
-    "sitnet_view_answers": "Katso vastaukset",
     "sitnet_student_and_exam_info": "Opiskelija ja tenttiaika",
     "sitnet_time_of_exam_participation": "Tentin suoritusaika",
-    "sitnet_previous_exam_participations": "Aikaisemmat suorituskerrat"
+    "sitnet_previous_exam_participations": "Aikaisemmat suorituskerrat",
+    "sitnet_answer_length": "Vastauksen pituus",
+    "sitnet_grading_info": "Suoritustiedot"
 }

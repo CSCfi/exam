@@ -371,8 +371,8 @@
                     }
                 };
 
-                $scope.toggleAnswerExpansion = function(question) {
-                    question.answer.expanded = !question.answer.expanded;
+                $scope.toggleQuestionExpansion = function(question) {
+                    question.reviewExpanded = !question.reviewExpanded;
                 };
 
                 $scope.insertEssayScore = function(question) {

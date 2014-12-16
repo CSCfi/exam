@@ -2,9 +2,9 @@
     <!-- question -->
     <div class="row">
         <div class="col-md-1">
-            <span ng-click="toggleAnswerExpansion(question)" class="fa-stack fa-lg pointer-hand">
+            <span ng-click="toggleQuestionExpansion(question)" class="fa-stack fa-lg pointer-hand">
                 <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-                <i ng-class="question.answer.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"
+                <i ng-class="question.reviewExpanded ? 'fa-chevron-down' : 'fa-chevron-right'"
                    class="sitnet-white fa fa-chevron-right fa-stack-1x"></i>
             </span>
         </div>
@@ -16,7 +16,7 @@
         </div>
     </div>
     <!-- question attachment -->
-    <div class="row" ng-show="question.answer.expanded" ng-controller="AttachmentController">
+    <div class="row" ng-show="question.reviewExpanded" ng-controller="AttachmentController">
         <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_question_attachment' | translate
             }}:</div>
         <div class="col-md-8 sitnet-info-text" ng-hide="question.attachment">N/A</div>
@@ -25,23 +25,23 @@
         </div>
     </div>
     <!-- question evaluation criteria -->
-    <div class="row" ng-show="question.answer.expanded && question.evaluationCriterias">
+    <div class="row" ng-show="question.reviewExpanded && question.evaluationCriterias">
         <div class="col-md-11 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_exam_evaluation_criteria' |
             translate}}:
         </div>
     </div>
-    <div class="row" ng-show="question.answer.expanded && question.evaluationCriterias">
+    <div class="row" ng-show="question.reviewExpanded && question.evaluationCriterias">
         <div class="col-md-11 col-md-offset-1 sitnet-info-text review-question-value"
              ng-bind-html="question.evaluationCriterias">
         </div>
     </div>
     <!-- question instructions -->
-    <div class="row" ng-show="question.answer.expanded && question.instruction">
+    <div class="row" ng-show="question.reviewExpanded && question.instruction">
         <div class="col-md-11 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_instructions' |
             translate}}:
         </div>
     </div>
-    <div class="row" ng-show="question.answer.expanded && question.instruction">
+    <div class="row" ng-show="question.reviewExpanded && question.instruction">
         <div class="col-md-11 col-md-offset-1 sitnet-info-text review-question-value"
              ng-bind-html="question.instruction">
         </div>
@@ -52,12 +52,12 @@
     </div>
     <div class="row">
         <div class="col-md-11 col-md-offset-1 sitnet-info-text review-question-value">
-            <span ng-show="question.answer.expanded" mathjax ng-bind-html="question.answer.answer"></span>
-            <span ng-hide="question.answer.expanded" mathjax ng-bind-html="truncate(question.answer.answer, 360)"></span>
+            <span ng-show="question.reviewExpanded" mathjax ng-bind-html="question.answer.answer"></span>
+            <span ng-hide="question.reviewExpanded" mathjax ng-bind-html="truncate(question.answer.answer, 360)"></span>
         </div>
     </div>
     <!-- answer attachment -->
-    <div class="row" ng-show="question.answer.expanded" ng-controller="AttachmentController">
+    <div class="row" ng-show="question.reviewExpanded" ng-controller="AttachmentController">
         <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_answer_attachment' | translate }}:</div>
         <div class="col-md-8 sitnet-info-text" ng-hide="question.answer.attachment">N/A</div>
         <div class="col-md-8 sitnet-info-text" ng-show="question.answer.attachment">
@@ -66,15 +66,15 @@
         </div>
     </div>
     <!-- answer length & recommended length-->
-    <div class="row" ng-show="question.answer.expanded">
-        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold">{{ 'Vastauksen pituus' | translate}}:</div>
+    <div class="row" ng-show="question.reviewExpanded">
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_answer_length' | translate}}:</div>
         <div class="col-md-8 sitnet-info-text">
             {{ 'sitnet_approximately' | translate }}
             {{ question.answer.answer | striphtml | wordcount }} {{'sitnet_words' | translate }},
             {{ question.answer.answer | striphtml | charcount }} {{'sitnet_characters' | translate }}
         </div>
     </div>
-    <div class="row" ng-show="question.answer.expanded">
+    <div class="row" ng-show="question.reviewExpanded">
         <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_essay_length_recommendation' |
             translate}}:</div>
         <div class="col-md-8 sitnet-info-text">{{ question.maxCharacters }}</div>

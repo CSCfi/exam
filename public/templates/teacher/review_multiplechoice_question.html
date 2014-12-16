@@ -2,9 +2,9 @@
     <!-- question -->
     <div class="row">
         <div class="col-md-1">
-            <span ng-click="toggleAnswerExpansion(question)" class="fa-stack fa-lg pointer-hand">
+            <span ng-click="toggleQuestionExpansion(question)" class="fa-stack fa-lg pointer-hand">
                 <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-                <i ng-class="question.answer.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"
+                <i ng-class="question.reviewExpanded ? 'fa-chevron-down' : 'fa-chevron-right'"
                    class="sitnet-white fa fa-chevron-right fa-stack-1x"></i>
             </span>
         </div>
@@ -16,7 +16,7 @@
         </div>
     </div>
     <!-- question attachment -->
-    <div class="row" ng-show="question.answer.expanded" ng-controller="AttachmentController">
+    <div class="row" ng-show="question.reviewExpanded" ng-controller="AttachmentController">
         <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_question_attachment' | translate
             }}:</div>
         <div class="col-md-8 sitnet-info-text" ng-hide="question.attachment">N/A</div>
@@ -29,7 +29,7 @@
         <div class="col-md-11 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_exam_answer' | translate }}:</div>
     </div>
     <!-- compact -->
-    <div class="row" ng-hide="question.answer.expanded">
+    <div class="row" ng-hide="question.reviewExpanded">
         <div class="col-md-6 col-md-offset-1 sitnet-info-text review-question-value">
             <span mathjax ng-bind-html="question.answer.option.option"></span>
         </div>
@@ -41,18 +41,18 @@
         </div>
     </div>
     <!-- full -->
-        <div class="row" ng-show="question.answer.expanded" ng-repeat="option in question.options">
-            <div class="col-md-6 col-md-offset-1 review-question-value"
-                 ng-class="option.option === question.answer.option.option ? 'sitnet-info-text-bold' : 'sitnet-info-text'">
-                {{option.option}}
+        <div class="row" ng-show="question.reviewExpanded" ng-repeat="option in question.options">
+            <div class="col-md-1 col-md-offset-1 review-question-value sitnet-info-text" style="text-align: center;">
+                <i class="fa" ng-class="option.option === question.answer.option.option ? 'fa-check-square-o' : 'fa-square-o'"></i>
             </div>
+            <div class="col-md-6 sitnet-info-text">{{option.option}}</div>
             <div class="col-md-2 sitnet-info-text" ng-style="{color: question.backgroundColor}">
-                <span ng-if="option.correctOption === true"
-                      style="color: green;">({{'sitnet_multiplechoice_question_correct' |
-                    translate}})</span>
-                <span ng-if="option.correctOption === false"
-                      style="color:red;">({{'sitnet_multiplechoice_question_incorrect' |
-                    translate}})</span>
+                <span ng-if="option.correctOption === true" style="color: green;">
+                    ({{'sitnet_multiplechoice_question_correct' | translate}})
+                </span>
+                <span ng-if="option.correctOption === false" style="color:red;">
+                    ({{'sitnet_multiplechoice_question_incorrect' | translate}})
+                </span>
             </div>
         </div>
     

@@ -434,7 +434,6 @@
     "sitnet_instructions": "Instructions",
     "sitnet_view": "View",
     "sitnet_display_free_time_slots": "Free time slots",
-
     "sitnet_redirect_to_exam_notice": "You will be automatically forwarded to exam when it begins",
     "sitnet_redirect_to_exam_offset": "Your exam will begin in",
     "sitnet_exam_is_about_to_begin": "Following exam is about to begin",
@@ -458,11 +457,11 @@
     "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned",
     "sitnet_date_time": "Date and time",
     "sitnet_view_answers": "View answers",
-
+    "sitnet_session_will_expire_soon": "Session will expire soon",
+    "sitnet_continue_session": "Continue session",
     "sitnet_student_and_exam_info": "Student and time of exam",
     "sitnet_time_of_exam_participation": "Time of participation",
     "sitnet_previous_exam_participations": "Previous participations",
-    "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned",
-    "sitnet_session_will_expire_soon": "Session will expire soon",
-    "sitnet_continue_session": "Continue session"
+    "sitnet_answer_length": "Response length",
+    "sitnet_grading_info": "Grading information"
 }
