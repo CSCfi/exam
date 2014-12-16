@@ -1,26 +1,14 @@
 <div class="section-header row">
+    <div class="sitnet-info-text" style="margin-left: 4em">{{'sitnet_section_name' | translate}}:</div>
     <div class="col-md-1 pull-left fa-stack fa-lg">
         <i class="fa icon-theme fa-stop fa-stack-2x"></i>
         <span class="fa sitnet-white fa-stack-1x">{{$index+1}}.</span>
     </div>
-    <div class="col-md-6" ng-init="showName = true">
-        <div ng-show="showName" ng-click="getSectionId(section.id)">
-                <span class="pull-left section-header-text" ng-click="showName = !showName">
-                    {{section.name}} <i class="fa fa-pencil"></i>
-                </span>
-        </div>
-        <div ng-show="!showName">
-            <form class="form-inline" role="form">
-                <div class="form-group">
-                    <input id="{{section.id}}" type="text" class="form-control input-lg" ng-blur="showName = !showName; renameSection(section)" ng-model="section.name" autofocus>
-                </div>
-                <button class="btn-primary" ng-click="showName = !showName; renameSection(section)">
-                    <i class="fa fa-check"></i>
-                </button>
-            </form>
-        </div>
+    <div class="col-md-6 pull-left">
+        <input type="text" class="form-control ng-pristine ng-valid "
+               ng-model="section.name"
+               ui-change="renameSection(section)" style="font-size: 1.3em"/>
     </div>
-
     <div class="pull-right">
         <a class="sub-header-icon pull-right fa-stack fa-lg pointer" popover-placement="left" popover-popup-delay="1000" popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}" ng-click="section.expanded = !section.expanded; expandSection(section)">
             <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
@@ -38,18 +26,17 @@
         </ul>
     </div>
 
-    <div class="col-md-4 pull-right" style="padding-left: 4em">
-	    <span style="padding-right: 1em; " class="pointer-hand">
-	        <input style="margin-right: 1em" type="checkbox" name="On" value="On" ng-click="section.lotteryOn = !section.lotteryOn; toggleLottery(section)"
-	               ng-model="section.lotteryOn">Arvo kysymykset</input>
-	    </span>
-	    <span ng-show="section.lotteryOn">
-	        <input type="number" name="" min="1" value="1" max="{{section.questions.length}}"
-	               ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)" autofocus>
-	    </span>
-	    <span ng-show="section.lotteryOn">/ {{section.questions.length}}</span>
+    <div class="col-md-4 pull-left" >
+        <span style="padding-right: 1em; " class="pointer-hand">
+            <input style="margin-right: 1em" type="checkbox" name="On" value="On" ng-click="section.lotteryOn = !section.lotteryOn; toggleLottery(section)"
+                   ng-model="section.lotteryOn">Arvo kysymykset</input>
+        </span>
+        <span ng-show="section.lotteryOn">
+            <input type="number" name="" min="1" value="1" max="{{section.questions.length}}"
+                   ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)" autofocus>
+        </span>
+        <span ng-show="section.lotteryOn">/ {{section.questions.length}}</span>
     </div>
-
 </div>
 <div class="row">
     <div class="col-md-12" ng-show="section.expanded">
@@ -71,4 +58,5 @@
                popover-placement="top" popover-trigger="mouseenter" popover="Pudota kysymykset tähän"></i>
         </div>
     </div>
+
 </div>

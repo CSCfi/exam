@@ -60,14 +60,15 @@
 
 //                http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
                 $scope.createQuestion = function (type) {
-                    var newQuestion = {
-                        type: type
-//                        question: $translate("sitnet_question_write_name")
-                    }
+                    var newQuestion;
+                    newQuestion = {
+                        type: type,
+                        question: $translate('sitnet_new_question_draft')
+                    };
 
                     QuestionRes.questions.create(newQuestion,
                         function (response) {
-                            toastr.info("Kysymys lisätty");
+                            toastr.info($translate('sitnet_question_added'));
                             $location.path("/questions/" + response.id);
                         }, function (error) {
                             toastr.error(error.data);
@@ -81,22 +82,12 @@
                     QuestionRes.question.copy(question,
                         function (questionCopy) {
                             console.log(questionCopy.id);
-                            toastr.info("Kysymys kopioitu");
+                            toastr.info($translate('sitnet_question_copied'));
                             $location.path("/questions/" + questionCopy.id);
                         }, function (error) {
                             toastr.error(error.data);
                         }
                     );
-                };
-
-                $scope.newEssayQuestion = function () {
-                    $scope.questionTemplate = $scope.essayQuestionTemplate;
-                    $scope.newQuestion.type = "EssayQuestion";
-                    $scope.newQuestion.evaluationType = "Points";
-                    // Sanan keskimääräinen pituus = 7.5 merkkiä
-                    // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
-                    $scope.newQuestion.maxCharacters = 500;
-                    $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
                 };
 
                 $scope.estimateWords = function () {
@@ -130,7 +121,7 @@
 
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
                         function (responce) {
-                            toastr.info("Kysymys tallennettu");
+                            toastr.info($translate('sitnet_question_saved'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -138,11 +129,11 @@
                 };
 
                 $scope.deleteQuestion = function (question) {
-                    if (confirm('Poistetaanko kysymys?')) {
+                    if (confirm($translate('sitnet_remove_question'))) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
                         QuestionRes.questions.delete({'id': question.id}), function () {
-                            toastr.info("Kysymys poistettu");
+                            toastr.info($translate('sitnet_question_removed'));
                         };
                     }
                 };
@@ -158,7 +149,7 @@
                     QuestionRes.options.create({qid: newQuestion.id}, option,
                         function (response) {
                             newQuestion.options.push(response);
-                            toastr.info("Vaihtoehto lisätty");
+                            toastr.info($translate('sitnet_option_added'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -181,27 +172,27 @@
                     QuestionRes.options.delete({qid: null, oid: option.id},
                         function (response) {
                             $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
-                            toastr.info("Vaihtoehto poistettu");
+                            toastr.info($translate('sitnet_option_removed'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
                     );
 
-                }
+                };
 
                 $scope.editQuestion = function (question) {
 
-                }
+                };
 
                 $scope.updateOption = function (option) {
                     QuestionRes.options.update({oid: option.id}, option,
                         function (response) {
-                            toastr.info("Oikea vaihtoehto päivitetty");
+                            toastr.info($translate('sitnet_correct_option_updated'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
                     );
-                }
+                };
 
                 $scope.correctAnswerToggled = function (optionId, newQuestion) {
 

@@ -21,6 +21,7 @@
                 $scope.localInspections = [];
                 $scope.examGrading = [];
 
+                // TODO: localize
                 // http://www.stat.fi/meta/luokitukset/kieli/001-2003/index.html
                 $scope.selectedLanguage;
                 $scope.languages = ["abhaasi","afar","afgaani, pašto","afrikaans","aimara","akan","albania","ambo, ndonga",
@@ -115,7 +116,7 @@
                                     if(localInspection.user.id === $scope.user.id) {
                                         // toggle ready ->
                                         ExamRes.inspectionReady.update({id: localInspection.id, ready: $scope.reviewReady}, function (result) {
-                                            toastr.info("Tentti päivitetty.");
+                                            toastr.info($translate('sitnet_exam_updated'));
                                         }, function (error) {
                                             toastr.error(error.data);
                                         });
@@ -291,7 +292,7 @@
                                 break;
                             case "EssayQuestion":
 
-                                if(question.evaluatedScore && question.evaluationType == 'Points') {
+                                if(question.evaluatedScore) {
                                     var number = parseFloat(question.evaluatedScore);
                                     if(angular.isNumber(number)){
                                         score = score + number;
@@ -326,7 +327,7 @@
                                 break;
 
                             default:
-                                toastr.error("Unknown question type: "+ question.type);
+                                toastr.error($translate('sitnet_unknown_question_type') + ": " + question.type);
                                 break;
                         }
                     });
@@ -387,7 +388,7 @@
 
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
-                        toastr.info("Tentti päivitetty.");
+                        toastr.info($translate("sitnet_exam_updated"));
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -407,14 +408,14 @@
                     // Update comment
                     if ($scope.examToBeReviewed.examFeedback.id) {
                         ExamRes.comment.update({eid: $scope.examToBeReviewed.id, cid: $scope.examToBeReviewed.examFeedback.id}, examFeedback, function (exam) {
-                            toastr.info("Tentin kommentti päivitetty.");
+                            toastr.info($translate("sitnet_comment_updated"));
                         }, function (error) {
                             toastr.error(error.data);
                         });
                     // Insert new comment
                     } else {
                         ExamRes.comment.insert({eid: $scope.examToBeReviewed.id, cid: 0}, examFeedback, function (comment) {
-                            toastr.info("Kommentti lisätty tenttiin.");
+                            toastr.info($translate("sitnet_comment_added"));
                             $scope.examToBeReviewed.examFeedback.comment = comment;
                         }, function (error) {
                             toastr.error(error.data);
@@ -439,7 +440,7 @@
                         };
 
                         ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
-                            toastr.info("Tentti on tarkastettu.");
+                            toastr.info($translate('sitnet_exam_reviewed'));
                             $location.path("/exams/reviews/" + reviewed_exam.parent.id);
                         }, function (error) {
                             toastr.error(error.data);
@@ -461,7 +462,7 @@
                     };
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
-                        toastr.info("Tentti on tarkastettu.");
+                        toastr.info($translate('sitnet_exam_reviewed'));
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -473,7 +474,7 @@
                 $scope.sendEmailMessage = function () {
 
                     ExamRes.email.inspection({eid: $scope.examToBeReviewed.id, msg: $scope.message}, function (response) {
-                        toastr.info("Viesti lähetetty");
+                        toastr.info($translate("sitnet_email_sent"));
                         $scope.message = "";
                     }, function (error) {
                         toastr.error(error.data);
@@ -498,7 +499,7 @@
                         };
 
                         ExamRes.saveRecord.add(examToRecord, function (exam) {
-                            toastr.info("Suoritus kirjattu.");
+                            toastr.info($translate('sitnet_review_recorded'));
                             $location.path("exams/reviews/" + reviewed_exam.parent.id);
                         }, function (error) {
                             toastr.error(error.data);

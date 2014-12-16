@@ -20,7 +20,7 @@
                         var info = $scope.examReviews[0].exam.course.code +" "+ $scope.examReviews[0].exam.name;
                         return info;
                     } else {
-                        return "Tentillä ei ole yhtään vastausta";
+                        return $translate('sitnet_question_has_no_answers');
                     }
                 };
 

@@ -23,26 +23,6 @@
 
                 $scope.answerState = "";
 
-                $scope.setQuestionType = function () {
-                    switch ($scope.selectedType) {
-                        case 'EssayQuestion':
-                            $scope.questionTemplate = $scope.essayQuestionTemplate;
-                            $scope.newQuestion.type = "EssayQuestion";
-                            //$scope.newQuestion.evaluationType = "Points";
-                            // Sanan keskimääräinen pituus = 7.5 merkkiä
-                            // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
-                            //$scope.newQuestion.maxCharacters = 500;
-                            //$scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
-                            break;
-
-                        case 'MultipleChoiceQuestion':
-                            $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
-                            $scope.newQuestion.type = "MultipleChoiceQuestion";
-                            $scope.newQuestion.evaluationType = "Points";
-                            break;
-                    }
-                }
-
                 if($routeParams.editId) {
                     QuestionRes.questions.get({id: $routeParams.editId},
                         function (question) {
@@ -71,7 +51,23 @@
                     );
                 }
 
+                $scope.setQuestionType = function () {
+                    switch ($scope.selectedType) {
+                        case 'EssayQuestion':
+                            $scope.questionTemplate = $scope.essayQuestionTemplate;
+                            $scope.newQuestion.type = "EssayQuestion";
+                            $scope.newQuestion.evaluationType = "Points";
+                            // Sanan keskimääräinen pituus = 7.5 merkkiä
+                            // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
+                            $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
+                            break;
 
+                        case 'MultipleChoiceQuestion':
+                            $scope.questionTemplate = $scope.multipleChoiseOptionTemplate;
+                            $scope.newQuestion.type = "MultipleChoiceQuestion";
+                            break;
+                    }
+                }
 //                http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
                 $scope.createQuestion = function (type) {
                     var newQuestion = {
@@ -82,7 +78,7 @@
                     if ($routeParams.examId === undefined) {
                         QuestionRes.questions.create(newQuestion,
                             function (response) {
-                                toastr.info("Kysymys lisätty");
+                                toastr.info($translate("sitnet_question_added"));
                                 $location.path("/questions/" + response.id);
                             }, function (error) {
                                 toastr.error(error.data);
@@ -92,24 +88,24 @@
                     else {
                         QuestionRes.questions.create(newQuestion,
                             function (response) {
-                                toastr.info("Kysymys lisätty");
+                                toastr.info($translate("sitnet_question_added"));
                                 $location.path("/exams/" + $routeParams.examId);
                             }, function (error) {
                                 toastr.error(error.data);
                             }
                         );
                     }
-                }
+                };
 
                 $scope.createQuestionLibrary = function () {
                     toastr.info("Toimintoa ei ole vielä toteutettu");
-                }
+                };
 
                 $scope.copyQuestion = function (question) {
 
                     QuestionRes.question.copy(question,
                         function (questionCopy) {
-                            toastr.info("Kysymys kopioitu");
+                            toastr.info($translate("sitnet_question_copied"));
                             $location.path("/questions/" + questionCopy.id);
                         }, function (error) {
                             toastr.error(error.data);
@@ -117,25 +113,8 @@
                     );
                 };
 
-                $scope.checkMaxPoints = function(value) {
-                    if(value < 1)
-                        return false;
-                    else
-                        return true;
-                };
-
-                $scope.newEssayQuestion = function () {
-                    $scope.questionTemplate = $scope.essayQuestionTemplate;
-                    $scope.newQuestion.type = "EssayQuestion";
-                    $scope.newQuestion.evaluationType = "Points";
-                    // Sanan keskimääräinen pituus = 7.5 merkkiä
-                    // https://www.cs.tut.fi/~jkorpela/kielikello/kirjtil.html
-                    $scope.newQuestion.maxCharacters = 500;
-                    $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
-                };
-
                 $scope.estimateWords = function () {
-                    $scope.newQuestion.words = Math.floor($scope.newQuestion.maxCharacters / 7.5);
+                    $scope.newQuestion.words = Math.ceil($scope.newQuestion.maxCharacters / 7.5) || 0;
                     return $scope.newQuestion.words;
                 };
 
@@ -150,7 +129,7 @@
                         "shared": $scope.newQuestion.shared,
                         "instruction": $scope.newQuestion.instruction,
                         "evaluationCriterias": $scope.newQuestion.evaluationCriterias
-                    }
+                    };
 
                     // update question specific attributes
                     switch (questionToUpdate.type) {
@@ -164,42 +143,35 @@
                             break;
                     }
 
+                    QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
+                        function (response) {
+                            toastr.info($translate("sitnet_question_saved"));
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+
                     //Set return URL pointing back to questions main page if we created question there
                     if($routeParams.examId === undefined) {
                         $scope.returnURL = "/questions/";
-                        QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
-                            function (response) {
-                                toastr.info("Kysymys tallennettu");
-                            }, function (error) {
-                                toastr.error(error.data);
-                            }
-
-                        );
                     }
                     //Set return URL to exam, if we created the new question there
                     //Also bind the question to section of the exam at this point
                     else if($routeParams.editId) {
-                        QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
-                            function (response) {
-                                toastr.info("Kysymys tallennettu");
-                            }, function (error) {
-                                toastr.error(error.data);
-                            }
-
-                        );
                         $scope.returnURL = "/exams/" + $routeParams.examId
                     }
                     //Set return URL to exam, if we created the new question there
                     //Also bind the question to section of the exam at this point
                     else  {
-                        $scope.returnURL = "/exams/" + $routeParams.examId
+                        $scope.returnURL = "/exams/" + $routeParams.examId;
                         ExamRes.questions.insert({eid: $routeParams.examId, sid: $routeParams.sectionId, qid: $scope.newQuestion.id}, function (section) {
-                            toastr.info("Kysymys lisätty osioon.");
+                            toastr.info($translate("sitnet_question_added_to_section"));
                         }, function (error) {
                             toastr.error(error.data);
                         })
                     }
                 };
+
 
                 $scope.updateQuestion = function () {
 
@@ -212,7 +184,7 @@
                         "shared": $scope.newQuestion.shared,
                         "instruction": $scope.newQuestion.instruction,
                         "evaluationCriterias": $scope.newQuestion.evaluationCriterias
-                    }
+                    };
 
                     // update question specific attributes
                     switch (questionToUpdate.type) {
@@ -222,13 +194,12 @@
                             break;
 
                         case 'MultipleChoiceQuestion':
-
                             break;
                     };
 
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
                         function (response) {
-                            toastr.info("Kysymys tallennettu");
+                            toastr.info($translate("sitnet_question_saved"));
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -237,11 +208,11 @@
                 };
 
                 $scope.deleteQuestion = function (question) {
-                    if (confirm('Poistetaanko kysymys?')) {
+                    if (confirm($translate("sitnet_remove_question"))) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
                         QuestionRes.questions.delete({'id': question.id}), function () {
-                            toastr.info("Kysymys poistettu");
+                            toastr.info($translate("sitnet_question_removed"));
                         };
                     }
                 };
@@ -259,7 +230,7 @@
                     QuestionRes.options.create({qid: newQuestion.id}, option,
                         function (response) {
                             newQuestion.options.push(response);
-                            toastr.info("Vaihtoehto lisätty");
+                            toastr.info($translate('sitnet_option_added'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -282,7 +253,7 @@
                     QuestionRes.options.delete({qid: null, oid: option.id},
                         function (response) {
                             $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
-                            toastr.info("Vaihtoehto poistettu");
+                            toastr.info($translate('sitnet_option_removed'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -297,7 +268,7 @@
                 $scope.updateOption = function (option) {
                     QuestionRes.options.update({oid: option.id}, option,
                         function (response) {
-                            toastr.info("Oikea vaihtoehto päivitetty");
+                            toastr.info($translate('sitnet_option_updated'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -315,7 +286,7 @@
 
                                 QuestionRes.options.update({oid: optionId}, option,
                                     function (response) {
-//                                        toastr.info("Oikea vaihtoehto päivitetty");
+                                        toastr.info($translate('sitnet_correct_option_updated'));
                                     }, function (error) {
                                         toastr.error(error.data);
                                     }

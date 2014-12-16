@@ -19,6 +19,8 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
+import play.data.DynamicForm;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
@@ -344,6 +346,7 @@ public class StudentExamController extends SitnetController {
         options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, maxCharacters, options, attachment, answer");
         options.setPathProperties("examSections.questions.answer", "id, type, option, attachment, answer");
         options.setPathProperties("examSections.questions.answer.option", "id, option");
+        options.setPathProperties("examSections.questions.answer.attachment", "fileName");
         options.setPathProperties("examSections.questions.attachment", "fileName");
         options.setPathProperties("examSections.questions.options", "id, option");
         options.setPathProperties("examSections.questions.comments", "id, comment");
@@ -431,9 +434,10 @@ public class StudentExamController extends SitnetController {
 
     @Restrict({@Group("STUDENT")})
     public static Result insertEssay(String hash, Long questionId) {
-        String answerString = request().body().asJson().get("answer").toString();
+        DynamicForm df = Form.form().bindFromRequest();
+        String answer = df.get("answer");
 
-        Logger.debug(answerString);
+        Logger.debug(answer);
 
         EssayQuestion question = Ebean.find(EssayQuestion.class, questionId);
         EssayAnswer previousAnswer = (EssayAnswer) question.getAnswer();
@@ -442,7 +446,7 @@ public class StudentExamController extends SitnetController {
             previousAnswer = new EssayAnswer();
         }
 
-        previousAnswer.setAnswer(answerString);
+        previousAnswer.setAnswer(answer);
         previousAnswer.save();
 
         question.setAnswer(previousAnswer);
@@ -450,6 +454,7 @@ public class StudentExamController extends SitnetController {
         Logger.debug(((EssayAnswer) question.getAnswer()).getAnswer());
         return ok("success");
     }
+
 
     @Restrict({@Group("STUDENT")})
     public static Result insertAnswer(String hash, Long qid, Long oid) {

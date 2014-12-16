@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('MachineCtrl', ['$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'SITNET_CONF', 'dateService',
-            function ($scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, SITNET_CONF, dateService) {
+        .controller('MachineCtrl', ['$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'SITNET_CONF', 'dateService', '$translate',
+            function ($scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, SITNET_CONF, dateService, $translate) {
 
                 $scope.dateService = dateService;
                 $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/machine.html";
@@ -45,11 +45,11 @@
 
 
                 $scope.removeMachine = function (machine) {
-                    if (confirm('Poistetaanko kone?')) {
+                    if (confirm($translate('sitnet_remove_machine'))) {
                         ExamMachineResource.remove({id: machine.id},
                             function () {
                                 $scope.roomInstance.examMachines.splice($scope.roomInstance.examMachines.indexOf(machine), 1);
-                                toastr.info("Tenttikone poistettu");
+                                toastr.info($translate('sitnet_machine_removed'));
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -78,7 +78,7 @@
                             angular.forEach($scope.machine.softwareInfo, function(software) {
                                 SoftwareResource.machine.add({mid: $scope.machine.id, sid: software.id});
                             });
-                            toastr.info("Tenttikone päivitetty.");
+                            toastr.info($translate('sitnet_machine_updated'));
                             $scope.selectedSoftwares($scope.machine);
                         },
                         function (error) {
@@ -101,7 +101,7 @@
 
                     $http.post('room/' + room.id + '/accessibility', {ids:ids})
                         .success(function () {
-                            toastr.info("Huone päivitetty.");
+                            toastr.info($translate('sitnet_room_updated'));
                         });
                 };
 
@@ -112,7 +112,7 @@
                         function (updated_machine) {
                             machine = updated_machine;
                             $scope.selectedSoftwares(machine);
-                            toastr.info("Tenttikone päivitetty.");
+                            toastr.info($translate('sitnet_machine_updated'));
                         },
                         function (error) {
                             toastr.error(error.data);

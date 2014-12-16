@@ -7,7 +7,8 @@
         <i ng-class="section.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
            class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
     </span>
-    <span class="pull-right">score: {{getSectionTotalScore(section)}} / {{getSectionMaxScore(section)}} </span>
+    <span class="pull-right">{{ 'sitnet_total_section_points' | translate }}: {{getSectionTotalScore(section)}} /
+        {{getSectionMaxScore(section)}} </span>
 </div>
 </div>
 
@@ -32,7 +33,8 @@
         </tbody>
     </table>
 
-    <div style="margin-top: 3em">
-        Osion kokonaispisteet: {{getSectionTotalScore(section)}}
+    <div>
+        {{ 'sitnet_total_section_points' | translate }}: {{getSectionTotalScore(section)}} /
+        {{getSectionMaxScore(section)}}
     </div>
 </div>

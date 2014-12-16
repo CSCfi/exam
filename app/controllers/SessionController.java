@@ -63,56 +63,10 @@ public class SessionController extends SitnetController {
 
                     String email = request().getHeader("mail");
                     user.setEmail(email);
-
                     user.save();
-
-                    // TODO: should save MOST IMPORTANT attributes only, not all
-//                List<HakaAttribute> attrs = new ArrayList<HakaAttribute>();
-//
-//                for (Map.Entry<String,String[]> entry : attributes.entrySet()) {
-//
-//                    String key = entry.getKey();
-//                    String[] value = entry.getValue();
-//
-//                    HakaAttribute attr = new HakaAttribute();
-//                    attr.setKey(key);
-//                    if (value.length > 1) {
-//
-//                        // TODO This might bite our arse at some point.
-//                        attr.setValue(Arrays.toString(value));
-//                    } else {
-//                        attr.setValue(value[0]);
-//                    }
-//                    attrs.add(attr);
-//                }
-//
-//                user.setAttributes(attrs);
-//                user.save();
-
                 } else {
                     // First login -> create it
                     user = new User();
-
-//                List<HakaAttribute> attrs = new ArrayList<HakaAttribute>();
-//
-//                for (Map.Entry<String,String[]> entry : attributes.entrySet()) {
-//
-//                    String key = entry.getKey();
-//                    String[] value = entry.getValue();
-//
-//                    HakaAttribute attr = new HakaAttribute();
-//                    attr.setKey(key);
-//                    if (value.length > 1) {
-//
-//                        // TODO This might bite our arse at some point.
-//                        attr.setValue(Arrays.toString(value));
-//                    } else {
-//                        attr.setValue(value[0]);
-//                    }
-//                    attrs.add(attr);
-//                }
-//                user.setAttributes(attrs);
-
                     user.setEppn(eppn);
 
                     if (request().getHeader("schacPersonalUniqueCode") == null) {
@@ -157,20 +111,16 @@ public class SessionController extends SitnetController {
         }
 
         // User exists in the system -> log in
-
-        String token;
-
-        if (loginType.equals("HAKA")) {
-            token = request().getHeader("Shib-Session-ID");
-        } else {
-            token = UUID.randomUUID().toString();
-        }
+        String token = loginType.equals("HAKA") ? request().getHeader("Shib-Session-ID") : UUID.randomUUID().toString();
 
         Session session = new Session();
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
         session.setValid(true);
+        session.setXsrfToken();
+
         Cache.set(SITNET_CACHE_KEY + token, session);
+
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
         result.put("token", token);
@@ -178,7 +128,9 @@ public class SessionController extends SitnetController {
         result.put("lastname", user.getLastName());
         result.put("roles", Json.toJson(user.getRoles()));
         result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
-        response().setCookie("XSRF-TOKEN", SitnetUtil.encodeMD5(user.getUserIdentifier()));
+
+        response().setCookie("XSRF-TOKEN", session.getXsrfToken());
+
         return ok(result);
     }
 
@@ -253,11 +205,11 @@ public class SessionController extends SitnetController {
         String loginType = ConfigFactory.load().getString("sitnet.login");
         if (loginType.equals("HAKA")) {
             Session session = (Session) Cache.get(key);
-            if (session == null) {
-                return ok();
+            if (session != null) {
+                session.setValid(false);
+                Cache.set(key, session);
+                Logger.info("Set session as invalid {}", token);
             }
-            session.setValid(false);
-            Cache.set(key, session);
         } else {
             Cache.remove(key);
         }

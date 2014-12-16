@@ -51,14 +51,14 @@
                 $scope.saveInspector = function () {
                     if($scope.newInspection.user.id && $scope.newInspection.user.id > 0 && $scope.newInspection.exam.id && $scope.newInspection.exam.id > 0) {
                         ExamRes.inspection.insert({eid: $scope.newInspection.exam.id, uid: $scope.newInspection.user.id}, $scope.newInspection, function (inspection) {
-                            toastr.info("Tentti tallennettu.");
+                            toastr.info($translate("sitnet_exam_saved"));
                             $scope.ok(inspection);
                         }, function (error) {
                             toastr.error(error.data);
                             $scope.cancel();
                         });
                     } else {
-                        toastr.error("Opettajaa ei löytynyt");
+                        toastr.error($translate('sitnet_teacher_not_found'));
                         $scope.cancel();
                     }
                 };

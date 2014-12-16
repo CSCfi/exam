@@ -3,7 +3,7 @@
         <span class="header-text">{{'sitnet_exam' | translate}}</span>
     </div>
     <div class="col-md-4 ">
-        <!--<span class="header-clock pull-right">
+        <!--<span class="header-clock pull-right">“
             <span class="col-md-12  weekday">24. lauantai</span>
             <span class="col-md-12  date">Toukokuuta 2014</span>
             <span class="col-md-12  clock"></span>
@@ -14,29 +14,20 @@
 <div id="exam" class="row base">
     <div ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
         <div class="row">
-            <!-- Exam name -->
-            <div ng-init="showName = true">
-                <div ng-show="showName" onclick="document.getElementById('name_field').select();">
-                    <span class="exam-name" ng-click="showName = !showName">
-                        {{newExam.name}} <i class="fa fa-pencil"></i>
-                    </span>
-                    <span class="pull-right">
-                        <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
-                    </span>
+            <div class="sitnet-info-text">{{'sitnet_exam_name' | translate}}:</div>
+            <div class="row">
+                <div class="col-md-10">
+                    <input type="text" class="form-control ng-pristine ng-valid "
+                           ng-model="newExam.name"
+                           ui-change="updateExam()" style="font-size: 1.5em"/>
                 </div>
-                <div ng-show="!showName">
-                    <form class="form-inline" role="form">
-                        <div class="form-group">
-                            <input id="name_field" type="text" class="form-control input-lg" ng-model="newExam.name" ng-blur="showName = !showName; updateExam()" autofocus/>
-                        </div>
-                        <button class="btn-primary" ng-click="showName = !showName; updateExam()">
-                            <i class="fa fa-check"></i>
-                        </button>
-                    </form>
+                <div class="col-md-2">
+                     <button ng-click="saveExam()" class="btn btn-primary pull-right">
+                         {{'sitnet_save' | translate}}</button>
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" style="margin-top: 2em">
             <!-- General Information -->
             <div class="bottom-padding-2" ng-include="generalInfoPath"></div>
 

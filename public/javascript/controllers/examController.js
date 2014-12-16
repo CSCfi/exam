@@ -134,7 +134,7 @@
                         angular.forEach($scope.newExam.softwares, function (software) {
                             ExamRes.machine.add({eid: $scope.newExam.id, sid: software.id});
                         });
-                        toastr.info("Tentin ohjelmistot päivitetty.");
+                        toastr.info($translate('sitnet_exam_software_updated'));
                         $scope.selectedSoftwares($scope.newExam);
 
                         $scope.softwaresUpdate = $scope.newExam.softwares.length;
@@ -198,7 +198,7 @@
                 };
 
                 $scope.reindexNumbering = function () {
-                    // set sections and question nubering
+                    // set sections and question numbering
                     angular.forEach($scope.newExam.examSections, function (section, index) {
                         section.index = index +1;
 
@@ -214,7 +214,7 @@
                     $scope.newSection.name = $translate("sitnet_exam_section_default_name")+" "+ index;
 
                     ExamRes.sections.insert({eid: $scope.newExam.id}, $scope.newSection, function (section) {
-                        toastr.success("Osio lisätty.");
+                        toastr.success($translate('sitnet_section_added'));
                         $scope.newExam.examSections.push(section);
                         $scope.reindexNumbering();
                     }, function (error) {
@@ -227,7 +227,7 @@
 
                     ExamRes.draft.get(
                         function (response) {
-                            toastr.info("Uusi tentti luotu.");
+                            toastr.info($translate("sitnet_exam_added"));
                             $location.path("/exams/" + response.id);
                         }, function (error) {
                             toastr.error(error.data);
@@ -238,7 +238,7 @@
                 	
                     ExamRes.room.update({eid: $scope.newExam.id, rid: room.id}, function (exam) {
                     	$scope.newExam.room = room;
-                    	toastr.info("Tentti päivitetty.");
+                    	toastr.info($translate("sitnet_exam_updated"));
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -301,10 +301,10 @@
                 };
 
                 $scope.removeSection = function (section) {
-                    if (confirm('Poistetaanko osio?')) {
+                    if (confirm($translate('sitnet_remove_section'))) {
 
                         ExamRes.sections.remove({eid: $scope.newExam.id, sid: section.id}, function (id) {
-                            toastr.info("Osio poistettu.");
+                            toastr.info($translate("sitnet_section_removed"));
                             $scope.newExam.examSections.splice($scope.newExam.examSections.indexOf(section), 1);
                             $scope.reindexNumbering();
 
@@ -318,7 +318,7 @@
 
                     ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
                         section = sec;
-                        toastr.info("Osio päivitetty.");
+                        toastr.info($translate("sitnet_section_updated"));
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -349,12 +349,12 @@
                 };
 
                 $scope.clearAllQuestions = function (section) {
-                    if (confirm('Poistetaanko kaikki kysymykset?')) {
+                    if (confirm($translate('sitnet_remove_all_questions'))) {
 //                        section.questions.splice(0, questions.length);
 
                         ExamRes.clearsection.clear({sid: section.id}, function (sec) {
                             section = sec;
-                            toastr.info("Kysymykset poistettu.");
+                            toastr.info($translate("sitnet_all_questions_removed"));
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -363,13 +363,13 @@
                 };
 
                 $scope.removeQuestion = function (section, question) {
-                    if (confirm('Poistetaanko kysymys?')) {
+                    if (confirm($translate('sitnet_remove_question'))) {
                         // TODO this is redundant ?
                         section.questions.splice(section.questions.indexOf(question), 1);
                         
                         ExamRes.questions.remove({eid: $scope.newExam.id, sid: section.id, qid: question.id}, function (sec) {
                             section = sec;
-                            toastr.info("Kysymys poistettu.");
+                            toastr.info($translate("sitnet_question_removed"));
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -412,7 +412,7 @@
 
                         ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                             function (exam) {
-                                toastr.info("Tentti tallennettu.");
+                                toastr.info($translate("sitnet_exam_saved"));
                                 $scope.newExam = exam;
                             }, function (error) {
 
@@ -446,7 +446,7 @@
 
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function (exam) {
-                            toastr.info("Tentti tallennettu.");
+                            toastr.info($translate("sitnet_exam_saved"));
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -478,7 +478,7 @@
                     
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function (exam) {
-                        toastr.info("Tentti tallennettu.");
+                        toastr.info($translate("sitnet_exam_saved"));
 //                        $location.path("/exams");
                         }, function (error) {
                         toastr.error(error.data);
@@ -544,7 +544,7 @@
 
                         ExamRes.exams.update({id: examToSave.id}, examToSave,
                             function (exam) {
-                            toastr.success("Tentti tallennettu ja julkaistu");
+                            toastr.success($translate("sitnet_exam_saved_and_published"));
                             $location.path("/exams");
                         }, function (error) {
                             toastr.error(error.data);
@@ -570,37 +570,37 @@
                     var errors = {};
 
                     if(exam.course == null)
-                        errors.course = "Opintojakso puuttuu";
+                        errors.course = $translate("sitnet_course_missing");
 
                     if(exam.name == null || exam.name.length < 2)
-                        errors.name = "Tentin nimi puuttuu, tai on liian lyhyt";
+                        errors.name = $translate('sitnet_exam_name_missing_or_too_short');
 
                     if($scope.dateService.startTimestamp == 0)
-                        errors.examActiveStartDate = "Alkuaika puuttuu";
+                        errors.examActiveStartDate = $translate('sitnet_exam_start_date_missing');
 
                     if($scope.dateService.endTimestamp == 0)
-                        errors.examActiveEndDate = "Loppuaika puuttuu";
+                        errors.examActiveEndDate = $translate('sitnet_exam_end_date_missing');
 
                     if($scope.countQuestions < 1)
-                        errors.questions = "Tentissä ei ole yhtään kysymystä";
+                        errors.questions = $translate('sitnet_exam_has_no_questions');
 
                     if(exam.duration == null || exam.duration < 1)
-                        errors.duration = "Tentin kestoa ei ole määritelty";
+                        errors.duration = $translate('sitnet_exam_duration_missing');
 
                     if(exam.grading == null)
-                        errors.grading = "Tentin arvosana-asteikkoa ei ole määritelty";
+                        errors.grading = $translate('sitnet_exam_grade_scale_missing');
 
                     if(exam.examType == null)
-                        errors.examType = "Tentin suoritustyyppiä ei ole määritelty";
+                        errors.examType = $translate('sitnet_exam_credit_type_missing');
 
                     return errors;
                 };
 
                     $scope.deleteExam = function (exam) {
-                    if (confirm('Haluatko poistaa tentin lopullisesti?')) {
+                    if (confirm($translate('sitnet_remove_exam'))) {
 
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
-                            toastr.success("Tentti poistettu");
+                            toastr.success($translate('sitnet_exam_removed'));
                             $scope.exams.splice($scope.exams.indexOf(exam), 1);
 
                         }, function (error) {
@@ -667,7 +667,7 @@
                 $scope.updateLotteryCount = function (section) {
 
                     if (section.lotteryItemCount == undefined || section.lotteryItemCount == 0) {
-                        toastr.warning("Arvonnassa tulee olla kysymyksiä vähintään yksi ja enintään osioon lisättyjen kysymysten määrä.");
+                        toastr.warning($translate("sitnet_warn_lottery_count"));
                         section.lotteryItemCount = section.lotteryItemCount == 0 ? 1 : section.questions.length;
                     }
                     else {
