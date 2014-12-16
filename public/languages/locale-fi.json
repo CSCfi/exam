@@ -463,5 +463,8 @@
     "sitnet_time_of_exam_participation": "Tentin suoritusaika",
     "sitnet_previous_exam_participations": "Aikaisemmat suorituskerrat",
     "sitnet_answer_length": "Vastauksen pituus",
-    "sitnet_grading_info": "Suoritustiedot"
+    "sitnet_grading_info": "Suoritustiedot",
+    "sitnet_give_feedback": "Anna palautetta",
+    "sitnet_hide_feedback": "Piilota palaute"
+
 }

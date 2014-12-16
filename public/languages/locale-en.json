@@ -463,5 +463,7 @@
     "sitnet_time_of_exam_participation": "Time of participation",
     "sitnet_previous_exam_participations": "Previous participations",
     "sitnet_answer_length": "Response length",
-    "sitnet_grading_info": "Grading information"
+    "sitnet_grading_info": "Grading information",
+    "sitnet_give_feedback": "Give feedback",
+    "sitnet_hide_feedback": "Hide feedback"
 }

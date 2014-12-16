@@ -463,5 +463,8 @@
     "sitnet_time_of_exam_participation": "Tenttid",
     "sitnet_previous_exam_participations": "Tidigare insatser",
     "sitnet_answer_length": "Svarets längd",
-    "sitnet_grading_info": "Information om utvärdering"
+    "sitnet_grading_info": "Information om utvärdering",
+    "sitnet_give_feedback": "Ge kursfeedback",
+    "sitnet_hide_feedback": "Dölj kursfeedback"
+
 }
