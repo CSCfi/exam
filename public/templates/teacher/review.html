@@ -1,7 +1,9 @@
-<!-- Refresh MathJax syntax                                        -->
+<!-- Refresh MathJax syntax some time after page was rendered -->
 <script type="text/javascript">
     $(document).ready(function()  {
-        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+        setTimeout(function() {
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+        }, 500);
     });
 </script>
 
