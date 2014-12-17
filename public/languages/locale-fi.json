@@ -459,12 +459,14 @@
     "sitnet_participation_enrolled": "Ilmoittautuneet",
     "sitnet_participation_reviewed": "Arvioimatta",
     "sitnet_date_time": "Päivämäärä ja aika",
-    "sitnet_participation_reviewed": "Arvioimatta",
     "sitnet_session_will_expire_soon": "Istunto on loppumassa",
     "sitnet_continue_session": "Jatka istuntoa",
-
     "sitnet_view_answers": "Katso vastaukset",
     "sitnet_student_and_exam_info": "Opiskelija ja tenttiaika",
     "sitnet_time_of_exam_participation": "Tentin suoritusaika",
-    "sitnet_previous_exam_participations": "Aikaisemmat suorituskerrat"
+    "sitnet_previous_exam_participations": "Aikaisemmat suorituskerrat",
+    "sitnet_send_result_to_registry": "Lähetä suoritus rekisteriin",
+    "sitnet_result_not_sended_to_registry": "Suoritusta ei lähetetty rekisteriin",
+    "sitnet_modify_credit": "Muokkaa opintopistemäärää",
+    "sitnet_not_a_valid_custom_credit": "Opintopistemäärä ei kelpaa"
 }

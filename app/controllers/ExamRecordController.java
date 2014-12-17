@@ -35,7 +35,7 @@ public class ExamRecordController extends SitnetController {
                 "room",
                 "duration",
                 "grading",
-                "otherGrading",
+                "customCredit",
                 "totalScore",
                 "examLanguage",
                 "answerLanguage",

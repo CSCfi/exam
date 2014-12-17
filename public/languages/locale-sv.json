@@ -460,8 +460,10 @@
     "sitnet_student_and_exam_info": "Student och tenttid",
     "sitnet_time_of_exam_participation": "Tenttid",
     "sitnet_previous_exam_participations": "Tidigare insatser",
-
-    "sitnet_participation_reviewed": "Utvärderade",
     "sitnet_session_will_expire_soon": "Session will expire soon",
-    "sitnet_continue_session": "Continue session"
+    "sitnet_continue_session": "Continue session",
+    "sitnet_send_result_to_registry": "Send grade to registry",
+    "sitnet_result_not_sended_to_registry": "Suoritusta ei lähetetty rekisteriin",
+    "sitnet_modify_credit": "Modify credit",
+    "sitnet_not_a_valid_custom_credit": "Not a valid custom credit"
 }

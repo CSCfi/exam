@@ -88,9 +88,8 @@ public class Exam extends SitnetModel {
     // Exam grading, e.g. 0-5
     private String grading;
 
-    // Commented out from UI on: 18.08.2014 ProRy
-    // Free text for exam grading
-    private String otherGrading;
+    // Custom course credit - if teachers changes course credit
+    private Double customCredit;
 
     // Exam total score - calculated from all section scores
     private Double totalScore;
@@ -262,12 +261,12 @@ public class Exam extends SitnetModel {
 		this.grading = grading;
 	}
 
-	public String getOtherGrading() {
-		return otherGrading;
+	public Double getCustomCredit() {
+		return customCredit;
 	}
 
-	public void setOtherGrading(String otherGrading) {
-		this.otherGrading = otherGrading;
+	public void setCustomCredit(Double customCredit) {
+		this.customCredit = customCredit;
 	}
 
     public void setTotalScore(Double totalScore) {
@@ -378,7 +377,6 @@ public class Exam extends SitnetModel {
         clone.setRoom(this.getRoom());
         clone.setDuration(this.getDuration());
         clone.setGrading(this.getGrading());
-        clone.setOtherGrading(this.getOtherGrading());
         clone.setTotalScore(this.getTotalScore());
         clone.setExamLanguage(this.getExamLanguage());
         clone.setAnswerLanguage(this.getAnswerLanguage());

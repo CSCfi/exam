@@ -50,6 +50,11 @@
                     $scope.examToBeReviewed.answerLanguage = lang;
                 };
 
+                $scope.hasMultipleChoiseQuestions = false;
+                $scope.hasEssayQuestions = false;
+                $scope.acceptedEssays = 0;
+                $scope.rejectedEssays = 0;
+
 
                 if ($routeParams.id === undefined) {
                     // Todo: Should not come here, redirect to homepage if comes?
@@ -60,6 +65,23 @@
                         function(exam) {
                             $scope.examToBeReviewed = exam;
 
+                            if(exam) {
+                                angular.forEach($scope.examToBeReviewed.examSections, function(section) {
+                                    angular.forEach(section.questions, function(question) {
+                                        if (question.type === "EssayQuestion") {
+                                            if(question.evaluatedScore == 1) {
+                                                $scope.acceptedEssays++;
+                                            } else if(question.evaluatedScore == 0) {
+                                                $scope.rejectedEssays++;
+                                            }
+                                            $scope.hasEssayQuestions = true;
+                                        }
+                                        if (question.type === "MultipleChoiceQuestion") {
+                                            $scope.hasMultipleChoiseQuestions = true;
+                                        }
+                                    });
+                                });
+                            }
                             // get previous participations ->
                             ExamRes.examParticipationsOfUser.query(
                                 {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
@@ -413,39 +435,24 @@
                     }
                 };
 
-                // Called when the review ready button is clicked
-                $scope.examReviewReady = function(reviewed_exam) {
-
-                    if (confirm($translate('sitnet_mark_as_graded_tooltip') + " " + $translate('sitnet_are_you_sure'))) {
-                        $scope.saveFeedback();
-
-                        var examToReview = {
-                            "id": reviewed_exam.id,
-                            "state": 'GRADED',
-                            "grade": reviewed_exam.grade,
-                            "otherGrading": reviewed_exam.otherGrading,
-                            "totalScore": reviewed_exam.totalScore,
-                            "creditType": reviewed_exam.creditType
-
-                        };
-
-                        ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
-                            toastr.info($translate('sitnet_exam_reviewed'));
-                            $location.path("/exams/reviews/" + reviewed_exam.parent.id);
-                        }, function(error) {
-                            toastr.error(error.data);
-                        });
-                    }
-                };
-
                 // called when Save button is clicked
                 $scope.updateExam = function(reviewed_exam) {
 
+                    if(reviewed_exam.grade == undefined || reviewed_exam.grade == "") {
+                        toastr.error($translate('sitnet_participation_reviewed'));
+                        return;
+                    }
+
+                    if(reviewed_exam.creditType == undefined || reviewed_exam.creditType == "") {
+                        toastr.error($translate('sitnet_exam_choose_credit_type'));
+                        return;
+                    }
+
                     var examToReview = {
                         "id": reviewed_exam.id,
-                        "state": reviewed_exam.state,
+                        "state": 'GRADED',
                         "grade": reviewed_exam.grade,
-                        "otherGrading": reviewed_exam.otherGrading,
+                        "customCredit": reviewed_exam.customCredit,
                         "totalScore": reviewed_exam.totalScore,
                         "creditType": reviewed_exam.creditType,
                         "answerLanguage": $scope.selectedLanguage
@@ -453,6 +460,7 @@
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
                         toastr.info($translate('sitnet_exam_reviewed'));
+                        $location.path("exams/reviews/" + reviewed_exam.parent.id);
                     }, function(error) {
                         toastr.error(error.data);
                     });
@@ -475,13 +483,26 @@
 
                 $scope.saveExamRecord = function(reviewed_exam) {
 
+                    if(reviewed_exam.grade == undefined || reviewed_exam.grade == "") {
+                        toastr.error($translate('sitnet_participation_reviewed') + ". " + $translate('sitnet_result_not_sended_to_registry'));
+                        return;
+                    }
+
+
+                    if(reviewed_exam.creditType == undefined || reviewed_exam.creditType == "") {
+                        toastr.error($translate('sitnet_exam_choose_credit_type') + ". " + $translate('sitnet_result_not_sended_to_registry'));
+                        return;
+                    }
+
                     if (confirm($translate('sitnet_confirm_record_review'))) {
+
+                        $scope.saveFeedback();
 
                         var examToRecord = {
                             "id": reviewed_exam.id,
                             "state": "GRADED_LOGGED",
                             "grade": reviewed_exam.grade,
-                            "otherGrading": reviewed_exam.otherGrading,
+                            "customCredit": reviewed_exam.customCredit,
                             "totalScore": reviewed_exam.totalScore,
                             "creditType": reviewed_exam.creditType,
                             "sendFeedback": $scope.sendReviewFeedback,
@@ -497,5 +518,35 @@
                     }
                 };
 
+                $scope.resetCredit = function() {
+
+                    ExamRes.credit.update({eid: $scope.examToBeReviewed.id, credit: -1}, function() {
+                        toastr.info($translate("sitnet_exam_updated"));
+                        $scope.examToBeReviewed.customCredit = '';
+                    }, function(error) {
+                        toastr.error(error.data);
+                    });
+                    $scope.customForm = false;
+                };
+
+                $scope.modifyCredit = function() {
+                    if($scope.examToBeReviewed.customCredit === '' || isNaN($scope.examToBeReviewed.customCredit)){
+                        toastr.error($translate('sitnet_not_a_valid_custom_credit'));
+                        return;
+                    }
+
+                    ExamRes.credit.update({eid: $scope.examToBeReviewed.id, credit: $scope.examToBeReviewed.customCredit}, function() {
+                        toastr.info($translate("sitnet_exam_updated"));
+                    }, function(error) {
+                        toastr.error(error.data);
+                    });
+                    $scope.customForm = false;
+                };
+
+                $scope.stripHtml = function(text) {
+                    return String(text).replace(/<[^>]+>/gm, '');
+                };
+
+                $scope.customForm = false;
             }]);
 }());

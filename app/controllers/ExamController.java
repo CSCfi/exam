@@ -322,7 +322,7 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment, creator, softwares");
+                    "duration, grading, ,grade, customCredit, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment, creator, softwares");
             options.setPathProperties("creator", "id, firstName, lastName");
             options.setPathProperties("parent", "id, creator");
             options.setPathProperties("parent.creator", "id, firstName, lastName");
@@ -381,7 +381,7 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
+                    "duration, grading, ,grade, customCredit, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
             options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
             options.setPathProperties("room", "id, name roomInstruction roomInstructionEN roomInstructionSV");
             options.setPathProperties("attachment", "id, fileName");
@@ -415,7 +415,6 @@ public class ExamController extends SitnetController {
                 "room",
                 "duration",
                 "grading",
-                "otherGrading",
                 "totalScore",
                 "examLanguage",
                 "answerLanguage",
@@ -548,6 +547,24 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result updateCredit(Long eid, Double credit) throws MalformedDataException {
+
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound();
+        }
+
+        if(credit == -1) {
+            exam.setCustomCredit(null);
+        } else {
+            exam.setCustomCredit(credit);
+        }
+        exam.save();
+
+        return ok();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateExam(Long id) throws MalformedDataException {
 
         DynamicForm df = Form.form().bindFromRequest();
@@ -665,7 +682,7 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, name, course, examType, instruction, enrollInstruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, softwares, attachment");
+                    "duration, grading, customCredit, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, softwares, attachment");
             options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
             options.setPathProperties("softwares", "id, name");
             options.setPathProperties("attachment", "id, fileName");

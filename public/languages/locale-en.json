@@ -462,7 +462,10 @@
     "sitnet_student_and_exam_info": "Student and time of exam",
     "sitnet_time_of_exam_participation": "Time of participation",
     "sitnet_previous_exam_participations": "Previous participations",
-    "sitnet_exam_time_is_up": "Exam time is up. Exam has been autosaved and returned",
     "sitnet_session_will_expire_soon": "Session will expire soon",
-    "sitnet_continue_session": "Continue session"
+    "sitnet_continue_session": "Continue session",
+    "sitnet_send_result_to_registry": "Send grade to registry",
+    "sitnet_result_not_sended_to_registry": "Exam record was not sended to registry",
+    "sitnet_modify_credit": "Modify credit",
+    "sitnet_not_a_valid_custom_credit": "Not a valid custom credit"
 }

@@ -138,6 +138,14 @@
                 
                 }),
 
+                credit: $resource("/exam/:eid/credit/:credit",
+                    {
+                        id: "@eid", credit: "@credit"
+                    },
+                    {
+                        "update": {method: "PUT", params: { eid: "@eid" , credit: "@credit"}}
+                    }),
+
                 inspections: $resource("/exam/:id/inspections",
                 {
                     id: "@id"
