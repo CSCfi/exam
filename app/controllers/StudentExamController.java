@@ -231,10 +231,6 @@ public class StudentExamController extends SitnetController {
                 .eq("hash", hash)
                 .eq("parent", null)
                 .findUnique();
-        //ko. hashilla ei ole koetta olemassa
-        if (blueprint == null) {
-            return notFound();
-        }
 
         Exam possibleClone = Ebean.find(Exam.class)
                 .fetch("examSections")
@@ -244,10 +240,15 @@ public class StudentExamController extends SitnetController {
                 .orderBy("examSections.id, id desc")
                 .findUnique();
 
-        //aloitettu koe
+        // no exam found for hash
+        if (blueprint == null && possibleClone == null) {
+            return notFound();
+        }
+
+        // exam has been started
         if (possibleClone != null) {
             String state = possibleClone.getState();
-            //kokeen tila on jokin muu kuin käynnissäoleva
+            // sanity check
             if (!state.equals(Exam.State.STUDENT_STARTED.toString())) {
                 return forbidden();
             }
@@ -256,7 +257,7 @@ public class StudentExamController extends SitnetController {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
 
-        // tehdään uusi koe opiskelijalle "oletus"
+        // Create new exam for student
         if (possibleClone == null) {
 
             Timestamp now = SitnetUtil.getNowTime();
