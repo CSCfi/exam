@@ -479,8 +479,6 @@
                     });
                 };
 
-                $scope.sendReviewFeedback = true;
-
                 $scope.saveExamRecord = function(reviewed_exam) {
 
                     if (confirm($translate('sitnet_confirm_record_review'))) {
@@ -492,7 +490,7 @@
                             "otherGrading": reviewed_exam.otherGrading,
                             "totalScore": reviewed_exam.totalScore,
                             "creditType": reviewed_exam.creditType,
-                            "sendFeedback": $scope.sendReviewFeedback,
+                            "sendFeedback": true,
                             "answerLanguage": $scope.selectedLanguage
                         };
 

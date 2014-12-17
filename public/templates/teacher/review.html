@@ -1,6 +1,6 @@
 <!-- Refresh MathJax syntax some time after page was rendered -->
 <script type="text/javascript">
-    $(document).ready(function()  {
+    $(document).ready(function() {
         setTimeout(function() {
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
         }, 500);
@@ -93,9 +93,6 @@
             <div class="col-md-12" ng-show="isReadOnly">
                 <div class="top-padding-2 col-md-12">
                     <span class="sitnet-info-text"><i>{{'sitnet_teachers_comment' | translate}}:</i></span>
-                    <!--How to get CKEditor text with Angular-->
-                    <!--http://jsfiddle.net/TheSharpieOne/cPTr7/-->
-                    <!--http://stackoverflow.com/questions/18917262/updating-textarea-value-with-ckeditor-content-in-angular-js-->
                     <div>{{ examToBeReviewed.examFeedback.comment }}</div>
                 </div>
             </div>
@@ -153,7 +150,7 @@
                 </div>
 
                 <!-- feedback floating window -->
-                <div ng-show="!isReadOnly" >
+                <div ng-show="!isReadOnly">
                     <div class="col-md-11">
                         <div class="col-md-5 col-md-offset-4 review-feedback" bs-affix data-offset-top="150">
                             <div class="review-feedback" ng-click="hideEditor = !hideEditor">
@@ -177,36 +174,29 @@
                 </div>
 
                 <div class="col-md-12 row top-padding-2 bottom-padding-2">
-                    <div class="col-md-4">
-                        <div style="padding-left: 1em">
+                    <div class="col-md-6">
+                        <span>
                             <button ng-show="!isReadOnly" ng-click="updateExam(examToBeReviewed)"
-                                    class="btn btn-primary">{{'sitnet_save' | translate}}
+                                class="btn btn-primary">{{'sitnet_save' | translate}}
                             </button>
-                            <div ng-show="isReadOnly" style="padding: 40px 0;">
-                                <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="col-md-12"><i
-                                        class="fa fa-sign-out"><span
-                                        class="italic">{{'sitnet_close' | translate}}</span></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div style="padding-left: 1em" ng-show="!isReadOnly">
+                        </span>
+                        <span ng-show="isReadOnly" style="padding: 40px 0;">
+                            <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="col-md-12"><i
+                                    class="fa fa-sign-out"><span
+                                    class="italic">{{'sitnet_close' | translate}}</span></i></a>
+                        </span>
+                        <span style="padding-left: 1em" ng-show="!isReadOnly">
                             <button ng-click="examReviewReady(examToBeReviewed)"
                                     ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
                                     class="btn btn-primary">{{'sitnet_exam_save_review' | translate}}
                             </button>
-                        </div>
+                        </span>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <div style="padding-left: 1em" ng-show="!isReadOnly">
-                            <div class="col-md-12 top-margin-1">
-                                <div class="pull-right"><span>{{ 'sitnet_send_exam_feedback' | translate }}</span>
-                                    <input type="checkbox" ng-model="sendReviewFeedback" checked/></div>
-                            </div>
                             <button ng-click="saveExamRecord(examToBeReviewed)"
                                     ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
-                                    class="btn btn-warning pull-right top-margin-1">{{'sitnet_exam_save_register' |
-                                translate}}
+                                    class="btn btn-warning pull-right">{{'sitnet_exam_save_register' | translate}}
                             </button>
                         </div>
                     </div>
