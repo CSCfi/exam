@@ -47,8 +47,14 @@
             <div class="exam-sections-compact">
                 <div ng-include="reviewSectionPath" ng-repeat="section in examToBeReviewed.examSections"></div>
             </div>
-            <div class="exam-general-information row sitnet-info-text-bold">Suoritustiedot</div>
+            <div class="exam-general-information row sitnet-info-text-bold">{{'sitnet_grading_info' | translate}}</div>
         </div>
+        <div class="col-md-12 top-padding-2">
+            <div class="col-md-12">
+                <div class="col-md-6">
+                    {{'sitnet_total_score' | translate}}: {{getExamTotalScore(examToBeReviewed)}} / {{
+                    getExamMaxPossibleScore(examToBeReviewed) }}
+                </div>
 
         <div class="col-md-12">
             <div class="col-md-12" ng-show="hasMultipleChoiseQuestions">
@@ -65,7 +71,8 @@
             <div class="col-md-12">
                 <div class="col-md-6">
                     <div class="sitnet-info-text">{{'sitnet_exam_grade' | translate}}:</div>
-                    <select name="examGrade" class="form-control" ng-model="examToBeReviewed.grade" ng-disabled="isReadOnly"
+                    <select name="examGrade" class="form-control" ng-model="examToBeReviewed.grade"
+                            ng-disabled="isReadOnly"
                             required ng-disabled="!isCreator()" ng-options="grade for grade in examGrading">
                     </select>
                 </div>
@@ -84,7 +91,8 @@
                 <!-- Suorituskieli -->
                 <div class="col-md-12">
                     <div class="sitnet-info-text">{{'sitnet_exam_record_language' | translate}}</div>
-                    <select name="answerLanguage" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-disabled="isReadOnly"
+                    <select name="answerLanguage" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+                            ng-disabled="isReadOnly"
                             ng-model="selectedLanguage"
                             ng-change="setLanguage(selectedLanguage)" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
@@ -94,46 +102,14 @@
                     </select>
                 </div>
             </div>
-            <!--Commented out from UI on: 18.08.2014 ProRy-->
-            <!--<div class="row">-->
-            <!--<div class="col-md-6" ng-hide="showOtherGrading">-->
-            <!--<span class="pull-right fa-stack fa-lg dropdown"></span>-->
-            <!--<div class="sitnet-info-text">{{'sitnet_exam_other_evaluation_criteria' | translate}}:</div>-->
-            <!--<h3>-->
-            <!--<span class="editable" ng-click="showOtherGrading = !showOtherGrading">-->
-            <!--{{examToBeReviewed.customCredit}} <i class="fa fa-pencil"></i>-->
-            <!--</span>-->
-            <!--</h3>-->
-            <!--</div>-->
-            <!--<div class="col-md-6" ng-show="showOtherGrading">-->
-            <!--<div class="sitnet-info-text">{{'sitnet_exam_other_evaluation_criteria' | translate}}:</div>-->
-            <!--<form class="form-inline" role="form">-->
-            <!--<div class="form-group">-->
-            <!--<input type="text" class="form-control input-lg" ng-model="examToBeReviewed.customCredit" autofocus>-->
-            <!--</div>-->
-            <!--<button class="btn-primary" ng-click="showOtherGrading = !showOtherGrading">-->
-            <!--<i class="fa fa-check"></i>-->
-            <!--</button>-->
-            <!--</form>-->
-            <!--</div>-->
-            <!--</div>-->
 
-            <div class="col-md-12">
-                <div class="top-padding-2 col-md-12" ng-show="!isReadOnly">
-                <span class="sitnet-info-text"><i>{{'sitnet_exam_feedback' | translate}}:</i></span>
-                    <!--How to get CKEditor text with Angular-->
-                    <!--http://jsfiddle.net/TheSharpieOne/cPTr7/-->
-                    <!--http://stackoverflow.com/questions/18917262/updating-textarea-value-with-ckeditor-content-in-angular-js-->
-                    <textarea ck-editor rows="10" cols="80" ng-model="examToBeReviewed.examFeedback.comment"></textarea>
-                </div>
-                <div class="top-padding-2 col-md-12" ng-show="isReadOnly">
+            <div class="col-md-12" ng-show="isReadOnly">
+                <div class="top-padding-2 col-md-12">
                     <span class="sitnet-info-text"><i>{{'sitnet_teachers_comment' | translate}}:</i></span>
-                    <!--How to get CKEditor text with Angular-->
-                    <!--http://jsfiddle.net/TheSharpieOne/cPTr7/-->
-                    <!--http://stackoverflow.com/questions/18917262/updating-textarea-value-with-ckeditor-content-in-angular-js-->
                     <div>{{ examToBeReviewed.examFeedback.comment }}</div>
                 </div>
             </div>
+
             <div>
                 <div class="col-md-12" ng-show="globalInspections.length > 1">
                     <div class="top-margin-1 col-md-12 bottom-padding-2 pull-left" ng-show="!isReadOnly">
@@ -171,7 +147,8 @@
                             <div class="input-group exam-info">
                                 <dl class="col-md-12 pull-left row">
                                     <dt class="pull-left inline col-md-11 row">
-                                        <textarea class="form-control" ng-model="message" rows="3" cols="120" ng-disabled="isReadOnly">
+                                        <textarea class="form-control" ng-model="message" rows="3" cols="120"
+                                                  ng-disabled="isReadOnly">
                                         </textarea>
                                     </dt>
                                     <dd class="pull-right inline col-md-1 top-padding-2 row">
@@ -185,6 +162,22 @@
                     </div>
                 </div>
 
+                <!-- feedback floating window -->
+                <div ng-show="!isReadOnly">
+                    <div class="col-md-11">
+                        <div class="col-md-5 col-md-offset-4 review-feedback" bs-affix data-offset-top="150">
+                            <div class="review-feedback" ng-click="hideEditor = !hideEditor">
+                                <span>
+                                    <i class="fa fa-2x"
+                                       ng-class="!hideEditor ? 'fa-chevron-circle-right sitnet-green' :
+                                       'fa-chevron-circle-down sitnet-red'">
+                                    </i>
+                                </span>
+                                <span class="col-md-offset-2 review-feedback-text" ng-show="!hideEditor">
+                                    {{'sitnet_give_feedback' | translate}}</span>
+                                <span class="col-md-offset-2 review-feedback-text" ng-show="hideEditor">
+                                    {{'sitnet_hide_feedback' | translate}}
+                                </span>
                 <div class="col-md-12 row">
                     <div class="col-md-2 bottom-padding-2">
                         <div style="padding-left: 1em">
@@ -192,14 +185,41 @@
                             <div ng-show="isReadOnly" style="padding: 40px 0;">
                                 <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="col-md-12"><i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i></a>
                             </div>
+                            <div class="row" ng-show="hideEditor">
+                                <textarea ck-editor rows="10" ng-model="examToBeReviewed.examFeedback.comment"></textarea>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-3 bottom-padding-2">
+                        <div style="padding-left: 1em" ng-show="!isReadOnly">
+                </div>
+
+                <div class="col-md-12 row top-padding-2 bottom-padding-2">
+                    <div class="col-md-6">
+                        <span>
+                            <button ng-show="!isReadOnly" ng-click="updateExam(examToBeReviewed)"
+                                class="btn btn-primary">{{'sitnet_save' | translate}}
+                            </button>
+                        </span>
+                        <span ng-show="isReadOnly" style="padding: 40px 0;">
+                            <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="col-md-12"><i
+                                    class="fa fa-sign-out"><span
+                                    class="italic">{{'sitnet_close' | translate}}</span></i></a>
+                        </span>
+                        <span style="padding-left: 1em" ng-show="!isReadOnly">
+                            <button ng-click="examReviewReady(examToBeReviewed)"
+                                    ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
+                                    class="btn btn-primary">{{'sitnet_exam_save_review' | translate}}
+                            </button>
+                        </span>
+                    </div>
+                    <div class="col-md-6">
                         <div style="padding-left: 1em" ng-show="!isReadOnly">
                             <button ng-click="saveExamRecord(examToBeReviewed)"
                                     ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
                                     class="btn btn-primary pull-left top-margin-1">{{'sitnet_send_result_to_registry' |
                                 translate}}
+                                    class="btn btn-warning pull-right">{{'sitnet_exam_save_register' | translate}}
                             </button>
                         </div>
                     </div>
@@ -209,5 +229,6 @@
                 </div>
             </div>
         </div>
+    </div>
 </form>
-</div>
+

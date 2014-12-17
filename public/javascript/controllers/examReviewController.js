@@ -86,7 +86,7 @@
                             ExamRes.examParticipationsOfUser.query(
                                 {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
                                     $scope.previousParticipations = participations;
-                            });
+                                });
                             $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
                             $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
@@ -385,8 +385,16 @@
                     }
                 };
 
-                // Called when the chevron is clicked
-                $scope.chevronClicked = function(question) {
+                $scope.truncate = function(answer, offset) {
+                    if (offset < answer.length) {
+                        return answer.substring(0, offset) + " ...";
+                    } else {
+                        return answer;
+                    }
+                };
+
+                $scope.toggleQuestionExpansion = function(question) {
+                    question.reviewExpanded = !question.reviewExpanded;
                 };
 
                 $scope.insertEssayScore = function(question) {
@@ -479,8 +487,6 @@
                     });
                 };
 
-                $scope.sendReviewFeedback = true;
-
                 $scope.saveExamRecord = function(reviewed_exam) {
 
                     if(reviewed_exam.grade == undefined || reviewed_exam.grade == "") {
@@ -505,7 +511,7 @@
                             "customCredit": reviewed_exam.customCredit,
                             "totalScore": reviewed_exam.totalScore,
                             "creditType": reviewed_exam.creditType,
-                            "sendFeedback": $scope.sendReviewFeedback,
+                            "sendFeedback": true,
                             "answerLanguage": $scope.selectedLanguage
                         };
 

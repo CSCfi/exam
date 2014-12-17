@@ -225,8 +225,8 @@ public class SessionController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result extendSession() {
-
-        final String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
+        String loginType = ConfigFactory.load().getString("sitnet.login");
+        String token = request().getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         final String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
 
@@ -242,11 +242,13 @@ public class SessionController extends SitnetController {
 
     public static Result checkSession() {
 
-        final String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
+        String loginType = ConfigFactory.load().getString("sitnet.login");
+        String token = request().getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         final String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
 
         if(session == null) {
+            Logger.info("Session not found");
             return ok("no_session");
         }
 
@@ -269,6 +271,7 @@ public class SessionController extends SitnetController {
 
         // session ended check
         if(now > end) {
+            Logger.info("Session has expired");
             return ok("no_session");
         }
 

@@ -332,12 +332,13 @@ public class ExamController extends SitnetController {
             options.setPathProperties("attachment", "id, fileName");
             options.setPathProperties("examType", "id, type");
             options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
-            options.setPathProperties("examSections.questions", "attachment, id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
+            options.setPathProperties("examSections.questions", "attachment, id, type, question, shared, instruction," +
+                    " maxCharacters, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
             options.setPathProperties("examSections.questions.answer", "attachment, type, option, answer");
             options.setPathProperties("examSections.questions.answer.option", "id, option, correctOption, score");
             options.setPathProperties("examSections.questions.attachment", "id, fileName");
             options.setPathProperties("examSections.questions.answer.attachment", "id, fileName");
-            options.setPathProperties("examSections.questions.options", "id, option");
+            options.setPathProperties("examSections.questions.options", "id, option, correctOption");
             options.setPathProperties("examSections.questions.comments", "id, comment");
             options.setPathProperties("examFeedback", "id, comment");
 

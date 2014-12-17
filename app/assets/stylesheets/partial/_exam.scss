@@ -277,7 +277,30 @@
     display: inline;
   }
 
+  .review-question {
+    border: $sitnet-common-light solid 0.15em;
+    border-radius: 25px;
+    margin: 0.75em;
+    padding: 0.5em;
+  }
 
+  .review-question-value {
+    text-indent: 1em;
+  }
+
+  .review-feedback {
+    background-color: #f5f5f5;
+    opacity: 0.8;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-right: 1em;
+  }
+
+  .review-feedback-text {
+    color: grey;
+    font-style: italic;
+    margin: 1em;
+  }
 
   //  -webkit-touch-callout: none;
   //  -webkit-user-select: none;

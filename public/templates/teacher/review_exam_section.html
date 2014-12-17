@@ -1,29 +1,12 @@
 <div class="section-header-compact">
-        <!-- $index gives the ng-repeat loop items index starting from 0 -->
-        <span class="section-header-number">{{$index + 1}}.</span>
-    <span> {{section.name}} </span>
-
-</div>
+    <!-- $index gives the ng-repeat loop items index starting from 0 -->
+    <span class="section-header-number">{{$index + 1}}.</span>
+    <span class="sitnet-info-text-bold">&nbsp;&nbsp;{{section.name}} </span>
 </div>
 
 <div id="question-editor" class="">
-    <table class="table table-bordered">
-        <thead>
-            <tr style="background-color: lightgrey">
-                <th style="width: 2%">#</th>
-                <th style="width: 2%"><i class="fa fa-1x fa-tags"></i></th>
-                <th style="width: 23%">{{'sitnet_question' | translate}}</th>
-                <th style="width: 25%">{{'sitnet_exam_evaluation_criteria' | translate}}</th>
-                <th style="width: 34%">{{'sitnet_exam_answer' | translate}}</th>
-                <th style="width: 14%">{{'sitnet_exam_score' | translate}}</th>
-            </tr>
-        </thead>
-        <tbody ng-repeat="question in section.questions" style="border:0;">
-            <tr ng-if="question.type === 'MultipleChoiceQuestion'" style="background-color: {{question.backgroundColor}}" ng-include="multiplechoiceQuestionPath">
-            </tr>
-
-            <tr ng-if="question.type == 'EssayQuestion'" style="background-color: {{question.backgroundColor}}" ng-include="essayQuestionPath">
-            </tr>
-        </tbody>
-    </table>
+    <div ng-repeat="question in section.questions">
+        <div ng-if="question.type === 'MultipleChoiceQuestion'" ng-include="multiplechoiceQuestionPath"></div>
+        <div ng-if="question.type === 'EssayQuestion'" ng-include="essayQuestionPath"></div>
+    </div>
 </div>
