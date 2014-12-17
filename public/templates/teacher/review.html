@@ -50,13 +50,6 @@
             <div class="exam-general-information row sitnet-info-text-bold">{{'sitnet_grading_info' | translate}}</div>
         </div>
         <div class="col-md-12 top-padding-2">
-            <div class="col-md-12">
-                <div class="col-md-6">
-                    {{'sitnet_total_score' | translate}}: {{getExamTotalScore(examToBeReviewed)}} / {{
-                    getExamMaxPossibleScore(examToBeReviewed) }}
-                </div>
-
-        <div class="col-md-12">
             <div class="col-md-12" ng-show="hasMultipleChoiseQuestions">
                 <div class="col-md-12 pull-left">{{'sitnet_total_score' | translate}}: {{getExamTotalScore(examToBeReviewed)}} / {{
                     getExamMaxPossibleScore(examToBeReviewed) }}</div>
@@ -103,6 +96,9 @@
                 </div>
             </div>
 
+            <div class="col-md-12 top-padding-2 bottom-padding-2" ng-show="!isReadOnly">
+
+            </div>
             <div class="col-md-12" ng-show="isReadOnly">
                 <div class="top-padding-2 col-md-12">
                     <span class="sitnet-info-text"><i>{{'sitnet_teachers_comment' | translate}}:</i></span>
@@ -178,53 +174,29 @@
                                 <span class="col-md-offset-2 review-feedback-text" ng-show="hideEditor">
                                     {{'sitnet_hide_feedback' | translate}}
                                 </span>
-                <div class="col-md-12 row">
-                    <div class="col-md-2 bottom-padding-2">
-                        <div style="padding-left: 1em">
-                            <button ng-show="!isReadOnly" ng-click="updateExam(examToBeReviewed)" class="btn btn-primary top-margin-1 pull-left">{{'sitnet_save' | translate}}</button>
-                            <div ng-show="isReadOnly" style="padding: 40px 0;">
-                                <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="col-md-12"><i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i></a>
-                            </div>
-                            <div class="row" ng-show="hideEditor">
-                                <textarea ck-editor rows="10" ng-model="examToBeReviewed.examFeedback.comment"></textarea>
+                            <div class="col-md-12 row">
+                                <div class="col-md-12 top-padding-2">
+                                    <div style="padding-left: 1em">
+                                        <div class="row" ng-show="hideEditor">
+                                            <textarea ck-editor rows="10" ng-model="examToBeReviewed.examFeedback.comment"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 top-padding-2 bottom-padding-2">
+                                    <div ng-show="!isReadOnly">
+                                        <button ng-show="!isReadOnly" ng-click="updateExam(examToBeReviewed)" class="btn btn-primary pull-left">{{'sitnet_save' | translate}}</button>
+                                        <div ng-show="isReadOnly" style="padding: 40px 0;">
+                                            <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="col-md-12"><i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i></a>
+                                        </div>
+                                        <button ng-click="saveExamRecord(examToBeReviewed)"
+                                                ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
+                                                class="btn btn-primary pull-left" style="margin-left: 1em">{{'sitnet_send_result_to_registry' |
+                                            translate}}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-3 bottom-padding-2">
-                        <div style="padding-left: 1em" ng-show="!isReadOnly">
-                </div>
-
-                <div class="col-md-12 row top-padding-2 bottom-padding-2">
-                    <div class="col-md-6">
-                        <span>
-                            <button ng-show="!isReadOnly" ng-click="updateExam(examToBeReviewed)"
-                                class="btn btn-primary">{{'sitnet_save' | translate}}
-                            </button>
-                        </span>
-                        <span ng-show="isReadOnly" style="padding: 40px 0;">
-                            <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="col-md-12"><i
-                                    class="fa fa-sign-out"><span
-                                    class="italic">{{'sitnet_close' | translate}}</span></i></a>
-                        </span>
-                        <span style="padding-left: 1em" ng-show="!isReadOnly">
-                            <button ng-click="examReviewReady(examToBeReviewed)"
-                                    ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
-                                    class="btn btn-primary">{{'sitnet_exam_save_review' | translate}}
-                            </button>
-                        </span>
-                    </div>
-                    <div class="col-md-6">
-                        <div style="padding-left: 1em" ng-show="!isReadOnly">
-                            <button ng-click="saveExamRecord(examToBeReviewed)"
-                                    ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
-                                    class="btn btn-primary pull-left top-margin-1">{{'sitnet_send_result_to_registry' |
-                                translate}}
-                                    class="btn btn-warning pull-right">{{'sitnet_exam_save_register' | translate}}
-                            </button>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-
                     </div>
                 </div>
             </div>

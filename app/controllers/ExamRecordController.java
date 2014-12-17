@@ -80,7 +80,11 @@ public class ExamRecordController extends SitnetController {
 
         score.setStudent(student.getEppn());
         score.setStudentId(student.getUserIdentifier());
-        score.setCredits(exam.getCourse().getCredits().toString());
+        if(exam.getCustomCredit() == null) {
+            score.setCredits(exam.getCourse().getCredits().toString());
+        } else {
+            score.setCredits(exam.getCustomCredit().toString());
+        }
         score.setExamScore(exam.getTotalScore().toString());
 
         score.setLecturer(teacher.getEppn());
