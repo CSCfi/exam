@@ -7,9 +7,8 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
-import models.ExamSection;
+import models.ExamSectionQuestion;
 import models.SitnetModel;
-import models.User;
 import models.answers.AbstractAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
@@ -21,8 +20,6 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -292,15 +289,10 @@ public class QuestionController extends SitnetController {
             o.delete();
         }
 
-
-        List<ExamSection> examSections = Ebean.find(ExamSection.class)
-                .where()
-                .eq("questions.id", id)
-                .findList();
-
-        for (ExamSection section : examSections) {
-            section.getQuestions().remove(question);
-            section.save();
+        List<ExamSectionQuestion> sectionQuestions = Ebean.find(ExamSectionQuestion.class).where().eq("question.id",
+                id).findList();
+        for (ExamSectionQuestion esq : sectionQuestions) {
+            esq.delete();
         }
 
         Ebean.delete(AbstractQuestion.class, id);

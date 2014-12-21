@@ -1,23 +1,25 @@
-(function () {
+(function() {
     'use strict';
     angular.module('sitnet.directives')
-        .directive('ckEditor', function () {
+        .directive('ckEditor', function() {
             return {
                 require: '?ngModel',
-                link: function (scope, elm, attr, ngModel) {
+                link: function(scope, elm, attr, ngModel) {
                     var ck = CKEDITOR.replace(elm[0]);
                     var tmp;
 
-                    if (!ngModel) return;
+                    if (!ngModel) {
+                        return;
+                    }
 
-                    ck.on('instanceReady', function () {
+                    ck.on('instanceReady', function() {
                         ck.setData(tmp);
                         //ck.setData(ngModel.$viewValue);
                     });
 
 
                     function updateModel() {
-                        scope.$apply(function () {
+                        scope.$apply(function() {
                             ngModel.$setViewValue(ck.getData());
                         });
                     }
@@ -26,7 +28,7 @@
                     ck.on('key', updateModel);
                     ck.on('dataReady', updateModel);
 
-                    ngModel.$render = function (value) {
+                    ngModel.$render = function(value) {
                         tmp = ngModel.$modelValue;
                         ck.setData(ngModel.$viewValue);
                     };
@@ -34,18 +36,18 @@
             };
         })
 
-        .directive('uiBlur', function () {
-            return function (scope, elem, attrs) {
+        .directive('uiBlur', function() {
+            return function(scope, elem, attrs) {
 
-                elem.bind('blur', function () {
+                elem.bind('blur', function() {
                     scope.$apply(attrs.uiBlur);
                 });
             };
         })
 
-        .directive('answerState', ['$translate',  function ($translate) {
+        .directive('answerState', ['$translate', function($translate) {
             return {
-                link: function (scope, elem, attrs, ngModel) {
+                link: function(scope, elem, attrs, ngModel) {
 
                     if (scope.option.correctOption === true) {
                         scope.answerState = $translate("sitnet_multiplechoice_question_correct");
@@ -53,7 +55,7 @@
                         scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");
                     }
 
-                    elem.bind('change', function () {
+                    elem.bind('change', function() {
                         scope.$apply(attrs.uiChange);
                     });
                 }
@@ -77,41 +79,41 @@
 //            };
 //        }])
 
-        .directive('uiChange', function () {
+        .directive('uiChange', function() {
             return {
                 restrict: 'A', // only activate on element attribute
 
-                link: function (scope, elem, attrs) {
+                link: function(scope, elem, attrs) {
 
-                    elem.bind('change', function () {
+                    elem.bind('change', function() {
                         scope.$apply(attrs.uiChange);
                     });
                 }
             }
         })
 
-        .directive('snLibrary', function ($window) {
+        .directive('snLibrary', function($window) {
 
             return {
                 restrict: 'A',
 
-                link: function (scope, elem, attrs) {
+                link: function(scope, elem, attrs) {
 
                     var winHeight = $window.innerHeight;
                     elem.css('height', winHeight - 15);
-                 }
+                }
             };
         })
 
-        .directive('fileModel', ['$parse', function ($parse) {
+        .directive('fileModel', ['$parse', function($parse) {
             return {
                 restrict: 'A',
-                link: function (scope, element, attrs) {
+                link: function(scope, element, attrs) {
                     var model = $parse(attrs.fileModel);
                     var modelSetter = model.assign;
 
-                    element.bind('change', function () {
-                        scope.$apply(function () {
+                    element.bind('change', function() {
+                        scope.$apply(function() {
                             modelSetter(scope.$parent, element[0].files[0]);
                         });
                     });
@@ -119,11 +121,11 @@
             };
         }])
 
-        .directive('mathjax',function(){
+        .directive('mathjax', function() {
             return {
                 restrict: 'EA',
                 link: function(scope, element, attrs) {
-                    scope.$watch(attrs.ngModel, function () {
+                    scope.$watch(attrs.ngModel, function() {
                         MathJax.Hub.Queue(['Typeset', MathJax.Hub, element.get(0)]);
                     });
                 }
@@ -150,7 +152,9 @@
                         var date = null;
 
                         // pass through if we clicked date from popup
-                        if (typeof newDate === "object" || newDate == "") return newDate;
+                        if (typeof newDate === "object" || newDate == "") {
+                            return newDate;
+                        }
 
                         // build a new date according to initial localized date format
                         if (format === "dd.MM.yyyy") {
@@ -160,8 +164,12 @@
                             var month = parseInt(splitted[1]) - 1;
                             date = new Date(splitted[2], month, splitted[0]);
                             // if maxDate,minDate is set make sure we do not allow greater values
-                            if (maxDate && date > maxDate) date = maxDate;
-                            if (minDate && date < minDate) date = minDate;
+                            if (maxDate && date > maxDate) {
+                                date = maxDate;
+                            }
+                            if (minDate && date < minDate) {
+                                date = minDate;
+                            }
 
                             model.$setValidity('date', true);
                             model.$setViewValue(date);
@@ -180,14 +188,18 @@
                             case 13: // ENTER
                                 scope[openId] = !scope[openId];
                                 // update manually view
-                                if (!scope.$$phase) scope.$apply();
+                                if (!scope.$$phase) {
+                                    scope.$apply();
+                                }
                                 response = false;
                                 break;
 
                             case 9: // TAB
                                 scope[openId] = false;
                                 // update manually view
-                                if (!scope.$$phase) scope.$apply();
+                                if (!scope.$$phase) {
+                                    scope.$apply();
+                                }
                                 break;
                         }
 
@@ -199,7 +211,9 @@
                         // the value is an object if date has been changed! Otherwise it was set as a string.
                         if (typeof model.$viewValue === "object") {
                             element.context.value = isNaN(model.$viewValue) ? "" : dateFilter(model.$viewValue, format);
-                            if (element.context.value == "") model.$setValidity('required', false);
+                            if (element.context.value == "") {
+                                model.$setValidity('required', false);
+                            }
                         }
                     });
                 }

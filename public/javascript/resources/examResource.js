@@ -11,8 +11,8 @@
                     "update": {method: "PUT"},
                     "remove": {method: "DELETE"}
                 }),
-                
-                questions: $resource("/exams/:eid/section/:sid/question/:qid", 
+
+                questions: $resource("/exams/:eid/section/:sid/question/:qid",
                 {
                 	eid: "@eid", sid: "@sid", qid: "@qid"
                 },
@@ -20,17 +20,8 @@
                     "query":  {method: "GET"},
                     "get":    {method: "GET", params: {eid: "@eid"}},
                     "update": {method: "PUT"},
-                    "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}},
                     "remove": {method: "DELETE", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}}
                 }),
-
-                question: $resource("/exam/:eid/section/:sid/question/:qid",
-                    {
-                        eid: "@eid", sid: "@sid", qid: "@qid"
-                    },
-                    {
-                        "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}}
-                    }),
 
                 sections: $resource("/exams/:eid/section/:sid",
                 {
@@ -43,6 +34,21 @@
 
                 }),
 
+                sectionquestions: $resource("/exams/:eid/section/:sid/:seq/question/:qid",
+                {
+                    eid: "@eid", sid: "@sid", seq: "@seq", qid: "@qid"
+                },
+                {
+                    "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", seq: "@seq", qid: "@qid"}}
+
+                }),
+                reordersection: $resource("/exams/:eid/section/:sid/:from/:to",
+                {
+                    eid: "@eid", sid: "@sid", from: "@from", to: "@to"
+                },
+                {
+                    "update": {method: "PUT", params: { eid: "@eid" , sid: "@sid", from: "@from", to: "@to"}}
+                }),
                 clearsection: $resource("/clearsection/:sid",
                 {
                     sid: "@sid"

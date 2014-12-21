@@ -17,7 +17,7 @@
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamController'});
 
             // create question from exam
-            $routeProvider.when('/questions/:id/exam/:examId/section/:sectionId', { templateUrl: tmpl + 'question-editor/question.html'});
+            $routeProvider.when('/questions/:id/exam/:examId/section/:sectionId/sequence/:seqId', { templateUrl: tmpl + 'question-editor/question.html'});
             // select from querylist
             $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question-editor/question.html'});
             // edit question from exam

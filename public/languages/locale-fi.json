@@ -469,5 +469,6 @@
     "sitnet_send_result_to_registry": "Lähetä suoritus rekisteriin",
     "sitnet_result_not_sended_to_registry": "Suoritusta ei lähetetty rekisteriin",
     "sitnet_modify_credit": "Muokkaa opintopistemäärää",
-    "sitnet_not_a_valid_custom_credit": "Opintopistemäärä ei kelpaa"
+    "sitnet_not_a_valid_custom_credit": "Opintopistemäärä ei kelpaa",
+    "sitnet_error_question_not_found": "Kysymystä ei löytynyt"
 }

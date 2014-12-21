@@ -21,7 +21,7 @@
                 scope: {
                     draggable: '='
                 },
-                link: function(scope, element, attrs){
+                link: function(scope, element, attrs) {
                     element.draggable({
                         connectToSortable: attrs.draggableTarget,
                         helper: "clone",
@@ -46,42 +46,26 @@
                     ngMove: '&',
                     ngCreate: '&'
                 },
-                link: function(scope, element, attrs){
+                link: function(scope, element, attrs) {
                     element.sortable({
-                        connectWith: ['.draggable','.sortable']
+                        connectWith: ['.draggable', '.sortable']
                     });
                     element.disableSelection();
                     element.on("sortdeactivate", function(event, ui) {
                         var from = (angular.element(ui.item).scope()) ? angular.element(ui.item).scope().$index : undefined;
                         var to = element.children().index(ui.item);
-                        var list = element.attr('id');
 
-                        if (to >= 0 ){
-                            scope.$apply(function(){
+                        if (to >= 0 && (from != to || DragDropHandler.dragObject)) {
+                            scope.$apply(function() {
                                 if (from >= 0 && !DragDropHandler.dragObject) {
-                                    //item is coming from a sortable
-                                    if (!ui.sender || ui.sender[0] === element[0]) {
-                                        //item is coming from this sortable
-                                        DragDropHandler.moveObject(scope.droppable, from, to);
-                                    } else {
-                                        //item is coming from another sortable
-                                        scope.ngMove({
-                                            from: from,
-                                            to: to,
-                                            fromList: ui.sender.attr('id'),
-                                            toList: list
-                                        });
-                                        ui.item.remove();
-                                    }
-                                } else {
-                                    //item is coming from a draggable
-                                    DragDropHandler.addObject(angular.copy(DragDropHandler.dragObject), scope.droppable, to);
-                                    /*scope.$emit('add-draggable', {object: DragDropHandler.dragObject, to: to});
+                                    //item is coming from this sortable
+                                    scope.ngMove({from: from, to: to});
+                                } else if (DragDropHandler.dragObject) {
+                                    //item is dragged from elsewhere
                                     scope.ngCreate({
                                         object: DragDropHandler.dragObject,
-                                        to: to,
-                                        list: list
-                                    });*/
+                                        to: to
+                                    });
                                     ui.item.remove();
                                 }
                             });
@@ -89,6 +73,6 @@
                     });
                 }
             };
-        }])
+        }]);
 
-    ;})();
+})();

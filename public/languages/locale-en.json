@@ -469,5 +469,6 @@
     "sitnet_send_result_to_registry": "Send grade to registry",
     "sitnet_result_not_sended_to_registry": "Exam record was not sended to registry",
     "sitnet_modify_credit": "Modify credit",
-    "sitnet_not_a_valid_custom_credit": "Not a valid custom credit"
+    "sitnet_not_a_valid_custom_credit": "Not a valid custom credit",
+    "sitnet_error_question_not_found": "Question not found"
 }

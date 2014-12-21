@@ -141,15 +141,6 @@
                     }, 1000 * 60);
                 };
 
-
-                function sortAscByIds(a, b) {
-                    return parseInt(b.id) - parseInt(a.id);
-                }
-
-                function sortDescByIds(a, b) {
-                    return parseInt(a.id) - parseInt(b.id);
-                }
-
                 $scope.doExam = function(hash) {
                     $http.get('/student/doexam/' + $routeParams.hash)
                         .success(function(data, status, headers, config) {
@@ -159,9 +150,9 @@
                             $scope.activeSection = $scope.doexam.examSections[0];
 
                             // set sections and question numbering
-                            angular.forEach($scope.doexam.examSections.sort(sortDescByIds), function(section, index) {
+                            angular.forEach($scope.doexam.examSections, function(section, index) {
                                 section.index = index + 1;
-                                angular.forEach(section.questions.sort(sortDescByIds), function(question, index) {
+                                angular.forEach(section.questions, function(question, index) {
                                     question.index = index + 1;
                                 });
                             });

@@ -37,7 +37,7 @@
             <div class="bottom-padding-2" ng-include="generalInfoPath"></div>
 
             <div class="col-md-12">
-                <div ui-on-Drop="onDrop($event, $data, section)" ng-include="sectionPath"
+			    <div ng-include="sectionPath" ng-model="newExam.examSections"
                      ng-repeat="section in newExam.examSections"></div>
             </div>
 

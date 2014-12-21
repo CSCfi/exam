@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'RoomResource', 'SoftwareResource', 'SettingsResource', 'dateService',
-            function($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, RoomResource, SoftwareResource, SettingsResource, dateService) {
+        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'dateService',
+            function($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
@@ -201,8 +201,8 @@
                     angular.forEach($scope.newExam.examSections, function(section, index) {
                         section.index = index + 1;
 
-                        angular.forEach(section.questions, function(question, index) {
-                            question.index = index + 1;
+                        angular.forEach(section.sectionQuestions, function(sectionQuestion, index) {
+                            sectionQuestion.question.index = index + 1; // FIXME
                         });
                     });
                 };
@@ -349,10 +349,8 @@
 
                 $scope.clearAllQuestions = function(section) {
                     if (confirm($translate('sitnet_remove_all_questions'))) {
-//                        section.questions.splice(0, questions.length);
-
-                        ExamRes.clearsection.clear({sid: section.id}, function(sec) {
-                            section = sec;
+                        ExamRes.clearsection.clear({sid: section.id}, function() {
+                            section.sectionQuestions.splice(0, section.sectionQuestions.length);
                             toastr.info($translate("sitnet_all_questions_removed"));
                         }, function(error) {
                             toastr.error(error.data);
@@ -361,13 +359,10 @@
                     }
                 };
 
-                $scope.removeQuestion = function(section, question) {
+                $scope.removeQuestion = function(section, sectionQuestion) {
                     if (confirm($translate('sitnet_remove_question'))) {
-                        // TODO this is redundant ?
-                        section.questions.splice(section.questions.indexOf(question), 1);
-
-                        ExamRes.questions.remove({eid: $scope.newExam.id, sid: section.id, qid: question.id}, function(sec) {
-                            section = sec;
+                        ExamRes.questions.remove({eid: $scope.newExam.id, sid: section.id, qid: sectionQuestion.question.id}, function() {
+                            section.sectionQuestions.splice(section.sectionQuestions.indexOf(sectionQuestion), 1);
                             toastr.info($translate("sitnet_question_removed"));
                         }, function(error) {
                             toastr.error(error.data);
@@ -375,19 +370,6 @@
                     }
                 };
 
-                $scope.editSection = function(section) {
-                    //console.log(section);
-                };
-
-                $scope.editQuestion = function(question) {
-                    // Todo: Implement this
-                };
-
-                $scope.editExam = function() {
-                    // Todo: Implement this
-                };
-
-                // Called from ui-blur
                 $scope.updateExam = function(newExam) {
 
                     var examToSave = {
@@ -412,7 +394,7 @@
                             toastr.info($translate("sitnet_exam_saved"));
                             $scope.newExam = exam;
                         }, function(error) {
-                            if(error.data.indexOf("sitnet_error_") > 0) {
+                            if (error.data.indexOf("sitnet_error_") > 0) {
                                 toastr.error($translate(error.data));
                             } else {
                                 toastr.error(error.data);
@@ -610,7 +592,7 @@
 
                     var count = 0;
                     angular.forEach(exam.examSections, function(section, index) {
-                        count += section.questions.length;
+                        count += section.sectionQuestions.length;
                     });
                     return count;
                 };
@@ -681,24 +663,26 @@
                     }
                 };
 
+                $scope.moveQuestion = function(section, from, to) {
+                    DragDropHandler.moveObject(section.sectionQuestions, from, to);
+                    ExamRes.reordersection.update({eid: $scope.newExam.id, sid: section.id, from: from, to: to}, function() {
+                       toastr.info("Questions reordered");
+                    });
+                };
 
-                // Called when a question is drag and dropped to a exam section
-                $scope.onDrop = function($event, $data, section) {
-                    if (angular.isArray($data)) {
-                        section.questions.push.apply(questions, $data);
-                        return;
-                    }
-                    section.questions.push($data);
-
-                    ExamRes.questions.insert({eid: $scope.newExam.id, sid: section.id, qid: $data.id}, function(section) {
+                $scope.insertQuestion = function(section, object, to) {
+                    var question = angular.copy(object);
+                    var sectionQuestion = {question: question};
+                    ExamRes.sectionquestions.insert({eid: $scope.newExam.id, sid: section.id, seq: to, qid: question.id}, function(sec) {
+                            DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to)
+                            toastr.info($translate("sitnet_question_added"));
+                            section = sec;
                             $scope.updateExam();
                         }, function(error) {
                             toastr.error(error.data);
                         }
                     );
-
-
-                }
+                };
 
                 //http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
                 $scope.createQuestionFromExamView = function(type, section) {
@@ -709,8 +693,11 @@
                     QuestionRes.questions.create(newQuestion,
                         function(response) {
                             newQuestion = response;
+                            var seq = Math.max.apply(Math, section.sectionQuestions.map(function(s) {
+                                return s.sequenceNumber;
+                            })) + 1;
 
-                            $location.path("/questions/" + response.id + "/exam/" + $scope.newExam.id + "/section/" + section.id);
+                            $location.path("/questions/" + response.id + "/exam/" + $scope.newExam.id + "/section/" + section.id + "/sequence/" + seq);
                         }, function(error) {
                             toastr.error(error.data);
                         });
@@ -741,7 +728,7 @@
 
                     if (section.lotteryItemCount == undefined || section.lotteryItemCount == 0) {
                         toastr.warning($translate("sitnet_warn_lottery_count"));
-                        section.lotteryItemCount = section.lotteryItemCount == 0 ? 1 : section.questions.length;
+                        section.lotteryItemCount = section.lotteryItemCount == 0 ? 1 : section.sectionQuestions.length;
                     }
                     else {
                         ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function(sec) {

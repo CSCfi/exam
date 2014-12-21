@@ -4,6 +4,7 @@ import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
@@ -225,19 +226,20 @@ public class StudentExamController extends SitnetController {
     @Restrict({@Group("STUDENT")})
     public static Result createExam(String hash, User user) throws UnauthorizedAccessException {
 
-        Exam blueprint = Ebean.find(Exam.class)
+        ExpressionList query = Ebean.find(Exam.class)
                 .fetch("examSections")
+                .fetch("examSections.sectionQuestions")
+                .fetch("examSections.sectionQuestions.question")
                 .where()
-                .eq("hash", hash)
-                .eq("parent", null)
+                .eq("hash", hash);
+
+        Exam blueprint = (Exam)query.eq("parent", null)
+                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
 
-        Exam possibleClone = Ebean.find(Exam.class)
-                .fetch("examSections")
-                .where()
-                .eq("hash", hash)
+        Exam possibleClone = (Exam)query
                 .ne("parent", null)
-                .orderBy("examSections.id, id desc")
+                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
 
         // no exam found for hash
@@ -387,14 +389,16 @@ public class StudentExamController extends SitnetController {
         options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
         options.setPathProperties("room", "roomInstruction, roomInstructionEN, roomInstructionSV");
         options.setPathProperties("examType", "id, type");
-        options.setPathProperties("examSections", "id, name, questions, exam, expanded");
-        options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, maxCharacters, options, attachment, answer");
-        options.setPathProperties("examSections.questions.answer", "id, type, option, attachment, answer");
-        options.setPathProperties("examSections.questions.answer.option", "id, option");
-        options.setPathProperties("examSections.questions.answer.attachment", "fileName");
-        options.setPathProperties("examSections.questions.attachment", "fileName");
-        options.setPathProperties("examSections.questions.options", "id, option");
-        options.setPathProperties("examSections.questions.comments", "id, comment");
+        options.setPathProperties("examSections", "id, name, sectionQuestions, exam, expanded");
+        options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
+        options.setPathProperties("examSections.sectionQuestions.question", "id, type, question, instruction, " +
+                "maxScore, maxCharacters, options, attachment, answer");
+        options.setPathProperties("examSections.sectionQuestions.question.answer", "id, type, option, attachment, answer");
+        options.setPathProperties("examSections.sectionQuestions.question.answer.option", "id, option");
+        options.setPathProperties("examSections.sectionQuestions.question.answer.attachment", "fileName");
+        options.setPathProperties("examSections.sectionQuestions.question.attachment", "fileName");
+        options.setPathProperties("examSections.sectionQuestions.question.options", "id, option");
+        options.setPathProperties("examSections.sectionQuestions.question.comments", "id, comment");
     }
 
     @Restrict({@Group("STUDENT")})

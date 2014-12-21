@@ -119,8 +119,14 @@
                     //Also bind the question to section of the exam at this point
                     else {
                         $scope.returnURL = "/exams/" + $routeParams.examId;
-                        ExamRes.questions.insert({eid: $routeParams.examId, sid: $routeParams.sectionId, qid: $scope.newQuestion.id}, function() {
-                            toastr.info($translate("sitnet_question_added_to_section"));
+                        var params = {
+                            eid: $routeParams.examId,
+                            sid: $routeParams.sectionId,
+                            qid: $scope.newQuestion.id,
+                            seq: $routeParams.seqId
+                        };
+                        ExamRes.sectionquestions.insert(params, function() {
+                                toastr.info($translate("sitnet_question_added_to_section"));
                         }, function(error) {
                             toastr.error(error.data);
                         });

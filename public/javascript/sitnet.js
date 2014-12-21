@@ -11,6 +11,7 @@
         'sitnet.resources',
         'sitnet.directives',
         'sitnet.filters',
+        'sitnet.utils',
         'pascalprecht.translate',
         'ngDragDrop',
         'ngSanitize',
