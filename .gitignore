@@ -22,4 +22,3 @@ dist
 /data
 
 conf/psql.conf
-conf/evolutions/default/13.sql
