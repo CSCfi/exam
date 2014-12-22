@@ -78,6 +78,7 @@
                             break;
 
                         case 'MultipleChoiceQuestion':
+                            questionToUpdate.options = $scope.newQuestion.options;
                             break;
                     }
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
