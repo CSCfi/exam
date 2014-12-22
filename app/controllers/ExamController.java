@@ -374,32 +374,18 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result reviewExam(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
-
-        Exam ex = Form.form(Exam.class).bindFromRequest(
-                "id",
-                "instruction",
-                "name",
-                "shared",
-                "state",
-                "room",
-                "duration",
-                "grading",
-                "totalScore",
-                "examLanguage",
-                "answerLanguage",
-                "grade",
-                "creditType",
-                "expanded")
-                .get();
-
-        ex.generateHash();
+        Exam exam = Ebean.find(Exam.class, id);
+        exam.setGrade(df.get("grade"));
+        exam.setCreditType(df.get("creditType"));
+        exam.setAnswerLanguage(df.get("answerLanguage"));
 
         // set user only if exam is really graded, not just modified
-        if (ex.getState().equals(Exam.State.GRADED.name()) || ex.getState().equals(Exam.State.GRADED_LOGGED.name())) {
-            ex.setGradedTime(SitnetUtil.getNowTime());
-            ex.setGradedByUser(UserController.getLoggedUser());
+        if (exam.getState().equals(Exam.State.GRADED.name()) || exam.getState().equals(Exam.State.GRADED_LOGGED.name()))
+        {
+            exam.setGradedTime(SitnetUtil.getNowTime());
+            exam.setGradedByUser(UserController.getLoggedUser());
         }
-        ex.update();
+        exam.update();
 
 //        return ok(Json.toJson(ex));
         return ok();

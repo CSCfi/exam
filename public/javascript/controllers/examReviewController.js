@@ -67,7 +67,8 @@
 
                             if(exam) {
                                 angular.forEach($scope.examToBeReviewed.examSections, function(section) {
-                                    angular.forEach(section.questions, function(question) {
+                                    angular.forEach(section.sectionQuestions, function(sectionQuestion) {
+                                        var question = sectionQuestion.question;
                                         if (question.type === "EssayQuestion") {
                                             if(question.evaluatedScore == 1) {
                                                 $scope.acceptedEssays++;
@@ -258,9 +259,9 @@
                     }
                 };
 
-                $scope.scoreMultipleChoiceAnswer = function(question) {
+                $scope.scoreMultipleChoiceAnswer = function(sectionQuestion) {
                     var score = 0;
-
+                    var question = sectionQuestion.question;
                     if (question.answer === null) {
                         question.backgroundColor = 'grey';
                         return 0;
@@ -305,8 +306,8 @@
                 $scope.getSectionTotalScore = function(section) {
                     var score = 0;
 
-                    angular.forEach(section.questions, function(question, index) {
-
+                    angular.forEach(section.sectionQuestions, function(sectionQuestion) {
+                        var question = sectionQuestion.question;
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
                                 if (question.answer === null) {
@@ -338,8 +339,8 @@
                 $scope.getSectionMaxScore = function(section) {
                     var score = 0;
 
-                    angular.forEach(section.questions, function(question, index) {
-
+                    angular.forEach(section.sectionQuestions, function(sectionQuestion) {
+                        var question = sectionQuestion.question;
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
                                 score = score + question.maxScore;
@@ -393,11 +394,12 @@
                     }
                 };
 
-                $scope.toggleQuestionExpansion = function(question) {
-                    question.reviewExpanded = !question.reviewExpanded;
+                $scope.toggleQuestionExpansion = function(sectionQuestion) {
+                    sectionQuestion.question.reviewExpanded = !sectionQuestion.question.reviewExpanded;
                 };
 
-                $scope.insertEssayScore = function(question) {
+                $scope.insertEssayScore = function(sectionQuestion) {
+                    var question = sectionQuestion.question;
                     var questionToUpdate = {
                         "id": question.id,
                         "type": question.type,

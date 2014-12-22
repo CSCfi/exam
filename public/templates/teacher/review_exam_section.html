@@ -5,8 +5,9 @@
 </div>
 
 <div id="question-editor" class="">
-    <div ng-repeat="question in section.questions">
-        <div ng-if="question.type === 'MultipleChoiceQuestion'" ng-include="multiplechoiceQuestionPath"></div>
-        <div ng-if="question.type === 'EssayQuestion'" ng-include="essayQuestionPath"></div>
+    <div ng-repeat="sectionQuestion in section.sectionQuestions">
+        <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
+             ng-include="multiplechoiceQuestionPath"></div>
+        <div ng-if="sectionQuestion.question.type === 'EssayQuestion'" ng-include="essayQuestionPath"></div>
     </div>
 </div>
