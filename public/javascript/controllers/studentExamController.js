@@ -88,15 +88,15 @@
                 $scope.getQuestionAmount = function(section, type) {
                     var i = 0;
                     if (type === 'answered') {
-                        angular.forEach(section.questions, function(question) {
-                            if (question.answered) {
+                        angular.forEach(section.sectionQuestions, function(sectionQuestion) {
+                            if (sectionQuestion.question.answered) {
                                 i = i + 1;
                             }
                         });
                     }
                     if (type === 'open') {
-                        angular.forEach(section.questions, function(question) {
-                            if (!question.answered) {
+                        angular.forEach(section.sectionQuestions, function(sectionQuestion) {
+                            if (!sectionQuestion.question.answered) {
                                 i = i + 1;
                             }
                         });
@@ -123,7 +123,8 @@
 
                 var getAutosaver = function() {
                     return $interval(function() {
-                        angular.forEach($scope.activeSection.questions, function(question) {
+                        angular.forEach($scope.activeSection.sectionQuestions, function(sectionQuestion) {
+                            var question = sectionQuestion.question;
                             if (question.type === "EssayQuestion" && question.answer.answer.length > 0) {
                                 var params = {
                                     hash: $scope.doexam.hash,
@@ -152,13 +153,14 @@
                             // set sections and question numbering
                             angular.forEach($scope.doexam.examSections, function(section, index) {
                                 section.index = index + 1;
-                                angular.forEach(section.questions, function(question, index) {
-                                    question.index = index + 1;
+                                angular.forEach(section.sectionQuestions, function(sectionQuestion, index) {
+                                    sectionQuestion.question.index = index + 1; // Where is this really used?
                                 });
                             });
 
                             // Loop through all questions in the active section
-                            angular.forEach($scope.activeSection.questions, function(question, index) {
+                            angular.forEach($scope.activeSection.sectionQuestions, function(sectionQuestion) {
+                                var question = sectionQuestion.question;
                                 var template = "";
                                 switch (question.type) {
                                     case "MultipleChoiceQuestion":
@@ -267,8 +269,8 @@
                     $scope.switchButtons(section);
 
                     // Loop through all questions in the active section
-                    angular.forEach($scope.activeSection.questions, function(question) {
-
+                    angular.forEach($scope.activeSection.sectionQuestions, function(sectionQuestion) {
+                        var question = sectionQuestion.question;
                         var template = "";
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
@@ -395,7 +397,8 @@
                         });
                 };
 
-                $scope.saveEssay = function(question, answer) {
+                $scope.saveEssay = function(sectionQuestion, answer) {
+                    var question = sectionQuestion.question;
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
 
@@ -496,8 +499,8 @@
                 count(); // start the clock
 
                 // Called when the chevron is clicked
-                $scope.chevronClicked = function(question) {
-
+                $scope.chevronClicked = function(sectionQuestion) {
+                    var question = sectionQuestion.question;
                     if (question.type == "EssayQuestion") {
 
                     }

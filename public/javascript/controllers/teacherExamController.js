@@ -184,24 +184,15 @@
 
                 $scope.printExamDuration = function(exam) {
 
-                    if(exam && exam.duration) {
-                        var h = 0;
-                        var d = exam.duration;
-
-                        while (d > 0) {
-                            if (d - 60 >= 0) {
-                                h++;
-                                d = d - 60;
-                            } else {
-                                break;
-                            }
-                        }
+                    if (exam && exam.duration) {
+                        var h = Math.floor(exam.duration / 60);
+                        var m = exam.duration % 60;
                         if (h === 0) {
-                            return d + "min";
-                        } else if (d === 0) {
+                            return m + "min";
+                        } else if (m === 0) {
                             return h + "h ";
                         } else {
-                            return h + "h " + d + "min";
+                            return h + "h " + m + "min";
                         }
                     } else {
                         return "";
@@ -217,13 +208,8 @@
 
 
                 // Called when the chevron is clicked
-                $scope.chevronClicked = function (question) {
-
-                    if (question.type == "EssayQuestion") {
-
-                    }
-
-                    $scope.setQuestionColors(question);
+                $scope.chevronClicked = function (sectionQuestion) {
+                    $scope.setQuestionColors(sectionQuestion);
                 };
 
                 $scope.isAnswer = function (question, option) {

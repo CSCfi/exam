@@ -1,4 +1,4 @@
-<div class="row" ng-hide="!question.maxCharacters">
+<div class="row" ng-hide="!sectionQuestion.question.maxCharacters">
     <div class="sitnet-info-text col-md-12 pull-right">Vastauksen pituuden suositus: {{question.maxCharacters}} kirjainmerkkiä
     </div>
 </div>
@@ -6,12 +6,13 @@
     <!--How to get CKEditor text with Angular-->
     <!--http://jsfiddle.net/TheSharpieOne/cPTr7/-->
     <!--http://stackoverflow.com/questions/18917262/updating-textarea-value-with-ckeditor-content-in-angular-js-->
-    <textarea ck-editor rows="10" cols="80" ng-model="question.answer.answer"></textarea>
+    <textarea ck-editor rows="10" cols="80" ng-model="sectionQuestion.question.answer.answer"></textarea>
 </div>
-<div class="row" ng-hide="!question.autosaved">
-    <div class="sitnet-info-text col-md-12 pull-right">automaattisesti tallennettu: {{question.autosaved |
-        date:'HH:mm'}}</div>
+<div class="row" ng-hide="!sectionQuestion.question.autosaved">
+    <div class="sitnet-info-text col-md-12 pull-right">automaattisesti tallennettu:
+        {{sectionQuestion.question.autosaved | date:'HH:mm'}}</div>
 </div>
 <div class="row">
-    <button ng-click="saveEssay(question, question.answer.answer)" class="btn btn-primary pull-right">Tallenna</button>
+    <button ng-click="saveEssay(sectionQuestion, sectionQuestion.answer.answer)"
+            class="btn btn-primary pull-right">Tallenna</button>
 </div>
