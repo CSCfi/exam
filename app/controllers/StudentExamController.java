@@ -226,18 +226,22 @@ public class StudentExamController extends SitnetController {
     @Restrict({@Group("STUDENT")})
     public static Result createExam(String hash, User user) throws UnauthorizedAccessException {
 
-        ExpressionList query = Ebean.find(Exam.class)
+        Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions")
                 .fetch("examSections.sectionQuestions.question")
                 .where()
-                .eq("hash", hash);
-
-        Exam blueprint = (Exam)query.eq("parent", null)
+                .eq("hash", hash)
+                .eq("parent", null)
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
 
-        Exam possibleClone = (Exam)query
+        Exam possibleClone = Ebean.find(Exam.class)
+                .fetch("examSections")
+                .fetch("examSections.sectionQuestions")
+                .fetch("examSections.sectionQuestions.question")
+                .where()
+                .eq("hash", hash)
                 .ne("parent", null)
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();

@@ -394,19 +394,16 @@ public class Exam extends SitnetModel {
             ExamSection esCopy = (ExamSection)es._ebean_createCopy();
             esCopy.setId(null);
             esCopy.setExam(clone);
-
-            List<ExamSectionQuestion> sectionQuestions;
-            List<ExamSectionQuestion> sectionQuestionCopies = new ArrayList<>();
+            SitnetUtil.setModifier(esCopy);
+            esCopy.save();
+            List<ExamSectionQuestion> sectionQuestions = new ArrayList<>(es.getSectionQuestions());
             if (es.getLotteryOn()) {
-                Collections.shuffle(es.getSectionQuestions());
-                sectionQuestions = es.getSectionQuestions().subList(0, es.getLotteryItemCount());
-            } else {
-                sectionQuestions = es.getSectionQuestions();
+                Collections.shuffle(sectionQuestions);
+                sectionQuestions = sectionQuestions.subList(0, es.getLotteryItemCount());
             }
-            for (ExamSectionQuestion esq : sectionQuestions) {
-                ExamSectionQuestion esqCopy = new ExamSectionQuestion();
-                esqCopy.setSequenceNumber(esq.getSequenceNumber());
+            Collections.sort(sectionQuestions, sortBySequence());
 
+            for (ExamSectionQuestion esq : sectionQuestions) {
                 AbstractQuestion question = esq.getQuestion();
                 AbstractQuestion questionCopy = (AbstractQuestion)question._ebean_createCopy();
                 questionCopy.setId(null);
@@ -431,15 +428,10 @@ public class Exam extends SitnetModel {
                     } break;
 
                 }
-                esqCopy.setQuestion(questionCopy);
-                sectionQuestionCopies.add(esqCopy);
+                ExamSectionQuestion esqCopy = new ExamSectionQuestion(esCopy, questionCopy);
+                esqCopy.setSequenceNumber(esq.getSequenceNumber());
+                esqCopy.save();
             }
-
-            Collections.sort(sectionQuestionCopies, sortBySequence());
-
-            esCopy.setSectionQuestions(sectionQuestionCopies);
-            SitnetUtil.setModifier(esCopy);
-            esCopy.save();
             examSectionCopies.add(esCopy);
         }
 
