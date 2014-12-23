@@ -230,6 +230,10 @@
                     ExamRes.studentInfo.get({id: $routeParams.id},
                         function(info) {
                             $scope.userInfo = info;
+                            // terrible hack to accommodate for the lack of timezone info coming from backend
+                            var duration = info.duration.substring(0, info.duration.length -1) + "+02:00";
+                            $scope.userInfo.duration = duration;
+
                         },
                         function(error) {
                             toastr.error(error.data);
