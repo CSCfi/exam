@@ -1,14 +1,15 @@
 package models.questions;
 
 import annotations.NonCloneable;
-import models.Attachment;
-import models.Comment;
-import models.EvaluationPhrase;
-import models.SitnetModel;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.*;
 import models.answers.AbstractAnswer;
 import util.SitnetUtil;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by avainik on 3/6/14.
@@ -225,9 +226,20 @@ abstract public class AbstractQuestion extends SitnetModel {
         }
     }
 
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof AbstractQuestion)) {
+            return false;
+        }
+        AbstractQuestion other = (AbstractQuestion)object;
+        return other.getId().equals(getId());
+    }
+
 	@Override
     public Object clone() {
-
         return SitnetUtil.getClone(this);
     }
 	

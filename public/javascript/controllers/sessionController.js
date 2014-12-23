@@ -25,6 +25,7 @@
                         toastr.success($translate("sitnet_logout_success"));
                         delete $scope.session.user;
                         $rootScope.$broadcast('userUpdated');
+                        //$location.path('/login'); // should forward to some "you are logged out" page?
                     });
                 };
 
@@ -110,7 +111,7 @@
                         };
 
                         $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = sessionUser;
-                        $scope.session.user = sessionUser;
+                        sessionService.user = $scope.session.user = sessionUser;
                         authService.loginConfirmed();
                         $rootScope.$broadcast('userUpdated');
                         toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);

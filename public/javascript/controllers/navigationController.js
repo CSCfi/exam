@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('NavigationCtrl', ['$scope', '$modal', '$translate', '$location', 'sessionService',
-            function ($scope, $modal, $translate, $location, sessionService) {
+        .controller('NavigationCtrl', ['$scope', '$modal', '$translate', '$location', 'sessionService', 'waitingRoomService',
+            function ($scope, $modal, $translate, $location, sessionService, waitingRoomService) {
 
                 $scope.isActive = function (link) {
                     return link.href === "#" + $location.path();
@@ -22,15 +22,18 @@
                         student = user.isStudent || false,
                         teacher = user.isTeacher || false;
 
+                    // Do not show if waiting for exam to begin
+                    var dashboardVisible = waitingRoomService.getEnrolmentId() === undefined && (student || admin || teacher);
+
                     return [
-                        {href: "#/home", visible: (student || admin || teacher), class: "fa-home", name: $translate("sitnet_dashboard")},
+                        {href: "#/home", visible: dashboardVisible, class: "fa-home", name: $translate("sitnet_dashboard")},
                         {href: "#/questions", visible: (admin || teacher), class: "fa-list-ol", name: $translate("sitnet_questions"), sub: []},
                         {href: "#/exams", visible: (admin || teacher), class: "fa-paste", name: $translate("sitnet_exams"), sub: []},
                         {href: "#/rooms", visible: (admin), class: "fa-building-o", name: $translate("sitnet_exam_rooms"), sub: []},
                         {href: "#/reports", visible: (admin), class: "fa-file-word-o", name: $translate("sitnet_reports"), sub: []},
                         {href: "#/admin/reservations", visible: (admin), class: "fa-clock-o", name: $translate("sitnet_reservations"), sub: []},
                         {href: "#/logout", visible: (student || admin || teacher), class: "fa-sign-out", name: $translate("sitnet_logout")},
-                        {href: "#/login", visible: (sessionService.user == undefined ? true : false), class: "fa-sign-in", name: $translate("sitnet_login")}
+                        {href: "#/login", visible: (sessionService.user == undefined), class: "fa-sign-in", name: $translate("sitnet_login")}
                     ];
                 };
 
@@ -60,6 +63,14 @@
                     $scope.links = links();
                     sessionService.user.isLoggedOut = true;
                     $location.path("/invalid_session");
+                });
+
+                $scope.$on('upcomingExam', function() {
+                    $scope.links = links();
+                });
+
+                $scope.$on('wrongMachine', function() {
+                    $scope.links = links();
                 });
 
             }]);

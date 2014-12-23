@@ -40,7 +40,7 @@ public class ReviewRunner extends Controller implements Runnable {
                     .eq("exam.id", exam.getId())
                     .findUnique();
 
-            if(enrolment.getReservation() != null) {
+            if (enrolment != null && enrolment.getReservation() != null) {
                 ExamRoom room = enrolment.getReservation().getMachine().getRoom();
                 int transitionTime = Integer.parseInt(room.getTransitionTime());
 

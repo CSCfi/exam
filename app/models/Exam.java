@@ -10,21 +10,13 @@ import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
-/*
- * HUOM tämä luokka ei ole Tentin toteutus, vaan tentin tietomalli
- * 
- * Kuvaa Sitnettiin tallennettavan tentin rakenteen
- * 
- */
 @Entity
 public class Exam extends SitnetModel {
 
     public enum State {
+        DRAFT,
         SAVED,
         PUBLISHED,
         REVIEW,          // OPISKELIJHA ON PALAUTTANUT TENTIN
@@ -51,7 +43,7 @@ public class Exam extends SitnetModel {
     @Column(columnDefinition = "TEXT")
     private String instruction;
 
-    // Instruction written by teacher, shown during exam
+    // Instruction written by teacher, shown for reservation purposes
     @Column(columnDefinition = "TEXT")
     private String enrollInstruction;
 
@@ -61,7 +53,7 @@ public class Exam extends SitnetModel {
     // An ExamSection may be used only in one Exam
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
-    private List<ExamSection> examSections;
+    private List<ExamSection> examSections = new ArrayList<>();
 
     /*
      *  Kun opiskelijalle tehdään kopio tentistä, tämä tulee viittaamaan alkuperäiseen tenttiin
@@ -96,9 +88,8 @@ public class Exam extends SitnetModel {
     // Exam grading, e.g. 0-5
     private String grading;
 
-    // Commented out from UI on: 18.08.2014 ProRy
-    // Free text for exam grading
-    private String otherGrading;
+    // Custom course credit - if teachers changes course credit
+    private Double customCredit;
 
     // Exam total score - calculated from all section scores
     private Double totalScore;
@@ -157,13 +148,9 @@ public class Exam extends SitnetModel {
         double total = 0;
         if (examSections != null) {
             for (ExamSection section : examSections) {
-                if (section != null && section.getQuestions() != null) {
-                    List<AbstractQuestion> questions = section.getQuestions();
-                    for (AbstractQuestion question : questions) {
-                        if (question != null && question.getEvaluatedScore() != null) {
-                            total += question.getEvaluatedScore();
-                        }
-                    }
+                for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                    Double score = esq.getQuestion().getEvaluatedScore();
+                    total += score == null ? 0 : score;
                 }
             }
         }
@@ -270,12 +257,12 @@ public class Exam extends SitnetModel {
 		this.grading = grading;
 	}
 
-	public String getOtherGrading() {
-		return otherGrading;
+	public Double getCustomCredit() {
+		return customCredit;
 	}
 
-	public void setOtherGrading(String otherGrading) {
-		this.otherGrading = otherGrading;
+	public void setCustomCredit(Double customCredit) {
+		this.customCredit = customCredit;
 	}
 
     public void setTotalScore(Double totalScore) {
@@ -386,7 +373,6 @@ public class Exam extends SitnetModel {
         clone.setRoom(this.getRoom());
         clone.setDuration(this.getDuration());
         clone.setGrading(this.getGrading());
-        clone.setOtherGrading(this.getOtherGrading());
         clone.setTotalScore(this.getTotalScore());
         clone.setExamLanguage(this.getExamLanguage());
         clone.setAnswerLanguage(this.getAnswerLanguage());
@@ -398,112 +384,81 @@ public class Exam extends SitnetModel {
         SitnetUtil.setModifier(clone);
         clone.save();
 
-        List<ExamSection> examSectionsCopies = createNewExamSectionList();
+        List<ExamSection> examSections = this.getExamSections();
+        List<ExamSection> examSectionCopies = new ArrayList<>();
 
-        for (ExamSection es : this.getExamSections()) {
+        Collections.sort(examSections, sortSectionsById());
 
-            // New arrays are needed for every examsection
-            List<AbstractQuestion> examQuestionCopies = createNewExamQuestionList();
+        for (ExamSection es : examSections) {
 
-            ExamSection examsec_copy = (ExamSection)es._ebean_createCopy();
-            examsec_copy.setId(null);
-            examsec_copy.setExam(clone);
-            examsec_copy.setQuestions(null);
-
-            if (examsec_copy.getLotteryOn()) {
-                Collections.shuffle(es.getQuestions());
-
-                for (int i=0; i<es.getLotteryItemCount(); i++) {
-                    AbstractQuestion q = es.getQuestions().get(i);
-                    AbstractQuestion question_copy = (AbstractQuestion)q._ebean_createCopy();
-                    question_copy.setId(null);
-                    question_copy.setParent(q);
-
-                    SitnetUtil.setModifier(question_copy);
-
-                    switch (q.getType()) {
-                        case "MultipleChoiceQuestion": {
-                            List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
-
-                            List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
-                            for (MultipleChoiseOption o : options) {
-                                MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
-                                m_option_copy.setId(null);
-                                multipleChoiceOptionCopies.add(m_option_copy);
-                            }
-                            ((MultipleChoiceQuestion)question_copy).setOptions(multipleChoiceOptionCopies);
-                            question_copy.save();
-                        }break;
-
-                        case "EssayQuestion": {
-                            // No need to implement because EssayQuestion doesn't have object relations
-                            question_copy.save();
-                        } break;
-
-                    }
-                    examQuestionCopies.add(question_copy);
-                }
+            ExamSection esCopy = (ExamSection)es._ebean_createCopy();
+            esCopy.setId(null);
+            esCopy.setExam(clone);
+            SitnetUtil.setModifier(esCopy);
+            esCopy.save();
+            List<ExamSectionQuestion> sectionQuestions = new ArrayList<>(es.getSectionQuestions());
+            if (es.getLotteryOn()) {
+                Collections.shuffle(sectionQuestions);
+                sectionQuestions = sectionQuestions.subList(0, es.getLotteryItemCount());
             }
+            Collections.sort(sectionQuestions, sortBySequence());
 
-            else {
+            for (ExamSectionQuestion esq : sectionQuestions) {
+                AbstractQuestion question = esq.getQuestion();
+                AbstractQuestion questionCopy = (AbstractQuestion)question._ebean_createCopy();
+                questionCopy.setId(null);
+                questionCopy.setParent(question);
+                SitnetUtil.setModifier(questionCopy);
+                switch (question.getType()) {
+                    case "MultipleChoiceQuestion": {
+                        List<MultipleChoiseOption> multipleChoiceOptionCopies = new ArrayList<>();
+                        List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) question).getOptions();
+                        for (MultipleChoiseOption o : options) {
+                            MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
+                            m_option_copy.setId(null);
+                            multipleChoiceOptionCopies.add(m_option_copy);
+                        }
+                        ((MultipleChoiceQuestion)questionCopy).setOptions(multipleChoiceOptionCopies);
+                        questionCopy.save();
+                    }break;
 
-                for (AbstractQuestion q : es.getQuestions()) {
+                    case "EssayQuestion": {
+                        // No need to implement because EssayQuestion doesn't have object relations
+                        questionCopy.save();
+                    } break;
 
-                    AbstractQuestion question_copy = (AbstractQuestion) q._ebean_createCopy();
-                    question_copy.setId(null);
-                    question_copy.setParent(q);
-
-                    switch (q.getType()) {
-                        case "MultipleChoiceQuestion": {
-                            List<MultipleChoiseOption> multipleChoiceOptionCopies = createNewMultipleChoiceOptionList();
-
-                            List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) q).getOptions();
-                            for (MultipleChoiseOption o : options) {
-                                MultipleChoiseOption m_option_copy = (MultipleChoiseOption) o._ebean_createCopy();
-                                m_option_copy.setId(null);
-                                multipleChoiceOptionCopies.add(m_option_copy);
-                            }
-                            ((MultipleChoiceQuestion) question_copy).setOptions(multipleChoiceOptionCopies);
-                            question_copy.save();
-                        }break;
-
-                        case "EssayQuestion": {
-                            // No need to implement because EssayQuestion doesn't have object relations
-                            // just save it
-                            question_copy.save();
-                        }break;
-                    }
-                    examQuestionCopies.add(question_copy);
                 }
+                ExamSectionQuestion esqCopy = new ExamSectionQuestion(esCopy, questionCopy);
+                esqCopy.setSequenceNumber(esq.getSequenceNumber());
+                esqCopy.save();
             }
-
-            examsec_copy.setQuestions(examQuestionCopies);
-            SitnetUtil.setModifier(examsec_copy);
-            examsec_copy.save();
-            examsec_copy.saveManyToManyAssociations("questions");
-
-            examSectionsCopies.add(examsec_copy);
+            examSectionCopies.add(esCopy);
         }
 
-        clone.setExamSections(examSectionsCopies);
+        Collections.sort(examSectionCopies, sortSectionsById());
+
+        clone.setExamSections(examSectionCopies);
         clone.generateHash();
 
         return clone;
     }
 
-    public List<ExamSection> createNewExamSectionList() {
-        List<ExamSection> examSectionsCopies = new ArrayList<ExamSection>();
-        return examSectionsCopies;
+    private static Comparator<ExamSection> sortSectionsById() {
+        return new Comparator<ExamSection>() {
+            @Override
+            public int compare(ExamSection o1, ExamSection o2) {
+                return (int) (o1.getId() - o2.getId());
+            }
+        };
     }
 
-    public List<AbstractQuestion> createNewExamQuestionList() {
-        List<AbstractQuestion> examQuestionCopies = new ArrayList<AbstractQuestion>();
-        return examQuestionCopies;
-    }
-
-    public List<MultipleChoiseOption> createNewMultipleChoiceOptionList() {
-        List<MultipleChoiseOption> multipleChoiceOptionCopies = new ArrayList<MultipleChoiseOption>();
-        return multipleChoiceOptionCopies;
+    private static Comparator<ExamSectionQuestion> sortBySequence() {
+        return new Comparator<ExamSectionQuestion>() {
+            @Override
+            public int compare(ExamSectionQuestion o1, ExamSectionQuestion o2) {
+                return o1.getSequenceNumber() - o2.getSequenceNumber();
+            }
+        };
     }
 
     public Timestamp getExamActiveStartDate() {

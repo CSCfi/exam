@@ -16,7 +16,10 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
-import java.nio.charset.Charset;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class SessionController extends SitnetController {
@@ -28,7 +31,9 @@ public class SessionController extends SitnetController {
         String loginType = ConfigFactory.load().getString("sitnet.login");
         if (loginType.equals("DEBUG")) {
             Credentials credentials = bindForm(Credentials.class);
+
             Logger.debug("User login with username: {} and password: ***", credentials.getUsername() + "@funet.fi");
+
             if (credentials.getPassword() == null || credentials.getUsername() == null) {
                 return unauthorized("sitnet_error_unauthenticated");
             }
@@ -44,7 +49,7 @@ public class SessionController extends SitnetController {
             }
         } else {
             if (loginType.equals("HAKA")) {
-                String eppn = request().getHeader("eppn");
+                String eppn = toUtf8(request().getHeader("eppn"));
 
                 user = Ebean.find(User.class)
                         .where()
@@ -61,7 +66,7 @@ public class SessionController extends SitnetController {
                         user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
                     }
 
-                    String email = request().getHeader("mail");
+                    String email = toUtf8(request().getHeader("mail"));
                     user.setEmail(email);
                     user.save();
                 } else {
@@ -72,7 +77,7 @@ public class SessionController extends SitnetController {
                     if (request().getHeader("schacPersonalUniqueCode") == null) {
                         user.setUserIdentifier("");
                     } else {
-                        user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
+                        user.setUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode")));
                     }
 
                     String email = request().getHeader("mail");
@@ -80,7 +85,7 @@ public class SessionController extends SitnetController {
                     user.setLastName(toUtf8(request().getHeader("sn")));
                     user.setFirstName(toUtf8(request().getHeader("displayName")));
 
-                    String language = request().getHeader("preferredLanguage");
+                    String language = toUtf8(request().getHeader("preferredLanguage"));
                     if (language != null && !language.isEmpty()) {
                         user.getUserLanguage().setNativeLanguageCode(language);
                         user.getUserLanguage().setUILanguageCode(language);
@@ -93,7 +98,7 @@ public class SessionController extends SitnetController {
                         user.setUserLanguage(lang);
                     }
 
-                    String shibRole = request().getHeader("unscoped-affiliation");
+                    String shibRole = toUtf8(request().getHeader("unscoped-affiliation"));
                     Logger.debug("unscoped-affiliation: " + shibRole);
                     SitnetRole role = (SitnetRole) getRole(shibRole);
                     if (role == null) {
@@ -111,7 +116,8 @@ public class SessionController extends SitnetController {
         }
 
         // User exists in the system -> log in
-        String token = loginType.equals("HAKA") ? request().getHeader("Shib-Session-ID") : UUID.randomUUID().toString();
+        String token = loginType.equals("HAKA") ? toUtf8(request().getHeader("Shib-Session-ID")) : UUID.randomUUID()
+                .toString();
 
         Session session = new Session();
         session.setSince(DateTime.now());
@@ -218,14 +224,72 @@ public class SessionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result ping() {
-        return ok("pong");
+    public static Result extendSession() {
+        String loginType = ConfigFactory.load().getString("sitnet.login");
+        String token = request().getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        final String key = SITNET_CACHE_KEY + token;
+        Session session = (Session) Cache.get(key);
+
+        if(session == null) {
+            return unauthorized();
+        }
+
+        session.setSince(DateTime.now());
+        Cache.set(SITNET_CACHE_KEY + token, session);
+
+        return ok();
     }
+
+    public static Result checkSession() {
+
+        String loginType = ConfigFactory.load().getString("sitnet.login");
+        String token = request().getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        final String key = SITNET_CACHE_KEY + token;
+        Session session = (Session) Cache.get(key);
+
+        if(session == null) {
+            Logger.info("Session not found");
+            return ok("no_session");
+        }
+
+        final long timeOut = SITNET_TIMEOUT_MINUTES * 60 * 1000;
+        final long sessionTime = session.getSince().getMillis();
+        final long end = sessionTime + timeOut;
+        final long now = DateTime.now().getMillis();
+        final long alarmTime = end - (2 * 60 * 1000); // now - 2 minutes
+
+        if(Logger.isDebugEnabled()) {
+            DateFormat df = new SimpleDateFormat("HH:mm:ss");
+            Logger.debug(" - current time: " + df.format(now));
+            Logger.debug(" - session ends: " + df.format(end));
+        }
+
+        // session has 2 minutes left
+        if(now > alarmTime && now < end) {
+            return ok("alarm");
+        }
+
+        // session ended check
+        if(now > end) {
+            Logger.info("Session has expired");
+            return ok("no_session");
+        }
+
+        return ok();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public static Result ping() {return ok("pong");}
 
     private static String toUtf8(String src) {
-        String latin = new String(src.getBytes(), Charset.forName("ISO-8859-1"));
-        return new String(latin.getBytes(), Charset.forName("UTF-8"));
+        if (src == null) {
+            return null;
+        }
+        try {
+            return URLDecoder.decode(src, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
-
 
 }

@@ -1,16 +1,17 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.*;
 import models.dto.ExamScore;
+import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,7 +24,7 @@ public class ExamRecordController extends SitnetController {
 
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result addExamRecord() throws MalformedDataException {
+    public static Result addExamRecord() {
 
         Exam exam = Form.form(Exam.class).bindFromRequest(
                 "id",
@@ -34,7 +35,7 @@ public class ExamRecordController extends SitnetController {
                 "room",
                 "duration",
                 "grading",
-                "otherGrading",
+                "customCredit",
                 "totalScore",
                 "examLanguage",
                 "answerLanguage",
@@ -51,9 +52,10 @@ public class ExamRecordController extends SitnetController {
 
 //        if (!SitnetUtil.isOwner(ex) || !UserController.getLoggedUser().hasRole("ADMIN"))
 //            return forbidden("You are not allowed to modify this object");
-            // if this exam is already logged exit.
-        if(ex.getState().equals(Exam.State.GRADED_LOGGED.name()))
+        // if this exam is already logged exit.
+        if (ex.getState().equals(Exam.State.GRADED_LOGGED.name())) {
             return forbidden("sitnet_error_exam_already_graded_logged");
+        }
 
         exam.update();
 
@@ -78,7 +80,11 @@ public class ExamRecordController extends SitnetController {
 
         score.setStudent(student.getEppn());
         score.setStudentId(student.getUserIdentifier());
-        score.setCredits(exam.getCourse().getCredits().toString());
+        if(exam.getCustomCredit() == null) {
+            score.setCredits(exam.getCourse().getCredits().toString());
+        } else {
+            score.setCredits(exam.getCustomCredit().toString());
+        }
         score.setExamScore(exam.getTotalScore().toString());
 
         score.setLecturer(teacher.getEppn());
@@ -107,8 +113,12 @@ public class ExamRecordController extends SitnetController {
         DynamicForm df = Form.form().bindFromRequest();
         boolean sendFeedback = Boolean.parseBoolean(df.get("sendFeedback"));
 
-        if(sendFeedback) {
-            EmailComposer.composeInspectionReady(exam.getCreator(), UserController.getLoggedUser(), exam);
+        if (sendFeedback) {
+            try {
+                EmailComposer.composeInspectionReady(exam.getCreator(), UserController.getLoggedUser(), exam);
+            } catch (IOException e) {
+                Logger.error("Failure to access message template on disk", e);
+            }
         }
 
         return ok();

@@ -44,7 +44,14 @@
         </div>
     </div>
 
-    <p >{{selectedRoomsString}}</p>
+    <div class="row">
+        <div class="col-md-12">
+            {{ 'sitnet_instruction' | translate }}:
+            <p mathjax ng-bind-html="reservationInstructions"></p>
+        </div>
+    </div>
+
+    <p>{{ selectedRoomsString }}</p>
 
     <div class="row">
         <div class="col-md-12">

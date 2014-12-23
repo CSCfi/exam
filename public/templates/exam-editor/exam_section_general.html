@@ -14,9 +14,12 @@
         <div class="col-md-6">
             <h4>{{'sitnet_start_time' | translate}}</h4>
             <p class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                <input type="text" class="form-control" datepicker-popup="{{format}}"
+                       date-fix="{{format}}" ng-model="dateService.startDate"
                        is-open="startDateOpened" min="minDate"
-                       datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ui-change="updateExam()">
+                       datepicker-options="dateOptions"
+                       close-text="{{'sitnet_close' | translate}}"
+                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ui-change="updateExam()">
                        
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
@@ -29,7 +32,8 @@
         <div class="col-md-6">
             <h4>{{'sitnet_end_time' | translate}}</h4>
             <p class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                <input type="text" class="form-control" datepicker-popup="{{format}}"
+                       date-fix="{{format}}" ng-model="dateService.endDate"
                        is-open="endDateOpened" min="dateService.startDate"
                        datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"  ng-required="true">
                 <span class="input-group-btn">
@@ -214,7 +218,6 @@
                 <div class="input-group col-md-12">
                     <button class="btn btn-default" ng-class="checkType('Osasuoritus')" ng-click="setExamType('Osasuoritus')">Osasuoritus</button>&nbsp;
                     <button class="btn btn-default" ng-class="checkType('Loppusuoritus')" ng-click="setExamType('Loppusuoritus')">Loppusuoritus</button>&nbsp;
-                    <button class="btn btn-default" ng-class="checkType('Kypsyysnäyte')" ng-click="setExamType('Kypsyysnäyte')">Kypsyysnäyte</button>
                 </div>
             </div>
         </div>
@@ -288,7 +291,7 @@
                 <div class="sitnet-info-text">
                     {{'sitnet_exam_attacment' | translate}}
                 </div>
-                <div ng-show="newExam.attachment !== null && newExam.attachment !== undefined" ng-controller="AttachmentController">
+                <div ng-show="newExam.attachment" ng-controller="AttachmentController">
                     <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}}  </a>
                     <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
                 </div>

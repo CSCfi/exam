@@ -32,15 +32,23 @@
                    ng-model="section.lotteryOn">Arvo kysymykset</input>
         </span>
         <span ng-show="section.lotteryOn">
-            <input type="number" name="" min="1" value="1" max="{{section.questions.length}}"
+            <input type="number" name="" min="1" value="1" max="{{section.sectionQuestions.length}}"
                    ng-model="section.lotteryItemCount" ui-blur="updateLotteryCount(section)" autofocus>
         </span>
-        <span ng-show="section.lotteryOn">/ {{section.questions.length}}</span>
+        <span ng-show="section.lotteryOn">/ {{section.sectionQuestions.length}}</span>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12" ng-show="section.expanded">
-        <div class="question" ng-include="questionPath" ng-repeat="question in section.questions"/>
+        <ul droppable="section.sectionQuestions" ng-move="moveQuestion(section, from, to)"
+            ng-create="insertQuestion(section, object, to)" class="sortable">
+            <li ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="questionPath"
+                ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
+            </li>
+            <li ng-show="section.sectionQuestions.length == 0" class="create-new dropdown">
+
+            </li>
+        </ul>
         <div class="create-new dropdown">
             <a class="dropdown-toggle">
                 <i class="fa fa-2x fa-plus-circle"></i>
@@ -54,9 +62,6 @@
                     <a ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_question_mc' | translate }}</a>
                 </li>
             </ul>
-            <i class="pull-right fa fa-2x fa-dropbox"
-               popover-placement="top" popover-trigger="mouseenter" popover="Pudota kysymykset tähän"></i>
         </div>
     </div>
-
 </div>

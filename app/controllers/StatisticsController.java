@@ -180,7 +180,7 @@ public class StatisticsController extends SitnetController {
                 JsonContext jsonContext = Ebean.createJsonContext();
                 JsonWriteOptions options = new JsonWriteOptions();
                 options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                        "duration, grading, ,grade, otherGrading, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
+                        "duration, grading, ,grade, customCredit, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
                 options.setPathProperties("parent", "id");
                 options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
                 options.setPathProperties("room", "id, name");

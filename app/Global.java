@@ -1,14 +1,21 @@
 import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
+import akka.actor.Cancellable;
 import com.avaje.ebean.Ebean;
 import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
 import models.questions.QuestionInterface;
+import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.LocalDateTime;
+import org.joda.time.Seconds;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
+import play.api.mvc.Handler;
 import play.cache.Cache;
 import play.libs.Akka;
 import play.libs.F;
@@ -25,6 +32,8 @@ import scala.concurrent.duration.FiniteDuration;
 import util.SitnetUtil;
 import util.java.EmailComposer;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.sql.Timestamp;
 import java.util.*;
@@ -37,6 +46,21 @@ public class Global extends GlobalSettings {
     public static final String SITNET_CACHE_KEY = "user.session.";
     public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 15;
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
+    public static final int SITNET_UPCOMING_EXAM_LOOKAHEAD_MINUTES = 60;
+
+    private Cancellable reportSender;
+    private Cancellable reviewRunner;
+
+    @Override
+    public void onStop(Application app) {
+        if (reportSender != null && !reportSender.isCancelled()) {
+            reportSender.cancel();
+        }
+        if (reviewRunner != null && !reviewRunner.isCancelled()) {
+            reviewRunner.cancel();
+        }
+        super.onStop(app);
+    }
 
     @Override
     public void onStart(Application app) {
@@ -46,7 +70,7 @@ public class Global extends GlobalSettings {
 
         //todo: make these interval and start times configurable via configuration files
 
-        Akka.system().scheduler().schedule(
+        reviewRunner = Akka.system().scheduler().schedule(
                 Duration.create(SITNET_EXAM_REVIEWER_START_AFTER_MINUTES, TimeUnit.MINUTES),
                 Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                 new ReviewRunner(),
@@ -58,53 +82,56 @@ public class Global extends GlobalSettings {
 
         InitialData.insert();
         StatisticsController.createReportDirectory();
+
+        super.onStart(app);
     }
 
-    // TODO: quick fix, experimental scheduler from:
-    // http://davidchang168.blogspot.fi/2014/05/how-to-schedule-cron-jobs-in-play-2.html
+    private LocalDateTime getNextMonday(LocalDateTime date) {
+        return date.plusWeeks(date.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1).withDayOfWeek
+                (DateTimeConstants.MONDAY);
+    }
+
     private void weeklyEmailReport() {
-        Long delayInSeconds;
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.HOUR_OF_DAY, 19);
-        c.set(Calendar.MINUTE, 40);
-        c.set(Calendar.SECOND, 0);
-        Date plannedStart = c.getTime();
-        Date now = new Date();
-        Date nextRun;
-        if(now.after(plannedStart)) {
-            c.add(Calendar.DAY_OF_WEEK, 5);
-            nextRun = c.getTime();
-        } else {
-            nextRun = c.getTime();
-        }
-        delayInSeconds = (nextRun.getTime() - now.getTime()) / 1000; //To convert milliseconds to seconds.
-        FiniteDuration delay = FiniteDuration.create(delayInSeconds, TimeUnit.SECONDS);
+        // TODO: store the time of last dispatch in db so we know if scheduler was not run and send an extra report
+        // in that case?
+        
+        // Every Monday at 6AM UTC
+        LocalDateTime now = new LocalDateTime();
+        LocalDateTime nextRun = getNextMonday(now.withHourOfDay(6).withMinuteOfHour(0).withSecondOfMinute(0));
+        FiniteDuration delay = FiniteDuration.create(Seconds.secondsBetween(now, nextRun).getSeconds(), TimeUnit.SECONDS);
         FiniteDuration frequency = FiniteDuration.create(7, TimeUnit.DAYS);
         Runnable showTime = new Runnable() {
             @Override
             public void run() {
 
-                Logger.info( new Date() + "Running weekly email report");
+                Logger.info(new Date() + "Running weekly email report");
                 List<User> teachers = Ebean.find(User.class)
                         .fetch("roles")
                         .where()
                         .eq("roles.name", "TEACHER")
                         .findList();
-
-                for (User teacher : teachers) {
-                    EmailComposer.composeWeeklySummary(teacher);
+                try {
+                    for (User teacher : teachers) {
+                        EmailComposer.composeWeeklySummary(teacher);
+                    }
+                } catch (IOException e) {
+                    Logger.error("Failed to read email template from disk!", e);
+                    e.printStackTrace();
                 }
             }
         };
-        Akka.system().scheduler().schedule(delay, frequency, showTime, Akka.system().dispatcher());
+        reportSender = Akka.system().scheduler().schedule(delay, frequency, showTime, Akka.system().dispatcher());
     }
 
     @Override
     public Promise<SimpleResult> onError(Http.RequestHeader request, final Throwable t) {
-        F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
+        return F.Promise.promise(new F.Function0<SimpleResult>() {
             public SimpleResult apply() {
                 Throwable cause = t.getCause();
                 String errorMessage = cause.getMessage();
+
+                if(Logger.isDebugEnabled()) {Logger.debug("onError: " + errorMessage);}
+
                 if (cause instanceof UnauthorizedAccessException) {
                     return Results.forbidden(Json.toJson(errorMessage));
                 }
@@ -120,11 +147,11 @@ public class Global extends GlobalSettings {
                 return Results.internalServerError(Json.toJson(errorMessage));
             }
         });
-        return promise;
     }
 
     @Override
     public Promise<SimpleResult> onBadRequest(Http.RequestHeader request, final String error) {
+        if(Logger.isDebugEnabled()) {Logger.debug("onBadRequest: " + error);}
         return F.Promise.promise(new F.Function0<SimpleResult>() {
             public SimpleResult apply() {
                 return Results.badRequest(Json.toJson(new ApiError(error)));
@@ -132,54 +159,49 @@ public class Global extends GlobalSettings {
         });
     }
 
-    private class AddHeader extends Action {
-        private HashMap<String, String> headers;
-        public AddHeader(Action action, HashMap<String, String> headers) {
-            this.headers = headers;
-            this.delegate = action;
+    @Override
+    public Handler onRouteRequest(Http.RequestHeader request) {
+
+        String loginType = ConfigFactory.load().getString("sitnet.login");
+        String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
+
+        if(session != null && request.path().indexOf("checkSession") == -1) {
+            session.setSince(DateTime.now());
+            Cache.set(SITNET_CACHE_KEY + token, session);
         }
 
-        @Override
-        public Promise<SimpleResult> call(Http.Context context) throws Throwable {
-            final Promise promise = this.delegate.call(context);
-            Http.Response response = context.response();
-
-            for(String key : headers.keySet()){
-                response.setHeader(key, headers.get(key));
-            }
-            return promise;
-        }
+        return super.onRouteRequest(request);
     }
 
     @Override
-    public Action onRequest(Request request, Method actionMethod) {
+    public Action onRequest(final Request request, Method actionMethod) {
+
         String loginType = ConfigFactory.load().getString("sitnet.login");
-        String token =  request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
         AuditLogger.log(request, actionMethod, session);
 
-        if(session == null) {
+        if (session == null) {
             Logger.info("Session with token {} not found", token);
             return super.onRequest(request, actionMethod);
         }
-
         //ugh, this works, apparently. I don't like play.
         if (!session.isValid()) {
             Logger.warn("Session #{} is marked as invalid", token);
             return new Action.Simple() {
                 public Promise<SimpleResult> call(final Http.Context ctx) throws Throwable {
-                    F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
+                    return F.Promise.promise(new F.Function0<SimpleResult>() {
                         public SimpleResult apply() {
                             ctx.response().getHeaders().put(SITNET_FAILURE_HEADER_KEY, "Invalid token");
                             return Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.");
                         }
                     });
-                    return promise;
                 }
             };
         }
 
-        if(session.getUserId() == null) {
+        if (session.getUserId() == null) {
             return super.onRequest(request, actionMethod);
         }
 
@@ -188,7 +210,7 @@ public class Global extends GlobalSettings {
             if (!session.getXsrfToken().equals(request.getHeader("X-XSRF-TOKEN"))) {
                 // Cross site request forgery attempt?
                 Logger.warn("XSRF-TOKEN mismatch!");
-                // Lets not go too there just yet, looks like this happens with HAKA logins if user opens a new tab
+                // Lets not go there just yet, looks like this happens with HAKA logins if user opens a new tab
                 /*return new Action.Simple() {
 
                     @Override
@@ -204,89 +226,121 @@ public class Global extends GlobalSettings {
                 };*/
             }
         }
-        if (user == null || !user.hasRole("STUDENT")) {
+        if (user == null || !user.hasRole("STUDENT") || request.path().equals("/logout")) {
             return super.onRequest(request, actionMethod);
         }
 
+        ExamEnrolment ongoingEnrolment = getNextEnrolment(user.getId(), 0);
+        if (ongoingEnrolment != null) {
+            return handleOngoingEnrolment(ongoingEnrolment, request, actionMethod);
+        } else {
+            DateTime now = new DateTime();
+            int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
+            ExamEnrolment upcomingEnrolment = getNextEnrolment(user.getId(), lookAheadMinutes);
+            if (upcomingEnrolment != null) {
+                return handleUpcomingEnrolment(upcomingEnrolment, request, actionMethod);
+            } else if (isOnExamMachine(request)) {
+                // User is logged on an exam machine but has no exams for today
+                Map<String, String> headers = new HashMap<>();
+                headers.put("x-sitnet-upcoming-exam", "none");
+                return new AddHeader(super.onRequest(request, actionMethod), headers);
+            } else {
+                return super.onRequest(request, actionMethod);
+            }
+        }
+    }
 
-        //todo: widen the range, to see upcoming enrolments
-        //todo: add cases for these
+    private boolean isOnExamMachine(Request request) {
+        return Ebean.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findUnique() != null;
+    }
+
+
+    private boolean machineOk(ExamEnrolment enrolment, Request request, Map<String,
+            String> headers) {
+        ExamMachine examMachine = enrolment.getReservation().getMachine();
+        ExamRoom room = examMachine.getRoom();
+
+        String machineIp = examMachine.getIpAddress();
+        String remoteIp = request.remoteAddress();
+
+        Logger.debug("\nUser ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
+
+        //todo: is there another way to identify/match machines?
+        //todo: eg. some transparent proxy that add id header etc.
+        if (!remoteIp.equals(machineIp)) {
+            String message;
+            String header;
+
+            // Is this a known machine?
+            ExamMachine lookedUp = Ebean.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findUnique();
+            if (lookedUp == null) {
+                // IP not known
+                header = "x-sitnet-unknown-machine";
+                message = room.getCampus() + ":::" +
+                        room.getBuildingName() + ":::" +
+                        room.getRoomCode() + ":::" +
+                        examMachine.getName() + ":::" +
+                        enrolment.getReservation().getStartAt();
+            } else if (lookedUp.getRoom().getId().equals(room.getId())) {
+                // Right room, wrong machine
+                header = "x-sitnet-wrong-machine";
+                message = enrolment.getId().toString() + ":::" + lookedUp.getName();
+            } else {
+                // Wrong room
+                header = "x-sitnet-wrong-room";
+                message = enrolment.getId().toString() + ":::" + lookedUp.getRoom() + ":::" +
+                        lookedUp.getRoom().getRoomCode() + ":::" + lookedUp.getName();
+            }
+            headers.put(header, DatatypeConverter.printBase64Binary(message.getBytes()));
+            return false;
+        }
+        return true;
+    }
+
+    private Action handleOngoingEnrolment(ExamEnrolment enrolment, Request request, Method method) {
+        Map<String, String> headers = new HashMap<>();
+        if (!machineOk(enrolment, request, headers)) {
+            return new AddHeader(super.onRequest(request, method), headers);
+        }
+        String hash = enrolment.getExam().getHash();
+        headers.put("x-sitnet-start-exam", hash);
+        return new AddHeader(super.onRequest(request, method), headers);
+    }
+
+
+    private Action handleUpcomingEnrolment(ExamEnrolment enrolment, Request request, Method method) {
+        Map<String, String> headers = new HashMap<>();
+        if (!machineOk(enrolment, request, headers)) {
+            return new AddHeader(super.onRequest(request, method), headers);
+        }
+        String hash = enrolment.getExam().getHash();
+        headers.put("x-sitnet-start-exam", hash);
+        headers.put("x-sitnet-upcoming-exam", enrolment.getId().toString());
+        return new AddHeader(super.onRequest(request, method), headers);
+    }
+
+    private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
         Timestamp now = SitnetUtil.getNowTime();
-
-
-        Logger.debug(now.toString());
-        Logger.debug(now.toString());
-
-
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+        LocalDateTime future = new LocalDateTime(now).plusMinutes(minutesToFuture);
+        List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .fetch("exam")
                 .where()
-                .eq("user.id", user.getId())
-                .le("reservation.startAt", now)
+                .eq("user.id", userId)
+                .disjunction()
+                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .eq("exam.state", Exam.State.STUDENT_STARTED.toString())
+                .endJunction()
+                .le("reservation.startAt", future)
                 .gt("reservation.endAt", now)
-                //there should be no overlapping reservations, right?
+                .orderBy("reservation.startAt")
                 .findList();
-
-
-
-        if(enrolments.isEmpty()) {
-            return super.onRequest(request, actionMethod);
+        if (results.isEmpty()) {
+            return null;
         }
-
-        ExamEnrolment enrolment = null;
-        for(ExamEnrolment possibleEnrolment : enrolments) {
-            if(possibleEnrolment.getExam().getState().equals("PUBLISHED")) {
-                enrolment = possibleEnrolment;
-                break;
-            }
-        }
-
-        if(enrolment == null) {
-            return super.onRequest(request, actionMethod);
-        }
-
-        String machineIp = enrolment.getReservation().getMachine().getIpAddress();
-        String remoteIp = request.remoteAddress();
-
-        Logger.debug("\nUser   ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
-
-        HashMap<String, String> headers = new HashMap<>();
-
-        //todo: is there another way to identify/match machines?
-        //todo: eg. some transparent proxy that add id header etc.
-        if(!remoteIp.equals(machineIp)) {
-            ExamMachine machine = enrolment.getReservation().getMachine();
-            ExamRoom room = machine.getRoom();
-
-            String info = room.getCampus() + ":::" +
-                            room.getBuildingName() + ":::" +
-                            room.getRoomCode() + ":::" +
-                            machine.getName() ;
-
-
-            headers.put("x-sitnet-wrong-machine", Base64.getEncoder().encodeToString(info.getBytes()));
-            //todo: add note, about wrong machine?
-            return new AddHeader( super.onRequest(request, actionMethod), headers);
-        }
-
-        String hash = enrolment.getExam().getHash();
-        headers.put("x-sitnet-start-exam", hash);
-        return new AddHeader( super.onRequest(request, actionMethod), headers);
-    }
-
-    private class InvalidTokenAction extends Action {
-        @Override
-        public Promise<SimpleResult> call(Http.Context context) throws Throwable {
-            F.Promise<SimpleResult> promise = F.Promise.promise(new F.Function0<SimpleResult>() {
-                public SimpleResult apply() {
-                    return Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.");
-                }
-            });
-            return promise;
-        }
+        return results.get(0);
     }
 
     private static class InitialData {
@@ -296,7 +350,7 @@ public class Global extends GlobalSettings {
                 String productionData = ConfigFactory.load().getString("sitnet.production.initial.data");
 
                 // Should we load test data
-                if(productionData.equals("false")) {
+                if (productionData.equals("false")) {
 
                     @SuppressWarnings("unchecked")
                     Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
@@ -329,18 +383,17 @@ public class Global extends GlobalSettings {
                     // generate hashes for questions
                     List<Object> questions = all.get("question_multiple_choice");
                     for (Object q : questions) {
-                        ((QuestionInterface)q).generateHash();
+                        ((QuestionInterface) q).generateHash();
                     }
                     Ebean.save(questions);
 
                     // generate hashes for questions
                     List<Object> exams = all.get("exams");
                     for (Object e : exams) {
-                        ((Exam)e).generateHash();
+                        ((Exam) e).generateHash();
                     }
                     Ebean.save(exams);
-                }
-                else if(productionData.equals("true")) {
+                } else if (productionData.equals("true")) {
 
                     @SuppressWarnings("unchecked")
                     Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
@@ -354,6 +407,27 @@ public class Global extends GlobalSettings {
                     Ebean.save(all.get("general-settings"));
                 }
             }
+        }
+    }
+
+    private class AddHeader extends Action {
+        private Map<String, String> headers;
+
+        public AddHeader(Action action, Map<String, String> headers) {
+            this.headers = headers;
+            this.delegate = action;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public Promise<SimpleResult> call(Http.Context context) throws Throwable {
+            final Promise<SimpleResult> promise = this.delegate.call(context);
+            Http.Response response = context.response();
+
+            for (String key : headers.keySet()) {
+                response.setHeader(key, headers.get(key));
+            }
+            return promise;
         }
     }
 }

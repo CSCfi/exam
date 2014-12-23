@@ -3,42 +3,43 @@
         <div class="guide-instruction col-md-12">{{ doexam.instruction }}</div>
     </div>
     <div ng-show="!guide">
-        <div class="{{question.selectedAnsweredState}} col-md-12 info-row" ng-repeat="question in activeSection.questions">
+        <div class="{{sectionQuestion.question.selectedAnsweredState}} col-md-12 info-row"
+             ng-repeat="sectionQuestion in activeSection.sectionQuestions">
 
-            <div ng-model="question">
+            <div ng-model="sectionQuestion.question">
                 <span class="fa-stack fa-lg pull-left col-md-1">
                   <i class="fa fa-stop fa-stack-2x question-icon-bg"></i>
-                  <i class="fa fa-stack-1x question-icon" ng-class="question.type === 'MultipleChoiceQuestion' ? 'fa-list-ul' : 'fa-pencil-square-o'"></i>
+                  <i class="fa fa-stack-1x question-icon" ng-class="sectionQuestion.question.type === 'MultipleChoiceQuestion' ? 'fa-list-ul' : 'fa-pencil-square-o'"></i>
                 </span>
 
-                <span ng-click="question.expanded = !question.expanded; chevronClicked(question);"
-                class="question-text pointer pull-left col-md-8" mathjax ng-bind-html="question.question" mathjax></span>
-                <span class="question-text pull-left col-md-2" ng-click="question.expanded = !question.expanded; chevronClicked(question);">
-                    ({{question.maxScore}} {{'sitnet_unit_points' | translate}})
+                <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion);"
+                class="question-text pointer pull-left col-md-8" mathjax ng-bind-html="sectionQuestion.question.question" mathjax></span>
+                <span class="question-text pull-left col-md-2" ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion);">
+                    ({{sectionQuestion.question.maxScore}} {{'sitnet_unit_points' | translate}})
                 </span>
-                <span ng-click="question.expanded = !question.expanded; chevronClicked(question);" class="fa-stack fa-lg pointer pull-right col-md-1">
-                    <i ng-class="question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-left sitnet-text-medium'"
+                <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion);" class="fa-stack fa-lg pointer pull-right col-md-1">
+                    <i ng-class="sectionQuestion.question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-left sitnet-text-medium'"
                        class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
                     </i>
                 </span>
             </div>
 
-            <div class="exam-question-container" ng-show="question.expanded">
+            <div class="exam-question-container" ng-show="sectionQuestion.question.expanded">
                 <div class="sitnet-info-text">{{question.instruction}}</div>
-                <div class="question" ng-include="question.template"></div>
-                <div ng-show="question.attachment !== null" class="col-md-6" ng-controller="AttachmentController">
-                    <a class="pointer" ng-click="downloadQuestionAttachment(question)"> {{'sitnet_download_attachment' | translate }} <span class="sitnet-text-medium"><small>({{question.attachment.fileName}})</small></span></a>
+                <div class="question" ng-include="sectionQuestion.question.template"></div>
+                <div ng-show="sectionQuestion.question.attachment !== null" class="col-md-6" ng-controller="AttachmentController">
+                    <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)"> {{'sitnet_download_attachment' | translate }} <span class="sitnet-text-medium"><small>({{sectionQuestion.question.attachment.fileName}})</small></span></a>
                 </div>
                 <div class="col-md-6 pull-right" ng-controller="AttachmentController">
                     <div class="sitnet-info-text">
                         {{'sitnet_answer_attachment' | translate}}
                     </div>
-                    <div ng-if="question.answer && question.answer.attachment && question.answer.attachment.fileName !== null">
-                        <a class="pointer" ng-click="downloadQuestionAnswerAttachment(question, hash)">{{question.answer.attachment.fileName}}</a>
-                        <span class="sitnet-red pointer" ng-click="removeQuestionAnswerAttachment(question, hash);reload();"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
+                    <div ng-if="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName !== null">
+                        <a class="pointer" ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, hash)">{{sectionQuestion.question.answer.attachment.fileName}}</a>
+                        <span class="sitnet-red pointer" ng-click="removeQuestionAnswerAttachment(sectionQuestion.question, hash);reload();"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
                     </div>
                     <br>
-                    <button ng-click="selectFile(question)" class="btn btn-primary pull-left">{{'sitnet_attach_file' | translate}}</button>
+                    <button ng-click="selectFile(sectionQuestion.question)" class="btn btn-primary pull-left">{{'sitnet_attach_file' | translate}}</button>
                 </div>
             </div>
         </div>

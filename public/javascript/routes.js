@@ -13,13 +13,19 @@
             /* main navigation */
             $routeProvider.when('/home', { templateUrl: tmpl + 'home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'question-listing/questions.html', controller: 'QuestionListingController'});
-            $routeProvider.when('/questions/:id/exam/:examId/section/:sectionId', { templateUrl: tmpl + 'question-editor/question.html'});
-            $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question-editor/question.html'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'reports.html'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exams.html', controller: 'ExamController'});
+
+            // create question from exam
+            $routeProvider.when('/questions/:id/exam/:examId/section/:sectionId/sequence/:seqId', { templateUrl: tmpl + 'question-editor/question.html'});
+            // select from querylist
+            $routeProvider.when('/questions/:id', { templateUrl: tmpl + 'question-editor/question.html'});
+            // edit question from exam
             $routeProvider.when('/exams/:examId/section/:sectionId/edit/:editId', { templateUrl: tmpl + 'question-editor/question.html'});
+
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam-editor/exam.html', controller: 'ExamController'});
             $routeProvider.when('/exampreview/:id', { templateUrl: tmpl + 'exam-editor/exam.html', controller: 'ExamController'});
+
             $routeProvider.when('/calendar/:enrolment?', { templateUrl: tmpl + 'calendar.html'});
             $routeProvider.when('/messages', { templateUrl: tmpl + 'messages.html'});
 
@@ -41,6 +47,8 @@
             /* Student */
             $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'student/exam.html', controller: 'StudentExamController'});
             $routeProvider.when('/feedback/exams/:id', { templateUrl: tmpl + 'student/exam_feedback.html', controller: 'ExamFeedbackController'});
+            $routeProvider.when('/student/waitingroom', { templateUrl: tmpl + 'student/waitingroom.html', controller: 'WaitingRoomCtrl'});
+            $routeProvider.when('/student/wrongmachine', { templateUrl: tmpl + 'student/wrong_machine.html', controller: 'WrongMachineCtrl'});
 
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'teacher/review.html', controller: 'ExamReviewController'});

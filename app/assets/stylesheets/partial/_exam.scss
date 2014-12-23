@@ -47,12 +47,21 @@
     margin-left: 2em;
   }
 
+  .exam-sections-compact {
+    margin-top: 1em;
+    margin-left: 2em;
+  }
+
   .section-header {
     border-bottom: $sitnet-common-light solid 0.15em;
     height: 5.6em;
-    border-bottom: 1px solid $sitnet-grey;
     margin-bottom: 1em;
   }
+
+  .section-header-compact {
+    margin-bottom: 1em;
+  }
+
   .section-header:hover {
   }
   .section-header-text {
@@ -268,7 +277,30 @@
     display: inline;
   }
 
+  .review-question {
+    border: $sitnet-common-light solid 0.15em;
+    border-radius: 25px;
+    margin: 0.75em;
+    padding: 0.5em;
+  }
 
+  .review-question-value {
+    text-indent: 1em;
+  }
+
+  .review-feedback {
+    background-color: #f5f5f5;
+    opacity: 0.8;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-right: 1em;
+  }
+
+  .review-feedback-text {
+    color: grey;
+    font-style: italic;
+    margin: 1em;
+  }
 
   //  -webkit-touch-callout: none;
   //  -webkit-user-select: none;

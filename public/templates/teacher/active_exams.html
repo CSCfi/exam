@@ -1,44 +1,4 @@
 <!-- Active exams indications bar -->
-<!-- New participants indication -->
-<!--<div class="col-md-2  indicator-item">-->
-    <!--<span class="fa-stack fa-lg">-->
-        <!--<i class="sitnet-light-grey fa fa-square fa-stack-2x"></i>-->
-        <!--<i class="sitnet-dark-grey fa fa-stack-1x">0</i>-->
-    <!--</span>-->
-    <!--<label class="toolbar-label">-->
-        <!--<i class="sitnet-black">{{'sitnet_indication_new_participants' | translate}}</i>-->
-    <!--</label>-->
-<!--</div>-->
-
-<!-- New exam answers icon and text -->
-<!--<div class="col-md-2  indicator-item">-->
-    <!--<span class="fa-stack fa-lg">-->
-        <!--<i class="sitnet-dark-blue fa fa-square fa-stack-2x"></i>-->
-        <!--<i class="sitnet-white fa fa-stack-1x">0</i>-->
-    <!--</span>-->
-    <!--<label class="toolbar-label">-->
-        <!--<i class="sitnet-black">{{'sitnet_indication_new_answers' | translate}}</i>-->
-    <!--</label>-->
-<!--</div>-->
-
-<!-- New exam comments icon and text -->
-<!--<div class="col-md-2  indicator-item">-->
-    <!--<span class="fa-stack fa-lg">-->
-        <!--<i class="sitnet-dark-blue fa fa-square fa-stack-2x"></i>-->
-        <!--<i class="sitnet-white fa fa-stack-1x">0</i>-->
-    <!--</span>-->
-    <!--<label class="toolbar-label">-->
-        <!--<i class="sitnet-black">{{'sitnet_indication_new_feedback' | translate}}</i>-->
-    <!--</label>-->
-<!--</div>-->
-
-<!-- Todo: It was unclear what actions would be under the wrench in exam listing?
-<!--<div class="col-md-3 col-md-offset-6">-->
-    <!--<a class="header-icon pull-right fa-stack fa-lg">-->
-        <!--<i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>-->
-        <!--<i class="fa fa-wrench fa-stack-1x"></i>-->
-    <!--</a>-->
-<!--</div>-->
 
 <div class="col-md-12 row">
     <div class="col-md-5 exams-table-title-area">
@@ -63,9 +23,9 @@
                 <th><i class="fa fa-exclamation-triangle"></i></th>
                 <th>{{ 'sitnet_examcode' | translate }}</th>
                 <th>{{ 'sitnet_exam_name' | translate }}</th>
-                <th>{{ 'sitnet_participation_enrolled' | translate }}</th>
-                <th>{{ 'sitnet_participation_reviewed' | translate }}</th>
                 <th>{{'sitnet_exam_open_until' | translate}}</th>
+                <th>{{ 'sitnet_participation_reviewed' | translate }}</th>
+                <th>{{ 'sitnet_participation_enrolled' | translate }}</th>
                 <th>{{'sitnet_teachers' | translate}}</th>
             </tr>
             </thead>
@@ -76,9 +36,9 @@
                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                 <td class="table-column-examcode">{{ activeExam.exam.course.code }}</td>
                 <td class="table-column-examname"><a href="#/exams/reviews/{{activeExam.exam.id}}">{{ activeExam.exam.name }}</a></td>
-                <td class="table-column-enroll-participation">{{ activeExam.examParticipations.length }} / {{ activeExam.activeExamEnrolments.length +activeExam.examParticipations.length}} <span>({{ (activeExam.examParticipations.length/(activeExam.activeExamEnrolments.length +activeExam.examParticipations.length))*100 | number : 2 }}%)</span></td>
+                <td class="table-column-open-until">{{ activeExam.exam.examActiveStartDate | date:'dd.MM.yyyy' }} - {{ activeExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}</td>
                 <td class="table-column-enroll-participation">{{ activeExam.examParticipationsAndReviews.length }} / {{ activeExam.examParticipations.length }} <span>({{ (activeExam.examParticipationsAndReviews.length/activeExam.examParticipations.length)*100 | number : 2 }}%)</span></td>
-                <td class="table-column-open-until">{{ activeExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}</td>
+                <td class="table-column-enroll-participation">{{ activeExam.examParticipations.length }} / {{ activeExam.activeExamEnrolments.length +activeExam.examParticipations.length}} <span>({{ (activeExam.examParticipations.length/(activeExam.activeExamEnrolments.length +activeExam.examParticipations.length))*100 | number : 2 }}%)</span></td>
                 <td class="table-column-teachers">{{ activeExam.examInspections }}</td>
             </tr>
             </tbody>

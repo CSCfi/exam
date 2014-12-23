@@ -16,6 +16,11 @@
             };
 
         })
+        .filter('truncate', function() {
+            return function(text, after) {
+                return text.substring(0, after) + "...";
+            };
+        })
         .filter('striphtml', function() {
             return function(html) {
                 if (html == undefined) {

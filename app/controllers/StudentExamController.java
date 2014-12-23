@@ -4,9 +4,11 @@ import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.answers.EssayAnswer;
 import models.answers.MultipleChoiseAnswer;
@@ -113,13 +115,43 @@ public class StudentExamController extends SitnetController {
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, grade, examActiveStartDate, examActiveEndDate, duration, grading, room, course, creator, examFeedback, gradedByUser");
+        options.setRootPathProperties("id, name, grade, examActiveStartDate, examActiveEndDate, duration, grading, " +
+                "room, course, creator, examFeedback, gradedByUser, enrollment, enrollInstruction");
         options.setPathProperties("course", "code, name, level, type, credits");
         options.setPathProperties("creator", "firstName, lastName, email");
         options.setPathProperties("examFeedback", "comment");
         options.setPathProperties("gradedByUser", "firstName, lastName");
 
         return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+    }
+
+    @Restrict({@Group("STUDENT")})
+    public static Result getEnrolment(Long eid) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .eq("id", eid)
+                .findUnique();
+
+        if (enrolment == null) {
+            return notFound();
+        } else {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            JsonWriteOptions options = new JsonWriteOptions();
+            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+            options.setPathProperties("user", "id");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction");
+            options.setPathProperties("exam.course", "name, code");
+            options.setPathProperties("reservation", "id, startAt, endAt, machine");
+            options.setPathProperties("reservation.machine", "name");
+            options.setPathProperties("reservation.machine", "name, room");
+            options.setPathProperties("reservation.machine.room", "name, roomCode");
+
+            return ok(jsonContext.toJsonString(enrolment, true, options)).as("application/json");
+        }
     }
 
     @Restrict({@Group("STUDENT")})
@@ -145,7 +177,7 @@ public class StudentExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction");
             options.setPathProperties("exam.course", "name, code");
             options.setPathProperties("reservation", "id, startAt, endAt, machine");
             options.setPathProperties("reservation.machine", "name");
@@ -155,6 +187,17 @@ public class StudentExamController extends SitnetController {
 
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
         }
+    }
+
+    @Restrict({@Group("STUDENT")})
+    public static Result getReservationInstructions(Long eid) {
+        Exam exam = Ebean.find(Exam.class).where().eq("id", eid).findUnique();
+        if (exam == null) {
+            return notFound();
+        }
+        ObjectNode node = Json.newObject();
+        node.put("enrollInstructions", exam.getEnrollInstruction());
+        return ok(Json.toJson(node));
     }
 
     @Restrict({@Group("STUDENT")})
@@ -185,27 +228,33 @@ public class StudentExamController extends SitnetController {
 
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
+                .fetch("examSections.sectionQuestions")
+                .fetch("examSections.sectionQuestions.question")
                 .where()
                 .eq("hash", hash)
                 .eq("parent", null)
+                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
-        //ko. hashilla ei ole koetta olemassa
-        if (blueprint == null) {
-            return notFound();
-        }
 
         Exam possibleClone = Ebean.find(Exam.class)
                 .fetch("examSections")
+                .fetch("examSections.sectionQuestions")
+                .fetch("examSections.sectionQuestions.question")
                 .where()
                 .eq("hash", hash)
                 .ne("parent", null)
-                .orderBy("examSections.id, id desc")
+                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
 
-        //aloitettu koe
+        // no exam found for hash
+        if (blueprint == null && possibleClone == null) {
+            return notFound();
+        }
+
+        // exam has been started
         if (possibleClone != null) {
             String state = possibleClone.getState();
-            //kokeen tila on jokin muu kuin käynnissäoleva
+            // sanity check
             if (!state.equals(Exam.State.STUDENT_STARTED.toString())) {
                 return forbidden();
             }
@@ -214,7 +263,7 @@ public class StudentExamController extends SitnetController {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
 
-        // tehdään uusi koe opiskelijalle "oletus"
+        // Create new exam for student
         if (possibleClone == null) {
 
             Timestamp now = SitnetUtil.getNowTime();
@@ -243,6 +292,7 @@ public class StudentExamController extends SitnetController {
             } else if (possibeEnrolment.getReservation().getMachine() == null) {
                 return forbidden("sitnet_reservation_machine_not_found");
             } else if (!possibeEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+
                 ExamRoom examRoom = Ebean.find(ExamRoom.class)
                         .fetch("mailAddress")
                         .where()
@@ -268,6 +318,7 @@ public class StudentExamController extends SitnetController {
                     .findUnique();
 
             // Wrong moment in time. Student is early or late
+
             if (enrolment == null) {
 
                 DateTime endAt = new DateTime(possibeEnrolment.getReservation().getEndAt().getTime());
@@ -342,14 +393,16 @@ public class StudentExamController extends SitnetController {
         options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
         options.setPathProperties("room", "roomInstruction, roomInstructionEN, roomInstructionSV");
         options.setPathProperties("examType", "id, type");
-        options.setPathProperties("examSections", "id, name, questions, exam, expanded");
-        options.setPathProperties("examSections.questions", "id, type, question, instruction, maxScore, maxCharacters, options, attachment, answer");
-        options.setPathProperties("examSections.questions.answer", "id, type, option, attachment, answer");
-        options.setPathProperties("examSections.questions.answer.option", "id, option");
-        options.setPathProperties("examSections.questions.answer.attachment", "fileName");
-        options.setPathProperties("examSections.questions.attachment", "fileName");
-        options.setPathProperties("examSections.questions.options", "id, option");
-        options.setPathProperties("examSections.questions.comments", "id, comment");
+        options.setPathProperties("examSections", "id, name, sectionQuestions, exam, expanded");
+        options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
+        options.setPathProperties("examSections.sectionQuestions.question", "id, type, question, instruction, " +
+                "maxScore, maxCharacters, options, attachment, answer");
+        options.setPathProperties("examSections.sectionQuestions.question.answer", "id, type, option, attachment, answer");
+        options.setPathProperties("examSections.sectionQuestions.question.answer.option", "id, option");
+        options.setPathProperties("examSections.sectionQuestions.question.answer.attachment", "fileName");
+        options.setPathProperties("examSections.sectionQuestions.question.attachment", "fileName");
+        options.setPathProperties("examSections.sectionQuestions.question.options", "id, option");
+        options.setPathProperties("examSections.sectionQuestions.question.comments", "id, comment");
     }
 
     @Restrict({@Group("STUDENT")})

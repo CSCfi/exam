@@ -1,14 +1,22 @@
 <div id="question-editor" ng-controller="QuestionCtrl">
     <div id="sitnet-header" class="header">
-        <div class="header-wrapper col-md-9">
+        <div class="header-wrapper col-md-7">
                 <div ng-show="newQuestion.state == 'NEW' ? true : false">
-                    <span ng-show="selectedType == 'EssayQuestion'" class="header-text">{{'sitnet_questions_new_essay' | translate}}</span>
-                    <span ng-show="selectedType == 'MultipleChoiceQuestion'" class="header-text">{{'sitnet_questions_new_multiplechoice' | translate}}</span>
+                    <span ng-show="newQuestion.type == 'EssayQuestion'"
+                          class="header-text">{{'sitnet_questions_new_essay' | translate}}</span>
+                    <span ng-show="newQuestion.type == 'MultipleChoiceQuestion'"
+                          class="header-text">{{'sitnet_questions_new_multiplechoice' | translate}}</span>
                 </div>
                 <span ng-hide="newQuestion.state == 'NEW' ? true : false" class="header-text">{{'sitnet_questions_edit' | translate}}</span>
         </div>
+        <div class="header-wrapper col-md-2" ng-show="newQuestion.state == 'NEW' ? true : false" style="padding-right:
+        2em">
+            <a ng-click="deleteQuestion(newQuestion)" class="pull-right btn btn-primary btn-lg active header-button">
+                {{'sitnet_button_cancel' | translate}} </a>
+        </div>
         <div class="header-wrapper col-md-3">
-                <a ng-click="copyQuestion(newQuestion)" class="btn btn-primary btn-lg active header-button"> {{'sitnet_question_copy' | translate}} </a>
+                <a ng-click="copyQuestion(newQuestion)"
+                   class="btn btn-primary btn-lg active header-button"> {{'sitnet_question_copy' | translate}} </a>
         </div>
     </div>
     <div class="row">
@@ -36,13 +44,14 @@
                     <!-- Question fields -->
 
                     <!-- EVALUATION TYPE-->
-                    <div ng-show="selectedType == 'EssayQuestion'">
+                    <div ng-show="newQuestion.type == 'EssayQuestion'">
                         <div class="sitnet-info-text">
                             {{'sitnet_evaluation_type' | translate}}
                             <div class="row">
                                 <div class="col-md-3">
                                     <select class="form-control" ng-model="newQuestion.evaluationType"
-                                            ng-change="updateQuestion()" ng-required="selectedType == 'EssayQuestion'">
+                                            ng-change="updateEvaluationType()"
+                                            ng-required="newQuestion.type == 'EssayQuestion'">
                                         <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
                                         <option value="Select">{{ 'sitnet_evaluation_select' | translate }}</option>
                                     </select>
@@ -52,7 +61,8 @@
                     </div>
 
                     <!-- POINTS -->
-                    <div ng-show="selectedType == 'MultipleChoiceQuestion' ||  newQuestion.evaluationType == 'Points'">
+
+                    <div ng-show="newQuestion.type == 'MultipleChoiceQuestion' ||  newQuestion.evaluationType == 'Points'">
                         <div class="sitnet-info-text">
                             {{'sitnet_max_score' | translate}}
                             <label ng-hide="questionForm.maxScore.$valid">{{ 'sitnet_positive_integer_required'
@@ -63,7 +73,7 @@
                                            ui-change="updateQuestion()"
                                            ng-model="newQuestion.maxScore"
                                            ng-pattern="/^([1-9][0-9]*)$/"
-                                           ng-required="newQuestion.evaluationType=='Points'">
+                                           ng-required="newQuestion.evaluationType=='Points'" />
                                 </div>
                             </div>
                         </div>
@@ -106,7 +116,8 @@
                     <div class="row base bottom-padding-2" style="padding:2em 0;">
                         <hr>
                         <div class="col-md-0 col-md-offset-0">
-                            <button ng-disabled="!questionForm.$valid" ng-click="saveQuestion(); go(returnURL)"
+                            <button ng-disabled="!questionForm.$valid"
+                                    ng-click="saveQuestion(); go(returnURL)"
                                     type="submit" class="btn btn-success">{{'sitnet_save' | translate}}
                             </button>
                         </div>
@@ -114,9 +125,5 @@
                 </form>
             </div>
         </div>
-        <!-- Question Library-->
-        <!--<div ng-include="libraryTemplate">-->
-        <!--</div>-->
-        <!--<div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'">-->
     </div>
 </div>

@@ -6,19 +6,59 @@
 
             }
         ]).config(['$httpProvider', function ($httpProvider) {
-            $httpProvider.interceptors.push(['$q', '$rootScope' ,'$location', '$translate', 'wrongRoomService',
-                function ($q, $rootScope, $location, $translate, wrongRoomService) {
+            $httpProvider.interceptors.push(['$q', 'sessionService', '$rootScope' ,'$location', '$translate', 'wrongRoomService', 'waitingRoomService',
+                function ($q, sessionService, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
+
+
                     return {
                         'response': function (response) {
-                            var wrongPlace = response.headers()['x-sitnet-wrong-machine'];
-                            if (wrongPlace) {
-                                var location = atob(wrongPlace).split(":::");
+
+                            var b64_to_utf8 = function(data) {
+                                return decodeURIComponent(escape(atob(data)));
+                            };
+
+                            var unknownMachine = response.headers()['x-sitnet-unknown-machine'];
+                            var wrongRoom = response.headers()['x-sitnet-wrong-room'];
+                            var wrongMachine = response.headers()['x-sitnet-wrong-machine'];
+                            var hash = response.headers()['x-sitnet-start-exam'];
+
+                            var enrolmentId = response.headers()['x-sitnet-upcoming-exam'];
+                            if (unknownMachine) {
+                                var location = b64_to_utf8(unknownMachine).split(":::");
                                 wrongRoomService.display(location);
                             }
+                            else if (wrongRoom) {
+                                var parts = b64_to_utf8(wrongRoom).split(":::");
+                                waitingRoomService.setEnrolmentId(parts[0]);
+                                waitingRoomService.setActualRoom(parts[1] + " (" + parts[2] + ")");
+                                waitingRoomService.setActualMachine(parts[3]);
+                                $location.path('/student/wrongmachine');
+                                $rootScope.$broadcast('wrongMachine');
+                            }
+                            else if (wrongMachine) {
+                                var parts = b64_to_utf8(wrongMachine).split(":::");
+                                waitingRoomService.setEnrolmentId(parts[0]);
+                                waitingRoomService.setActualMachine(parts[1]);
+                                $location.path('/student/wrongmachine');
+                                $rootScope.$broadcast('wrongMachine');
+                            }
+                            else if (hash) {
+                                if (enrolmentId) {
+                                    waitingRoomService.setEnrolmentId(enrolmentId);
+                                    $location.path('/student/waitingroom');
+                                    $rootScope.$broadcast('upcomingExam');
+                                } else {
+                                    $location.path('/student/doexam/' + hash);
+                                }
+                            } else if (enrolmentId) {
+                                // no exams for today
+                                waitingRoomService.setEnrolmentId(null);
+                                $location.path('/student/waitingroom');
+                                $rootScope.$broadcast('upcomingExam');
+                            }
 
-                            var startExam = response.headers()['x-sitnet-start-exam'];
-                            if (startExam) {
-                                $location.path('/student/doexam/' + startExam);
+                            else if(!sessionService.user) {
+                                $location.path('/logout');
                             }
 
                             return response;

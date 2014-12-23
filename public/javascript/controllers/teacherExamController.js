@@ -59,16 +59,16 @@
                             angular.forEach($scope.doexam.examSections, function (section, index) {
                                 section.index = index +1;
 
-                                angular.forEach(section.questions, function (question, index) {
-                                    question.index = index +1;
+                                angular.forEach(section.sectionQuestions, function (sectionQuestion, index) {
+                                    sectionQuestion.index = index +1;
                                 });
                             });
 
                             // Loop through all questions in the active section
-                            angular.forEach($scope.activeSection.questions, function (question, index) {
+                            angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                                 var template = "";
 
-                                switch (question.type) {
+                                switch (sectionQuestion.question.type) {
                                     case "MultipleChoiceQuestion":
                                         template = $scope.multipleChoiseOptionTemplate;
                                         break;
@@ -79,11 +79,11 @@
                                         template = "fa-question-circle";
                                         break;
                                 }
-                                question.template = template;
+                                sectionQuestion.question.template = template;
 
-                                question.expanded = false;
-                                $scope.setQuestionColors(question);
-                            })
+                                sectionQuestion.question.expanded = false;
+                                $scope.setQuestionColors(sectionQuestion);
+                            });
                             $scope.switchToGuide(true);
                             $scope.switchButtons($scope.doexam.examSections[0]);
                         }).
@@ -101,10 +101,10 @@
                     $scope.switchButtons(section);
 
                     // Loop through all questions in the active section
-                    angular.forEach($scope.activeSection.questions, function (question, index) {
+                    angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion, index) {
 
                         var template = "";
-                        switch (question.type) {
+                        switch (sectionQuestion.question.type) {
                             case "MultipleChoiceQuestion":
                                 template = $scope.multipleChoiseOptionTemplate;
 
@@ -118,12 +118,12 @@
                                 template = "fa-question-circle";
                                 break;
                         }
-                        question.template = template;
+                        sectionQuestion.question.template = template;
 
-                        if(!question.expanded) {
-                            question.expanded = false;
+                        if(!sectionQuestion.question.expanded) {
+                            sectionQuestion.question.expanded = false;
                         }
-                        $scope.setQuestionColors(question);
+                        $scope.setQuestionColors(sectionQuestion);
                     });
                 };
 
@@ -184,24 +184,15 @@
 
                 $scope.printExamDuration = function(exam) {
 
-                    if(exam && exam.duration) {
-                        var h = 0;
-                        var d = exam.duration;
-
-                        while (d > 0) {
-                            if (d - 60 >= 0) {
-                                h++;
-                                d = d - 60;
-                            } else {
-                                break;
-                            }
-                        }
+                    if (exam && exam.duration) {
+                        var h = Math.floor(exam.duration / 60);
+                        var m = exam.duration % 60;
                         if (h === 0) {
-                            return d + "min";
-                        } else if (d === 0) {
+                            return m + "min";
+                        } else if (m === 0) {
                             return h + "h ";
                         } else {
-                            return h + "h " + d + "min";
+                            return h + "h " + m + "min";
                         }
                     } else {
                         return "";
@@ -217,13 +208,8 @@
 
 
                 // Called when the chevron is clicked
-                $scope.chevronClicked = function (question) {
-
-                    if (question.type == "EssayQuestion") {
-
-                    }
-
-                    $scope.setQuestionColors(question);
+                $scope.chevronClicked = function (sectionQuestion) {
+                    $scope.setQuestionColors(sectionQuestion);
                 };
 
                 $scope.isAnswer = function (question, option) {
@@ -236,25 +222,25 @@
                         return true;
                 };
 
-                $scope.setQuestionColors = function(question) {
+                $scope.setQuestionColors = function(sectionQuestion) {
                     // State machine for resolving how the question header is drawn
-                    if (question.answered) {
+                    if (sectionQuestion.question.answered) {
 
-                        question.questionStatus = $translate("sitnet_question_answered");
+                        sectionQuestion.question.questionStatus = $translate("sitnet_question_answered");
 
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-active-header';
+                        if (sectionQuestion.question.expanded) {
+                            sectionQuestion.question.selectedAnsweredState = 'question-active-header';
                         } else {
-                            question.selectedAnsweredState = 'question-answered-header';
+                            sectionQuestion.question.selectedAnsweredState = 'question-answered-header';
                         }
                     } else {
 
-                        question.questionStatus = $translate("sitnet_question_unanswered");
+                        sectionQuestion.question.questionStatus = $translate("sitnet_question_unanswered");
 
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-active-header';
+                        if (sectionQuestion.question.expanded) {
+                            sectionQuestion.question.selectedAnsweredState = 'question-active-header';
                         } else {
-                            question.selectedAnsweredState = 'question-unanswered-header';
+                            sectionQuestion.question.selectedAnsweredState = 'question-unanswered-header';
                         }
                     }
                 };

@@ -1,40 +1,13 @@
-<div class="section-header">
-        <!-- $index gives the ng-repeat loop items index starting from 0 -->
-        <span class="section-header-number">{{$index + 1}}.</span>
-    <span> {{section.name}} </span>
-    <span ng-click="section.expanded = !section.expanded; expandSection(section)" class="pull-right fa-stack fa-lg pointer-hand">
-        <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-        <i ng-class="section.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
-           class="sitnet-white fa fa-chevron-left fa-stack-1x"></i>
-    </span>
-    <span class="pull-right">{{ 'sitnet_total_section_points' | translate }}: {{getSectionTotalScore(section)}} /
-        {{getSectionMaxScore(section)}} </span>
-</div>
+<div class="section-header-compact">
+    <!-- $index gives the ng-repeat loop items index starting from 0 -->
+    <span class="section-header-number">{{$index + 1}}.</span>
+    <span class="sitnet-info-text-bold">&nbsp;&nbsp;{{section.name}} </span>
 </div>
 
-<div id="question-editor" class="" ng-show="section.expanded">
-    <table class="table table-bordered">
-        <thead>
-            <tr style="background-color: lightgrey">
-                <th style="width: 2%">#</th>
-                <th style="width: 2%"><i class="fa fa-1x fa-tags"></i></th>
-                <th style="width: 23%">{{'sitnet_question' | translate}}</th>
-                <th style="width: 25%">{{'sitnet_exam_evaluation_criteria' | translate}}</th>
-                <th style="width: 34%">{{'sitnet_exam_answer' | translate}}</th>
-                <th style="width: 14%">{{'sitnet_exam_score' | translate}}</th>
-            </tr>
-        </thead>
-        <tbody ng-repeat="question in section.questions" style="border:0;">
-            <tr ng-if="question.type === 'MultipleChoiceQuestion'" style="background-color: {{question.backgroundColor}}" ng-include="multiplechoiceQuestionPath">
-            </tr>
-
-            <tr ng-if="question.type == 'EssayQuestion'" style="background-color: {{question.backgroundColor}}" ng-include="essayQuestionPath">
-            </tr>
-        </tbody>
-    </table>
-
-    <div>
-        {{ 'sitnet_total_section_points' | translate }}: {{getSectionTotalScore(section)}} /
-        {{getSectionMaxScore(section)}}
+<div id="question-editor" class="">
+    <div ng-repeat="sectionQuestion in section.sectionQuestions">
+        <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
+             ng-include="multiplechoiceQuestionPath"></div>
+        <div ng-if="sectionQuestion.question.type === 'EssayQuestion'" ng-include="essayQuestionPath"></div>
     </div>
 </div>
