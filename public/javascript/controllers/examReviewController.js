@@ -387,7 +387,7 @@
                 };
 
                 $scope.truncate = function(answer, offset) {
-                    if (offset < answer.length) {
+                    if (answer && offset < answer.length) {
                         return answer.substring(0, offset) + " ...";
                     } else {
                         return answer;

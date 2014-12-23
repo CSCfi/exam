@@ -21,7 +21,7 @@
             }}:</div>
         <div class="col-md-8 sitnet-info-text" ng-hide="sectionQuestion.question.attachment">N/A</div>
         <div class="col-md-8 sitnet-info-text" ng-show="sectionQuestion.question.attachment">
-            <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion)">{{sectionQuestion.question.attachment.fileName}}</a>
+            <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)">{{sectionQuestion.question.attachment.fileName}}</a>
         </div>
     </div>
     <!-- question evaluation criteria -->
