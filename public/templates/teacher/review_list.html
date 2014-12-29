@@ -58,7 +58,7 @@
                         </thead>
 
                         <tbody>
-                            <tr ng-repeat="examReview in examReviews | filter: byState('REVIEW')">
+                            <tr ng-repeat="examReview in examReviews | filter: byState('REVIEW') | orderBy:deadline ">
                                 <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
                                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                                 <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>

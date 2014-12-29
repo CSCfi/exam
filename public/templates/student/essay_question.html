@@ -1,5 +1,6 @@
 <div class="row" ng-hide="!sectionQuestion.question.maxCharacters">
-    <div class="sitnet-info-text col-md-12 pull-right">Vastauksen pituuden suositus: {{question.maxCharacters}} kirjainmerkkiä
+    <div class="sitnet-info-text col-md-12 pull-right">Vastauksen pituuden suositus:
+        {{sectionQuestion.question.maxCharacters}} kirjainmerkkiä
     </div>
 </div>
 <div class="row">
@@ -13,6 +14,6 @@
         {{sectionQuestion.question.autosaved | date:'HH:mm'}}</div>
 </div>
 <div class="row">
-    <button ng-click="saveEssay(sectionQuestion, sectionQuestion.question.answer.answer)"
+    <button ng-click="saveEssay(sectionQuestion.question, sectionQuestion.question.answer.answer)"
             class="btn btn-primary pull-right">Tallenna</button>
 </div>
