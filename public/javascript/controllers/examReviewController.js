@@ -474,6 +474,7 @@
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
                         toastr.info($translate('sitnet_exam_reviewed'));
+                        $scope.saveFeedback();
                         $location.path("exams/reviews/" + reviewed_exam.parent.id);
                     }, function(error) {
                         toastr.error(error.data);
