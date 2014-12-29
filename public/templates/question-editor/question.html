@@ -9,14 +9,10 @@
                 </div>
                 <span ng-hide="newQuestion.state == 'NEW' ? true : false" class="header-text">{{'sitnet_questions_edit' | translate}}</span>
         </div>
-        <div class="header-wrapper col-md-2" ng-show="newQuestion.state == 'NEW' ? true : false" style="padding-right:
+        <div class="header-wrapper col-md-5" ng-show="newQuestion.state == 'NEW' ? true : false" style="padding-right:
         2em">
             <a ng-click="deleteQuestion(newQuestion)" class="pull-right btn btn-primary btn-lg active header-button">
                 {{'sitnet_button_cancel' | translate}} </a>
-        </div>
-        <div class="header-wrapper col-md-3">
-                <a ng-click="copyQuestion(newQuestion)"
-                   class="btn btn-primary btn-lg active header-button"> {{'sitnet_question_copy' | translate}} </a>
         </div>
     </div>
     <div class="row">
