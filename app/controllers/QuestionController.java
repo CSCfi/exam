@@ -231,27 +231,31 @@ public class QuestionController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateQuestion(Long id) throws MalformedDataException {
 
-       DynamicForm df = Form.form().bindFromRequest();
+        DynamicForm df = Form.form().bindFromRequest();
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        if (question == null) {
+            return notFound("question not found");
+        }
+        question.setQuestion(df.get("question"));
+        question.setMaxScore(Double.parseDouble(df.get("maxScore")));
+        question.setInstruction(df.get("instruction"));
+        question.setEvaluationCriterias(df.get("evaluationCriterias"));
+        question.setShared(Boolean.parseBoolean(df.get("shared")));
+        question.setState("SAVED");
+        question.update();
 
-
-       switch (df.get("type")) {
-           case "MultipleChoiceQuestion": {
-               MultipleChoiceQuestion question = bindForm(MultipleChoiceQuestion.class);
-               question.setState("SAVED");
-               question.update();
+        switch (df.get("type")) {
+           case "EssayQuestion":
+               EssayQuestion essay = Ebean.find(EssayQuestion.class, id);
+               essay.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
+               essay.setEvaluationType(df.get("evaluationType"));
+               essay.update();
+               return ok(Json.toJson(essay));
+           case "MultipleChoiceQuestion":
                return ok(Json.toJson(question));
-           }
-
-           case "EssayQuestion": {
-               EssayQuestion question = bindForm(EssayQuestion.class);
-               question.setState("SAVED");
-               question.update();
-               return ok(Json.toJson(question));
-           }
-
-           default:
+            default:
+               return badRequest();
        }
-       return ok("fail");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
