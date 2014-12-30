@@ -45,6 +45,8 @@ PUT           /exams/:eid/room/:rid                                            c
 GET           /finishedexams                                                   controllers.ExamController.getFinishedExams()
 GET           /activeexams                                                     controllers.ExamController.getActiveExams()
 GET           /reviewerexams                                                   controllers.ExamController.getTeachersExams()
+GET           /reviewerexams/:eid                                              controllers.ExamController.getExamReview(eid: Long)
+
 GET           /examenrolments/:eid                                             controllers.ExamController.getEnrolmentsForExam(eid: Long)
 GET           /examenrolmentswithreservations/:eid                             controllers.ExamController.getEnrolmentsWithReservationsForExam(eid: Long)
 GET           /examparticipations/:eid                                         controllers.ExamController.getParticipationsForExam(eid: Long)

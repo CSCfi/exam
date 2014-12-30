@@ -110,6 +110,11 @@
                 {
                 }),
 
+                reviewerExam: $resource("/reviewerexams/:eid",
+                {
+                    eid: "@eid"
+
+                }),
                 finishedExams: $resource("/finishedexams", null,
                 {
                 }),

@@ -241,6 +241,62 @@ public class ExamController extends SitnetController {
 
     }
 
+    private static JsonWriteOptions getJsonOptions() {
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, " +
+                "shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
+                "duration, grading, grade, customCredit, totalScore, examLanguage, answerLanguage, " +
+                "state, examFeedback, creditType, expanded, attachment, creator, softwares");
+        options.setPathProperties("creator", "id, firstName, lastName");
+        options.setPathProperties("parent", "id, creator");
+        options.setPathProperties("parent.creator", "id, firstName, lastName");
+        options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
+        options.setPathProperties("room", "id, name");
+        options.setPathProperties("softwares", "id, name");
+        options.setPathProperties("attachment", "id, fileName");
+        options.setPathProperties("examType", "id, type");
+        options.setPathProperties("examSections", "id, name, sectionQuestions, exam, totalScore, expanded, " +
+                "lotteryOn, lotteryItemCount");
+        options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
+        options.setPathProperties("examSections.sectionQuestions.question", "attachment, id, type, question, " +
+                "shared, instruction, maxCharacters, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
+        options.setPathProperties("examSections.sectionQuestions.question.answer", "attachment, type, option, answer");
+        options.setPathProperties("examSections.sectionQuestions.question.answer.option", "id, option, correctOption, score");
+        options.setPathProperties("examSections.sectionQuestions.question.attachment", "id, fileName");
+        options.setPathProperties("examSections.sectionQuestions.question.answer.attachment", "id, fileName");
+        options.setPathProperties("examSections.sectionQuestions.question.options", "id, option, correctOption");
+        options.setPathProperties("examSections.sectionQuestions.question.comments", "id, comment");
+        options.setPathProperties("examFeedback", "id, comment");
+        return options;
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExamReview(Long eid) {
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("examSections")
+                .fetch("examSections.sectionQuestions")
+                .fetch("examSections.sectionQuestions.question")
+                .fetch("softwares")
+                .where()
+                .eq("id", eid)
+                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
+                .findUnique();
+
+        if (exam == null) {
+            return notFound();
+        }
+        else if (exam.getState().equals(Exam.State.STUDENT_STARTED.toString())) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+        else if (SitnetUtil.isInspector(exam)) {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
+        } else {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+    }
+
     @Restrict({@Group("STUDENT"), @Group("TEACHER"), @Group("ADMIN")})
     public static Result getExam(Long id) {
 
@@ -252,7 +308,7 @@ public class ExamController extends SitnetController {
                 .fetch("softwares")
                 .where()
                 .eq("id", id)
-                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber") // WTF? order unique result
+                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
 
         if (exam == null) {
@@ -275,37 +331,8 @@ public class ExamController extends SitnetController {
 
             }
 
-            // This is to Gesc1eK
-
-
             JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, " +
-                    "shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, grade, customCredit, totalScore, examLanguage, answerLanguage, " +
-                    "state, examFeedback, creditType, expanded, attachment, creator, softwares");
-            options.setPathProperties("creator", "id, firstName, lastName");
-            options.setPathProperties("parent", "id, creator");
-            options.setPathProperties("parent.creator", "id, firstName, lastName");
-            options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
-            options.setPathProperties("room", "id, name");
-            options.setPathProperties("softwares", "id, name");
-            options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("examType", "id, type");
-            options.setPathProperties("examSections", "id, name, sectionQuestions, exam, totalScore, expanded, " +
-                    "lotteryOn, lotteryItemCount");
-            options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
-            options.setPathProperties("examSections.sectionQuestions.question", "attachment, id, type, question, " +
-                    "shared, instruction, maxCharacters, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
-            options.setPathProperties("examSections.sectionQuestions.question.answer", "attachment, type, option, answer");
-            options.setPathProperties("examSections.sectionQuestions.question.answer.option", "id, option, correctOption, score");
-            options.setPathProperties("examSections.sectionQuestions.question.attachment", "id, fileName");
-            options.setPathProperties("examSections.sectionQuestions.question.answer.attachment", "id, fileName");
-            options.setPathProperties("examSections.sectionQuestions.question.options", "id, option, correctOption");
-            options.setPathProperties("examSections.sectionQuestions.question.comments", "id, comment");
-            options.setPathProperties("examFeedback", "id, comment");
-
-            return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+            return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }

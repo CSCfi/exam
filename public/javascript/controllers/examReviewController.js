@@ -62,7 +62,7 @@
                 }
                 // Get the exam that was specified in the URL
                 else {
-                    ExamRes.exams.get({id: $routeParams.id},
+                    ExamRes.reviewerExam.get({eid: $routeParams.id},
                         function(exam) {
                             $scope.examToBeReviewed = exam;
 
