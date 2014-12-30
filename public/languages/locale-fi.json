@@ -470,5 +470,7 @@
     "sitnet_result_not_sended_to_registry": "Suoritusta ei lähetetty rekisteriin",
     "sitnet_modify_credit": "Muokkaa opintopistemäärää",
     "sitnet_not_a_valid_custom_credit": "Opintopistemäärä ei kelpaa",
-    "sitnet_error_question_not_found": "Kysymystä ei löytynyt"
+    "sitnet_error_question_not_found": "Kysymystä ei löytynyt",
+    "sitnet_essay_length_recommendation_bounds": "Arvon tulee olla kokonaisluku väliltä (1, 1000000)"
+
 }
