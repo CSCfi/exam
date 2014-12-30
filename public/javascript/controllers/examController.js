@@ -364,6 +364,12 @@
                         ExamRes.questions.remove({eid: $scope.newExam.id, sid: section.id, qid: sectionQuestion.question.id}, function() {
                             section.sectionQuestions.splice(section.sectionQuestions.indexOf(sectionQuestion), 1);
                             toastr.info($translate("sitnet_question_removed"));
+                            if (section.sectionQuestions.length < 2 && section.lotteryOn) {
+                                // turn off lottery
+                                section.lotteryOn = false;
+                                section.lotteryItemCount = 1;
+                                ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section);
+                            }
                         }, function(error) {
                             toastr.error(error.data);
                         });
@@ -710,18 +716,20 @@
                 };
 
                 $scope.toggleLottery = function(section) {
+                    if (section.sectionQuestions.length > 1) {
+                        section.lotteryOn = !section.lotteryOn;
+                        ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
+                            function(sec) {
+                                section = sec;
 
-                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
-                        function(sec) {
-                            section = sec;
+                                if (section.lotteryItemCount === undefined) {
+                                    section.lotteryItemCount = 1;
+                                }
 
-                            if (section.lotteryItemCount === undefined) {
-                                section.lotteryItemCount = 1;
-                            }
-
-                        }, function(error) {
-                            toastr.error(error.data);
-                        });
+                            }, function(error) {
+                                toastr.error(error.data);
+                            });
+                    }
                 };
 
                 $scope.updateLotteryCount = function(section) {
