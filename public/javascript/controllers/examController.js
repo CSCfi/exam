@@ -332,21 +332,6 @@
                     });
                 };
 
-                $scope.expandQuestion = function(question) {
-
-                    var questionToUpdate = {
-                        "id": question.id,
-                        "type": question.type,
-                        "expanded": question.expanded
-                    };
-
-                    QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function(q) {
-                        question = q;
-                    }, function(error) {
-                        toastr.error(error.data);
-                    });
-                };
-
                 $scope.clearAllQuestions = function(section) {
                     if (confirm($translate('sitnet_remove_all_questions'))) {
                         ExamRes.clearsection.clear({sid: section.id}, function() {
