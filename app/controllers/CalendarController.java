@@ -401,7 +401,7 @@ public class CalendarController extends SitnetController {
                     }
                 }
 
-                if (allPossibleFreeTimeSlots.get(theDay) == null) {
+                if (!day.getSlots().isEmpty() && allPossibleFreeTimeSlots.get(theDay) == null) {
                     allPossibleFreeTimeSlots.put(theDay, day);
                 }
             }
