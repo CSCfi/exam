@@ -342,7 +342,7 @@
                     angular.forEach($scope.doexam.examSections, function(section) {
                         angular.forEach(section.sectionQuestions, function(sectionQuestion) {
                             var question = sectionQuestion.question;
-                            if (question.type === "EssayQuestion" && question.answer.answer.length > 0) {
+                            if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
                                 var params = {
                                     hash: $scope.doexam.hash,
                                     qid: question.id
