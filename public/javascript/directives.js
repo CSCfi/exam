@@ -132,6 +132,16 @@
             };
         })
 
+        .directive('focusOn', function() {
+            return function(scope, elem, attr) {
+                scope.$on('focusOn', function(e, name) {
+                    if(name === attr.focusOn) {
+                        elem[0].focus();
+                    }
+                });
+            };
+        })
+
         // http://developer.the-hideout.de/?p=119
         .directive('dateFix', ['dateFilter', 'datepickerPopupConfig', function(dateFilter, datepickerPopupConfig) {
             // return the directive link function. (compile function not needed)
