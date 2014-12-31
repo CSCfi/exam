@@ -332,21 +332,6 @@
                     });
                 };
 
-                $scope.expandQuestion = function(question) {
-
-                    var questionToUpdate = {
-                        "id": question.id,
-                        "type": question.type,
-                        "expanded": question.expanded
-                    };
-
-                    QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function(q) {
-                        question = q;
-                    }, function(error) {
-                        toastr.error(error.data);
-                    });
-                };
-
                 $scope.clearAllQuestions = function(section) {
                     if (confirm($translate('sitnet_remove_all_questions'))) {
                         ExamRes.clearsection.clear({sid: section.id}, function() {
@@ -364,6 +349,12 @@
                         ExamRes.questions.remove({eid: $scope.newExam.id, sid: section.id, qid: sectionQuestion.question.id}, function() {
                             section.sectionQuestions.splice(section.sectionQuestions.indexOf(sectionQuestion), 1);
                             toastr.info($translate("sitnet_question_removed"));
+                            if (section.sectionQuestions.length < 2 && section.lotteryOn) {
+                                // turn off lottery
+                                section.lotteryOn = false;
+                                section.lotteryItemCount = 1;
+                                ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section);
+                            }
                         }, function(error) {
                             toastr.error(error.data);
                         });
@@ -693,11 +684,15 @@
                     QuestionRes.questions.create(newQuestion,
                         function(response) {
                             newQuestion = response;
-                            var seq = Math.max.apply(Math, section.sectionQuestions.map(function(s) {
-                                return s.sequenceNumber;
-                            })) + 1;
-
-                            $location.path("/questions/" + response.id + "/exam/" + $scope.newExam.id + "/section/" + section.id + "/sequence/" + seq);
+                            var nextSeq;
+                            if (section.sectionQuestions.length == 0) {
+                                nextSeq = 0;
+                            } else {
+                                nextSeq = Math.max.apply(Math, section.sectionQuestions.map(function(s) {
+                                    return s.sequenceNumber;
+                                })) + 1;
+                            }
+                            $location.path("/questions/" + response.id + "/exam/" + $scope.newExam.id + "/section/" + section.id + "/sequence/" + nextSeq);
                         }, function(error) {
                             toastr.error(error.data);
                         });
@@ -710,18 +705,20 @@
                 };
 
                 $scope.toggleLottery = function(section) {
+                    if (section.sectionQuestions.length > 1) {
+                        section.lotteryOn = !section.lotteryOn;
+                        ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
+                            function(sec) {
+                                section = sec;
 
-                    ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
-                        function(sec) {
-                            section = sec;
+                                if (section.lotteryItemCount === undefined) {
+                                    section.lotteryItemCount = 1;
+                                }
 
-                            if (section.lotteryItemCount === undefined) {
-                                section.lotteryItemCount = 1;
-                            }
-
-                        }, function(error) {
-                            toastr.error(error.data);
-                        });
+                            }, function(error) {
+                                toastr.error(error.data);
+                            });
+                    }
                 };
 
                 $scope.updateLotteryCount = function(section) {

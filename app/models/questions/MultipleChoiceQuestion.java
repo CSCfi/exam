@@ -18,7 +18,7 @@ import java.util.List;
 @DiscriminatorValue("MultipleChoiceQuestion")
 public class MultipleChoiceQuestion extends AbstractQuestion implements QuestionInterface {
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "question")
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "question")
     @JsonManagedReference
     private List<MultipleChoiseOption> options = new ArrayList<>();
 

@@ -1,9 +1,13 @@
-<div class=" exam-general-information-header">
-    <span class=" exams-generic-info-title">{{'sitnet_exam_basic_information' | translate}}</span>
-    <a class="sub-header-icon pull-right fa-stack fa-lg" ng-click="newExam.expanded = !newExam.expanded">
-        <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-        <i ng-class="newExam.expanded ? 'fa fa-chevron-left fa-stack-1x' : 'fa fa-chevron-down fa-stack-1x'"></i>
-    </a>
+<div class="row exam-general-information-header">
+    <div class="col-md-1">
+        <a class="pointer pull-left fa-stack fa-lg" popover-placement="left" popover-popup-delay="1000"
+           popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+           ng-click="newExam.expanded = !newExam.expanded">
+            <i ng-class="newExam.expanded ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
+        </a>
+    </div>
+    <div class="col-md-11 exams-generic-info-title">{{'sitnet_exam_basic_information' |
+        translate}}</div>
 </div>
 
 <!-- General info section container -->

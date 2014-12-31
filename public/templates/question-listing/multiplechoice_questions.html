@@ -4,7 +4,7 @@
 		<i class="fa fa-2x fa-list-ul"></i>
 	</span>
     <a class="menu-item" mathjax ng-bind-html="question.question" href="#/questions/{{question.id}}" style="font-size: 1.5em"></a>
-  	<span ng-click="question.expanded = !question.expanded; expandQuestion(question)" class="pull-right fa-stack fa-lg pointer-hand">
+  	<span ng-click="question.expanded = !question.expanded" class="pull-right fa-stack fa-lg pointer-hand">
             <i ng-class="question.expanded ? 'fa-chevron-down' : 'fa-chevron-left'"
                class="sitnet-white fa fa-stack-1x"></i>
     </span>

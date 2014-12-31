@@ -48,7 +48,30 @@ public class MultipleChoiseOption extends Model {
 		return correctOption;
 	}
 
-	public void setCorrectOption(boolean correctOption) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        MultipleChoiseOption that = (MultipleChoiseOption) o;
+        return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        if (id != null) {
+            result = 31 * result + id.hashCode();
+        }
+        return result;
+    }
+
+    public void setCorrectOption(boolean correctOption) {
+
 		this.correctOption = correctOption;
 	}
 
