@@ -85,7 +85,7 @@
                         return $interval(function() {
                             angular.forEach($scope.activeSection.sectionQuestions, function(sectionQuestion) {
                                 var question = sectionQuestion.question;
-                                if (question.type === "EssayQuestion" && question.answer.answer.length > 0) {
+                                if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
                                     var params = {
                                         hash: $scope.doexam.hash,
                                         qid: question.id
@@ -314,22 +314,41 @@
                     }
                 };
 
+                var saveAllEssays = function() {
+                    var promises = [];
+                    angular.forEach($scope.doexam.examSections, function(section) {
+                        angular.forEach(section.sectionQuestions, function(sectionQuestion) {
+                            var question = sectionQuestion.question;
+                            if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
+                                var params = {
+                                    hash: $scope.doexam.hash,
+                                    qid: question.id
+                                };
+                                var msg = {};
+                                msg.answer = question.answer.answer;
+                                promises.push(StudentExamRes.essayAnswer.saveEssay(params, msg));
+                            }
+                        });
+                    });
+                    var deferred = $q.defer();
+                    $q.all(promises).then(function() {
+                        deferred.resolve();
+                    });
+                    return deferred.promise;
+                };
+
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function(doexam) {
-
                     if (confirm($translate('sitnet_confirm_turn_exam'))) {
                         $rootScope.$broadcast('endExam');
+                        saveAllEssays().then(function() {
+                            StudentExamRes.exams.update({id: doexam.id}, function() {
+                                toastr.info($translate('sitnet_exam_returned'));
+                                $timeout.cancel($scope.remainingTimePoller);
+                                $location.path("/logout");
+                            }, function() {
 
-                        StudentExamRes.exams.update({id: doexam.id}, function() {
-
-                            // Todo: tässä vaiheessa pitäisi tehdä paljon muitakin tarkistuksia
-
-
-                            toastr.info($translate('sitnet_exam_returned'));
-                            $location.path("/logout");
-                            $timeout.cancel($scope.remainingTimePoller);
-                        }, function() {
-
+                            });
                         });
                     }
                 };
@@ -342,21 +361,11 @@
 
                         StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function() {
                             toastr.info($translate('sitnet_exam_aborted'));
-                            $location.path("/logout");
                             $timeout.cancel($scope.remainingTimePoller);
+                            $location.path("/logout");
                         }, function() {
 
                         });
-                    }
-                };
-
-                // SIT-657, temporary solution
-                $scope.logoutFromExam = function(doexam) {
-
-                    if (confirm($translate('sitnet_confirm_turn_exam'))) {
-
-                        $location.path("/logout/");
-
                     }
                 };
 

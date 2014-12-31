@@ -10,6 +10,7 @@
                 $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_essay_question.html";
                 $scope.studentInfoTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_student_info.html";
                 $scope.previousParticipationPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_previous_participation.html";
+                $scope.gradingPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_grading.html";
 
 
                 $scope.session = sessionService;
@@ -61,7 +62,7 @@
                 }
                 // Get the exam that was specified in the URL
                 else {
-                    ExamRes.exams.get({id: $routeParams.id},
+                    ExamRes.reviewerExam.get({eid: $routeParams.id},
                         function(exam) {
                             $scope.examToBeReviewed = exam;
 
@@ -70,14 +71,16 @@
                                     angular.forEach(section.sectionQuestions, function(sectionQuestion) {
                                         var question = sectionQuestion.question;
                                         if (question.type === "EssayQuestion") {
-                                            if(question.evaluatedScore == 1) {
-                                                $scope.acceptedEssays++;
-                                            } else if(question.evaluatedScore == 0) {
-                                                $scope.rejectedEssays++;
+                                            if (question.evaluationType === "Select") {
+                                               if (question.evaluatedScore == 1) {
+                                                    $scope.acceptedEssays++;
+                                                } else if (question.evaluatedScore == 0) {
+                                                    $scope.rejectedEssays++;
+                                                }
                                             }
                                             $scope.hasEssayQuestions = true;
                                         }
-                                        if (question.type === "MultipleChoiceQuestion") {
+                                        else {
                                             $scope.hasMultipleChoiseQuestions = true;
                                         }
                                     });
@@ -414,7 +417,17 @@
                     };
 
                     QuestionRes.questions.update({id: questionToUpdate.id}, questionToUpdate, function(q) {
-//                        question = q;
+                        if (q.type === "EssayQuestion") {
+                            if (q.evaluationType === "Select") {
+                                if (q.evaluatedScore == 1) {
+                                    $scope.acceptedEssays++;
+                                    $scope.rejectedEssays--;
+                                } else if (question.evaluatedScore == 0) {
+                                    $scope.rejectedEssays++;
+                                    $scope.acceptedEssays--;
+                                }
+                            }
+                        }
                     }, function(error) {
                         toastr.error(error.data);
                     });
@@ -474,6 +487,7 @@
 
                     ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
                         toastr.info($translate('sitnet_exam_reviewed'));
+                        $scope.saveFeedback();
                         $location.path("exams/reviews/" + reviewed_exam.parent.id);
                     }, function(error) {
                         toastr.error(error.data);

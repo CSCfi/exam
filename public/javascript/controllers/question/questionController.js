@@ -42,18 +42,6 @@
                     }
                 };
 
-                $scope.copyQuestion = function(question) {
-
-                    QuestionRes.question.copy(question,
-                        function(questionCopy) {
-                            toastr.info($translate("sitnet_question_copied"));
-                            $location.path("/questions/" + questionCopy.id);
-                        }, function(error) {
-                            toastr.error(error.data);
-                        }
-                    );
-                };
-
                 $scope.estimateWords = function() {
                     $scope.newQuestion.words = Math.ceil($scope.newQuestion.maxCharacters / 7.5) || 0;
                     return $scope.newQuestion.words;
