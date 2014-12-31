@@ -68,7 +68,7 @@ public class Interfaces extends SitnetController {
     public static List<Course> getCourseInfo(String code) throws NotFoundException {
 
         String url= ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url");
-        boolean isActive = false;
+        boolean isActive;
 
         try {
             isActive = ConfigFactory.load().getBoolean("sitnet.integration.courseUnitInfo.active");
@@ -162,7 +162,6 @@ public class Interfaces extends SitnetController {
                 throw new NotFoundException(ex.getMessage());
             }
         }
-        Logger.debug("returning elements: " + list.size());
 
         return list;
     }
@@ -173,7 +172,6 @@ public class Interfaces extends SitnetController {
             if(array.has(0)) {
                 JsonNode child = array.get(0);
                 if(child.has("name")) {
-                    Logger.debug("*** name found ***");
                     return child.get("name").asText();
                 }
             }

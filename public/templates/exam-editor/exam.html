@@ -42,12 +42,16 @@
             </div>
 
         </div>
-        <div class="row create-new dropdown">
-            <a class="dropdown-toggle" ng-click="addNewSection()">
-                <i class="fa fa-2x fa-plus-circle"></i>
-                    {{'sitnet_section_add' | translate}}
+        <div class="row col-md-12 create-new-section">
+            <div class="col-md-1 pull-left fa-stack fa-lg">
+                <i class="fa icon-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-plus fa-stack-1x"></i>
+            </div>
+            <a ng-click="addNewSection()" class="create-new-section-button">
+                {{'sitnet_section_add' | translate}}
             </a>
         </div>
+
         <div class="row">
             <span>
                 <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>

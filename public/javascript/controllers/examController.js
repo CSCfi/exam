@@ -26,6 +26,23 @@
                     $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exams.html";
                 }
 
+                // dynamic tab index - - -
+                var setExamTabs = function() {
+
+                    var tabindex = 1;
+                    var tabs = angular.element('input,select,li,button,.dropdown-menu.a,span.create-new,a');
+                    if(tabs) {
+                        angular.forEach(tabs, function (element) {
+                            if (element.type != "hidden") {
+                                angular.element(element).attr("tabindex", tabindex);
+                                tabindex++;
+                                console.log(element);
+
+                            }
+                        });
+                    }
+                };
+
                 // SIT-367, temporarily removed Room selection from exam
 //                $scope.examRooms = RoomResource.rooms.query();
 
@@ -107,6 +124,7 @@
 
                             $scope.reindexNumbering();
                             getInspectors();
+                            //setExamTabs(); not working
                         },
                         function(error) {
                             toastr.error(error.data);

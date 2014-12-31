@@ -1,6 +1,6 @@
 <div>
     <ul>
-        <li ng-if="doexam.instruction.length > 0" class="info-row col-md-12" ng-click="switchToGuide(true); setActiveSection(doexam.examSections[0])">
+        <li ng-if="doexam.instruction.length > 0" class="info-row col-md-12" ng-click="setActiveSection(pages[0])">
             <a class="col-md-12 fa-stack">
                 <i ng-class="guide ? 'sitnet-text-notice' : 'sitnet-text-light'" class="fa fa-stop fa-stack-2x"></i>
                 <i ng-class="guide ? 'sitnet-text' : 'sitnet-white'" class="fa fa-info-circle fa-stack-1x"></i>
@@ -8,7 +8,7 @@
             <span ng-class="guide ? 'sitnet-text' : 'sitnet-text-medium'" class="icon_fix">{{'sitnet_exam_quide' | translate}}</span>
 
         </li>
-        <li ng-repeat="section in doexam.examSections" ng-click="switchToGuide(false); setActiveSection(section)">
+        <li ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section.name)">
             <span class="fa-stack">
                 <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text-notice' : 'sitnet-text-light'" class="fa fa-stop fa-stack-2x"></i>
                 <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-white' " class="fa-stack-1x">{{section.index}}.</i>

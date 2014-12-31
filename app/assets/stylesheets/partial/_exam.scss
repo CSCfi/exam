@@ -98,6 +98,20 @@
     margin-top: 1em;
   }
 
+  .create-new-section {
+    padding:2em 0 3em 0;
+  }
+
+  .create-new-section-button, .create-new-section-button:hover {
+    padding: 0.5em 1em 0.6em 1em;
+    color: $sitnet-white;
+    background-color: $sitnet-theme;
+    text-decoration: none;
+    cursor: pointer;
+    border:0;
+    line-height: 2.5em;
+  }
+
   .active-exams-list {
     margin-bottom: 10px;
   }

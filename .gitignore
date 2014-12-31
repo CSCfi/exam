@@ -20,5 +20,3 @@ dist
 .tern-project
 /bin
 /data
-
-conf/psql.conf
