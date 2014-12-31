@@ -684,11 +684,15 @@
                     QuestionRes.questions.create(newQuestion,
                         function(response) {
                             newQuestion = response;
-                            var seq = Math.max.apply(Math, section.sectionQuestions.map(function(s) {
-                                return s.sequenceNumber;
-                            })) + 1;
-
-                            $location.path("/questions/" + response.id + "/exam/" + $scope.newExam.id + "/section/" + section.id + "/sequence/" + seq);
+                            var nextSeq;
+                            if (section.sectionQuestions.length == 0) {
+                                nextSeq = 0;
+                            } else {
+                                nextSeq = Math.max.apply(Math, section.sectionQuestions.map(function(s) {
+                                    return s.sequenceNumber;
+                                })) + 1;
+                            }
+                            $location.path("/questions/" + response.id + "/exam/" + $scope.newExam.id + "/section/" + section.id + "/sequence/" + nextSeq);
                         }, function(error) {
                             toastr.error(error.data);
                         });

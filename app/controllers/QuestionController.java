@@ -247,7 +247,9 @@ public class QuestionController extends SitnetController {
         switch (df.get("type")) {
            case "EssayQuestion":
                EssayQuestion essay = Ebean.find(EssayQuestion.class, id);
-               essay.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
+               if (df.get("maxCharacters") != null) {
+                   essay.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
+               }
                essay.setEvaluationType(df.get("evaluationType"));
                essay.update();
                return ok(Json.toJson(essay));
