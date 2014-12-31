@@ -212,7 +212,6 @@
   .blue_button_left, .blue_button_right {
 
     cursor: pointer;
-    font-size: 0.8em;
     text-decoration: none;
 
     span {
@@ -223,9 +222,7 @@
       background-color: $sitnet-theme;
       color: $sitnet-white;
       font-size: 0.9em;
-    }
-    i {
-      line-height: 2em;
+      font-weight: bold;
     }
     :hover {
       text-decoration: none;

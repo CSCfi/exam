@@ -37,12 +37,6 @@
                 <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
              </span>
             <span class="exams-info-title">{{ 'sitnet_saved_exams' | translate }}</span>
-
-             <span class="fa-stack fa-lg">
-                <i class="fa icon-alarm fa-square fa-stack-2x"></i>
-                <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
-             </span>
-            <span class="exams-info-title">{{ 'sitnet_draft_exams' | translate }}</span>
         </div>
 
         <div class="exams-table-borders">

@@ -42,12 +42,16 @@
             </div>
 
         </div>
-            <span ng-click="addNewSection()" class="create-new">
-                <center>
-                    <i class="fa fa-2x fa-hand-o-right"></i>
+
+            <div class="row col-md-12 create-new-section">
+                <div class="col-md-1 pull-left fa-stack fa-lg">
+                    <i class="fa icon-theme fa-stop fa-stack-2x"></i>
+                    <i class="fa sitnet-white fa-plus fa-stack-1x"></i>
+                </div>
+                <a ng-click="addNewSection()" class="create-new-section-button">
                     {{'sitnet_section_add' | translate}}
-                </center>
-            </span>
+                </a>
+            </div>
             <span>
                 <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
                 <button ng-hide="newExam.state === 'DRAFT' ? false : true" ng-click="cancelNewExam(newExam)"

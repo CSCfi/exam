@@ -4,7 +4,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import models.Course;
-import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -22,7 +21,7 @@ public class CourseInfoController extends SitnetController {
         if(code == null || code.isEmpty()) {
             return notFound("sitnet_course_not_found");
         }
-        Logger.debug(" - insertCourseFromInterface - ");
+
         // check that course do not exits
         Course course = Ebean.find(Course.class)
                 .where()
