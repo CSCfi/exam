@@ -81,7 +81,7 @@
                 };
 
                 var getAutosaver = function() {
-                    if(!guide) {
+                    if(!$scope.guide) {
                         return $interval(function() {
                             angular.forEach($scope.activeSection.sectionQuestions, function(sectionQuestion) {
                                 var question = sectionQuestion.question;
@@ -151,7 +151,8 @@
                             count();
                             $scope.activeSection.autosaver = getAutosaver();
 
-                            if($scope.doexam.instruction != undefined) {
+                            if($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
+                                $scope.guide = true;
                                 $scope.setActiveSection($translate("sitnet_exam_quide"));
                             } else {
                                 $scope.pages.splice(0,1);
@@ -243,14 +244,14 @@
 
                 $scope.setActiveSection = function(sectionName) {
 
-                    if(sectionName !== $translate("sitnet_exam_quide") || ($scope.doexam.instruction == "" && sectionName === $translate("sitnet_exam_quide"))) {
+                    if(sectionName !== $translate("sitnet_exam_quide") || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === $translate("sitnet_exam_quide"))) {
 
                         // next
                         if(sectionName === $translate("sitnet_exam_quide")) {
                             sectionName = $scope.pages[1];
                         }
 
-                        if($scope.pages[$scope.pages.indexOf(sectionName) + 1] !== undefined) {
+                        if($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
                             $scope.nextButton = true;
                             $scope.nextButtonText = $scope.pages[$scope.pages.indexOf(sectionName) + 1];
                         } else {
@@ -259,9 +260,8 @@
                         }
 
                         // previous
-                        if ($scope.pages[$scope.pages.indexOf(sectionName) - 1] !== undefined) {
+                        if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
                             $scope.previousButton = true;
-
                             $scope.previousButtonText = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
                         } else {
                             $scope.previousButton = false;

@@ -17,8 +17,6 @@ import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -280,30 +278,30 @@ public class StudentExamController extends SitnetController {
 
             // if this is null, it means someone is trying to access an exam by wrong hash
             // which is weird.
-            if (possibeEnrolment == null) {
-                return forbidden("sitnet_reservation_not_found");
-            }
-
-            // exam and enrolment found. Is student on the right machine?
-
-            if (possibeEnrolment.getReservation() == null) {
-                return forbidden("sitnet_reservation_not_found");
-            } else if (possibeEnrolment.getReservation().getMachine() == null) {
-                return forbidden("sitnet_reservation_machine_not_found");
-            } else if (!possibeEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
-
-                ExamRoom examRoom = Ebean.find(ExamRoom.class)
-                        .fetch("mailAddress")
-                        .where()
-                        .eq("id", possibeEnrolment.getReservation().getMachine().getRoom().getId())
-                        .findUnique();
-
-                String message = "sitnet_wrong_exam_machine " + examRoom.getName()
-                        + ", " + examRoom.getMailAddress().toString()
-                        + ", sitnet_exam_machine " + possibeEnrolment.getReservation().getMachine().getName();
-
-                return forbidden(message);
-            }
+//            if (possibeEnrolment == null) {
+//                return forbidden("sitnet_reservation_not_found");
+//            }
+//
+//            // exam and enrolment found. Is student on the right machine?
+//
+//            if (possibeEnrolment.getReservation() == null) {
+//                return forbidden("sitnet_reservation_not_found");
+//            } else if (possibeEnrolment.getReservation().getMachine() == null) {
+//                return forbidden("sitnet_reservation_machine_not_found");
+//            } else if (!possibeEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+//
+//                ExamRoom examRoom = Ebean.find(ExamRoom.class)
+//                        .fetch("mailAddress")
+//                        .where()
+//                        .eq("id", possibeEnrolment.getReservation().getMachine().getRoom().getId())
+//                        .findUnique();
+//
+//                String message = "sitnet_wrong_exam_machine " + examRoom.getName()
+//                        + ", " + examRoom.getMailAddress().toString()
+//                        + ", sitnet_exam_machine " + possibeEnrolment.getReservation().getMachine().getName();
+//
+//                return forbidden(message);
+//            }
 
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
@@ -312,31 +310,31 @@ public class StudentExamController extends SitnetController {
                     .where()
                     .eq("user.id", user.getId())
                     .eq("exam.id", blueprint.getId())
-                    .le("reservation.startAt", now)
-                    .gt("reservation.endAt", now)
+                    //.le("reservation.startAt", now)
+                    //.gt("reservation.endAt", now)
                     .findUnique();
 
             // Wrong moment in time. Student is early or late
 
-            if (enrolment == null) {
-
-                DateTime endAt = new DateTime(possibeEnrolment.getReservation().getEndAt().getTime());
-                DateTime startAt = new DateTime(possibeEnrolment.getReservation().getStartAt().getTime());
-
-                DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
-
-                // too late
-                if (jodaNow.isAfter(endAt)) {
-                    return forbidden("sitnet_exam_has_ended " + dateTimeFormat.print(endAt.getMillis()));
-                }
-                // early
-                else if (jodaNow.isBefore(startAt)) {
-                    return forbidden("sitnet_exam_starts " + dateTimeFormat.print(startAt.getMillis()));
-                } else {
-                    Logger.error("enrolment not found when it was supposed to");
-                    return internalServerError();
-                }
-            }
+//            if (enrolment == null) {
+//
+//                DateTime endAt = new DateTime(possibeEnrolment.getReservation().getEndAt().getTime());
+//                DateTime startAt = new DateTime(possibeEnrolment.getReservation().getStartAt().getTime());
+//
+//                DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+//
+//                // too late
+//                if (jodaNow.isAfter(endAt)) {
+//                    return forbidden("sitnet_exam_has_ended " + dateTimeFormat.print(endAt.getMillis()));
+//                }
+//                // early
+//                else if (jodaNow.isBefore(startAt)) {
+//                    return forbidden("sitnet_exam_starts " + dateTimeFormat.print(startAt.getMillis()));
+//                } else {
+//                    Logger.error("enrolment not found when it was supposed to");
+//                    return internalServerError();
+//                }
+//            }
 
             /*
             *
@@ -352,7 +350,7 @@ public class StudentExamController extends SitnetController {
              */
             Exam studentExam = (Exam) blueprint.clone();
             if (studentExam == null) {
-                return notFound("sitnet_error_creating_exam");
+                //return notFound("sitnet_error_creating_exam");
             }
 
             studentExam.setState("STUDENT_STARTED");
