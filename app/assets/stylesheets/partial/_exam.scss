@@ -20,14 +20,16 @@
   }
 
   .exam-general-information-header {
-    padding-top: 1em;
+    padding-top: 0.5em;
     padding-bottom: 0.5em;
     color: $sitnet-teacher-turquoise-dark-active;
     border-bottom: 1px solid $sitnet-grey;
+    height: 4em;
   }
   .exam-general-information-header span {
     font-size: 1.4em;
   }
+
   .exam-general-information {
     background-color: $sitnet-white;
     padding-left: 1em;
@@ -119,13 +121,12 @@
   }
 
   .exams-generic-info-title {
-    font-size: 2em;
-    padding: 0.25em 0;
-    font-size: 1em;
+    font-size: 1.4em;
     font-family: $sitnet-family-opensans-semibold;
     color: $sitnet-text;
     font-weight: 300;
     letter-spacing: 1px;
+    line-height: 2em;
   }
 
   .exams-list-header {

@@ -1,8 +1,16 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('QuestionCtrl', ['$scope', '$http', '$modal', '$routeParams', '$location', '$translate', 'QuestionRes', 'ExamRes', 'SITNET_CONF',
-            function($scope, $http, $modal, $routeParams, $location, $translate, QuestionRes, ExamRes, SITNET_CONF) {
+        .factory('focus', function($rootScope, $timeout) {
+            return function(name) {
+                $timeout(function() {
+                    $rootScope.$broadcast('focusOn', name);
+                })
+            }
+        })
+
+        .controller('QuestionCtrl', ['$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams', '$location', '$translate', 'focus', 'QuestionRes', 'ExamRes', 'SITNET_CONF',
+            function($rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus, QuestionRes, ExamRes, SITNET_CONF) {
 
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
 
@@ -69,13 +77,17 @@
                             questionToUpdate.options = $scope.newQuestion.options;
                             break;
                     }
+                    var deferred = $q.defer();
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
                         function() {
                             toastr.info($translate("sitnet_question_saved"));
+                            deferred.resolve();
                         }, function(error) {
                             toastr.error(error.data);
+                            deferred.reject();
                         }
                     );
+                    return deferred.promise;
                 };
 
                 $scope.deleteQuestion = function() {
@@ -92,34 +104,38 @@
                 };
 
                 $scope.saveQuestion = function() {
-
-                    update();
-
-                    //Set return URL pointing back to questions main page if we created question there
+                    var returnUrl;
+                    //Set return URL pointing back to questions main page if we came from there
                     if ($routeParams.examId === undefined) {
-                        $scope.returnURL = "/questions/";
+                        returnUrl = "/questions/";
                     }
-                    //Set return URL to exam, if we created the new question there
-                    //Also bind the question to section of the exam at this point
-                    else if ($routeParams.editId) {
-                        $scope.returnURL = "/exams/" + $routeParams.examId
-                    }
-                    //Set return URL to exam, if we created the new question there
-                    //Also bind the question to section of the exam at this point
+                    //Set return URL to exam, if we came from there
                     else {
-                        $scope.returnURL = "/exams/" + $routeParams.examId;
-                        var params = {
-                            eid: $routeParams.examId,
-                            sid: $routeParams.sectionId,
-                            qid: $scope.newQuestion.id,
-                            seq: $routeParams.seqId
-                        };
-                        ExamRes.sectionquestions.insert(params, function() {
-                                toastr.info($translate("sitnet_question_added_to_section"));
-                        }, function(error) {
-                            toastr.error(error.data);
-                        });
+                        returnUrl = "/exams/" + $routeParams.examId;
                     }
+                    update().then(function() {
+                        // If creating new exam question also bind the question to section of the exam at this point
+                        if (!$routeParams.examId || $routeParams.editId) {
+                           $location.path(returnUrl);
+                        }
+                        else {
+                            var params = {
+                                eid: $routeParams.examId,
+                                sid: $routeParams.sectionId,
+                                qid: $scope.newQuestion.id,
+                                seq: $routeParams.seqId
+                            };
+                            ExamRes.sectionquestions.insert(params, function() {
+                                toastr.info($translate("sitnet_question_added_to_section"));
+                                $location.path(returnUrl);
+                            }, function(error) {
+                                toastr.error(error.data);
+                                $location.path(returnUrl);
+                            });
+                        }
+                    }, function() {
+                        $location.path(returnUrl);
+                    });
                 };
 
                 $scope.updateEvaluationType = function() {
@@ -148,6 +164,8 @@
                         function(response) {
                             newQuestion.options.push(response);
                             toastr.info($translate('sitnet_option_added'));
+                            focus('opt' + response.id);
+                            //focus("opt" + response.id);
                         }, function(error) {
                             toastr.error(error.data);
                         }

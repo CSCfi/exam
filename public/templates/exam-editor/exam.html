@@ -42,16 +42,17 @@
             </div>
 
         </div>
-
-            <div class="row col-md-12 create-new-section">
-                <div class="col-md-1 pull-left fa-stack fa-lg">
-                    <i class="fa icon-theme fa-stop fa-stack-2x"></i>
-                    <i class="fa sitnet-white fa-plus fa-stack-1x"></i>
-                </div>
-                <a ng-click="addNewSection()" class="create-new-section-button">
-                    {{'sitnet_section_add' | translate}}
-                </a>
+        <div class="row col-md-12 create-new-section">
+            <div class="col-md-1 pull-left fa-stack fa-lg">
+                <i class="fa icon-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-plus fa-stack-1x"></i>
             </div>
+            <a ng-click="addNewSection()" class="create-new-section-button">
+                {{'sitnet_section_add' | translate}}
+            </a>
+        </div>
+
+        <div class="row">
             <span>
                 <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
                 <button ng-hide="newExam.state === 'DRAFT' ? false : true" ng-click="cancelNewExam(newExam)"
@@ -66,6 +67,7 @@
                         class="btn btn-warning">{{'sitnet_unpublish_exam' | translate }}
                 </button>
             </span>
+        </div>
     </div>
     <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
 </div>
