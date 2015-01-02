@@ -91,7 +91,9 @@
                                 {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
                                     $scope.previousParticipations = participations;
                                 });
-                            $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
+                            if (exam.examLanguage) {
+                                $scope.selectedLanguage = exam.examLanguage.toLowerCase();
+                            }
                             $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
                             };
@@ -327,13 +329,12 @@
                                 break;
                             case "EssayQuestion":
 
-                                if (question.evaluatedScore) {
+                                if (question.evaluatedScore && question.evaluationType === 'Points') {
                                     var number = parseFloat(question.evaluatedScore);
                                     if (angular.isNumber(number)) {
                                         score = score + number;
                                     }
                                 }
-
                                 break;
                             default:
 //                                return 0;
@@ -350,14 +351,12 @@
                         var question = sectionQuestion.question;
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
-                                score = score + question.maxScore;
+                                score += question.maxScore;
                                 break;
 
                             case "EssayQuestion":
                                 if (question.evaluationType == 'Points') {
-                                    score = score + question.maxScore;
-                                } else if (question.evaluationType == 'Select') {
-                                    score = score + 1;
+                                    score += question.maxScore;
                                 }
                                 break;
 
@@ -430,6 +429,7 @@
                     var question = sectionQuestion.question;
                     QuestionRes.score.update({id: question.id},
                         {"evaluatedScore": question.evaluatedScore}, function(q) {
+                            toastr.info($translate("sitnet_graded"));
                             if (q.evaluationType === "Select") {
                                 refreshRejectedAcceptedCounts();
                             }
@@ -493,7 +493,7 @@
                     ExamRes.review.update({id: examToReview.id}, examToReview, function(exam) {
                         toastr.info($translate('sitnet_exam_reviewed'));
                         $scope.saveFeedback();
-                        //$location.path("exams/reviews/" + reviewed_exam.parent.id);
+                        $location.path("exams/reviews/" + reviewed_exam.parent.id);
                     }, function(error) {
                         toastr.error(error.data);
                     });

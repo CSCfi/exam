@@ -833,15 +833,12 @@ public class ExamController extends SitnetController {
                         .eq("id", id)
                         .findUnique();
 
-                MultipleChoiceQuestion clone;
-                clone = (MultipleChoiceQuestion) multiQuestion.clone();
+                MultipleChoiceQuestion clone = (MultipleChoiceQuestion) multiQuestion.clone();
                 clone.setParent(multiQuestion);
-                try {
-                    clone = (MultipleChoiceQuestion) SitnetUtil.setCreator(clone);
-                } catch (SitnetException e) {
-                    e.printStackTrace();
-                }
-                clone.getOptions().clear();
+                clone.setCreator(UserController.getLoggedUser());
+                clone.setCreated(new Timestamp(System.currentTimeMillis()));
+                // this is dumb, should fix the generic clone implementation
+                clone.setOptions(new ArrayList<MultipleChoiseOption>());
                 SitnetUtil.setModifier(clone);
                 clone.save();
                 List<MultipleChoiseOption> options = multiQuestion.getOptions();
