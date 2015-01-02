@@ -26,7 +26,7 @@
                     function(question) {
                         $scope.newQuestion = question;
                         $scope.setQuestionType();
-                        if ($routeParams.editId == undefined && $scope.newQuestion.evaluationType == 'Select') {
+                        if ($scope.newQuestion.evaluationType == 'Select') {
                             $scope.newQuestion.maxScore = undefined; // will screw up validation otherwise
                         }
                     },
@@ -146,6 +146,11 @@
                 };
 
                 $scope.updateQuestion = function() {
+                    if (!$scope.newQuestion.maxScore) {
+                        // TODO: how to put this check onto template? ui-change directive is applied in any case, even
+                        // TODO: if the input is invalid or missing.
+                        return;
+                    }
                     update();
                 };
 
