@@ -22,11 +22,7 @@ import util.SitnetUtil;
 
 import java.util.List;
 
-
-
-
 public class QuestionController extends SitnetController {
-
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getQuestions() {

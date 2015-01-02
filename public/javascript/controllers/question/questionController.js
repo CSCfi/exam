@@ -26,7 +26,7 @@
                     function(question) {
                         $scope.newQuestion = question;
                         $scope.setQuestionType();
-                        if ($routeParams.editId == undefined && $scope.newQuestion.evaluationType == 'Select') {
+                        if ($scope.newQuestion.evaluationType == 'Select') {
                             $scope.newQuestion.maxScore = undefined; // will screw up validation otherwise
                         }
                     },
