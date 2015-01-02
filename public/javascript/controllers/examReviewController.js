@@ -430,6 +430,7 @@
                     var question = sectionQuestion.question;
                     QuestionRes.score.update({id: question.id},
                         {"evaluatedScore": question.evaluatedScore}, function(q) {
+                            toastr.info($translate("sitnet_graded"));
                             if (q.evaluationType === "Select") {
                                 refreshRejectedAcceptedCounts();
                             }
