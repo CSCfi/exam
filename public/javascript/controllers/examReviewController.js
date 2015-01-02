@@ -401,26 +401,37 @@
                     }
                 };
 
+                var refreshRejectedAcceptedCounts = function() {
+                    var accepted = 0;
+                    var rejected = 0;
+                    angular.forEach($scope.examToBeReviewed.examSections, function(section) {
+                        angular.forEach(section.sectionQuestions, function(sectionQuestion) {
+                            var question = sectionQuestion.question;
+                            if (question.type === "EssayQuestion") {
+                                if (question.evaluationType === "Select") {
+                                    if (question.evaluatedScore == 1) {
+                                        accepted++;
+                                    } else if (question.evaluatedScore == 0) {
+                                        rejected++;
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    $scope.acceptedEssays = accepted;
+                    $scope.rejectedEssays = rejected;
+                };
+
                 $scope.toggleQuestionExpansion = function(sectionQuestion) {
                     sectionQuestion.question.reviewExpanded = !sectionQuestion.question.reviewExpanded;
                 };
 
                 $scope.insertEssayScore = function(sectionQuestion) {
                     var question = sectionQuestion.question;
-                    var questionToUpdate = {
-                        "evaluatedScore": question.evaluatedScore
-                    };
-
                     QuestionRes.score.update({id: question.id},
                         {"evaluatedScore": question.evaluatedScore}, function(q) {
                             if (q.evaluationType === "Select") {
-                                if (q.evaluatedScore == 1) {
-                                    $scope.acceptedEssays++;
-                                    $scope.rejectedEssays--;
-                                } else if (question.evaluatedScore == 0) {
-                                    $scope.rejectedEssays++;
-                                    $scope.acceptedEssays--;
-                                }
+                                refreshRejectedAcceptedCounts();
                             }
                         }, function(error) {
                             toastr.error(error.data);
