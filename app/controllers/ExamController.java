@@ -405,16 +405,22 @@ public class ExamController extends SitnetController {
         exam.setGrade(df.get("grade"));
         exam.setCreditType(df.get("creditType"));
         exam.setAnswerLanguage(df.get("answerLanguage"));
-
+        exam.setState(df.get("state"));
+        exam.setTotalScore(Double.parseDouble(df.get("totalScore")));
+        if (df.get("customCredit") != null) {
+            exam.setCustomCredit(Double.parseDouble(df.get("customCredit")));
+        } else {
+            exam.setCustomCredit(null);
+        }
         // set user only if exam is really graded, not just modified
         if (exam.getState().equals(Exam.State.GRADED.name()) || exam.getState().equals(Exam.State.GRADED_LOGGED.name()))
         {
             exam.setGradedTime(SitnetUtil.getNowTime());
             exam.setGradedByUser(UserController.getLoggedUser());
         }
+        exam.generateHash();
         exam.update();
 
-//        return ok(Json.toJson(ex));
         return ok();
     }
 

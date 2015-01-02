@@ -146,6 +146,11 @@
                 };
 
                 $scope.updateQuestion = function() {
+                    if (!$scope.newQuestion.maxScore) {
+                        // TODO: how to put this check onto template? ui-change directive is applied in any case, even
+                        // TODO: if the input is invalid or missing.
+                        return;
+                    }
                     update();
                 };
 
