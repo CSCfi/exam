@@ -91,7 +91,7 @@
                                 {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
                                     $scope.previousParticipations = participations;
                                 });
-                            $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
+                            $scope.selectedLanguage = exam.examLanguage.toLowerCase();
                             $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
                             };
