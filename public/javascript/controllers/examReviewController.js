@@ -327,13 +327,12 @@
                                 break;
                             case "EssayQuestion":
 
-                                if (question.evaluatedScore) {
+                                if (question.evaluatedScore && question.evaluationType === 'Points') {
                                     var number = parseFloat(question.evaluatedScore);
                                     if (angular.isNumber(number)) {
                                         score = score + number;
                                     }
                                 }
-
                                 break;
                             default:
 //                                return 0;
@@ -350,14 +349,12 @@
                         var question = sectionQuestion.question;
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
-                                score = score + question.maxScore;
+                                score += question.maxScore;
                                 break;
 
                             case "EssayQuestion":
                                 if (question.evaluationType == 'Points') {
-                                    score = score + question.maxScore;
-                                } else if (question.evaluationType == 'Select') {
-                                    score = score + 1;
+                                    score += question.maxScore;
                                 }
                                 break;
 
