@@ -841,7 +841,7 @@ public class ExamController extends SitnetController {
                 } catch (SitnetException e) {
                     e.printStackTrace();
                 }
-                clone.getOptions().clear();
+                clone.setOptions(new ArrayList<MultipleChoiseOption>());
                 SitnetUtil.setModifier(clone);
                 clone.save();
                 List<MultipleChoiseOption> options = multiQuestion.getOptions();
