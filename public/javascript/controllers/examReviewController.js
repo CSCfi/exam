@@ -86,16 +86,13 @@
                                     });
                                 });
                             }
-                            // get previous participations ->
-                            ExamRes.examParticipationsOfUser.query(
-                                {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
-                                    $scope.previousParticipations = participations;
-                                });
+
                             if (exam.answerLanguage) {
                                 $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
                             } else if (exam.examLanguage) {
                                 $scope.selectedLanguage = exam.examLanguage.toLowerCase();
                             }
+
                             $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
                             };
@@ -228,19 +225,24 @@
                                     toastr.error(error.data);
                                 }
                             );
-                        },
-                        function(error) {
-                            toastr.error(error.data);
-                        }
-                    );
 
-                    ExamRes.studentInfo.get({id: $routeParams.id},
-                        function(info) {
-                            $scope.userInfo = info;
-                            // terrible hack to accommodate for the lack of timezone info coming from backend
-                            var duration = info.duration.substring(0, info.duration.length - 1) + "+02:00";
-                            $scope.userInfo.duration = duration;
+                            ExamRes.studentInfo.get({id: $routeParams.id},
+                                function(info) {
+                                    $scope.userInfo = info;
+                                    // terrible hack to accommodate for the lack of timezone info coming from backend
+                                    var duration = info.duration.substring(0, info.duration.length - 1) + "+02:00";
+                                    $scope.userInfo.duration = duration;
+                                    // get previous participations ->
+                                    ExamRes.examParticipationsOfUser.query(
+                                        {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
+                                            $scope.previousParticipations = participations;
+                                        });
 
+                                },
+                                function(error) {
+                                    toastr.error(error.data);
+                                }
+                            );
                         },
                         function(error) {
                             toastr.error(error.data);
@@ -501,11 +503,8 @@
                     });
                 };
 
-                $scope.message = "";
-
                 // called when send email button is clicked
                 $scope.sendEmailMessage = function() {
-
                     ExamRes.email.inspection({eid: $scope.examToBeReviewed.id, msg: $scope.message}, function(response) {
                         toastr.info($translate("sitnet_email_sent"));
                         $scope.message = "";
@@ -581,5 +580,10 @@
                 };
 
                 $scope.customForm = false;
-            }]);
-}());
+            }
+        ])
+    ;
+}
+()
+    )
+;
