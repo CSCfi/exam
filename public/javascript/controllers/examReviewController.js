@@ -86,11 +86,7 @@
                                     });
                                 });
                             }
-                            // get previous participations ->
-                            ExamRes.examParticipationsOfUser.query(
-                                {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
-                                    $scope.previousParticipations = participations;
-                                });
+
                             if (exam.answerLanguage) {
                                 $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
                             } else if (exam.examLanguage) {
@@ -229,21 +225,24 @@
                                     toastr.error(error.data);
                                 }
                             );
-                        }
-                        ,
-                        function(error) {
-                            toastr.error(error.data);
-                        }
-                    )
-                    ;
 
-                    ExamRes.studentInfo.get({id: $routeParams.id},
-                        function(info) {
-                            $scope.userInfo = info;
-                            // terrible hack to accommodate for the lack of timezone info coming from backend
-                            var duration = info.duration.substring(0, info.duration.length - 1) + "+02:00";
-                            $scope.userInfo.duration = duration;
+                            ExamRes.studentInfo.get({id: $routeParams.id},
+                                function(info) {
+                                    $scope.userInfo = info;
+                                    // terrible hack to accommodate for the lack of timezone info coming from backend
+                                    var duration = info.duration.substring(0, info.duration.length - 1) + "+02:00";
+                                    $scope.userInfo.duration = duration;
+                                    // get previous participations ->
+                                    ExamRes.examParticipationsOfUser.query(
+                                        {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
+                                            $scope.previousParticipations = participations;
+                                        });
 
+                                },
+                                function(error) {
+                                    toastr.error(error.data);
+                                }
+                            );
                         },
                         function(error) {
                             toastr.error(error.data);
