@@ -91,9 +91,12 @@
                                 {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
                                     $scope.previousParticipations = participations;
                                 });
-                            if (exam.examLanguage) {
+                            if (exam.answerLanguage) {
+                                $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
+                            } else if (exam.examLanguage) {
                                 $scope.selectedLanguage = exam.examLanguage.toLowerCase();
                             }
+
                             $scope.isCreator = function() {
                                 return $scope.examToBeReviewed && $scope.examToBeReviewed.parent && $scope.examToBeReviewed.parent.creator && $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
                             };
@@ -226,11 +229,13 @@
                                     toastr.error(error.data);
                                 }
                             );
-                        },
+                        }
+                        ,
                         function(error) {
                             toastr.error(error.data);
                         }
-                    );
+                    )
+                    ;
 
                     ExamRes.studentInfo.get({id: $routeParams.id},
                         function(info) {
@@ -579,5 +584,10 @@
                 };
 
                 $scope.customForm = false;
-            }]);
-}());
+            }
+        ])
+    ;
+}
+()
+    )
+;
