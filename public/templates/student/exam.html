@@ -94,20 +94,21 @@
                     <span class="italic">{{'sitnet_room_guidance' | translate}}</span></i>
                 </a>
                 <!-- exam attachment -->
-                <div ng-show="doexam.attachment !== null" class="col-md-12 bottom-padding-2" ng-controller="AttachmentController">
-                    <a class="sidebutton" ng-click="downloadExamAttachment(doexam)">
+                <div ng-show="doexam.attachment !== null" ng-controller="AttachmentController">
+                    <a class="col-md-12 sidebutton" ng-click="downloadExamAttachment(doexam)">
                         <i class="fa fa-file-o">
-                            <span class="italic">{{'sitnet_exam_attacment' | translate}}</span>
-                        </i>
+                        <span class="italic">{{'sitnet_exam_attacment' | translate}}</span></i>
                     </a>
-                    <span class="sitnet-text-medium small" style="font-style: normal"> ({{doexam.attachment.fileName}}) </span>
+                    <span class="sitnet-text-medium small"
+                          style="font-style: normal; margin-left: 3em">({{doexam.attachment.fileName}})
+                    </span>
                 </div>
             </div>
             <!-- SAVE EXAM BUTTON -->
-            <!--<a class="col-md-12 sidebutton top-padding-2" ng-click="saveExam(doexam)">-->
-                <!--<i class="fa fa-sign-out">-->
-                <!--<span class="italic">{{'sitnet_save_and_return_exam' | translate}}</span></i>-->
-            <!--</a>-->
+            <a class="col-md-12 top-padding-2" ng-click="saveExam(doexam)">
+                <i class="fa fa-sign-out sidebutton-save">
+                <span class="italic">{{'sitnet_save_and_return_exam' | translate}}</span></i>
+            </a>
             <!-- ABORT EXAM BUTTON -->
             <a class="col-md-12" ng-click="abortExam(doexam)">
                  <i class="fa fa-ban sidebutton-alarm">

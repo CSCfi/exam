@@ -76,13 +76,13 @@
                     </div>
 
                     <div class="sitnet-info-text">
-                        {{'sitnet_instruction' | translate}}
+                        {{'sitnet_question_instruction' | translate}}
                         <textarea class="form-control" rows="3" ng-model="newQuestion.instruction" ui-change="updateQuestion()"
                                placeholder="{{'sitnet_question_instruction' | translate}}">
                         </textarea>
                     </div>
 
-                    <div class="sitnet-info-text">
+                    <div ng-show="newQuestion.type == 'EssayQuestion'" class="sitnet-info-text">
                         {{'sitnet_exam_evaluation_criteria' | translate}}
                         <textarea class="form-control" rows="3" ng-model="newQuestion.evaluationCriterias" ui-change="updateQuestion()"
                                   placeholder="{{'sitnet_correct_answer_should_have' | translate}}">

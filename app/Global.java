@@ -3,6 +3,7 @@ import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import akka.actor.Cancellable;
 import com.avaje.ebean.Ebean;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
@@ -167,7 +168,13 @@ public class Global extends GlobalSettings {
     @Override
     public Handler onRouteRequest(Http.RequestHeader request) {
 
-        String loginType = ConfigFactory.load().getString("sitnet.login");
+        String loginType;
+        try {
+            loginType = ConfigFactory.load().getString("sitnet.login");
+        } catch (ConfigException e) {
+            Logger.debug("Failed to load configuration", e);
+            return super.onRouteRequest(request);
+        }
         String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
 

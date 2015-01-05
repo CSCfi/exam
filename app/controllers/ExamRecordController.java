@@ -26,37 +26,31 @@ public class ExamRecordController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result addExamRecord() {
 
-        Exam exam = Form.form(Exam.class).bindFromRequest(
+        Exam form = Form.form(Exam.class).bindFromRequest(
                 "id",
-                "instruction",
-                "name",
-                "shared",
                 "state",
-                "room",
-                "duration",
-                "grading",
+                "grade",
                 "customCredit",
                 "totalScore",
-                "examLanguage",
-                "answerLanguage",
-                "grade",
                 "creditType",
-                "expanded")
+                "answerLanguage")
                 .get();
 
-        Exam ex = Ebean.find(Exam.class)
-                .select("state, creator")
-                .where()
-                .eq("id", exam.getId())
-                .findUnique();
-
+        Exam exam = Ebean.find(Exam.class, form.getId());
 //        if (!SitnetUtil.isOwner(ex) || !UserController.getLoggedUser().hasRole("ADMIN"))
 //            return forbidden("You are not allowed to modify this object");
         // if this exam is already logged exit.
-        if (ex.getState().equals(Exam.State.GRADED_LOGGED.name())) {
+        if (exam.getState().equals(Exam.State.GRADED_LOGGED.name())) {
             return forbidden("sitnet_error_exam_already_graded_logged");
         }
 
+        exam.setState(form.getState());
+        exam.setGrade(form.getGrade());
+        exam.setGradedByUser(UserController.getLoggedUser());
+        exam.setCustomCredit(form.getCustomCredit());
+        exam.setTotalScore(form.getTotalScore());
+        exam.setCreditType(form.getCreditType());
+        exam.setAnswerLanguage(form.getAnswerLanguage());
         exam.update();
 
         ExamParticipation participation = Ebean.find(ExamParticipation.class)

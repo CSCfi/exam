@@ -38,6 +38,7 @@ public class SitnetUtil {
         return ConfigFactory.load().getString("sitnet.application.hostname");
     }
 
+    //FIXME: This reflection thing is f*cked up, we should have customized cloning methods and not rely on this
     public static Object getClone(Object object) {
         Object clone = null;
 
