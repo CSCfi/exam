@@ -148,8 +148,10 @@
                                 angular.forEach($scope.localInspections, function(localInspection) {
                                     if (localInspection.user.id === $scope.user.id) {
                                         // toggle ready ->
-                                        ExamRes.inspectionReady.update({id: localInspection.id, ready: $scope.reviewReady}, function(result) {
+                                        var ready = !$scope.reviewReady;
+                                        ExamRes.inspectionReady.update({id: localInspection.id, ready: ready}, function(result) {
                                             toastr.info($translate('sitnet_exam_updated'));
+                                            $scope.reviewReady = ready;
                                         }, function(error) {
                                             toastr.error(error.data);
                                         });
