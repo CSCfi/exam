@@ -503,11 +503,8 @@
                     });
                 };
 
-                $scope.message = "";
-
                 // called when send email button is clicked
                 $scope.sendEmailMessage = function() {
-
                     ExamRes.email.inspection({eid: $scope.examToBeReviewed.id, msg: $scope.message}, function(response) {
                         toastr.info($translate("sitnet_email_sent"));
                         $scope.message = "";
