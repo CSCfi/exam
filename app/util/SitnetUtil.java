@@ -164,10 +164,10 @@ public class SitnetUtil {
 
         User user = UserController.getLoggedUser();
         boolean isCreator = exam.getParent() != null && exam.getParent().getCreator().getId().equals(user.getId());
+
         return isCreator || Ebean.find(ExamInspection.class)
-                .select("user,exam")
                 .where()
-                .eq("exam.id", exam.getId())
+                .eq("exam.id", exam.getParent().getId())
                 .eq("user.id", user.getId())
                 .findUnique() != null;
     }

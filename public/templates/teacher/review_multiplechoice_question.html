@@ -41,6 +41,15 @@
                 translate}})</span>
         </div>
     </div>
+    <!-- question attachment -->
+    <div class="row" ng-show="sectionQuestion.question.reviewExpanded" ng-controller="AttachmentController">
+        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_answer_attachment' | translate }}:</div>
+        <div class="col-md-8 sitnet-info-text" ng-hide="sectionQuestion.question.answer.attachment">N/A</div>
+        <div class="col-md-8 sitnet-info-text" ng-show="sectionQuestion.question.answer.attachment">
+            <a class="pointer" ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, examToBeReviewed.hash)">
+                {{sectionQuestion.question.answer.attachment.fileName}}</a>
+        </div>
+    </div>
     <!-- full -->
         <div class="row" ng-show="sectionQuestion.question.reviewExpanded" ng-repeat="option in sectionQuestion.question.options">
             <div class="col-md-1 col-md-offset-1 review-question-value sitnet-info-text" style="text-align: center;">
