@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'QuestionRes',
-            function($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, QuestionRes) {
+        .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes',
+            function($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes) {
 
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section_general.html";
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section.html";
@@ -24,31 +24,16 @@
                 $scope.localInspections = [];
                 $scope.examGrading = [];
 
-                // TODO: localize
-                // http://www.stat.fi/meta/luokitukset/kieli/001-2003/index.html
-                $scope.languages = ["abhaasi", "afar", "afgaani, pašto", "afrikaans", "aimara", "akan", "albania", "ambo, ndonga",
-                    "amhara", "arabia", "aragonia", "armenia", "assami", "avaari", "avesta", "azeri", "baškiiri", "bambara", "baski",
-                    "bengali", "bhutani, dzongkha", "bihari", "bislama", "bosnia", "bretoni", "bulgaria", "burma", "chamorro", "cree",
-                    "divehi, malediivi", "eesti, viro", "englanti", "eskimo", "espanja", "esperanto", "eteländebele", "ewe", "fidži",
-                    "friisi", "fulani, fulfulde", "fääri", "galicia", "galla, afan oromo, oromo", "ganda, luganda", "georgia, gruusia",
-                    "grönlanti", "guarani", "gudžarati, gujarati", "haiti, haitin kreoli", "hausa", "heprea, ivrit", "herero", "hindi",
-                    "hiri-motu", "hollanti", "ido", "igbo", "iiri", "indonesia, bahasa indonésia", "interlingua", "interlingue", "inupiak",
-                    "islanti", "italia", "jaava", "japani", "jiddi, jiddiš", "joruba", "kašmiri", "kannada", "kanuri", "katalaani", "kazakki",
-                    "ketšua", "khmer, kambodža", "kiina", "kikongo, kongo", "kikuju", "kirgiisi", "kirjanorja", "kirkkoslaavi", "komi", "korea",
-                    "korni", "korsika", "kreikka", "kroatia", "kuanjama", "kurdi", "kymri, wales", "lao", "latina", "latvia, lätti", "letzeburg, luxemburg",
-                    "liettua", "lingala", "limburgi", "luba-katanga", "makedonia", "malagasi, madagassi", "malaiji", "malajalam", "malta",
-                    "manx", "maori", "marathi", "marshallese", "moldavia", "mongoli", "nauru", "navaho", "nepali", "njandža, tšewa", "norja",
-                    "ojibwa", "oksitaani, provensaali", "orija", "osseetti", "pali", "pandžabi", "persia", "pohjoisndebele", "pohjois-ji",
-                    "portugali", "puola", "ranska", "retoromaani", "romania", "ruanda, kinjaruanda, njaruanda", "rundi, kirundi", "ruotsi",
-                    "saame", "saksa", "samoa", "sango", "sanskrit", "sardi", "serbia", "serbokroatia", "shona", "sindhi", "singali", "siswati, swazi",
-                    "skotti, gaeli", "slovakki", "sloveeni", "somali", "sotho, sesotho", "suahili", "sunda", "suomi", "tšekki", "tšetšeeni",
-                    "tšuang", "tšuvassi", "tšwana, setšwana", "tadžikki", "tagalog, pilipino", "tahiti", "tamili", "tanska", "tataari", "telugu",
-                    "thai", "tigrinja", "tiibet", "tonga", "tsonga", "turkki", "turkmeeni", "twi", "uiguuri", "ukraina", "unkari", "urdu", "uusnorja",
-                    "uzbekki", "valkovenäjä", "venda", "venäjä", "vietnam", "volapük", "walloon", "wolof", "xhosa", "zulu"];
+                LanguageRes.languages.query(function(languages) {
+                    $scope.languages = languages.map(function(language) {
+                        language.name = getLanguageNativeName(language.code);
+                        return language;
+                    });
+                });
 
                 $scope.setLanguage = function(lang) {
                     $scope.selectedLanguage = lang;
-                    $scope.examToBeReviewed.answerLanguage = lang;
+                    $scope.examToBeReviewed.answerLanguage = lang.name;
                 };
 
                 $scope.hasMultipleChoiseQuestions = false;
@@ -89,8 +74,8 @@
 
                             if (exam.answerLanguage) {
                                 $scope.selectedLanguage = exam.answerLanguage.toLowerCase();
-                            } else if (exam.examLanguage) {
-                                $scope.selectedLanguage = exam.examLanguage.toLowerCase();
+                            } else if (exam.examLanguages.length === 1) {
+                                $scope.selectedLanguage = getLanguageNativeName(exam.examLanguages[0].code);
                             }
 
                             $scope.isCreator = function() {

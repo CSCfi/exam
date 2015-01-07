@@ -246,13 +246,14 @@ public class ExamController extends SitnetController {
         options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, " +
                 "shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                 "duration, grading, grade, customCredit, totalScore, examLanguage, answerLanguage, " +
-                "state, examFeedback, creditType, expanded, attachment, creator, softwares");
+                "state, examFeedback, creditType, expanded, attachment, creator, softwares, examLanguages");
         options.setPathProperties("creator", "id, firstName, lastName");
         options.setPathProperties("parent", "id, creator");
         options.setPathProperties("parent.creator", "id, firstName, lastName");
         options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
         options.setPathProperties("room", "id, name");
         options.setPathProperties("softwares", "id, name");
+        options.setPathProperties("examLanguages", "code, name");
         options.setPathProperties("attachment", "id, fileName");
         options.setPathProperties("examType", "id, type");
         options.setPathProperties("examSections", "id, name, sectionQuestions, exam, totalScore, expanded, " +
@@ -278,6 +279,7 @@ public class ExamController extends SitnetController {
                 .fetch("examSections.sectionQuestions")
                 .fetch("examSections.sectionQuestions.question")
                 .fetch("softwares")
+                .fetch("examLanguages")
                 .where()
                 .eq("id", eid)
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
@@ -306,6 +308,7 @@ public class ExamController extends SitnetController {
                 .fetch("examSections.sectionQuestions")
                 .fetch("examSections.sectionQuestions.question")
                 .fetch("softwares")
+                .fetch("examLanguages")
                 .where()
                 .eq("id", id)
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
@@ -535,7 +538,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateCredit(Long eid, Double credit) throws MalformedDataException {
+    public static Result updateCredit(Long eid, Double credit) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
@@ -553,7 +556,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateExam(Long id) throws MalformedDataException {
+    public static Result updateExam(Long id) {
 
         DynamicForm df = Form.form().bindFromRequest();
 
@@ -563,6 +566,7 @@ public class ExamController extends SitnetController {
                 .fetch("examSections.sectionQuestions")
                 .fetch("examSections.sectionQuestions.question")
                 .fetch("softwares")
+                .fetch("examLanguages")
                 .fetch("attachment")
                 .where()
                 .eq("id", id)
@@ -583,7 +587,6 @@ public class ExamController extends SitnetController {
             String duration = df.get("duration");
             String grading = df.get("grading");
             String answerLanguage = df.get("answerLanguage");
-            String examLanguage = df.get("examLanguage");
             String instruction = df.get("instruction");
             String enrollInstruction = df.get("enrollInstruction");
             String state = df.get("state");
@@ -622,10 +625,6 @@ public class ExamController extends SitnetController {
 
             if (answerLanguage != null) {
                 exam.setAnswerLanguage(answerLanguage);
-            }
-
-            if (examLanguage != null) {
-                exam.setExamLanguage(examLanguage);
             }
 
             if (instruction != null) {
@@ -692,7 +691,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result resetExamSoftwareInfo(Long eid) throws MalformedDataException {
+    public static Result resetExamSoftwareInfo(Long eid) {
         Exam exam = Ebean.find(Exam.class, eid);
 
         exam.getSoftwareInfo().clear();
@@ -702,7 +701,17 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateExamSoftwareInfo(Long eid, Long sid) throws MalformedDataException {
+    public static Result resetExamLanguages(Long eid) {
+        Exam exam = Ebean.find(Exam.class, eid);
+
+        exam.getExamLanguages().clear();
+        exam.update();
+
+        return ok(Json.toJson(exam));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result updateExamSoftwareInfo(Long eid, Long sid) {
         Exam exam = Ebean.find(Exam.class, eid);
         Software software = Ebean.find(Software.class, sid);
 
@@ -713,7 +722,18 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result createExamDraft() throws MalformedDataException {
+    public static Result addExamLanguage(Long eid, String code) {
+        Exam exam = Ebean.find(Exam.class, eid);
+        Language language = Ebean.find(Language.class, code);
+
+        exam.getExamLanguages().add(language);
+        exam.update();
+
+        return ok(Json.toJson(exam));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result createExamDraft() {
 
         Exam exam = new Exam();
         exam.setName("Kirjoita tentin nimi tähän");
@@ -739,7 +759,8 @@ public class ExamController extends SitnetController {
         examSection.save();
 
         exam.getExamSections().add(examSection);
-        exam.setExamLanguage("fi");
+        exam.getExamLanguages().add(Ebean.find(Language.class, "fi")); // Finnish
+        exam.setExamType(Ebean.find(ExamType.class, 2)); // Final
         exam.save();
 
         // add creator to inspector list (SITNET-178)
@@ -781,7 +802,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateCourse(Long eid, Long cid) throws MalformedDataException {
+    public static Result updateCourse(Long eid, Long cid) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
@@ -795,7 +816,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateRoom(Long eid, Long rid) throws MalformedDataException {
+    public static Result updateRoom(Long eid, Long rid) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
@@ -809,7 +830,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result insertExamType(Long eid, Long etid) throws MalformedDataException {
+    public static Result insertExamType(Long eid, Long etid) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
@@ -903,7 +924,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result insertQuestion(Long eid, Long sid, Integer seq, Long qid) throws MalformedDataException {
+    public static Result insertQuestion(Long eid, Long sid, Integer seq, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
@@ -942,7 +963,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result removeQuestion(Long eid, Long sid, Long qid) throws MalformedDataException {
+    public static Result removeQuestion(Long eid, Long sid, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
@@ -976,7 +997,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result clearQuestions(Long sid) throws MalformedDataException {
+    public static Result clearQuestions(Long sid)  {
         ExamSection section = Ebean.find(ExamSection.class, sid);
 
         if (SitnetUtil.isOwner(section) || UserController.getLoggedUser().hasRole("ADMIN")) {
@@ -1403,7 +1424,7 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result insertLocalInspectionWithoutCommentAndEmail(Long eid, Long uid) throws SitnetException {
+    public static Result insertLocalInspectionWithoutCommentAndEmail(Long eid, Long uid) {
 
         ExamInspection inspection = new ExamInspection();
         final User recipient = Ebean.find(User.class, uid);
