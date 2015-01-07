@@ -24,6 +24,7 @@ public class EnrollController extends Controller {
 
         List<Exam> activeExams = Ebean.find(Exam.class)
                 .fetch("course")
+                .fetch("examLanguages")
                 .where()
                 .eq("course.code", code)
                 .eq("state", "PUBLISHED")
@@ -33,9 +34,11 @@ public class EnrollController extends Controller {
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, creator, examLanguage");
+        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, " +
+                "creator, examLanguages");
         options.setPathProperties("course", "code");
         options.setPathProperties("creator", "firstName, lastName, organization");
+        options.setPathProperties("examLanguages", "code, name");
 
         return ok(jsonContext.toJsonString(activeExams, true, options)).as("application/json");
     }
@@ -68,6 +71,7 @@ public class EnrollController extends Controller {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("room")
+                .fetch("examLanguages")
                 .where()
                 .eq("course.code", code)
                 .eq("id", id)
@@ -79,11 +83,13 @@ public class EnrollController extends Controller {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
-                + "grading, room, course, creator, expanded, examType, enrollInstruction, examLanguage, answerLanguage");
+                + "grading, room, course, creator, expanded, examType, enrollInstruction, examLanguages, " +
+                "answerLanguage");
         options.setPathProperties("room", "name, roomCode, buildingName, campus");
         options.setPathProperties("examType", "type");
         options.setPathProperties("course", "code, name, level, type, credits");
         options.setPathProperties("creator", "firstName, lastName, email");
+        options.setPathProperties("examLanguages", "code, name");
 
         return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }

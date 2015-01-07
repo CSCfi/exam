@@ -95,7 +95,8 @@ public class Exam extends SitnetModel {
     private Double totalScore;
 
     // Exam language
-    private String examLanguage;
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<Language> examLanguages = new ArrayList<>();
 
     // Exam answer language
     private String answerLanguage;
@@ -269,12 +270,12 @@ public class Exam extends SitnetModel {
         this.totalScore = totalScore;
     }
 
-    public String getExamLanguage() {
-		return examLanguage;
+    public List<Language> getExamLanguages() {
+		return examLanguages;
 	}
 
-	public void setExamLanguage(String examLanguage) {
-		this.examLanguage = examLanguage;
+	public void setExamLanguages(List<Language> examLanguages) {
+		this.examLanguages = examLanguages;
 	}
 
 	public String getAnswerLanguage() {
@@ -374,7 +375,6 @@ public class Exam extends SitnetModel {
         clone.setDuration(this.getDuration());
         clone.setGrading(this.getGrading());
         clone.setTotalScore(this.getTotalScore());
-        clone.setExamLanguage(this.getExamLanguage());
         clone.setAnswerLanguage(this.getAnswerLanguage());
         clone.setGrade(this.getGrade());
         clone.setExamFeedback(this.getExamFeedback());

@@ -8,9 +8,7 @@
             $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "student/review_exam_section_general.html";
 
 
-        	$scope.exams;
-        	
-            if($routeParams.code === undefined) {
+        	if($routeParams.code === undefined) {
             	console.log($routeParams.code);
             
             }
@@ -18,9 +16,11 @@
             	
             	EnrollRes.enroll.get({code: $routeParams.code, id: $routeParams.id}, 
                         function (exam) {
-                            
+                            exam.languages = exam.examLanguages.map(function(lang) {
+                                return getLanguageNativeName(lang.code);
+                            });
                             $scope.exam = exam;
-                        }, 
+                        },
                         function (error) {
                             toastr.error(error.data);
                         });
@@ -28,8 +28,12 @@
             else if($routeParams.code) {
             	EnrollRes.list.get({code: $routeParams.code}, 
                 function (exams) {
-                    
-                    $scope.exams = exams;
+                    $scope.exams = exams.map(function(exam) {
+                        exam.languages = exam.examLanguages.map(function(lang) {
+                            return getLanguageNativeName(lang.code);
+                        });
+                        return exam;
+                    });
                 }, 
                 function (error) {
                     toastr.error(error.data);

@@ -264,10 +264,26 @@
                     "reset": {method: "PUT"}
                 }),
 
+                languages: $resource("exam/:eid/languages",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "reset": {method: "DELETE"}
+                }),
+
                 machine: $resource("/exam/:eid/software/:sid",
                 {
                     eid: "@eid",
                     sid: "@sid"
+                },
+                {
+                    "add": {method: "PUT"}
+                }),
+                language: $resource("/exam/:eid/language/:code",
+                {
+                    eid: "@eid",
+                    code: "@code"
                 },
                 {
                     "add": {method: "PUT"}

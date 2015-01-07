@@ -10,6 +10,7 @@ import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
 import models.User;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
@@ -583,7 +584,8 @@ public class StatisticsController extends SitnetController {
                         case 6: addCell(dataRow, i, credits); break;
                         case 7: addCell(dataRow, i, e.getExam().getGrade() != null ? e.getExam().getGrade() : ""); break;
                         case 8: addCell(dataRow, i, e.getExam().getCreditType() != null ? e.getExam().getCreditType() : ""); break;
-                        case 9: addCell(dataRow, i, e.getExam().getExamLanguage() != null ? e.getExam().getExamLanguage() : ""); break;
+                        case 9: addCell(dataRow, i, e.getExam().getExamLanguages().isEmpty() ? "" :
+                                StringUtils.join(e.getExam().getExamLanguages(), ", ")); break;
                     }
                 }
             }

@@ -1,210 +1,213 @@
 
-GET            /                                                                controllers.Index.index()
+GET                                     /                                                                controllers.Index.index()
 
-GET            /checkSession                                                    controllers.SessionController.checkSession()
-GET            /extendSession                                                   controllers.SessionController.extendSession()
-POST           /login                                                           controllers.SessionController.login()
+GET                                     /checkSession                                                    controllers.SessionController.checkSession()
+GET                                     /extendSession                                                   controllers.SessionController.extendSession()
+POST                                    /login                                                           controllers.SessionController.login()
 #POST          /shiblogin                                            controllers.SessionController.shiblogin()
-POST           /logout                                                          controllers.SessionController.logout()
-GET            /ping                                                            controllers.SessionController.ping()
+POST                                    /logout                                                          controllers.SessionController.logout()
+GET                                     /ping                                                            controllers.SessionController.ping()
 #GET           /secreturl                                                       controllers.SessionController.getAttributes()
 
 
 ############### User interface ###############
-GET            /users                                                           controllers.UserController.getUsers()
-GET            /users/:id                                                       controllers.UserController.getUser(id: Long)
-GET            /users/byrole/:role                                              controllers.UserController.getUsersByRole(role: String)
-GET            /users/filter/:role                                              controllers.UserController.getUsersByRoleFilter(role: String, q: String)
-GET            /users/filter/:role/:eid                                         controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
-PUT            /users/:id                                                       controllers.UserController.updateUser(id: Long)
-PUT            /users/agreement/:id                                             controllers.UserController.updateUserAgreementAccepted(id: Long)
-POST           /users                                                           controllers.UserController.addUser()
-DELETE         /users/:id                                                       controllers.UserController.deleteUser(id: Long)
+GET                                     /users                                                           controllers.UserController.getUsers()
+GET                                     /users/:id                                                       controllers.UserController.getUser(id: Long)
+GET                                     /users/byrole/:role                                              controllers.UserController.getUsersByRole(role: String)
+GET                                     /users/filter/:role                                              controllers.UserController.getUsersByRoleFilter(role: String, q: String)
+GET                                     /users/filter/:role/:eid                                         controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
+PUT                                     /users/:id                                                       controllers.UserController.updateUser(id: Long)
+PUT                                     /users/agreement/:id                                             controllers.UserController.updateUserAgreementAccepted(id: Long)
+POST                                    /users                                                           controllers.UserController.addUser()
+DELETE                                  /users/:id                                                       controllers.UserController.deleteUser(id: Long)
 
 
 
 ############### Exam interface ###############
 
-GET            /exams                                                           controllers.ExamController.getExams()
-GET            /exams/:id                                                       controllers.ExamController.getExam(id: Long)
-GET            /exampreview/:id                                                 controllers.ExamController.getExamPreview(id: Long)
-DELETE         /exams/:id                                                       controllers.ExamController.deleteExam(id: Long)
-PUT            /review/:id                                                      controllers.ExamController.reviewExam(id: Long)
-POST           /review/:eid/comment/:cid                                        controllers.ExamController.insertComment(eid: Long, cid: Long)
-PUT            /review/:eid/comment/:cid                                        controllers.ExamController.updateComment(eid: Long, cid: Long)
-PUT            /exam/:eid/credit/:credit                                        controllers.ExamController.updateCredit(eid: Long, credit: Double)
-GET            /reviews/:eid                                                    controllers.ExamController.getExamReviews(eid: Long)
-GET            /review/info/:eid                                                controllers.ExamController.getExamStudentInfo(eid: Long)
-GET            /exams/state/:state                                              controllers.ExamController.getExamsByState(state: String)
-PUT            /exams/:id                                                       controllers.ExamController.updateExam(id: Long)
-POST           /exams/:id/section                                               controllers.ExamController.insertSection(id: Long)
-DELETE         /exams/:eid/section/:sid                                         controllers.ExamController.removeSection(eid: Long, sid: Long)
-PUT            /exams/:eid/section/:sid                                         controllers.ExamController.updateSection(eid: Long, sid: Long)
-PUT            /exams/:eid/course/:cid                                          controllers.ExamController.updateCourse(eid: Long, cid: Long)
-PUT            /exams/:eid/room/:rid                                            controllers.ExamController.updateRoom(eid: Long, rid: Long)
-GET            /finishedexams                                                   controllers.ExamController.getFinishedExams()
-GET            /activeexams                                                     controllers.ExamController.getActiveExams()
-GET            /reviewerexams                                                   controllers.ExamController.getTeachersExams()
-GET            /reviewerexams/:eid                                              controllers.ExamController.getExamReview(eid: Long)
+GET                                     /exams                                                           controllers.ExamController.getExams()
+GET                                     /exams/:id                                                       controllers.ExamController.getExam(id: Long)
+GET                                     /exampreview/:id                                                 controllers.ExamController.getExamPreview(id: Long)
+DELETE                                  /exams/:id                                                       controllers.ExamController.deleteExam(id: Long)
+PUT                                     /review/:id                                                      controllers.ExamController.reviewExam(id: Long)
+POST                                    /review/:eid/comment/:cid                                        controllers.ExamController.insertComment(eid: Long, cid: Long)
+PUT                                     /review/:eid/comment/:cid                                        controllers.ExamController.updateComment(eid: Long, cid: Long)
+PUT                                     /exam/:eid/credit/:credit                                        controllers.ExamController.updateCredit(eid: Long, credit: Double)
+GET                                     /reviews/:eid                                                    controllers.ExamController.getExamReviews(eid: Long)
+GET                                     /review/info/:eid                                                controllers.ExamController.getExamStudentInfo(eid: Long)
+GET                                     /exams/state/:state                                              controllers.ExamController.getExamsByState(state: String)
+PUT                                     /exams/:id                                                       controllers.ExamController.updateExam(id: Long)
+POST                                    /exams/:id/section                                               controllers.ExamController.insertSection(id: Long)
+DELETE                                  /exams/:eid/section/:sid                                         controllers.ExamController.removeSection(eid: Long, sid: Long)
+PUT                                     /exams/:eid/section/:sid                                         controllers.ExamController.updateSection(eid: Long, sid: Long)
+PUT                                     /exams/:eid/course/:cid                                          controllers.ExamController.updateCourse(eid: Long, cid: Long)
+PUT                                     /exams/:eid/room/:rid                                            controllers.ExamController.updateRoom(eid: Long, rid: Long)
+GET                                     /finishedexams                                                   controllers.ExamController.getFinishedExams()
+GET                                     /activeexams                                                     controllers.ExamController.getActiveExams()
+GET                                     /reviewerexams                                                   controllers.ExamController.getTeachersExams()
+GET                                     /reviewerexams/:eid                                              controllers.ExamController.getExamReview(eid: Long)
 
-GET            /examenrolments/:eid                                             controllers.ExamController.getEnrolmentsForExam(eid: Long)
-GET            /examenrolmentswithreservations/:eid                             controllers.ExamController.getEnrolmentsWithReservationsForExam(eid: Long)
-GET            /examparticipations/:eid                                         controllers.ExamController.getParticipationsForExam(eid: Long)
-GET            /examparticipations/:eid/:uid                                    controllers.ExamController.getParticipationsForExamAndUser(eid: Long, uid: Long)
+GET                                     /examenrolments/:eid                                             controllers.ExamController.getEnrolmentsForExam(eid: Long)
+GET                                     /examenrolmentswithreservations/:eid                             controllers.ExamController.getEnrolmentsWithReservationsForExam(eid: Long)
+GET                                     /examparticipations/:eid                                         controllers.ExamController.getParticipationsForExam(eid: Long)
+GET                                     /examparticipations/:eid/:uid                                    controllers.ExamController.getParticipationsForExamAndUser(eid: Long, uid: Long)
 
-GET            /examparticipationsandreviews/:eid                               controllers.ExamController.getParticipationsAndReviewedForExam(eid: Long)
-POST           /exams/:eid/examtype/:etid                                       controllers.ExamController.insertExamType(eid: Long, etid: Long)
-POST           /exam/record                                                     controllers.ExamRecordController.addExamRecord()
+GET                                     /examparticipationsandreviews/:eid                               controllers.ExamController.getParticipationsAndReviewedForExam(eid: Long)
+POST                                    /exams/:eid/examtype/:etid                                       controllers.ExamController.insertExamType(eid: Long, etid: Long)
+POST                                    /exam/record                                                     controllers.ExamRecordController.addExamRecord()
 
-GET            /examenrolmentroom/:eid                                          controllers.ExamController.getRoomInfoFromEnrollment(eid: Long)
+GET                                     /examenrolmentroom/:eid                                          controllers.ExamController.getRoomInfoFromEnrollment(eid: Long)
 
-GET            /exam/:id/inspections                                            controllers.ExamController.getExamInspections(id: Long)
-POST           /exams/:eid/inspector/:uid                                       controllers.ExamController.insertInspection(eid: Long, uid: Long)
-DELETE         /exams/inspector/:id                                             controllers.ExamController.deleteInspection(id: Long)
+GET                                     /exam/:id/inspections                                            controllers.ExamController.getExamInspections(id: Long)
+POST                                    /exams/:eid/inspector/:uid                                       controllers.ExamController.insertInspection(eid: Long, uid: Long)
+DELETE                                  /exams/inspector/:id                                             controllers.ExamController.deleteInspection(id: Long)
 
-PUT            /exams/inspection/:id/:ready                                     controllers.ExamController.updateInspection(id: Long, ready: Boolean)
-POST           /exams/localInspection/:eid/:uid                                 controllers.ExamController.insertLocalInspectionWithoutCommentAndEmail(eid: Long, uid: Long)
-POST           /email/inspection/:eid/:msg                                      controllers.ExamController.sendInspectionMessage(eid: Long, msg: String)
+PUT                                     /exams/inspection/:id/:ready                                     controllers.ExamController.updateInspection(id: Long, ready: Boolean)
+POST                                    /exams/localInspection/:eid/:uid                                 controllers.ExamController.insertLocalInspectionWithoutCommentAndEmail(eid: Long, uid: Long)
+POST                                    /email/inspection/:eid/:msg                                      controllers.ExamController.sendInspectionMessage(eid: Long, msg: String)
 
-POST           /exams/:eid/section/:sid/:seq/question/:qid                      controllers.ExamController.insertQuestion(eid: Long, sid: Long, seq: Int, qid: Long)
-DELETE         /exams/:eid/section/:sid/question/:qid                           controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
-PUT            /exams/:eid/section/:sid/:from/:to                               controllers.ExamController.reorderQuestion(eid: Long, sid: Long, from: Int, to: Int)
-GET            /draft                                                           controllers.ExamController.createExamDraft()
+POST                                    /exams/:eid/section/:sid/:seq/question/:qid                      controllers.ExamController.insertQuestion(eid: Long, sid: Long, seq: Int, qid: Long)
+DELETE                                  /exams/:eid/section/:sid/question/:qid                           controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
+PUT                                     /exams/:eid/section/:sid/:from/:to                               controllers.ExamController.reorderQuestion(eid: Long, sid: Long, from: Int, to: Int)
+GET                                     /draft                                                           controllers.ExamController.createExamDraft()
 
-PUT            /exam/:eid/software/:sid                                         controllers.ExamController.updateExamSoftwareInfo(eid: Long, sid: Long)
-PUT            /exam/resetsoftware/:eid                                         controllers.ExamController.resetExamSoftwareInfo(eid: Long)
+PUT                                     /exam/:eid/software/:sid                                         controllers.ExamController.updateExamSoftwareInfo(eid: Long, sid: Long)
+PUT                                     /exam/resetsoftware/:eid                                         controllers.ExamController.resetExamSoftwareInfo(eid: Long)
 
-GET            /enrolments                                                      controllers.ExamController.getEnrolments()
-GET            /inspections                                                     controllers.ExamController.getInspections()
+PUT                                     /exam/:eid/language/:code                                        controllers.ExamController.addExamLanguage(eid: Long, code: String)
+DELETE                                  /exam/:eid/languages                                             controllers.ExamController.resetExamLanguages(eid: Long)
 
-GET            /student/exams                                                   controllers.StudentExamController.listActiveExams()
-GET            /student/inspectors/exam/:id                                     controllers.StudentExamController.getExamInspectors(id: Long)
-GET            /student/finishedexams/:uid                                      controllers.StudentExamController.getFinishedExams(uid: Long)
-GET            /feedback/exams/:eid                                             controllers.StudentExamController.getExamGeneralInfo(eid: Long)
-PUT            /student/exams/:id                                               controllers.StudentExamController.saveAnswersAndExit(id: Long)
-PUT            /student/exam/abort/:id                                          controllers.StudentExamController.abortExam(id: Long)
-GET            /student/doexam/:hash                                            controllers.StudentExamController.startExam(hash: String)
-GET            /enrolments/user/:uid                                            controllers.StudentExamController.getEnrolmentsForUser(uid: Long)
-GET            /enrolments/:eid                                                 controllers.StudentExamController.getEnrolment(eid: Long)
-GET            /student/exams/:eid                                              controllers.StudentExamController.getReservationInstructions(eid: Long)
+GET                                     /enrolments                                                      controllers.ExamController.getEnrolments()
+GET                                     /inspections                                                     controllers.ExamController.getInspections()
 
-POST           /student/exams/:hash/question/:qid/option/:oid                   controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
-POST           /student/exams/:hash/question/:questionId                        controllers.StudentExamController.insertEssay(hash: String, questionId: Long)
+GET                                     /student/exams                                                   controllers.StudentExamController.listActiveExams()
+GET                                     /student/inspectors/exam/:id                                     controllers.StudentExamController.getExamInspectors(id: Long)
+GET                                     /student/finishedexams/:uid                                      controllers.StudentExamController.getFinishedExams(uid: Long)
+GET                                     /feedback/exams/:eid                                             controllers.StudentExamController.getExamGeneralInfo(eid: Long)
+PUT                                     /student/exams/:id                                               controllers.StudentExamController.saveAnswersAndExit(id: Long)
+PUT                                     /student/exam/abort/:id                                          controllers.StudentExamController.abortExam(id: Long)
+GET                                     /student/doexam/:hash                                            controllers.StudentExamController.startExam(hash: String)
+GET                                     /enrolments/user/:uid                                            controllers.StudentExamController.getEnrolmentsForUser(uid: Long)
+GET                                     /enrolments/:eid                                                 controllers.StudentExamController.getEnrolment(eid: Long)
+GET                                     /student/exams/:eid                                              controllers.StudentExamController.getReservationInstructions(eid: Long)
+
+POST                                    /student/exams/:hash/question/:qid/option/:oid                   controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
+POST                                    /student/exams/:hash/question/:questionId                        controllers.StudentExamController.insertEssay(hash: String, questionId: Long)
 
 
 ############### Enrolment interface ###############
 
-GET            /enroll/:code                                                    controllers.EnrollController.enrollExamList(code: String)
-GET            /enroll/reservation/:id                                          controllers.EnrollController.enrolmentsByReservation(id: Long)
-GET            /enroll/:code/exam/:id                                           controllers.EnrollController.enrollExamInfo(code: String, id: Long)
-POST           /enroll/:code/exam/:id                                           controllers.EnrollController.createEnrolment(code: String, id: Long)
-DELETE         /enroll/:code/exam/:id                                           controllers.EnrollController.deleteEnrolment(code: String, id: Long)
+GET                                     /enroll/:code                                                    controllers.EnrollController.enrollExamList(code: String)
+GET                                     /enroll/reservation/:id                                          controllers.EnrollController.enrolmentsByReservation(id: Long)
+GET                                     /enroll/:code/exam/:id                                           controllers.EnrollController.enrollExamInfo(code: String, id: Long)
+POST                                    /enroll/:code/exam/:id                                           controllers.EnrollController.createEnrolment(code: String, id: Long)
+DELETE                                  /enroll/:code/exam/:id                                           controllers.EnrollController.deleteEnrolment(code: String, id: Long)
 
 ############### Section interface ###############
 
-GET            /sections/:id                                                    controllers.ExamController.getExamSections(id: Long)
-DELETE         /section/:sectionId                                              controllers.ExamController.deleteSection(sectionId: Long)
-DELETE         /clearsection/:sid                                               controllers.ExamController.clearQuestions(sid: Long)
+GET                                     /sections/:id                                                    controllers.ExamController.getExamSections(id: Long)
+DELETE                                  /section/:sectionId                                              controllers.ExamController.deleteSection(sectionId: Long)
+DELETE                                  /clearsection/:sid                                               controllers.ExamController.clearQuestions(sid: Long)
 
 
 ############### Courses interface ###############
-GET            /courses                                                         controllers.CourseController.getCourses(filter: Option[FilterType], q: Option[String])
-GET            /courses/:id                                                     controllers.CourseController.getCourse(id: Long)
-POST           /courses/insert/:code                                            controllers.CourseInfoController.insertCourseFromInterface(code: String)
+GET                                     /courses                                                         controllers.CourseController.getCourses(filter: Option[FilterType], q: Option[String])
+GET                                     /courses/:id                                                     controllers.CourseController.getCourse(id: Long)
+POST                                    /courses/insert/:code                                            controllers.CourseInfoController.insertCourseFromInterface(code: String)
 
 ############### Question interface ###############
 
-GET            /questions                                                       controllers.QuestionController.getQuestions()
-GET            /questions/:id                                                   controllers.QuestionController.getQuestion(id: Long)
-GET            /questionlist/user/:id                                           controllers.QuestionController.getQuestionsForUser(id: Long)
-PUT            /questions/:id                                                   controllers.QuestionController.updateQuestion(id: Long)
-PUT            /questions/:id/score                                             controllers.QuestionController.scoreQuestion(id: Long)
+GET                                     /questions                                                       controllers.QuestionController.getQuestions()
+GET                                     /questions/:id                                                   controllers.QuestionController.getQuestion(id: Long)
+GET                                     /questionlist/user/:id                                           controllers.QuestionController.getQuestionsForUser(id: Long)
+PUT                                     /questions/:id                                                   controllers.QuestionController.updateQuestion(id: Long)
+PUT                                     /questions/:id/score                                             controllers.QuestionController.scoreQuestion(id: Long)
 
-PUT            /questions/option/:oid                                           controllers.QuestionController.updateOption(oid: Long)
-POST           /questions                                                       controllers.QuestionController.addQuestion()
-POST           /question/:id                                                    controllers.QuestionController.copyQuestion(id: Long)
-POST           /questions/:qid/option                                           controllers.QuestionController.addOption(qid: Long)
-DELETE         /questions/:id                                                   controllers.QuestionController.deleteQuestion(id: Long)
-DELETE         /questions/option/:oid                                           controllers.QuestionController.deleteOption(oid: Long)
+PUT                                     /questions/option/:oid                                           controllers.QuestionController.updateOption(oid: Long)
+POST                                    /questions                                                       controllers.QuestionController.addQuestion()
+POST                                    /question/:id                                                    controllers.QuestionController.copyQuestion(id: Long)
+POST                                    /questions/:qid/option                                           controllers.QuestionController.addOption(qid: Long)
+DELETE                                  /questions/:id                                                   controllers.QuestionController.deleteQuestion(id: Long)
+DELETE                                  /questions/option/:oid                                           controllers.QuestionController.deleteOption(oid: Long)
 
 
-GET            /options                                                         controllers.QuestionController.createOption()
-GET            /options/:id                                                     controllers.QuestionController.getOption(id: Long)
+GET                                     /options                                                         controllers.QuestionController.createOption()
+GET                                     /options/:id                                                     controllers.QuestionController.getOption(id: Long)
 
 ############### Reservation interface ###############
 
-GET            /rooms                                                           controllers.RoomController.getExamRooms()
-GET            /rooms/:id                                                       controllers.RoomController.getExamRoom(id: Long)
-PUT            /rooms/:id                                                       controllers.RoomController.updateExamRoom(id: Long)
-DELETE         /rooms/:id                                                       controllers.RoomController.removeExamRoom(id: Long)
-PUT            /address/:id                                                     controllers.RoomController.updateExamRoomAddress(id: Long)
+GET                                     /rooms                                                           controllers.RoomController.getExamRooms()
+GET                                     /rooms/:id                                                       controllers.RoomController.getExamRoom(id: Long)
+PUT                                     /rooms/:id                                                       controllers.RoomController.updateExamRoom(id: Long)
+DELETE                                  /rooms/:id                                                       controllers.RoomController.removeExamRoom(id: Long)
+PUT                                     /address/:id                                                     controllers.RoomController.updateExamRoomAddress(id: Long)
 
-PUT            /workinghours/:id                                                controllers.RoomController.updateExamRoomWorkingHours(id: Long)
-PUT            /exception/:id                                                   controllers.RoomController.addRoomExceptionHour(id: Long)
-DELETE         /exception/:id                                                   controllers.RoomController.removeRoomExceptionHour(id: Long)
+PUT                                     /workinghours/:id                                                controllers.RoomController.updateExamRoomWorkingHours(id: Long)
+PUT                                     /exception/:id                                                   controllers.RoomController.addRoomExceptionHour(id: Long)
+DELETE                                  /exception/:id                                                   controllers.RoomController.removeRoomExceptionHour(id: Long)
 
-POST           /room/:id/accessibility                                          controllers.RoomController.updateExamRoomAccessibility(id: Long)
+POST                                    /room/:id/accessibility                                          controllers.RoomController.updateExamRoomAccessibility(id: Long)
 
-DELETE         /accessibility/:id                                               controllers.AccessibilityController.removeAccessibility(id: Long)
-POST           /accessibility                                                   controllers.AccessibilityController.addAccessibility()
-GET            /accessibility                                                   controllers.AccessibilityController.getAccessibilities()
+DELETE                                  /accessibility/:id                                               controllers.AccessibilityController.removeAccessibility(id: Long)
+POST                                    /accessibility                                                   controllers.AccessibilityController.addAccessibility()
+GET                                     /accessibility                                                   controllers.AccessibilityController.getAccessibilities()
 
-GET            /draft/rooms                                                     controllers.RoomController.createExamRoomDraft()
+GET                                     /draft/rooms                                                     controllers.RoomController.createExamRoomDraft()
 
-GET            /admin/students                                                  controllers.AdminReservationController.getStudents()
-GET            /admin/examrooms                                                 controllers.AdminReservationController.getExamRooms()
-GET            /admin/exams                                                     controllers.AdminReservationController.getExams()
+GET                                     /admin/students                                                  controllers.AdminReservationController.getStudents()
+GET                                     /admin/examrooms                                                 controllers.AdminReservationController.getExamRooms()
+GET                                     /admin/exams                                                     controllers.AdminReservationController.getExams()
 
-GET            /admin/reservations/list/student/:id/:start/:end                 controllers.AdminReservationController.getReservationsByStudent(id: Long, start: String, end: String)
-GET            /admin/reservations/list/room/:id/:start/:end                    controllers.AdminReservationController.getReservationsByRoom(id: Long, start: String, end: String)
-GET            /admin/reservations/list/exam/:id/:start/:end                    controllers.AdminReservationController.getReservationsByExam(id: Long, start: String, end: String)
-GET            /admin/reservations/list/student/:sid/room/:rid/exam/:eid        controllers.AdminReservationController.getReservations(sid: Long, rid: Long, eid: Long)
-DELETE         /admin/reservations/delete/:id                                   controllers.AdminReservationController.removeReservation(id: Long)
+GET                                     /admin/reservations/list/student/:id/:start/:end                 controllers.AdminReservationController.getReservationsByStudent(id: Long, start: String, end: String)
+GET                                     /admin/reservations/list/room/:id/:start/:end                    controllers.AdminReservationController.getReservationsByRoom(id: Long, start: String, end: String)
+GET                                     /admin/reservations/list/exam/:id/:start/:end                    controllers.AdminReservationController.getReservationsByExam(id: Long, start: String, end: String)
+GET                                     /admin/reservations/list/student/:sid/room/:rid/exam/:eid        controllers.AdminReservationController.getReservations(sid: Long, rid: Long, eid: Long)
+DELETE                                  /admin/reservations/delete/:id                                   controllers.AdminReservationController.removeReservation(id: Long)
 
 
 
 ############### ExamMachines interface ###############
 
-GET            /machines                                                        controllers.ExamMachineController.getExamMachines()
-GET            /machines/:id                                                    controllers.ExamMachineController.getExamMachine(id: Long)
-GET            /machines/:id/reservations                                       controllers.ExamMachineController.getExamMachineReservationsFromNow(id: Long)
-PUT            /machines/:id                                                    controllers.ExamMachineController.updateExamMachine(id: Long)
-POST           /machines/:id                                                    controllers.ExamMachineController.insertExamMachine(id: Long)
-DELETE         /machines/:id                                                    controllers.ExamMachineController.removeExamMachine(id: Long)
+GET                                     /machines                                                        controllers.ExamMachineController.getExamMachines()
+GET                                     /machines/:id                                                    controllers.ExamMachineController.getExamMachine(id: Long)
+GET                                     /machines/:id/reservations                                       controllers.ExamMachineController.getExamMachineReservationsFromNow(id: Long)
+PUT                                     /machines/:id                                                    controllers.ExamMachineController.updateExamMachine(id: Long)
+POST                                    /machines/:id                                                    controllers.ExamMachineController.insertExamMachine(id: Long)
+DELETE                                  /machines/:id                                                    controllers.ExamMachineController.removeExamMachine(id: Long)
 
-PUT            /machine/:mid/software/:sid                                      controllers.ExamMachineController.updateExamMachineSoftwareInfo(mid: Long, sid: Long)
-POST           /machine/:mid/software/:sid                                      controllers.ExamMachineController.toggleExamMachineSoftwareInfo(mid: Long, sid: Long)
-PUT            /software_machine/:mid                                           controllers.ExamMachineController.resetExamMachineSoftwareInfo(mid: Long)
+PUT                                     /machine/:mid/software/:sid                                      controllers.ExamMachineController.updateExamMachineSoftwareInfo(mid: Long, sid: Long)
+POST                                    /machine/:mid/software/:sid                                      controllers.ExamMachineController.toggleExamMachineSoftwareInfo(mid: Long, sid: Long)
+PUT                                     /software_machine/:mid                                           controllers.ExamMachineController.resetExamMachineSoftwareInfo(mid: Long)
 
-GET            /softwares                                                       controllers.ExamMachineController.getSoftwares()
-GET            /softwares/:id                                                   controllers.ExamMachineController.getSoftware(id: Long)
-DELETE         /softwares/:id                                                   controllers.ExamMachineController.removeSoftware(id: Long)
-POST           /softwares/add/:name                                             controllers.ExamMachineController.addSoftware(name: String)
-PUT            /softwares/update/:id/:name                                      controllers.ExamMachineController.updateSoftware(id: Long, name: String)
+GET                                     /softwares                                                       controllers.ExamMachineController.getSoftwares()
+GET                                     /softwares/:id                                                   controllers.ExamMachineController.getSoftware(id: Long)
+DELETE                                  /softwares/:id                                                   controllers.ExamMachineController.removeSoftware(id: Long)
+POST                                    /softwares/add/:name                                             controllers.ExamMachineController.addSoftware(name: String)
+PUT                                     /softwares/update/:id/:name                                      controllers.ExamMachineController.updateSoftware(id: Long, name: String)
 
 ############## Attachment ############################
-POST           /attachment/question                                             controllers.AttachmentController.addAttachmentToQuestion()
-DELETE         /attachment/question/:id                                         controllers.AttachmentController.deleteQuestionAttachment(id: Long)
-GET            /attachment/question/:id                                         controllers.AttachmentController.downloadQuestionAttachment(id: Long)
-POST           /attachment/question/answer                                      controllers.AttachmentController.addAttachmentToQuestionAnswer()
-DELETE         /attachment/question/:qid/answer/:hash                           controllers.AttachmentController.deleteQuestionAnswerAttachment(qid: Long, hash: String)
-GET            /attachment/question/:qid/answer/:hash                           controllers.AttachmentController.downloadQuestionAnswerAttachment(qid: Long, hash: String)
-POST           /attachment/exam                                                 controllers.AttachmentController.addAttachmentToExam()
-DELETE         /attachment/exam/:id                                             controllers.AttachmentController.deleteExamAttachment(id: Long)
-GET            /attachment/exam/:id                                             controllers.AttachmentController.downloadExamAttachment(id: Long)
+POST                                    /attachment/question                                             controllers.AttachmentController.addAttachmentToQuestion()
+DELETE                                  /attachment/question/:id                                         controllers.AttachmentController.deleteQuestionAttachment(id: Long)
+GET                                     /attachment/question/:id                                         controllers.AttachmentController.downloadQuestionAttachment(id: Long)
+POST                                    /attachment/question/answer                                      controllers.AttachmentController.addAttachmentToQuestionAnswer()
+DELETE                                  /attachment/question/:qid/answer/:hash                           controllers.AttachmentController.deleteQuestionAnswerAttachment(qid: Long, hash: String)
+GET                                     /attachment/question/:qid/answer/:hash                           controllers.AttachmentController.downloadQuestionAnswerAttachment(qid: Long, hash: String)
+POST                                    /attachment/exam                                                 controllers.AttachmentController.addAttachmentToExam()
+DELETE                                  /attachment/exam/:id                                             controllers.AttachmentController.deleteExamAttachment(id: Long)
+GET                                     /attachment/exam/:id                                             controllers.AttachmentController.downloadExamAttachment(id: Long)
 
 
 #### integration ####
 
 
-GET            /integration/info/:code                                          controllers.Interfaces.getInfo(code: String)
-GET            /integration/record/:vatIdNumber/:startDate                      controllers.Interfaces.getRecords(vatIdNumber: String, startDate: String)
-GET            /integration/record/:startDate                                   controllers.Interfaces.getNewRecords(startDate: String)
+GET                                     /integration/info/:code                                          controllers.Interfaces.getInfo(code: String)
+GET                                     /integration/record/:vatIdNumber/:startDate                      controllers.Interfaces.getRecords(vatIdNumber: String, startDate: String)
+GET                                     /integration/record/:startDate                                   controllers.Interfaces.getNewRecords(startDate: String)
 
 
 
-GET            /time                                                            controllers.TimeController.getTime()
-GET            /time/:id                                                        controllers.TimeController.getExamRemainingTime(id: Long)
+GET                                     /time                                                            controllers.TimeController.getTime()
+GET                                     /time/:id                                                        controllers.TimeController.getExamRemainingTime(id: Long)
 
 
 ############### SQLinterface ###############
@@ -212,30 +215,33 @@ GET            /time/:id                                                        
 
 
 ################# Calendar interface ##################
-GET            /calendar/:examinput/:roominput/:dateinput/access/:ids           controllers.CalendarController.getSlots(examinput: String, roominput:String, dateinput: String, ids: String)
-GET            /calendar/:examinput/:roominput/:dateinput/access/               controllers.CalendarController.getSlotsWithOutAccessibility(examinput: String, roominput:String, dateinput: String)
-POST           /calendar/reservation                                            controllers.CalendarController.createReservation()
-DELETE         /calendar/reservation/:id                                        controllers.CalendarController.removeReservation(id: Long)
-GET            /calendar/roomAccessbility/:id                                   controllers.CalendarController.getRoomAccessibilityInfo(id: Long)
+GET                                     /calendar/:examinput/:roominput/:dateinput/access/:ids           controllers.CalendarController.getSlots(examinput: String, roominput:String, dateinput: String, ids: String)
+GET                                     /calendar/:examinput/:roominput/:dateinput/access/               controllers.CalendarController.getSlotsWithOutAccessibility(examinput: String, roominput:String, dateinput: String)
+POST                                    /calendar/reservation                                            controllers.CalendarController.createReservation()
+DELETE                                  /calendar/reservation/:id                                        controllers.CalendarController.removeReservation(id: Long)
+GET                                     /calendar/roomAccessbility/:id                                   controllers.CalendarController.getRoomAccessibilityInfo(id: Long)
+
+################# Language interface ##################
+GET                                     /languages                                                       controllers.LanguageController.getSupportedLanguages()
 
 ################# General Settings interface ##################
 
-GET            /agreement                                                       controllers.SettingsController.getUserAgreement()
-PUT            /agreement                                                       controllers.SettingsController.updateUserAgreement()
-PUT            /settings                                                        controllers.SettingsController.updateSettings()
-GET            /settings/hostname                                               controllers.SettingsController.getHostname()
+GET                                     /agreement                                                       controllers.SettingsController.getUserAgreement()
+PUT                                     /agreement                                                       controllers.SettingsController.updateUserAgreement()
+PUT                                     /settings                                                        controllers.SettingsController.updateSettings()
+GET                                     /settings/hostname                                               controllers.SettingsController.getHostname()
 
 ################# Statistics interface ##################
 
 
-GET            /statistics/resbydate/:roomId/:from/:to                          controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
-GET            /statistics/allexams/:from/:to                                   controllers.StatisticsController.reportAllExams(from: String, to: String)
-GET            /statistics/reviewsbydate/:from/:to                              controllers.StatisticsController.getReviewsByDate(from: String, to: String)
-GET            /statistics/teacherexamsbydate/:uid/:from/:to                    controllers.StatisticsController.getTeacherExamsByDate(uid: Long, from: String, to: String)
-GET            /statistics/examnames                                            controllers.StatisticsController.getExamNames()
-GET            /statistics/examnames/:id/:reportType                            controllers.StatisticsController.getExam(id: Long, reportType: String)
-GET            /statistics/examenrollments/:id                                  controllers.StatisticsController.getExamEnrollments(id: Long)
-GET            /statistics/student/:id/:from/:to                                controllers.StatisticsController.reportStudentActivity(id: Long  , from: String, to: String)
+GET                                     /statistics/resbydate/:roomId/:from/:to                          controllers.StatisticsController.getReservationsForRoomByDate(roomId: Long, from: String, to: String)
+GET                                     /statistics/allexams/:from/:to                                   controllers.StatisticsController.reportAllExams(from: String, to: String)
+GET                                     /statistics/reviewsbydate/:from/:to                              controllers.StatisticsController.getReviewsByDate(from: String, to: String)
+GET                                     /statistics/teacherexamsbydate/:uid/:from/:to                    controllers.StatisticsController.getTeacherExamsByDate(uid: Long, from: String, to: String)
+GET                                     /statistics/examnames                                            controllers.StatisticsController.getExamNames()
+GET                                     /statistics/examnames/:id/:reportType                            controllers.StatisticsController.getExam(id: Long, reportType: String)
+GET                                     /statistics/examenrollments/:id                                  controllers.StatisticsController.getExamEnrollments(id: Long)
+GET                                     /statistics/student/:id/:from/:to                                controllers.StatisticsController.reportStudentActivity(id: Long  , from: String, to: String)
 
 ############### test test test test test###############
 
@@ -243,4 +249,4 @@ GET            /statistics/student/:id/:from/:to                                
 #POST          /exam-score-test                                                 controllers.ExamScoreController.examScoreTest()
 
 #######################################################
-GET            /assets/*file                                                    controllers.Assets.at(path="/public", file)
+GET                                     /assets/*file                                                    controllers.Assets.at(path="/public", file)
