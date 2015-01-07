@@ -1,6 +1,6 @@
 <div class="row">
     <!-- Total score -->
-    <div class="col-md-12 sitnet-info-text">
+    <div class="col-md-12 sitnet-info-text" ng-show="getExamMaxPossibleScore(examToBeReviewed) > 0">
         {{'sitnet_total_score' | translate}}: {{getExamTotalScore(examToBeReviewed)}} / {{
         getExamMaxPossibleScore(examToBeReviewed) }}
     </div>
