@@ -657,7 +657,7 @@
                 $scope.moveQuestion = function(section, from, to) {
                     DragDropHandler.moveObject(section.sectionQuestions, from, to);
                     ExamRes.reordersection.update({eid: $scope.newExam.id, sid: section.id, from: from, to: to}, function() {
-                       toastr.info("Questions reordered");
+                       toastr.info("sitnet_questions_reordered");
                     });
                 };
 
