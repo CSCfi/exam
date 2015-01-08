@@ -248,8 +248,9 @@ public class ExamController extends SitnetController {
                 "duration, grading, grade, customCredit, totalScore, examLanguage, answerLanguage, " +
                 "state, examFeedback, creditType, expanded, attachment, creator, softwares, examLanguages");
         options.setPathProperties("creator", "id, firstName, lastName");
-        options.setPathProperties("parent", "id, creator");
+        options.setPathProperties("parent", "id, creator, examLanguages");
         options.setPathProperties("parent.creator", "id, firstName, lastName");
+        options.setPathProperties("parent.examLanguages", "code, name");
         options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
         options.setPathProperties("room", "id, name");
         options.setPathProperties("softwares", "id, name");
