@@ -471,6 +471,8 @@
     "sitnet_modify_credit": "Modify credit",
     "sitnet_not_a_valid_custom_credit": "Not a valid custom credit",
     "sitnet_error_question_not_found": "Question not found",
-    "sitnet_essay_length_recommendation_bounds": "Integer value in range (1, 1000000) expected"
+    "sitnet_essay_length_recommendation_bounds": "Integer value in range (1, 1000000) expected",
+    "sitnet_exam_language_updated": "Exam languages updated"
+
 
 }

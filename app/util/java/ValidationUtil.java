@@ -15,14 +15,9 @@ public class ValidationUtil {
         long day = 1000 * 60 * 60 * 24;
 
         String examName = df.get("name");
-        String examLanguage = df.get("examLanguage");
 
         if(examName == null || examName.isEmpty()) {
             return "sitnet_error_exam_empty_name";
-        }
-
-        if(examLanguage == null || examLanguage.isEmpty()) {
-            return "sitnet_error_exam_empty_exam_language";
         }
 
         try {

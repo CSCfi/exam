@@ -258,7 +258,7 @@ public class Interfaces extends SitnetController {
                     //todo: see this!
                     examScore.setExamDate(sdf.format(exam.getModified()));
                     examScore.setCredits(exam.getCourse().getCredits().toString());
-                    examScore.setCreditLanguage(exam.getExamLanguage());
+                    examScore.setCreditLanguage(exam.getAnswerLanguage());
                     examScore.setStudentGrade(exam.getGrade());
                     examScore.setGradeScale(exam.getGrading());
 /*

@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'dateService',
-            function($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource, dateService) {
+        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'dateService',
+            function($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
@@ -31,8 +31,8 @@
 
                     var tabindex = 1;
                     var tabs = angular.element('input,select,li,button,.dropdown-menu.a,span.create-new,a');
-                    if(tabs) {
-                        angular.forEach(tabs, function (element) {
+                    if (tabs) {
+                        angular.forEach(tabs, function(element) {
                             if (element.type != "hidden") {
                                 angular.element(element).attr("tabindex", tabindex);
                                 tabindex++;
@@ -62,21 +62,12 @@
                     "Hyväksytty-Hylätty"
                 ];
 
-                // Todo: Fill in languages from database for final version
-                $scope.examLanguages = [
-                    "Suomi",
-                    "Ruotsi",
-                    "Englanti",
-                    "Saksa"
-                ];
-
-                // Todo: Fill in languages from database for final version
-                $scope.examAnswerLanguages = [
-                    "Suomi",
-                    "Ruotsi",
-                    "Englanti",
-                    "Saksa"
-                ];
+                LanguageRes.languages.query(function(languages) {
+                    $scope.examLanguages = languages.map(function(language) {
+                        language.name = getLanguageNativeName(language.code);
+                        return language;
+                    });
+                });
 
                 $scope.examTypes = [
                     "Osasuoritus",
@@ -90,35 +81,7 @@
                         function(exam) {
                             $scope.newExam = exam;
                             $scope.softwaresUpdate = $scope.newExam.softwares.length;
-
-                            if ($scope.newExam.examLanguage === null || $scope.newExam.examLanguage === 'Suomi') {
-                                $scope.newExam.examLanguage = $scope.examLanguages[0];
-                            }
-
-                            if ($scope.newExam.answerLanguage === null) {
-                                $scope.newExam.answerLanguage = $scope.examAnswerLanguages[0];
-                            }
-
-                            // EXAMTYPE SET ##############################
-                            if ($scope.newExam.examType === null) {
-                                // examtype id 2 is Final
-                                ExamRes.examType.insert({eid: $scope.newExam.id, etid: 2}, function(updated_exam) {
-
-
-                                    $scope.newExam = updated_exam;
-                                    if ($scope.newExam.examLanguage === null || $scope.newExam.examLanguage === 'Suomi') {
-                                        $scope.newExam.examLanguage = $scope.examLanguages[0];
-                                    }
-
-                                    if ($scope.newExam.answerLanguage === null) {
-                                        $scope.newExam.answerLanguage = $scope.examAnswerLanguages[0];
-                                    }
-                                }, function(error) {
-                                    toastr.error(error.data);
-                                });
-                            }
-                            // ###########################################
-
+                            $scope.languagesUpdate = $scope.newExam.examLanguages.length;
                             $scope.dateService.startDate = exam.examActiveStartDate;
                             $scope.dateService.endDate = exam.examActiveEndDate;
 
@@ -142,6 +105,12 @@
                     }).join(", ");
                 };
 
+                $scope.selectedLanguages = function(exam) {
+                    return exam.examLanguages.map(function(language) {
+                        return getLanguageNativeName(language.code);
+                    }).join(", ");
+                };
+
                 $scope.updateSoftwareInfo = function() {
 
                     if ($scope.newExam.softwares.length !== $scope.softwaresUpdate) {
@@ -155,6 +124,22 @@
                         $scope.selectedSoftwares($scope.newExam);
 
                         $scope.softwaresUpdate = $scope.newExam.softwares.length;
+                    }
+                };
+
+                $scope.updateExamLanguages = function() {
+
+                    if ($scope.newExam.examLanguages.length !== $scope.languagesUpdate) {
+
+                        ExamRes.languages.reset({eid: $scope.newExam.id});
+
+                        angular.forEach($scope.newExam.examLanguages, function(language) {
+                            ExamRes.language.add({eid: $scope.newExam.id, code: language.code});
+                        });
+                        toastr.info($translate('sitnet_exam_language_updated'));
+                        $scope.selectedLanguages($scope.newExam);
+
+                        $scope.languagesUpdate = $scope.newExam.softwares.length;
                     }
                 };
 
@@ -293,16 +278,6 @@
                     $scope.updateExam();
                 };
 
-                $scope.setExamLanguage = function(language) {
-                    $scope.newExam.examLanguage = language;
-                    $scope.updateExam();
-                };
-
-                $scope.setExamAnswerLanguage = function(answerLanguage) {
-                    $scope.newExam.answerLanguage = answerLanguage;
-                    $scope.updateExam();
-                };
-
                 $scope.setExamType = function(type) {
                     $scope.newExam.examType.type = type;
                     $scope.updateExam();
@@ -393,8 +368,6 @@
                         "examActiveEndDate": $scope.dateService.endTimestamp,
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.grading,
-                        "examLanguage": $scope.newExam.examLanguage,
-                        "answerLanguage": $scope.newExam.answerLanguage,
                         "expanded": $scope.newExam.expanded
                     };
 
@@ -430,8 +403,6 @@
 //                        "room": $scope.newExam.room,
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.grading,
-                        "examLanguage": $scope.newExam.examLanguage,
-                        "answerLanguage": $scope.newExam.answerLanguage,
                         "expanded": $scope.newExam.expanded
                     };
 
@@ -444,11 +415,14 @@
 
                     $location.path("/exams/preview/" + examId);
 
-                }
+                };
 
                 // Called when Save button is clicked
                 $scope.saveExam = function() {
-
+                    if ($scope.newExam.examLanguages.length == 0) {
+                        toastr.error($translate('sitnet_error_exam_empty_exam_language'));
+                        return;
+                    }
                     var newState = $scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED' : 'SAVED';
 
                     var examToSave = {
@@ -464,8 +438,6 @@
                         "examActiveEndDate": $scope.dateService.endTimestamp,
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.grading,
-                        "examLanguage": $scope.newExam.examLanguage,
-                        "answerLanguage": $scope.newExam.answerLanguage,
                         "expanded": $scope.newExam.expanded
                     };
 
@@ -477,7 +449,6 @@
                         }, function(error) {
                             toastr.error(error.data);
                         });
-
                 };
 
                 $scope.unpublishExam = function() {
@@ -506,8 +477,6 @@
 //                            "room": $scope.newExam.room,
                                     "duration": $scope.newExam.duration,
                                     "grading": $scope.newExam.grading,
-                                    "examLanguage": $scope.newExam.examLanguage,
-                                    "answerLanguage": $scope.newExam.answerLanguage,
                                     "expanded": $scope.newExam.expanded
                                 };
 
@@ -534,7 +503,7 @@
                     $scope.errors = err;
                     if (Object.getOwnPropertyNames(err).length != 0) {
 
-                        var modalInstance = $modal.open({
+                        $modal.open({
                             templateUrl: 'assets/templates/dialogs/exam_publish_questions.html',
                             backdrop: 'static',
                             keyboard: true,
@@ -578,8 +547,6 @@
 //                            "room": $scope.newExam.room,
                             "duration": $scope.newExam.duration,
                             "grading": $scope.newExam.grading,
-                            "examLanguage": $scope.newExam.examLanguage,
-                            "answerLanguage": $scope.newExam.answerLanguage,
                             "expanded": $scope.newExam.expanded
                         };
 
@@ -616,6 +583,10 @@
 
                     if (exam.name == null || exam.name.length < 2) {
                         errors.name = $translate('sitnet_exam_name_missing_or_too_short');
+                    }
+
+                    if ($scope.newExam.examLanguages.length == 0) {
+                        errors.name = $translate('sitnet_error_exam_empty_exam_language');
                     }
 
                     if ($scope.dateService.startTimestamp == 0) {
@@ -675,7 +646,7 @@
                 $scope.moveQuestion = function(section, from, to) {
                     DragDropHandler.moveObject(section.sectionQuestions, from, to);
                     ExamRes.reordersection.update({eid: $scope.newExam.id, sid: section.id, from: from, to: to}, function() {
-                       toastr.info("Questions reordered");
+                        toastr.info("Questions reordered");
                     });
                 };
 

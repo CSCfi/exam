@@ -185,23 +185,19 @@
         </div>
 
         <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}:</div>
-            <div class="input-group">
-                <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        {{'sitnet_choose' | translate}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li ng-repeat="language in examLanguages" ng-click="setExamLanguage(language)">
-                            <a class="pointer-hand">{{language}}</a>
-                        </li>
-                    </ul>
-                </div>
-                <input type="text" ng-disabled="true" class="form-control" ng-model="newExam.examLanguage">
-            </div>
+            <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}</div>
+            <multiselect class="input-xlarge"
+                         multiple="true"
+                         ng-model="newExam.examLanguages"
+                         header="{{'sitnet_select' | translate}}"
+                         multiheader="selectedLanguages(newExam)"
+                         options="language.code as language.name for language in examLanguages"
+                         change="updateExamLanguages(newExam)" >
+            </multiselect>
         </div>
+
     </div>
+
 
     <!-- Exam maxScore scale and exam type input elements -->
     <div class="row">
@@ -227,81 +223,34 @@
         </div>
     </div>
 
-    <!-- Exam and answer language input elements -->
-    <!--<div class="row">-->
-        <!--<div class="col-md-6">-->
-            <!--<div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}:</div>-->
-            <!--<div class="input-group">-->
-                <!--<div class="input-group-btn">-->
-                    <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">-->
-                        <!--{{'sitnet_choose' | translate}}-->
-                        <!--<span class="caret"></span>-->
-                    <!--</button>-->
-                    <!--<ul class="dropdown-menu">-->
-                        <!--<li ng-repeat="language in examLanguages" ng-click="setExamLanguage(language)">-->
-                            <!--<a class="pointer-hand">{{language}}</a>-->
-                        <!--</li>-->
-                    <!--</ul>-->
-                <!--</div>-->
-                <!--<input type="text" class="form-control" ng-model="newExam.examLanguage" value="Suomi" ui-change="updateExam()">-->
-            <!--</div>-->
-        <!--</div>-->
 
-        <!--div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_exam_answer_language' | translate}}:</div>
-            <div class="input-group">
-                <div class="input-group-btn">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                        {{'sitnet_choose' | translate}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li ng-repeat="answerLanguage in examAnswerLanguages"
-                            ng-click="setExamAnswerLanguage(answerLanguage)"><a class="pointer-hand">{{answerLanguage}}</a>
-                        </li>
-                    </ul>
-                </div>
-                <input type="text" class="form-control" ng-model="newExam.answerLanguage" ui-change="updateExam()">
-            </div>
-        </div-->
-    <!--</div>-->
+    <div class="row">
+        <!-- Exam software -->
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
+            <multiselect class="input-xlarge"
+                         multiple="true"
+                         ng-model="newExam.softwares"
+                         header="{{'sitnet_select' | translate}}"
+                         multiheader="selectedSoftwares(newExam)"
+                         options="software.id as software.name for software in softwares"
+                         change="updateSoftwareInfo(newExam)" >
 
-    <!--<div class="row base">-->
-            <!--<div class="checkbox">-->
-                <!--<label>-->
-                    <!--<input type="checkbox" ng-model="newExam.shared" ui-blur="updateExam()"> {{'sitnet_share_this_exam' |-->
-                    <!--translate}}-->
-                <!--</label>-->
-            <!--</div>-->
-        <!--</div>-->
-
-        <div class="row">
-            <!-- Exam software -->
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
-                <multiselect class="input-xlarge"
-                             multiple="true"
-                             ng-model="newExam.softwares"
-                             header="{{'sitnet_select' | translate}}"
-                             multiheader="selectedSoftwares(newExam)"
-                             options="software.id as software.name for software in softwares"
-                             change="updateSoftwareInfo(newExam)" >
-
-                </multiselect>
-            </div>
-
-            <!--Attachment file-->
-            <div class="col-md-6">
-                <div class="sitnet-info-text">
-                    {{'sitnet_exam_attacment' | translate}}
-                </div>
-                <div ng-show="newExam.attachment" ng-controller="AttachmentController">
-                    <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}}  </a>
-                    <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
-                </div>
-                <button class="btn btn-default" ng-click="selectFile()" >{{'sitnet_attach_file' | translate}}</button>
-            </div>
+            </multiselect>
         </div>
+
+        <!--Attachment file-->
+        <div class="col-md-6">
+            <div class="sitnet-info-text">
+                {{'sitnet_exam_attacment' | translate}}
+            </div>
+            <div ng-show="newExam.attachment" ng-controller="AttachmentController">
+                <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}}  </a>
+                <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
+            </div>
+            <button class="btn btn-default" ng-click="selectFile()" >{{'sitnet_attach_file' | translate}}</button>
+        </div>
+    </div>
 
     <!-- Exam instruction -->
 
