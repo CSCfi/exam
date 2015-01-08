@@ -25,4 +25,5 @@ alter table exam drop column exam_language;
 # --- !Downs
 drop table exam_language;
 drop table language;
-alter table exam drop column exam_language varchar(255);
+alter table exam create column exam_language varchar(255);
+update exam set exam_language='Suomi';
