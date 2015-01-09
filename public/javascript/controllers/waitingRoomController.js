@@ -11,8 +11,8 @@
                     var startsAt = $scope.enrolment.reservation.startAt;
                     // Kinda terrible hack to get the TZ difference right, the backend should provide us
                     // with the timezone, but it does not. Problem with datetime format in json serialization?
-                    //startsAt = startsAt.substring(0, startsAt.length - 1) + "+02:00"; ! this is not working in firefox
-                    var offset = (Date.parse(startsAt) + (2 * 60 * 60 * 1000)) - new Date().getTime();
+                    startsAt = startsAt.substring(0, startsAt.length - 1) + "+02:00";
+                    var offset = Date.parse(startsAt) - new Date().getTime();
                     return offset;
                 };
 
