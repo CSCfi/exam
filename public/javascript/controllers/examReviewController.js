@@ -70,8 +70,9 @@
 
                         if (exam.answerLanguage) {
                             $scope.selectedLanguage = exam.answerLanguage;
-                        } else if (exam.examLanguages.length === 1) {
-                            $scope.selectedLanguage = getLanguageNativeName(exam.examLanguages[0].code);
+                        } else if (exam.parent.examLanguages.length === 1) {
+                            // Use parent's language as default answer language if there is a single one to choose from
+                            $scope.selectedLanguage = getLanguageNativeName(exam.parent.examLanguages[0].code);
                         }
 
                         $scope.isCreator = function() {
@@ -456,7 +457,7 @@
                 $scope.updateExam = function(reviewed_exam) {
 
                     if (reviewed_exam.grade == undefined || reviewed_exam.grade == "") {
-                        toastr.error($translate('sitnet_participation_reviewed'));
+                        toastr.error($translate('sitnet_participation_unreviewed'));
                         return;
                     }
 
@@ -497,7 +498,7 @@
                 $scope.saveExamRecord = function(reviewed_exam) {
 
                     if (reviewed_exam.grade == undefined || reviewed_exam.grade == "") {
-                        toastr.error($translate('sitnet_participation_reviewed') + ". " + $translate('sitnet_result_not_sended_to_registry'));
+                        toastr.error($translate('sitnet_participation_unreviewed') + ". " + $translate('sitnet_result_not_sended_to_registry'));
                         return;
                     }
 

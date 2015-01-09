@@ -57,9 +57,11 @@
 </div>
 
 <div class="row" ng-show="isReadOnly">
-    <div class="top-padding-2 col-md-12">
-        <span class="sitnet-info-text"><i>{{'sitnet_teachers_comment' | translate}}:</i></span>
-        <div>{{ examToBeReviewed.examFeedback.comment }}</div>
+    <div class="col-md-12 sitnet-info-text">{{'sitnet_teachers_comment' | translate}}:</div>
+</div>
+<div class="row" ng-show="isReadOnly">
+    <div class="col-md-12 sitnet-info-text-compact review-question-value"
+         mathjax ng-bind-html="examToBeReviewed.examFeedback.comment"></div>
     </div>
 </div>
 
