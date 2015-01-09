@@ -365,7 +365,7 @@ public class Global extends GlobalSettings {
                 if (productionData.equals("false")) {
 
                     @SuppressWarnings("unchecked")
-                    Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
+                    Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
 
                     // HUOM, järjestyksellä on väliä
                     Ebean.save(all.get("user-roles"));
@@ -380,6 +380,13 @@ public class Global extends GlobalSettings {
                     Ebean.save(all.get("exam-types"));
                     Ebean.save(all.get("exams"));
                     Ebean.save(all.get("exam-sections"));
+                    // Need to explicitly set the embedded compound key.
+                    for (Object o : all.get("section-questions")) {
+                        ExamSectionQuestion src = (ExamSectionQuestion)o;
+                        ExamSectionQuestion dest = new ExamSectionQuestion(src.getExamSection(), src.getQuestion());
+                        dest.setSequenceNumber(src.getSequenceNumber());
+                        Ebean.save(dest);
+                    }
                     Ebean.save(all.get("exam-participations"));
                     Ebean.save(all.get("exam-inspections"));
                     Ebean.save(all.get("mail-addresses"));
