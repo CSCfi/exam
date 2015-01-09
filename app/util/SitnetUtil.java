@@ -6,13 +6,12 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.typesafe.config.ConfigFactory;
 import controllers.UserController;
-import models.Exam;
-import models.ExamInspection;
-import models.SitnetModel;
-import models.User;
+import models.*;
+import models.questions.QuestionInterface;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import play.libs.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -239,4 +240,75 @@ public class SitnetUtil {
 
         return status;
     }
+
+    @SuppressWarnings("unchecked")
+    public static void initializeDataModel() {
+        if (Ebean.find(User.class).findRowCount() == 0) {
+
+            String productionData = ConfigFactory.load().getString("sitnet.production.initial.data");
+
+            // Should we load production test data
+            if (productionData.equals("false")) {
+
+                Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
+
+                Ebean.save(all.get("user-roles"));
+                Ebean.save(all.get("user_languages"));
+                Ebean.save(all.get("organisations"));
+                Ebean.save(all.get("attachments"));
+                Ebean.save(all.get("users"));
+                Ebean.save(all.get("question_essay"));
+                Ebean.save(all.get("question_multiple_choice"));
+                Ebean.save(all.get("courses"));
+                Ebean.save(all.get("comments"));
+                Ebean.save(all.get("exam-types"));
+                Ebean.save(all.get("exams"));
+                Ebean.save(all.get("exam-sections"));
+                // Need to explicitly set the embedded compound key.
+                for (Object o : all.get("section-questions")) {
+                    ExamSectionQuestion src = (ExamSectionQuestion)o;
+                    ExamSectionQuestion dest = new ExamSectionQuestion(src.getExamSection(), src.getQuestion());
+                    dest.setSequenceNumber(src.getSequenceNumber());
+                    Ebean.save(dest);
+                }
+                Ebean.save(all.get("exam-participations"));
+                Ebean.save(all.get("exam-inspections"));
+                Ebean.save(all.get("mail-addresses"));
+                Ebean.save(all.get("calendar-events"));
+                Ebean.save(all.get("softwares"));
+                Ebean.save(all.get("exam-rooms"));
+                Ebean.save(all.get("exam-machines"));
+                Ebean.save(all.get("exam-room-reservations"));
+                Ebean.save(all.get("exam-enrolments"));
+                Ebean.save(all.get("user-agreament"));
+                Ebean.save(all.get("grades"));
+
+                // generate hashes for questions
+                List<Object> questions = all.get("question_multiple_choice");
+                for (Object q : questions) {
+                    ((QuestionInterface) q).generateHash();
+                }
+                Ebean.save(questions);
+
+                // generate hashes for questions
+                List<Object> exams = all.get("exams");
+                for (Object e : exams) {
+                    ((Exam) e).generateHash();
+                }
+                Ebean.save(exams);
+            } else if (productionData.equals("true")) {
+
+                Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
+
+                Ebean.save(all.get("user-roles"));
+                Ebean.save(all.get("user_languages"));
+                Ebean.save(all.get("users"));
+                Ebean.save(all.get("exam-types"));
+                Ebean.save(all.get("softwares"));
+                Ebean.save(all.get("grades"));
+                Ebean.save(all.get("general-settings"));
+            }
+        }
+    }
+
 }
