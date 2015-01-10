@@ -1,3 +1,5 @@
+package base;
+
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.config.ServerConfig;
@@ -72,21 +74,6 @@ public class IntegrationTestCase {
             logout();
             sessionToken = null;
         }
-    }
-
-    @Test
-    @RunAsStudent
-    public void testListExamsUnauthorized() {
-        Result result = get("/activeexams");
-        assertThat(status(result)).isEqualTo(403);
-        assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
-    }
-
-    @Test
-    @RunAsTeacher
-    public void testListExams() {
-        Result result = get("/activeexams");
-        assertThat(status(result)).isEqualTo(200);
     }
 
     protected Result get(String path) {
