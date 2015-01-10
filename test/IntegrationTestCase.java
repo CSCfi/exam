@@ -26,6 +26,7 @@ import static play.test.Helpers.*;
 public class IntegrationTestCase {
 
     private static FakeApplication app;
+    private static DdlGenerator generator;
     protected String sessionToken;
 
     @Rule
@@ -34,26 +35,27 @@ public class IntegrationTestCase {
     @BeforeClass
     public static void startApp() {
         Config config = ConfigFactory.parseFile(new File("conf/integrationtest.conf"));
-        app = Helpers.fakeApplication(new Configuration(config).asMap());
-        Helpers.start(app); // TODO: see if we need this running before resetting db, now it appears to be so
+        app = fakeApplication(new Configuration(config).asMap());
+        start(app); // TODO: see if we need this running before resetting db, now it appears to be so
+        EbeanServer server = Ebean.getServer("default");
+        generator = new DdlGenerator();
+        generator.setup((SpiEbeanServer) server, new PostgresPlatform(), new ServerConfig());
     }
 
     @AfterClass
-    public static void tearDown() {
+    public static void stopApp() {
         Helpers.stop(app);
     }
 
     @Before
-    public void dropCreateDb() throws IOException, NoSuchMethodException {
-        EbeanServer server = Ebean.getServer("default");
-        ServerConfig config = new ServerConfig();
-        DdlGenerator generator = new DdlGenerator();
-        generator.setup((SpiEbeanServer) server, new PostgresPlatform(), config);
+    public void setUp() throws IOException, NoSuchMethodException {
          // Drop
         generator.runScript(false, generator.generateDropDdl());
         // Create
         generator.runScript(false, generator.generateCreateDdl());
-        SitnetUtil.initializeDataModel(); // unfortunately we need to add these again
+        // Initialize
+        SitnetUtil.initializeDataModel();
+
         Method testMethod = getClass().getDeclaredMethod(currentTest.getMethodName());
         if (testMethod.isAnnotationPresent(RunAsStudent.class)) {
             loginAsStudent();
@@ -65,11 +67,11 @@ public class IntegrationTestCase {
     }
 
     @After
-    public void after() {
+    public void tearDown() {
         if (sessionToken != null) {
             logout();
+            sessionToken = null;
         }
-        sessionToken = null;
     }
 
     @Test
