@@ -46,7 +46,7 @@ public class IntegrationTestCase {
 
     @AfterClass
     public static void stopApp() {
-        Helpers.stop(app);
+        stop(app);
     }
 
     @Before

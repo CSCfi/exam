@@ -33,7 +33,7 @@ public class ExamController extends SitnetController {
     public static Result getExams() {
 
         User user = UserController.getLoggedUser();
-        ExpressionList expr = Ebean.find(Exam.class)
+        ExpressionList<Exam> expr = Ebean.find(Exam.class)
                 .fetch("course")
                 .where()
                 .disjunction()

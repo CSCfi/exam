@@ -4,6 +4,8 @@ import play.api.mvc.{Controller, SimpleResult}
 import play.db.ebean.Model
 import play.libs.{Json => JavaJson}
 
+import scala.language.implicitConversions
+
 trait ScalaHacks {self: Controller =>
 
   implicit def coursesList2Response[T <: Model](c: java.util.List[T]): SimpleResult = java2Response(c)

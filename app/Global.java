@@ -357,20 +357,20 @@ public class Global extends GlobalSettings {
 
     private class AddHeader extends Action {
         private Map<String, String> headers;
+        private Action<?> delegate;
 
-        public AddHeader(Action action, Map<String, String> headers) {
+        public AddHeader(Action<?> action, Map<String, String> headers) {
             this.headers = headers;
             this.delegate = action;
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public Promise<SimpleResult> call(Http.Context context) throws Throwable {
             final Promise<SimpleResult> promise = this.delegate.call(context);
             Http.Response response = context.response();
 
-            for (String key : headers.keySet()) {
-                response.setHeader(key, headers.get(key));
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                response.setHeader(entry.getKey(), entry.getValue());
             }
             return promise;
         }
