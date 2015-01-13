@@ -4,6 +4,10 @@ name := "sitnet"
 
 version := "1.0-SNAPSHOT"
 
+javacOptions ++= Seq("-Xlint:unchecked")
+
+scalacOptions ++= Seq("-feature")
+
 play.Project.playScalaSettings ++ SassPlugin.sassSettings
 
 libraryDependencies ++= Seq(

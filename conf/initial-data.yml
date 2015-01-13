@@ -831,7 +831,6 @@ question_multiple_choice:
     answer:
         !!models.answers.MultipleChoiseAnswer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}}
 
-
 ######################################################################
 
 courses:
@@ -1095,128 +1094,311 @@ exam-sections:
   - &alkeet_mv_osio1 !!models.ExamSection
     name: Monivalinnat 1
     exam: *alkeidenperusteetGraded
-    questions:
-              - *multi1_sauli
-              - *multi2_sauli
     totalScore:
 
   - &alkeet_mv_osio2 !!models.ExamSection
     name: Monivalinnat 2
     exam: *alkeidenperusteetGraded
-    questions:
-              - *avaruus4_sauli
-              - *multi4_sauli
-              - *avaruus5_sauli
     totalScore:
 
   - &alkeet_essay !!models.ExamSection
     name: Essee kysymykset
     exam: *alkeidenperusteetGraded
-    questions:
-              - *essay1_sauli
-              - *essay2_sauli
-              - *essay3_sauli
     totalScore:
 
   - &alkeet_mv_osio1b !!models.ExamSection
     name: Monivalinnat 1
     exam: *alkeidenperusteetReview
-    questions:
-              - *multi1b_sauli
-              - *multi2b_sauli
     totalScore:
 
   - &alkeet_mv_osio2b !!models.ExamSection
     name: Monivalinnat 2
     exam: *alkeidenperusteetReview
-    questions:
-              - *avaruus4b_sauli
-              - *multi4b_sauli
-              - *avaruus5b_sauli
     totalScore:
 
   - &alkeet_essayb !!models.ExamSection
     name: Essee kysymykset
     exam: *alkeidenperusteetReview
-    questions:
-              - *essay1b_sauli
-              - *essay2b_sauli
-              - *essay3b_sauli
     totalScore:
 
   - &osio2 !!models.ExamSection
     name: Monivalinnat 2
     exam: *tietokannat2013
-    questions:
-              - *multi3
-              - *multi4
-              - *multi5
     totalScore:
 
   - &osio1_algo !!models.ExamSection
     name: Monivalinnat 1
     exam: *algoritmit
-    questions:
-              - *avaruus4
-              - *multi4
-              - *avaruus5
     totalScore:
 
   - &osio2_algo !!models.ExamSection
     name: Essee 1
     exam: *algoritmit
-    questions:
-              - *essay1
-              - *multi4
-              - *avaruus5
     totalScore:
 
   - &osio4 !!models.ExamSection
     name: Monivalinnat 4
     exam: *ooad
-    questions:
-              - *avaruus9
-              - *avaruus8
-              - *avaruus7
-              - *multi1
-              - *multi2
-              - *multi3
     totalScore:
 
   - &osio5 !!models.ExamSection
     name: Monivalinnat 5
     exam: *ooad
-    questions:
-              - *avaruus9
-              - *avaruus8
-              - *avaruus7
     totalScore:
 
   - &astro1 !!models.ExamSection
     name: Astronomian Monivalinnat
     exam: *astronomianPerusteet
-    questions:
-              - *avaruus1
-              - *avaruus2
-              - *avaruus3
-              - *avaruus4
-              - *avaruus5
-              - *avaruus6
-              - *avaruus7
-              - *avaruus8
-              - *avaruus9
-              - *avaruus10
-              - *avaruus11
     totalScore:
     
   - &ooadessay !!models.ExamSection
     name: Essee kysymykset
     exam: *ooad
-    questions:
-              - *essay1
-              - *essay2
-              - *essay3
     totalScore:
+
+######################################################################
+
+section-questions:
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1
+    question: *multi1_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1
+    question: *multi2_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2
+    question: *avaruus4_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2
+    question: *multi4_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2
+    question: *avaruus5_sauli
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essay
+    question: *essay1_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essay
+    question: *essay2_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essay
+    question: *essay3_sauli
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1b
+    question: *multi1b_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1b
+    question: *multi2b_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2b
+    question: *avaruus4b_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2b
+    question: *multi4b_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2b
+    question: *avaruus5b_sauli
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essayb
+    question: *essay1b_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essayb
+    question: *essay2b_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essayb
+    question: *essay3b_sauli
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2
+    question: *multi3
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2
+    question: *multi4
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2
+    question: *multi5
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio1_algo
+    question: *avaruus4
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio1_algo
+    question: *multi4
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio1_algo
+    question: *avaruus5
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2_algo
+    question: *essay1
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2_algo
+    question: *multi4
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2_algo
+    question: *avaruus5
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *avaruus9
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *avaruus8
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *avaruus7
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *multi1
+    sequenceNumber: 3
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *multi2
+    sequenceNumber: 4
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *multi3
+    sequenceNumber: 5
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio5
+    question: *avaruus9
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio5
+    question: *avaruus8
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio5
+    question: *avaruus7
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus1
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus2
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus3
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus4
+    sequenceNumber: 3
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus5
+    sequenceNumber: 4
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus6
+    sequenceNumber: 5
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus7
+    sequenceNumber: 6
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus8
+    sequenceNumber: 7
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus9
+    sequenceNumber: 8
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus10
+    sequenceNumber: 9
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus11
+    sequenceNumber: 10
+
+  - !!models.ExamSectionQuestion
+    examSection: *ooadessay
+    question: *essay1
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *ooadessay
+    question: *essay2
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *ooadessay
+    question: *essay3
+    sequenceNumber: 2
 
 ################################################################
 

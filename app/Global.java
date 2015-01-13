@@ -80,7 +80,7 @@ public class Global extends GlobalSettings {
         // TODO: WeeklyEmailReport.java unused after this
         weeklyEmailReport();
 
-        InitialData.insert();
+        SitnetUtil.initializeDataModel();
         StatisticsController.createReportDirectory();
 
         super.onStart(app);
@@ -355,89 +355,22 @@ public class Global extends GlobalSettings {
         return results.get(0);
     }
 
-    private static class InitialData {
-        public static void insert() {
-            if (Ebean.find(User.class).findRowCount() == 0) {
-
-                String productionData = ConfigFactory.load().getString("sitnet.production.initial.data");
-
-                // Should we load test data
-                if (productionData.equals("false")) {
-
-                    @SuppressWarnings("unchecked")
-                    Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
-
-                    // HUOM, järjestyksellä on väliä
-                    Ebean.save(all.get("user-roles"));
-                    Ebean.save(all.get("user_languages"));
-                    Ebean.save(all.get("organisations"));
-                    Ebean.save(all.get("attachments"));
-                    Ebean.save(all.get("users"));
-                    Ebean.save(all.get("question_essay"));
-                    Ebean.save(all.get("question_multiple_choice"));
-                    Ebean.save(all.get("courses"));
-                    Ebean.save(all.get("comments"));
-                    Ebean.save(all.get("exam-types"));
-                    Ebean.save(all.get("exams"));
-                    Ebean.save(all.get("exam-sections"));
-                    Ebean.save(all.get("exam-participations"));
-                    Ebean.save(all.get("exam-inspections"));
-                    Ebean.save(all.get("mail-addresses"));
-                    Ebean.save(all.get("calendar-events"));
-                    Ebean.save(all.get("softwares"));
-                    Ebean.save(all.get("exam-rooms"));
-                    Ebean.save(all.get("exam-machines"));
-                    Ebean.save(all.get("exam-room-reservations"));
-                    Ebean.save(all.get("exam-enrolments"));
-                    Ebean.save(all.get("user-agreament"));
-                    Ebean.save(all.get("grades"));
-
-                    // generate hashes for questions
-                    List<Object> questions = all.get("question_multiple_choice");
-                    for (Object q : questions) {
-                        ((QuestionInterface) q).generateHash();
-                    }
-                    Ebean.save(questions);
-
-                    // generate hashes for questions
-                    List<Object> exams = all.get("exams");
-                    for (Object e : exams) {
-                        ((Exam) e).generateHash();
-                    }
-                    Ebean.save(exams);
-                } else if (productionData.equals("true")) {
-
-                    @SuppressWarnings("unchecked")
-                    Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
-
-                    Ebean.save(all.get("user-roles"));
-                    Ebean.save(all.get("user_languages"));
-                    Ebean.save(all.get("users"));
-                    Ebean.save(all.get("exam-types"));
-                    Ebean.save(all.get("softwares"));
-                    Ebean.save(all.get("grades"));
-                    Ebean.save(all.get("general-settings"));
-                }
-            }
-        }
-    }
-
     private class AddHeader extends Action {
         private Map<String, String> headers;
+        private Action<?> delegate;
 
-        public AddHeader(Action action, Map<String, String> headers) {
+        public AddHeader(Action<?> action, Map<String, String> headers) {
             this.headers = headers;
             this.delegate = action;
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public Promise<SimpleResult> call(Http.Context context) throws Throwable {
             final Promise<SimpleResult> promise = this.delegate.call(context);
             Http.Response response = context.response();
 
-            for (String key : headers.keySet()) {
-                response.setHeader(key, headers.get(key));
+            for (Map.Entry<String, String> entry : headers.entrySet()) {
+                response.setHeader(entry.getKey(), entry.getValue());
             }
             return promise;
         }
