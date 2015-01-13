@@ -30,21 +30,7 @@
         <div class="col-md-12">
             <div class="exam-name">
                 <h3>
-                    {{examToBeReviewed.course.code}} - {{examToBeReviewed.name}},
-                    <span ng-show="examToBeReviewed.customCredit == '' || examToBeReviewed.customCredit == undefined || examToBeReviewed.customCredit === examToBeReviewed.course.credits">{{examToBeReviewed.course.credits}} op</span>
-                            <span ng-show="examToBeReviewed.customCredit != '' && examToBeReviewed.customCredit != undefined && examToBeReviewed.customCredit !== examToBeReviewed.course.credits">
-                                <span style="text-decoration: line-through;color: rgba(0,0,0,0.2);">{{examToBeReviewed.course.credits}} op</span>
-                                {{examToBeReviewed.customCredit}} op
-                            </span>
-                    <div ng-show="customForm === true" class="pull-right">
-                        <input type="text" class="form-control pull-left" style="max-width:40px;max-height:22px;margin-right:10px" maxlength="4" size="4" ng-model="examToBeReviewed.customCredit" ng-value="examToBeReviewed.customCredit">
-                        <a ng-click="resetCredit()" style="font-size:0.5em;line-height:22px;color:red;margin-left:5px;text-decoration: none;" class="pull-right pointer">{{ 'sitnet_clear' | translate }}</a>
-                        <button class="btn btn-primary btn-xs pull-right" ng-click="modifyCredit()">{{ 'sitnet_save'
-                            | translate }}</button>
-                    </div>
-                    <div ng-show="customForm === false" class="pull-right">
-                        <button class="btn btn-primary btn-xs" ng-click="customForm = true">{{ 'sitnet_modify_credit' | translate }}</button>
-                    </div>
+                    {{examToBeReviewed.course.code}} - {{examToBeReviewed.name}}, {{examToBeReviewed.course.credits}} op
                 </h3>
             </div>
         </div>

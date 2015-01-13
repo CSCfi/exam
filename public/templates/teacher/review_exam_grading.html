@@ -23,20 +23,32 @@
 <div class="exam-general-information row sitnet-info-text-bold">{{'sitnet_grading_info' | translate}}:</div>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-2">
         <div class="sitnet-info-text">{{'sitnet_exam_grade' | translate}}:</div>
         <select name="examGrade" class="form-control" ng-model="examToBeReviewed.grade"
                 ng-disabled="isReadOnly"
                 required ng-disabled="!isCreator()" ng-options="grade for grade in examGrading">
         </select>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="sitnet-info-text">{{'sitnet_exam_choose_credit_type' | translate}}:</div>
         <select name="creditType" class="form-control" ng-model="examToBeReviewed.creditType"
                 ng-disabled="isReadOnly" required>
             <option value="Partial">{{'sitnet_exam_credit_type_partial' | translate}}</option>
             <option value="Final" selected>{{'sitnet_exam_credit_type_final' | translate}}</option>
         </select>
+    </div>
+    <div class="col-md-3 col-lg-offset-1">
+        <div class="sitnet-info-text">{{'sitnet_exam_credit' | translate}}:</div>
+        <div class="col-md-5 row" style="padding-right:0;">
+            <input type="text" class="form-control col-md-2" maxlength="4" ng-model="examToBeReviewed.customCredit"/>
+        </div>
+        <div class="col-md-1" style="padding-left:1.5em;">
+            <h5> op</h5>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-primary btn-sm" ng-click="modifyCredit()">{{ 'sitnet_save' | translate }}</button>
+        </div>
     </div>
 </div>
 

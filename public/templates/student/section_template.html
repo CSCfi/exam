@@ -36,7 +36,7 @@
                     </div>
                     <div ng-if="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName !== null">
                         <a class="pointer" ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, hash)">{{sectionQuestion.question.answer.attachment.fileName}}</a>
-                        <span class="sitnet-red pointer" ng-click="removeQuestionAnswerAttachment(sectionQuestion.question, hash);reload();"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
+                        <span class="sitnet-red pointer" ng-click="removeQuestionAnswerAttachment(sectionQuestion.question, hash);"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
                     </div>
                     <br>
                     <button ng-click="selectFile(sectionQuestion.question)" class="btn btn-primary pull-left">{{'sitnet_attach_file' | translate}}</button>

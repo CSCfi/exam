@@ -41,11 +41,13 @@
                 $scope.acceptedEssays = 0;
                 $scope.rejectedEssays = 0;
 
-
                 // Get the exam that was specified in the URL
                 ExamRes.reviewerExam.get({eid: $routeParams.id},
                     function(exam) {
                         $scope.examToBeReviewed = exam;
+                        if($scope.examToBeReviewed.customCredit == undefined || $scope.examToBeReviewed.customCredit == '') {
+                            $scope.examToBeReviewed.customCredit = $scope.examToBeReviewed.course.credits;
+                        }
 
                         if (exam) {
                             angular.forEach($scope.examToBeReviewed.examSections, function(section) {
@@ -532,19 +534,9 @@
                     }
                 };
 
-                $scope.resetCredit = function() {
-
-                    ExamRes.credit.update({eid: $scope.examToBeReviewed.id, credit: -1}, function() {
-                        toastr.info($translate("sitnet_exam_updated"));
-                        $scope.examToBeReviewed.customCredit = '';
-                    }, function(error) {
-                        toastr.error(error.data);
-                    });
-                    $scope.customForm = false;
-                };
-
                 $scope.modifyCredit = function() {
-                    if ($scope.examToBeReviewed.customCredit === '' || isNaN($scope.examToBeReviewed.customCredit)) {
+
+                    if ($scope.examToBeReviewed.customCredit === '' || $scope.examToBeReviewed.customCredit === undefined || isNaN($scope.examToBeReviewed.customCredit)) {
                         toastr.error($translate('sitnet_not_a_valid_custom_credit'));
                         return;
                     }
@@ -554,14 +546,11 @@
                     }, function(error) {
                         toastr.error(error.data);
                     });
-                    $scope.customForm = false;
                 };
 
                 $scope.stripHtml = function(text) {
                     return String(text).replace(/<[^>]+>/gm, '');
                 };
-
-                $scope.customForm = false;
             }
         ]);
 }());
