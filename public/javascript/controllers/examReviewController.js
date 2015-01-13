@@ -216,8 +216,10 @@
                             function(info) {
                                 $scope.userInfo = info;
                                 // terrible hack to accommodate for the lack of timezone info coming from backend
-                                var duration = info.duration.substring(0, info.duration.length - 1) + "+02:00";
-                                $scope.userInfo.duration = duration;
+                                if(info && info.duration) {
+                                    var duration = info.duration.substring(0, info.duration.length - 1) + "+02:00";
+                                    $scope.userInfo.duration = duration;
+                                }
                                 // get previous participations ->
                                 ExamRes.examParticipationsOfUser.query(
                                     {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
