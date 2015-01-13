@@ -5,7 +5,7 @@ import play.Logger;
 import play.mvc.Controller;
 import util.SitnetUtil;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 public class ReviewRunner extends Controller implements Runnable {
@@ -55,10 +55,10 @@ public class ReviewRunner extends Controller implements Runnable {
 
                 if (participationTimeLimit.isBeforeNow()) {
                     participation.setEnded(SitnetUtil.getNowTime());
-                    participation.setDuration(new Timestamp(participation.getEnded().getTime() - participation.getStarted().getTime()));
+                    participation.setDuration(new Date(participation.getEnded().getTime() - participation.getStarted().getTime()));
 
                     GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
-                    participation.setDeadline(new Timestamp(participation.getEnded().getTime() + settings.getReviewDeadline()));
+                    participation.setDeadline(new Date(participation.getEnded().getTime() + settings.getReviewDeadline()));
 
                     participation.save();
                     String state = Exam.State.REVIEW.toString();

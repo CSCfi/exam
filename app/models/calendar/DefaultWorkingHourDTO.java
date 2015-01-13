@@ -1,14 +1,12 @@
 package models.calendar;
 
+import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import play.Logger;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import static models.calendar.DefaultWorkingHours.Day;
 
@@ -38,76 +36,39 @@ public class DefaultWorkingHourDTO {
         this.hours = hours;
     }
 
-    public int getStartHour() {
-        return startHour;
-    }
-
-    public void setStartHour(int startHour) {
-        this.startHour = startHour;
-    }
-
-    public int getStepMinutes() {
-        return stepMinutes;
-    }
-
-    public void setStepMinutes(int stepMinutes) {
-        this.stepMinutes = stepMinutes;
-    }
-
-    private Timestamp convertTime(int row) {
+    private Date convertTime(int row) {
 
         if(row > 0 && row/2 == endHour) {  //24:00 -> 23.59.59
-            return new Timestamp(LocalTime.MIDNIGHT.minusSeconds(1).getMillisOfDay());
+            return new DateTime().withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).toDate();
         }
-
-        //System.out.println("-- row -- " + row);
-        String start = String.format("%02d", startHour) + ":00";
-        //System.out.println("-- start -- " + start);
-
-        final LocalTime time = fmt.parseLocalTime(start).plusMinutes(row * stepMinutes);
-        //System.out.println("-- localtime -- " + time);
-
-        final long millis = time.getMillisOfDay();
-        //System.out.println("-- millis -- "+ millis);
-
-
-        final Timestamp timestamp = new Timestamp(millis);
-
-        //System.out.println("-- timestamp millis -- "+  timestamp.getTime());
-
-
-        //System.out.println("-- timestamp -- " + timestamp);
-
-        return timestamp;
+        return new LocalTime().withHourOfDay(startHour).plusMinutes(row * stepMinutes).toDateTimeToday().toDate();
     }
 
     public List<DefaultWorkingHours> getDefaultWorkingHours() {
 
-        HashMap<Day, List<Integer>> onGoing = new HashMap<Day, List<Integer>>();
-        List<DefaultWorkingHours> allHours = new ArrayList<DefaultWorkingHours>();
+        HashMap<Day, List<Integer>> ongoing = new HashMap<>();
+        List<DefaultWorkingHours> allHours = new ArrayList<>();
 
         if (hours == null) {
-            return new ArrayList<DefaultWorkingHours>();
+            return allHours;
         }
 
         //order rows, data format is rather obscure..
         for (List<DefaultSlotDTO> row : hours) {
             for (DefaultSlotDTO cell : row) {
                 Day day = Day.values()[cell.getDay()];
-                List<Integer> hours = onGoing.get(day);
-                if (hours == null) {
-                    hours = new ArrayList<Integer>();
-                    onGoing.put(day, hours);
+                if (!ongoing.containsKey(day)) {
+                    ongoing.put(day, new ArrayList<Integer>());
                 }
-                hours.add(cell.getTime());
+                ongoing.get(day).add(cell.getTime());
             }
         }
 
-        System.out.println(onGoing);
+        Logger.debug("ongoing: " + ongoing);
         //loop for days
         for (Day day : Day.values()) {
 
-            List<Integer> times = onGoing.get(day);
+            List<Integer> times = ongoing.get(day);
             if (times == null) {
                 continue;
             }

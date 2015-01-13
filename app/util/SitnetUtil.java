@@ -12,21 +12,17 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import play.libs.Yaml;
-import scalax.io.support.FileUtils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.channels.FileChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -110,11 +106,10 @@ public class SitnetUtil {
     static public SitnetModel setCreator(SitnetModel object) throws SitnetException {
 
         User user = UserController.getLoggedUser();
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
         if (object.getCreator() == null) {
             object.setCreator(user);
-            object.setCreated(currentTime);
+            object.setCreated(new Date());
         } else {
             throw new SitnetException("Object already has creator");
         }
@@ -124,10 +119,9 @@ public class SitnetUtil {
     static public SitnetModel setModifier(SitnetModel object) {
 
         User user = UserController.getLoggedUser();
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 
         object.setModifier(user);
-        object.setModified(currentTime);
+        object.setModified(new Date());
 
         return object;
     }
@@ -179,8 +173,8 @@ public class SitnetUtil {
         }
     }
 
-    static public Timestamp getNowTime() {
-        return new Timestamp(DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now())).getMillis());
+    static public Date getNowTime() {
+        return DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now())).toDate();
     }
 
     public static void copyFile(File sourceFile, File destFile) throws IOException {
@@ -208,6 +202,7 @@ public class SitnetUtil {
                 Ebean.save(all.get("question_multiple_choice"));
                 Ebean.save(all.get("courses"));
                 Ebean.save(all.get("comments"));
+                Ebean.save(all.get("languages"));
                 Ebean.save(all.get("exam-types"));
                 Ebean.save(all.get("exams"));
                 Ebean.save(all.get("exam-sections"));

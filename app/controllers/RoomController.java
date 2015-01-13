@@ -18,8 +18,7 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -185,19 +184,19 @@ public class RoomController extends SitnetController {
         final ExceptionWorkingHours hours = new ExceptionWorkingHours();
 
         if (startDate != null) {
-            hours.setStartDate(new Timestamp(startDate.plusMillis(offsetMillis).getMillis()));
+            hours.setStartDate(startDate.plusMillis(offsetMillis).toDate());
         }
 
         if (startTime != null) {
-            hours.setStartTime(new Timestamp(startTime.plusMillis(offsetMillis).getMillis()));
+            hours.setStartTime(startTime.plusMillis(offsetMillis).toDate());
         }
 
         if (endDate != null) {
-            hours.setEndDate(new Timestamp(endDate.plusMillis(offsetMillis).getMillis()));
+            hours.setEndDate(endDate.plusMillis(offsetMillis).toDate());
         }
 
         if (endTime != null) {
-            hours.setEndTime(new Timestamp(endTime.plusMillis(offsetMillis).getMillis()));
+            hours.setEndTime(endTime.plusMillis(offsetMillis).toDate());
         }
 
 

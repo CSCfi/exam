@@ -11,7 +11,6 @@ import models.User;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -20,8 +19,6 @@ public class EnrollController extends Controller {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result enrollExamList(String code) {
 
-        Timestamp now = new Timestamp(new Date().getTime());
-
         List<Exam> activeExams = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("examLanguages")
@@ -29,7 +26,7 @@ public class EnrollController extends Controller {
                 .eq("course.code", code)
                 .eq("state", "PUBLISHED")
 //                .betweenProperties("examActiveStartDate", "examActiveEndDate", now)
-                .gt("examActiveEndDate", now)   // Students should be able to enroll, before exam starts.
+                .gt("examActiveEndDate", new Date())   // Students should be able to enroll, before exam starts.
                 .findList();
 
         JsonContext jsonContext = Ebean.createJsonContext();
@@ -97,7 +94,6 @@ public class EnrollController extends Controller {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result createEnrolment(String code, Long id) {
 
-        Timestamp now = new Timestamp(new Date().getTime());
         User user = UserController.getLoggedUser();
 
         Exam exam = Ebean.find(Exam.class)
@@ -121,7 +117,7 @@ public class EnrollController extends Controller {
         }
 
         enrolment = new ExamEnrolment();
-        enrolment.setEnrolledOn(now);
+        enrolment.setEnrolledOn(new Date());
         enrolment.setUser(user);
         enrolment.setExam(exam);
         enrolment.save();

@@ -10,15 +10,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import org.joda.time.DateTime;
-import org.springframework.util.CollectionUtils;
-import play.Logger;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 /**

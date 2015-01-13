@@ -12,7 +12,6 @@ import play.mvc.Result;
 import util.java.EmailComposer;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -67,7 +66,7 @@ public class ExamRecordController extends SitnetController {
         record.setExam(exam);
         record.setStudent(student);
         record.setTeacher(teacher);
-        record.setTimeStamp(new Timestamp(new Date().getTime()));
+        record.setTimeStamp(new Date());
 
 
         ExamScore score = new ExamScore();

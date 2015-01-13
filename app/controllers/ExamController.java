@@ -24,7 +24,6 @@ import util.java.EmailComposer;
 import util.java.ValidationUtil;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.*;
 
 public class ExamController extends SitnetController {
@@ -74,9 +73,6 @@ public class ExamController extends SitnetController {
 
         User user = UserController.getLoggedUser();
 
-        Date date = new Date();
-        Timestamp timestamp = new Timestamp(date.getTime());
-
         // Todo: Oletetaan että tentin luoja on automaattisesti tentin tarkastaja
         List<Exam> activeExams = Ebean.find(Exam.class)
                 .fetch("course")
@@ -84,21 +80,16 @@ public class ExamController extends SitnetController {
                 .eq("creator.id", user.getId())
                 .ne("state", Exam.State.SAVED.toString())
                 .ne("state", Exam.State.DRAFT.toString())
-                .betweenProperties("examActiveStartDate", "examActiveEndDate", timestamp)
+                .betweenProperties("examActiveStartDate", "examActiveEndDate", new Date())
                 .findList();
 
         // Todo: Hae tentit joissa tämä käyttäjä on tarkastaja, palauta JSON propertiesilla
-
-//        List<ExamEnrolment> enrolments =
-
+        //        List<ExamEnrolment> enrolments =
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate");
         options.setPathProperties("course", "code");
-//        options.setPathProperties("reservation", "startAt, machine");
-//        options.setPathProperties("reservation.machine", "name");
-
         return ok(jsonContext.toJsonString(activeExams, true, options)).as("application/json");
     }
 
@@ -156,13 +147,9 @@ public class ExamController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getFinishedExams() {
-
-        Date date = new Date();
-        Timestamp timestamp = new Timestamp(date.getTime());
-
         List<Exam> finishedExams = Ebean.find(Exam.class)
                 .where()
-                .lt("examActiveEndDate", timestamp)
+                .lt("examActiveEndDate", new Date())
                 .findList();
 
         return ok(Json.toJson(finishedExams));
@@ -170,7 +157,6 @@ public class ExamController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteExam(Long id) {
-
         Exam exam = Ebean.find(Exam.class, id);
         if (UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isOwner(exam)) {
 
@@ -609,12 +595,11 @@ public class ExamController extends SitnetController {
             Long end = new Long(df.get("examActiveEndDate"));
 
             if (start != 0) {
-                exam.setExamActiveStartDate(new Timestamp(start));
+                exam.setExamActiveStartDate(new Date(start));
             }
             if (end != 0) {
-                exam.setExamActiveEndDate(new Timestamp(end));
+                exam.setExamActiveEndDate(new Date(end));
             }
-
 
             if (duration != null) {
                 exam.setDuration(Integer.valueOf(duration));
@@ -858,7 +843,7 @@ public class ExamController extends SitnetController {
                 MultipleChoiceQuestion clone = (MultipleChoiceQuestion) multiQuestion.clone();
                 clone.setParent(multiQuestion);
                 clone.setCreator(UserController.getLoggedUser());
-                clone.setCreated(new Timestamp(System.currentTimeMillis()));
+                clone.setCreated(new Date());
                 // this is dumb, should fix the generic clone implementation
                 clone.setOptions(new ArrayList<MultipleChoiseOption>());
                 SitnetUtil.setModifier(clone);

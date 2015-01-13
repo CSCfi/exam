@@ -5,7 +5,7 @@ import models.ExamRoom;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * Created by avainik on 4/22/14.
@@ -16,23 +16,23 @@ public class ExceptionWorkingHours extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp startDate;
+    private Date startDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp endDate;
+    private Date endDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp startTime;
+    private Date startTime;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp endTime;
+    private Date endTime;
 
     @ManyToOne
     @JsonBackReference
@@ -46,19 +46,19 @@ public class ExceptionWorkingHours extends Model {
         this.id = id;
     }
 
-    public Timestamp getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Timestamp endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
-    public Timestamp getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 
@@ -70,19 +70,19 @@ public class ExceptionWorkingHours extends Model {
         this.room = room;
     }
 
-    public Timestamp getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Timestamp startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public Timestamp getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 

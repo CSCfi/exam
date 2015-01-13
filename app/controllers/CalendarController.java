@@ -14,7 +14,6 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 
@@ -99,8 +98,8 @@ public class CalendarController extends SitnetController {
         }
 
         final Reservation reservation = new Reservation();
-        reservation.setEndAt(new Timestamp(end.getMillis()));
-        reservation.setStartAt(new Timestamp(start.getMillis()));
+        reservation.setEndAt(new Date(end.getMillis()));
+        reservation.setStartAt(new Date(start.getMillis()));
         reservation.setMachine(machine);
         reservation.setUser(user);
 

@@ -10,19 +10,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.*;
-
 import org.junit.rules.TestName;
 import play.Configuration;
 import play.libs.Json;
 import play.mvc.Result;
-import play.test.*;
+import play.test.FakeApplication;
+import play.test.FakeRequest;
+import play.test.Helpers;
 import util.SitnetUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Method;
 
-import static org.fest.assertions.Assertions.*;
+import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.*;
 
 public class IntegrationTestCase {
@@ -50,7 +50,7 @@ public class IntegrationTestCase {
     }
 
     @Before
-    public void setUp() throws IOException, NoSuchMethodException {
+    public void setUp() throws Exception {
          // Drop
         generator.runScript(false, generator.generateDropDdl());
         // Create
@@ -113,6 +113,31 @@ public class IntegrationTestCase {
 
     protected void logout() {
         request(Helpers.POST, "/logout", null);
+    }
+
+    protected <T> T deserialize(Class<T> model, JsonNode node) {
+        return JsonDeserializer.deserialize(model, node);
+    }
+
+    private void assertPaths(String[] paths, JsonNode node) {
+        for (String path : paths) {
+            String[] parts = path.split("/");
+            JsonNode parent = node;
+            for (String part : parts) {
+                parent = parent.findPath(part);
+                assertThat(parent.toString()).isNotEmpty();
+            }
+        }
+    }
+
+    protected void assertPathsExist(String[] paths, JsonNode node) {
+        if (node.isArray()) {
+            for (JsonNode jsonNode : node) {
+                assertPaths(paths, jsonNode);
+            }
+        } else {
+            assertPaths(paths, node);
+        }
     }
 
 }

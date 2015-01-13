@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 public class ExamEnrolment extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,7 +29,7 @@ public class ExamEnrolment extends Model {
     private Reservation reservation;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	private Timestamp enrolledOn;
+	private Date enrolledOn;
 
 	
 	public Long getId() {
@@ -48,11 +48,11 @@ public class ExamEnrolment extends Model {
 		this.user = user;
 	}
 
-	public Timestamp getEnrolledOn() {
+	public Date getEnrolledOn() {
 		return enrolledOn;
 	}
 
-	public void setEnrolledOn(Timestamp enrolledOn) {
+	public void setEnrolledOn(Date enrolledOn) {
 		this.enrolledOn = enrolledOn;
 	}
 
