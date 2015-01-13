@@ -15,9 +15,9 @@
                 $scope.toggleGradedExams = false;
                 $scope.toggleLoggedExams = false;
 
-                $scope.getExamInfo = function() {
-                    if($scope.examReviews && $scope.examReviews.length > 0){
-                        var info = $scope.examReviews[0].exam.course.code +" "+ $scope.examReviews[0].exam.name;
+                $scope.getExamInfo = function () {
+                    if ($scope.examReviews && $scope.examReviews.length > 0) {
+                        var info = $scope.examReviews[0].exam.course.code + " " + $scope.examReviews[0].exam.name;
                         return info;
                     } else {
                         return $translate('sitnet_question_has_no_answers');
@@ -34,15 +34,22 @@
                         function (examReviews) {
                             $scope.examReviews = examReviews;
 
-                            angular.forEach($scope.examReviews, function(review){
+                            angular.forEach($scope.examReviews, function (review) {
 
                                 // terrible hack to accommodate for the lack of timezone info coming from backend
-                                var duration = review.duration.substring(0, review.duration.length -1) + "+02:00";
-                                review.duration = duration;
-
-                                if(review.exam.state === "REVIEW" || review.exam.state === "ABORTED" || review.exam.state === "STUDENT_STARTED") { $scope.toggleReviewExams = true; }
-                                if(review.exam.state === "GRADED") { $scope.toggleGradedExams = true; }
-                                if(review.exam.state === "GRADED_LOGGED") { $scope.toggleLoggedExams = true; }
+                                if (review && review.duration) {
+                                    var duration = review.duration.substring(0, review.duration.length - 1) + "+02:00";
+                                    review.duration = duration;
+                                }
+                                if (review.exam.state === "REVIEW" || review.exam.state === "ABORTED" || review.exam.state === "STUDENT_STARTED") {
+                                    $scope.toggleReviewExams = true;
+                                }
+                                if (review.exam.state === "GRADED") {
+                                    $scope.toggleGradedExams = true;
+                                }
+                                if (review.exam.state === "GRADED_LOGGED") {
+                                    $scope.toggleLoggedExams = true;
+                                }
 
                                 ExamRes.inspections.get({id: review.exam.id},
                                     function (locals) {
@@ -60,7 +67,7 @@
                     );
                 }
 
-                $scope.isLongerThanSixMonths = function(gradedDate) {
+                $scope.isLongerThanSixMonths = function (gradedDate) {
 
                     var sixMonths = 1000 * 60 * 60 * 24 * 182;
                     var graded = Date.parse(gradedDate);
@@ -68,9 +75,9 @@
                     return new Date().getTime() > graded + sixMonths;
                 }
 
-                $scope.printExamDuration = function(exam) {
+                $scope.printExamDuration = function (exam) {
 
-                    if(exam && exam.duration) {
+                    if (exam && exam.duration) {
                         var h = 0;
                         var d = exam.duration;
 
@@ -94,15 +101,15 @@
                     }
                 };
 
-                $scope.getLocalInspection = function(eid) {
+                $scope.getLocalInspection = function (eid) {
                     return $scope.examLocalInspections[eid];
                 };
 
                 $scope.isLocalReady = function (eid, userId) {
                     var ready = false;
-                    if($scope.examLocalInspections[eid] && $scope.examLocalInspections[eid].length > 0) {
-                        angular.forEach($scope.examLocalInspections[eid], function(localInspection){
-                            if(localInspection.user.id && localInspection.user.id === userId) {
+                    if ($scope.examLocalInspections[eid] && $scope.examLocalInspections[eid].length > 0) {
+                        angular.forEach($scope.examLocalInspections[eid], function (localInspection) {
+                            if (localInspection.user.id && localInspection.user.id === userId) {
                                 ready = localInspection.ready;
                             }
                         });
@@ -110,8 +117,8 @@
                     return ready;
                 };
 
-                $scope.byState = function(state) {
-                    return function(examReview) {
+                $scope.byState = function (state) {
+                    return function (examReview) {
                         return examReview.exam.state === state;
                     };
                 };

@@ -30,7 +30,9 @@
                     "timeOut": time,
                     "extendedTimeOut": "0"
                 };
-                var startsAt = Date.parse(data[4] + "+02:00");
+
+                var startsAt = Date.parse(data[4].substring(0, data[4].length - 2).replace(/\-/g,'/'));
+
                 if (startsAt > new Date().getTime()) {
                     var date = new Date(startsAt);
                     var hours = zeropad(date.getHours());

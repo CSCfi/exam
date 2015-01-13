@@ -65,6 +65,9 @@
                     ExamRes.reviewerExam.get({eid: $routeParams.id},
                         function(exam) {
                             $scope.examToBeReviewed = exam;
+                            if($scope.examToBeReviewed.customCredit == undefined || $scope.examToBeReviewed.customCredit == '') {
+                                $scope.examToBeReviewed.customCredit = $scope.examToBeReviewed.course.credits;
+                            }
 
                             if (exam) {
                                 angular.forEach($scope.examToBeReviewed.examSections, function(section) {
@@ -232,8 +235,10 @@
                                 function(info) {
                                     $scope.userInfo = info;
                                     // terrible hack to accommodate for the lack of timezone info coming from backend
-                                    var duration = info.duration.substring(0, info.duration.length - 1) + "+02:00";
-                                    $scope.userInfo.duration = duration;
+                                    if(info && info.duration) {
+                                        var duration = info.duration.substring(0, info.duration.length - 1) + "+02:00";
+                                        $scope.userInfo.duration = duration;
+                                    }
                                     // get previous participations ->
                                     ExamRes.examParticipationsOfUser.query(
                                         {eid: $scope.examToBeReviewed.parent.id, uid: $scope.userInfo.user.id}, function(participations) {
@@ -552,19 +557,10 @@
                     }
                 };
 
-                $scope.resetCredit = function() {
-
-                    ExamRes.credit.update({eid: $scope.examToBeReviewed.id, credit: -1}, function() {
-                        toastr.info($translate("sitnet_exam_updated"));
-                        $scope.examToBeReviewed.customCredit = '';
-                    }, function(error) {
-                        toastr.error(error.data);
-                    });
-                    $scope.customForm = false;
-                };
-
                 $scope.modifyCredit = function() {
-                    if ($scope.examToBeReviewed.customCredit === '' || isNaN($scope.examToBeReviewed.customCredit)) {
+                    if ($scope.examToBeReviewed.customCredit === '' ||
+                        $scope.examToBeReviewed.customCredit === undefined ||
+                        isNaN($scope.examToBeReviewed.customCredit)) {
                         toastr.error($translate('sitnet_not_a_valid_custom_credit'));
                         return;
                     }
@@ -574,18 +570,13 @@
                     }, function(error) {
                         toastr.error(error.data);
                     });
-                    $scope.customForm = false;
                 };
 
                 $scope.stripHtml = function(text) {
                     return String(text).replace(/<[^>]+>/gm, '');
                 };
 
-                $scope.customForm = false;
             }
         ])
     ;
-}
-()
-    )
-;
+}());

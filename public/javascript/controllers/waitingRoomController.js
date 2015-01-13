@@ -11,8 +11,8 @@
                     var startsAt = $scope.enrolment.reservation.startAt;
                     // Kinda terrible hack to get the TZ difference right, the backend should provide us
                     // with the timezone, but it does not. It indicates UTC while it actually means EET.
-                    //startsAt = startsAt.substring(0, startsAt.length - 1) + "+02:00"; ! this is not working in firefox
-                    return (Date.parse(startsAt) + (2 * 60 * 60 * 1000)) - new Date().getTime();
+                    startsAt = startsAt.substring(0, startsAt.length - 1) + "+02:00";
+                    return Date.parse(startsAt) - new Date().getTime();
                 };
 
                 var await = function() {

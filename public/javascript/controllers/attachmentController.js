@@ -25,7 +25,7 @@
 
                         function() {
                             toastr.info($translate("sitnet_attachment_removed"));
-                            question.attachment = null;
+                            question.answer.attachment = null;
 
                         }, function(error) {
                             toastr.error(error.data);

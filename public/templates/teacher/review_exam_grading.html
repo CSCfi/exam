@@ -39,6 +39,20 @@
         </select>
     </div>
 </div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="sitnet-info-text">{{'sitnet_exam_credit' | translate}}:</div>
+        <div class="col-md-1 row" style="padding-right:0;">
+            <input type="text" class="form-control col-md-2" maxlength="4" ng-model="examToBeReviewed.customCredit"/>
+        </div>
+        <div class="col-md-1" style="padding-left:1.5em;">
+            <h5> op</h5>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-primary btn-sm" ng-click="modifyCredit()">{{ 'sitnet_save' | translate }}</button>
+        </div>
+    </div>
+</div>
 
 <div class="row">
     <!-- Language -->
