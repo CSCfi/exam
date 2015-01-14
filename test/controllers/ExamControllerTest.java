@@ -105,4 +105,35 @@ public class ExamControllerTest extends IntegrationTestCase {
         int rowCount = Ebean.find(Exam.class).findRowCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
     }
+
+    @Test
+    @RunAsTeacher
+    public void testGetxam() {
+        // Setup
+        long id = 1L;
+        Exam expected = Ebean.find(Exam.class, id);
+
+        // Execute
+        Result result = get("/exams/" + id);
+
+        // Verify
+        assertThat(status(result)).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        assertPathsExist(node, "id");
+        Exam returned = deserialize(Exam.class, node);
+        assertThat(expected.getId()).isEqualTo(returned.getId());
+        assertThat(expected.getName()).isEqualTo(returned.getName());
+        assertThat(expected.getAnswerLanguage()).isEqualTo(returned.getAnswerLanguage());
+        assertThat(expected.getAttachment().getId()).isEqualTo(returned.getAttachment().getId());
+        assertThat(expected.getCourse().getId()).isEqualTo(returned.getCourse().getId());
+        assertThat(expected.getCreditType()).isEqualTo(returned.getCreditType());
+        assertThat(expected.getCustomCredit()).isEqualTo(returned.getCustomCredit());
+        assertThat(expected.getDuration()).isEqualTo(returned.getDuration());
+        assertThat(expected.getEnrollInstruction()).isEqualTo(returned.getEnrollInstruction());
+        assertThat(expected.getExamActiveEndDate()).isEqualTo(returned.getExamActiveEndDate());
+        assertThat(expected.getExamActiveStartDate()).isEqualTo(returned.getExamActiveStartDate());
+        assertThat(expected.getExamFeedback()).isEqualTo(returned.getExamFeedback());
+        
+
+    }
 }
