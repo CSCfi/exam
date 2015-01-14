@@ -116,15 +116,35 @@ public class ExamControllerTest extends IntegrationTestCase {
         // Execute
         Result result = get("/exams/" + id);
 
-        // Verify
+        // Verify, this is a huge set of information so really hard to test it's all there :p
         assertThat(status(result)).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
-        assertPathsExist(node, "id");
+        assertPathsExist(node, "id", "name", "course.id", "course.code", "course.name", "course.level",
+                "course.courseUnitType",
+                "course.credits", "course.institutionName", "course.department", "parent",
+                "examType", "instruction", "enrollInstruction", "shared",
+                "examActiveStartDate",
+                "examActiveEndDate", "room",
+                "duration", "grading", "grade", "customCredit", "totalScore", "answerLanguage",
+                "state", "examFeedback", "creditType", "expanded", "attachment", "creator.id",
+                "creator.firstName", "creator.lastName");
+        assertPathCounts(node, 3, "examSections[*].name", "examSections[*].id", "examSections[*].totalScore",
+                "examSections[*].expanded", "examSections[*].lotteryOn", "examSections[*].lotteryItemCount");
+        assertPathCounts(node, 3, "examSections[*].name", "examSections[*].id", "examSections[*].totalScore",
+                "examSections[*].expanded", "examSections[*].lotteryOn", "examSections[*].lotteryItemCount");
+        assertPathCounts(node, 2, "examSections[0].sectionQuestions[*].sequenceNumber", "examSections[0].sectionQuestions[*].question");
+        assertPathCounts(node, 3, "examSections[1].sectionQuestions[*].sequenceNumber", "examSections[1].sectionQuestions[*].question");
+        assertPathCounts(node, 3, "examSections[2].sectionQuestions[*].sequenceNumber", "examSections[2].sectionQuestions[*].question");
+        assertPathCounts(node, 8, "examSections[*].sectionQuestions[*].question.question");
+        assertPathCounts(node, 8, "examSections[*].sectionQuestions[*].question.answer");
+
+        assertPathCounts(node, 2, "softwares[*].id", "softwares[*].name");
+        assertPathCounts(node, 4, "examLanguages[*].code");
+
         Exam returned = deserialize(Exam.class, node);
         assertThat(expected.getId()).isEqualTo(returned.getId());
         assertThat(expected.getName()).isEqualTo(returned.getName());
         assertThat(expected.getAnswerLanguage()).isEqualTo(returned.getAnswerLanguage());
-        assertThat(expected.getAttachment().getId()).isEqualTo(returned.getAttachment().getId());
         assertThat(expected.getCourse().getId()).isEqualTo(returned.getCourse().getId());
         assertThat(expected.getCreditType()).isEqualTo(returned.getCreditType());
         assertThat(expected.getCustomCredit()).isEqualTo(returned.getCustomCredit());
@@ -132,8 +152,5 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(expected.getEnrollInstruction()).isEqualTo(returned.getEnrollInstruction());
         assertThat(expected.getExamActiveEndDate()).isEqualTo(returned.getExamActiveEndDate());
         assertThat(expected.getExamActiveStartDate()).isEqualTo(returned.getExamActiveStartDate());
-        assertThat(expected.getExamFeedback()).isEqualTo(returned.getExamFeedback());
-        
-
     }
 }

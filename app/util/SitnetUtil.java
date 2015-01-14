@@ -131,11 +131,11 @@ public class SitnetUtil {
         User user = UserController.getLoggedUser();
         boolean isCreator = exam.getParent() != null && exam.getParent().getCreator().getId().equals(user.getId());
 
-        return isCreator || Ebean.find(ExamInspection.class)
+        return isCreator || (exam.getParent() != null && Ebean.find(ExamInspection.class)
                 .where()
                 .eq("exam.id", exam.getParent().getId())
                 .eq("user.id", user.getId())
-                .findUnique() != null;
+                .findUnique() != null);
     }
 
     static public boolean isOwner(SitnetModel object) {
@@ -200,6 +200,7 @@ public class SitnetUtil {
                 Ebean.save(all.get("users"));
                 Ebean.save(all.get("question_essay"));
                 Ebean.save(all.get("question_multiple_choice"));
+                Ebean.save(all.get("softwares"));
                 Ebean.save(all.get("courses"));
                 Ebean.save(all.get("comments"));
                 if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
@@ -219,7 +220,6 @@ public class SitnetUtil {
                 Ebean.save(all.get("exam-inspections"));
                 Ebean.save(all.get("mail-addresses"));
                 Ebean.save(all.get("calendar-events"));
-                Ebean.save(all.get("softwares"));
                 Ebean.save(all.get("exam-rooms"));
                 Ebean.save(all.get("exam-machines"));
                 Ebean.save(all.get("exam-room-reservations"));

@@ -231,19 +231,18 @@ public class ExamController extends SitnetController {
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, " +
                 "shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                "duration, grading, grade, customCredit, totalScore, examLanguage, answerLanguage, " +
+                "duration, grading, grade, customCredit, totalScore, answerLanguage, " +
                 "state, examFeedback, creditType, expanded, attachment, creator, softwares, examLanguages");
         options.setPathProperties("creator", "id, firstName, lastName");
-        options.setPathProperties("parent", "id, creator, examLanguages");
+        options.setPathProperties("parent", "id, creator");
         options.setPathProperties("parent.creator", "id, firstName, lastName");
-        options.setPathProperties("parent.examLanguages", "code, name");
-        options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
+        options.setPathProperties("course", "id, code, name, level, courseUnitType, credits, institutionName, department");
         options.setPathProperties("room", "id, name");
         options.setPathProperties("softwares", "id, name");
-        options.setPathProperties("examLanguages", "code, name");
+        options.setPathProperties("examLanguages", "code");
         options.setPathProperties("attachment", "id, fileName");
         options.setPathProperties("examType", "id, type");
-        options.setPathProperties("examSections", "id, name, sectionQuestions, exam, totalScore, expanded, " +
+        options.setPathProperties("examSections", "id, name, sectionQuestions, totalScore, expanded, " +
                 "lotteryOn, lotteryItemCount");
         options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
         options.setPathProperties("examSections.sectionQuestions.question", "attachment, id, type, question, " +

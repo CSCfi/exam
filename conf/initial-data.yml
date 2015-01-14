@@ -989,6 +989,25 @@ languages:
 
 ################################################################
 
+softwares:
+  - &Matematica !!models.Software
+    name: Matematica
+
+  - &Firefox !!models.Software
+    name: Firefox
+
+  - &Excel !!models.Software
+    name: Excel
+
+  - &Mathcad !!models.Software
+    name: Mathcad
+
+  - &Notepad !!models.Software
+    name: Notepad
+
+
+################################################################
+
 exams:
 
   - &alkeidenperusteetGraded !!models.Exam
@@ -1013,6 +1032,9 @@ exams:
       - *sv
       - *en
       - *de
+    softwareInfo:
+      - *Firefox
+      - *Matematica
 
   - &alkeidenperusteetReview !!models.Exam
     creator: *sauli
@@ -1510,24 +1532,6 @@ calendar-events:
   - &cal-event !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 16:00:00.000
-
-################################################################
-
-softwares:
-  - &Matematica !!models.Software
-    name: Matematica
-
-  - &Firefox !!models.Software
-    name: Firefox
-
-  - &Excel !!models.Software
-    name: Excel
-
-  - &Mathcad !!models.Software
-    name: Mathcad
-
-  - &Notepad !!models.Software
-    name: Notepad
 
 ################################################################
 

@@ -146,6 +146,19 @@ public class IntegrationTestCase {
         }
     }
 
+    protected void assertPathCounts(JsonNode node, int count, String... paths) {
+        Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
+        for (String path : paths) {
+            List<String> pathList = JsonPath.read(document, path);
+            assertThat(pathList).hasSize(count);
+            try {
+                JsonPath.read(document, path);
+            } catch (PathNotFoundException e) {
+                Assert.fail("Path not found: " + path);
+            }
+        }
+    }
+
     // Constructs N search paths based on given fields. Usable for array nodes (such as list of exams returned by app)
     // see https://github.com/jayway/JsonPath for path syntax
     protected String[] jsonPaths(String[] paths, int count) {
