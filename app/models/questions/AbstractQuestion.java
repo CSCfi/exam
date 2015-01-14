@@ -1,15 +1,14 @@
 package models.questions;
 
 import annotations.NonCloneable;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import models.*;
+import models.Attachment;
+import models.Comment;
+import models.EvaluationPhrase;
+import models.SitnetModel;
 import models.answers.AbstractAnswer;
 import util.SitnetUtil;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by avainik on 3/6/14.
@@ -18,13 +17,6 @@ import java.util.List;
 @Table(name = "question")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "question_type", discriminatorType = DiscriminatorType.STRING)
-/*
- * For some weird reason this class cannot be abstract (Ebean issue) even tough it should
- * Abstract class cannot have Lists
- * 
- * See:
- * https://groups.google.com/forum/#!topic/play-framework/YOSLdmv_oSc
- */
 abstract public class AbstractQuestion extends SitnetModel {
 
     protected String type;

@@ -24,7 +24,11 @@ public class ExamType extends Model {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
-	// TDOD: miten erilaiset tenttityypit määritellään?
+    public Long getId() {
+        return id;
+    }
+
+    // TDOD: miten erilaiset tenttityypit määritellään?
 	// kaikille avoin, vain kutsusta, jne
 	private String type;
 

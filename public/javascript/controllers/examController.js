@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$modal', 'sessionService', '$sce', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'dateService',
-            function($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource, dateService) {
+        .controller('ExamController', ['$scope', '$q', '$modal', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'dateService',
+            function($scope, $q, $modal, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource, dateService) {
 
                 $scope.dateService = dateService;
                 $scope.session = sessionService;
@@ -80,6 +80,10 @@
                     ExamRes.exams.get({id: $routeParams.id},
                         function(exam) {
                             $scope.newExam = exam;
+                            $scope.newExam.examLanguages.forEach(function(language) {
+                                // Use front-end language names always to allow for i18n etc
+                                language.name = getLanguageNativeName(language.code);
+                            });
                             $scope.softwaresUpdate = $scope.newExam.softwares.length;
                             $scope.languagesUpdate = $scope.newExam.examLanguages.length;
                             $scope.dateService.startDate = exam.examActiveStartDate;
@@ -131,15 +135,17 @@
 
                     if ($scope.newExam.examLanguages.length !== $scope.languagesUpdate) {
 
-                        ExamRes.languages.reset({eid: $scope.newExam.id});
-
-                        angular.forEach($scope.newExam.examLanguages, function(language) {
-                            ExamRes.language.add({eid: $scope.newExam.id, code: language.code});
+                        ExamRes.languages.reset({eid: $scope.newExam.id}, function() {
+                            var promises = [];
+                            angular.forEach($scope.newExam.examLanguages, function(language) {
+                                promises.push(ExamRes.language.add({eid: $scope.newExam.id, code: language.code}));
+                            });
+                            $q.all(promises).then(function() {
+                                toastr.info($translate('sitnet_exam_language_updated'));
+                                $scope.selectedLanguages($scope.newExam);
+                                $scope.languagesUpdate = $scope.newExam.examLanguages.length;
+                            });
                         });
-                        toastr.info($translate('sitnet_exam_language_updated'));
-                        $scope.selectedLanguages($scope.newExam);
-
-                        $scope.languagesUpdate = $scope.newExam.softwares.length;
                     }
                 };
 

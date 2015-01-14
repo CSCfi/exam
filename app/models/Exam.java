@@ -94,7 +94,7 @@ public class Exam extends SitnetModel {
     private Double totalScore;
 
     // Exam language
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     private List<Language> examLanguages = new ArrayList<>();
 
     // Exam answer language

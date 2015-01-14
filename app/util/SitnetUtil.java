@@ -202,7 +202,9 @@ public class SitnetUtil {
                 Ebean.save(all.get("question_multiple_choice"));
                 Ebean.save(all.get("courses"));
                 Ebean.save(all.get("comments"));
-                Ebean.save(all.get("languages"));
+                if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
+                    Ebean.save(all.get("languages"));
+                }
                 Ebean.save(all.get("exam-types"));
                 Ebean.save(all.get("exams"));
                 Ebean.save(all.get("exam-sections"));

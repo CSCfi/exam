@@ -30,7 +30,8 @@ libraryDependencies ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.mockito" % "mockito-all" % "1.9.5" % "test",
-  "com.google.code.gson" % "gson" % "2.2.4" % "test"
+  "com.google.code.gson" % "gson" % "2.2.4" % "test",
+  "com.jayway.jsonpath" % "json-path" % "1.2.0" % "test"
 )
 
 resolvers += Resolver.url("Objectify Play Repository", url("http://schaloner.github.com/releases/"))(Resolver.ivyStylePatterns)
