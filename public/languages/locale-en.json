@@ -470,5 +470,6 @@
     "sitnet_error_question_not_found": "Question not found",
     "sitnet_essay_length_recommendation_bounds": "Integer value in range (1, 1000000) expected",
     "sitnet_exam_language_updated": "Exam languages updated",
-    "sitnet_questions_reordered": "Question order updated"
+    "sitnet_questions_reordered": "Question order updated",
+    "sitnet_exam_not_found": "Exam not found"
 }

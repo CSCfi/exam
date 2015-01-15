@@ -129,13 +129,13 @@ public class SitnetUtil {
     static public boolean isInspector(Exam exam) {
 
         User user = UserController.getLoggedUser();
-        boolean isCreator = exam.getParent() != null && exam.getParent().getCreator().getId().equals(user.getId());
-
-        return isCreator || (exam.getParent() != null && Ebean.find(ExamInspection.class)
+        Exam examToCheck = exam.getParent() == null ? exam : exam.getParent();
+        boolean isCreator = examToCheck.getCreator().getId().equals(user.getId());
+        return isCreator || Ebean.find(ExamInspection.class)
                 .where()
-                .eq("exam.id", exam.getParent().getId())
+                .eq("exam.id", examToCheck.getId())
                 .eq("user.id", user.getId())
-                .findUnique() != null);
+                .findUnique() != null;
     }
 
     static public boolean isOwner(SitnetModel object) {

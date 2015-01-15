@@ -116,7 +116,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         // Execute
         Result result = get("/exams/" + id);
 
-        // Verify, this is a huge set of information so really hard to test it's all there :p
+        // Verify that some paths exist in JSON, this is a significant set of information so really hard to test it's
+        // all there :p
         assertThat(status(result)).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertPathsExist(node, getExamFields());
@@ -127,6 +128,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertPathCounts(node, 2, "softwares[*].id", "softwares[*].name");
         assertPathCounts(node, 4, "examLanguages[*].code");
 
+        // Verify some of the field values are as expected
         Exam returned = deserialize(Exam.class, node);
         assertThat(expected.getId()).isEqualTo(returned.getId());
         assertThat(expected.getName()).isEqualTo(returned.getName());
@@ -138,6 +140,20 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(expected.getEnrollInstruction()).isEqualTo(returned.getEnrollInstruction());
         assertThat(expected.getExamActiveEndDate()).isEqualTo(returned.getExamActiveEndDate());
         assertThat(expected.getExamActiveStartDate()).isEqualTo(returned.getExamActiveStartDate());
+    }
+
+    @Test
+    @RunAsTeacher
+    public void testGetStudentExamNotAllowed() {
+        // Setup
+        long id = 1L;
+        Exam expected = Ebean.find(Exam.class, id);
+        expected.setState(Exam.State.STUDENT_STARTED.toString());
+        expected.update();
+
+        // Execute
+        Result result = get("/exams/" + id);
+        assertThat(status(result)).isEqualTo(404);
     }
 
     private String[] getExamFields() {
