@@ -422,10 +422,8 @@
                     }
 
                     RoomResource.workinghours.update({id: $scope.roomInstance.id}, workingHours,
-                        function (workingHours) {
+                        function () {
                             toastr.info($translate('sitnet_default_opening_hours_updated'));
-                            console.log('Updated hours:');
-                            console.log(workingHours);
                         },
                         function (error) {
                             toastr.error(error.data);

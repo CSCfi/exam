@@ -157,7 +157,7 @@ public class RoomController extends SitnetController {
             }
         }
 
-        return ok(Json.toJson(defaultWorkingHours));
+        return ok();
     }
 
     private static DateTime fromJS(JsonNode root, String field) {
