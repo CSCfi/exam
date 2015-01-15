@@ -8,7 +8,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@DiscriminatorValue("DefaultWorkingHours")
+//@EntityConcurrencyMode(ConcurrencyMode.NONE)
 public class DefaultWorkingHours extends Model {
 
     public enum Day {
