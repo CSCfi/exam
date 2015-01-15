@@ -18,7 +18,6 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -143,7 +142,6 @@ public class RoomController extends SitnetController {
         Ebean.delete(previous);
 
         JsonNode node = request().body().asJson();
-        List<DefaultWorkingHours> defaultWorkingHours = new ArrayList<>();
         for (JsonNode weekDayNode : node) {
             if (weekDayNode.has("start") && weekDayNode.has("end")) {
                 DefaultWorkingHours dwh = new DefaultWorkingHours();
