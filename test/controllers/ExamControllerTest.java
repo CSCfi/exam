@@ -108,7 +108,7 @@ public class ExamControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsTeacher
-    public void testGetxam() {
+    public void testGetExam() {
         // Setup
         long id = 1L;
         Exam expected = Ebean.find(Exam.class, id);
@@ -119,25 +119,11 @@ public class ExamControllerTest extends IntegrationTestCase {
         // Verify, this is a huge set of information so really hard to test it's all there :p
         assertThat(status(result)).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
-        assertPathsExist(node, "id", "name", "course.id", "course.code", "course.name", "course.level",
-                "course.courseUnitType",
-                "course.credits", "course.institutionName", "course.department", "parent",
-                "examType", "instruction", "enrollInstruction", "shared",
-                "examActiveStartDate",
-                "examActiveEndDate", "room",
-                "duration", "grading", "grade", "customCredit", "totalScore", "answerLanguage",
-                "state", "examFeedback", "creditType", "expanded", "attachment", "creator.id",
-                "creator.firstName", "creator.lastName");
-        assertPathCounts(node, 3, "examSections[*].name", "examSections[*].id", "examSections[*].totalScore",
-                "examSections[*].expanded", "examSections[*].lotteryOn", "examSections[*].lotteryItemCount");
-        assertPathCounts(node, 3, "examSections[*].name", "examSections[*].id", "examSections[*].totalScore",
-                "examSections[*].expanded", "examSections[*].lotteryOn", "examSections[*].lotteryItemCount");
-        assertPathCounts(node, 2, "examSections[0].sectionQuestions[*].sequenceNumber", "examSections[0].sectionQuestions[*].question");
-        assertPathCounts(node, 3, "examSections[1].sectionQuestions[*].sequenceNumber", "examSections[1].sectionQuestions[*].question");
-        assertPathCounts(node, 3, "examSections[2].sectionQuestions[*].sequenceNumber", "examSections[2].sectionQuestions[*].question");
-        assertPathCounts(node, 8, "examSections[*].sectionQuestions[*].question.question");
-        assertPathCounts(node, 8, "examSections[*].sectionQuestions[*].question.answer");
-
+        assertPathsExist(node, getExamFields());
+        assertPathCounts(node, 3, getExamSectionFieldsOfExam("*"));
+        assertPathCounts(node, 2, getSectionQuestionFieldsOfSection("0", "*"));
+        assertPathCounts(node, 3, getSectionQuestionFieldsOfSection("1", "*"));
+        assertPathCounts(node, 3, getSectionQuestionFieldsOfSection("2", "*"));
         assertPathCounts(node, 2, "softwares[*].id", "softwares[*].name");
         assertPathCounts(node, 4, "examLanguages[*].code");
 
@@ -152,5 +138,30 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(expected.getEnrollInstruction()).isEqualTo(returned.getEnrollInstruction());
         assertThat(expected.getExamActiveEndDate()).isEqualTo(returned.getExamActiveEndDate());
         assertThat(expected.getExamActiveStartDate()).isEqualTo(returned.getExamActiveStartDate());
+    }
+
+    private String[] getExamFields() {
+        return new String[] {"id", "name", "course.id", "course.code", "course.name", "course.level",
+                "course.courseUnitType", "course.credits", "course.institutionName", "course.department", "parent",
+                "examType", "instruction", "enrollInstruction", "shared", "examActiveStartDate",
+                "examActiveEndDate", "room", "duration", "grading", "grade", "customCredit", "totalScore",
+                "answerLanguage","state", "examFeedback", "creditType", "expanded", "attachment", "creator.id",
+                "creator.firstName", "creator.lastName"};
+    }
+
+    private String[] getExamSectionFieldsOfExam(String index) {
+        String[] fields = new String[] {"name", "totalScore", "id", "expanded", "lotteryOn", "lotteryItemCount"};
+        for (int i = 0; i < fields.length; ++i) {
+            fields[i] = "examSections[" + index + "]." + fields[i];
+        }
+        return fields;
+    }
+
+    private String[] getSectionQuestionFieldsOfSection(String sectionIndex, String sectionQuestionIndex) {
+        String[] fields = new String[] {"sequenceNumber", "question", "question.question", "question.answer"};
+        for (int i = 0; i < fields.length; ++i) {
+            fields[i] = "examSections[" + sectionIndex + "].sectionQuestions[" + sectionQuestionIndex + "]." + fields[i];
+        }
+        return fields;
     }
 }
