@@ -80,8 +80,8 @@
                     ExamRes.exams.get({id: $routeParams.id},
                         function(exam) {
                             $scope.newExam = exam;
-                            $scope.softwaresUpdate = $scope.newExam.softwares.length;
-                            $scope.languagesUpdate = $scope.newExam.examLanguages.length;
+                            $scope.softwaresUpdate = $scope.newExam.softwares ? $scope.newExam.softwares.length : 0;
+                            $scope.languagesUpdate = $scope.newExam.examLanguages ? $scope.newExam.examLanguages.length : 0;
                             $scope.dateService.startDate = exam.examActiveStartDate;
                             $scope.dateService.endDate = exam.examActiveEndDate;
 
@@ -139,7 +139,7 @@
                         toastr.info($translate('sitnet_exam_language_updated'));
                         $scope.selectedLanguages($scope.newExam);
 
-                        $scope.languagesUpdate = $scope.newExam.softwares.length;
+                        $scope.languagesUpdate = $scope.newExam.softwares ? $scope.newExam.softwares.length : 0;
                     }
                 };
 
@@ -376,9 +376,9 @@
                             toastr.info($translate("sitnet_exam_saved"));
                             $scope.newExam = exam;
                         }, function(error) {
-                            if (error.data.indexOf("sitnet_error_") > 0) {
+                            if (error.data && error.data.indexOf("sitnet_error_") > 0) {
                                 toastr.error($translate(error.data));
-                            } else {
+                            } else if(error.data) {
                                 toastr.error(error.data);
                             }
                         });
@@ -419,7 +419,7 @@
 
                 // Called when Save button is clicked
                 $scope.saveExam = function() {
-                    if ($scope.newExam.examLanguages.length == 0) {
+                    if ($scope.newExam.examLanguages === undefined || $scope.newExam.examLanguages.length == 0) {
                         toastr.error($translate('sitnet_error_exam_empty_exam_language'));
                         return;
                     }
@@ -453,7 +453,7 @@
 
                 $scope.unpublishExam = function() {
                     ExamRes.examEnrolments.query({eid: $scope.newExam.id}, function(enrolments) {
-                        if (enrolments.length > 0) {
+                        if (enrolments && enrolments.length > 0) {
                             toastr.warning($translate('sitnet_unpublish_not_possible'));
                         } else {
                             var modalInstance = $modal.open({
@@ -501,7 +501,7 @@
 
                     var err = $scope.publishSanityCheck($scope.newExam);
                     $scope.errors = err;
-                    if (Object.getOwnPropertyNames(err).length != 0) {
+                    if (Object.getOwnPropertyNames(err) && Object.getOwnPropertyNames(err).length != 0) {
 
                         $modal.open({
                             templateUrl: 'assets/templates/dialogs/exam_publish_questions.html',
@@ -577,39 +577,39 @@
 
                     var errors = {};
 
-                    if (exam.course == null) {
+                    if (exam.course === undefined) {
                         errors.course = $translate("sitnet_course_missing");
                     }
 
-                    if (exam.name == null || exam.name.length < 2) {
+                    if (exam.name === undefined || exam.name.length < 2) {
                         errors.name = $translate('sitnet_exam_name_missing_or_too_short');
                     }
 
-                    if ($scope.newExam.examLanguages.length == 0) {
+                    if (!$scope.newExam.examLanguages || $scope.newExam.examLanguages.length === 0) {
                         errors.name = $translate('sitnet_error_exam_empty_exam_language');
                     }
 
-                    if ($scope.dateService.startTimestamp == 0) {
+                    if (!$scope.dateService.startTimestamp || $scope.dateService.startTimestamp === 0) {
                         errors.examActiveStartDate = $translate('sitnet_exam_start_date_missing');
                     }
 
-                    if ($scope.dateService.endTimestamp == 0) {
+                    if (!$scope.dateService.endTimestamp || $scope.dateService.endTimestamp === 0) {
                         errors.examActiveEndDate = $translate('sitnet_exam_end_date_missing');
                     }
 
-                    if ($scope.countQuestions < 1) {
+                    if (!$scope.countQuestions || $scope.countQuestions < 1) {
                         errors.questions = $translate('sitnet_exam_has_no_questions');
                     }
 
-                    if (exam.duration == null || exam.duration < 1) {
+                    if (exam.duration === undefined || exam.duration < 1) {
                         errors.duration = $translate('sitnet_exam_duration_missing');
                     }
 
-                    if (exam.grading == null) {
+                    if (exam.grading === undefined) {
                         errors.grading = $translate('sitnet_exam_grade_scale_missing');
                     }
 
-                    if (exam.examType == null) {
+                    if (exam.examType === undefined) {
                         errors.examType = $translate('sitnet_exam_credit_type_missing');
                     }
 
@@ -674,7 +674,7 @@
                         function(response) {
                             newQuestion = response;
                             var nextSeq;
-                            if (section.sectionQuestions.length == 0) {
+                            if (section.sectionQuestions === undefined || section.sectionQuestions.length === 0) {
                                 nextSeq = 0;
                             } else {
                                 nextSeq = Math.max.apply(Math, section.sectionQuestions.map(function(s) {
@@ -694,7 +694,7 @@
                 };
 
                 $scope.toggleLottery = function(section) {
-                    if (section.sectionQuestions.length > 1) {
+                    if (section.sectionQuestions && section.sectionQuestions.length > 1) {
                         section.lotteryOn = !section.lotteryOn;
                         ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
                             function(sec) {
@@ -712,9 +712,9 @@
 
                 $scope.updateLotteryCount = function(section) {
 
-                    if (section.lotteryItemCount == undefined || section.lotteryItemCount == 0) {
+                    if (section.lotteryItemCount === undefined || section.lotteryItemCount == 0) {
                         toastr.warning($translate("sitnet_warn_lottery_count"));
-                        section.lotteryItemCount = section.lotteryItemCount == 0 ? 1 : section.sectionQuestions.length;
+                        section.lotteryItemCount = section.lotteryItemCount === undefined || section.lotteryItemCount == 0 ? 1 : section.sectionQuestions.length;
                     }
                     else {
                         ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function(sec) {
@@ -815,7 +815,9 @@
 
                 $scope.getSectionId = function(id) {
 
-                    return document.getElementById(id).select();
+                    if(document.getElementById(id)) {
+                        return document.getElementById(id).select();
+                    }
                 };
 
             }]);
