@@ -361,9 +361,9 @@ public class ExamRoom extends Model {
         final List<Interval> intervals = new ArrayList<>();
         for(DefaultWorkingHours defaultHour : this.defaultWorkingHours) {
             if(defaultHour.getDay().equals(day)) {
-                final LocalTime start = new LocalTime(defaultHour.getStartTime().getTime());
+                final LocalTime start = new LocalTime(defaultHour.getStartTime().getTime()); //Check this
                 final LocalTime end = new LocalTime(defaultHour.getEndTime().getTime());
-                Interval interval = new Interval(date.toDateTime(start),date.toDateTime(end));
+                Interval interval = new Interval(date.toDateTime(start), date.toDateTime(end));
                 intervals.add(interval);
             }
         }

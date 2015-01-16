@@ -21,8 +21,8 @@ import java.util.*;
 
 public class CalendarController extends SitnetController {
 
-    private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
-    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyyZZ");
+    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws MalformedDataException, NotFoundException {
@@ -137,18 +137,12 @@ public class CalendarController extends SitnetController {
             }
         } else {
             for (ExamMachine machine : machines) {
-
                 if (machine.isArchived() || machine.getOutOfService()) {
                     continue;
                 }
-
                 List<Software> machineSoftware = machine.getSoftwareInfo();
-                for (Software wanted : wantedSoftware) {
-                    for (Software software : machineSoftware) {
-                        if (wanted.getId().equals(software.getId())) {
-                            candidates.add(machine);
-                        }
-                    }
+                if (machineSoftware.containsAll(wantedSoftware)) {
+                    candidates.add(machine);
                 }
             }
         }
@@ -176,12 +170,6 @@ public class CalendarController extends SitnetController {
     public static Result getSlotsWithOutAccessibility(String examinput, String roominput, String dateinput) throws MalformedDataException, NotFoundException {
         return getSlots(examinput, roominput, dateinput, null);
     }
-
-
-    private static DateTime getNow() {
-        return DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
-    }
-
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSlots(String examinput, String roominput, String dateinput, String accessibilityIds) throws NotFoundException {
@@ -223,15 +211,13 @@ public class CalendarController extends SitnetController {
         DateTime examEndDateTime = new DateTime(exam.getExamActiveEndDate());
         DateTime searchDate = LocalDate.parse(dateinput, dateFormat).toDateTime(LocalTime.now());
 
-        DateTime now = getNow();
+        DateTime now = DateTime.now();//getNow();
 
         if (searchDate.isBefore(now)) {
             searchDate = now;
         }
 
-        DateTime current = searchDate;
-
-        if (searchDate.toLocalDate().isAfter(examEndDateTime.toLocalDate())) {
+        if (searchDate.isAfter(examEndDateTime)) {
             throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) date(%s)", searchDate, exam.getId(), examEndDateTime));
         }
 
@@ -247,15 +233,15 @@ public class CalendarController extends SitnetController {
         System.out.println(examEndDateTime);
 
         do {
-            final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, current, reservations, wantedAccessibility);
+            final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, searchDate, reservations, wantedAccessibility);
             allPossibleFreeTimeSlots.putAll(slots);
 
-            System.out.println("current " + current);
+            System.out.println("current " + searchDate);
 
-            if (current.toLocalDate().isAfter(examEndDateTime.toLocalDate())) {
+            if (searchDate.toLocalDate().isAfter(examEndDateTime.toLocalDate())) {
                 break;
             }
-            current = current.plusDays(1);
+            searchDate = searchDate.plusDays(1);
 
         } while (true);
 
@@ -280,6 +266,19 @@ public class CalendarController extends SitnetController {
         return machineAccessibilityIds.containsAll(wanted);
     }
 
+    private static boolean hasRequiredSoftware(ExamMachine machine, Exam exam) {
+        List<Software> wantedSoftware = exam.getSoftwareInfo();
+        if (wantedSoftware.isEmpty()) {
+            return true;
+        } else {
+            List<Software> machineSoftware = machine.getSoftwareInfo();
+            if (machineSoftware.containsAll(wantedSoftware)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay, List<Reservation> reservations, List<Integer> wantedAccessibility) {
 
@@ -291,23 +290,24 @@ public class CalendarController extends SitnetController {
         }
 
         boolean roomAccessibilitySatisfied = isRoomAccessibilitySatisfied(room, wantedAccessibility);
-        final DateTime now = getNow();
+        final DateTime now = DateTime.now();//getNow();
 
         for (ExamMachine examMachine : room.getExamMachines()) {
 
-            if (examMachine.getOutOfService()) {
+            if (examMachine.getOutOfService() || examMachine.isArchived() || !hasRequiredSoftware(examMachine, exam) ) {
                 continue;
             }
             if (!roomAccessibilitySatisfied && !isMachineAccessibilitySatisfied(examMachine, wantedAccessibility)) {
                 continue;
             }
+
             for (WorkingHours hours : calculateWorkingHours(room, forDay.toLocalDate())) {
 
                 final DateTime startTime;
                 final DateTime endTime;
 
                 if (forDay.toLocalDate().equals(now.toLocalDate())) {
-                    startTime = getNow().plusHours(1).withMinuteOfHour(0);
+                    startTime = now.plusHours(1).withMinuteOfHour(0);
                 } else {
                     startTime = hours.getStart();
                 }
@@ -343,7 +343,7 @@ public class CalendarController extends SitnetController {
                     continue;
                 }
 
-                final String theDay = dateFormat.print(startTime);
+                final String theDay = DateTimeFormat.forPattern("dd.MM.yyyy").print(startTime);
 
 
                 final DayWithFreeTimes day = new DayWithFreeTimes();

@@ -3,7 +3,6 @@ import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Controller;
-import util.SitnetUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -54,7 +53,7 @@ public class ReviewRunner extends Controller implements Runnable {
                         .plusMinutes(transitionTime / 2);
 
                 if (participationTimeLimit.isBeforeNow()) {
-                    participation.setEnded(SitnetUtil.getNowTime());
+                    participation.setEnded(new Date());
                     participation.setDuration(new Date(participation.getEnded().getTime() - participation.getStarted().getTime()));
 
                     GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class ExamMachine extends Model {
 
     // Ohjelmistot
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Software> softwareInfo;
+    private List<Software> softwareInfo = new ArrayList<>();
 
     // Esteettömyys
     @ManyToMany(cascade = CascadeType.ALL)

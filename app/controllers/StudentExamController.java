@@ -16,7 +16,6 @@ import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
@@ -24,7 +23,6 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -263,7 +261,7 @@ public class StudentExamController extends SitnetController {
 
         // Create new exam for student
         if (possibleClone == null) {
-            DateTime now = DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
+            DateTime now = DateTime.now();
             String clientIP = request().remoteAddress();
 
             ExamEnrolment possibeEnrolment = Ebean.find(ExamEnrolment.class)
@@ -419,7 +417,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(SitnetUtil.getNowTime());
+            p.setEnded(new Date());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
@@ -447,7 +445,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(SitnetUtil.getNowTime());
+            p.setEnded(new Date());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);

@@ -352,7 +352,7 @@ public class ExamController extends SitnetController {
         }
         // set user only if exam is really graded, not just modified
         if (exam.getState().equals(Exam.State.GRADED.name()) || exam.getState().equals(Exam.State.GRADED_LOGGED.name())) {
-            exam.setGradedTime(SitnetUtil.getNowTime());
+            exam.setGradedTime(new Date());
             exam.setGradedByUser(UserController.getLoggedUser());
         }
         exam.generateHash();

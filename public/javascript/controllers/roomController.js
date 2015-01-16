@@ -134,19 +134,18 @@
 
                 $scope.calculateTime = function (index) {
                     return (times[index] || "0:00") + " - " + times[index + 1];
-                 };
+                };
 
                 var setSelected = function (day, slots) {
-                    for (var i = 0; i < slots.length; ++i)
-                    {
+                    for (var i = 0; i < slots.length; ++i) {
                         week[day][slots[i]].type = 'selected';
                     }
                 };
 
                 var slotToTimes = function (slot) {
                     var arr = [];
-                    var startKey = moment.utc(slot.startTime).format("H:mm");
-                    var endKey = moment.utc(slot.endTime).format("H:mm");
+                    var startKey = moment(slot.startTime).format("H:mm");
+                    var endKey = moment(slot.endTime).format("H:mm");
                     var start = times.indexOf(startKey);
                     for (var i = start; i < times.length; i++) {
                         if (times[i] === endKey) {
@@ -204,16 +203,18 @@
                     $location.path("/home");
                 }
 
-                $scope.timerange = function() {
-                    return Array.apply(null, new Array(times.length - 1)).map(function (x, i) { return i });
+                $scope.timerange = function () {
+                    return Array.apply(null, new Array(times.length - 1)).map(function (x, i) {
+                        return i
+                    });
                 };
 
-                $scope.getWeekdays = function() {
-                  return Object.keys(week);
+                $scope.getWeekdays = function () {
+                    return Object.keys(week);
                 };
 
-                $scope.getType = function(day, time) {
-                   return week[day][time].type;
+                $scope.getType = function (day, time) {
+                    return week[day][time].type;
                 };
 
                 $scope.countMachineAlerts = function (room) {
@@ -415,9 +416,17 @@
                     var workingHours = [];
                     for (var day in week) {
                         if (week.hasOwnProperty(day)) {
-                            workingHours.push({'weekday': day,
-                                'start': times[firstSelection(day)],
-                                'end': times[lastSelection(day) + 1]});
+                            var start = times[firstSelection(day)];
+                            var end = times[lastSelection(day) + 1];
+                            if (start && end) {
+                                start = moment().set('hour', start.split(':')[0]).set('minute', start.split(':')[1]).format("DD.MM.YYYY HH:mmZZ");
+                                end = moment().set('hour', end.split(':')[0]).set('minute', end.split(':')[1]).format("DD.MM.YYYY HH:mmZZ");
+                            }
+                            workingHours.push({
+                                'weekday': day,
+                                'start': start,
+                                'end': end
+                            });
                         }
                     }
 

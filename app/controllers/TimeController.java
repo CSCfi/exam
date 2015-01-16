@@ -6,7 +6,6 @@ import com.avaje.ebean.Ebean;
 import models.ExamEnrolment;
 import models.User;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -45,7 +44,7 @@ public class TimeController extends Controller {
             return notFound();
         }
 
-        final DateTime now =  DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
+        final DateTime now =  DateTime.now();
         final Seconds timeLeft = Seconds.secondsBetween(now, new DateTime(enrolment.getReservation().getEndAt()));
 
         return ok(String.valueOf(timeLeft.getSeconds()));

@@ -63,7 +63,7 @@
                                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                                 <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
                                 <td class="table-column-open-until">{{examReview.deadline  | date:'dd.MM.yyyy'}}</td>
-                                <td class="table-column-open-until">{{examReview.duration | date: 'HH:mm'}}</td>
+                                <td class="table-column-open-until">{{examReview.duration}}</td>
                                 <td class="table-column-teachers">
                                     <div class="col-md-12" ng-repeat="inspection in getLocalInspection(examReview.exam.id)">
                                         <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === true">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
@@ -77,7 +77,7 @@
                                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                                 <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
                                 <td class="table-column-open-until">{{examReview.deadline  | date:'dd.MM.yyyy'}}</td>
-                                <td class="table-column-open-until">{{examReview.duration | date: 'HH:mm'}}</td>
+                                <td class="table-column-open-until">{{examReview.duration}}</td>
                                 <td class="table-column-teachers">
                                     <div class="col-md-12" ng-repeat="inspection in getLocalInspection(examReview.exam.id)">
                                         <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === true">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
@@ -91,7 +91,7 @@
                                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                                 <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
                                 <td class="table-column-open-until">{{examReview.deadline  | date:'dd.MM.yyyy'}}</td>
-                                <td class="table-column-open-until">{{examReview.duration | date: 'HH:mm'}}</td>
+                                <td class="table-column-open-until">{{examReview.duration}}</td>
                                 <td class="table-column-teachers">
                                     <div class="col-md-12" ng-repeat="inspection in getLocalInspection(examReview.exam.id)">
                                         <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === true">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
