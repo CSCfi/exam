@@ -11,53 +11,54 @@
 </div>
 
 <!-- General info section container -->
-<div ng-show="newExam.expanded" ng-controller="DatepickerCtrl">
+<div ng-show="newExam.expanded">
 
-    <!-- Start & End time datepickers -->
-    <div class="row">
-        <div class="col-md-6">
-            <h4>{{'sitnet_start_time' | translate}}</h4>
-            <p class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}"
-                       date-fix="{{format}}" ng-model="dateService.startDate"
-                       is-open="startDateOpened" min="minDate"
-                       datepicker-options="dateOptions"
-                       close-text="{{'sitnet_close' | translate}}"
-                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ui-change="updateExam()">
-                       
-                <span class="input-group-btn">
-                    <button class="btn btn-default" ng-click="openStartDate($event)">
-                        <i class="fa fa-calendar"></i>
-                    </button>
-                </span>
-            </p>
+    <div ng-controller="DatepickerCtrl">
+        <!-- Start & End time datepickers -->
+        <div class="row">
+            <div class="col-md-6">
+                <h4>{{'sitnet_start_time' | translate}}</h4>
+                <p class="input-group">
+                    <input type="text" class="form-control" datepicker-popup="{{format}}"
+                           date-fix="{{format}}" ng-model="dateService.startDate"
+                           is-open="startDateOpened" min="minDate"
+                           datepicker-options="dateOptions"
+                           close-text="{{'sitnet_close' | translate}}"
+                           current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ui-change="updateExam()">
+
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="openStartDate($event)">
+                            <i class="fa fa-calendar"></i>
+                        </button>
+                    </span>
+                </p>
+            </div>
+
+            <div class="col-md-6">
+                <h4>{{'sitnet_end_time' | translate}}</h4>
+                <p class="input-group">
+                    <input type="text" class="form-control" datepicker-popup="{{format}}"
+                           date-fix="{{format}}" ng-model="dateService.endDate"
+                           is-open="endDateOpened" min="dateService.startDate"
+                           datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"  ng-required="true">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="openEndDate($event)">
+                            <i class="fa fa-calendar"></i>
+                        </button>
+                    </span>
+                </p>
+            </div>
         </div>
 
-        <div class="col-md-6">
-            <h4>{{'sitnet_end_time' | translate}}</h4>
-            <p class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}"
-                       date-fix="{{format}}" ng-model="dateService.endDate"
-                       is-open="endDateOpened" min="dateService.startDate"
-                       datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"  ng-required="true">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" ng-click="openEndDate($event)">
-                        <i class="fa fa-calendar"></i>
-                    </button>
-                </span>
-            </p>
-        </div>
-    </div>
-
-    <!-- Summary of start and end times -->
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div>{{'sitnet_active_period' | translate}}:
-                <em>{{dateService.startDate | date:'dd.MM.yyyy' }} - {{dateService.endDate | date:'dd.MM.yyyy' }}</em>
+        <!-- Summary of start and end times -->
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div>{{'sitnet_active_period' | translate}}:
+                    <em>{{dateService.startDate | date:'dd.MM.yyyy' }} - {{dateService.endDate | date:'dd.MM.yyyy' }}</em>
+                </div>
             </div>
         </div>
     </div>
-
     <div class="row" ng-controller="CourseTypeaheadCtrl">
 
         <div class="col-md-6">
@@ -195,7 +196,6 @@
                          change="updateExamLanguages(newExam)" >
             </multiselect>
         </div>
-
     </div>
 
 
