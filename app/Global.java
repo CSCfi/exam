@@ -1,16 +1,14 @@
 import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
-import Exceptions.UnauthorizedAccessException;
 import akka.actor.Cancellable;
 import com.avaje.ebean.Ebean;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
-import org.joda.time.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDateTime;
+import org.joda.time.Minutes;
 import org.joda.time.Seconds;
 import play.Application;
 import play.GlobalSettings;
@@ -63,7 +61,7 @@ public class Global extends GlobalSettings {
     public void onStart(Application app) {
 
         System.setProperty("user.timezone", "UTC");
-        TimeZone.setDefault(null);
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
         //todo: make these interval and start times configurable via configuration files
 
@@ -84,8 +82,8 @@ public class Global extends GlobalSettings {
     }
 
     private int secondsUntilNextMondayRun(int scheduledHour) {
-        LocalDateTime now = new LocalDateTime();
-        LocalDateTime nextRun = now.withHourOfDay(scheduledHour)
+        DateTime now = DateTime.now();
+        DateTime nextRun = now.withHourOfDay(scheduledHour)
                 .withMinuteOfHour(0)
                 .withSecondOfMinute(0)
                 .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
@@ -135,9 +133,6 @@ public class Global extends GlobalSettings {
 
                 if(Logger.isDebugEnabled()) {Logger.debug("onError: " + errorMessage);}
 
-                if (cause instanceof UnauthorizedAccessException) {
-                    return Results.forbidden(Json.toJson(errorMessage));
-                }
                 if (cause instanceof AuthenticateException) {
                     return Results.unauthorized(Json.toJson(errorMessage));
                 }
@@ -330,7 +325,7 @@ public class Global extends GlobalSettings {
 
     private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
         Date now = new Date();
-        LocalDateTime future = new LocalDateTime(now).plusMinutes(minutesToFuture);
+        DateTime future = new DateTime(now).plusMinutes(minutesToFuture);
         List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")

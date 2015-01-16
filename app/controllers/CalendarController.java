@@ -211,7 +211,7 @@ public class CalendarController extends SitnetController {
         DateTime examEndDateTime = new DateTime(exam.getExamActiveEndDate());
         DateTime searchDate = LocalDate.parse(dateinput, dateFormat).toDateTime(LocalTime.now());
 
-        DateTime now = DateTime.now();//getNow();
+        DateTime now = DateTime.now();
 
         if (searchDate.isBefore(now)) {
             searchDate = now;
@@ -229,16 +229,11 @@ public class CalendarController extends SitnetController {
                 .gt("startAt", now)
                 .findList();
 
-        System.out.println(searchDate);
-        System.out.println(examEndDateTime);
-
         do {
             final Map<String, DayWithFreeTimes> slots = getSlots(room, exam, searchDate, reservations, wantedAccessibility);
             allPossibleFreeTimeSlots.putAll(slots);
 
-            System.out.println("current " + searchDate);
-
-            if (searchDate.toLocalDate().isAfter(examEndDateTime.toLocalDate())) {
+            if (searchDate.isAfter(examEndDateTime)) {
                 break;
             }
             searchDate = searchDate.plusDays(1);
@@ -290,7 +285,7 @@ public class CalendarController extends SitnetController {
         }
 
         boolean roomAccessibilitySatisfied = isRoomAccessibilitySatisfied(room, wantedAccessibility);
-        final DateTime now = DateTime.now();//getNow();
+        final DateTime now = DateTime.now();
 
         for (ExamMachine examMachine : room.getExamMachines()) {
 

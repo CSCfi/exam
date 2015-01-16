@@ -1,6 +1,5 @@
 package controllers;
 
-import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -220,7 +219,7 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result createExam(String hash, User user) throws UnauthorizedAccessException {
+    public static Result createExam(String hash, User user) {
 
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
@@ -400,7 +399,7 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result startExam(String hash) throws UnauthorizedAccessException {
+    public static Result startExam(String hash) {
         User user = UserController.getLoggedUser();
         return createExam(hash, user);
     }

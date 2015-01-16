@@ -37,7 +37,7 @@
                             angular.forEach($scope.examReviews, function(review){
 
                                 if(review && review.duration) {
-                                    review.duration = moment.utc(review.duration).format('HH:mm');
+                                    review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
                                 }
                                 if(review.exam.state === "REVIEW" || review.exam.state === "ABORTED" || review.exam.state === "REVIEW_STARTED") { $scope.toggleReviewExams = true; }
                                 if(review.exam.state === "GRADED") { $scope.toggleGradedExams = true; }

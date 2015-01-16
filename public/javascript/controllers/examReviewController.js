@@ -214,9 +214,8 @@
                         ExamRes.studentInfo.get({id: $routeParams.id},
                             function(info) {
                                 $scope.userInfo = info;
-                                // terrible hack to accommodate for the lack of timezone info coming from backend
                                 if(info && info.duration) {
-                                    $scope.userInfo.duration = moment.utc(info.duration).format('HH:mm');
+                                    $scope.userInfo.duration = moment.utc(Date.parse(info.duration)).format('HH:mm');
                                 }
                                 // get previous participations ->
                                 ExamRes.examParticipationsOfUser.query(

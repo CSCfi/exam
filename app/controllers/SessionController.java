@@ -1,7 +1,6 @@
 package controllers;
 
 import Exceptions.MalformedDataException;
-import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.core.models.Role;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -24,7 +23,7 @@ import java.util.*;
 
 public class SessionController extends SitnetController {
 
-    public static Result login() throws MalformedDataException, UnauthorizedAccessException {
+    public static Result login() throws MalformedDataException {
 
         User user;
 
