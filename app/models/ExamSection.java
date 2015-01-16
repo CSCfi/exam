@@ -2,12 +2,10 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import models.questions.AbstractQuestion;
 import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /*
@@ -18,7 +16,7 @@ import java.util.List;
  * 
  */
 @Entity
-public class ExamSection extends SitnetModel {
+public final class ExamSection extends SitnetModel {
 
     private String name;
 
@@ -99,19 +97,9 @@ public class ExamSection extends SitnetModel {
         this.lotteryItemCount = lotteryItemCount;
     }
 
-    public boolean containsQuestion(AbstractQuestion question) {
-
-        for (ExamSectionQuestion esq : getSectionQuestions()) {
-            if (esq.getQuestion().getParent() != null && esq.getQuestion().getParent().equals(question)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public Object clone() {
-
         return SitnetUtil.getClone(this);
     }
 

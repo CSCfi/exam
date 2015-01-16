@@ -9,7 +9,6 @@ import models.questions.MultipleChoiseOption;
 import util.SitnetUtil;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.*;
 
 @Entity
@@ -71,11 +70,11 @@ public class Exam extends SitnetModel {
 
     // tentin voimassaoloaika, tentti on avoin opiskelijoille tästä lähtien
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp examActiveStartDate;
+    private Date examActiveStartDate;
     
     // tentin voimassaoloaika, tentti sulkeutuu
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp examActiveEndDate;
+    private Date examActiveEndDate;
 
     // Akvaario
     @OneToOne
@@ -95,7 +94,7 @@ public class Exam extends SitnetModel {
     private Double totalScore;
 
     // Exam language
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     private List<Language> examLanguages = new ArrayList<>();
 
     // Exam answer language
@@ -119,7 +118,7 @@ public class Exam extends SitnetModel {
     private User gradedByUser;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp gradedTime;
+    private Date gradedTime;
 
     @OneToOne
     private Comment examFeedback;
@@ -166,11 +165,11 @@ public class Exam extends SitnetModel {
         this.examGrade = examGrade;
     }
 
-    public Timestamp getGradedTime() {
+    public Date getGradedTime() {
         return gradedTime;
     }
 
-    public void setGradedTime(Timestamp gradedTime) {
+    public void setGradedTime(Date gradedTime) {
         this.gradedTime = gradedTime;
     }
 
@@ -381,8 +380,11 @@ public class Exam extends SitnetModel {
         clone.setCreditType(this.getCreditType());
         clone.setParent(this);
         clone.setAttachment(this.getAttachment());
+        clone.setExamLanguages(this.getExamLanguages());
         SitnetUtil.setModifier(clone);
         clone.save();
+
+
 
         List<ExamSection> examSections = this.getExamSections();
         List<ExamSection> examSectionCopies = new ArrayList<>();
@@ -461,19 +463,19 @@ public class Exam extends SitnetModel {
         };
     }
 
-    public Timestamp getExamActiveStartDate() {
+    public Date getExamActiveStartDate() {
         return examActiveStartDate;
     }
 
-    public void setExamActiveStartDate(Timestamp examActiveStartDate) {
+    public void setExamActiveStartDate(Date examActiveStartDate) {
         this.examActiveStartDate = examActiveStartDate;
     }
 
-    public Timestamp getExamActiveEndDate() {
+    public Date getExamActiveEndDate() {
         return examActiveEndDate;
     }
 
-    public void setExamActiveEndDate(Timestamp examActiveEndDate) {
+    public void setExamActiveEndDate(Date examActiveEndDate) {
         this.examActiveEndDate = examActiveEndDate;
     }
 

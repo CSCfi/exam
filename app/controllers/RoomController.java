@@ -6,11 +6,11 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.*;
-import models.calendar.DefaultWorkingHourDTO;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.util.CollectionUtils;
 import play.Logger;
@@ -18,8 +18,6 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -135,30 +133,29 @@ public class RoomController extends SitnetController {
 
     @Restrict(@Group({"ADMIN"}))
     public static Result updateExamRoomWorkingHours(Long id) throws MalformedDataException {
+        ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
+        if (examRoom == null) {
+            return notFound();
+        }
+        List<DefaultWorkingHours> previous = Ebean.find(DefaultWorkingHours.class)
+                .where().eq("room.id", id).findList();
+        Ebean.delete(previous);
 
-        final DefaultWorkingHourDTO defaults = bindForm(DefaultWorkingHourDTO.class);
-
-        final List<DefaultWorkingHours> defaultWorkingHours = defaults.getDefaultWorkingHours();
-
-        final ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
-
-
-        final Iterator<DefaultWorkingHours> iterator = examRoom.getDefaultWorkingHours().iterator();
-
-        while (iterator.hasNext()) {
-            DefaultWorkingHours next =  iterator.next();
-            next.delete();
+        JsonNode node = request().body().asJson();
+        for (JsonNode weekDayNode : node) {
+            if (weekDayNode.has("start") && weekDayNode.has("end")) {
+                DefaultWorkingHours dwh = new DefaultWorkingHours();
+                dwh.setRoom(examRoom);
+                dwh.setDay(weekDayNode.get("weekday").asText());
+                String startTime = weekDayNode.get("start").asText();
+                String endTime = weekDayNode.get("end").asText();
+                dwh.setStartTime(LocalTime.parse(startTime).toDateTimeToday().toDate());
+                dwh.setEndTime(LocalTime.parse(endTime).toDateTimeToday().toDate());
+                dwh.save();
+            }
         }
 
-        for(DefaultWorkingHours hour : defaultWorkingHours){
-            hour.setRoom(examRoom);
-            hour.save();
-        }
-
-        examRoom.setDefaultWorkingHours(defaultWorkingHours);
-        examRoom.save();
-
-        return ok(Json.toJson(defaultWorkingHours));
+        return ok();
     }
 
     private static DateTime fromJS(JsonNode root, String field) {
@@ -185,19 +182,19 @@ public class RoomController extends SitnetController {
         final ExceptionWorkingHours hours = new ExceptionWorkingHours();
 
         if (startDate != null) {
-            hours.setStartDate(new Timestamp(startDate.plusMillis(offsetMillis).getMillis()));
+            hours.setStartDate(startDate.plusMillis(offsetMillis).toDate());
         }
 
         if (startTime != null) {
-            hours.setStartTime(new Timestamp(startTime.plusMillis(offsetMillis).getMillis()));
+            hours.setStartTime(startTime.plusMillis(offsetMillis).toDate());
         }
 
         if (endDate != null) {
-            hours.setEndDate(new Timestamp(endDate.plusMillis(offsetMillis).getMillis()));
+            hours.setEndDate(endDate.plusMillis(offsetMillis).toDate());
         }
 
         if (endTime != null) {
-            hours.setEndTime(new Timestamp(endTime.plusMillis(offsetMillis).getMillis()));
+            hours.setEndTime(endTime.plusMillis(offsetMillis).toDate());
         }
 
 

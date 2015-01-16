@@ -3,8 +3,7 @@ package models;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.Collection;
+import java.util.Date;
 
 
 /*
@@ -18,7 +17,7 @@ public class Course extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -64,11 +63,11 @@ public class Course extends Model {
 
     }
 
-    public Timestamp getEbeanTimestamp() {
+    public Date getEbeanTimestamp() {
         return ebeanTimestamp;
     }
 
-    public void setEbeanTimestamp(Timestamp ebeanTimestamp) {
+    public void setEbeanTimestamp(Date ebeanTimestamp) {
         this.ebeanTimestamp = ebeanTimestamp;
     }
 

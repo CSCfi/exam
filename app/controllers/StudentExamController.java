@@ -26,7 +26,6 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -264,9 +263,7 @@ public class StudentExamController extends SitnetController {
 
         // Create new exam for student
         if (possibleClone == null) {
-
-            Timestamp now = SitnetUtil.getNowTime();
-            DateTime jodaNow = DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
+            DateTime now = DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
             String clientIP = request().remoteAddress();
 
             ExamEnrolment possibeEnrolment = Ebean.find(ExamEnrolment.class)
@@ -312,8 +309,8 @@ public class StudentExamController extends SitnetController {
                     .where()
                     .eq("user.id", user.getId())
                     .eq("exam.id", blueprint.getId())
-                    .le("reservation.startAt", now)
-                    .gt("reservation.endAt", now)
+                    .le("reservation.startAt", now.toDate())
+                    .gt("reservation.endAt", now.toDate())
                     .findUnique();
 
             // Wrong moment in time. Student is early or late
@@ -326,11 +323,11 @@ public class StudentExamController extends SitnetController {
                 DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
 
                 // too late
-                if (jodaNow.isAfter(endAt)) {
+                if (now.isAfter(endAt)) {
                     return forbidden("sitnet_exam_has_ended " + dateTimeFormat.print(endAt.getMillis()));
                 }
                 // early
-                else if (jodaNow.isBefore(startAt)) {
+                else if (now.isBefore(startAt)) {
                     return forbidden("sitnet_exam_starts " + dateTimeFormat.print(startAt.getMillis()));
                 } else {
                     Logger.error("enrolment not found when it was supposed to");
@@ -367,7 +364,7 @@ public class StudentExamController extends SitnetController {
             ExamParticipation examParticipation = new ExamParticipation();
             examParticipation.setUser(user);
             examParticipation.setExam(studentExam);
-            examParticipation.setStarted(now);
+            examParticipation.setStarted(now.toDate());
             examParticipation.save();
             user.getParticipations().add(examParticipation);
 
@@ -423,11 +420,11 @@ public class StudentExamController extends SitnetController {
 
         if (p != null) {
             p.setEnded(SitnetUtil.getNowTime());
-            p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
+            p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
             int deadlineDays = (int) settings.getReviewDeadline();
-            Timestamp deadline = new Timestamp(new DateTime(p.getEnded()).plusDays(deadlineDays).getMillis());
+            Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
             p.setDeadline(deadline);
             p.save();
         }
@@ -451,11 +448,11 @@ public class StudentExamController extends SitnetController {
 
         if (p != null) {
             p.setEnded(SitnetUtil.getNowTime());
-            p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
+            p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
 
-            p.setDeadline(new Timestamp(p.getEnded().getTime() + settings.getReviewDeadline()));
+            p.setDeadline(new Date(p.getEnded().getTime() + settings.getReviewDeadline()));
 
             p.save();
         }

@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -227,8 +226,8 @@ public class EmailComposer {
         final String enrollmentTemplate = readFile(enrollmentTemplatePath, ENCODING);
         final String inspectionTemplate = readFile(inspectionTemplatePath, ENCODING);
 
+        Date now = new Date();
         // get all active exams created by this teachers
-        Timestamp now = new Timestamp(new Date().getTime());
         List<Exam> activeExams = Ebean.find(Exam.class)
                 .select("id, creator.id")
                 .where()

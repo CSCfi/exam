@@ -5,7 +5,7 @@ import org.joda.time.Interval;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 
 /* 
@@ -19,17 +19,17 @@ public class Reservation extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp startAt;
+    private Date startAt;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp endAt;
+    private Date endAt;
 
     @OneToOne
     @JsonBackReference
@@ -47,19 +47,19 @@ public class Reservation extends Model {
         this.id = id;
     }
 
-    public Timestamp getStartAt() {
+    public Date getStartAt() {
         return startAt;
     }
 
-    public void setStartAt(Timestamp startAt) {
+    public void setStartAt(Date startAt) {
         this.startAt = startAt;
     }
 
-    public Timestamp getEndAt() {
+    public Date getEndAt() {
         return endAt;
     }
 
-    public void setEndAt(Timestamp endAt) {
+    public void setEndAt(Date endAt) {
         this.endAt = endAt;
     }
 

@@ -5,11 +5,10 @@ import models.ExamRoom;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Date;
 
 @Entity
-@DiscriminatorValue("DefaultWorkingHours")
+//@EntityConcurrencyMode(ConcurrencyMode.NONE)
 public class DefaultWorkingHours extends Model {
 
     public enum Day {
@@ -24,7 +23,7 @@ public class DefaultWorkingHours extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

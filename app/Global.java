@@ -7,7 +7,6 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
-import models.questions.QuestionInterface;
 import org.joda.time.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -22,7 +21,6 @@ import play.libs.Akka;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.Json;
-import play.libs.Yaml;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Http.Request;
@@ -36,7 +34,6 @@ import util.java.EmailComposer;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -332,7 +329,7 @@ public class Global extends GlobalSettings {
     }
 
     private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
-        Timestamp now = SitnetUtil.getNowTime();
+        Date now = SitnetUtil.getNowTime();
         LocalDateTime future = new LocalDateTime(now).plusMinutes(minutesToFuture);
         List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")

@@ -973,6 +973,39 @@ exam-types:
   - &final !!models.ExamType
     type: Loppusuoritus
 
+
+################################################################
+
+languages:
+
+  - &fi !!models.Language
+    code: fi
+  - &sv !!models.Language
+    code: sv
+  - &en !!models.Language
+    code: en
+  - &de !!models.Language
+    code: de
+
+################################################################
+
+softwares:
+  - &Matematica !!models.Software
+    name: Matematica
+
+  - &Firefox !!models.Software
+    name: Firefox
+
+  - &Excel !!models.Software
+    name: Excel
+
+  - &Mathcad !!models.Software
+    name: Mathcad
+
+  - &Notepad !!models.Software
+    name: Notepad
+
+
 ################################################################
 
 exams:
@@ -994,7 +1027,14 @@ exams:
     grade: 5
     duration: 90
     gradedTime: 2014-08-29 16:00:00.123
-
+    examLanguages:
+      - *fi
+      - *sv
+      - *en
+      - *de
+    softwareInfo:
+      - *Firefox
+      - *Matematica
 
   - &alkeidenperusteetReview !!models.Exam
     creator: *sauli
@@ -1011,7 +1051,10 @@ exams:
     state: REVIEW
     grade: 5
     duration: 90
-
+    examLanguages:
+      - *fi
+      - *sv
+      - *en
 
   - &astronomianPerusteet !!models.Exam
     creator: *maika
@@ -1027,6 +1070,9 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
+    examLanguages:
+      - *fi
+      - *sv
 
   - &tietokannat2013 !!models.Exam
     creator: *maika
@@ -1042,6 +1088,8 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
+    examLanguages:
+      - *fi
 
   - &tietokannat2014 !!models.Exam
     creator: *maika
@@ -1057,6 +1105,8 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
+    examLanguages:
+      - *fi
 
   - &algoritmit !!models.Exam
     creator: *maika
@@ -1072,6 +1122,8 @@ exams:
     examSections:
     state: SAVED
     duration: 90
+    examLanguages:
+      - *de
 
   - &ooad !!models.Exam
     creator: *maika
@@ -1085,7 +1137,9 @@ exams:
     examActiveEndDate: 2014-12-29 16:00:00.123
     grading: 0-5
     examSections:
-    state: REVIEW
+    state: SAVED
+    examLanguages:
+      - *sv
 
 ################################################################
 
@@ -1478,24 +1532,6 @@ calendar-events:
   - &cal-event !!models.calendar.DefaultWorkingHours
     startTime: 2014-05-05 08:00:00.000
     endTime: 2014-05-05 16:00:00.000
-
-################################################################
-
-softwares:
-  - &Matematica !!models.Software
-    name: Matematica
-
-  - &Firefox !!models.Software
-    name: Firefox
-
-  - &Excel !!models.Software
-    name: Excel
-
-  - &Mathcad !!models.Software
-    name: Mathcad
-
-  - &Notepad !!models.Software
-    name: Notepad
 
 ################################################################
 

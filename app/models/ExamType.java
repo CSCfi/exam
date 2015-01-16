@@ -4,7 +4,7 @@ package models;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /*
  * Opetuksen toteutus
@@ -18,13 +18,17 @@ public class ExamType extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
-	// TDOD: miten erilaiset tenttityypit määritellään?
+    public Long getId() {
+        return id;
+    }
+
+    // TDOD: miten erilaiset tenttityypit määritellään?
 	// kaikille avoin, vain kutsusta, jne
 	private String type;
 

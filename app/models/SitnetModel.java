@@ -7,7 +7,7 @@ import play.db.ebean.Model;
 import util.SitnetUtil;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 @MappedSuperclass
 abstract public class SitnetModel extends Model implements Cloneable {
@@ -18,12 +18,12 @@ abstract public class SitnetModel extends Model implements Cloneable {
 	
 	@Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 	
 //	@CreatedTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     @Formats.DateTime(pattern="yyyy/MM/dd")
-    protected Timestamp created;
+    protected Date created;
 	
 	@OneToOne
     @NonCloneable
@@ -31,7 +31,7 @@ abstract public class SitnetModel extends Model implements Cloneable {
 	
 //	@UpdatedTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp modified;
+    protected Date modified;
 	
 	@OneToOne
     @NonCloneable
@@ -54,11 +54,11 @@ abstract public class SitnetModel extends Model implements Cloneable {
 		this.id = id;
 	}
 
-    public Timestamp getCreated() {
+    public Date getCreated() {
 		return created;
 	}
 
-    public void setCreated(Timestamp created) {
+    public void setCreated(Date created) {
 		this.created = created;
 	}
 
@@ -70,11 +70,11 @@ abstract public class SitnetModel extends Model implements Cloneable {
 		this.creator = creator;
 	}
 
-    public Timestamp getModified() {
+    public Date getModified() {
 		return modified;
 	}
 
-    public void setModified(Timestamp modified) {
+    public void setModified(Date modified) {
 		this.modified = modified;
 	}
 

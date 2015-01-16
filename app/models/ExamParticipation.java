@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 public class ExamParticipation extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,23 +26,23 @@ public class ExamParticipation extends Model {
 	private Exam exam;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	private Timestamp started;
+	private Date started;
 	
 	@Temporal(TemporalType.TIMESTAMP)
-	private Timestamp ended;
+	private Date ended;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	private Timestamp duration;
+	private Date duration;
 
     // tentin arvioinnin takaraja
 	@Temporal(TemporalType.TIMESTAMP)
-	private Timestamp deadline;
+	private Date deadline;
 
-    public Timestamp getDeadline() {
+    public Date getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(Timestamp deadline) {
+    public void setDeadline(Date deadline) {
         this.deadline = deadline;
     }
 
@@ -70,27 +70,27 @@ public class ExamParticipation extends Model {
 		this.exam = exam;
 	}
 
-	public Timestamp getStarted() {
+	public Date getStarted() {
 		return started;
 	}
 
-	public void setStarted(Timestamp started) {
+	public void setStarted(Date started) {
 		this.started = started;
 	}
 
-	public Timestamp getEnded() {
+	public Date getEnded() {
 		return ended;
 	}
 
-	public void setEnded(Timestamp ended) {
+	public void setEnded(Date ended) {
 		this.ended = ended;
 	}
 
-    public Timestamp getDuration() {
+    public Date getDuration() {
         return duration;
     }
 
-    public void setDuration(Timestamp duration) {
+    public void setDuration(Date duration) {
         this.duration = duration;
     }
 }

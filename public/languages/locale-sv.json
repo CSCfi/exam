@@ -470,5 +470,6 @@
     "sitnet_error_question_not_found": "Frågan finns ej",
     "sitnet_essay_length_recommendation_bounds": "Integer value in range (1, 1000000) expected",
     "sitnet_exam_language_updated": "Tentens språk uppdaterade",
-    "sitnet_questions_reordered": "Ordning av frågor uppdaterad"
+    "sitnet_questions_reordered": "Ordning av frågor uppdaterad",
+    "sitnet_exam_not_found": "Tenten finns ej"
 }

@@ -13,115 +13,63 @@
                 $scope.user = $scope.session.user;
 
 
-                $scope.accessibilities = [];
-
-                $http.get('accessibility').success(function(data){
+                $http.get('accessibility').success(function (data) {
                     $scope.accessibilities = data;
                 });
 
-                var selectable = [],
-                    times = [],
-                    startHour = 0,
-                    endHour = 24,
-                    timeStep = '30',
-                    rows = 0,
-                    days = 7,
-                    i,
-                    j,
-                    k,
-                    z,
-                    x;
+                // initialize the timeslots
+                var week = {
+                    'MONDAY': Array.apply(null, new Array(48)).map(function (x, i) {
+                        return {'index': i, type: ''}
+                    }),
+                    'TUESDAY': Array.apply(null, new Array(48)).map(function (x, i) {
+                        return {'index': i, type: ''}
+                    }),
+                    'WEDNESDAY': Array.apply(null, new Array(48)).map(function (x, i) {
+                        return {'index': i, type: ''}
+                    }),
+                    'THURSDAY': Array.apply(null, new Array(48)).map(function (x, i) {
+                        return {'index': i, type: ''}
+                    }),
+                    'FRIDAY': Array.apply(null, new Array(48)).map(function (x, i) {
+                        return {'index': i, type: ''}
+                    }),
+                    'SATURDAY': Array.apply(null, new Array(48)).map(function (x, i) {
+                        return {'index': i, type: ''}
+                    }),
+                    'SUNDAY': Array.apply(null, new Array(48)).map(function (x, i) {
+                        return {'index': i, type: ''}
+                    })
+                };
 
-                for (i = startHour; i <= endHour; i++) {
-                    times.push(i + ".00");
-                    if(i === endHour) {
-                        rows ++;
-                        break;
+                var times = [""]; // This is a dummy value for setting something for the table header
+
+                for (var i = 0; i <= 24; ++i) {
+                    if (i > 0) {
+                        times.push(i + ":00");
                     }
-                    times.push(i + "." + timeStep);
-                    rows += 2;
+                    if (i < 24) {
+                        times.push(i + ":30");
+                    }
                 }
 
-                for (j = 0; j < rows; j++) {
-                    var week = [];
-                    for (k = 0; k < days; k++) {
-                        week.push(
-                            {
-                                type: '',
-                                day: k,
-                                time: j
-                            }
-                        );
+                var isAnyExamMachines = function () {
+                    return $scope.roomInstance.examMachines && $scope.roomInstance.examMachines.length > 0;
+                };
+
+                var isEmpty = function (day) {
+                    for (var i = 0; i < week[day].length; ++i) {
+                        if (week[day][i].type !== '') {
+                            return false;
+                        }
                     }
-                    selectable.push(week);
-                }
-
-                var isAnyExamMachines = function() {
-                    if($scope.roomInstance.examMachines === undefined || $scope.roomInstance.examMachines == null || $scope.roomInstance.examMachines.length == 0)
-                        return false;
-                    else
-                        return true;
+                    return true;
                 };
 
-                var thereIsAnyDefaultTimesAtAll = function(){
-                    //todo: optimize!
-                    var has = false;
-                    selectable.forEach(function (row) {
-                        row.forEach(function (cell) {
-                            if(cell.type === 'selected') {
-                                has = true;
-                            }
-                        });
-                    });
-                    return has;
-                };
-
-                var clear = function (day) {
-                    selectable.forEach(function (row) {
-                        row.forEach(function (cell) {
-                            if (cell.day === day) {
-                                cell.type = '';
-                            }
-                        });
-                    });
-                };
-
-                var markRange = function (day, from, to) {
-                    if (from > to) {
-                        var tmp = to;
-                        to = from;
-                        from = tmp;
-                    }
-                    selectable.forEach(function (row) {
-                        row.forEach(function (cell) {
-                            if (cell.day === day) {
-                                if (cell.time >= from && cell.time <= to) {
-                                    cell.type = 'selected';
-                                }
-                            }
-                        });
-                    });
-                };
-
-                var intersection = function (day, newRangeStart, newRangeEnd) {
-                    var previouslySelected = [];
-                    selectable.forEach(function (row) {
-                        row.forEach(function (cell) {
-                            if (cell.day === day && cell.type === 'selected') {
-                                previouslySelected.push(cell);
-                            }
-                        });
-                    });
-                    if (newRangeStart > newRangeEnd) {
-                        var tmp = newRangeEnd;
-                        newRangeEnd = newRangeStart;
-                        newRangeStart = tmp;
-                    }
-
-                    for (z = newRangeStart; z <= newRangeEnd; z++) {
-                        x = previouslySelected.length;
-                        while (x--) {
-                            if (previouslySelected[x].time === z) {
+                var isSomethingSelected = function () {
+                    for (var day in week) {
+                        if (week.hasOwnProperty(day)) {
+                            if (!isEmpty(day)) {
                                 return true;
                             }
                         }
@@ -129,101 +77,82 @@
                     return false;
                 };
 
-                var lineHasSelected = function (day, current) {
-                    var has = undefined;
-                    selectable.forEach(function (row) {
-                        row.forEach(function (cell) {
-                            if (cell.day === day &&
-                                cell.type === 'accepted' &&
-                                cell.time !== current) {
-
-                                has = cell.time;
-                            }
-                        });
-                    });
-                    return has;
-                };
-
-                $scope.select = function (e) {
-
-                    if (e.type === '') {
-                        e.type = 'accepted';
-                    } else if (e.type === 'selected') {
-                        clear(e.day);
-                        $scope.updateWorkingHours($scope.roomInstance, selectable);
-                        return;
-                    } else {
-                        e.type = '';
-                        return;
-                    }
-
-                    var previous = lineHasSelected(e.day, e.time);
-
-                    if (previous !== undefined && previous !== e.time) {
-                        if (intersection(e.day, previous, e.time)) {
-                            e.type = '';
-                            return;
+                var firstSelection = function (day) {
+                    for (var i = 0; i < week[day].length; ++i) {
+                        if (week[day][i].type) {
+                            return i;
                         }
-                        markRange(e.day, previous, e.time);
-                        $scope.updateWorkingHours($scope.roomInstance, selectable);
                     }
                 };
 
-                $scope.calculateTime = function (cell) {
-                    var hours = cell.time / 2 | 0;
-                    var halfHour = cell.time % 2 === 0;
-                    var time = startHour + hours;
-                    if (halfHour) {
-                        time += '.00';
-                    } else {
-                        time += '.' + timeStep;
-                    }
-                    return time;
-                };
-
-                var setSelected = function (times, day) {
-                    var start = times[0];
-                    var end = times[times.length - 1];
-
-                    for (var i = start; i <= end; i++) {
-                        var cell = selectable[i][day];
-                        cell.type = 'selected';
-                        cell.day = day;
-                        cell.time = i;
+                var lastSelection = function (day) {
+                    for (var i = week[day].length - 1; i >= 0; --i) {
+                        if (week[day][i].type) {
+                            return i;
+                        }
                     }
                 };
 
-                var resolveDay = function (day) {
-                    switch (day) {
-                        case "MONDAY":
-                            return 0;
-                        case "TUESDAY":
-                            return 1;
-                        case "WEDNESDAY":
-                            return 2;
-                        case "THURSDAY":
-                            return 3;
-                        case "FRIDAY":
-                            return 4;
-                        case "SATURDAY":
-                            return 5;
-                        case "SUNDAY":
-                            return 6;
+                $scope.select = function (day, time) {
+                    if (isEmpty(day)) {
+                        week[day][time].type = 'accepted'; // mark beginning
+                        return;
                     }
-                    return -1;
+                    var status = week[day][time].type;
+                    if (status === 'accepted') {
+                        week[day][time].type = ''; // clear selection
+                        return;
+                    }
+                    else if (status === 'selected') { //
+                        for (var i = 0; i < week[day].length; ++i) {
+                            if (i >= time) { // mark everything beyond selection as free
+                                week[day][i].type = '';
+                            }
+                        }
+                    }
+                    else { // previously not selected
+                        var first = firstSelection(day);
+                        var last = lastSelection(day);
+                        if (time < first) { // mark times between first selection and this as selected
+                            for (i = time; i <= first; ++i) {
+                                week[day][i].type = 'selected'
+                            }
+                        }
+                        if (last < time) { // mark times between last selection and this as selected
+                            for (i = last; i <= time; ++i) {
+                                week[day][i].type = 'selected';
+                            }
+                        }
+                        for (i = 0; i < week[day].length; ++i) {
+                            if (week[day][i].type === 'accepted') {
+                                week[day][i].type = 'selected'; // clear out the obsolete marking
+                            }
+                        }
+                    }
+                    $scope.updateWorkingHours($scope.roomInstance, week);
+                };
+
+                $scope.calculateTime = function (index) {
+                    return (times[index] || "0:00") + " - " + times[index + 1];
+                 };
+
+                var setSelected = function (day, slots) {
+                    for (var i = 0; i < slots.length; ++i)
+                    {
+                        week[day][slots[i]].type = 'selected';
+                    }
                 };
 
                 var slotToTimes = function (slot) {
                     var arr = [];
-                    var startKey = moment.utc(slot.startTime).format("H.mm");
-                    var endKey = moment.utc(slot.endTime).format("H.mm");
+                    var startKey = moment.utc(slot.startTime).format("H:mm");
+                    var endKey = moment.utc(slot.endTime).format("H:mm");
                     var start = times.indexOf(startKey);
-
                     for (var i = start; i < times.length; i++) {
-                        arr.push(i);
                         if (times[i] === endKey) {
                             break;
                         }
+                        arr.push(i);
                     }
                     return arr;
                 };
@@ -231,26 +160,24 @@
                 if ($scope.user.isAdmin || $scope.user.isTeacher) {
                     if ($routeParams.id === undefined) {
                         $scope.rooms = RoomResource.rooms.query();
-                        if($scope.rooms) {
-                            angular.forEach($scope.rooms, function(room){
-                               if(room.examMachines) {
-                                   angular.forEach(room.machines, function(machine, index){
-                                       if(machine.isArchived()) {
-                                           room.machines.slice(index, 1);
-                                       }
-                                   });
-                               }
+                        if ($scope.rooms) {
+                            angular.forEach($scope.rooms, function (room) {
+                                if (room.examMachines) {
+                                    angular.forEach(room.machines, function (machine, index) {
+                                        if (machine.isArchived()) {
+                                            room.machines.slice(index, 1);
+                                        }
+                                    });
+                                }
                             });
                         }
                     } else {
                         RoomResource.rooms.get({id: $routeParams.id},
                             function (room) {
                                 $scope.times = times;
-
-                                room.defaultWorkingHours.forEach(function (slot) {
-                                    var s = slotToTimes(slot);
-                                    var day = resolveDay(slot.day);
-                                    setSelected(s, day);
+                                room.defaultWorkingHours.forEach(function (daySlot) {
+                                    var timeSlots = slotToTimes(daySlot);
+                                    setSelected(daySlot.day, timeSlots);
                                 });
 
                                 if (room.calendarExceptionEvents) {
@@ -262,11 +189,9 @@
                                     });
                                 }
 
-                                $scope.table = selectable;
-
                                 $scope.roomInstance = room;
 
-                                if(!isAnyExamMachines())
+                                if (!isAnyExamMachines())
                                     toastr.error($translate('sitnet_room_has_no_machines_yet'));
                             },
                             function (error) {
@@ -278,6 +203,18 @@
                 else {
                     $location.path("/home");
                 }
+
+                $scope.timerange = function() {
+                    return Array.apply(null, new Array(times.length - 1)).map(function (x, i) { return i });
+                };
+
+                $scope.getWeekdays = function() {
+                  return Object.keys(week);
+                };
+
+                $scope.getType = function(day, time) {
+                   return week[day][time].type;
+                };
 
                 $scope.countMachineAlerts = function (room) {
 
@@ -324,7 +261,7 @@
 
                 $scope.updateRoom = function (room) {
                     RoomResource.rooms.update(room,
-                        function (updated_room) {
+                        function () {
                             toastr.info($translate('sitnet_room_updated'));
                         },
                         function (error) {
@@ -335,13 +272,12 @@
 
                 $scope.saveRoom = function (room) {
 
-                    if(!thereIsAnyDefaultTimesAtAll())
-                    {
+                    if (!isSomethingSelected()) {
                         toastr.error($translate('sitnet_room_must_have_default_opening_hours'));
                         return;
                     }
 
-                    if(!isAnyExamMachines())
+                    if (!isAnyExamMachines())
                         toastr.error($translate("sitnet_dont_forget_to_add_machines") + " " + $scope.roomInstance.name);
 
                     RoomResource.rooms.update(room,
@@ -397,7 +333,7 @@
                         return item.id;
                     }).join(", ");
 
-                    $http.post('room/' + room.id + '/accessibility', {ids:ids})
+                    $http.post('room/' + room.id + '/accessibility', {ids: ids})
                         .success(function () {
                             toastr.info($translate("sitnet_room_updated"));
                         });
@@ -475,31 +411,19 @@
                     }
                 };
 
-                $scope.updateWorkingHours = function (room, hours) {
-                    var h = {};
-                    var rows = [];
-
-                    hours.forEach(function (row) {
-                        var cells = [];
-                        row.forEach(function (cell) {
-                            if (cell.type === 'selected') {
-                                cells.push(cell);
-                            }
-                        });
-                        if (cells.length > 0) {
-                            rows.push(cells);
+                $scope.updateWorkingHours = function (room, week) {
+                    var workingHours = [];
+                    for (var day in week) {
+                        if (week.hasOwnProperty(day)) {
+                            workingHours.push({'weekday': day,
+                                'start': times[firstSelection(day)],
+                                'end': times[lastSelection(day) + 1]});
                         }
-                    });
+                    }
 
-                    h.hours = rows;
-                    h.startHour = startHour;
-                    h.endHour = endHour;
-
-                    RoomResource.workinghours.update({id: $scope.roomInstance.id}, h,
-                        function (workingHours) {
+                    RoomResource.workinghours.update({id: $scope.roomInstance.id}, workingHours,
+                        function () {
                             toastr.info($translate('sitnet_default_opening_hours_updated'));
-                            console.log('Updated hours:');
-                            console.log(workingHours);
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -536,7 +460,7 @@
                     return formatted;
                 };
                 $scope.formatTime = function (exception) {
-                    var fmt = 'HH.mm';
+                    var fmt = 'HH:mm';
                     if (!exception.startTime) {
                         return $translate('sitnet_out_of_service');
                     }
@@ -584,12 +508,12 @@
                             $scope.endDate = new Date();
 
                             $scope.startTime = new Date();
-                            $scope.startTime.setHours(startHour);
+                            $scope.startTime.setHours(0);
                             $scope.startTime.setMinutes(0);
 
                             $scope.endTime = new Date();
-                            $scope.endTime.setHours(endHour);
-                            $scope.endTime.setMinutes(0);
+                            $scope.endTime.setHours(23);
+                            $scope.endTime.setMinutes(59);
 
 
                             $scope.setOutOfService = function (oos) {
@@ -634,8 +558,8 @@
                     });
                 };
 
-                $scope.isArchived = function(machine) {
-                      return machine.isArchived() === false;
+                $scope.isArchived = function (machine) {
+                    return machine.isArchived() === false;
                 };
 
             }]);

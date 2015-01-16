@@ -17,7 +17,6 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -27,15 +26,13 @@ public class AdminReservationController extends SitnetController {
     @Restrict({@Group("ADMIN")})
     public static Result getExams() {
 
-        Timestamp now = new Timestamp(new Date().getTime());
-
         List<Exam> exams = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("parent")
                 .where()
                 .eq("parent", null) // only Exam prototypes
                 .eq("state", "PUBLISHED")
-                .gt("examActiveEndDate", now)   // Students should be able to enroll, before exam starts.
+                .gt("examActiveEndDate", new Date())   // Students should be able to enroll, before exam starts.
                 .findList();
 
         if (exams == null) {

@@ -3,7 +3,7 @@ package models.calendar;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * Created by avainik on 4/22/14.
@@ -18,7 +18,7 @@ abstract public class AbstractCalendarEvent extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -28,19 +28,19 @@ abstract public class AbstractCalendarEvent extends Model {
     protected String event_type;
 
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp startDate;
+    protected Date startDate;
 
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp endDate;
+    protected Date endDate;
 
     @Temporal(TemporalType.TIME)
-    protected Timestamp startTime;
+    protected Date startTime;
 
     @Temporal(TemporalType.TIME)
-    protected Timestamp endTime;
+    protected Date endTime;
 
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp interval;
+    protected Date interval;
 
     @Column(columnDefinition="boolean default false")
     protected boolean reoccurring;
@@ -61,43 +61,43 @@ abstract public class AbstractCalendarEvent extends Model {
         this.event_type = event_type;
     }
 
-    public Timestamp getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Timestamp startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
     }
 
-    public Timestamp getEndDate() {
+    public Date getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Timestamp endDate) {
+    public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
 
-    public Timestamp getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
-    public Timestamp getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 
-    public Timestamp getInterval() {
+    public Date getInterval() {
         return interval;
     }
 
-    public void setInterval(Timestamp interval) {
+    public void setInterval(Date interval) {
         this.interval = interval;
     }
 

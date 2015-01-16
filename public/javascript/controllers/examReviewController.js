@@ -50,8 +50,8 @@
                         }
 
                         if (exam) {
-                            angular.forEach($scope.examToBeReviewed.examSections, function(section) {
-                                angular.forEach(section.sectionQuestions, function(sectionQuestion) {
+                            angular.forEach($scope.examToBeReviewed.examSections, function (section) {
+                                angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                                     var question = sectionQuestion.question;
                                     if (question.type === "EssayQuestion") {
                                         if (question.evaluationType === "Select") {
@@ -68,13 +68,12 @@
                                     }
                                 });
                             });
-                        }
-
-                        if (exam.answerLanguage) {
-                            $scope.selectedLanguage = exam.answerLanguage;
-                        } else if (exam.parent.examLanguages.length === 1) {
-                            // Use parent's language as default answer language if there is a single one to choose from
-                            $scope.selectedLanguage = getLanguageNativeName(exam.parent.examLanguages[0].code);
+                            if (exam.answerLanguage) {
+                                $scope.selectedLanguage = exam.answerLanguage;
+                            } else if (exam.examLanguages.length === 1) {
+                                // Use parent's language as default answer language if there is a single one to choose from
+                                $scope.selectedLanguage = getLanguageNativeName(exam.examLanguages[0].code);
+                            }
                         }
 
                         $scope.isCreator = function() {
