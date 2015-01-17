@@ -61,17 +61,6 @@ public class RoomController extends SitnetController {
         return ok(Json.toJson(examRoom));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getReservationForExam(Long uid, Long eid) {
-        Logger.debug("getReservationForExam()");
-
-        Reservation reservation = Ebean.find(Reservation.class).where()
-                .eq("user.id", uid)
-                .findUnique();
-
-        return ok(Json.toJson(reservation));
-    }
-
     @Restrict(@Group({"ADMIN"}))
     public static Result createExamRoomDraft() throws MalformedDataException {
         Logger.debug("createExamRoomDraft()");
@@ -229,22 +218,6 @@ public class RoomController extends SitnetController {
                 room.save();
             }
         }
-        return ok();
-    }
-
-    @Restrict(@Group({"ADMIN"}))
-    public static Result addExamRoomAccessibility(Long id) throws MalformedDataException {
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
-        final Accessibility accessibility = bindForm(Accessibility.class);
-        accessibility.save();
-        room.save();
-        return ok();
-    }
-
-    @Restrict(@Group({"ADMIN"}))
-    public static Result removeExamRoomAccessibility(Long id) throws MalformedDataException {
-        Accessibility accessibility = Ebean.find(Accessibility.class, id);
-        accessibility.delete();
         return ok();
     }
 

@@ -262,18 +262,8 @@ public class CalendarController extends SitnetController {
     }
 
     private static boolean hasRequiredSoftware(ExamMachine machine, Exam exam) {
-        List<Software> wantedSoftware = exam.getSoftwareInfo();
-        if (wantedSoftware.isEmpty()) {
-            return true;
-        } else {
-            List<Software> machineSoftware = machine.getSoftwareInfo();
-            if (machineSoftware.containsAll(wantedSoftware)) {
-                return true;
-            }
-        }
-        return false;
+        return machine.getSoftwareInfo().containsAll(exam.getSoftwareInfo());
     }
-
 
     private static Map<String, DayWithFreeTimes> getSlots(ExamRoom room, Exam exam, DateTime forDay, List<Reservation> reservations, List<Integer> wantedAccessibility) {
 
@@ -400,16 +390,6 @@ public class CalendarController extends SitnetController {
                 }
             }
         }
-            /*
-        Iterator it = allPossibleFreeTimeSlots.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
-            if (pairs.getValue() == null) {
-                it.remove();
-            }
-        }
-
-              */
         return allPossibleFreeTimeSlots;
     }
 

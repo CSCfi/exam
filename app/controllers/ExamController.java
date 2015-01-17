@@ -766,7 +766,7 @@ public class ExamController extends SitnetController {
         }
     }
 
-    private static AbstractQuestion clone(String type, Long id, ExamSection section) {
+    private static AbstractQuestion clone(String type, Long id) {
         switch (type) {
             case "MultipleChoiceQuestion": {
                 MultipleChoiceQuestion multiQuestion = Ebean.find(MultipleChoiceQuestion.class)
@@ -851,7 +851,7 @@ public class ExamController extends SitnetController {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
 
             ExamSection section = Ebean.find(ExamSection.class, sid);
-            AbstractQuestion clone = clone(question.getType(), question.getId(), section);
+            AbstractQuestion clone = clone(question.getType(), question.getId());
             if (clone == null) {
                 return notFound("Question type not specified");
             }
