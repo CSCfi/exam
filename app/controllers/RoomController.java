@@ -132,13 +132,13 @@ public class RoomController extends SitnetController {
 
         JsonNode node = request().body().asJson();
         DateTimeFormatter formatter = DateTimeFormat.forPattern("DD.MM.YYYY HH:mmZZ");
-        for (JsonNode weekDayNode : node) {
-            if (weekDayNode.has("start") && weekDayNode.has("end")) {
+        for (JsonNode weekday : node) {
+            for (JsonNode block : weekday.get("blocks")) {
                 DefaultWorkingHours dwh = new DefaultWorkingHours();
                 dwh.setRoom(examRoom);
-                dwh.setDay(weekDayNode.get("weekday").asText());
-                String startTime = weekDayNode.get("start").asText();
-                String endTime = weekDayNode.get("end").asText();
+                dwh.setDay(weekday.get("weekday").asText());
+                String startTime = block.get("start").asText();
+                String endTime = block.get("end").asText();
                 dwh.setStartTime(DateTime.parse(startTime, formatter).toDate());
                 dwh.setEndTime(DateTime.parse(endTime, formatter).toDate());
                 dwh.save();
