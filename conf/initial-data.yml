@@ -1022,7 +1022,7 @@ exams:
     examActiveEndDate: 2014-12-29 16:00:00.123
     grading: 0-5
     examSections:
-    state: GRADED
+    state: PUBLISHED
     examFeedback: *comment_sauli
     grade: 5
     duration: 90
