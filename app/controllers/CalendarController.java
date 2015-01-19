@@ -292,7 +292,7 @@ public class CalendarController extends SitnetController {
                 final DateTime endTime;
 
                 if (forDay.toLocalDate().equals(now.toLocalDate())) {
-                    startTime = now.plusHours(1).withMinuteOfHour(0);
+                    startTime = getNow().plusHours(1).withMinuteOfHour(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 } else {
                     startTime = hours.getStart();
                 }
@@ -338,7 +338,7 @@ public class CalendarController extends SitnetController {
                 FreeTimeSlot possibleTimeSlot = getFreeTimeSlot(room, examMachine, startTime, freeTimeSlotEndTime);
                 day.getSlots().add(possibleTimeSlot);
 
-                DateTime freeTimeSlotStartTime = startTime.withMinuteOfHour(0);
+                DateTime freeTimeSlotStartTime = startTime;
 
                 while (isBeforeOrEquals(freeTimeSlotStartTime.plusHours(1).plusMinutes(shift), endTime)) {
                     freeTimeSlotStartTime = freeTimeSlotStartTime.plusHours(1);
@@ -346,6 +346,8 @@ public class CalendarController extends SitnetController {
                     day.getSlots().add(possibleTimeSlot);
                 }
 
+                // Lastly check that user has not made reservations elsewhere for the time being
+                // TODO: check if we want this restriction. I take that this is to avoid double bookings?
                 Iterator iter = day.getSlots().iterator();
                 while (iter.hasNext()) {
 
