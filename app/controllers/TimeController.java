@@ -46,7 +46,9 @@ public class TimeController extends Controller {
         }
 
         final DateTime now =  DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
-        final Seconds timeLeft = Seconds.secondsBetween(now, new DateTime(enrolment.getReservation().getEndAt()));
+        final DateTime reservationStart = new DateTime(enrolment.getReservation().getStartAt());
+        final int durationMinutes = enrolment.getExam().getDuration();
+        final Seconds timeLeft = Seconds.secondsBetween(now, reservationStart.plusMinutes(durationMinutes));
 
         return ok(String.valueOf(timeLeft.getSeconds()));
     }
