@@ -40,8 +40,8 @@ public class Global extends GlobalSettings {
     public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
     public static final String SITNET_FAILURE_HEADER_KEY = "x-sitnet-token-failure";
     public static final String SITNET_CACHE_KEY = "user.session.";
-    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 15;
-    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
+    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 1;
+    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 1;
 
     private Cancellable reportSender;
     private Cancellable reviewRunner;
@@ -72,7 +72,6 @@ public class Global extends GlobalSettings {
                 Akka.system().dispatcher()
         );
 
-        // TODO: WeeklyEmailReport.java unused after this
         weeklyEmailReport();
 
         SitnetUtil.initializeDataModel();

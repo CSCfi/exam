@@ -8,17 +8,17 @@ import java.util.Date;
 import java.util.List;
 
 public class ReviewRunner extends Controller implements Runnable {
+
     @Override
     public void run() {
-        Logger.info("Running exam participation clean up ..");
+        Logger.info("Running exam participation clean up ...");
         try {
             final List<ExamParticipation> participations = getNotEndedParticipations();
 
             if (participations == null || participations.isEmpty()) {
-                Logger.info(" .. no \"dirty participations\" found. Shutting down.");
+                Logger.info(" -> no dirty participations found.");
                 return;
             }
-            Logger.info(" .. found {} \"dirty participations\", running clean up.", participations.size());
             markEnded(participations);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -28,7 +28,6 @@ public class ReviewRunner extends Controller implements Runnable {
     private void markEnded(List<ExamParticipation> participations) {
         for (ExamParticipation participation : participations) {
             final Exam exam = participation.getExam();
-            int duration = exam.getDuration();
 
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                     .select("reservation.machine.room.transitionTime")
@@ -40,17 +39,8 @@ public class ReviewRunner extends Controller implements Runnable {
                     .findUnique();
 
             if (enrolment != null && enrolment.getReservation() != null) {
-                ExamRoom room = enrolment.getReservation().getMachine().getRoom();
-                int transitionTime = Integer.parseInt(room.getTransitionTime());
-
-                DateTime participationTimeLimit
-                        = new DateTime(participation.getStarted())
-                        .plusMinutes(duration)
-                                //todo: room translatation time?
-                                //todo: is there any other edge cases, eg. late participation
-                                //todo: or if user can somehow extend room reservation, in late participations
-                                //add 15min "safe period" in here.
-                        .plusMinutes(transitionTime / 2);
+                DateTime reservationStart = new DateTime(enrolment.getReservation().getStartAt());
+                DateTime participationTimeLimit = reservationStart.plusMinutes(exam.getDuration());
 
                 if (participationTimeLimit.isBeforeNow()) {
                     participation.setEnded(new Date());
@@ -61,9 +51,11 @@ public class ReviewRunner extends Controller implements Runnable {
 
                     participation.save();
                     String state = Exam.State.REVIEW.toString();
-                    Logger.info("Setting exam ({}) state to {}", exam.getId(), state);
+                    Logger.info(" -> setting exam {} state to REVIEW", exam.getId());
                     exam.setState(state);
                     exam.save();
+                } else {
+                    Logger.info(" -> exam {} is ongoing until {}", exam.getId(), participationTimeLimit);
                 }
             }
         }
