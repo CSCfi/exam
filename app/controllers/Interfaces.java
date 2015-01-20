@@ -3,7 +3,10 @@ package controllers;
 
 import Exceptions.NotFoundException;
 import com.avaje.ebean.Ebean;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.typesafe.config.ConfigFactory;
 import models.*;
 import models.dto.ExamScore;
@@ -26,6 +29,10 @@ public class Interfaces extends SitnetController {
 
     final static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
+    private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
+    static {
+        SORTED_MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+    }
 
     public static F.Promise<Result> getInfo(String code) throws NotFoundException {
 
@@ -208,10 +215,56 @@ public class Interfaces extends SitnetController {
         for (ExamRecord record : examRecords) {
             examScores.add(record.getExamScore());
         }
-
         return ok(Json.toJson(examScores));
     }
 
+    // for testing purposes
+    public static Result getNewRecordsAlphabeticKeyOrder(String startDate) {
+
+        Date start = null;
+
+        try {
+            start = sdf.parse(startDate);
+        } catch (ParseException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } finally {
+            if(start == null) {
+                return Results.badRequest("date format should be dd.MM.YYYY eg. 17.01.2011");
+            }
+        }
+
+        List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
+                .select("exam_score")
+                .where()
+                .gt("time_stamp", start)
+                .findList();
+
+        if(examRecords == null) {
+            return Results.ok("no records since: " + startDate);
+        }
+
+
+        List<ExamScore> examScores = new ArrayList<ExamScore>();
+        for (ExamRecord record : examRecords) {
+            examScores.add(record.getExamScore());
+        }
+
+        String json = null;
+        try {
+            json = convertNode(Json.toJson(examScores));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return ok(json);
+    }
+
+    // for testing purposes
+    private static String convertNode(final JsonNode node) throws JsonProcessingException {
+        final Object obj = SORTED_MAPPER.treeToValue(node, Object.class);
+        final String json = SORTED_MAPPER.writeValueAsString(obj);
+        return json;
+    }
 
     public static Result getRecords(String vatIdNumber, String startDate) {
 

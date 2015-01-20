@@ -203,7 +203,7 @@ GET                                     /attachment/exam/:id                    
 GET                                     /integration/info/:code                                          controllers.Interfaces.getInfo(code: String)
 GET                                     /integration/record/:vatIdNumber/:startDate                      controllers.Interfaces.getRecords(vatIdNumber: String, startDate: String)
 GET                                     /integration/record/:startDate                                   controllers.Interfaces.getNewRecords(startDate: String)
-
+GET                                     /integration/recordalphabetic/:startDate                         controllers.Interfaces.getNewRecordsAlphabeticKeyOrder(startDate: String)
 
 
 GET                                     /time                                                            controllers.TimeController.getTime()
