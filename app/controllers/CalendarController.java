@@ -275,7 +275,6 @@ public class CalendarController extends SitnetController {
         }
 
         boolean roomAccessibilitySatisfied = isRoomAccessibilitySatisfied(room, wantedAccessibility);
-        final DateTime now = DateTime.now();
 
         for (ExamMachine examMachine : room.getExamMachines()) {
 
@@ -286,13 +285,14 @@ public class CalendarController extends SitnetController {
                 continue;
             }
 
+            final DateTime now = DateTime.now();
             for (WorkingHours hours : calculateWorkingHours(room, forDay.toLocalDate())) {
 
                 final DateTime startTime;
                 final DateTime endTime;
 
                 if (forDay.toLocalDate().equals(now.toLocalDate())) {
-                    startTime = getNow().plusHours(1).withMinuteOfHour(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    startTime = now.plusHours(1).withMinuteOfHour(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
                 } else {
                     startTime = hours.getStart();
                 }
