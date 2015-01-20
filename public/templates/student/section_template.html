@@ -27,10 +27,10 @@
             <div class="exam-question-container" ng-show="sectionQuestion.question.expanded">
                 <div class="sitnet-info-text">{{question.instruction}}</div>
                 <div class="question" ng-include="sectionQuestion.question.template"></div>
-                <div ng-show="sectionQuestion.question.attachment !== null" class="col-md-6" ng-controller="AttachmentController">
+                <div ng-show="sectionQuestion.question.attachment" class="col-md-6" ng-controller="AttachmentController">
                     <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)"> {{'sitnet_download_attachment' | translate }} <span class="sitnet-text-medium"><small>({{sectionQuestion.question.attachment.fileName}})</small></span></a>
                 </div>
-                <div class="col-md-6 pull-right" ng-controller="AttachmentController">
+                <div class="col-md-6 pull-right" ng-controller="AttachmentController" ng-show="sectionQuestion.question.type === 'EssayQuestion'">
                     <div class="sitnet-info-text">
                         {{'sitnet_answer_attachment' | translate}}
                     </div>
