@@ -289,7 +289,7 @@ public class ExamController extends SitnetController {
                 .findUnique();
 
         if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("sitnet_error_exam_not_found");
         } else if (SitnetUtil.isInspector(exam)) {
             JsonContext jsonContext = Ebean.createJsonContext();
             return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
@@ -303,7 +303,7 @@ public class ExamController extends SitnetController {
 
         Exam exam = doGetExam(id);
         if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("sitnet_error_exam_not_found");
         } else if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isInspector(exam)) {
             JsonContext jsonContext = Ebean.createJsonContext();
             return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
@@ -318,7 +318,7 @@ public class ExamController extends SitnetController {
 
         Exam exam = doGetExam(id);
         if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("sitnet_error_exam_not_found");
         }
         if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") ||
                 SitnetUtil.isInspector(exam)) {
