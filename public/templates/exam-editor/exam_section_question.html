@@ -1,26 +1,32 @@
 <div id="exam" class="row">
     <div ng-class="sectionQuestion.question.expand ? 'single-question-header-active' : 'single-question-header-inactive'" class="col-md-12">
+
+        <!-- Chevron icon -->
+        <div ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded"
+             class="col-md-1 pointer-hand single-question-icon">
+            <i class="sitnet-white fa fa-1x" ng-class="sectionQuestion.question.expanded ? 'fa-chevron-down' : 'fa-chevron-right'"
+               popover-placement="left" popover-popup-delay="1000" popover-trigger="mouseenter"
+               popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+               ng-show="sectionQuestion.question.type ==='MultipleChoiceQuestion' && sectionQuestion.question.options.length > 0"></i>
+        </div>
+
         <!-- Multiple choice question icon -->
-        <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'" class="single-question-icon">
+        <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'" class="col-md-1 single-question-icon">
             <i class="single-question-icon fa fa-1x fa-list-ul"></i>
         </div>
 
         <!-- Essay question icon -->
-        <div ng-if="sectionQuestion.question.type === 'EssayQuestion'" class="single-question-icon">
+        <div ng-if="sectionQuestion.question.type === 'EssayQuestion'" class="col-md-1 single-question-icon">
             <i class="single-question-icon fa fa-1x fa-edit"></i>
         </div>
 
         <!-- Question -->
-        <div ng-bind-html="sectionQuestion.question.question" mathjax class="single-question-icon"></div>
-
-        <!-- Chevron icon -->
-        <div ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; expandQuestion(sectionQuestion.question)" class="pull-right pointer-hand single-question-icon">
-            <i ng-class="sectionQuestion.question.expanded ? 'fa-chevron-left' : 'fa-chevron-down'" popover-placement="left" popover-popup-delay="1000" popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}" class="sitnet-white fa fa-1x"></i>
-        </div>
+        <div ng-bind-html="sectionQuestion.question.question" mathjax class="col-md-9 single-question-icon"></div>
 
         <!-- Cog icon -->
-        <div ng-click="editQuestion(sectionQuestion.question)" class="pull-right dropdown pointer-hand single-question-icon">
-            <a class="dropdown-toggle">
+        <div ng-click="editQuestion(sectionQuestion.question)"
+             class="col-md-1 dropdown pointer-hand single-question-icon">
+            <a class="pull-right dropdown-toggle">
                 <i class="sitnet-white fa fa-cog fa-1x"></i>
             </a>
             <ul class="dropdown-menu">

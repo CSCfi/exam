@@ -241,71 +241,82 @@ public class ExamController extends SitnetController {
 
     }
 
-    @Restrict({@Group("STUDENT"), @Group("TEACHER"), @Group("ADMIN")})
-    public static Result getExam(Long id) {
+    private static JsonWriteOptions getJsonOptions() {
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, " +
+                "shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
+                "duration, grading, grade, customCredit, totalScore, examLanguage, answerLanguage, " +
+                "state, examFeedback, creditType, expanded, attachment, creator, softwares");
+        options.setPathProperties("creator", "id, firstName, lastName");
+        options.setPathProperties("parent", "id, creator");
+        options.setPathProperties("parent.creator", "id, firstName, lastName");
+        options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
+        options.setPathProperties("room", "id, name");
+        options.setPathProperties("softwares", "id, name");
+        options.setPathProperties("attachment", "id, fileName");
+        options.setPathProperties("examType", "id, type");
+        options.setPathProperties("examSections", "id, name, sectionQuestions, exam, totalScore, expanded, " +
+                "lotteryOn, lotteryItemCount");
+        options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
+        options.setPathProperties("examSections.sectionQuestions.question", "attachment, id, type, question, " +
+                "shared, instruction, maxCharacters, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
+        options.setPathProperties("examSections.sectionQuestions.question.answer", "attachment, type, option, answer");
+        options.setPathProperties("examSections.sectionQuestions.question.answer.option", "id, option, correctOption, score");
+        options.setPathProperties("examSections.sectionQuestions.question.attachment", "id, fileName");
+        options.setPathProperties("examSections.sectionQuestions.question.answer.attachment", "id, fileName");
+        options.setPathProperties("examSections.sectionQuestions.question.options", "id, option, correctOption");
+        options.setPathProperties("examSections.sectionQuestions.question.comments", "id, comment");
+        options.setPathProperties("examFeedback", "id, comment");
+        return options;
+    }
 
-        Exam exam = Ebean.find(Exam.class)
-                .fetch("course")
-                .fetch("examSections")
+    private static Exam doGetExam(Long id) {
+        return Ebean.find(Exam.class)
                 .fetch("examSections.sectionQuestions")
-                .fetch("examSections.sectionQuestions.question")
-                .fetch("softwares")
                 .where()
                 .eq("id", id)
-                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber") // WTF? order unique result
+                .disjunction()
+                .eq("state", Exam.State.DRAFT.toString())
+                .eq("state", Exam.State.SAVED.toString())
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .endJunction()
+                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
+                .findUnique();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExamReview(Long eid) {
+        Exam exam = Ebean.find(Exam.class)
+                .fetch("examSections.sectionQuestions")
+                .where()
+                .eq("id", eid)
+                .disjunction()
+                .eq("state", Exam.State.REVIEW.toString())
+                .eq("state", Exam.State.REVIEW_STARTED.toString())
+                .eq("state", Exam.State.GRADED.toString())
+                .eq("state", Exam.State.GRADED_LOGGED.toString())
+                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
 
         if (exam == null) {
-            return notFound();
-        }
-        // Todo: oh dear. this is stupid, please fix this. oh and by the way why this method is used for all roles getExam cases
-        else if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isInspector(exam) ||
-                exam.getState().equals("STUDENT_STARTED") || exam.getState().equals("ABORTED") || exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED")) {
-            if (exam.getState().equals("STUDENT_STARTED")) {
-                // if exam not over -> return
-                ExamParticipation participation = Ebean.find(ExamParticipation.class)
-                        .fetch("exam")
-                        .where()
-                        .eq("exam.id", id)
-                        .findUnique();
-
-                if (participation != null && participation.getStarted().getTime() + ((15 + exam.getDuration()) * 60 * 1000) < new Date().getTime()) {
-                    return forbidden("sitnet_error_access_forbidden");
-                }
-
-            }
-
-            // This is to Gesc1eK
-
-
+            return notFound("sitnet_error_exam_not_found");
+        } else if (SitnetUtil.isInspector(exam)) {
             JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, " +
-                    "shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, grade, customCredit, totalScore, examLanguage, answerLanguage, " +
-                    "state, examFeedback, creditType, expanded, attachment, creator, softwares");
-            options.setPathProperties("creator", "id, firstName, lastName");
-            options.setPathProperties("parent", "id, creator");
-            options.setPathProperties("parent.creator", "id, firstName, lastName");
-            options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
-            options.setPathProperties("room", "id, name");
-            options.setPathProperties("softwares", "id, name");
-            options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("examType", "id, type");
-            options.setPathProperties("examSections", "id, name, sectionQuestions, exam, totalScore, expanded, " +
-                    "lotteryOn, lotteryItemCount");
-            options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
-            options.setPathProperties("examSections.sectionQuestions.question", "attachment, id, type, question, " +
-                    "shared, instruction, maxCharacters, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
-            options.setPathProperties("examSections.sectionQuestions.question.answer", "attachment, type, option, answer");
-            options.setPathProperties("examSections.sectionQuestions.question.answer.option", "id, option, correctOption, score");
-            options.setPathProperties("examSections.sectionQuestions.question.attachment", "id, fileName");
-            options.setPathProperties("examSections.sectionQuestions.question.answer.attachment", "id, fileName");
-            options.setPathProperties("examSections.sectionQuestions.question.options", "id, option, correctOption");
-            options.setPathProperties("examSections.sectionQuestions.question.comments", "id, comment");
-            options.setPathProperties("examFeedback", "id, comment");
+            return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
+        } else {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+    }
 
-            return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExam(Long id) {
+
+        Exam exam = doGetExam(id);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        } else if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isInspector(exam)) {
+            JsonContext jsonContext = Ebean.createJsonContext();
+            return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -314,57 +325,20 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamPreview(Long id) {
 
-        Exam exam = Ebean.find(Exam.class)
-                .fetch("course")
-                .fetch("room")
-                .fetch("attachment")
-                .fetch("examSections")
-                .fetch("examSections.sectionQuestions")
-                .fetch("examSections.sectionQuestions.question")
-                .fetch("examSections.sectionQuestions.question.attachment")
-                .where()
-                .eq("id", id)
-                .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
-                .findUnique();
-
+        Exam exam = doGetExam(id);
         if (exam == null) {
-            return notFound();
+            return notFound("sitnet_error_exam_not_found");
         }
-
-        for (ExamSection es : exam.getExamSections()) {
-
-            if (es.getLotteryOn()) {
-
-                Collections.shuffle(es.getSectionQuestions());
-
-                es.setSectionQuestions(es.getSectionQuestions().subList(0, es.getLotteryItemCount()));
-            }
-        }
-
         if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") ||
-                exam.getState().equals("REVIEW") || exam.getState().equals("GRADED") || exam.getState().equals("REVIEW_STARTED")) {
+                SitnetUtil.isInspector(exam)) {
+            for (ExamSection es : exam.getExamSections()) {
+                if (es.getLotteryOn()) {
+                    Collections.shuffle(es.getSectionQuestions());
+                    es.setSectionQuestions(es.getSectionQuestions().subList(0, es.getLotteryItemCount()));
+                }
+            }
             JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, " +
-                    "examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, grade, customCredit, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
-            options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
-            options.setPathProperties("room", "id, name roomInstruction roomInstructionEN roomInstructionSV");
-            options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("examType", "id, type");
-            options.setPathProperties("examSections", "id, name, sectionQuestions, exam, totalScore, expanded, " +
-                    "lotteryOn, lotteryItemCount");
-            options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
-            options.setPathProperties("examSections.sectionQuestions.question", "id, type, question, shared," +
-                    " instruction, maxScore, maxCharacters, evaluationType, evaluatedScore, evaluationCriterias, options, answer, attachment");
-            options.setPathProperties("examSections.sectionQuestions.question.answer", "type, option, answer");
-            options.setPathProperties("examSections.sectionQuestions.question.answer.option", "id, option, correctOption, score");
-            options.setPathProperties("examSections.sectionQuestions.question.options", "id, option");
-            options.setPathProperties("examSections.sectionQuestions.question.comments", "id, comment");
-            options.setPathProperties("examSections.sectionQuestions.question.attachment", "id, fileName");
-            options.setPathProperties("examFeedback", "id, comment");
-
-            return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+            return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }
@@ -378,16 +352,21 @@ public class ExamController extends SitnetController {
         exam.setGrade(df.get("grade"));
         exam.setCreditType(df.get("creditType"));
         exam.setAnswerLanguage(df.get("answerLanguage"));
-
+        exam.setState(df.get("state"));
+        exam.setTotalScore(Double.parseDouble(df.get("totalScore")));
+        if (df.get("customCredit") != null) {
+            exam.setCustomCredit(Double.parseDouble(df.get("customCredit")));
+        } else {
+            exam.setCustomCredit(null);
+        }
         // set user only if exam is really graded, not just modified
-        if (exam.getState().equals(Exam.State.GRADED.name()) || exam.getState().equals(Exam.State.GRADED_LOGGED.name()))
-        {
+        if (exam.getState().equals(Exam.State.GRADED.name()) || exam.getState().equals(Exam.State.GRADED_LOGGED.name())) {
             exam.setGradedTime(SitnetUtil.getNowTime());
             exam.setGradedByUser(UserController.getLoggedUser());
         }
+        exam.generateHash();
         exam.update();
 
-//        return ok(Json.toJson(ex));
         return ok();
     }
 
@@ -400,24 +379,12 @@ public class ExamController extends SitnetController {
                 .fetch("exam")
                 .where()
                 .eq("exam.parent.id", eid)
+                .ne("exam.state", Exam.State.STUDENT_STARTED.toString())
                 .findList();
 
         if (participations == null) {
             return notFound();
         } else {
-
-            Iterator i = participations.iterator();
-            while (i.hasNext()) {
-                ExamParticipation participation = (ExamParticipation) i.next();
-
-                if (participation.getExam().getState().equals("STUDENT_STARTED")) {
-                    // if exam not over -> remove from collection
-                    if (participation.getStarted().getTime() + (participation.getExam().getDuration() * 60 * 1000) < new Date().getTime()) {
-                        i.remove();
-                    }
-                }
-            }
-
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("user, exam, ended, duration, deadline");
@@ -577,7 +544,6 @@ public class ExamController extends SitnetController {
             if (end != 0) {
                 exam.setExamActiveEndDate(new Timestamp(end));
             }
-
 
             if (duration != null) {
                 exam.setDuration(Integer.valueOf(duration));
@@ -800,15 +766,12 @@ public class ExamController extends SitnetController {
                         .eq("id", id)
                         .findUnique();
 
-                MultipleChoiceQuestion clone;
-                clone = (MultipleChoiceQuestion) multiQuestion.clone();
+                MultipleChoiceQuestion clone = (MultipleChoiceQuestion) multiQuestion.clone();
                 clone.setParent(multiQuestion);
-                try {
-                    clone = (MultipleChoiceQuestion) SitnetUtil.setCreator(clone);
-                } catch (SitnetException e) {
-                    e.printStackTrace();
-                }
-                clone.getOptions().clear();
+                clone.setCreator(UserController.getLoggedUser());
+                clone.setCreated(new Timestamp(System.currentTimeMillis()));
+                // this is dumb, should fix the generic clone implementation
+                clone.setOptions(new ArrayList<MultipleChoiseOption>());
                 SitnetUtil.setModifier(clone);
                 clone.save();
                 List<MultipleChoiseOption> options = multiQuestion.getOptions();
@@ -1186,10 +1149,9 @@ public class ExamController extends SitnetController {
                 .where()
                 .eq("exam.parent.id", eid)
                 .disjunction()
-                        // if student has logout check -> if greater than exam deadline
-                .eq("exam.state", "STUDENT_STARTED")
                 .eq("exam.state", "ABORTED")
                 .eq("exam.state", "REVIEW")
+                .eq("exam.state", "REVIEW_STARTED")
                 .eq("exam.state", "GRADED")
                 .eq("exam.state", "GRADED_LOGGED")
                 .endJunction()
@@ -1198,19 +1160,6 @@ public class ExamController extends SitnetController {
         if (participations == null) {
             return notFound();
         } else {
-
-            Iterator i = participations.iterator();
-            while (i.hasNext()) {
-                ExamParticipation participation = (ExamParticipation) i.next();
-
-                if (participation.getExam().getState().equals("STUDENT_STARTED")) {
-                    // if exam not over -> remove from collection
-                    if (participation.getStarted().getTime() + ((15 + participation.getExam().getDuration()) * 60 * 1000) < new Date().getTime()) {
-                        i.remove();
-                    }
-                }
-            }
-
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, user, exam, started, ended");

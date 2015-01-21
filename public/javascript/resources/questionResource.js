@@ -14,6 +14,14 @@
 
                 }),
 
+                score: $resource("/questions/:id/score",
+                {
+                    id: "@id"
+                },
+                {
+                    "update": {method: "PUT", params: {id: "@id"}}
+                }),
+
                 question: $resource("/question/:id",
                 {
                     id: "@id"

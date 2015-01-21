@@ -42,12 +42,13 @@
             </div>
 
         </div>
-            <span ng-click="addNewSection()" class="create-new">
-                <center>
-                    <i class="fa fa-2x fa-hand-o-right"></i>
+        <div class="row create-new dropdown">
+            <a class="dropdown-toggle" ng-click="addNewSection()">
+                <i class="fa fa-2x fa-plus-circle"></i>
                     {{'sitnet_section_add' | translate}}
-                </center>
-            </span>
+            </a>
+        </div>
+        <div class="row">
             <span>
                 <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
                 <button ng-hide="newExam.state === 'DRAFT' ? false : true" ng-click="cancelNewExam(newExam)"
@@ -62,6 +63,7 @@
                         class="btn btn-warning">{{'sitnet_unpublish_exam' | translate }}
                 </button>
             </span>
+        </div>
     </div>
     <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
 </div>

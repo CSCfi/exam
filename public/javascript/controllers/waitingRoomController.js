@@ -10,10 +10,9 @@
                 var calculateOffset = function() {
                     var startsAt = $scope.enrolment.reservation.startAt;
                     // Kinda terrible hack to get the TZ difference right, the backend should provide us
-                    // with the timezone, but it does not. Problem with datetime format in json serialization?
+                    // with the timezone, but it does not. It indicates UTC while it actually means EET.
                     startsAt = startsAt.substring(0, startsAt.length - 1) + "+02:00";
-                    var offset = Date.parse(startsAt) - new Date().getTime();
-                    return offset;
+                    return Date.parse(startsAt) - new Date().getTime();
                 };
 
                 var await = function() {

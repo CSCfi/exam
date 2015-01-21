@@ -3,6 +3,7 @@ import Exceptions.MalformedDataException;
 import Exceptions.UnauthorizedAccessException;
 import akka.actor.Cancellable;
 import com.avaje.ebean.Ebean;
+import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
@@ -44,9 +45,8 @@ public class Global extends GlobalSettings {
     public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
     public static final String SITNET_FAILURE_HEADER_KEY = "x-sitnet-token-failure";
     public static final String SITNET_CACHE_KEY = "user.session.";
-    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 15;
-    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
-    public static final int SITNET_UPCOMING_EXAM_LOOKAHEAD_MINUTES = 60;
+    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 1;
+    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 1;
 
     private Cancellable reportSender;
     private Cancellable reviewRunner;
@@ -77,7 +77,6 @@ public class Global extends GlobalSettings {
                 Akka.system().dispatcher()
         );
 
-        // TODO: WeeklyEmailReport.java unused after this
         weeklyEmailReport();
 
         InitialData.insert();
@@ -86,19 +85,25 @@ public class Global extends GlobalSettings {
         super.onStart(app);
     }
 
-    private LocalDateTime getNextMonday(LocalDateTime date) {
-        return date.plusWeeks(date.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1).withDayOfWeek
-                (DateTimeConstants.MONDAY);
+    private int secondsUntilNextMondayRun(int scheduledHour) {
+        LocalDateTime now = new LocalDateTime();
+        LocalDateTime nextRun = now.withHourOfDay(scheduledHour)
+                .withMinuteOfHour(0)
+                .withSecondOfMinute(0)
+                .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
+                .withDayOfWeek(DateTimeConstants.MONDAY);
+        if (nextRun.isBefore(now)) {
+            nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
+        }
+        return Seconds.secondsBetween(now, nextRun).getSeconds();
     }
 
     private void weeklyEmailReport() {
         // TODO: store the time of last dispatch in db so we know if scheduler was not run and send an extra report
         // in that case?
         
-        // Every Monday at 6AM UTC
-        LocalDateTime now = new LocalDateTime();
-        LocalDateTime nextRun = getNextMonday(now.withHourOfDay(6).withMinuteOfHour(0).withSecondOfMinute(0));
-        FiniteDuration delay = FiniteDuration.create(Seconds.secondsBetween(now, nextRun).getSeconds(), TimeUnit.SECONDS);
+        // Every Monday at 5AM UTC
+        FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
         FiniteDuration frequency = FiniteDuration.create(7, TimeUnit.DAYS);
         Runnable showTime = new Runnable() {
             @Override
@@ -162,7 +167,13 @@ public class Global extends GlobalSettings {
     @Override
     public Handler onRouteRequest(Http.RequestHeader request) {
 
-        String loginType = ConfigFactory.load().getString("sitnet.login");
+        String loginType;
+        try {
+            loginType = ConfigFactory.load().getString("sitnet.login");
+        } catch (ConfigException e) {
+            Logger.debug("Failed to load configuration", e);
+            return super.onRouteRequest(request);
+        }
         String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
 

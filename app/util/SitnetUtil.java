@@ -38,6 +38,7 @@ public class SitnetUtil {
         return ConfigFactory.load().getString("sitnet.application.hostname");
     }
 
+    //FIXME: This reflection thing is f*cked up, we should have customized cloning methods and not rely on this
     public static Object getClone(Object object) {
         Object clone = null;
 
@@ -162,17 +163,13 @@ public class SitnetUtil {
     static public boolean isInspector(Exam exam) {
 
         User user = UserController.getLoggedUser();
-        ExamInspection examInspection = Ebean.find(ExamInspection.class)
-                .select("user,exam")
-                .where()
-                .eq("exam.id", exam.getId())
-                .eq("user.id", user.getId())
-                .findUnique();
+        boolean isCreator = exam.getParent() != null && exam.getParent().getCreator().getId().equals(user.getId());
 
-        if(examInspection == null)
-            return false;
-        else
-            return true;
+        return isCreator || Ebean.find(ExamInspection.class)
+                .where()
+                .eq("exam.id", exam.getParent().getId())
+                .eq("user.id", user.getId())
+                .findUnique() != null;
     }
 
     static public boolean isOwner(SitnetModel object) {

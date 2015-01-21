@@ -12,11 +12,6 @@
 
             };
 
-            var go = function (location) {
-                $location.path(location);
-            };
-
-
             var switchLanguage = function (key) {
                 $translate.uses(key);
             };

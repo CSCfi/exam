@@ -22,11 +22,7 @@ import util.SitnetUtil;
 
 import java.util.List;
 
-
-
-
 public class QuestionController extends SitnetController {
-
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getQuestions() {
@@ -229,29 +225,48 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateQuestion(Long id) throws MalformedDataException {
+    public static Result scoreQuestion(Long id) {
+        DynamicForm df = Form.form().bindFromRequest();
+        EssayQuestion essayQuestion = Ebean.find(EssayQuestion.class, id);
+        essayQuestion.setEvaluatedScore(Double.parseDouble(df.get("evaluatedScore")));
+        essayQuestion.update();
+        return ok(Json.toJson(essayQuestion));
+    }
 
-       DynamicForm df = Form.form().bindFromRequest();
-
-
-       switch (df.get("type")) {
-           case "MultipleChoiceQuestion": {
-               MultipleChoiceQuestion question = bindForm(MultipleChoiceQuestion.class);
-               question.setState("SAVED");
-               question.update();
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result updateQuestion(Long id) {
+        DynamicForm df = Form.form().bindFromRequest();
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        if (question == null) {
+            return notFound("question not found");
+        }
+        if (df.get("question") != null) {
+            question.setQuestion(df.get("question"));
+        }
+        if (df.get("maxScore") != null) {
+            question.setMaxScore(Double.parseDouble(df.get("maxScore")));
+        }
+        question.setInstruction(df.get("instruction"));
+        question.setEvaluationCriterias(df.get("evaluationCriterias"));
+        question.setShared(Boolean.parseBoolean(df.get("shared")));
+        question.setState("SAVED");
+        question.update();
+        switch (df.get("type")) {
+           case "EssayQuestion":
+               EssayQuestion essay = Ebean.find(EssayQuestion.class, id);
+               if (df.get("maxCharacters") != null) {
+                   essay.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
+               }
+               if (df.get("evaluationType") != null) {
+                   essay.setEvaluationType(df.get("evaluationType"));
+               }
+               essay.update();
+               return ok(Json.toJson(essay));
+           case "MultipleChoiceQuestion":
                return ok(Json.toJson(question));
-           }
-
-           case "EssayQuestion": {
-               EssayQuestion question = bindForm(EssayQuestion.class);
-               question.setState("SAVED");
-               question.update();
-               return ok(Json.toJson(question));
-           }
-
-           default:
+            default:
+               return badRequest();
        }
-       return ok("fail");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
