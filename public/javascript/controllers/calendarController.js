@@ -8,7 +8,9 @@
                 $scope.user = $sessionService.user;
 
                 var formatMoment = function(data) {
-                    data.locale($locale.id.substring(0, 2));
+                    if (data.locale) {
+                        data.locale($locale.id.substring(0, 2));
+                    }
                     $scope.selectedMonth = {
                         display: data.format("MMMM YYYY"),
                         data: data
