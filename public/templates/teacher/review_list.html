@@ -42,63 +42,40 @@
             </div>
         </div>
         <div class="row base" ng-show="toggleReviewExams">
-            <div class="exams-list col-md-12" ng-if="( examReviews | filter: byState('REVIEW') ).length > 0 || ( examReviews | filter: byState('STUDENT_STARTED') ).length > 0 || ( examReviews | filter: byState('ABORTED') ).length > 0">
+            <div class="exams-list col-md-12">
                 <div class="exams-table-borders">
                     <table class="table table-bordered exams-table">
                         <thead>
                             <tr>
+                                <!--
                                 <th><i class="fa fa-flag"></i></th>
                                 <th><i class="fa fa-exclamation-triangle"></i></th>
-                                <th>{{'sitnet_student' | translate }}</th>
-                                <th>{{'sitnet_review_deadline' | translate }}</th>
-                                <th>{{'sitnet_exam_duration' | translate}}</th>
-                                <th>{{'sitnet_inspection_status' | translate}}</th>
-                                <th>{{'sitnet_exam_state' | translate}}</th>
+                                -->
+                                <th colspan="2"><span class="pointer" ng-click="reviewPredicate = 'user.lastName'; reverse=!reverse">{{'sitnet_student' | translate }}</span></th> <!-- opiskelija, tunniste  -->
+                                <th><span class="pointer" ng-click="reviewPredicate = 'started'; reverse=!reverse">{{'sitnet_exam_duration' | translate}}</span></th> <!-- päivämäära, aloitus- ja lopetusaika (kesto?)  -->
+                                <th><span class="pointer" ng-click="reviewPredicate = 'deadline'; reverse=!reverse">{{'sitnet_review_deadline' | translate }}</span></th> <!-- tarkastuksen takaraja -->
+                                <th>{{'sitnet_inspection_status' | translate}}</th> <!-- tarkastuksen tilanne  -->
+                                <!--<th>{{'sitnet_exam_state' | translate}}</th>  tentin tila -->
                             </tr>
                         </thead>
 
                         <tbody>
-                            <tr ng-repeat="examReview in examReviews | filter: byState('REVIEW') | orderBy:deadline ">
-                                <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                                <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                                <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
-                                <td class="table-column-open-until">{{examReview.deadline  | date:'dd.MM.yyyy'}}</td>
-                                <td class="table-column-open-until">{{examReview.duration | date: 'HH:mm'}}</td>
+                            <tr ng-repeat="examReview in examReviews | filter: byStates(['REVIEW','ABORTED','STUDENT_STARTED']) | orderBy:reviewPredicate:reverse" ng-click="go('/exams/review/' + examReview.exam.id)" class="pointer">
+                                <!--
+                                <td class="table-column-flag"><i class="sitnet-dark-blue fa fa-flag"></i></td>
+                                <td class="table-column-exclamation"><i class="sitnet-red fa fa-flash"></i></td>
+                                -->
+                                <td class="table-column-examname">{{examReview.user.firstName}} {{examReview.user.lastName}}</td>
+                                <td>{{examReview.user.email}}</td>
+                                <td class="table-column-20">{{examReview.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' | translate}}.{{examReview.started | date: 'HH:mm'}} - {{examReview.ended | date: 'HH:mm'}} ({{examReview.started | diffInMinutesTo:examReview.ended }}min)</td>
+                                <td class="table-column-20">{{examReview.deadline  | date:'dd.MM.yyyy'}} (<span ng-bind-html="examReview.deadline | diffInDaysToNow"></span>)</td>
                                 <td class="table-column-teachers">
                                     <div class="col-md-12" ng-repeat="inspection in getLocalInspection(examReview.exam.id)">
                                         <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === true">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
                                         <span class="sitnet-text-alarm" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === false">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
                                     </div>
                                 </td>
-                                <td class="table-column-open-until">{{examReview.exam.state}}</td>
-                            </tr>
-                            <tr ng-repeat="examReview in examReviews | filter: byState('ABORTED')">
-                                <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                                <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                                <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
-                                <td class="table-column-open-until">{{examReview.deadline  | date:'dd.MM.yyyy'}}</td>
-                                <td class="table-column-open-until">{{examReview.duration | date: 'HH:mm'}}</td>
-                                <td class="table-column-teachers">
-                                    <div class="col-md-12" ng-repeat="inspection in getLocalInspection(examReview.exam.id)">
-                                        <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === true">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
-                                        <span class="sitnet-text-alarm" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === false">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
-                                    </div>
-                                </td>
-                                <td class="table-column-open-until">{{examReview.exam.state}}</td>
-                            </tr>
-                            <tr ng-repeat="examReview in examReviews | filter: byState('STUDENT_STARTED')">
-                                <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                                <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                                <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
-                                <td class="table-column-open-until">{{examReview.deadline  | date:'dd.MM.yyyy'}}</td>
-                                <td class="table-column-open-until">{{examReview.duration | date: 'HH:mm'}}</td>
-                                <td class="table-column-teachers">
-                                    <div class="col-md-12" ng-repeat="inspection in getLocalInspection(examReview.exam.id)">
-                                        <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === true">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
-                                        <span class="sitnet-text-alarm" ng-show="isLocalReady(inspection.exam.id, inspection.user.id) === false">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
-                                    </div>
-                                </td>
-                                <td class="table-column-open-until">{{examReview.exam.state}}</td>
+                                <!--<td class="table-column-open-until">{{examReview.exam.state}}</td>-->
                             </tr>
                         </tbody>
                     </table>
@@ -127,8 +104,8 @@
                     <table class="table table-bordered exams-table">
                         <thead>
                         <tr>
-                            <th><i class="fa fa-flag"></i></th>
-                            <th><i class="fa fa-exclamation-triangle"></i></th>
+                            <!--<th><i class="fa fa-flag"></i></th>
+                            <th><i class="fa fa-exclamation-triangle"></i></th>-->
                             <th>{{ 'sitnet_examcode' | translate }}</th>
                             <th>{{ 'sitnet_exam_name' | translate }}</th>
                             <th>{{ 'sitnet_student' | translate }}</th>
@@ -139,11 +116,11 @@
                         </thead>
 
                         <tbody>
-                        <tr ng-repeat="examReview in examReviews | filter: byState('GRADED')">
-                            <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                            <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                        <tr ng-repeat="examReview in examReviews | filter: byState('GRADED')" ng-click="go('/exams/review/' + examReview.exam.id)" class="pointer">
+                            <!--<td class="table-column-flag"><i class="sitnet-dark-blue fa fa-flag"></i></td>
+                            <td class="table-column-exclamation"><i class="sitnet-red fa fa-flash"></i></td>-->
                             <td class="table-column-examcode">{{examReview.exam.course.code}}</td>
-                            <td class="table-column-examname"><a href="#/exams/review/{{examReview.exam.id}}">{{examReview.exam.name}}</a></td>
+                            <td class="table-column-examname">{{examReview.exam.name}}</td>
                             <td class="table-column-examname"><a href="mailto:{{examReview.user.email}}">{{examReview.user.firstName}} {{examReview.user.lastName}}</a></td>
                             <td class="table-column-open-until">{{examReview.exam.grade}}</td>
                             <td class="table-column-teachers">
@@ -180,8 +157,8 @@
                     <table class="table table-bordered exams-table">
                         <thead>
                         <tr>
-                            <th><i class="fa fa-flag"></i></th>
-                            <th><i class="fa fa-exclamation-triangle"></i></th>
+                            <!--<th><i class="fa fa-flag"></i></th>
+                            <th><i class="fa fa-exclamation-triangle"></i></th>-->
                             <th>{{ 'sitnet_examcode' | translate }}</th>
                             <th>{{ 'sitnet_exam_name' | translate }}</th>
                             <th>{{ 'sitnet_student' | translate }}</th>
@@ -192,8 +169,8 @@
 
                         <tbody>
                         <tr ng-repeat="examReview in examReviews | filter: byState('GRADED_LOGGED')">
-                            <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                            <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                            <!--<td class="table-column-flag"><i class="sitnet-dark-blue fa fa-flag"></i></td>
+                            <td class="table-column-exclamation"><i class="sitnet-red fa fa-flash"></i></td>-->
                             <td class="table-column-examcode">{{examReview.exam.course.code}}</td>
                             <td class="table-column-examname">
                                 <span ng-show="isLongerThanSixMonths(examReview.exam.gradedTime)">{{examReview.exam.name}}</span>

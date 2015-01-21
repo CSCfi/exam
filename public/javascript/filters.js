@@ -41,5 +41,28 @@
                 var words = text.replace(/(\S\.)(?!\s)/g, "$1 ").replace(/(^"|"$|\\n)/g, '').match(/\S+/g);
                 return words ? words.length : 0;
             };
-        });
+        })
+        .filter('diffInMinutesTo', function () {
+            var magicNumber = (1000 * 60);
+
+            return function (fromDate, toDate) {
+                if (toDate && fromDate) {
+                    var diff = (new Date(toDate).getTime() - new Date(fromDate).getTime()) / magicNumber;
+                    return Math.floor(diff);
+                }
+            };
+        })
+        .filter('diffInDaysToNow', function () {
+            var magicNumber = (1000 * 60 * 60 * 24);
+
+            return function (fromDate) {
+                if(fromDate){
+                    var diff = (new Date(fromDate).getTime() - new Date().getTime()) / magicNumber;
+                    if(diff < 0) {
+                        return '<span class="sitnet-text-alarm">' + Math.floor(diff) + '</span>';
+                    }
+                    return '<span>' + Math.floor(diff) + '</span>';
+                }
+            };
+    });
 }());

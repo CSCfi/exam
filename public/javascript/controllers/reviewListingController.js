@@ -12,6 +12,10 @@
                 $scope.examLocalInspections = {};
 
                 $scope.toggleReviewExams = false;
+                $scope.go = function(location) {
+                    $location.path(location);
+                };
+
                 $scope.toggleGradedExams = false;
                 $scope.toggleLoggedExams = false;
 
@@ -61,13 +65,16 @@
                     );
                 }
 
+                $scope.reviewPredicate = 'examReview.deadline';
+                $scope.reverse = false;
+
                 $scope.isLongerThanSixMonths = function(gradedDate) {
 
                     var sixMonths = 1000 * 60 * 60 * 24 * 182;
                     var graded = Date.parse(gradedDate);
 
                     return new Date().getTime() > graded + sixMonths;
-                }
+                };
 
                 $scope.printExamDuration = function(exam) {
 
@@ -117,5 +124,16 @@
                     };
                 };
 
+                $scope.byStates = function(states) {
+                    var b = false;
+                    return function(examReview) {
+                        angular.forEach(states, function(state) {
+                            if(examReview.exam.state === state) {
+                                b = true;
+                            }
+                        });
+                        return b;
+                    };
+                };
             }]);
 }());
