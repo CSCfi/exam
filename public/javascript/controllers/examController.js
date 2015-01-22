@@ -1,10 +1,9 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$q', '$modal', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'dateService',
-            function($scope, $q, $modal, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource, dateService) {
+        .controller('ExamController', ['$scope', '$q', '$modal', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
+            function($scope, $q, $modal, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
 
-                $scope.dateService = dateService;
                 $scope.session = sessionService;
 
                 $scope.newExam = {};
@@ -42,10 +41,6 @@
                         });
                     }
                 };
-
-                // SIT-367, temporarily removed Room selection from exam
-//                $scope.examRooms = RoomResource.rooms.query();
-
 
                 // Todo: Fill in durations from database for final version
                 $scope.examDurations = [
@@ -86,8 +81,6 @@
                             });
                             $scope.softwaresUpdate = $scope.newExam.softwares ? $scope.newExam.softwares.length : 0;
                             $scope.languagesUpdate = $scope.newExam.examLanguages ? $scope.newExam.examLanguages.length : 0;
-                            $scope.dateService.startDate = exam.examActiveStartDate;
-                            $scope.dateService.endDate = exam.examActiveEndDate;
 
                             $scope.reindexNumbering();
                             getInspectors();
@@ -360,9 +353,8 @@
                     }
                 };
 
-                $scope.updateExam = function(newExam) {
-
-                    var examToSave = {
+                var getUpdate = function(overrides) {
+                    var update = {
                         "id": $scope.newExam.id,
                         "name": $scope.newExam.name,
                         "examType": $scope.newExam.examType,
@@ -370,12 +362,25 @@
                         "enrollInstruction": $scope.newExam.enrollInstruction,
                         "state": $scope.newExam.state,
                         "shared": $scope.newExam.shared,
-                        "examActiveStartDate": $scope.dateService.startTimestamp,
-                        "examActiveEndDate": $scope.dateService.endTimestamp,
+                        "examActiveStartDate": new Date($scope.newExam.examActiveStartDate).getTime(),
+                        "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).getTime(),
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.grading,
                         "expanded": $scope.newExam.expanded
                     };
+                    if (overrides) {
+                        for (var k in overrides) {
+                            if (overrides.hasOwnProperty(k)) {
+                                update[k] = overrides[k];
+                            }
+                        }
+                    }
+                    return update;
+                };
+
+                $scope.updateExam = function(newExam) {
+
+                    var examToSave = getUpdate();
 
                     ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                         function(exam) {
@@ -395,22 +400,7 @@
                     //First save the exam, so that
                     //we have something to preview
                     var examId = $routeParams.id;
-
-                    var examToSave = {
-                        "id": $scope.newExam.id,
-                        "name": $scope.newExam.name,
-                        "instruction": $scope.newExam.instruction,
-                        "enrollInstruction": $scope.newExam.enrollInstruction,
-//                        "state": 'SAVED',
-//                        "course": $scope.newExam.course,    // there is no course
-                        "shared": $scope.newExam.shared,
-                        "examActiveStartDate": $scope.dateService.startTimestamp,
-                        "examActiveEndDate": $scope.dateService.endTimestamp,
-//                        "room": $scope.newExam.room,
-                        "duration": $scope.newExam.duration,
-                        "grading": $scope.newExam.grading,
-                        "expanded": $scope.newExam.expanded
-                    };
+                    var examToSave = getUpdate();
 
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function(exam) {
@@ -431,27 +421,12 @@
                     }
                     var newState = $scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED' : 'SAVED';
 
-                    var examToSave = {
-                        "id": $scope.newExam.id,
-                        "name": $scope.newExam.name,
-                        "instruction": $scope.newExam.instruction,
-                        "enrollInstruction": $scope.newExam.enrollInstruction,
-
-                        // if exam is already PUBLISHED save it as PUBLISHED
-                        "state": newState,
-                        "shared": $scope.newExam.shared,
-                        "examActiveStartDate": $scope.dateService.startTimestamp,
-                        "examActiveEndDate": $scope.dateService.endTimestamp,
-                        "duration": $scope.newExam.duration,
-                        "grading": $scope.newExam.grading,
-                        "expanded": $scope.newExam.expanded
-                    };
+                    var examToSave = getUpdate({"state": newState});
 
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function(exam) {
                             toastr.info($translate("sitnet_exam_saved"));
                             $scope.newExam.state = newState;
-//                        $location.path("/exams");
                         }, function(error) {
                             toastr.error(error.data);
                         });
@@ -470,22 +445,7 @@
                             });
 
                             modalInstance.result.then(function() {
-                                var examToSave = {
-                                    "id": $scope.newExam.id,
-                                    "name": $scope.newExam.name,
-                                    "instruction": $scope.newExam.instruction,
-                                    "enrollInstruction": $scope.newExam.enrollInstruction,
-                                    "state": 'SAVED',
-//                            "course": $scope.newExam.course,    // there is no course
-                                    "shared": $scope.newExam.shared,
-                                    "examActiveStartDate": $scope.dateService.startTimestamp,
-                                    "examActiveEndDate": $scope.dateService.endTimestamp,
-//                            "room": $scope.newExam.room,
-                                    "duration": $scope.newExam.duration,
-                                    "grading": $scope.newExam.grading,
-                                    "expanded": $scope.newExam.expanded
-                                };
-
+                                var examToSave = getUpdate({"state": 'SAVED'});
                                 ExamRes.exams.update({id: examToSave.id}, examToSave,
                                     function(exam) {
                                         toastr.success($translate("sitnet_exam_unpublished"));
@@ -540,21 +500,7 @@
 
                         // OK button clicked
 
-                        var examToSave = {
-                            "id": $scope.newExam.id,
-                            "name": $scope.newExam.name,
-                            "instruction": $scope.newExam.instruction,
-                            "enrollInstruction": $scope.newExam.enrollInstruction,
-                            "state": 'PUBLISHED',
-//                            "course": $scope.newExam.course,    // there is no course
-                            "shared": $scope.newExam.shared,
-                            "examActiveStartDate": $scope.dateService.startTimestamp,
-                            "examActiveEndDate": $scope.dateService.endTimestamp,
-//                            "room": $scope.newExam.room,
-                            "duration": $scope.newExam.duration,
-                            "grading": $scope.newExam.grading,
-                            "expanded": $scope.newExam.expanded
-                        };
+                        var examToSave = getUpdate({"state": 'PUBLISHED'});
 
                         ExamRes.exams.update({id: examToSave.id}, examToSave,
                             function(exam) {
@@ -595,11 +541,11 @@
                         errors.name = $translate('sitnet_error_exam_empty_exam_language');
                     }
 
-                    if (!$scope.dateService.startTimestamp || $scope.dateService.startTimestamp === 0) {
+                    if (!$scope.newExam.examActiveStartDate) {
                         errors.examActiveStartDate = $translate('sitnet_exam_start_date_missing');
                     }
 
-                    if (!$scope.dateService.endTimestamp || $scope.dateService.endTimestamp === 0) {
+                    if (!$scope.newExam.examActiveEndDate) {
                         errors.examActiveEndDate = $translate('sitnet_exam_end_date_missing');
                     }
 
@@ -734,23 +680,14 @@
                 $scope.printExamDuration = function(exam) {
 
                     if (exam && exam.duration) {
-                        var h = 0;
-                        var d = exam.duration;
-
-                        while (d > 0) {
-                            if (d - 60 >= 0) {
-                                h++;
-                                d = d - 60;
-                            } else {
-                                break;
-                            }
-                        }
+                        var h = Math.floor(exam.duration / 60);
+                        var m = exam.duration % 60;
                         if (h === 0) {
-                            return d + "min";
-                        } else if (d === 0) {
+                            return m + "min";
+                        } else if (m === 0) {
                             return h + "h ";
                         } else {
-                            return h + "h " + d + "min";
+                            return h + "h " + m + "min";
                         }
                     } else {
                         return "";
