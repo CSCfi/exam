@@ -78,10 +78,10 @@
 
   .question-unanswered-header {
     .question-text {
-      color: $sitnet-common-medium;
+      color: $sitnet-common-dark;
     }
     .question-icon-bg {
-        color: $sitnet-common-light;
+        color: $sitnet-common-medium;
     }
     .question-icon {
       color: $sitnet-white;
@@ -90,7 +90,7 @@
 
   .question-answered-header {
     .question-text {
-      color: $sitnet-common-medium;
+      color: $sitnet-common-dark;
     }
     .question-icon-bg {
       color: $sitnet-ready;

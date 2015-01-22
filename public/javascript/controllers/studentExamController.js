@@ -152,6 +152,7 @@
                             $scope.activeSection.autosaver = getAutosaver();
 
                             if($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
+                                console.log("instructions ******* true")
                                 $scope.guide = true;
                                 $scope.setActiveSection($translate("sitnet_exam_quide"));
                             } else {
@@ -247,10 +248,6 @@
                     if(sectionName !== $translate("sitnet_exam_quide") || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === $translate("sitnet_exam_quide"))) {
 
                         // next
-                        if(sectionName === $translate("sitnet_exam_quide")) {
-                            sectionName = $scope.pages[1];
-                        }
-
                         if($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
                             $scope.nextButton = true;
                             $scope.nextButtonText = $scope.pages[$scope.pages.indexOf(sectionName) + 1];
@@ -268,7 +265,7 @@
                             $scope.previousButtonText = "";
                         }
 
-                        $scope.guide = false;
+
 
                     } else {
                         $scope.guide = true;
@@ -279,11 +276,17 @@
                     }
 
                     $scope.activeSection = undefined;
-                        angular.forEach($scope.doexam.examSections, function(section, index) {
-                        if (sectionName === section.name) {
-                            $scope.activeSection = section;
-                        }
-                    });
+                    if(sectionName === $translate("sitnet_exam_quide")) {
+                        $scope.guide = true;
+                    } else {
+                        $scope.guide = false;
+
+                        angular.forEach($scope.doexam.examSections, function (section, index) {
+                            if (sectionName === section.name) {
+                                $scope.activeSection = section;
+                            }
+                        });
+                    }
 
                     if($scope.activeSection !== undefined) {
                         // Loop through all questions in the active section
@@ -448,14 +451,14 @@
                             }
                         });
                         // Finally save the exam and logout
-                        $q.all(promises).then(function () {
+                        /*$q.all(promises).then(function () {
                             StudentExamRes.exams.update({id: $scope.doexam.id}, function () {
                                 toastr.info($translate("sitnet_exam_time_is_up"));
                                 $location.path("/logout");
                             }, function () {
 
                             });
-                        });
+                        });*/
                     }
                 }
 

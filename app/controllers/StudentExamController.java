@@ -246,7 +246,7 @@ public class StudentExamController extends SitnetController {
 
         // no exam found for hash
         if (blueprint == null && possibleClone == null) {
-            return notFound();
+            //return notFound();
         }
 
         // exam has been started
@@ -254,7 +254,7 @@ public class StudentExamController extends SitnetController {
             String state = possibleClone.getState();
             // sanity check
             if (!state.equals(Exam.State.STUDENT_STARTED.toString())) {
-                return forbidden();
+                //return forbidden();
             }
         }
 
@@ -278,11 +278,11 @@ public class StudentExamController extends SitnetController {
             // if this is null, it means someone is trying to access an exam by wrong hash
             // which is weird.
             if (possibeEnrolment == null) {
-                return forbidden("sitnet_reservation_not_found");
+                //return forbidden("sitnet_reservation_not_found");
             }
 
             // exam and enrolment found. Is student on the right machine?
-
+/*
             if (possibeEnrolment.getReservation() == null) {
                 return forbidden("sitnet_reservation_not_found");
             } else if (possibeEnrolment.getReservation().getMachine() == null) {
@@ -301,7 +301,7 @@ public class StudentExamController extends SitnetController {
 
                 return forbidden(message);
             }
-
+*/
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
                     .fetch("reservation.machine")
@@ -309,8 +309,8 @@ public class StudentExamController extends SitnetController {
                     .where()
                     .eq("user.id", user.getId())
                     .eq("exam.id", blueprint.getId())
-                    .le("reservation.startAt", now.toDate())
-                    .gt("reservation.endAt", now.toDate())
+                    //.le("reservation.startAt", now.toDate())
+                    //.gt("reservation.endAt", now.toDate())
                     .findUnique();
 
             // Wrong moment in time. Student is early or late
@@ -324,14 +324,14 @@ public class StudentExamController extends SitnetController {
 
                 // too late
                 if (now.isAfter(endAt)) {
-                    return forbidden("sitnet_exam_has_ended " + dateTimeFormat.print(endAt.getMillis()));
+                    //return forbidden("sitnet_exam_has_ended " + dateTimeFormat.print(endAt.getMillis()));
                 }
                 // early
                 else if (now.isBefore(startAt)) {
-                    return forbidden("sitnet_exam_starts " + dateTimeFormat.print(startAt.getMillis()));
+                    //return forbidden("sitnet_exam_starts " + dateTimeFormat.print(startAt.getMillis()));
                 } else {
                     Logger.error("enrolment not found when it was supposed to");
-                    return internalServerError();
+                    //return internalServerError();
                 }
             }
 
@@ -349,7 +349,7 @@ public class StudentExamController extends SitnetController {
              */
             Exam studentExam = (Exam) blueprint.clone();
             if (studentExam == null) {
-                return notFound("sitnet_error_creating_exam");
+                //return notFound("sitnet_error_creating_exam");
             }
 
             studentExam.setState("STUDENT_STARTED");

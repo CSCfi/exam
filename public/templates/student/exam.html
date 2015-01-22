@@ -79,6 +79,10 @@
                 <span class="text col-md-6">{{ doexam.course.code }}</span>
             </div>
             <div class="info-column">
+                <span class="header col-md-6">{{ 'sitnet_exam_name' | translate }}:</span>
+                <span class="text col-md-6">{{ doexam.name }}</span>
+            </div>
+            <div class="info-column">
                 <span class="header col-md-6">{{ 'sitnet_exam_time' | translate }}:</span>
                 <span class="text col-md-6">{{ printExamDuration(doexam) }}</span>
             </div>
