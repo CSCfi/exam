@@ -104,19 +104,23 @@
                 };
 
                 $scope.saveQuestion = function() {
-                    var returnUrl;
+                    var returnUrl, query;
                     //Set return URL pointing back to questions main page if we came from there
                     if ($routeParams.examId === undefined) {
                         returnUrl = "/questions/";
                     }
                     //Set return URL to exam, if we came from there
                     else {
+                        query = {'scrollTo': 'section' + $routeParams.sectionId};
                         returnUrl = "/exams/" + $routeParams.examId;
                     }
                     update().then(function() {
                         // If creating new exam question also bind the question to section of the exam at this point
                         if (!$routeParams.examId || $routeParams.editId) {
-                           $location.path(returnUrl);
+                            if (query) {
+                                $location.search(query);
+                            }
+                            $location.path(returnUrl);
                         }
                         else {
                             var params = {
@@ -127,9 +131,11 @@
                             };
                             ExamRes.sectionquestions.insert(params, function() {
                                 toastr.info($translate("sitnet_question_added_to_section"));
+                                $location.search(query);
                                 $location.path(returnUrl);
                             }, function(error) {
                                 toastr.error(error.data);
+                                $location.search(query);
                                 $location.path(returnUrl);
                             });
                         }
