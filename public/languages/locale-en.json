@@ -470,6 +470,5 @@
     "sitnet_error_question_not_found": "The question could not be found",
     "sitnet_essay_length_recommendation_bounds": "The value should be an integer within the closed range between 1 and 1000000",
     "sitnet_questions_reordered": "The questions have been reordered",
-    "sitnet_exam_language_updated": "Exam languages updated",
-    
+    "sitnet_exam_language_updated": "Exam languages updated"
 }
