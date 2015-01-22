@@ -7,6 +7,7 @@ import play.db.ebean.Model;
 import util.SitnetUtil;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
 
 @MappedSuperclass
@@ -18,7 +19,7 @@ abstract public class SitnetModel extends Model implements Cloneable {
 	
 	@Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
+    protected Timestamp ebeanTimestamp;
 	
 //	@CreatedTimestamp
     @Temporal(TemporalType.TIMESTAMP)

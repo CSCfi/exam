@@ -7,17 +7,6 @@
                 $scope.path = $location.path();
                 $scope.session = sessionService;
 
-                $scope.doExam = false;
-
-
-                $scope.$on('startExam', function() {
-                    $scope.doExam = true;
-                });
-
-                $scope.$on('endExam', function() {
-                    $scope.doExam = false;
-                });
-
                 $scope.dologout = function() {
                     $http.post('/logout').success(function() {
                         delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];

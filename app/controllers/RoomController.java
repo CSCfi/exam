@@ -9,8 +9,8 @@ import models.*;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.util.CollectionUtils;
 import play.Logger;
@@ -59,17 +59,6 @@ public class RoomController extends SitnetController {
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
 
         return ok(Json.toJson(examRoom));
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getReservationForExam(Long uid, Long eid) {
-        Logger.debug("getReservationForExam()");
-
-        Reservation reservation = Ebean.find(Reservation.class).where()
-                .eq("user.id", uid)
-                .findUnique();
-
-        return ok(Json.toJson(reservation));
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -142,15 +131,16 @@ public class RoomController extends SitnetController {
         Ebean.delete(previous);
 
         JsonNode node = request().body().asJson();
-        for (JsonNode weekDayNode : node) {
-            if (weekDayNode.has("start") && weekDayNode.has("end")) {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("DD.MM.YYYY HH:mmZZ");
+        for (JsonNode weekday : node) {
+            for (JsonNode block : weekday.get("blocks")) {
                 DefaultWorkingHours dwh = new DefaultWorkingHours();
                 dwh.setRoom(examRoom);
-                dwh.setDay(weekDayNode.get("weekday").asText());
-                String startTime = weekDayNode.get("start").asText();
-                String endTime = weekDayNode.get("end").asText();
-                dwh.setStartTime(LocalTime.parse(startTime).toDateTimeToday().toDate());
-                dwh.setEndTime(LocalTime.parse(endTime).toDateTimeToday().toDate());
+                dwh.setDay(weekday.get("weekday").asText());
+                String startTime = block.get("start").asText();
+                String endTime = block.get("end").asText();
+                dwh.setStartTime(DateTime.parse(startTime, formatter).toDate());
+                dwh.setEndTime(DateTime.parse(endTime, formatter).toDate());
                 dwh.save();
             }
         }
@@ -171,30 +161,27 @@ public class RoomController extends SitnetController {
 
         final JsonNode root = request().body().asJson();
 
-
         DateTime startDate = fromJS(root, "startDate");
         DateTime startTime = fromJS(root, "startTime");
         DateTime endDate = fromJS(root, "endDate");
         DateTime endTime = fromJS(root, "endTime");
 
-        int offsetMillis = DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now());
-
         final ExceptionWorkingHours hours = new ExceptionWorkingHours();
 
         if (startDate != null) {
-            hours.setStartDate(startDate.plusMillis(offsetMillis).toDate());
+            hours.setStartDate(startDate.toDate());
         }
 
         if (startTime != null) {
-            hours.setStartTime(startTime.plusMillis(offsetMillis).toDate());
+            hours.setStartTime(startTime.toDate());
         }
 
         if (endDate != null) {
-            hours.setEndDate(endDate.plusMillis(offsetMillis).toDate());
+            hours.setEndDate(endDate.toDate());
         }
 
         if (endTime != null) {
-            hours.setEndTime(endTime.plusMillis(offsetMillis).toDate());
+            hours.setEndTime(endTime.toDate());
         }
 
 
@@ -231,22 +218,6 @@ public class RoomController extends SitnetController {
                 room.save();
             }
         }
-        return ok();
-    }
-
-    @Restrict(@Group({"ADMIN"}))
-    public static Result addExamRoomAccessibility(Long id) throws MalformedDataException {
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
-        final Accessibility accessibility = bindForm(Accessibility.class);
-        accessibility.save();
-        room.save();
-        return ok();
-    }
-
-    @Restrict(@Group({"ADMIN"}))
-    public static Result removeExamRoomAccessibility(Long id) throws MalformedDataException {
-        Accessibility accessibility = Ebean.find(Accessibility.class, id);
-        accessibility.delete();
         return ok();
     }
 

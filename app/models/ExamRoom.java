@@ -11,7 +11,7 @@ import play.db.ebean.Model;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 /*
@@ -26,7 +26,7 @@ public class ExamRoom extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -361,9 +361,9 @@ public class ExamRoom extends Model {
         final List<Interval> intervals = new ArrayList<>();
         for(DefaultWorkingHours defaultHour : this.defaultWorkingHours) {
             if(defaultHour.getDay().equals(day)) {
-                final LocalTime start = new LocalTime(defaultHour.getStartTime().getTime());
+                final LocalTime start = new LocalTime(defaultHour.getStartTime().getTime()); //Check this
                 final LocalTime end = new LocalTime(defaultHour.getEndTime().getTime());
-                Interval interval = new Interval(date.toDateTime(start),date.toDateTime(end));
+                Interval interval = new Interval(date.toDateTime(start), date.toDateTime(end));
                 intervals.add(interval);
             }
         }

@@ -8,7 +8,9 @@
                 $scope.user = $sessionService.user;
 
                 var formatMoment = function(data) {
-                    data.locale($locale.id.substring(0, 2));
+                    if (data.locale) {
+                        data.locale($locale.id.substring(0, 2));
+                    }
                     $scope.selectedMonth = {
                         display: data.format("MMMM YYYY"),
                         data: data
@@ -24,7 +26,7 @@
                 formatMoment(moment());
 
                 var refresh = function() {
-                    var day = $scope.selectedMonth.data.set('date', 1).format("DD.MM.YYYY");
+                    var day = $scope.selectedMonth.data.format("DD.MM.YYYYZZ");
                     var accessibility = $scope.accessibilities.filter(function(item) {
                         return item.selected;
                     }).map(function(item) {
@@ -77,7 +79,7 @@
                 };
 
                 $scope.formatTime = function(stamp) {
-                    return moment(stamp, 'DD.MM.YYYY HH:mm').format('HH:mm');
+                    return moment(stamp, 'DD.MM.YYYY HH:mmZZ').format('HH:mm');
                 };
 
                 $scope.nextMonth = function() {

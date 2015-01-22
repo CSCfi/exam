@@ -3,14 +3,15 @@ package models.dto;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.sql.Timestamp;
+
 
 @Entity
 public class ExamScore extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
+    protected Timestamp ebeanTimestamp;
 
     // Tallennetaan Sitnet tietokantaan, koska osassa organisaatioita suoritukset viedään erä-ajona
     @Id

@@ -156,12 +156,9 @@ public class AttachmentController extends SitnetController {
         Attachment aa = Ebean.find(Attachment.class, question.getAttachment().getId());
 
         question.setAttachment(null);
-        Long aId = aa.getId();
         question.save();
 
         aa.delete();
-
-        Ebean.delete(Attachment.class, aId);
 
         return redirect("/#/questions/" + String.valueOf(id));
     }
@@ -174,14 +171,24 @@ public class AttachmentController extends SitnetController {
 
         AbstractAnswer answer = question.getAnswer();
         answer.setAttachment(null);
-        Long aId = aa.getId();
         answer.save();
-
         aa.delete();
 
-        Ebean.delete(Attachment.class, aId);
-
         return redirect("/#/student/doexam/" + hash);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result deleteExamAttachment(Long id) {
+
+        Exam exam = Ebean.find(Exam.class, id);
+        Attachment aa = Ebean.find(Attachment.class, exam.getAttachment().getId());
+        if (aa != null) {
+            exam.setAttachment(null);
+            exam.save();
+            aa.delete();
+        }
+        return redirect("/#/exams/" + String.valueOf(id));
+
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -228,25 +235,6 @@ public class AttachmentController extends SitnetController {
         options.setRootPathProperties("id, fileName");
 
         return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
-    }
-
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result deleteExamAttachment(Long id) {
-
-        Exam exam = Ebean.find(Exam.class, id);
-        Attachment aa = Ebean.find(Attachment.class, exam.getAttachment().getId());
-
-        exam.setAttachment(null);
-        Long aId = aa.getId();
-        exam.save();
-
-        aa.delete();
-
-        Ebean.delete(Exam.class, aId);
-
-        return redirect("/#/exams/" + String.valueOf(id));
-
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})

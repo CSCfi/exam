@@ -9,8 +9,6 @@ import controllers.UserController;
 import models.*;
 import models.questions.QuestionInterface;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import play.libs.Yaml;
 
 import java.io.File;
@@ -171,10 +169,6 @@ public class SitnetUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    static public Date getNowTime() {
-        return DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now())).toDate();
     }
 
     public static void copyFile(File sourceFile, File destFile) throws IOException {

@@ -3,7 +3,10 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.*;
+import models.Exam;
+import models.ExamParticipation;
+import models.ExamRecord;
+import models.User;
 import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
@@ -14,7 +17,6 @@ import util.java.EmailComposer;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by alahtinen on 02/09/14.
@@ -117,14 +119,4 @@ public class ExamRecordController extends SitnetController {
         return ok();
     }
 
-    private static String getAttribute(String attrName, List<HakaAttribute> attrs) {
-
-        for (HakaAttribute ha : attrs) {
-
-            if (ha.getKey().equals(attrName)) {
-                return ha.getValue();
-            }
-        }
-        return null;
-    }
 }

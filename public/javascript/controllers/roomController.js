@@ -93,40 +93,59 @@
                     }
                 };
 
-                $scope.select = function (day, time) {
-                    if (isEmpty(day)) {
-                        week[day][time].type = 'accepted'; // mark beginning
-                        return;
+                var blocksForDay = function (day) {
+                    var blocks = [];
+                    var tmp = [];
+                    for (var i = 0; i < week[day].length; ++i) {
+                        if (week[day][i].type) {
+                            tmp.push(i);
+                        } else if (tmp.length > 0) {
+                            blocks.push(tmp);
+                            tmp = [];
+                        }
                     }
+                    return blocks;
+                };
+
+                $scope.select = function(day, time) {
                     var status = week[day][time].type;
-                    if (status === 'accepted') {
-                        week[day][time].type = ''; // clear selection
+                    if (status === 'accepted') { // clear selection
+                        week[day][time].type = '';
                         return;
                     }
-                    else if (status === 'selected') { //
+                    if (status === 'selected') { // mark everything hereafter as free until next block
                         for (var i = 0; i < week[day].length; ++i) {
-                            if (i >= time) { // mark everything beyond selection as free
-                                week[day][i].type = '';
+                            if (i >= time) {
+                                if (week[day][i].type === 'selected') {
+                                    week[day][i].type = '';
+                                } else {
+                                    break;
+                                }
                             }
                         }
                     }
-                    else { // previously not selected
-                        var first = firstSelection(day);
-                        var last = lastSelection(day);
-                        if (time < first) { // mark times between first selection and this as selected
-                            for (i = time; i <= first; ++i) {
-                                week[day][i].type = 'selected'
-                            }
-                        }
-                        if (last < time) { // mark times between last selection and this as selected
-                            for (i = last; i <= time; ++i) {
-                                week[day][i].type = 'selected';
-                            }
-                        }
+                    else {
+                        // check if something is accepted yet
+                        var accepted;
                         for (i = 0; i < week[day].length; ++i) {
                             if (week[day][i].type === 'accepted') {
-                                week[day][i].type = 'selected'; // clear out the obsolete marking
+                                accepted = i;
+                                break;
                             }
+                        }
+                        if (accepted) { // mark everything between accepted and this as selected
+                            if (accepted < time) {
+                                for (i= accepted; i <= time; ++i) {
+                                    week[day][i].type = 'selected';
+                                }
+                            } else {
+                                for (i = time; i <= accepted; ++i) {
+                                    week[day][i].type = 'selected';
+                                }
+                            }
+                        } else {
+                            week[day][time].type = 'accepted'; // mark beginning
+                            return;
                         }
                     }
                     $scope.updateWorkingHours($scope.roomInstance, week);
@@ -134,19 +153,18 @@
 
                 $scope.calculateTime = function (index) {
                     return (times[index] || "0:00") + " - " + times[index + 1];
-                 };
+                };
 
                 var setSelected = function (day, slots) {
-                    for (var i = 0; i < slots.length; ++i)
-                    {
+                    for (var i = 0; i < slots.length; ++i) {
                         week[day][slots[i]].type = 'selected';
                     }
                 };
 
                 var slotToTimes = function (slot) {
                     var arr = [];
-                    var startKey = moment.utc(slot.startTime).format("H:mm");
-                    var endKey = moment.utc(slot.endTime).format("H:mm");
+                    var startKey = moment(slot.startTime).format("H:mm");
+                    var endKey = moment(slot.endTime).format("H:mm");
                     var start = times.indexOf(startKey);
                     for (var i = start; i < times.length; i++) {
                         if (times[i] === endKey) {
@@ -204,16 +222,18 @@
                     $location.path("/home");
                 }
 
-                $scope.timerange = function() {
-                    return Array.apply(null, new Array(times.length - 1)).map(function (x, i) { return i });
+                $scope.timerange = function () {
+                    return Array.apply(null, new Array(times.length - 1)).map(function (x, i) {
+                        return i
+                    });
                 };
 
-                $scope.getWeekdays = function() {
-                  return Object.keys(week);
+                $scope.getWeekdays = function () {
+                    return Object.keys(week);
                 };
 
-                $scope.getType = function(day, time) {
-                   return week[day][time].type;
+                $scope.getType = function (day, time) {
+                    return week[day][time].type;
                 };
 
                 $scope.countMachineAlerts = function (room) {
@@ -411,13 +431,26 @@
                     }
                 };
 
+                var formatTime = function(time) {
+                    return moment()
+                        .set('hour', time.split(':')[0])
+                        .set('minute', time.split(':')[1])
+                        .format("DD.MM.YYYY HH:mmZZ");
+                };
+
                 $scope.updateWorkingHours = function (room, week) {
                     var workingHours = [];
                     for (var day in week) {
                         if (week.hasOwnProperty(day)) {
-                            workingHours.push({'weekday': day,
-                                'start': times[firstSelection(day)],
-                                'end': times[lastSelection(day) + 1]});
+                            var blocks = blocksForDay(day);
+                            var weekdayBlocks = {'weekday': day, 'blocks': []};
+                            for (var i = 0; i < blocks.length; ++i) {
+                                var block = blocks[i];
+                                var start = formatTime(times[block[0]]);
+                                var end = formatTime(times[block[block.length - 1] + 1]);
+                                weekdayBlocks.blocks.push({'start': start, 'end': end});
+                            }
+                            workingHours.push(weekdayBlocks);
                         }
                     }
 

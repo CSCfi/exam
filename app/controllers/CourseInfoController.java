@@ -1,5 +1,6 @@
 package controllers;
 
+import Exceptions.NotFoundException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -45,7 +46,7 @@ public class CourseInfoController extends SitnetController {
                     course.getName().isEmpty()) {
                 return notFound("sitnet_course_not_found");
             }
-        } catch (Exception e) {
+        } catch (NotFoundException e) {
             return notFound();
         }
 

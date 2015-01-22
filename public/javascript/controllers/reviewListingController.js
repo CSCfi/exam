@@ -40,12 +40,10 @@
 
                             angular.forEach($scope.examReviews, function(review){
 
-                                // terrible hack to accommodate for the lack of timezone info coming from backend
                                 if(review && review.duration) {
-                                    var duration = review.duration.substring(0, review.duration.length - 1) + "+02:00";
-                                    review.duration = duration;
+                                    review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
                                 }
-                                if(review.exam.state === "REVIEW" || review.exam.state === "ABORTED" || review.exam.state === "STUDENT_STARTED") { $scope.toggleReviewExams = true; }
+                                if(review.exam.state === "REVIEW" || review.exam.state === "ABORTED" || review.exam.state === "REVIEW_STARTED") { $scope.toggleReviewExams = true; }
                                 if(review.exam.state === "GRADED") { $scope.toggleGradedExams = true; }
                                 if(review.exam.state === "GRADED_LOGGED") { $scope.toggleLoggedExams = true; }
 

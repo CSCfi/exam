@@ -1,16 +1,14 @@
 import Exceptions.AuthenticateException;
 import Exceptions.MalformedDataException;
-import Exceptions.UnauthorizedAccessException;
 import akka.actor.Cancellable;
 import com.avaje.ebean.Ebean;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
 import models.*;
-import org.joda.time.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-import org.joda.time.LocalDateTime;
+import org.joda.time.Minutes;
 import org.joda.time.Seconds;
 import play.Application;
 import play.GlobalSettings;
@@ -42,8 +40,8 @@ public class Global extends GlobalSettings {
     public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
     public static final String SITNET_FAILURE_HEADER_KEY = "x-sitnet-token-failure";
     public static final String SITNET_CACHE_KEY = "user.session.";
-    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 15;
-    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 5;
+    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 1;
+    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 1;
 
     private Cancellable reportSender;
     private Cancellable reviewRunner;
@@ -63,7 +61,7 @@ public class Global extends GlobalSettings {
     public void onStart(Application app) {
 
         System.setProperty("user.timezone", "UTC");
-        TimeZone.setDefault(null);
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
         //todo: make these interval and start times configurable via configuration files
 
@@ -74,7 +72,6 @@ public class Global extends GlobalSettings {
                 Akka.system().dispatcher()
         );
 
-        // TODO: WeeklyEmailReport.java unused after this
         weeklyEmailReport();
 
         SitnetUtil.initializeDataModel();
@@ -84,8 +81,8 @@ public class Global extends GlobalSettings {
     }
 
     private int secondsUntilNextMondayRun(int scheduledHour) {
-        LocalDateTime now = new LocalDateTime();
-        LocalDateTime nextRun = now.withHourOfDay(scheduledHour)
+        DateTime now = DateTime.now();
+        DateTime nextRun = now.withHourOfDay(scheduledHour)
                 .withMinuteOfHour(0)
                 .withSecondOfMinute(0)
                 .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
@@ -135,9 +132,6 @@ public class Global extends GlobalSettings {
 
                 if(Logger.isDebugEnabled()) {Logger.debug("onError: " + errorMessage);}
 
-                if (cause instanceof UnauthorizedAccessException) {
-                    return Results.forbidden(Json.toJson(errorMessage));
-                }
                 if (cause instanceof AuthenticateException) {
                     return Results.unauthorized(Json.toJson(errorMessage));
                 }
@@ -289,7 +283,7 @@ public class Global extends GlobalSettings {
                         room.getBuildingName() + ":::" +
                         room.getRoomCode() + ":::" +
                         examMachine.getName() + ":::" +
-                        enrolment.getReservation().getStartAt();
+                        enrolment.getReservation().getStartAt().getTime();
             } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                 // Right room, wrong machine
                 header = "x-sitnet-wrong-machine";
@@ -329,8 +323,8 @@ public class Global extends GlobalSettings {
     }
 
     private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
-        Date now = SitnetUtil.getNowTime();
-        LocalDateTime future = new LocalDateTime(now).plusMinutes(minutesToFuture);
+        Date now = new Date();
+        DateTime future = new DateTime(now).plusMinutes(minutesToFuture);
         List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
@@ -354,14 +348,14 @@ public class Global extends GlobalSettings {
 
     private class AddHeader extends Action {
         private Map<String, String> headers;
-        private Action<?> delegate;
 
-        public AddHeader(Action<?> action, Map<String, String> headers) {
+        public AddHeader(Action action, Map<String, String> headers) {
             this.headers = headers;
             this.delegate = action;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public Promise<SimpleResult> call(Http.Context context) throws Throwable {
             final Promise<SimpleResult> promise = this.delegate.call(context);
             Http.Response response = context.response();

@@ -289,7 +289,7 @@ public class ExamController extends SitnetController {
                 .findUnique();
 
         if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("sitnet_error_exam_not_found");
         } else if (SitnetUtil.isInspector(exam)) {
             JsonContext jsonContext = Ebean.createJsonContext();
             return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
@@ -303,7 +303,7 @@ public class ExamController extends SitnetController {
 
         Exam exam = doGetExam(id);
         if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("sitnet_error_exam_not_found");
         } else if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") || SitnetUtil.isInspector(exam)) {
             JsonContext jsonContext = Ebean.createJsonContext();
             return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
@@ -318,7 +318,7 @@ public class ExamController extends SitnetController {
 
         Exam exam = doGetExam(id);
         if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("sitnet_error_exam_not_found");
         }
         if (exam.isShared() || SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN") ||
                 SitnetUtil.isInspector(exam)) {
@@ -352,7 +352,7 @@ public class ExamController extends SitnetController {
         }
         // set user only if exam is really graded, not just modified
         if (exam.getState().equals(Exam.State.GRADED.name()) || exam.getState().equals(Exam.State.GRADED_LOGGED.name())) {
-            exam.setGradedTime(SitnetUtil.getNowTime());
+            exam.setGradedTime(new Date());
             exam.setGradedByUser(UserController.getLoggedUser());
         }
         exam.generateHash();
@@ -766,7 +766,7 @@ public class ExamController extends SitnetController {
         }
     }
 
-    private static AbstractQuestion clone(String type, Long id, ExamSection section) {
+    private static AbstractQuestion clone(String type, Long id) {
         switch (type) {
             case "MultipleChoiceQuestion": {
                 MultipleChoiceQuestion multiQuestion = Ebean.find(MultipleChoiceQuestion.class)
@@ -851,7 +851,7 @@ public class ExamController extends SitnetController {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
 
             ExamSection section = Ebean.find(ExamSection.class, sid);
-            AbstractQuestion clone = clone(question.getType(), question.getId(), section);
+            AbstractQuestion clone = clone(question.getType(), question.getId());
             if (clone == null) {
                 return notFound("Question type not specified");
             }

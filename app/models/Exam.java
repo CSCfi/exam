@@ -93,6 +93,9 @@ public class Exam extends SitnetModel {
     // Exam total score - calculated from all section scores
     private Double totalScore;
 
+    // Cloned - needed as field for serialization :(
+    private Boolean cloned;
+
     // Exam language
     @ManyToMany
     private List<Language> examLanguages = new ArrayList<>();
@@ -155,6 +158,15 @@ public class Exam extends SitnetModel {
             }
         }
         return total;
+    }
+
+    @Transient
+    public Boolean isCloned() {
+        return cloned;
+    }
+
+    public void setCloned(Boolean cloned) {
+        this.cloned = cloned;
     }
 
     public Grade getExamGrade() {
@@ -397,8 +409,9 @@ public class Exam extends SitnetModel {
             esCopy.setId(null);
             esCopy.setExam(clone);
             SitnetUtil.setModifier(esCopy);
-            esCopy.save();
             List<ExamSectionQuestion> sectionQuestions = new ArrayList<>(es.getSectionQuestions());
+            esCopy.getSectionQuestions().clear();
+            esCopy.save();
             if (es.getLotteryOn()) {
                 Collections.shuffle(sectionQuestions);
                 sectionQuestions = sectionQuestions.subList(0, es.getLotteryItemCount());

@@ -5,6 +5,8 @@ import models.dto.ExamScore;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
+
 import java.util.Date;
 
 /**
@@ -15,7 +17,7 @@ public class ExamRecord extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

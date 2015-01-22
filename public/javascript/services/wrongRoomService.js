@@ -31,12 +31,12 @@
                     "extendedTimeOut": "0"
                 };
 
-                var startsAt = Date.parse(data[4].substring(0, data[4].length - 2).replace(/\-/g,'/'));
-
+                var startsAt = data[4];
+                var offset = 1000 * 60 * new Date().getTimezoneOffset();
                 if (startsAt > new Date().getTime()) {
-                    var date = new Date(startsAt);
-                    var hours = zeropad(date.getHours());
-                    var mins = zeropad(date.getMinutes());
+                    var date = moment.utc(startsAt - offset);
+                    var hours = zeropad(date.hours());
+                    var mins = zeropad(date.minutes());
                     toastr.warning('Sinulla on koe alkamassa klo ' + hours + ':' + mins +
                         ' sijainnissa: ' + data[0] + ', ' + data[1] + ' huoneessa ' + data[2] +
                         ' koneella ' + data[3]);
