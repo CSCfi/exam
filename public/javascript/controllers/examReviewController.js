@@ -496,6 +496,8 @@
                     });
                 };
 
+                $scope.additionalInfo = "";
+
                 $scope.saveExamRecord = function(reviewed_exam) {
 
                     if (reviewed_exam.grade == undefined || reviewed_exam.grade == "") {
@@ -521,7 +523,8 @@
                             "totalScore": reviewed_exam.totalScore,
                             "creditType": reviewed_exam.creditType,
                             "sendFeedback": true,
-                            "answerLanguage": $scope.selectedLanguage
+                            "answerLanguage": $scope.selectedLanguage,
+                            "additionalInfo": $scope.additionalInfo
                         };
 
                         ExamRes.saveRecord.add(examToRecord, function(exam) {

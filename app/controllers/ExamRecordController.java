@@ -34,7 +34,8 @@ public class ExamRecordController extends SitnetController {
                 "customCredit",
                 "totalScore",
                 "creditType",
-                "answerLanguage")
+                "answerLanguage",
+                "additionalInfo")
                 .get();
 
         Exam exam = Ebean.find(Exam.class, form.getId());
@@ -70,9 +71,13 @@ public class ExamRecordController extends SitnetController {
         record.setTeacher(teacher);
         record.setTimeStamp(new Date());
 
+        DynamicForm df = Form.form().bindFromRequest();
+
+        String additionalInfo = df.get("additionalInfo");
 
         ExamScore score = new ExamScore();
 
+        score.setAdditionalInfo(additionalInfo);
         score.setStudent(student.getEppn());
         score.setStudentId(student.getUserIdentifier());
         if(exam.getCustomCredit() == null) {
@@ -105,7 +110,6 @@ public class ExamRecordController extends SitnetController {
         record.setExamScore(score);
         record.save();
 
-        DynamicForm df = Form.form().bindFromRequest();
         boolean sendFeedback = Boolean.parseBoolean(df.get("sendFeedback"));
 
         if (sendFeedback) {

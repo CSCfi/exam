@@ -470,5 +470,6 @@
     "sitnet_error_question_not_found": "Frågan kunde inte hittas",
     "sitnet_essay_length_recommendation_bounds": "Värdet ska vara ett heltal i det slutna intervallet mellan 1 och 1000000",
     "sitnet_questions_reordered": "Frågorna är omorganiserade",
-    "sitnet_exam_language_updated": "Tentens språk uppdaterade"
+    "sitnet_exam_language_updated": "Tentens språk uppdaterade",
+    "sitnet_additional_info_for_registry": "Additional info for the registry"
 }

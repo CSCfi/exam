@@ -35,6 +35,7 @@ public class ExamScore extends Model {
     private String LecturerId;
     private String Date;
     private String CourseImplementation;
+    private String additionalInfo;
 
     public String getCourseImplementation() {
         return CourseImplementation;
@@ -180,4 +181,7 @@ public class ExamScore extends Model {
         this.id = id;
     }
 
+    public String getAdditionalInfo() { return additionalInfo; }
+
+    public void setAdditionalInfo(String additionalInfo) { this.additionalInfo = additionalInfo; }
 }

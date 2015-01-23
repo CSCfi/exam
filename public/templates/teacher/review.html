@@ -78,12 +78,18 @@
                         </a>
                     </span>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4 pull-right">
                     <div style="padding-left: 1em" ng-show="!isReadOnly">
                         <button ng-click="saveExamRecord(examToBeReviewed)"
                                 ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
                                 class="btn btn-primary pull-right">{{'sitnet_send_result_to_registry' | translate}}
                         </button>
+                    </div>
+                </div>
+                <div class="col-md-2 pull-right">
+                    <div ng-show="!isReadOnly">
+                        <div class="sitnet-info-text-compact" style="font-size: 0.9em;">{{'sitnet_additional_info_for_registry' | translate}}:</div>
+                        <textarea class="form-control pull-right col-md-12" ng-model="additionalInfo"></textarea>
                     </div>
                 </div>
             </div>
