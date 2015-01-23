@@ -7,55 +7,60 @@
         </a>
     </div>
     <div class="col-md-11 exams-generic-info-title">{{'sitnet_exam_basic_information' |
-        translate}}</div>
+        translate}}
+    </div>
 </div>
 
 <!-- General info section container -->
 <div ng-show="newExam.expanded">
 
-    <div ng-controller="DatepickerCtrl">
-        <!-- Start & End time datepickers -->
-        <div class="row">
-            <div class="col-md-6">
-                <h4>{{'sitnet_start_time' | translate}}</h4>
-                <p class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="{{format}}"
-                           date-fix="{{format}}" ng-model="dateService.startDate"
-                           is-open="startDateOpened" min="minDate"
-                           datepicker-options="dateOptions"
-                           close-text="{{'sitnet_close' | translate}}"
-                           current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ui-change="updateExam()">
+    <!-- Start & End time datepickers -->
+    <div class="row" ng-controller="DatepickerCtrl">
+        <div class="col-md-6">
+            <h4>{{'sitnet_start_time' | translate}}</h4>
+
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}"
+                       date-fix="{{format}}" ng-model="newExam.examActiveStartDate"
+                       is-open="startDateOpened" min="minDate"
+                       datepicker-options="dateOptions"
+                       close-text="{{'sitnet_close' | translate}}"
+                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                       clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ui-change="updateExam()">
 
                     <span class="input-group-btn">
                         <button class="btn btn-default" ng-click="openStartDate($event)">
                             <i class="fa fa-calendar"></i>
                         </button>
                     </span>
-                </p>
-            </div>
+            </p>
+        </div>
 
-            <div class="col-md-6">
-                <h4>{{'sitnet_end_time' | translate}}</h4>
-                <p class="input-group">
-                    <input type="text" class="form-control" datepicker-popup="{{format}}"
-                           date-fix="{{format}}" ng-model="dateService.endDate"
-                           is-open="endDateOpened" min="dateService.startDate"
-                           datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"  ng-required="true">
+        <div class="col-md-6">
+            <h4>{{'sitnet_end_time' | translate}}</h4>
+
+            <p class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}"
+                       date-fix="{{format}}" ng-model="newExam.examActiveEndDate"
+                       is-open="endDateOpened" min="newExam.examActiveStartDate"
+                       datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
+                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                       clear-text="{{'sitnet_clear' | translate}}" ng-required="true">
                     <span class="input-group-btn">
                         <button class="btn btn-default" ng-click="openEndDate($event)">
                             <i class="fa fa-calendar"></i>
                         </button>
                     </span>
-                </p>
-            </div>
+            </p>
         </div>
+    </div>
 
-        <!-- Summary of start and end times -->
-        <div class="row">
-            <div class="col-md-8 col-md-offset-2">
-                <div>{{'sitnet_active_period' | translate}}:
-                    <em>{{dateService.startDate | date:'dd.MM.yyyy' }} - {{dateService.endDate | date:'dd.MM.yyyy' }}</em>
-                </div>
+    <!-- Summary of start and end times -->
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div>{{'sitnet_active_period' | translate}}:
+                <em>{{ newExam.examActiveStartDate | date:'dd.MM.yyyy' }} - {{ newExam.examActiveEndDate |
+                    date:'dd.MM.yyyy' }}</em>
             </div>
         </div>
     </div>
@@ -90,7 +95,7 @@
                        typeahead="c as c.code for c in getCourses('code', $viewValue)"
                        typeahead-loading="loadingCoursesByCode">
                        <span class="input-group-addon"
-                                          ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
+                             ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
                             <i class="fa fa-question-circle fa-fw"></i>
                             <i ng-show="loadingCoursesByCode" class="fa fa-refresh"></i>
                        </span>
@@ -115,7 +120,8 @@
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}:</div>
             <div class="input-group">
-                <input disabled type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.institutionName"
+                <input disabled type="text" class="form-control ng-pristine ng-valid"
+                       ng-model="newExam.course.institutionName"
                        ui-change="updateExam()">
                     <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
                         <i class="fa fa-question-circle fa-fw"></i>
@@ -130,7 +136,8 @@
         </div>
         <div class="row col-md-12">
             <div class="col-md-12">
-                <a href="{{ hostname.hostname }}/#/enroll/{{ newExam.course.code }}">{{ hostname.hostname }}/#/enroll/{{ newExam.course.code }}</a>
+                <a href="{{ hostname.hostname }}/#/enroll/{{ newExam.course.code }}">{{ hostname.hostname }}/#/enroll/{{
+                    newExam.course.code }}</a>
             </div>
         </div>
     </div>
@@ -141,11 +148,17 @@
             <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
             <div class="col-md-12 row">
                 <div class="pull-left col-md-2 row">
-                    <button class="btn btn-default" ng-click="openInspectorModal()">{{'sitnet_add' | translate}}</button>
+                    <button class="btn btn-default" ng-click="openInspectorModal()">{{'sitnet_add' | translate}}
+                    </button>
                 </div>
                 <div class="pull-left col-md-9">
                     <ul>
-                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="inspection in inspectors"><h6>{{ inspection.user.firstName }} {{ inspection.user.lastName }} <a ng-show="inspection.user.id != newExam.creator.id" ng-click="removeInspector(inspection.id)"><i class="fa fa-times pointer" title="{{'sitnet_remove' | translate}}"></i></a></h6></li>
+                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="inspection in inspectors"><h6>{{
+                            inspection.user.firstName }} {{ inspection.user.lastName }} <a
+                                    ng-show="inspection.user.id != newExam.creator.id"
+                                    ng-click="removeInspector(inspection.id)"><i class="fa fa-times pointer"
+                                                                                 title="{{'sitnet_remove' | translate}}"></i></a>
+                        </h6></li>
                     </ul>
                 </div>
             </div>
@@ -156,32 +169,38 @@
     <div class="row">
         <!--SIT-367, temporarily removed Room selection from exam-->
         <!--<div class="col-md-6">-->
-            <!--<div class="sitnet-info-text">{{'sitnet_examination_location' | translate}}:</div>-->
-            <!--<div class="input-group">-->
-                <!--<div class="input-group-btn">-->
-                    <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">-->
-                        <!--{{'sitnet_choose' | translate}}-->
-                        <!--<span class="caret"></span>-->
-                    <!--</button>-->
-                    <!--<ul class="dropdown-menu">-->
-                        <!--<li ng-repeat="room in examRooms" ng-click="setExamRoom(room)"><a class="pointer-hand">{{room.name}}</a>-->
-                        <!--</li>-->
-                    <!--</ul>-->
-                <!--</div>-->
-                   <!--<h6>-->
-                       <!--{{newExam.room.name}}-->
-                       <!--<i ng-if="newExam.room" class="fa fa-times" ng-click="removeExamRoom()" style="cursor: pointer;" title="Poista"></i>-->
-                   <!--</h6>-->
-            <!--</div>-->
+        <!--<div class="sitnet-info-text">{{'sitnet_examination_location' | translate}}:</div>-->
+        <!--<div class="input-group">-->
+        <!--<div class="input-group-btn">-->
+        <!--<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">-->
+        <!--{{'sitnet_choose' | translate}}-->
+        <!--<span class="caret"></span>-->
+        <!--</button>-->
+        <!--<ul class="dropdown-menu">-->
+        <!--<li ng-repeat="room in examRooms" ng-click="setExamRoom(room)"><a class="pointer-hand">{{room.name}}</a>-->
+        <!--</li>-->
+        <!--</ul>-->
+        <!--</div>-->
+        <!--<h6>-->
+        <!--{{newExam.room.name}}-->
+        <!--<i ng-if="newExam.room" class="fa fa-times" ng-click="removeExamRoom()" style="cursor: pointer;" title="Poista"></i>-->
+        <!--</h6>-->
+        <!--</div>-->
         <!--</div>-->
 
         <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' | translate}}):</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' | translate}}):
+            </div>
             <div class="input-group">
-                <button class="btn btn-default" ng-class="checkDuration(45)" ng-click="setExamDuration(45)">45</button>&nbsp;
-                <button class="btn btn-default" ng-class="checkDuration(90)" ng-click="setExamDuration(90)">90</button>&nbsp;
-                <button class="btn btn-default" ng-class="checkDuration(110)" ng-click="setExamDuration(110)">110</button>&nbsp;
-                <button class="btn btn-default" ng-class="checkDuration(180)" ng-click="setExamDuration(180)">180</button>
+                <button class="btn btn-default" ng-class="checkDuration(45)" ng-click="setExamDuration(45)">45</button>
+                &nbsp;
+                <button class="btn btn-default" ng-class="checkDuration(90)" ng-click="setExamDuration(90)">90</button>
+                &nbsp;
+                <button class="btn btn-default" ng-class="checkDuration(110)" ng-click="setExamDuration(110)">110
+                </button>
+                &nbsp;
+                <button class="btn btn-default" ng-class="checkDuration(180)" ng-click="setExamDuration(180)">180
+                </button>
             </div>
         </div>
 
@@ -193,7 +212,7 @@
                          header="{{'sitnet_select' | translate}}"
                          multiheader="selectedLanguages(newExam)"
                          options="language.code as language.name for language in examLanguages"
-                         change="updateExamLanguages(newExam)" >
+                         change="updateExamLanguages(newExam)">
             </multiselect>
         </div>
     </div>
@@ -205,9 +224,17 @@
             <div class="sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
             <div class="input-group">
                 <div class="input-group col-md-12">
-                    <button class="btn btn-default" ng-class="checkGrading('0-5')" ng-click="setExamGrading('0-5')">0-5</button>&nbsp;
-                    <button class="btn btn-default" ng-class="checkGrading('Improbatur-Laudatur')" ng-click="setExamGrading('Improbatur-Laudatur')">Improbatur-Laudatur</button>&nbsp;
-                    <button class="btn btn-default" ng-class="checkGrading('Hyväksytty-Hylätty')" ng-click="setExamGrading('Hyväksytty-Hylätty')">Hyväksytty-Hylätty</button>
+                    <button class="btn btn-default" ng-class="checkGrading('0-5')" ng-click="setExamGrading('0-5')">
+                        0-5
+                    </button>
+                    &nbsp;
+                    <button class="btn btn-default" ng-class="checkGrading('Improbatur-Laudatur')"
+                            ng-click="setExamGrading('Improbatur-Laudatur')">Improbatur-Laudatur
+                    </button>
+                    &nbsp;
+                    <button class="btn btn-default" ng-class="checkGrading('Hyväksytty-Hylätty')"
+                            ng-click="setExamGrading('Hyväksytty-Hylätty')">Hyväksytty-Hylätty
+                    </button>
                 </div>
             </div>
         </div>
@@ -216,8 +243,14 @@
             <div class="sitnet-info-text">Suoritustyyppi:</div>
             <div class="input-group">
                 <div class="input-group col-md-12">
-                    <button class="btn btn-default" ng-class="checkType('Osasuoritus')" ng-click="setExamType('Osasuoritus')">Osasuoritus</button>&nbsp;
-                    <button class="btn btn-default" ng-class="checkType('Loppusuoritus')" ng-click="setExamType('Loppusuoritus')">Loppusuoritus</button>&nbsp;
+                    <button class="btn btn-default" ng-class="checkType('Osasuoritus')"
+                            ng-click="setExamType('Osasuoritus')">Osasuoritus
+                    </button>
+                    &nbsp;
+                    <button class="btn btn-default" ng-class="checkType('Loppusuoritus')"
+                            ng-click="setExamType('Loppusuoritus')">Loppusuoritus
+                    </button>
+                    &nbsp;
                 </div>
             </div>
         </div>
@@ -234,7 +267,7 @@
                          header="{{'sitnet_select' | translate}}"
                          multiheader="selectedSoftwares(newExam)"
                          options="software.id as software.name for software in softwares"
-                         change="updateSoftwareInfo(newExam)" >
+                         change="updateSoftwareInfo(newExam)">
 
             </multiselect>
         </div>
@@ -245,10 +278,11 @@
                 {{'sitnet_exam_attacment' | translate}}
             </div>
             <div ng-show="newExam.attachment" ng-controller="AttachmentController">
-                <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}}  </a>
-                <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
+                <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}} </a>
+                <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times"
+                                                                                              title="{{'sitnet_remove_attachment' | translate }}"></i></span>
             </div>
-            <button class="btn btn-default" ng-click="selectFile()" >{{'sitnet_attach_file' | translate}}</button>
+            <button class="btn btn-default" ng-click="selectFile()">{{'sitnet_attach_file' | translate}}</button>
         </div>
     </div>
 
@@ -263,7 +297,8 @@
                 {{'sitnet_exam_instruction' | translate}}
             </div>
             <div class="input-group exam-info">
-                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction" ui-change="updateExam()"
+                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction"
+                          ui-change="updateExam()"
                           placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
                 </textarea>
             </div>
@@ -272,7 +307,8 @@
                 {{'sitnet_enroll_instruction' | translate}}
             </div>
             <div class="input-group exam-info">
-                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.enrollInstruction" ui-change="updateExam()"
+                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.enrollInstruction"
+                          ui-change="updateExam()"
                           placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
                 </textarea>
             </div>

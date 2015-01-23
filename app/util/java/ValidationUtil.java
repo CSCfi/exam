@@ -32,11 +32,11 @@ public class ValidationUtil {
             return "sitnet_error_end_date";
         }
 
-        if(start > end + day) {
+        if(start >= end + day) {
             return "sitnet_error_end_sooner_than_start";
         }
 
-        if(end + day < now) {
+        if(end + day <= now) {
             return "sitnet_error_end_sooner_than_now";
         }
 
