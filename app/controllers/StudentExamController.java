@@ -263,7 +263,7 @@ public class StudentExamController extends SitnetController {
             DateTime now = DateTime.now();
             String clientIP = request().remoteAddress();
 
-            ExamEnrolment possibeEnrolment = Ebean.find(ExamEnrolment.class)
+            ExamEnrolment possibleEnrolment = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
                     .fetch("reservation.machine")
                     .fetch("reservation.machine.room")
@@ -274,27 +274,27 @@ public class StudentExamController extends SitnetController {
 
             // if this is null, it means someone is trying to access an exam by wrong hash
             // which is weird.
-            if (possibeEnrolment == null) {
+            if (possibleEnrolment == null) {
                 return forbidden("sitnet_reservation_not_found");
             }
 
             // exam and enrolment found. Is student on the right machine?
 
-            if (possibeEnrolment.getReservation() == null) {
+            if (possibleEnrolment.getReservation() == null) {
                 return forbidden("sitnet_reservation_not_found");
-            } else if (possibeEnrolment.getReservation().getMachine() == null) {
+            } else if (possibleEnrolment.getReservation().getMachine() == null) {
                 return forbidden("sitnet_reservation_machine_not_found");
-            } else if (!possibeEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+            } else if (!possibleEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
 
                 ExamRoom examRoom = Ebean.find(ExamRoom.class)
                         .fetch("mailAddress")
                         .where()
-                        .eq("id", possibeEnrolment.getReservation().getMachine().getRoom().getId())
+                        .eq("id", possibleEnrolment.getReservation().getMachine().getRoom().getId())
                         .findUnique();
 
                 String message = "sitnet_wrong_exam_machine " + examRoom.getName()
                         + ", " + examRoom.getMailAddress().toString()
-                        + ", sitnet_exam_machine " + possibeEnrolment.getReservation().getMachine().getName();
+                        + ", sitnet_exam_machine " + possibleEnrolment.getReservation().getMachine().getName();
 
                 return forbidden(message);
             }
@@ -314,8 +314,8 @@ public class StudentExamController extends SitnetController {
 
             if (enrolment == null) {
 
-                DateTime endAt = new DateTime(possibeEnrolment.getReservation().getEndAt().getTime());
-                DateTime startAt = new DateTime(possibeEnrolment.getReservation().getStartAt().getTime());
+                DateTime endAt = new DateTime(possibleEnrolment.getReservation().getEndAt().getTime());
+                DateTime startAt = new DateTime(possibleEnrolment.getReservation().getStartAt().getTime());
 
                 DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
 
@@ -365,14 +365,14 @@ public class StudentExamController extends SitnetController {
             examParticipation.save();
             user.getParticipations().add(examParticipation);
 
+            studentExam.setCloned(true);
             setStudentExamContent(options);
-
             return ok(jsonContext.toJsonString(studentExam, true, options)).as("application/json");
 
         } else {
-            //palautetaan olemassa oleva koe, esim. sessio katkennut tms. jatketaan kokeen tekemistä.
+            // Returning an already existing student exam
+            possibleClone.setCloned(false);
             setStudentExamContent(options);
-
             return ok(jsonContext.toJsonString(possibleClone, true, options)).as("application/json");
         }
     }
@@ -380,7 +380,7 @@ public class StudentExamController extends SitnetController {
     private static void setStudentExamContent(JsonWriteOptions options) {
 
         options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
-                "duration, examLanguage, answerLanguage, state, expanded, attachment");
+                "duration, examLanguage, answerLanguage, state, expanded, attachment, cloned");
         options.setPathProperties("creator", "id");
         options.setPathProperties("attachment", "fileName");
         options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");

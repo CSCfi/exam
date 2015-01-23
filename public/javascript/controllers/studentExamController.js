@@ -21,10 +21,6 @@
 
                 $scope.hash = $routeParams.hash;
 
-                $scope.reload = function() {
-                    $scope.doExam($routeParams.hash);
-                };
-
                 function cancelAutosavers() {
                     if ($scope.doexam) {
                         angular.forEach($scope.doexam.examSections, function(section) {
@@ -106,18 +102,19 @@
                 $scope.doExam = function(hash) {
                     $http.get('/student/doexam/' + $routeParams.hash)
                         .success(function(data, status, headers, config) {
-                            $rootScope.$broadcast('startExam');
-
                             $scope.doexam = data;
+                            if (data.cloned) {
+                                // we came here with a reference to the parent exam so do not render page just yet,
+                                // reload with reference to student exam that we just created
+                                $location.path('/student/doexam/' + data.hash);
+                                return;
+                            }
                             $scope.activeSection = $scope.doexam.examSections[0];
 
                             // set sections and question numbering
                             angular.forEach($scope.doexam.examSections, function(section, index) {
                                 section.index = index + 1;
                                 $scope.pages.push(section.name);
-                                angular.forEach(section.sectionQuestions, function(sectionQuestion, index) {
-                                    sectionQuestion.question.index = index + 1; // Where is this really used?
-                                });
                             });
 
                             // Loop through all questions in the active section
@@ -198,10 +195,11 @@
                 }
 
 
-                if ($routeParams.hash != undefined) {
+                if ($routeParams.hash) {
                     $scope.doExam();
                 }
 
+                // TODO: not needed?
                 $scope.activateExam = function(exam) {
 
                     $scope.doexam = exam;
@@ -216,6 +214,7 @@
                         });
                 };
 
+                // TODO: not needed?
                 $scope.continueExam = function(exam) {
                     $rootScope.$broadcast('startExam');
                     $http.get('/student/doexam/' + exam.hash)

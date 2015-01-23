@@ -5,7 +5,9 @@ import models.ExamRoom;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.Date;
+
 
 /**
  * Created by avainik on 4/22/14.
@@ -16,7 +18,7 @@ public class ExceptionWorkingHours extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
+    protected Timestamp ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
