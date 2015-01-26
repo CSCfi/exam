@@ -228,6 +228,11 @@
                                 toastr.error(error.data);
                             }
                         );
+                        ExamRes.reservation.get({eid: $routeParams.id},
+                            function(reservation) {
+                                $scope.reservation = reservation;
+                            }
+                        );
                     },
                     function(error) {
                         toastr.error(error.data);

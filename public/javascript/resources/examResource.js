@@ -287,6 +287,10 @@
                 },
                 {
                     "add": {method: "PUT"}
+                }),
+                reservation: $resource("/exams/:eid/reservation",
+                {
+                    eid: "@eid"
                 })
             };
         }]);
