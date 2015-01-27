@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('sitnet.services', [])
+    angular.module('sitnet.services')
         .factory('sessionService', function () {
             var sessionUser = {};
 
