@@ -98,12 +98,12 @@ public class IntegrationTestCase {
     protected Result request(String method, String path, JsonNode body) {
         FakeRequest request = fakeRequest(method, path);
         if (body != null && !method.equals(Helpers.GET)) {
-            request = request.withJsonBody(body);
+            request = request.withJsonBody(body, method);
         }
         if (sessionToken != null) {
             request = request.withHeader("x-sitnet-authentication", sessionToken);
         }
-        return route(request);
+        return Helpers.route(request);
     }
 
     protected void loginAsStudent() {

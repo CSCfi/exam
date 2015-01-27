@@ -1011,7 +1011,7 @@ softwares:
 exams:
 
   - &alkeidenperusteetGraded !!models.Exam
-    creator: *sauli
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *alkeet
     name: Johdatus alkeiden perusteisiin

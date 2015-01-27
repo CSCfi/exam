@@ -32,7 +32,11 @@ public final class JsonDeserializer {
             try {
                 return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(json.getAsString());
             } catch (ParseException e) {
-                Logger.warn("Failed to parse date " + json.getAsString());
+                try {
+                    return new Date(json.getAsLong());
+                } catch (Exception e2) {
+                    Logger.warn("Failed to parse date " + json.getAsString());
+                }
             }
             return null;
         }
