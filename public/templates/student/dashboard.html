@@ -24,15 +24,20 @@
         </div>
     </div>
 
-    <div class="row" ng-controller="StudentExamController">
+    <div class="row" ng-controller="DashboardCtrl">
         <div ng-repeat="enrolment in userEnrolments">
             <div class="col-md-11 pull-left bottom-padding-2 light-table">
                 <div class="col-md-1 pull-left" style="text-align: center">
-                    <a class="info-column-large-icon fa-stack fa-2x pointer" ng-click="activateExam(enrolment.exam);"
+                    <span class="info-column-large-icon fa-stack fa-2x">
+                        <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
+                        <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
+                    </span>
+                    <!-- removed as student should be automatically forwarded to examroom and no manual interaction should be needed -->
+                    <!--a class="info-column-large-icon fa-stack fa-2x pointer" ng-click="activateExam(enrolment.exam);"
                        popover-placement="top" popover-trigger="mouseenter" popover="{{'sitnet_start_exam' | translate}}">
                         <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                         <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
-                    </a>
+                    </a-->
                 </div>
                 <div class="col-md-3 pull-left">
                     <div class="info-row col-md-12 pull-left">

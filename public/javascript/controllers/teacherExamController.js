@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('TeacherExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'QuestionRes',
-            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, QuestionRes) {
+        .controller('TeacherExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'dateService',
+            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, dateService) {
 
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/essay_question.html";
@@ -173,76 +173,17 @@
                 };
 
 
-                /*$scope.setActiveSection = function (section) {
-                    $scope.activeSection = section;
-                    $scope.switchButtons(section);
-
-                    // Loop through all questions in the active section
-                    angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion, index) {
-
-                        var template = "";
-                        switch (sectionQuestion.question.type) {
-                            case "MultipleChoiceQuestion":
-                                template = $scope.multipleChoiseOptionTemplate;
-
-//                                console.log("asd: "+ question.answer.option);
-
-                                break;
-                            case "EssayQuestion":
-                                template = $scope.essayQuestionTemplate;
-                                break;
-                            default:
-                                template = "fa-question-circle";
-                                break;
-                        }
-                        sectionQuestion.question.template = template;
-
-                        if (!sectionQuestion.question.expanded) {
-                            sectionQuestion.question.expanded = false;
-                        }
-                        $scope.setQuestionColors(sectionQuestion);
-                    });
-                };*/
-
-                $scope.setPreviousSection = function (exam, active_section) {
-//                    var sectionCount = exam.examSections.length;
-
-                    if (!$scope.guide) {
-                        // Loop through all sections in the exam
-                        angular.forEach(exam.examSections, function (section, index) {
-                            // If section is same as the active_section
-                            if (angular.equals(section, active_section)) {
-                                // If this is the first element in the array
-                                if (index == 0) {
-                                    $scope.switchToGuide(true);
-                                    $scope.setActiveSection(exam.examSections[0]);
-                                }
-                                else {
-                                    $scope.setActiveSection(exam.examSections[index - 1]);
-                                }
-                            }
-                        });
+                $scope.setNextSection = function() {
+                    if($scope.guide) {
+                        $scope.setActiveSection($scope.pages[1]);
+                    } else {
+                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) + 1]);
                     }
                 };
 
-                $scope.setNextSection = function (exam, active_section) {
-                    var sectionCount = exam.examSections.length;
-
-                    if ($scope.guide) {
-                        $scope.switchToGuide(false);
-                        $scope.setActiveSection(exam.examSections[0]);
-                    } else {
-                        // Loop through all sections in the exam
-                        angular.forEach(exam.examSections, function (section, index) {
-                            // If section is same as the active_section
-                            if (angular.equals(section, active_section)) {
-                                // If this is the last element in the array
-                                if (index == sectionCount - 1) {
-                                } else {
-                                    $scope.setActiveSection(exam.examSections[index + 1]);
-                                }
-                            }
-                        });
+                $scope.setPreviousSection = function() {
+                    if(!$scope.guide) {
+                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) - 1]);
                     }
                 };
 
@@ -260,29 +201,8 @@
                 };
 
                 $scope.printExamDuration = function (exam) {
-
-                    if (exam && exam.duration) {
-                        var h = Math.floor(exam.duration / 60);
-                        var m = exam.duration % 60;
-                        if (h === 0) {
-                            return m + "min";
-                        } else if (m === 0) {
-                            return h + "h ";
-                        } else {
-                            return h + "h " + m + "min";
-                        }
-                    } else {
-                        return "";
-                    }
+                    return dateService.printExamDuration(exam);
                 };
-
-                $scope.remainingTime = 0;
-                $scope.onTimeout = function () {
-                    $scope.remainingTime++;
-                    $timeout($scope.onTimeout, 1000);
-                };
-                $timeout($scope.onTimeout, 1000);
-
 
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (sectionQuestion) {

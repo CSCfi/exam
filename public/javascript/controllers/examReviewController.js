@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes',
-            function($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes) {
+        .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
+            function($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
 
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section_general.html";
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section.html";
@@ -244,20 +244,7 @@
                 };
 
                 $scope.printExamDuration = function(exam) {
-
-                    if (exam && exam.duration) {
-                        var h = Math.floor(exam.duration / 60);
-                        var m = exam.duration % 60;
-                        if (h === 0) {
-                            return m + "min";
-                        } else if (m === 0) {
-                            return h + "h ";
-                        } else {
-                            return h + "h " + m + "min";
-                        }
-                    } else {
-                        return "";
-                    }
+                    return dateService.printExamDuration(exam);
                 };
 
                 $scope.scoreMultipleChoiceAnswer = function(sectionQuestion) {

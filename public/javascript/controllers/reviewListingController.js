@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ReviewListingController', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'sessionService', 'SITNET_CONF', 'ExamRes',
-            function ($scope, $routeParams, $location, $translate, QuestionRes, sessionService, SITNET_CONF, ExamRes) {
+        .controller('ReviewListingController', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'sessionService', 'SITNET_CONF', 'ExamRes', 'dateService',
+            function ($scope, $routeParams, $location, $translate, QuestionRes, sessionService, SITNET_CONF, ExamRes, dateService) {
 
 //                $scope.questionListingMultipleChoice = SITNET_CONF.TEMPLATES_PATH + "question-listing/multiplechoice_questions.html";
 //                $scope.questionListingEssay = SITNET_CONF.TEMPLATES_PATH + "question-listing/essay_questions.html";
@@ -75,29 +75,7 @@
                 };
 
                 $scope.printExamDuration = function(exam) {
-
-                    if(exam && exam.duration) {
-                        var h = 0;
-                        var d = exam.duration;
-
-                        while (d > 0) {
-                            if (d - 60 >= 0) {
-                                h++;
-                                d = d - 60;
-                            } else {
-                                break;
-                            }
-                        }
-                        if (h === 0) {
-                            return d + "min";
-                        } else if (d === 0) {
-                            return h + "h ";
-                        } else {
-                            return h + "h " + d + "min";
-                        }
-                    } else {
-                        return "";
-                    }
+                    return dateService.printExamDuration(exam);
                 };
 
                 $scope.getLocalInspection = function(eid) {

@@ -1,15 +1,13 @@
-(function() {
+(function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('StudentExamController', ['$rootScope', '$scope', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', '$q',
-            function($rootScope, $scope, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, $q) {
+        .controller('StudentExamController', ['$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'dateService',
+            function ($rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, dateService) {
 
                 $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/essay_question.html";
                 $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/section_template.html";
-
-                $scope.tempQuestion = null;
 
                 // section back / forward buttons
                 $scope.pages = [$translate("sitnet_exam_quide")];
@@ -23,7 +21,7 @@
 
                 function cancelAutosavers() {
                     if ($scope.doexam) {
-                        angular.forEach($scope.doexam.examSections, function(section) {
+                        angular.forEach($scope.doexam.examSections, function (section) {
                             if (section.autosaver) {
                                 $interval.cancel(section.autosaver);
                             }
@@ -31,55 +29,25 @@
                     }
                 }
 
-                $scope.$on('$destroy', function() {
+                $scope.$on('$destroy', function () {
                     cancelAutosavers();
                 });
 
-                /**
-                 *
-                 * @param section examsection
-                 * @param type "answered" or "open"
-                 */
-                $scope.getQuestionAmount = function(section, type) {
-                    var i = 0;
-                    if (type === 'answered') {
-                        angular.forEach(section.sectionQuestions, function(sectionQuestion) {
-                            if (sectionQuestion.question.answered) {
-                                i = i + 1;
-                            }
-                        });
-                    }
-                    if (type === 'open') {
-                        angular.forEach(section.sectionQuestions, function(sectionQuestion) {
-                            if (!sectionQuestion.question.answered) {
-                                i = i + 1;
-                            }
-                        });
-                    }
-                    return i;
+                $scope.getQuestionAmount = function (section, type) {
+                    var answered = type === 'answered';
+                    return section.sectionQuestions.filter(function (sectionQuestion) {
+                        return sectionQuestion.question.answered === answered;
+                    }).length;
                 };
 
-                $scope.printExamDuration = function(exam) {
-
-                    if (exam && exam.duration) {
-                        var h = Math.floor(exam.duration / 60);
-                        var m = exam.duration % 60;
-                        if (h === 0) {
-                            return m + "min";
-                        } else if (m === 0) {
-                            return h + "h ";
-                        } else {
-                            return h + "h " + m + "min";
-                        }
-                    } else {
-                        return "";
-                    }
+                $scope.printExamDuration = function (exam) {
+                    return dateService.printExamDuration(exam);
                 };
 
-                var getAutosaver = function() {
-                    if(!$scope.guide) {
-                        return $interval(function() {
-                            angular.forEach($scope.activeSection.sectionQuestions, function(sectionQuestion) {
+                var getAutosaver = function () {
+                    if (!$scope.guide) {
+                        return $interval(function () {
+                            angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                                 var question = sectionQuestion.question;
                                 if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
                                     var params = {
@@ -88,10 +56,10 @@
                                     };
                                     var msg = {};
                                     msg.answer = question.answer.answer;
-                                    StudentExamRes.essayAnswer.saveEssay(params, msg, function() {
+                                    StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
                                         question.autosaved = new Date();
                                         $scope.setQuestionColors(question);
-                                    }, function() {
+                                    }, function () {
                                     });
                                 }
                             });
@@ -99,9 +67,9 @@
                     }
                 };
 
-                $scope.doExam = function(hash) {
+                $scope.doExam = function (hash) {
                     $http.get('/student/doexam/' + $routeParams.hash)
-                        .success(function(data, status, headers, config) {
+                        .success(function (data, status, headers, config) {
                             $scope.doexam = data;
                             if (data.cloned) {
                                 // we came here with a reference to the parent exam so do not render page just yet,
@@ -112,13 +80,13 @@
                             $scope.activeSection = $scope.doexam.examSections[0];
 
                             // set sections and question numbering
-                            angular.forEach($scope.doexam.examSections, function(section, index) {
+                            angular.forEach($scope.doexam.examSections, function (section, index) {
                                 section.index = index + 1;
                                 $scope.pages.push(section.name);
                             });
 
                             // Loop through all questions in the active section
-                            angular.forEach($scope.activeSection.sectionQuestions, function(sectionQuestion) {
+                            angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                                 var question = sectionQuestion.question;
                                 var template = "";
                                 switch (question.type) {
@@ -140,7 +108,7 @@
                             });
 
                             $http.get('/examenrolmentroom/' + $scope.doexam.id)
-                                .success(function(data, status, headers, config) {
+                                .success(function (data, status, headers, config) {
                                     $scope.info = data;
                                     $scope.currentLanguageText = currentLanguage();
                                 });
@@ -148,22 +116,22 @@
                             count();
                             $scope.activeSection.autosaver = getAutosaver();
 
-                            if($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
+                            if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
                                 console.log("instructions ******* true")
                                 $scope.guide = true;
                                 $scope.setActiveSection($translate("sitnet_exam_quide"));
                             } else {
-                                $scope.pages.splice(0,1);
+                                $scope.pages.splice(0, 1);
                                 $scope.setActiveSection($scope.pages[0]);
                                 $scope.activeSection.autosaver = getAutosaver();
                             }
                         }).
-                        error(function(data, status, headers, config) {
+                        error(function (data, status, headers, config) {
                             $location.path("/home/");
                         });
                 };
 
-                $rootScope.$on('$translateChangeSuccess', function() {
+                $rootScope.$on('$translateChangeSuccess', function () {
                     $scope.currentLanguageText = currentLanguage();
                 });
 
@@ -200,54 +168,26 @@
                     $scope.doExam();
                 }
 
-                // TODO: not needed?
-                $scope.activateExam = function(exam) {
-
-                    $scope.doexam = exam;
-
-                    $http.get('/student/doexam/' + $scope.doexam.hash)
-                        .success(function(clonedExam) {
-                            $scope.clonedExam = clonedExam;
-                            $location.path('/student/doexam/' + clonedExam.hash);
-                        }).
-                        error(function(error) {
-                            toastr.error(error);
-                        });
-                };
-
-                // TODO: not needed?
-                $scope.continueExam = function(exam) {
-                    $rootScope.$broadcast('startExam');
-                    $http.get('/student/doexam/' + exam.hash)
-                        .success(function(clonedExam) {
-                            $scope.clonedExam = clonedExam;
-                            $location.path('/student/doexam/' + clonedExam.hash);
-                        }).
-                        error(function(error) {
-                            console.log('Error happened: ' + error);
-                        });
-                };
-
-                $scope.setNextSection = function() {
-                    if($scope.guide) {
+                $scope.setNextSection = function () {
+                    if ($scope.guide) {
                         $scope.setActiveSection($scope.pages[1]);
                     } else {
                         $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) + 1]);
                     }
                 };
 
-                $scope.setPreviousSection = function() {
-                    if(!$scope.guide) {
+                $scope.setPreviousSection = function () {
+                    if (!$scope.guide) {
                         $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) - 1]);
                     }
                 };
 
-                $scope.setActiveSection = function(sectionName) {
+                $scope.setActiveSection = function (sectionName) {
 
-                    if(sectionName !== $translate("sitnet_exam_quide") || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === $translate("sitnet_exam_quide"))) {
+                    if (sectionName !== $translate("sitnet_exam_quide") || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === $translate("sitnet_exam_quide"))) {
 
                         // next
-                        if($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
+                        if ($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
                             $scope.nextButton = true;
                             $scope.nextButtonText = $scope.pages[$scope.pages.indexOf(sectionName) + 1];
                         } else {
@@ -265,7 +205,6 @@
                         }
 
 
-
                     } else {
                         $scope.guide = true;
                         $scope.nextButton = true;
@@ -275,7 +214,7 @@
                     }
 
                     $scope.activeSection = undefined;
-                    if(sectionName === $translate("sitnet_exam_quide")) {
+                    if (sectionName === $translate("sitnet_exam_quide")) {
                         $scope.guide = true;
                     } else {
                         $scope.guide = false;
@@ -287,7 +226,7 @@
                         });
                     }
 
-                    if($scope.activeSection !== undefined) {
+                    if ($scope.activeSection !== undefined) {
                         // Loop through all questions in the active section
                         angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
@@ -316,10 +255,10 @@
                     }
                 };
 
-                var saveAllEssays = function() {
+                var saveAllEssays = function () {
                     var promises = [];
-                    angular.forEach($scope.doexam.examSections, function(section) {
-                        angular.forEach(section.sectionQuestions, function(sectionQuestion) {
+                    angular.forEach($scope.doexam.examSections, function (section) {
+                        angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
                             if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
                                 var params = {
@@ -333,22 +272,21 @@
                         });
                     });
                     var deferred = $q.defer();
-                    $q.all(promises).then(function() {
+                    $q.all(promises).then(function () {
                         deferred.resolve();
                     });
                     return deferred.promise;
                 };
 
                 // Called when the save and exit button is clicked
-                $scope.saveExam = function(doexam) {
+                $scope.saveExam = function (doexam) {
                     if (confirm($translate('sitnet_confirm_turn_exam'))) {
-                        $rootScope.$broadcast('endExam');
-                        saveAllEssays().then(function() {
-                            StudentExamRes.exams.update({id: doexam.id}, function() {
+                        saveAllEssays().then(function () {
+                            StudentExamRes.exams.update({id: doexam.id}, function () {
                                 toastr.info($translate('sitnet_exam_returned'));
                                 $timeout.cancel($scope.remainingTimePoller);
                                 $location.path("/logout");
-                            }, function() {
+                            }, function () {
 
                             });
                         });
@@ -356,36 +294,38 @@
                 };
 
                 // Called when the abort button is clicked
-                $scope.abortExam = function(doexam) {
+                $scope.abortExam = function (doexam) {
 
                     if (confirm($translate('sitnet_confirm_abort_exam'))) {
-                        $rootScope.$broadcast('endExam');
-
-                        StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function() {
+                        StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
                             toastr.info($translate('sitnet_exam_aborted'));
                             $timeout.cancel($scope.remainingTimePoller);
                             $location.path("/logout");
-                        }, function() {
+                        }, function () {
 
                         });
                     }
                 };
 
                 // Called when a radiobutton is selected
-                $scope.radioChecked = function(doexam, question, option) {
+                $scope.radioChecked = function (doexam, question, option) {
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
 
-                    StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: doexam.hash, qid: question.id, oid: option.id},
-                        function(updated_answer) {
+                    StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({
+                            hash: doexam.hash,
+                            qid: question.id,
+                            oid: option.id
+                        },
+                        function (updated_answer) {
                             question.answer = updated_answer;
                             toastr.info($translate('sitnet_question_answered'));
-                        }, function(error) {
+                        }, function (error) {
 
                         });
                 };
 
-                $scope.saveEssay = function(question, answer) {
+                $scope.saveEssay = function (question, answer) {
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
 
@@ -395,9 +335,9 @@
                     };
                     var msg = {};
                     msg.answer = answer;
-                    StudentExamRes.essayAnswer.saveEssay(params, msg, function() {
+                    StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
                         toastr.info($translate("sitnet_question_answered"));
-                    }, function() {
+                    }, function () {
 
                     });
                 };
@@ -408,7 +348,7 @@
                 }
 
 
-                $scope.formatRemainingTime = function(time) {
+                $scope.formatRemainingTime = function (time) {
                     if (time <= 0) {
                         updateInterval = 30;
                         return '';
@@ -422,10 +362,10 @@
                 $scope.alarmLine = 300; //if under this, red text. in seconds -> set to 5 minutes
 
                 $scope.timeChecked = false;
-                var getRemainingTime = function() {
+                var getRemainingTime = function () {
                     if ($scope.doexam && $scope.doexam.id) {
                         var req = $http.get('/time/' + $scope.doexam.id);
-                        req.success(function(reply) {
+                        req.success(function (reply) {
                             $scope.timeChecked = true;
                             // console.log("from server: " + reply);
                             $scope.remainingTime = parseInt(reply);
@@ -437,7 +377,7 @@
                     $timeout.cancel($scope.remainingTimePoller);
                     // Loop through all essay questions in the active section
                     var promises = [];
-                    if(!$scope.guide) {
+                    if (!$scope.guide) {
                         angular.forEach($scope.activeSection.questions, function (question) {
                             var answer = question.answer ? question.answer.answer : '';
                             if (question.type === "EssayQuestion" && answer.length > 0) {
@@ -450,21 +390,21 @@
                             }
                         });
                         // Finally save the exam and logout
-                        /*$q.all(promises).then(function () {
+                        $q.all(promises).then(function () {
                             StudentExamRes.exams.update({id: $scope.doexam.id}, function () {
                                 toastr.info($translate("sitnet_exam_time_is_up"));
                                 $location.path("/logout");
                             }, function () {
 
                             });
-                        });*/
+                        });
                     }
                 }
 
                 $scope.remainingTime = "";
                 var updateCheck = 15;
                 var updateInterval = 0;
-                var count = function() {
+                var count = function () {
                     if ($scope.doexam) {
                         updateInterval++;
 
@@ -488,7 +428,7 @@
                 count(); // start the clock
 
                 // Called when the chevron is clicked
-                $scope.chevronClicked = function(sectionQuestion) {
+                $scope.chevronClicked = function (sectionQuestion) {
                     var question = sectionQuestion.question;
                     if (question.type == "EssayQuestion") {
 
@@ -496,7 +436,7 @@
                     $scope.setQuestionColors(question);
                 };
 
-                $scope.isAnswer = function(question, option) {
+                $scope.isAnswer = function (question, option) {
 
                     if (question && question.answer === null) {
                         return false;
@@ -509,7 +449,7 @@
                     }
                 };
 
-                $scope.setQuestionColors = function(question) {
+                $scope.setQuestionColors = function (question) {
                     // State machine for resolving how the question header is drawn
                     if (question.answered || question.answer) {
                         question.answered = true;
@@ -532,7 +472,7 @@
                     }
                 };
 
-                $scope.selectFile = function(question) {
+                $scope.selectFile = function (question) {
 
                     $scope.questionTemp = question;
 
@@ -548,12 +488,16 @@
                                 optionId = question.answer.option;
                             }
 
-                            StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({hash: $scope.doexam.hash, qid: question.id, oid: optionId},
-                                function(updated_answer) {
+                            StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({
+                                    hash: $scope.doexam.hash,
+                                    qid: question.id,
+                                    oid: optionId
+                                },
+                                function (updated_answer) {
                                     question.answer = updated_answer;
                                     $scope.questionTemp.answer = updated_answer;
                                     toastr.info($translate("sitnet_question_answered"));
-                                }, function(error) {
+                                }, function (error) {
                                 });
 
                             break;
@@ -567,11 +511,11 @@
                             break;
                     }
 
-                    var ctrl = function($scope, $modalInstance) {
+                    var ctrl = function ($scope, $modalInstance) {
 
                         $scope.questionTemp = question;
 
-                        $scope.submit = function(question) {
+                        $scope.submit = function (question) {
 
                             var file = $scope.attachmentFile;
                             var url = "attachment/question/answer";
@@ -583,17 +527,17 @@
                                 transformRequest: angular.identity,
                                 headers: {'Content-Type': undefined}
                             })
-                                .success(function(attachment) {
+                                .success(function (attachment) {
                                     $modalInstance.dismiss();
                                     $scope.questionTemp.answer.attachment = attachment;
                                 })
-                                .error(function(error) {
+                                .error(function (error) {
                                     $modalInstance.dismiss();
                                     toastr.error(error);
                                 });
                         };
                         // Cancel button is pressed in the modal dialog
-                        $scope.cancel = function() {
+                        $scope.cancel = function () {
                             $modalInstance.dismiss('Canceled');
                         };
                     };
@@ -604,16 +548,16 @@
                         keyboard: true,
                         controller: ctrl,
                         resolve: {
-                            question: function() {
+                            question: function () {
                                 return $scope.questionTemp;
                             }
                         }
                     });
 
-                    modalInstance.result.then(function(resp) {
+                    modalInstance.result.then(function (resp) {
                         // OK button
                         $location.path('/student/doexam/' + $routeParams.hash);
-                    }, function() {
+                    }, function () {
                         // Cancel button
                     });
                 };
