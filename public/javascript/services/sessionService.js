@@ -27,13 +27,9 @@
                 if (!user || !user.roles) {
                     return false;
                 }
-                var ok = false;
-                user.roles.forEach(function (r) {
-                    if (r.name === role) {
-                        ok = true;
-                    }
+                return user.roles.some(function (r) {
+                    return (r.name === role)
                 });
-                return ok;
             };
 
             var logout = function () {

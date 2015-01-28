@@ -60,7 +60,7 @@ public class ExamMachineController extends SitnetController {
 
     @Restrict({@Group("ADMIN")})
     public static Result updateExamMachine(Long id) throws MalformedDataException {
-        ExamMachine machine =  Form.form(ExamMachine.class).bindFromRequest(
+        ExamMachine src =  Form.form(ExamMachine.class).bindFromRequest(
                 "id",
                 "name",
                 "otherIdentifier",
@@ -73,10 +73,21 @@ public class ExamMachineController extends SitnetController {
                 "statusComment",
                 "outOfService"
         ).get();
+        ExamMachine dest = Ebean.find(ExamMachine.class, id);
+        dest.setName(src.getName());
+        dest.setOtherIdentifier(src.getOtherIdentifier());
+        dest.setAccessibilityInfo(src.getAccessibilityInfo());
+        dest.setAccessible(src.isAccessible());
+        dest.setIpAddress(src.getIpAddress());
+        dest.setSurveillanceCamera(src.getSurveillanceCamera());
+        dest.setVideoRecordings(src.getVideoRecordings());
+        dest.setExpanded(src.getExpanded());
+        dest.setStatusComment(src.getStatusComment());
+        dest.setOutOfService(src.getOutOfService());
 
-        machine.update();
+        dest.update();
 
-        return ok(Json.toJson(machine));
+        return ok(Json.toJson(dest));
     }
 
     @Restrict({@Group("ADMIN")})

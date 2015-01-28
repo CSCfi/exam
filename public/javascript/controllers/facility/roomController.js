@@ -223,7 +223,7 @@
 
                 $scope.timerange = function () {
                     return Array.apply(null, new Array(times.length - 1)).map(function (x, i) {
-                        return i
+                        return i;
                     });
                 };
 
@@ -236,25 +236,17 @@
                 };
 
                 $scope.countMachineAlerts = function (room) {
-
-                    var i = 0;
-                    if (room) {
-                        angular.forEach(room.examMachines, function (machine) {
-                            machine.outOfService ? ++i : "";
-                        });
-                    }
-                    return i;
+                    if (!room) return 0;
+                    return room.examMachines.filter(function(m) {
+                       return m.outOfService;
+                    }).length;
                 };
 
                 $scope.countMachineNotices = function (room) {
-
-                    var i = 0;
-                    if (room) {
-                        angular.forEach(room.examMachines, function (machine) {
-                            !machine.outOfService && machine.statusComment ? ++i : "";
-                        });
-                    }
-                    return i;
+                    if (!room) return 0;
+                    return room.examMachines.filter(function(m) {
+                        return !m.outOfService && m.statusComment;
+                    }).length;
                 };
 
                 // Called when create exam button is clicked
