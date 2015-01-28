@@ -864,9 +864,12 @@ public class ExamController extends SitnetController {
                 }
             }
             // Insert new section question
-            ExamSectionQuestion sectionQuestion = new ExamSectionQuestion(section, clone);
+            ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
+            sectionQuestion.setExamSection(section);
+            sectionQuestion.setQuestion(clone);
             sectionQuestion.setSequenceNumber(seq);
-            sectionQuestion.save();
+            section.getSectionQuestions().add(sectionQuestion);
+            //sectionQuestion.save();
             SitnetUtil.setModifier(section);
             section.save();
             return ok(Json.toJson(section));
