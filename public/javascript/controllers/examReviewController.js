@@ -13,10 +13,9 @@
                 $scope.gradingPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_grading.html";
 
 
-                $scope.session = sessionService;
-                $scope.user = $scope.session.user;
+                $scope.user = sessionService.getUser();
 
-                if ($scope.user == undefined || $scope.user.isStudent) {
+                if (!$scope.user || $scope.user.isStudent) {
                     $location.path("/unauthorized");
                 }
 

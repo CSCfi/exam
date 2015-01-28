@@ -8,10 +8,9 @@
                 $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/active_exams.html";
                 $scope.dashboardFinishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/finished_exams.html";
 
-                $scope.session = sessionService;
-                $scope.user = $scope.session.user;
+                $scope.user = sessionService.getUser();
 
-                if ($scope.user != null) {
+                if ($scope.user) {
                     if ($scope.user.isStudent) {
 
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "student/dashboard.html";
@@ -155,7 +154,7 @@
 
 
                 $scope.getUsername = function() {
-                    return $scope.session.user.firstname +" "+ $scope.session.user.lastname;
+                    return sessionService.getUserName();
                 };
 
                 $scope.isExamEnded = function (enrolment) {

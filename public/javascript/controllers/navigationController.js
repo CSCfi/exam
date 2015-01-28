@@ -11,16 +11,17 @@
                 $scope.loggedOut = false;
 
                 var links = function () {
+                    var sessionUser = sessionService.getUser();
 
-                    if(sessionService.user && sessionService.user.isLoggedOut) {
+                    if(sessionUser && sessionUser.isLoggedOut) {
                         $scope.loggedOut = true;
                         return [];
                     }
 
-                    var user = sessionService.user || {},
-                        admin = user.isAdmin || false,
-                        student = user.isStudent || false,
-                        teacher = user.isTeacher || false;
+                    var user = sessionUser || {};
+                    var admin = user.isAdmin || false;
+                    var student = user.isStudent || false;
+                    var teacher = user.isTeacher || false;
 
                     // Do not show if waiting for exam to begin
                     var dashboardVisible = waitingRoomService.getEnrolmentId() === undefined && (student || admin || teacher);
@@ -33,23 +34,9 @@
                         {href: "#/reports", visible: (admin), class: "fa-file-word-o", name: $translate("sitnet_reports"), sub: []},
                         {href: "#/admin/reservations", visible: (admin), class: "fa-clock-o", name: $translate("sitnet_reservations"), sub: []},
                         {href: "#/logout", visible: (student || admin || teacher), class: "fa-sign-out", name: $translate("sitnet_logout")},
-                        {href: "#/login", visible: (sessionService.user == undefined), class: "fa-sign-in", name: $translate("sitnet_login")}
+                        {href: "#/login", visible: (sessionService.getUser() == undefined), class: "fa-sign-in", name: $translate("sitnet_login")}
                     ];
                 };
-
-//                $scope.login = function () {
-//                    var dialog = $modal.open({
-//                        templateUrl: 'assets/templates/login.html',
-//                        backdrop: 'static',
-//                        keyboard: false,
-//                        controller: "SessionCtrl"
-//                    });
-//                };
-
-//                if(!sessionService.user)
-//                {
-//                    $scope.login();
-//                }
 
                 $scope.$on('$translateChangeSuccess', function () {
                     $scope.links = links();
@@ -61,7 +48,8 @@
 
                 $scope.$on('invalidToken', function () {
                     $scope.links = links();
-                    sessionService.user.isLoggedOut = true;
+                    var user = sessionService.getUser()['isLoggedOut'] = true;
+                    sessionService.setUser(user);
                     $location.path("/invalid_session");
                 });
 

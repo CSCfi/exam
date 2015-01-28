@@ -4,8 +4,7 @@
         .controller('WaitingRoomCtrl', ['$scope', '$timeout', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
             function($scope, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
 
-                $scope.session = sessionService;
-                $scope.user = $scope.session.user;
+                var user = sessionService.getUser();
 
                 var calculateOffset = function() {
                     var startsAt = $scope.enrolment.reservation.startAt;
@@ -13,7 +12,7 @@
                 };
 
                 var await = function() {
-                    if ($scope.user && $scope.user.isStudent) {
+                    if (user && user.isStudent) {
                         var eid = waitingRoomService.getEnrolmentId();
                         StudentExamRes.enrolment.get({eid: eid},
                             function(enrolment) {
@@ -56,7 +55,7 @@
                 };
 
                 $scope.getUsername = function() {
-                    return $scope.session.user.firstname + " " + $scope.session.user.lastname;
+                    return sessionService.getUserName();
                 };
 
             }]);

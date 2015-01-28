@@ -5,12 +5,11 @@
             function ($scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService, $translate) {
 
                 $scope.dateService = dateService;
-                $scope.session = sessionService;
 
                 $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/machine.html";
                 $scope.addressTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/address.html";
                 $scope.hoursTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/open_hours.html";
-                $scope.user = $scope.session.user;
+                $scope.user = sessionService.getUser();
 
 
                 $http.get('accessibility').success(function (data) {

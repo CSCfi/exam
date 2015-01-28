@@ -57,7 +57,7 @@
                                 $rootScope.$broadcast('upcomingExam');
                             }
 
-                            else if(!sessionService.user) {
+                            else if(!sessionService.getUser()) {
                                 $location.path('/logout');
                             }
 

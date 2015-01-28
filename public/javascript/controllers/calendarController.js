@@ -2,10 +2,10 @@
     'use strict';
     angular.module("sitnet.controllers")
         .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService', '$locale', 'StudentExamRes',
-            function($scope, $http, $location, $translate, $modal, $routeParams, $sessionService, $locale, StudentExamRes) {
+            function($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes) {
 
                 var enrolmentId = $routeParams.enrolment;
-                $scope.user = $sessionService.user;
+                $scope.user = sessionService.getUser();
 
                 var formatMoment = function(data) {
                     if (data.locale) {

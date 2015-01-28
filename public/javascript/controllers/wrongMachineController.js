@@ -4,11 +4,10 @@
         .controller('WrongMachineCtrl', ['$scope', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
             function($scope, $translate, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
 
-                $scope.session = sessionService;
-                $scope.user = $scope.session.user;
+                var user = sessionService.getUser();
 
                 var proceed = function() {
-                    if ($scope.user && $scope.user.isStudent) {
+                    if (user && user.isStudent) {
                         var eid = waitingRoomService.getEnrolmentId();
                         StudentExamRes.enrolment.get({eid: eid},
                             function(enrolment) {
@@ -44,9 +43,7 @@
                 };
 
                 $scope.getUsername = function() {
-                    if ($scope.session.user) {
-                        return $scope.session.user.firstname + " " + $scope.session.user.lastname;
-                    } return "not logged";
+                    return sessionService.getUserName();
                 };
 
             }]);
