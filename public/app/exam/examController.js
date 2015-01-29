@@ -766,5 +766,10 @@
                     }
                 };
 
+                $scope.shortText = function (text) {
+                    // reomve HTML tags
+                    return String(text).replace(/<[^>]+>/gm, '');
+                };
+
             }]);
 }());
