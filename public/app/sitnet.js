@@ -29,7 +29,7 @@
             AUTH_HEADER: 'x-sitnet-authentication',
             CONTEXT_PATH: context_path,
             LANGUAGES_PATH: context_path + 'assets/assets/languages/',
-            TEMPLATES_PATH: context_path + 'assets/templates/'
+            TEMPLATES_PATH: context_path + 'assets/app/'
         };
     }()));
     sitnet.config(['$httpProvider', '$translateProvider', 'SITNET_CONF', function ($httpProvider, $translateProvider, SITNET_CONF) {
@@ -102,7 +102,7 @@
 
                         $modal.open({
 
-                            templateUrl: 'assets/templates/dialogs/show_eula.html',
+                            templateUrl: SITNET_CONF.TEMPLATES_PATH + 'common/show_eula.html',
                             backdrop: 'static',
                             keyboard: false,
                             controller: function ($scope, $modalInstance, sessionService) {

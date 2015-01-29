@@ -5,7 +5,7 @@
             function ($scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, SITNET_CONF, dateService, $translate) {
 
                 $scope.dateService = dateService;
-                $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/machine.html";
+                $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/machine.html";
 
                 ExamMachineResource.get({id: $routeParams.id},
                     function (machine) {
@@ -139,7 +139,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/admin/remove_machine_modal.html',
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'facility/remove_machine_modal.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: "MachineModalController",

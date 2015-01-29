@@ -6,9 +6,9 @@
 
                 $scope.dateService = dateService;
 
-                $scope.examReservations = SITNET_CONF.TEMPLATES_PATH + "admin/reservations.html";
+                $scope.examReservations = SITNET_CONF.TEMPLATES_PATH + "reservation/reservations.html";
 
-                $scope.reservationDetails = SITNET_CONF.TEMPLATES_PATH + "admin/reservation_details.html";
+                $scope.reservationDetails = SITNET_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
 
                 AdminReservationResource.students.query(null,
                     function (students) {

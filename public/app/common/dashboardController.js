@@ -4,16 +4,16 @@
         .controller('DashboardCtrl', ['$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'StudentExamRes', 'dateService',
             function ($scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, StudentExamRes, dateService) {
 
-                $scope.dashboardToolbarPath = SITNET_CONF.TEMPLATES_PATH + "teacher/toolbar.html";
-                $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/active_exams.html";
-                $scope.dashboardFinishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/finished_exams.html";
+                $scope.dashboardToolbarPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html";
+                $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html";
+                $scope.dashboardFinishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html";
 
                 $scope.user = sessionService.getUser();
 
                 if ($scope.user) {
                     if ($scope.user.isStudent) {
 
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "student/dashboard.html";
+                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/student/dashboard.html";
 
                         StudentExamRes.enrolments.query({uid: $scope.user.id},
                             function (enrolments) {
@@ -52,7 +52,7 @@
 
                     }
                     else if ($scope.user.isTeacher) {
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/dashboard.html";
+                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/teacher/dashboard.html";
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
 
@@ -96,7 +96,7 @@
                         });
                     }
                     else if ($scope.user.isAdmin) {
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/dashboard.html";
+                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/admin/dashboard.html";
                     }
                 }
 
@@ -123,7 +123,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/dialogs/show_reservation_instructions.html',
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'reservation/show_reservation_instructions.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: modalController,

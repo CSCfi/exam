@@ -4,9 +4,9 @@
         .controller('TeacherExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'dateService',
             function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, dateService) {
 
-                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
-                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/essay_question.html";
-                $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/section_template.html";
+                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
+                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/student/essay_question.html";
+                $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/student/section_template.html";
 
                 $scope.pages = [$translate("sitnet_exam_quide")];
 

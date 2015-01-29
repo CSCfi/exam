@@ -12,10 +12,10 @@
         .controller('QuestionCtrl', ['$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams', '$location', '$translate', 'focus', 'QuestionRes', 'ExamRes', 'SITNET_CONF',
             function($rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus, QuestionRes, ExamRes, SITNET_CONF) {
 
-                $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_option.html";
+                $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_option.html";
 
-                var essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/essay_question.html";
-                var multiChoiceQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question-editor/multiple_choice_question.html";
+                var essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/editor/essay_question.html";
+                var multiChoiceQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_question.html";
 
                 $scope.questionTemplate = null;
                 $scope.returnURL = null;
@@ -286,7 +286,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/question-editor/dialog_question_attachment_selection.html',
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'question/editor/dialog_question_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: ctrl

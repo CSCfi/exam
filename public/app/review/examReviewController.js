@@ -4,13 +4,13 @@
         .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
             function($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
 
-                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section_general.html";
-                $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section.html";
-                $scope.multiplechoiceQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_multiplechoice_question.html";
-                $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_essay_question.html";
-                $scope.studentInfoTemplate = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_student_info.html";
-                $scope.previousParticipationPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_previous_participation.html";
-                $scope.gradingPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_grading.html";
+                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
+                $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
+                $scope.multiplechoiceQuestionPath = SITNET_CONF.TEMPLATES_PATH + "review/review_multiplechoice_question.html";
+                $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "review/review_essay_question.html";
+                $scope.studentInfoTemplate = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_student_info.html";
+                $scope.previousParticipationPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
+                $scope.gradingPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
 
 
                 $scope.user = sessionService.getUser();
@@ -139,29 +139,6 @@
                                     });
                                 }
                             });
-                        };
-                        $scope.openEssayDialog = function(question) {
-
-                            var modalInstance = $modal.open({
-                                templateUrl: 'assets/templates/teacher/essay-review/essay-review-dialog.html',
-                                backdrop: 'true',
-                                keyboard: true,
-                                windowClass: 'essay-dialog',
-                                controller: 'EssayReviewController',
-                                resolve: { question: function() {
-                                    return question;
-                                } }
-                            });
-
-                            modalInstance.result.then(function(inspectors) {
-                                // OK button clicked
-
-                            }, function() {
-                                // Cancel button clicked
-
-                            });
-
-
                         };
 
                         // get global exam inspections ->

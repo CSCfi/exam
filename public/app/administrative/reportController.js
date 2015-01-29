@@ -6,14 +6,14 @@
 
                 $scope.dateService = dateService;
 
-                $scope.examRoomReservations = SITNET_CONF.TEMPLATES_PATH + "reports/exam-room-reservations.html";
-                $scope.teacherExamsReport = SITNET_CONF.TEMPLATES_PATH + "reports/teacher-exams.html";
-                $scope.reviewedExams = SITNET_CONF.TEMPLATES_PATH + "reports/reviewed-exams.html";
-                $scope.examReport = SITNET_CONF.TEMPLATES_PATH + "reports/exam-report.html";
-                $scope.examReportJson = SITNET_CONF.TEMPLATES_PATH + "reports/exam-report-json.html";
-                $scope.examAnswers = SITNET_CONF.TEMPLATES_PATH + "reports/exam-answers.html";
-                $scope.examEnrollmentsReport = SITNET_CONF.TEMPLATES_PATH + "reports/exam-enrollments.html";
-                $scope.studentReport = SITNET_CONF.TEMPLATES_PATH + "reports/student.html";
+                $scope.examRoomReservations = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/exam-room-reservations.html";
+                $scope.teacherExamsReport = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/teacher-exams.html";
+                $scope.reviewedExams = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/reviewed-exams.html";
+                $scope.examReport = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/exam-report.html";
+                $scope.examReportJson = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/exam-report-json.html";
+                $scope.examAnswers = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/exam-answers.html";
+                $scope.examEnrollmentsReport = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/exam-enrollments.html";
+                $scope.studentReport = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/student.html";
 
                 $scope.selectedRoom = {
                     name: $translate("sitnet_choose")

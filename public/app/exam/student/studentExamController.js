@@ -4,10 +4,10 @@
         .controller('StudentExamController', ['$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'dateService',
             function ($rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, dateService) {
 
-                $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "student/student_sections_bar.html";
-                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/multiple_choice_option.html";
-                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/essay_question.html";
-                $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "student/section_template.html";
+                $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
+                $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
+                $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/student/essay_question.html";
+                $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/student/section_template.html";
 
                 // section back / forward buttons
                 $scope.pages = [$translate("sitnet_exam_quide")];
@@ -543,7 +543,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/question-editor/dialog_question_attachment_selection.html',
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'question/editor/dialog_question_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: ctrl,

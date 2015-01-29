@@ -4,8 +4,8 @@
         .controller('EnrollController', ['$scope', 'EnrollRes', '$routeParams', 'SITNET_CONF', '$location',
                                  function ($scope, EnrollRes, $routeParams, SITNET_CONF, $location) {
         	
-            $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "student/enroll.html";
-            $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "student/review_exam_section_general.html";
+            $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
+            $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/review_exam_section_general.html";
 
 
         	if($routeParams.code === undefined) {

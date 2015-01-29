@@ -6,9 +6,9 @@
 
                 $scope.dateService = dateService;
 
-                $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/machine.html";
-                $scope.addressTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/address.html";
-                $scope.hoursTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/open_hours.html";
+                $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/machine.html";
+                $scope.addressTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/address.html";
+                $scope.hoursTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/open_hours.html";
                 $scope.user = sessionService.getUser();
 
 
@@ -498,7 +498,7 @@
 
 
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/admin/exception.html',
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'facility/exception.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: function ($scope, $modalInstance) {

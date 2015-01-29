@@ -7,15 +7,7 @@
                 $scope.dateService = dateService;
 
                 $scope.user = sessionService.getUser();
-                if ($scope.user.isStudent) {
-                    $scope.feedbackTemplate = SITNET_CONF.TEMPLATES_PATH + "student/exam_feedback.html";
-                }
-                else if ($scope.user.isTeacher) {
-                    $scope.feedbackTemplate = SITNET_CONF.TEMPLATES_PATH + "student/exam_feedback.html";
-                }
-                else if ($scope.user.isAdmin) {
-                    $scope.feedbackTemplate = SITNET_CONF.TEMPLATES_PATH + "student/exam_feedback.html";
-                }
+                $scope.feedbackTemplate = SITNET_CONF.TEMPLATES_PATH + "enrolment/exam_feedback.html";
 
                 if ($routeParams.id === undefined) {
                     // Todo: We should not come here ever, redirect to homepage if we still arrive

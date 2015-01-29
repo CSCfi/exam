@@ -33,7 +33,7 @@
 
                             $modal.open({
 
-                                templateUrl: 'assets/templates/dialogs/show_eula.html',
+                                templateUrl: SITNET_CONF.TEMPLATES_PATH + 'common/show_eula.html',
                                 backdrop: 'static',
                                 keyboard: false,
                                 controller: function ($scope, $modalInstance, sessionService) {

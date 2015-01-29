@@ -1,38 +1,36 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$timeout', '$rootScope', '$q','$anchorScroll', '$modal', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
+        .controller('ExamController', ['$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
             function ($scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
 
                 $scope.newExam = {};
 
-                $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section.html";
-                $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_question.html";
-                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section_general.html";
-                $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
+                $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section.html";
+                $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section_question.html";
+                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general.html";
+                $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "question/library.html";
                 $scope.examsTemplate = "";
 
                 $scope.user = sessionService.getUser();
 
-                $rootScope.$on('$routeChangeSuccess', function(newRoute, oldRoute) {
-                    $timeout(function() {
-                    var scrollTo = $routeParams.scrollTo;
-                    if (scrollTo) {
-                        var old = $location.hash();
-                        $location.hash(scrollTo);
-                        $anchorScroll();
-                        $location.hash(old);
-                    }}, 1000);
+                $rootScope.$on('$routeChangeSuccess', function (newRoute, oldRoute) {
+                    $timeout(function () {
+                        var scrollTo = $routeParams.scrollTo;
+                        if (scrollTo) {
+                            var old = $location.hash();
+                            $location.hash(scrollTo);
+                            $anchorScroll();
+                            $location.hash(old);
+                        }
+                    }, 1000);
                 });
 
                 if ($scope.user.isStudent) {
-                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "student/exams.html";
+                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/student/exams.html";
                 }
-                else if ($scope.user.isTeacher) {
-                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exams.html";
-                }
-                else if ($scope.user.isAdmin) {
-                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exams.html";
+                else {
+                    $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exams.html";
                 }
 
                 // dynamic tab index - - -
@@ -452,7 +450,7 @@
                             toastr.warning($translate('sitnet_unpublish_not_possible'));
                         } else {
                             var modalInstance = $modal.open({
-                                templateUrl: 'assets/templates/exam-editor/exam_unpublish_dialog.html',
+                                templateUrl: SITNET_CONF.TEMPLATES_PATH + 'exam/editor/exam_unpublish_dialog.html',
                                 backdrop: 'static',
                                 keyboard: true,
                                 controller: "ModalInstanceCtrl"
@@ -484,7 +482,7 @@
                     if (Object.getOwnPropertyNames(err) && Object.getOwnPropertyNames(err).length != 0) {
 
                         $modal.open({
-                            templateUrl: 'assets/templates/dialogs/exam_publish_questions.html',
+                            templateUrl: SITNET_CONF.TEMPLATES_PATH + 'exam/editor/exam_publish_questions.html',
                             backdrop: 'static',
                             keyboard: true,
                             controller: function ($scope, $modalInstance, errors) {
@@ -504,7 +502,7 @@
                     }
 
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/exam-editor/exam_publish_dialog.html',
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'exam/editor/exam_publish_dialog.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: "ModalInstanceCtrl"
@@ -741,7 +739,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/exam-editor/dialog_exam_attachment_selection.html',
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'exam/editor/dialog_exam_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: ctrl
