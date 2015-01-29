@@ -24,6 +24,12 @@
                         });
                     }
 
+                    // use "$scope.updateProperties" in controllers if needed to save the editor after losing focus a.k.a "onblur"
+                    ck.on('blur', function(){
+                        if(scope.updateProperties !== undefined) {
+                            scope.updateProperties();
+                        }
+                    });
                     ck.on('change', updateModel);
                     ck.on('key', updateModel);
                     ck.on('dataReady', updateModel);

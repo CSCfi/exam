@@ -5,8 +5,8 @@
             return function(name) {
                 $timeout(function() {
                     $rootScope.$broadcast('focusOn', name);
-                })
-            }
+                });
+            };
         })
 
         .controller('QuestionCtrl', ['$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams', '$location', '$translate', 'focus', 'QuestionRes', 'ExamRes', 'SITNET_CONF',
@@ -26,7 +26,7 @@
                     function(question) {
                         $scope.newQuestion = question;
                         $scope.setQuestionType();
-                        if ($scope.newQuestion.evaluationType == 'Select') {
+                        if ($scope.newQuestion.evaluationType && $scope.newQuestion.evaluationType === 'Select') {
                             $scope.newQuestion.maxScore = undefined; // will screw up validation otherwise
                         }
                     },
@@ -145,7 +145,7 @@
                 };
 
                 $scope.updateEvaluationType = function() {
-                    if ($scope.newQuestion.evaluationType === 'Select') {
+                    if ($scope.newQuestion.evaluationType && $scope.newQuestion.evaluationType === 'Select') {
                         $scope.newQuestion.maxScore = undefined;
                     }
                     $scope.updateQuestion();
@@ -160,6 +160,10 @@
                     update();
                 };
 
+                // from the editor directive activated "onblur"
+                $scope.updateProperties = function() {
+                    $scope.updateQuestion();
+                };
 
                 $scope.addNewOption = function(newQuestion) {
 
@@ -187,10 +191,10 @@
                     option.correctOption = true;
 
                     angular.forEach($scope.newQuestion.options, function(value) {
-                        if (value.id != option.id) {
+                        if (value.id !== option.id) {
                             value.correctOption = false;
                         }
-                    })
+                    });
                 };
 
                 $scope.removeOption = function(option) {
@@ -221,7 +225,7 @@
 
                     angular.forEach(newQuestion.options, function(option) {
                         // This is the option that was clicked
-                        if (option.id == optionId) {
+                        if (option.id === optionId) {
                             // If the correct is false then switch it to true, otherwise do nothing
                             if (option.correctOption === false) {
                                 option.correctOption = true;
