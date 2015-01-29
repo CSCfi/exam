@@ -49,13 +49,19 @@
     width:10%;
     float:left;
   }
+
+  .library-row-text p{
+    margin:0.1em;
+    padding:0.1em;
+  }
+
   .library-row-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+  }
+
+  .library-row-text-wrap {
     width:90%;
-    float:left;
-    display: inline;
+    overflow: hidden;
   }
 
   .library-main.affix {

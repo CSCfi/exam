@@ -380,11 +380,14 @@
                 };
 
                 $scope.truncate = function(answer, offset) {
-                    if (answer && offset < answer.length) {
-                        return answer.substring(0, offset) + " ...";
-                    } else {
-                        return answer;
+                    if(answer && answer.indexOf("math-tex") === -1) {
+                        if (answer && offset < answer.length) {
+                            return answer.substring(0, offset) + " ...";
+                        } else {
+                            return answer;
+                        }
                     }
+                    return answer;
                 };
 
                 var refreshRejectedAcceptedCounts = function() {

@@ -18,17 +18,24 @@
         })
         .filter('truncate', function() {
             return function(text, after) {
-                return text.substring(0, after) + "...";
+                if(text && text.indexOf("math-tex") === -1) {
+                    return text.substring(0, after) + "...";
+                }
+                return text;
             };
         })
         .filter('striphtml', function() {
             return function(html) {
-                if (html == undefined) {
+                // test if mathjax formula
+                if(html && html.indexOf("math-tex") === -1) {
+                    var div = document.createElement("div");
+                    div.innerHTML = html;
+                    return div.textContent || div.innerText || "";
+                }
+                if (html === undefined) {
                     return "";
                 }
-                var div = document.createElement("div");
-                div.innerHTML = html;
-                return div.textContent || div.innerText || "";
+                return html;
             };
         })
         .filter('charcount', function() {

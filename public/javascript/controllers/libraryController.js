@@ -56,21 +56,42 @@
             });
 
             $scope.stripHtml = function(text) {
-                return String(text).replace(/<[^>]+>/gm, '');
-            }
+
+                if(text && text.indexOf("math-tex") === -1) {
+                    return String(text).replace(/<[^>]+>/gm, '');
+                }
+                return text;
+            };
 
             $scope.shortText = function (text) {
-                // reomve HTML tags
-                var str = String(text).replace(/<[^>]+>/gm, '');
 
-                // shorten string
-                var maxLength = 40;
-                if(str.length > maxLength)
-                    str = String(str).substr(0, maxLength) + "...";
+                if(text && text.indexOf("math-tex") === -1) {
+                    // reomve HTML tags
+                    var str = String(text).replace(/<[^>]+>/gm, '');
 
-                return str;
-            }
+                    // shorten string
+                    var maxLength = 40;
+                    if (str.length > maxLength)
+                        str = String(str).substr(0, maxLength) + "...";
 
+                    return str;
+                }
+                return text;
+            };
+
+            /**
+             * if mathjax formula then no cut
+             **/
+            $scope.shortText = function (text, maxLength) {
+
+                if(text && text.indexOf("math-tex") === -1) {
+                    // reomve HTML tags
+                    var str = String(text).replace(/<[^>]+>/gm, '');
+                    // shorten string
+                    return str.length + 2 > maxLength ? String(str).substr(0, maxLength) + "..." : str;
+                }
+                return text;
+            };
 
             $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
             $scope.libraryFilter = "";

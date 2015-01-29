@@ -450,14 +450,14 @@
                             }
                         });
                         // Finally save the exam and logout
-                        /*$q.all(promises).then(function () {
+                        $q.all(promises).then(function () {
                             StudentExamRes.exams.update({id: $scope.doexam.id}, function () {
                                 toastr.info($translate("sitnet_exam_time_is_up"));
                                 $location.path("/logout");
                             }, function () {
 
                             });
-                        });*/
+                        });
                     }
                 }
 
