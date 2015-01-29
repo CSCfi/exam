@@ -81,13 +81,15 @@
              **/
             $scope.shortText = function (text, maxLength) {
 
-                if(text && text.indexOf("math-tex") === -1) {
-                    // reomve HTML tags
+                if(text && text.length > 0 && text.indexOf("math-tex") === -1) {
+                    // remove HTML tags
                     var str = String(text).replace(/<[^>]+>/gm, '');
                     // shorten string
-                    return str.length + 2 > maxLength ? String(str).substr(0, maxLength) + "..." : str;
+                    // ugly hack
+                    str = str.replace("&auml;", "ä").replace("&ouml;", "ö").replace("&aring;", "å");
+                    return str.length + 3 > maxLength ? String(str).replace("&nbsp;", "").substr(0, maxLength) + "..." : str;
                 }
-                return text;
+                return text ? text.replace("&nbsp;", "").replace("&auml;", "ä").replace("&ouml;", "ö").replace("&aring;", "å") : "";
             };
 
             $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];

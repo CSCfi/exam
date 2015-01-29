@@ -45,7 +45,7 @@
                 <tbody>
                 <tr ng-repeat="question in questions">
                     <td>
-                        <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax ng-bind-html="question.question"></a>
+                        <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax ng-bind-html="shortText(question.question)"></a>
                     </td>
                     <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
