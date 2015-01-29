@@ -68,8 +68,9 @@
 
                     // shorten string
                     var maxLength = 40;
-                    if (str.length > maxLength)
+                    if (str.length > maxLength) {
                         str = String(str).substr(0, maxLength) + "...";
+                    }
                     return str;
                 }
                 return text;
