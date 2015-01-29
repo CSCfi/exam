@@ -117,7 +117,6 @@
                             $scope.activeSection.autosaver = getAutosaver();
 
                             if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
-                                console.log("instructions ******* true")
                                 $scope.guide = true;
                                 $scope.setActiveSection($translate("sitnet_exam_quide"));
                             } else {
@@ -389,6 +388,7 @@
                                 promises.push(StudentExamRes.essayAnswer.saveEssay(params, msg));
                             }
                         });
+
                         // Finally save the exam and logout
                         $q.all(promises).then(function () {
                             StudentExamRes.exams.update({id: $scope.doexam.id}, function () {

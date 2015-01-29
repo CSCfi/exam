@@ -295,8 +295,10 @@ public class Global extends GlobalSettings {
                         lookedUp.getRoom().getRoomCode() + ":::" + lookedUp.getName();
             }
             headers.put(header, DatatypeConverter.printBase64Binary(message.getBytes()));
+            Logger.debug("room and machine not ok. " + message);
             return false;
         }
+        Logger.debug("room and machine ok");
         return true;
     }
 

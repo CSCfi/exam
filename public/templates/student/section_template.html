@@ -13,7 +13,7 @@
                 </span>
 
                 <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion);"
-                class="question-text pointer pull-left col-md-8" mathjax ng-bind-html="sectionQuestion.question.question" mathjax></span>
+                class="question-text pointer pull-left col-md-8" mathjax ng-bind-html="sectionQuestion.question.question"></span>
                 <span class="question-text pull-left col-md-2" ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion);">
                     ({{sectionQuestion.question.maxScore}} {{'sitnet_unit_points' | translate}})
                 </span>
@@ -25,7 +25,7 @@
             </div>
 
             <div class="exam-question-container" ng-show="sectionQuestion.question.expanded">
-                <div class="sitnet-info-text">{{question.instruction}}</div>
+                <div class="exam-question-instruction row">{{sectionQuestion.question.instruction}}</div>
                 <div class="question" ng-include="sectionQuestion.question.template"></div>
                 <div ng-show="sectionQuestion.question.attachment" class="col-md-6" ng-controller="AttachmentController">
                     <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)"> {{'sitnet_download_attachment' | translate }} <span class="sitnet-text-medium"><small>({{sectionQuestion.question.attachment.fileName}})</small></span></a>

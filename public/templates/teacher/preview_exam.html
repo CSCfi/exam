@@ -74,11 +74,34 @@
                 <span class="text col-md-6">{{ doexam.course.code }}</span>
             </div>
             <div class="info-column">
+                <span class="header col-md-6">{{ 'sitnet_exam_name' | translate }}:</span>
+                <span class="text col-md-6">{{ doexam.name }}</span>
+            </div>
+            <div class="info-column">
                 <span class="header col-md-6">{{ 'sitnet_exam_time' | translate }}:</span>
                 <span class="text col-md-6">{{ printExamDuration(doexam) }}</span>
             </div>
         </div>
-        <div class="col-md-12 top-padding-2 bottom-padding-2" ng-include="sectionsBar"></div>
+
+        <div class="col-md-12 top-padding-2 bottom-padding-2">
+            <ul>
+                <li ng-if="doexam.instruction.length > 0" class="info-row col-md-12" ng-click="setActiveSection(pages[0])">
+                    <a class="col-md-12 fa-stack">
+                        <i ng-class="guide ? 'sitnet-text-notice' : 'sitnet-text-light'" class="fa fa-stop fa-stack-2x"></i>
+                        <i ng-class="guide ? 'sitnet-text' : 'sitnet-white'" class="fa fa-info-circle fa-stack-1x"></i>
+                    </a>
+                    <span ng-class="guide ? 'sitnet-text' : 'sitnet-text-medium'" class="icon_fix">{{'sitnet_exam_quide' | translate}}</span>
+
+                </li>
+                <li ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section.name)">
+                    <span class="fa-stack">
+                        <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text-notice' : 'sitnet-text-light'" class="fa fa-stop fa-stack-2x"></i>
+                        <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-white' " class="fa-stack-1x">{{section.index}}.</i>
+                    </span>
+                    <span ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-medium'">{{section.name}}</span>
+                </li>
+            </ul>
+        </div>
 
         <div class="top-padding-2">
             <!-- INSTRUCTIONS -->
@@ -104,14 +127,14 @@
                 <i class="fa fa-sign-out"><span class="italic">{{'sitnet_exit_preview' | translate}}</span></i>
             </a>
             <!-- SAVE EXAM BUTTON -->
-            <a class="col-md-12 top-padding-2" ng-click="saveExam(doexam)">
-                <i class="fa fa-sign-out sidebutton-save">
-                <span class="italic">{{'sitnet_save_and_return_exam' | translate}}</span></i>
+            <a class="col-md-12 top-padding-2">
+                <i class="fa fa-sign-out sitnet-text-medium">
+                <span class="italic sitnet-text-medium">{{'sitnet_save_and_return_exam' | translate}}</span></i>
             </a>
             <!-- ABORT EXAM BUTTON -->
-            <a class="col-md-12" ng-click="abortExam(doexam)">
-                 <i class="fa fa-ban sidebutton-alarm">
-                 <span class="italic">{{'sitnet_abort_exam' | translate}}</span></i>
+            <a class="col-md-12">
+                 <i class="fa fa-ban sitnet-text-medium">
+                 <span class="italic sitnet-text-medium">{{'sitnet_abort_exam' | translate}}</span></i>
             </a>
 
         </div>
