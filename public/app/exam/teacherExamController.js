@@ -12,18 +12,6 @@
 
                 //$scope.exams = StudentExamRes.exams.query();
                 $scope.tempQuestion = null;
-
-                // section back / forward buttons
-                $scope.guide = false;
-                $scope.switchToGuide = function (b) {
-                    $scope.guide = b;
-                };
-                $scope.previousButton = false;
-                $scope.previousButtonText = "";
-
-                $scope.nextButton = false;
-                $scope.nextButtonText = "";
-
                 $scope.previewSwitch = true;
 
                 $scope.switchButtons = function (section) {
@@ -90,8 +78,14 @@
 
                             $scope.currentLanguageText = "Room instructions";
 
-                            $scope.pages.splice(0, 1);
-                            $scope.setActiveSection($scope.pages[0]);
+                            if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
+                                $scope.guide = true;
+                                $scope.setActiveSection($translate("sitnet_exam_quide"));
+                            } else {
+                                $scope.pages.splice(0, 1);
+                                $scope.setActiveSection($scope.pages[0]);
+                                $scope.activeSection.autosaver = getAutosaver();
+                            }
 
                         }).
                         error(function (data, status, headers, config) {
@@ -102,16 +96,32 @@
 
                 $scope.previewExam();
 
-                $scope.setActiveSection = function(sectionName) {
+                $scope.guide = false;
+                $scope.previousButton = false;
+                $scope.previousButtonText = "";
+                $scope.nextButton = false;
+                $scope.nextButtonText = "";
 
-                    if(sectionName !== $translate("sitnet_exam_quide") || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === $translate("sitnet_exam_quide"))) {
+                $scope.setNextSection = function () {
+                    if ($scope.guide) {
+                        $scope.setActiveSection($scope.pages[1]);
+                    } else {
+                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) + 1]);
+                    }
+                };
+
+                $scope.setPreviousSection = function () {
+                    if (!$scope.guide) {
+                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) - 1]);
+                    }
+                };
+
+                $scope.setActiveSection = function (sectionName) {
+
+                    if (sectionName !== $translate("sitnet_exam_quide") || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === $translate("sitnet_exam_quide"))) {
 
                         // next
-                        if(sectionName === $translate("sitnet_exam_quide")) {
-                            sectionName = $scope.pages[1];
-                        }
-
-                        if($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
+                        if ($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
                             $scope.nextButton = true;
                             $scope.nextButtonText = $scope.pages[$scope.pages.indexOf(sectionName) + 1];
                         } else {
@@ -128,7 +138,6 @@
                             $scope.previousButtonText = "";
                         }
 
-                        $scope.guide = false;
 
                     } else {
                         $scope.guide = true;
@@ -139,13 +148,19 @@
                     }
 
                     $scope.activeSection = undefined;
-                    angular.forEach($scope.doexam.examSections, function(section, index) {
-                        if (sectionName === section.name) {
-                            $scope.activeSection = section;
-                        }
-                    });
+                    if (sectionName === $translate("sitnet_exam_quide")) {
+                        $scope.guide = true;
+                    } else {
+                        $scope.guide = false;
 
-                    if($scope.activeSection !== undefined) {
+                        angular.forEach($scope.doexam.examSections, function (section, index) {
+                            if (sectionName === section.name) {
+                                $scope.activeSection = section;
+                            }
+                        });
+                    }
+
+                    if ($scope.activeSection !== undefined) {
                         // Loop through all questions in the active section
                         angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
@@ -169,21 +184,6 @@
 
                             $scope.setQuestionColors(question);
                         });
-                    }
-                };
-
-
-                $scope.setNextSection = function() {
-                    if($scope.guide) {
-                        $scope.setActiveSection($scope.pages[1]);
-                    } else {
-                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) + 1]);
-                    }
-                };
-
-                $scope.setPreviousSection = function() {
-                    if(!$scope.guide) {
-                        $scope.setActiveSection($scope.pages[$scope.pages.indexOf($scope.activeSection.name) - 1]);
                     }
                 };
 

@@ -127,9 +127,15 @@
     line-height: 2.5em;
   }
 
+  .exam-question-instruction {
+    font-weight: 200;
+    font-size: 1em;
+    font-style: italic;
+  }
+
   .exam-question-container {
     background-color: $sitnet-white;
-    padding: 1.6em 1.2em 1.6em;
+    padding: 0.4em 1.2em 1.6em;
     clear:both;
   }
 
