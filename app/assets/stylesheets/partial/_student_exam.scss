@@ -57,17 +57,12 @@
     padding: 1px;
     margin-top: 0.2em;
     background-color: $sitnet-white;
-    font-weight: bold;
-    line-height:2.4em;
   }
 
   .question-header {
   }
 
   .question-active-header {
-    .question-text {
-      color: $sitnet-text;
-    }
     .question-icon-bg {
       color: $sitnet-notice;
     }
@@ -77,9 +72,6 @@
   }
 
   .question-unanswered-header {
-    .question-text {
-      color: $sitnet-common-dark;
-    }
     .question-icon-bg {
         color: $sitnet-common-medium;
     }
@@ -89,9 +81,6 @@
    }
 
   .question-answered-header {
-    .question-text {
-      color: $sitnet-common-dark;
-    }
     .question-icon-bg {
       color: $sitnet-ready;
     }
