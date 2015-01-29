@@ -28,7 +28,7 @@
             AUTH_STORAGE_KEY: 'SITNET_USER',
             AUTH_HEADER: 'x-sitnet-authentication',
             CONTEXT_PATH: context_path,
-            LANGUAGES_PATH: context_path + 'assets/languages/',
+            LANGUAGES_PATH: context_path + 'assets/assets/languages/',
             TEMPLATES_PATH: context_path + 'assets/templates/'
         };
     }()));
