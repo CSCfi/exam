@@ -18,6 +18,16 @@
         <div class="col-md-4 sitnet-info-text-compact">{{userInfo.duration}}</div>
     </div>
     <div class="row">
+        <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_examination_location' | translate}}:</div>
+        <div class="col-md-4 sitnet-info-text-compact" ng-if="reservation && reservation.room">
+            {{reservation.room.name}} ({{reservation.room.roomCode}})</div>
+        <div class="col-md-4 sitnet-info-text-compact" ng-if="!reservation || !reservation.room">N/A</div>
+        <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_exam_machine' | translate}}:</div>
+        <div class="col-md-4 sitnet-info-text-compact" ng-if="reservation">{{reservation.name}}</div>
+        <div class="col-md-4 sitnet-info-text-compact" ng-if="!reservation">N/A</div>
+    </div>
+
+    <div class="row">
         <div class="col-md-12 sitnet-info-text">{{'sitnet_previous_exam_participations' | translate}}:</div>
      </div>
      <div ng-hide="previousParticipations" class="col-md-1 col-md-offset-1 sitnet-info-text-compact">N/A</div>

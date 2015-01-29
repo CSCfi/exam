@@ -1,11 +1,10 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('WaitingRoomCtrl', ['$scope', '$timeout', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService',
-            function($scope, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService) {
+        .controller('WaitingRoomCtrl', ['$scope', '$timeout', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
+            function($scope, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
 
-                $scope.session = sessionService;
-                $scope.user = $scope.session.user;
+                var user = sessionService.getUser();
 
                 var calculateOffset = function() {
                     var startsAt = $scope.enrolment.reservation.startAt;
@@ -13,7 +12,7 @@
                 };
 
                 var await = function() {
-                    if ($scope.user && $scope.user.isStudent) {
+                    if (user && user.isStudent) {
                         var eid = waitingRoomService.getEnrolmentId();
                         StudentExamRes.enrolment.get({eid: eid},
                             function(enrolment) {
@@ -52,24 +51,11 @@
                 });
 
                 $scope.printExamDuration = function(exam) {
-
-                    if (exam && exam.duration) {
-                        var h = Math.floor(exam.duration / 60);
-                        var m = exam.duration % 60;
-                        if (h === 0) {
-                            return m + "min";
-                        } else if (m === 0) {
-                            return h + "h ";
-                        } else {
-                            return h + "h " + m + "min";
-                        }
-                    } else {
-                        return "";
-                    }
+                    return dateService.printExamDuration(exam);
                 };
 
                 $scope.getUsername = function() {
-                    return $scope.session.user.firstname + " " + $scope.session.user.lastname;
+                    return sessionService.getUserName();
                 };
 
             }]);

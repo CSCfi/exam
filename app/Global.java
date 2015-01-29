@@ -346,6 +346,7 @@ public class Global extends GlobalSettings {
         return results.get(0);
     }
 
+    @SuppressWarnings("unchecked")
     private class AddHeader extends Action {
         private Map<String, String> headers;
 
@@ -355,7 +356,6 @@ public class Global extends GlobalSettings {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public Promise<SimpleResult> call(Http.Context context) throws Throwable {
             final Promise<SimpleResult> promise = this.delegate.call(context);
             Http.Response response = context.response();

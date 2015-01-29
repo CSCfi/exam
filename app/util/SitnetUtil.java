@@ -11,6 +11,7 @@ import models.questions.QuestionInterface;
 import org.apache.commons.codec.digest.DigestUtils;
 import play.libs.Yaml;
 
+import javax.persistence.PersistenceException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -178,8 +179,14 @@ public class SitnetUtil {
 
     @SuppressWarnings("unchecked")
     public static void initializeDataModel() {
-        if (Ebean.find(User.class).findRowCount() == 0) {
-
+        int userCount;
+        try {
+            userCount = Ebean.find(User.class).findRowCount();
+        } catch (PersistenceException e) {
+            // Tables are likely not there yet, skip this.
+            return;
+        }
+        if (userCount == 0) {
             String productionData = ConfigFactory.load().getString("sitnet.production.initial.data");
 
             // Should we load production test data
@@ -203,13 +210,7 @@ public class SitnetUtil {
                 Ebean.save(all.get("exam-types"));
                 Ebean.save(all.get("exams"));
                 Ebean.save(all.get("exam-sections"));
-                // Need to explicitly set the embedded compound key.
-                for (Object o : all.get("section-questions")) {
-                    ExamSectionQuestion src = (ExamSectionQuestion) o;
-                    ExamSectionQuestion dest = new ExamSectionQuestion(src.getExamSection(), src.getQuestion());
-                    dest.setSequenceNumber(src.getSequenceNumber());
-                    Ebean.save(dest);
-                }
+                Ebean.save(all.get("section-questions"));
                 Ebean.save(all.get("exam-participations"));
                 Ebean.save(all.get("exam-inspections"));
                 Ebean.save(all.get("mail-addresses"));

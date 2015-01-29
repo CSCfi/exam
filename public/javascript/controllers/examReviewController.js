@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes',
-            function($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes) {
+        .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
+            function($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
 
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section_general.html";
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_section.html";
@@ -13,10 +13,9 @@
                 $scope.gradingPath = SITNET_CONF.TEMPLATES_PATH + "teacher/review_exam_grading.html";
 
 
-                $scope.session = sessionService;
-                $scope.user = $scope.session.user;
+                $scope.user = sessionService.getUser();
 
-                if ($scope.user == undefined || $scope.user.isStudent) {
+                if (!$scope.user || $scope.user.isStudent) {
                     $location.path("/unauthorized");
                 }
 
@@ -228,6 +227,11 @@
                                 toastr.error(error.data);
                             }
                         );
+                        ExamRes.reservation.get({eid: $routeParams.id},
+                            function(reservation) {
+                                $scope.reservation = reservation;
+                            }
+                        );
                     },
                     function(error) {
                         toastr.error(error.data);
@@ -239,20 +243,7 @@
                 };
 
                 $scope.printExamDuration = function(exam) {
-
-                    if (exam && exam.duration) {
-                        var h = Math.floor(exam.duration / 60);
-                        var m = exam.duration % 60;
-                        if (h === 0) {
-                            return m + "min";
-                        } else if (m === 0) {
-                            return h + "h ";
-                        } else {
-                            return h + "h " + m + "min";
-                        }
-                    } else {
-                        return "";
-                    }
+                    return dateService.printExamDuration(exam);
                 };
 
                 $scope.scoreMultipleChoiceAnswer = function(sectionQuestion) {

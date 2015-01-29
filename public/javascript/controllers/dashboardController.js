@@ -1,17 +1,16 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('DashboardCtrl', ['$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'StudentExamRes',
-            function ($scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, StudentExamRes) {
+        .controller('DashboardCtrl', ['$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'StudentExamRes', 'dateService',
+            function ($scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, StudentExamRes, dateService) {
 
                 $scope.dashboardToolbarPath = SITNET_CONF.TEMPLATES_PATH + "teacher/toolbar.html";
                 $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/active_exams.html";
                 $scope.dashboardFinishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "teacher/finished_exams.html";
 
-                $scope.session = sessionService;
-                $scope.user = $scope.session.user;
+                $scope.user = sessionService.getUser();
 
-                if ($scope.user != null) {
+                if ($scope.user) {
                     if ($scope.user.isStudent) {
 
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "student/dashboard.html";
@@ -95,46 +94,14 @@
                                     });
                             });
                         });
-
-                        // TODO: useless
-//                        ExamRes.examsByState.query({state: 'SAVED'},
-//                            function (unPublishedExams) {
-//                                $scope.unPublishedExams = unPublishedExams;
-//                            },
-//                            function (error) {
-//                            }
-//                        );
                     }
                     else if ($scope.user.isAdmin) {
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "admin/dashboard.html";
-
                     }
                 }
 
                 $scope.printExamDuration = function(exam) {
-
-                    if(exam && exam.duration) {
-                        var h = 0;
-                        var d = exam.duration;
-
-                        while (d > 0) {
-                            if (d - 60 >= 0) {
-                                h++;
-                                d = d - 60;
-                            } else {
-                                break;
-                            }
-                        }
-                        if (h === 0) {
-                            return d + "min";
-                        } else if (d === 0) {
-                            return h + "h ";
-                        } else {
-                            return h + "h " + d + "min";
-                        }
-                    } else {
-                        return "";
-                    }
+                   return dateService.printExamDuration(exam);
                 };
 
                 $scope.removeReservation = function(enrolment){
@@ -187,7 +154,7 @@
 
 
                 $scope.getUsername = function() {
-                    return $scope.session.user.firstname +" "+ $scope.session.user.lastname;
+                    return sessionService.getUserName();
                 };
 
                 $scope.isExamEnded = function (enrolment) {

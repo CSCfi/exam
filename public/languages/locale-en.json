@@ -471,5 +471,6 @@
     "sitnet_essay_length_recommendation_bounds": "The value should be an integer within the closed range between 1 and 1000000",
     "sitnet_questions_reordered": "The questions have been reordered",
     "sitnet_exam_language_updated": "Exam languages updated",
-    "sitnet_additional_info_for_registry": "Additional info for the registry"
+    "sitnet_additional_info_for_registry": "Additional info for the registry",
+    "sitnet_no_participations_for_exam": "There are no participants for exam"
 }

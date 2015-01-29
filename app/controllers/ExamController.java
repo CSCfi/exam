@@ -27,7 +27,10 @@ import util.java.EmailComposer;
 import util.java.ValidationUtil;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 public class ExamController extends SitnetController {
 
@@ -873,9 +876,11 @@ public class ExamController extends SitnetController {
                 }
             }
             // Insert new section question
-            ExamSectionQuestion sectionQuestion = new ExamSectionQuestion(section, clone);
+            ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
+            sectionQuestion.setExamSection(section);
+            sectionQuestion.setQuestion(clone);
             sectionQuestion.setSequenceNumber(seq);
-            sectionQuestion.save();
+            section.getSectionQuestions().add(sectionQuestion);
             SitnetUtil.setModifier(section);
             section.save();
             return ok(Json.toJson(section));
@@ -1119,6 +1124,23 @@ public class ExamController extends SitnetController {
 
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
         }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getReservationInformationForExam(Long eid) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .where()
+                .eq("exam.id", eid)
+                .findUnique();
+        if (enrolment == null || enrolment.getReservation() == null) {
+            return notFound();
+        }
+        ExamMachine machine = enrolment.getReservation().getMachine();
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("name, otherIdentifier, room");
+        options.setPathProperties("room", "name, roomCode, buildingName, campus");
+        return ok(jsonContext.toJsonString(machine, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})

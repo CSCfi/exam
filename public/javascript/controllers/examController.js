@@ -4,8 +4,6 @@
         .controller('ExamController', ['$scope', '$timeout', '$rootScope', '$q','$anchorScroll', '$modal', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
             function ($scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
 
-                $scope.session = sessionService;
-
                 $scope.newExam = {};
 
                 $scope.sectionPath = SITNET_CONF.TEMPLATES_PATH + "exam-editor/exam_section.html";
@@ -14,7 +12,7 @@
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "library/library.html";
                 $scope.examsTemplate = "";
 
-                $scope.user = $scope.session.user;
+                $scope.user = sessionService.getUser();
 
                 $rootScope.$on('$routeChangeSuccess', function(newRoute, oldRoute) {
                     $timeout(function() {

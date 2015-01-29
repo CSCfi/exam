@@ -1,11 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LibraryCtrl', ['$scope', 'sessionService', '$sce', 'QuestionRes', '$translate', function ($scope, sessionService, $sce, QuestionRes, $translate) {
+        .controller('LibraryCtrl', ['$scope', 'sessionService', 'QuestionRes', '$translate', function ($scope, sessionService, QuestionRes, $translate) {
 
-            $scope.session = sessionService;
-
-            
             var randomQuestions = function (questions) {
                 var result = [];
                 var randomQuestions = [];
@@ -34,7 +31,8 @@
                 };
             };
 
-            QuestionRes.questionlist.query({id: $scope.session.user.id}, function (data) {
+            // FIXME: no need to provide login user here, it is known by backend anyways
+            QuestionRes.questionlist.query({id: sessionService.getUser().id}, function (data) {
                 data.map(function (item) {
                     var icon = "";
                     switch (item.type) {
@@ -56,7 +54,6 @@
             });
 
             $scope.stripHtml = function(text) {
-
                 if(text && text.indexOf("math-tex") === -1) {
                     return String(text).replace(/<[^>]+>/gm, '');
                 }
@@ -73,7 +70,6 @@
                     var maxLength = 40;
                     if (str.length > maxLength)
                         str = String(str).substr(0, maxLength) + "...";
-
                     return str;
                 }
                 return text;
@@ -96,15 +92,6 @@
             $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
             $scope.libraryFilter = "";
             $scope.selected = undefined;
-
-            function getDocHeight() {
-                return Math.max(
-                    document.body.scrollHeight, document.documentElement.scrollHeight,
-                    document.body.offsetHeight, document.documentElement.offsetHeight,
-                    document.body.clientHeight, document.documentElement.clientHeight
-                );
-            }
-
 
         }]);
 }());

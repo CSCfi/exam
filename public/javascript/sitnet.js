@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
     var sitnet = angular.module('sitnet', [
         'ngRoute',
@@ -13,7 +13,6 @@
         'sitnet.filters',
         'sitnet.utils',
         'pascalprecht.translate',
-        'ngDragDrop',
         'ngSanitize',
         'mgcrea.ngStrap.helpers.dimensions',
         'mgcrea.ngStrap.helpers.debounce',
@@ -23,7 +22,7 @@
         'ui.select2',
         'tmh.dynamicLocale'
     ]);
-    sitnet.constant('SITNET_CONF', (function() {
+    sitnet.constant('SITNET_CONF', (function () {
         var context_path = '/';
         return {
             AUTH_STORAGE_KEY: 'SITNET_USER',
@@ -33,7 +32,7 @@
             TEMPLATES_PATH: context_path + 'assets/templates/'
         };
     }()));
-    sitnet.config(['$httpProvider', '$translateProvider', 'SITNET_CONF', function($httpProvider, $translateProvider, SITNET_CONF) {
+    sitnet.config(['$httpProvider', '$translateProvider', 'SITNET_CONF', function ($httpProvider, $translateProvider, SITNET_CONF) {
 
         var path = SITNET_CONF.LANGUAGES_PATH;
         $translateProvider.useStaticFilesLoader({
@@ -43,7 +42,7 @@
         $translateProvider.preferredLanguage('fi');
     }]);
     sitnet.run(['$http', '$interval', '$modal', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
-        function($http, $interval, $modal, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
+        function ($http, $interval, $modal, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
 
             $localStorage["LOCATION.PATH"] = $location.path();
 
@@ -53,13 +52,13 @@
 
                 header[SITNET_CONF.AUTH_HEADER] = user.token;
                 $http.defaults.headers.common = header;
-                sessionService.user = user;
+                sessionService.setUser(user);
             }
             var scheduler = null;
             var PING_INTERVAL = 60 * 1000;
 
-            var checkSession = function() {
-                $http.get('/checkSession').success(function(data, status, headers, config) {
+            var checkSession = function () {
+                $http.get('/checkSession').success(function (data, status, headers, config) {
                     if (data === "alarm") {
                         toastr.options = {
                             "closeButton": false,
@@ -81,107 +80,64 @@
                         $location.path("/logout")
                     }
                 }).
-                    error(function(data, status, headers, config) {
+                    error(function (data, status, headers, config) {
 
                     });
             };
 
-            $rootScope.$on('$destroy', function() {
-               if (scheduler) {
-                   $interval.cancel(scheduler);
-               }
+            $rootScope.$on('$destroy', function () {
+                if (scheduler) {
+                    $interval.cancel(scheduler);
+                }
             });
 
-
-            var login = function() {
-                var credentials = {
-                    username: '',
-                    password: ''
-                };
-                var xhr = $http.post('/login', credentials, {
-                    ignoreAuthModule: true
-                });
-                xhr.success(function(user) {
-
-                    var hasRole = function(user, role) {
-                            if (!user || !user.roles) {
-                                return false;
-                            }
-                            var i = user.roles.length;
-                            while (i--) {
-                                if (user.roles[i].name === role) {
-                                    return true;
-                                }
-                            }
-                            return false;
-                        },
-                        header = {};
-                    header[SITNET_CONF.AUTH_HEADER] = user.token;
-                    $http.defaults.headers.common = header;
-
-                    var sessionUser = {
-                        id: user.id,
-                        firstname: user.firstname,
-                        lastname: user.lastname,
-                        isAdmin: (hasRole(user, 'ADMIN')),
-                        isStudent: (hasRole(user, 'STUDENT')),
-                        isTeacher: (hasRole(user, 'TEACHER')),
-                        token: user.token,
-                        hasAcceptedUserAgreament: user.hasAcceptedUserAgreament
-                    };
-
-                    $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = sessionUser;
-                    sessionService.user = sessionUser;
-                    authService.loginConfirmed()
+            var login = function () {
+                sessionService.login('', '').then(function () {
+                    var user = sessionService.getUser();
                     $rootScope.$broadcast('userUpdated');
                     toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
 
                     scheduler = $interval(checkSession, PING_INTERVAL);
+                    if (user.isStudent && !user.hasAcceptedUserAgreament) {
 
-                    if (sessionUser.isStudent) {
+                        $modal.open({
 
-                        if (!sessionUser.hasAcceptedUserAgreament) {
+                            templateUrl: 'assets/templates/dialogs/show_eula.html',
+                            backdrop: 'static',
+                            keyboard: false,
+                            controller: function ($scope, $modalInstance, sessionService) {
 
-                            var modalInstance = $modal.open({
-
-                                templateUrl: 'assets/templates/dialogs/show_eula.html',
-                                backdrop: 'static',
-                                keyboard: false,
-                                controller: function($scope, $modalInstance, sessionService) {
-
-                                    $scope.ok = function() {
-                                        // OK button
-                                        UserRes.updateAgreementAccepted.update({id: sessionUser.id}, function(user) {
-                                            sessionService.user = user;
-                                        }, function(error) {
-                                            toastr.error(error.data);
-                                        });
-                                        $modalInstance.dismiss();
-                                        if ($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
-                                            $location.path($localStorage["LOCATION.PATH"]);
-                                            $localStorage["LOCATION.PATH"] = "";
-                                        } else {
-                                            $location.path("/home");
-                                        }
-                                    };
-                                    $scope.cancel = function() {
-                                        $modalInstance.dismiss('cancel');
-                                        $location.path("/logout");
-                                    };
-                                }
-                            });
-
+                                $scope.ok = function () {
+                                    console.log("ok")
+                                    // OK button
+                                    UserRes.updateAgreementAccepted.update({id: user.id}, function (user) {
+                                        sessionService.setUser(user);
+                                    }, function (error) {
+                                        toastr.error(error.data);
+                                    });
+                                    $modalInstance.dismiss();
+                                    if ($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
+                                        $location.path($localStorage["LOCATION.PATH"]);
+                                        $localStorage["LOCATION.PATH"] = "";
+                                    } else {
+                                        $location.path("/home");
+                                    }
+                                };
+                                $scope.cancel = function () {
+                                    $modalInstance.dismiss('cancel');
+                                    $location.path("/logout");
+                                };
+                            }
+                        });
+                    } else { // We might want to somehow redirect user to provided URL path here
+                        if ($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
+                            $location.path($localStorage["LOCATION.PATH"]);
+                            $localStorage["LOCATION.PATH"] = "";
+                        } else {
+                            $location.path("/home");
                         }
                     }
-
-                    if ($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
-                        $location.path($localStorage["LOCATION.PATH"]);
-                        $localStorage["LOCATION.PATH"] = "";
-                    } else {
-                        $location.path("/home");
-                    }
-                });
-                xhr.error(function(message) {
+                }, function (message) {
                     if ($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
                         $location.path($localStorage["LOCATION.PATH"]);
                         $localStorage["LOCATION.PATH"] = "";
@@ -189,12 +145,10 @@
                         toastr.error(message);
                         $location.path("/login");
                     }
-
                 });
-
             };
-            login();
 
+            login();
             $http.get('/ping');
         }]);
 }());

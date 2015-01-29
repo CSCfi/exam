@@ -5,9 +5,8 @@
             function ($scope, $modal, sessionService, $sce, $routeParams, $translate, $http, $location, SITNET_CONF, StudentExamRes, QuestionRes, UserRes, dateService) {
 
                 $scope.dateService = dateService;
-                $scope.session = sessionService;
 
-                $scope.user = $scope.session.user;
+                $scope.user = sessionService.getUser();
                 if ($scope.user.isStudent) {
                     $scope.feedbackTemplate = SITNET_CONF.TEMPLATES_PATH + "student/exam_feedback.html";
                 }

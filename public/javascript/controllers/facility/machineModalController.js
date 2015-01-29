@@ -1,11 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('MachineModalController', ['$scope', '$translate', '$filter', 'sessionService', '$modalInstance', 'params','EnrollRes', 'SITNET_CONF',
-            function ($scope, $translate, $filter, sessionService, $modalInstance, params, EnrollRes, SITNET_CONF) {
-
-
-                $scope.session = sessionService;
+        .controller('MachineModalController', ['$scope', '$translate', '$filter', 'sessionService', '$modalInstance', 'params','EnrollRes',
+            function ($scope, $translate, $filter, sessionService, $modalInstance, params, EnrollRes) {
 
                 $scope.machine = params.machine;
                 $scope.reservations = [];
@@ -62,7 +59,7 @@
                             enrollment.exam.course.code + " - " + enrollment.exam.course.name + ", " + $translate("sitnet_date_short") + "." +
                             date(enrollment.reservation.startAt) + " " + $translate("sitnet_clock_short") + " " +
                             hours(enrollment.reservation.startAt) + " - " + hours(enrollment.reservation.endAt) +
-                            "\n\n\n - " + $scope.session.user.firstname + " " + $scope.session.user.lastname;
+                            "\n\n\n - " + sessionService.getUserName();
                     }
 
                     return encodeURI("mailto:" + enrollment.user.email + "?subject=" + setSubject(enrollment) + "&body=" + setBody(enrollment));

@@ -443,10 +443,13 @@ public class Exam extends SitnetModel {
                     } break;
 
                 }
-                ExamSectionQuestion esqCopy = new ExamSectionQuestion(esCopy, questionCopy);
+                ExamSectionQuestion esqCopy = new ExamSectionQuestion();
+                esqCopy.setExamSection(esCopy);
+                esqCopy.setQuestion(questionCopy);
                 esqCopy.setSequenceNumber(esq.getSequenceNumber());
-                esqCopy.save();
+                esCopy.getSectionQuestions().add(esqCopy);
             }
+            esCopy.save();
             examSectionCopies.add(esCopy);
         }
 
