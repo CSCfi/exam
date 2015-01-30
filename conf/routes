@@ -216,11 +216,9 @@ GET           /time/:id                                                        c
 
 
 ################# Calendar interface ##################
-GET           /calendar/:examinput/:roominput/:dateinput/access/:ids           controllers.CalendarController.getSlots(examinput: String, roominput:String, dateinput: String, ids: String)
-GET           /calendar/:examinput/:roominput/:dateinput/access/               controllers.CalendarController.getSlotsWithOutAccessibility(examinput: String, roominput:String, dateinput: String)
+GET           /calendar/:examId/:roomId                                        controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer])
 POST          /calendar/reservation                                            controllers.CalendarController.createReservation()
 DELETE        /calendar/reservation/:id                                        controllers.CalendarController.removeReservation(id: Long)
-GET           /calendar/roomAccessbility/:id                                   controllers.CalendarController.getRoomAccessibilityInfo(id: Long)
 
 ################# Language interface ##################
 GET           /languages                                                       controllers.LanguageController.getSupportedLanguages()

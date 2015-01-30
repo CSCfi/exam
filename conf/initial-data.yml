@@ -1568,7 +1568,7 @@ exam-machines:
     ipAddress: 123.456.789.123
     videoRecordings: www.utu.fi/examroom/1/recordings
     room: *room-pegasus
-    reservation:
+    reservations:
     outOfService: false
 
   - &exam-machine2 !!models.ExamMachine
@@ -1583,7 +1583,7 @@ exam-machines:
     ipAddress: 123.456.789.321
     videoRecordings: www.utu.fi/examroom/2/recordings
     room: *room-pegasus
-    reservation:
+    reservations:
     outOfService: false
 
   - &exam-machine3 !!models.ExamMachine
@@ -1599,7 +1599,7 @@ exam-machines:
     ipAddress: 123.456.789.132
     videoRecordings: www.utu.fi/examroom/3/recordings
     room: *room-pegasus
-    reservation:
+    reservations:
     outOfService: true
     statusComment: Näyttö rikki
 

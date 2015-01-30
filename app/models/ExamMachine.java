@@ -66,7 +66,7 @@ public class ExamMachine extends Model {
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "machine")
     @JsonManagedReference
-    private List<Reservation> reservation;
+    private List<Reservation> reservations;
 
     // In UI, section has been expanded
     @Column(columnDefinition="boolean default false")
@@ -119,8 +119,8 @@ public class ExamMachine extends Model {
         this.room = room;
     }
 
-    public List<Reservation> getReservation() {
-        return reservation;
+    public List<Reservation> getReservations() {
+        return reservations;
     }
 
     public String getAccessibilityInfo() {
@@ -171,8 +171,8 @@ public class ExamMachine extends Model {
         this.ipAddress = ipAddress;
     }
 
-    public void setReservation(List<Reservation> reservation) {
-        this.reservation = reservation;
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
     }
 
     public String getOtherIdentifier() {
@@ -209,22 +209,6 @@ public class ExamMachine extends Model {
 
     @Override
     public String toString() {
-        return "ExamMachine{" +
-                "accessibilityInfo='" + accessibilityInfo + '\'' +
-                ", id=" + id +
-                ", name='" + name + '\'' +
-                ", archived='" + archived + '\'' +
-                ", otherIdentifier='" + otherIdentifier + '\'' +
-                ", accessible=" + accessible +
-                ", softwareInfo=" + softwareInfo +
-                ", ipAddress='" + ipAddress + '\'' +
-                ", surveillanceCamera='" + surveillanceCamera + '\'' +
-                ", videoRecordings='" + videoRecordings + '\'' +
-                ", room=" + room +
-                ", reservation=" + reservation +
-                ", expanded=" + expanded +
-                ", statusComment='" + statusComment + '\'' +
-                ", outOfService=" + outOfService +
-                '}';
+        return "ExamMachine{ id=" + id + ", name=" + name + " }";
     }
 }

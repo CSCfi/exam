@@ -31,8 +31,9 @@
                         return item.selected;
                     }).map(function(item) {
                         return item.id;
-                    }).join(',');
-                    $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id + '/' + day + '/access/' + accessibility)
+                    });//.join(',');
+                    var params = { day: day, aids: accessibility  };
+                    $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id, { params: params })
                         .then(function(reply) {
                             Object.keys(reply.data).forEach(function(key) {
                                 if ($scope.selectedMonth.data.get('month') !==

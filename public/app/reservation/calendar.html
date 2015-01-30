@@ -56,9 +56,9 @@
     <div class="row">
         <div class="col-md-12">
             <ul class="reservationRow">
-                <li ng-repeat='(date, day) in daySlots'>
+                <li ng-repeat='(date, slots) in daySlots'>
                     <span class="date">{{formatDate(date)}}</span>
-                    <span ng-repeat='slot in day.slots' class="freeTime"><a ng-click="createReservation(slot)">{{formatTime(slot.start)}} - {{formatTime(slot.end)}}</a></span>
+                    <span ng-repeat='slot in slots' class="freeTime"><a ng-click="createReservation(slot)">{{formatTime(slot.start)}} - {{formatTime(slot.end)}}</a></span>
                 </li>
             </ul>
         </div>
