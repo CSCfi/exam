@@ -593,22 +593,7 @@ public class ExamController extends SitnetController {
             exam.save();
 
             JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, name, course, examType, instruction, enrollInstruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                    "duration, grading, customCredit, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, softwares, attachment");
-            options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
-            options.setPathProperties("softwares", "id, name");
-            options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("examType", "id, type");
-            options.setPathProperties("examSections", "id, name, sectionQuestions, exam, totalScore, expanded, " +
-                    "lotteryOn, lotteryItemCount");
-            options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
-            options.setPathProperties("examSections.sectionQuestions.question", "id, type, question, shared," +
-                    " instruction, maxScore, evaluatedScore, options");
-            options.setPathProperties("examSections.sectionQuestions.question.options", "id, option");
-            options.setPathProperties("examSections.sectionQuestions.question.comments", "id, comment");
-            options.setPathProperties("examFeedback", "id, comment");
-            return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+            return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
         } else {
             return forbidden("sitnet_error_access_forbidden");
         }

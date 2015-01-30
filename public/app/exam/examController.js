@@ -92,7 +92,6 @@
 
                             $scope.reindexNumbering();
                             getInspectors();
-                            //$scope.scrollTo($routeParams.scrollTo);
 
                             //setExamTabs(); not working
                         },
@@ -159,7 +158,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: 'assets/templates/exam-editor/exam_inspector.html',
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'exam/editor/exam_inspector.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: "ExamInspectionController",
@@ -398,6 +397,10 @@
                         function (exam) {
                             toastr.info($translate("sitnet_exam_saved"));
                             $scope.newExam = exam;
+                            $scope.newExam.examLanguages.forEach(function (language) {
+                                // Use front-end language names always to allow for i18n etc
+                                language.name = getLanguageNativeName(language.code);
+                            });
                         }, function (error) {
                             if (error.data && error.data.indexOf("sitnet_error_") > 0) {
                                 toastr.error($translate(error.data));
