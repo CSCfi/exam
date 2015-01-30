@@ -325,6 +325,7 @@ public class CalendarController extends SitnetController {
         if (machine.isAccessible()) { // this has it all :)
             return true;
         }
+        // The following is always empty because no UI-support for adding
         List<Accessibility> machineAccessibility = machine.getAccessibility();
         List<Integer> machineAccessibilityIds = new ArrayList<>();
         for (Accessibility accessibility : machineAccessibility) {
