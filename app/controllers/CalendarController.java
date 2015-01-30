@@ -145,49 +145,6 @@ public class CalendarController extends SitnetController {
         return null;
     }
 
-    /**
-     * Search date is the current date if searching for current month or earlier,
-     * If searching for upcoming months, day of month is one.
-     */
-    private static DateTime parseSearchDate(String day, Exam exam) throws NotFoundException {
-        DateTime examEndDateTime = new DateTime(exam.getExamActiveEndDate());
-        DateTime examStartDateTime = new DateTime(exam.getExamActiveStartDate());
-        DateTime searchDate = day.equals("") ? DateTime.now() : LocalDate.parse(day, dateFormat).toDateTime(LocalTime.now());
-        searchDate = searchDate.withDayOfMonth(1);
-        if (searchDate.isBeforeNow()) {
-            searchDate = DateTime.now();
-        }
-        // if searching for months after exam's end month -> no can do
-        if (searchDate.isAfter(examEndDateTime)) {
-            throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) ending month (%s)", searchDate, exam.getId(), examEndDateTime));
-        }
-        // Do not execute search before exam starts
-        if (searchDate.isBefore(examStartDateTime)) {
-            searchDate = examStartDateTime;
-        }
-        return searchDate;
-    }
-
-    /**
-     * Return which one is sooner, exam period's end or month's end
-     */
-    private static DateTime getEndSearchDate(Exam exam, DateTime searchDate) {
-        DateTime endOfMonth = searchDate.dayOfMonth().withMaximumValue();
-        DateTime examEnd = new DateTime(exam.getExamActiveEndDate());
-        return endOfMonth.isBefore(examEnd) ? endOfMonth : examEnd;
-    }
-
-    private static Exam getEnrolledExam(Long examId) {
-        final User user = UserController.getLoggedUser();
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
-                .where()
-                .eq("user", user)
-                .eq("exam.id", examId)
-                .findUnique();
-        return enrolment == null ? null : enrolment.getExam();
-    }
-
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) throws NotFoundException {
         Exam exam = getEnrolledExam(examId);
@@ -261,9 +218,51 @@ public class CalendarController extends SitnetController {
         return freeTimes;
     }
 
-    private static DateTime nextFullHour(DateTime datetime) {
-        return datetime.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+    // HELPERS -->
+
+    /**
+     * Search date is the current date if searching for current month or earlier,
+     * If searching for upcoming months, day of month is one.
+     */
+    private static DateTime parseSearchDate(String day, Exam exam) throws NotFoundException {
+        DateTime examEndDateTime = new DateTime(exam.getExamActiveEndDate());
+        DateTime examStartDateTime = new DateTime(exam.getExamActiveStartDate());
+        DateTime searchDate = day.equals("") ? DateTime.now() : LocalDate.parse(day, dateFormat).toDateTime(LocalTime.now());
+        searchDate = searchDate.withDayOfMonth(1);
+        if (searchDate.isBeforeNow()) {
+            searchDate = DateTime.now();
+        }
+        // if searching for months after exam's end month -> no can do
+        if (searchDate.isAfter(examEndDateTime)) {
+            throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) ending month (%s)", searchDate, exam.getId(), examEndDateTime));
+        }
+        // Do not execute search before exam starts
+        if (searchDate.isBefore(examStartDateTime)) {
+            searchDate = examStartDateTime;
+        }
+        return searchDate;
     }
+
+    /**
+     * Return which one is sooner, exam period's end or month's end
+     */
+    private static DateTime getEndSearchDate(Exam exam, DateTime searchDate) {
+        DateTime endOfMonth = searchDate.dayOfMonth().withMaximumValue();
+        DateTime examEnd = new DateTime(exam.getExamActiveEndDate());
+        return endOfMonth.isBefore(examEnd) ? endOfMonth : examEnd;
+    }
+
+    private static Exam getEnrolledExam(Long examId) {
+        final User user = UserController.getLoggedUser();
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .where()
+                .eq("user", user)
+                .eq("exam.id", examId)
+                .findUnique();
+        return enrolment == null ? null : enrolment.getExam();
+    }
+
 
     /**
      * @return All intervals of one hour that fall within provided working hours
@@ -365,6 +364,10 @@ public class CalendarController extends SitnetController {
 
     private static boolean hasRequiredSoftware(ExamMachine machine, Exam exam) {
         return machine.getSoftwareInfo().containsAll(exam.getSoftwareInfo());
+    }
+
+    private static DateTime nextFullHour(DateTime datetime) {
+        return datetime.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
     }
 
     private static class FreeTimeSlot {
