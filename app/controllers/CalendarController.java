@@ -164,10 +164,11 @@ public class CalendarController extends SitnetController {
                     .eq("user", UserController.getLoggedUser())
                     .gt("startAt", searchDate.toDate())
                     .findList();
-
+            // Resolve eligible machines based on software and accessibility requirements
+            List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
             DateTime endOfSearch = getEndSearchDate(exam, searchDate);
             while (!searchDate.isAfter(endOfSearch)) {
-                List<FreeTimeSlot> freeTimeSlots = getFreeTimes(room, exam, searchDate, reservations, aids);
+                List<FreeTimeSlot> freeTimeSlots = getFreeTimes(room, exam, searchDate, reservations, machines);
                 if (!freeTimeSlots.isEmpty()) {
                     String key = DateTimeFormat.forPattern("dd.MM.yyyy").print(searchDate);
                     slots.put(key, freeTimeSlots);
@@ -179,25 +180,23 @@ public class CalendarController extends SitnetController {
     }
 
     /**
-     * Gets the available slots for given room, day, software and accessibility requirements
+     * Queries for available slots for given room and day
      */
     private static List<FreeTimeSlot> getFreeTimes(ExamRoom room, Exam exam, DateTime forDay,
-            List<Reservation> reservations, List<Integer> aids) {
+            List<Reservation> reservations, List<ExamMachine> machines) {
 
         // Resolve the opening hours for room and day
         List<Interval> openingHours = room.getWorkingHoursForDate(forDay.toLocalDate());
-        // Resolve eligible machines based on software and accessibility requirements
-        List<ExamMachine> eligibleMachines = getEligibleMachines(room, aids, exam);
         // Check machine availability for each slot
         List<Interval> eligibleSlots = new ArrayList<>();
         for (Interval slot : allSlots(openingHours)) {
-            for (ExamMachine machine : eligibleMachines) {
+            if (hasReservationsDuring(reservations, slot)) {
+                // User has reservations during this time
+                continue;
+            }
+            for (ExamMachine machine : machines) {
                 if (isReservedDuring(machine, slot)) {
                     // Machine has reservations during this time
-                    continue;
-                }
-                if (hasReservationsDuring(reservations, slot)) {
-                    // User has reservations during this time
                     continue;
                 }
                 eligibleSlots.add(slot);
@@ -244,7 +243,7 @@ public class CalendarController extends SitnetController {
     }
 
     /**
-     * Return which one is sooner, exam period's end or month's end
+     * @return which one is sooner, exam period's end or month's end
      */
     private static DateTime getEndSearchDate(Exam exam, DateTime searchDate) {
         DateTime endOfMonth = searchDate.dayOfMonth().withMaximumValue();
@@ -263,9 +262,8 @@ public class CalendarController extends SitnetController {
         return enrolment == null ? null : enrolment.getExam();
     }
 
-
     /**
-     * @return All intervals of one hour that fall within provided working hours
+     * @return all intervals of one hour that fall within provided working hours
      */
     private static List<Interval> allSlots(List<Interval> openingHours) {
         List<Interval> intervals = new ArrayList<>();
