@@ -265,6 +265,8 @@ public class Global extends GlobalSettings {
 
         String machineIp = examMachine.getIpAddress();
         String remoteIp = request.remoteAddress();
+        // for testing ->
+        //String remoteIp = "127.0.0.1";
 
         Logger.debug("\nUser ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
 

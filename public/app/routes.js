@@ -41,10 +41,10 @@
             $routeProvider.when('/softwares/add/:name', { templateUrl: tmpl + 'facility/software.html', controller: 'RoomCtrl'});
 
             /* Student */
-            $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'student/exam.html', controller: 'StudentExamController'});
-            $routeProvider.when('/feedback/exams/:id', { templateUrl: tmpl + 'student/exam_feedback.html', controller: 'ExamFeedbackController'});
-            $routeProvider.when('/student/waitingroom', { templateUrl: tmpl + 'student/waitingroom.html', controller: 'WaitingRoomCtrl'});
-            $routeProvider.when('/student/wrongmachine', { templateUrl: tmpl + 'student/wrong_machine.html', controller: 'WrongMachineCtrl'});
+            $routeProvider.when('/student/doexam/:hash', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController'});
+            $routeProvider.when('/feedback/exams/:id', { templateUrl: tmpl + 'enrolment/exam_feedback.html', controller: 'ExamFeedbackController'});
+            $routeProvider.when('/student/waitingroom', { templateUrl: tmpl + 'enrolment/waitingroom.html', controller: 'WaitingRoomCtrl'});
+            $routeProvider.when('/student/wrongmachine', { templateUrl: tmpl + 'enrolment/wrong_machine.html', controller: 'WrongMachineCtrl'});
 
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'review/review.html', controller: 'ExamReviewController'});

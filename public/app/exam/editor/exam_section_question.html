@@ -38,7 +38,7 @@
     <ol ng-show="sectionQuestion.question.expanded" class="exam-question-expanded row">
         <li class="exam-question-option" ng-repeat="option in sectionQuestion.question.options">
             <input type="radio" name="option.id" ng-value="option" class="list-group-item-text"/>
-            {{option.option}}
+            <span class="exam-question-option-text">{{option.option}}</span>
             <span class="badge" ng-show="option.correctOption" class="ng-show">
                 {{ 'sitnet_multiplechoice_question_correct' | translate }}
             </span>

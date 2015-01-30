@@ -427,7 +427,11 @@
 
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
-                    if ($scope.newExam.examLanguages === undefined || $scope.newExam.examLanguages.length == 0) {
+                    if ($scope.newExam.course == undefined) { // use == not ===
+                        toastr.error($translate('sitnet_course_missing'));
+                        return;
+                    }
+                    if ($scope.newExam.examLanguages === undefined || $scope.newExam.examLanguages.length === 0) {
                         toastr.error($translate('sitnet_error_exam_empty_exam_language'));
                         return;
                     }
@@ -542,7 +546,7 @@
 
                     var errors = {};
 
-                    if (exam.course === undefined) {
+                    if (exam.course == undefined) { // use == not ===
                         errors.course = $translate("sitnet_course_missing");
                     }
 

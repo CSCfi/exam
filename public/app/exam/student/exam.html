@@ -9,7 +9,7 @@
     </div>
     <div class="col-md-4">
         <span>
-            <span class="exam-clock-text">{{'sitnet_exam_time_left' | translate}}</span>
+            <span class="exam-clock-text"><span class="sitnet-text-dark">{{'sitnet_exam_time_left' | translate}}</span></span>
             <span class="exam-clock">
                 <span ng-if="remainingTime > alarmLine">{{formatRemainingTime(remainingTime)}}</span>
                 <span ng-if="remainingTime <= alarmLine" class="sitnet-text-alarm">{{formatRemainingTime(remainingTime)}}</span>
@@ -71,19 +71,19 @@
     <div class="col-md-4">
         <div class="col-md-12">
             <div class="info-column">
-                <span class="header col-md-6">{{ 'sitnet_course_name' | translate }}:</span>
+                <span class="header col-md-6"><span class="sitnet-text-dark">{{ 'sitnet_course_name' | translate }}:</span></span>
                 <span class="text col-md-6">{{ doexam.course.name }}</span>
             </div>
             <div class="info-column">
-                <span class="header col-md-6">{{ 'sitnet_course_code' | translate }}:</span>
+                <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_course_code' | translate }}:</span></span>
                 <span class="text col-md-6">{{ doexam.course.code }}</span>
             </div>
             <div class="info-column">
-                <span class="header col-md-6">{{ 'sitnet_exam_name' | translate }}:</span>
+                <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_exam_name' | translate }}:</span></span>
                 <span class="text col-md-6">{{ doexam.name }}</span>
             </div>
             <div class="info-column">
-                <span class="header col-md-6">{{ 'sitnet_exam_time' | translate }}:</span>
+                <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_exam_time' | translate }}:</span></span>
                 <span class="text col-md-6">{{ printExamDuration(doexam) }}</span>
             </div>
         </div>
@@ -103,8 +103,7 @@
                         <i class="fa fa-file-o">
                         <span class="italic">{{'sitnet_exam_attacment' | translate}}</span></i>
                     </a>
-                    <span class="sitnet-text-medium small"
-                          style="font-style: normal; margin-left: 3em">({{doexam.attachment.fileName}})
+                    <span class="sitnet-text-dark small" style="font-style: normal; margin-left: 3em">({{doexam.attachment.fileName}})
                     </span>
                 </div>
             </div>
