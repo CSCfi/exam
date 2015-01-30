@@ -31,7 +31,7 @@
                         return item.selected;
                     }).map(function(item) {
                         return item.id;
-                    });//.join(',');
+                    });
                     var params = { day: day, aids: accessibility  };
                     $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id, { params: params })
                         .then(function(reply) {
@@ -70,9 +70,17 @@
 
                 $scope.createReservation = function(slot) {
 
-                    slot.exam = enrolmentId;
+                    slot.examId = enrolmentId;
+                    slot.roomId = $scope.selectedRoom.id;
+                    slot.aids = $scope.accessibilities.filter(
+                        function(item) {
+                            return item.selected;
+                        }).map(function(item) {
+                            return item.id;
+                        });
 
-                    $http.post('calendar/reservation', slot).then(function(success) {
+
+                    $http.post('calendar/reservation', slot).then(function() {
                         $location.path('#/home');
                     }, function(error) {
                         toastr.error(error.data);
