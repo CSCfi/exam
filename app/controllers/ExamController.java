@@ -849,7 +849,7 @@ public class ExamController extends SitnetController {
                 seq = 0;
             }
             if (seq > section.getSectionQuestions().size()) {
-                seq = section.getSectionQuestions().size() + 1;
+                seq = section.getSectionQuestions().size();
             }
 
             // Increase sequences for the entries above the inserted one

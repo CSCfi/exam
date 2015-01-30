@@ -106,7 +106,7 @@
                     return blocks;
                 };
 
-                $scope.select = function(day, time) {
+                $scope.select = function (day, time) {
                     var status = week[day][time].type;
                     if (status === 'accepted') { // clear selection
                         week[day][time].type = '';
@@ -134,7 +134,7 @@
                         }
                         if (accepted) { // mark everything between accepted and this as selected
                             if (accepted < time) {
-                                for (i= accepted; i <= time; ++i) {
+                                for (i = accepted; i <= time; ++i) {
                                     week[day][i].type = 'selected';
                                 }
                             } else {
@@ -237,14 +237,14 @@
 
                 $scope.countMachineAlerts = function (room) {
                     if (!room) return 0;
-                    return room.examMachines.filter(function(m) {
-                       return m.outOfService;
+                    return room.examMachines.filter(function (m) {
+                        return m.outOfService;
                     }).length;
                 };
 
                 $scope.countMachineNotices = function (room) {
                     if (!room) return 0;
-                    return room.examMachines.filter(function(m) {
+                    return room.examMachines.filter(function (m) {
                         return !m.outOfService && m.statusComment;
                     }).length;
                 };
@@ -422,7 +422,7 @@
                     }
                 };
 
-                var formatTime = function(time) {
+                var formatTime = function (time) {
                     return moment()
                         .set('hour', time.split(':')[0])
                         .set('minute', time.split(':')[1])
