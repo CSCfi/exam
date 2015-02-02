@@ -81,4 +81,5 @@ public class SettingsController  extends SitnetController {
         node.put("hostname", SitnetUtil.getHostName());
         return ok(Json.toJson(node));
     }
+
 }

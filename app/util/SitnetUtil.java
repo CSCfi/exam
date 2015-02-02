@@ -6,6 +6,7 @@ import controllers.UserController;
 import exceptions.SitnetException;
 import models.*;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTimeZone;
 import play.Logger;
 import play.libs.Yaml;
 
@@ -24,6 +25,11 @@ public class SitnetUtil {
 
     public static String getHostName() {
         return ConfigFactory.load().getString("sitnet.application.hostname");
+    }
+
+    public static DateTimeZone getDefaultTimeZone() {
+        String config = ConfigFactory.load().getString("sitnet.application.timezone");
+        return DateTimeZone.forID(config);
     }
 
     public static SitnetModel setCreator(SitnetModel object) throws SitnetException {

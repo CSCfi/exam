@@ -5,6 +5,7 @@ import com.avaje.ebean.Query;
 import com.typesafe.config.ConfigFactory;
 import models.*;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
@@ -15,13 +16,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
-/**
- * Created by alahtinen on 21.5.2014.
- */
 public class EmailComposer {
 
     /**
@@ -33,10 +30,10 @@ public class EmailComposer {
     private static final Charset ENCODING = Charset.defaultCharset();
     private static final String TEMPLATES_ROOT = Play.application().path().getAbsolutePath() + "/app/assets/template/email/";
     private static String hostname = SitnetUtil.getHostName();
-    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm ZZZ");
     private static DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
     private static DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH:mm");
-
+    private static DateTimeZone tz = SitnetUtil.getDefaultTimeZone();
 
     /**
      * This notification is sent to student, when teacher has reviewed the exam
@@ -74,7 +71,6 @@ public class EmailComposer {
      * @param assigner  The teacher who assigned the inspector.
      * @param exam      The exam to be inspected.
      */
-
     public static void composeChangeInspectorNotification(User inspector, User assigner, Exam exam,
                                                           String message) throws IOException {
 
@@ -267,7 +263,7 @@ public class EmailComposer {
                 stringValues.put("enrollments", Integer.toString(enrolments.size()));
                 // TODO: there should not be enrolments without machine reservations
                 if (enrolments.get(0).getReservation() != null) {
-                    DateTime date = new DateTime(enrolments.get(0).getReservation().getStartAt());
+                    DateTime date = new DateTime(enrolments.get(0).getReservation().getStartAt(), tz);
                     stringValues.put("first_exam_date", dateTimeFormat.print(date));
                     subTemplate = enrollmentTemplate;
                 } else {
@@ -396,15 +392,13 @@ public class EmailComposer {
         String exam_info = exam.getName() + " " + exam.getCourse().getCode();
         String teacher_name = exam.getCreator().getFirstName() + " " + exam.getCreator().getLastName();
 
-        String startDate = new SimpleDateFormat("dd.MM.yyyy").format(reservation.getStartAt());
-        String endDate = new SimpleDateFormat("dd.MM.yyyy").format(reservation.getEndAt());
-
-        String startTime = new SimpleDateFormat("HH:mm").format(reservation.getStartAt());
-        String endTime = new SimpleDateFormat("HH:mm").format(reservation.getEndAt());
+        DateTime startDate = new DateTime(reservation.getStartAt(), tz);
+        DateTime endDate = new DateTime(reservation.getEndAt(), tz);
 
         // Tenttiaika: 02.10.2015 klo 16:00 - 02.10.2015 klo 18:00”
 
-        String reservation_date = startDate + " klo " + startTime + " - " + endDate + " klo " + endTime;
+        String reservation_date = dateTimeFormat.print(startDate) + " - " + dateTimeFormat.print(endDate);
+
         String exam_duration = String.format("%dh %dmin", exam.getDuration() / 60, exam.getDuration() % 60);
         String building_info = reservation != null &&
                 reservation.getMachine() != null &&
@@ -446,7 +440,7 @@ public class EmailComposer {
         stringValues.put("cancelation_link", hostname + "/#/home/\"");
 
         //Replace template strings
-        if(template != null && stringValues != null) {
+        if(template != null) {
             template = replaceAll(template, tagOpen, tagClosed, stringValues);
         }
         EmailSender.send(student.getEmail(), "noreply@exam.fi", subject, template);
@@ -517,15 +511,16 @@ public class EmailComposer {
          *
          */
 
-        String date = dateFormat.print(reservation.getStartAt().getTime());
-        String time = timeFormat.print(reservation.getStartAt().getTime());
+        String date = dateFormat.print(new DateTime(reservation.getStartAt(), tz));
+        String time = timeFormat.print(new DateTime(reservation.getStartAt(), tz));
         String room = reservation.getMachine().getRoom().getName();
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("reservation_date", date);
         stringValues.put("reservation_time", time);
         stringValues.put("room_name", room);
-        stringValues.put("cancelation_information", (message == null || message.length() < 1 ? "" : "Lisätietoja:<br>" + message));
+        stringValues.put("cancelation_information",
+                message == null || message.length() < 1 ? "" : "Lisätietoja:<br>" + message);
 
         String template = null;
         try {
