@@ -406,10 +406,24 @@ public class EmailComposer {
 
         String reservation_date = startDate + " klo " + startTime + " - " + endDate + " klo " + endTime;
         String exam_duration = String.format("%dh %dmin", exam.getDuration() / 60, exam.getDuration() % 60);
-        String building_info = reservation.getMachine().getRoom().getBuildingName();
-        String room_name = reservation.getMachine().getRoom().getName();
-        String machine_name = reservation.getMachine().getName();
-        String room_instructions = reservation.getMachine().getRoom().getRoomInstruction();
+        String building_info = reservation != null &&
+                reservation.getMachine() != null &&
+                reservation.getMachine().getRoom() != null &&
+                reservation.getMachine().getRoom().getBuildingName() != null ? reservation.getMachine().getRoom().getBuildingName() : "";
+
+        String room_name = reservation != null &&
+                reservation.getMachine() != null &&
+                reservation.getMachine().getRoom() != null &&
+                reservation.getMachine().getRoom().getName() != null ? reservation.getMachine().getRoom().getName() : "";
+
+        String machine_name = reservation != null &&
+                reservation.getMachine() != null &&
+                reservation.getMachine().getName() != null ? reservation.getMachine().getName() : "";
+
+        String room_instructions = reservation != null &&
+                reservation.getMachine() != null &&
+                reservation.getMachine().getRoom() != null &&
+                reservation.getMachine().getRoom().getRoomInstruction() != null ? reservation.getMachine().getRoom().getRoomInstruction() : "";
 
 
         Map<String, String> stringValues = new HashMap<>();
@@ -432,7 +446,9 @@ public class EmailComposer {
         stringValues.put("cancelation_link", hostname + "/#/home/\"");
 
         //Replace template strings
-        template = replaceAll(template, tagOpen, tagClosed, stringValues);
+        if(template != null && stringValues != null) {
+            template = replaceAll(template, tagOpen, tagClosed, stringValues);
+        }
         EmailSender.send(student.getEmail(), "noreply@exam.fi", subject, template);
     }
 
@@ -536,9 +552,11 @@ public class EmailComposer {
      */
     private static String replaceAll(String original, String beginTag, String endTag, Map<String, String> stringValues) {
 
-        for (Entry<String, String> entry : stringValues.entrySet()) {
-            if (original.contains(entry.getKey())) {
-                original = original.replace(beginTag + entry.getKey() + endTag, entry.getValue());
+        if(stringValues != null && original != null && !original.isEmpty()) {
+            for (Entry<String, String> entry : stringValues.entrySet()) {
+                if (entry != null && entry.getKey() != null && original.indexOf(entry.getKey()) > -1) {
+                    original = original.replace(beginTag + entry.getKey() + endTag, entry.getValue() != null && !entry.getValue().isEmpty() ? entry.getValue() : "");
+                }
             }
         }
         return original;
