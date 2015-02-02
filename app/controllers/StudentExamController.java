@@ -160,9 +160,12 @@ public class StudentExamController extends SitnetController {
                 .where()
                 .eq("user.id", uid)
                 .disjunction()
+                .gt("reservation.startAt", new Date())
+                .isNull("reservation")
+                .endJunction()
+                .disjunction()
                 .eq("exam.state", "PUBLISHED")
                 .eq("exam.state", "STUDENT_STARTED")
-                        //.eq("exam.state", "ABORTED")
                 .endJunction()
                 .findList();
 

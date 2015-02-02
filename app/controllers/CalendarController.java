@@ -35,8 +35,11 @@ public class CalendarController extends SitnetController {
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
-
         Reservation reservation = enrolment.getReservation();
+        if (reservation != null && reservation.toInterval().contains(DateTime.now())) {
+            // Reservation is already in effect, too late to modify it
+            return forbidden("sitnet_reservation_in_effect");
+        }
 
         // if user who removes reservation is not Student himself, send email
         if (!user.getId().equals(enrolment.getUser().getId())) {
@@ -72,12 +75,17 @@ public class CalendarController extends SitnetController {
                 .eq("exam.id", examId)
                 .findUnique();
         if (enrolment == null) {
-            return badRequest("Not enrolled for this exam");
+            return badRequest("sitnet_error_enrolment_not_found");
+        }
+        Reservation oldReservation = enrolment.getReservation();
+        if (oldReservation != null && oldReservation.toInterval().contains(DateTime.now())) {
+            // Reservation is already in effect, too late to modify it
+            return forbidden("sitnet_reservation_in_effect");
         }
 
         ExamMachine machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
         if (machine == null) {
-            return notFound();
+            return notFound("sitnet_no_machines_available");
         }
 
         Reservation reservation = new Reservation();
@@ -85,8 +93,6 @@ public class CalendarController extends SitnetController {
         reservation.setStartAt(start.toDate());
         reservation.setMachine(machine);
         reservation.setUser(user);
-
-        Reservation oldReservation = enrolment.getReservation();
 
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
@@ -117,11 +123,11 @@ public class CalendarController extends SitnetController {
     public static Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) throws NotFoundException {
         Exam exam = getEnrolledExam(examId);
         if (exam == null) {
-            throw new NotFoundException(String.format("Cannot find an enrolment"));
+            return notFound("sitnet_error_enrolment_not_found");
         }
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         if (room == null) {
-            throw new NotFoundException(String.format("No room with id: (%d)", roomId));
+            return notFound(String.format("No room with id: (%d)", roomId));
         }
         Map<String, List<FreeTimeSlot>> slots = new HashMap<>();
         if (!room.getOutOfService() && isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {

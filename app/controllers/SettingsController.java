@@ -16,9 +16,6 @@ import util.SitnetUtil;
 
 import java.util.List;
 
-/**
- * Created by avainik on 8/15/14.
- */
 public class SettingsController  extends SitnetController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT")})

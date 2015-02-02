@@ -8,6 +8,7 @@ import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.Exam;
 import models.ExamEnrolment;
 import models.User;
+import org.joda.time.DateTime;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -103,13 +104,19 @@ public class EnrollController extends Controller {
 
         // check if enrolment already exists?
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
                 .eq("exam.id", exam.getId())
                 .findUnique();
 
+        // remove old one
         if (enrolment != null) {
-            return forbidden("sitnet_error_enrolment_exists");
+            // Check that user has no ongoing reservation for this enrolment
+            if (enrolment.getReservation().toInterval().contains(DateTime.now())) {
+                return forbidden("sitnet_reservation_in_effect");
+            }
+            enrolment.delete();
         }
 
         enrolment = new ExamEnrolment();
