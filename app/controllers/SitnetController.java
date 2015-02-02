@@ -1,6 +1,6 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
+import exceptions.MalformedDataException;
 import play.data.Form;
 import play.mvc.Controller;
 

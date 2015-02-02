@@ -13,14 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Locale;
 
-/*
- * Huoneisto ja tila
- * http://tietomalli.csc.fi/Huoneisto%20ja%20tila-kaavio.html
- * 
- * Tenttiakvaario
- * 
- */
 @Entity
 public class ExamRoom extends Model {
 
@@ -82,8 +76,6 @@ public class ExamRoom extends Model {
     private String contactPerson;
 
     private String videoRecordingsURL;
-
-    private Long examMachineCount;
 
     // ExamRoom may be out of service,
     private String statusComment;
@@ -187,11 +179,6 @@ public class ExamRoom extends Model {
         this.contactPerson = contactPerson;
     }
 
-    public Long getExamMachineCount() {
-        examMachineCount = new Long(examMachines.size());
-        return examMachineCount;
-    }
-
     public String getRoomCode() {
         return roomCode;
     }
@@ -288,35 +275,13 @@ public class ExamRoom extends Model {
         this.videoRecordingsURL = videoRecordingsURL;
     }
 
-
-    @Transient
-    private String getWeekDay(LocalDate date) {
-        switch (date.getDayOfWeek()) {
-            case DateTimeConstants.MONDAY:
-                return DefaultWorkingHours.Day.MONDAY.toString();
-            case DateTimeConstants.TUESDAY:
-                return DefaultWorkingHours.Day.TUESDAY.toString();
-            case DateTimeConstants.WEDNESDAY:
-                return DefaultWorkingHours.Day.WEDNESDAY.toString();
-            case DateTimeConstants.THURSDAY:
-                return DefaultWorkingHours.Day.THURSDAY.toString();
-            case DateTimeConstants.FRIDAY:
-                return DefaultWorkingHours.Day.FRIDAY.toString();
-            case DateTimeConstants.SATURDAY:
-                return DefaultWorkingHours.Day.SATURDAY.toString();
-            case DateTimeConstants.SUNDAY:
-                return DefaultWorkingHours.Day.SUNDAY.toString();
-        }
-        return "";
-    }
-
     @Transient
     private Interval getFromExceptionEvents(LocalDate date) {
 
         for (ExceptionWorkingHours exception : calendarExceptionEvents) {
 
             boolean isTimeRange = exception.getEndDate() != null;
-            boolean isClosed = exception.getStartTime() == null;
+            boolean isClosedAllDay = exception.getStartTime() == null;
             DateTime startDate = new DateTime(exception.getStartDate()).withTimeAtStartOfDay();
             if (isTimeRange) {
                 DateTime endDate = new DateTime(exception.getEndDate()).withTime(23, 59, 59, 999).toDateTime();
@@ -324,7 +289,7 @@ public class ExamRoom extends Model {
                 if (!range.contains(date.toDateMidnight())) {
                     continue;
                 }
-                if (isClosed) {
+                if (isClosedAllDay) {
                     return zeroSecondInterval(date);
                 } else {
                     return getInterval(date, exception);
@@ -333,7 +298,7 @@ public class ExamRoom extends Model {
                 if (!startDate.toLocalDate().equals(date)) {
                     continue;
                 }
-                if (isClosed) {
+                if (isClosedAllDay) {
                     return zeroSecondInterval(date);
                 } else {
                     return getInterval(date, exception);
@@ -357,12 +322,12 @@ public class ExamRoom extends Model {
 
     @Transient
     private List<Interval> getFromDefaultHours(LocalDate date) {
-        String day = getWeekDay(date);
-        final List<Interval> intervals = new ArrayList<>();
-        for(DefaultWorkingHours defaultHour : this.defaultWorkingHours) {
-            if(defaultHour.getDay().equals(day)) {
-                final LocalTime start = new LocalTime(defaultHour.getStartTime().getTime()); //Check this
-                final LocalTime end = new LocalTime(defaultHour.getEndTime().getTime());
+        String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
+        List<Interval> intervals = new ArrayList<>();
+        for(DefaultWorkingHours defaultHour : defaultWorkingHours) {
+            if(defaultHour.getDay().equalsIgnoreCase(day)) {
+                LocalTime start = new LocalTime(defaultHour.getStartTime().getTime()); //Check this
+                LocalTime end = new LocalTime(defaultHour.getEndTime().getTime());
                 Interval interval = new Interval(date.toDateTime(start), date.toDateTime(end));
                 intervals.add(interval);
             }
@@ -372,7 +337,7 @@ public class ExamRoom extends Model {
 
     @Transient
     public List<Interval> getWorkingHoursForDate(LocalDate date) {
-        final Interval exceptionEvents = getFromExceptionEvents(date);
+        Interval exceptionEvents = getFromExceptionEvents(date);
 
         if(exceptionEvents != null) {
             return Arrays.asList(exceptionEvents);

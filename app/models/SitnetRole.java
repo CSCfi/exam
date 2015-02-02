@@ -39,12 +39,4 @@ public class SitnetRole extends Model implements Role {
         this.name = name;
     }
 
-    public static SitnetRole findByName(String name)
-    {
-        return find.where()
-                .eq("name",
-                        name)
-                .findUnique();
-    }
-
 }

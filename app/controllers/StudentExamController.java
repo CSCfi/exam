@@ -7,6 +7,7 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import exceptions.SitnetException;
 import models.*;
 import models.answers.EssayAnswer;
 import models.answers.MultipleChoiseAnswer;
@@ -219,7 +220,7 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result createExam(String hash, User user) {
+    public static Result createExam(String hash, User user) throws SitnetException {
 
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
@@ -344,7 +345,7 @@ public class StudentExamController extends SitnetController {
             * We can start the exam
             *
              */
-            Exam studentExam = (Exam) blueprint.clone();
+            Exam studentExam = blueprint.copy();
             if (studentExam == null) {
                 return notFound("sitnet_error_creating_exam");
             }
@@ -399,7 +400,7 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result startExam(String hash) {
+    public static Result startExam(String hash) throws SitnetException {
         User user = UserController.getLoggedUser();
         return createExam(hash, user);
     }

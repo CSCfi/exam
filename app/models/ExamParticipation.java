@@ -36,8 +36,7 @@ public class ExamParticipation extends Model {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date duration;
 
-    // tentin arvioinnin takaraja
-	@Temporal(TemporalType.TIMESTAMP)
+    @Temporal(TemporalType.TIMESTAMP)
 	private Date deadline;
 
     public Date getDeadline() {

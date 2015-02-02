@@ -3,9 +3,8 @@ package models;
 import annotations.NonCloneable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import models.questions.AbstractQuestion;
-import models.questions.MultipleChoiceQuestion;
-import models.questions.MultipleChoiseOption;
+import exceptions.SitnetException;
+import org.springframework.beans.BeanUtils;
 import util.SitnetUtil;
 
 import javax.persistence.*;
@@ -298,17 +297,10 @@ public class Exam extends SitnetModel {
 	}
 
     public String generateHash() {
-
-        Random rand = new Random();
-
-        // TODO: what attributes make examEvent unique?
-        // create unique hash for exam
-        String attributes = name + state + new String(rand.nextDouble()+"");
-
-        this.hash = SitnetUtil.encodeMD5(attributes);
-        play.Logger.debug("Exam hash: " + this.hash);
+        String attributes = name + state + new Random().nextDouble();
+        hash = SitnetUtil.encodeMD5(attributes);
         return hash;
-    }
+        }
 
     public String getEnrollInstruction() {
         return enrollInstruction;
@@ -363,120 +355,34 @@ public class Exam extends SitnetModel {
     }
 
     public void setSoftwareInfo(List<Software> softwareInfo) {
-        this.softwares = softwareInfo;
+        softwares = softwareInfo;
     }
 
-    @Override
-    public Object clone() {
-
-//        Exam clone = (Exam)SitnetUtil.getClone(this);
-
+    public Exam copy() throws SitnetException {
         Exam clone = new Exam();
-
-        clone.setCreated(this.getCreated());
-//        clone.setCreator(this.getCreator());
-        clone.setModified(this.getModified());
-        clone.setModifier(this.getModifier());
-        clone.setName(this.getName());
-        clone.setCourse(this.getCourse());
-        clone.setExamType(this.getExamType());
-        clone.setInstruction(this.getInstruction());
-        clone.setShared(this.isShared());
-        clone.setRoom(this.getRoom());
-        clone.setDuration(this.getDuration());
-        clone.setGrading(this.getGrading());
-        clone.setTotalScore(this.getTotalScore());
-        clone.setAnswerLanguage(this.getAnswerLanguage());
-        clone.setGrade(this.getGrade());
-        clone.setExamFeedback(this.getExamFeedback());
-        clone.setCreditType(this.getCreditType());
+        BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "creator", "created"});
         clone.setParent(this);
-        clone.setAttachment(this.getAttachment());
-        clone.setExamLanguages(this.getExamLanguages());
+        SitnetUtil.setCreator(clone);
         SitnetUtil.setModifier(clone);
         clone.save();
-
-
-
-        List<ExamSection> examSections = this.getExamSections();
-        List<ExamSection> examSectionCopies = new ArrayList<>();
-
-        Collections.sort(examSections, sortSectionsById());
-
-        for (ExamSection es : examSections) {
-
-            ExamSection esCopy = (ExamSection)es._ebean_createCopy();
-            esCopy.setId(null);
-            esCopy.setExam(clone);
-            SitnetUtil.setModifier(esCopy);
-            List<ExamSectionQuestion> sectionQuestions = new ArrayList<>(es.getSectionQuestions());
-            esCopy.getSectionQuestions().clear();
-            esCopy.save();
-            if (es.getLotteryOn()) {
-                Collections.shuffle(sectionQuestions);
-                sectionQuestions = sectionQuestions.subList(0, es.getLotteryItemCount());
-            }
-            Collections.sort(sectionQuestions, sortBySequence());
-
-            for (ExamSectionQuestion esq : sectionQuestions) {
-                AbstractQuestion question = esq.getQuestion();
-                AbstractQuestion questionCopy = (AbstractQuestion)question._ebean_createCopy();
-                questionCopy.setId(null);
-                questionCopy.setParent(question);
-                SitnetUtil.setModifier(questionCopy);
-                switch (question.getType()) {
-                    case "MultipleChoiceQuestion": {
-                        List<MultipleChoiseOption> multipleChoiceOptionCopies = new ArrayList<>();
-                        List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) question).getOptions();
-                        for (MultipleChoiseOption o : options) {
-                            MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
-                            m_option_copy.setId(null);
-                            multipleChoiceOptionCopies.add(m_option_copy);
-                        }
-                        ((MultipleChoiceQuestion)questionCopy).setOptions(multipleChoiceOptionCopies);
-                        questionCopy.save();
-                    }break;
-
-                    case "EssayQuestion": {
-                        // No need to implement because EssayQuestion doesn't have object relations
-                        questionCopy.save();
-                    } break;
-
-                }
-                ExamSectionQuestion esqCopy = new ExamSectionQuestion();
-                esqCopy.setExamSection(esCopy);
-                esqCopy.setQuestion(questionCopy);
-                esqCopy.setSequenceNumber(esq.getSequenceNumber());
-                esCopy.getSectionQuestions().add(esqCopy);
-            }
-            esCopy.save();
-            examSectionCopies.add(esCopy);
-        }
-
-        Collections.sort(examSectionCopies, sortSectionsById());
-
-        clone.setExamSections(examSectionCopies);
         clone.generateHash();
 
-        return clone;
-    }
-
-    private static Comparator<ExamSection> sortSectionsById() {
-        return new Comparator<ExamSection>() {
+        for (ExamSection es : examSections) {
+            ExamSection esCopy = es.copy(clone, true);
+            esCopy.save();
+            for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
+                esq.getQuestion().save();
+                esq.save();
+            }
+            clone.getExamSections().add(esCopy);
+        }
+        Collections.sort(clone.getExamSections(), new Comparator<ExamSection>() {
             @Override
             public int compare(ExamSection o1, ExamSection o2) {
                 return (int) (o1.getId() - o2.getId());
             }
-        };
-    }
-
-    private static Comparator<ExamSectionQuestion> sortBySequence() {
-        return new Comparator<ExamSectionQuestion>() {
-            @Override
-            public int compare(ExamSectionQuestion o1, ExamSectionQuestion o2) {
-                return o1.getSequenceNumber() - o2.getSequenceNumber();
-            }
-        };
+        });
+        return clone;
     }
 
     public Date getExamActiveStartDate() {
@@ -500,7 +406,7 @@ public class Exam extends SitnetModel {
     }
 
     public Attachment getAttachment() {
-        return this.attachment;
+        return attachment;
     }
 
 	@Override

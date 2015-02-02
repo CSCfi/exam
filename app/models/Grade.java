@@ -2,9 +2,6 @@ package models;
 
 import javax.persistence.Entity;
 
-/**
- * Created by Mikko Katajamaki on 20/08/14.
- */
 @Entity
 public class Grade extends SitnetModel{
 

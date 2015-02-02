@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.questions.AbstractQuestion;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.beans.BeanUtils;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -33,7 +34,7 @@ public class ExamSectionQuestion extends Model {
     }
 
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Long id) {
@@ -62,6 +63,13 @@ public class ExamSectionQuestion extends Model {
 
     public void setSequenceNumber(int sequenceNumber) {
         this.sequenceNumber = sequenceNumber;
+    }
+
+    public ExamSectionQuestion copy() {
+        ExamSectionQuestion esq = new ExamSectionQuestion();
+        BeanUtils.copyProperties(this, esq, new String[] {"id"});
+        esq.setQuestion(question.copy());
+        return esq;
     }
 
     @Override

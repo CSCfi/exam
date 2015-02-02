@@ -27,11 +27,11 @@ public class EmailComposer {
     /**
      * General template strings
      */
-    private final static String tagOpen = "{{";
-    private final static String tagClosed = "}}";
-    private final static String baseSystemURL = ConfigFactory.load().getString("sitnet.baseSystemURL");
-    private final static Charset ENCODING = Charset.defaultCharset();
-    private final static String TEMPLATES_ROOT = Play.application().path().getAbsolutePath() + "/app/assets/template/email/";
+    private static final String tagOpen = "{{";
+    private static final String tagClosed = "}}";
+    private static final String baseSystemURL = ConfigFactory.load().getString("sitnet.baseSystemURL");
+    private static final Charset ENCODING = Charset.defaultCharset();
+    private static final String TEMPLATES_ROOT = Play.application().path().getAbsolutePath() + "/app/assets/template/email/";
     private static String hostname = SitnetUtil.getHostName();
     private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
     private static DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
@@ -135,7 +135,7 @@ public class EmailComposer {
         template = replaceAll(template, tagOpen, tagClosed, stringValues);
 
         //Send notification
-        EmailSender.sendInspectorNotification(inspector.getEmail(), assigner.getEmail(), subject, template);
+        EmailSender.send(inspector.getEmail(), assigner.getEmail(), subject, template);
     }
 
     /**
@@ -168,7 +168,7 @@ public class EmailComposer {
         template = replaceAll(template, tagOpen, tagClosed, stringValues);
 
         //Send notification
-        EmailSender.sendInspectorNotification(inspector.getEmail(), sender.getEmail(), subject, template);
+        EmailSender.send(inspector.getEmail(), sender.getEmail(), subject, template);
 
     }
 
@@ -201,7 +201,7 @@ public class EmailComposer {
         template = replaceAll(template, tagOpen, tagClosed, stringValues);
 
         //Send notification
-        EmailSender.sendInspectorNotification(inspector.getEmail(), sender.getEmail(), subject, template);
+        EmailSender.send(inspector.getEmail(), sender.getEmail(), subject, template);
 
     }
 
@@ -222,9 +222,9 @@ public class EmailComposer {
 
         String subject = "EXAM viikkokooste";
 
-        final String template = readFile(templatePath, ENCODING);
-        final String enrollmentTemplate = readFile(enrollmentTemplatePath, ENCODING);
-        final String inspectionTemplate = readFile(inspectionTemplatePath, ENCODING);
+        String template = readFile(templatePath, ENCODING);
+        String enrollmentTemplate = readFile(enrollmentTemplatePath, ENCODING);
+        String inspectionTemplate = readFile(inspectionTemplatePath, ENCODING);
 
         Date now = new Date();
         // get all active exams created by this teachers
@@ -281,14 +281,6 @@ public class EmailComposer {
             String row = replaceAll(subTemplate, tagOpen, tagClosed, stringValues);
             enrollmentBlock.append(row);
         }
-
-//        List<ExamParticipation> ownExams = Ebean.find(ExamParticipation.class)
-//                .select("id, exam.id")
-//                .fetch("exam")
-//                .where()
-//                .eq("exam.grade", null)     // Owh, should check if exam graded, somehow better
-//                .eq("exam.creator.id", teacher.getId())
-//                .findList();
 
         List<ExamInspection> ownInspections = Ebean.find(ExamInspection.class)
                 .select("exam.id, user.id")

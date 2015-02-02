@@ -2,22 +2,17 @@ package models.questions;
 
 import annotations.NonCloneable;
 import models.Attachment;
-import models.Comment;
-import models.EvaluationPhrase;
 import models.SitnetModel;
 import models.answers.AbstractAnswer;
-import util.SitnetUtil;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import javax.persistence.*;
 
-/**
- * Created by avainik on 3/6/14.
- */
 @Entity
 @Table(name = "question")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "question_type", discriminatorType = DiscriminatorType.STRING)
-abstract public class AbstractQuestion extends SitnetModel {
+public abstract class AbstractQuestion extends SitnetModel {
 
     protected String type;
 
@@ -37,14 +32,6 @@ abstract public class AbstractQuestion extends SitnetModel {
     @Column(columnDefinition="numeric default 0")
     protected Double evaluatedScore;
 
-    /*
-     * If question is edited (correcting a spelling mistake)
-     * inplace in an active exam (question is used in an exam that has been published)
-     * We create a new instance of this question.
-     * This attribute points to old question, so that we could keep
-     * track of different versions.
-     * This attribute might have use in statistics.
-     */
     @OneToOne(cascade = CascadeType.PERSIST) // do not delete parent question
     @NonCloneable
     protected AbstractQuestion parent;
@@ -55,44 +42,12 @@ abstract public class AbstractQuestion extends SitnetModel {
     @Column(columnDefinition = "TEXT")
     protected String evaluationCriterias;
 
-    //    @OneToMany(cascade = CascadeType.ALL, mappedBy="question")
-    //    @ManyToMany(cascade = CascadeType.PERSIST)
-//    @OneToOne
-    //    protected List<EvaluationCriteria> evaluationCriterias;
-
-    //    attachments, images, Videos, documents
     @OneToOne(cascade = CascadeType.ALL)
     protected Attachment attachment;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    protected EvaluationPhrase evaluationPhrases;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @NonCloneable
-    protected Comment comments;
-
-    /*
-    A question can be a prototype (in a question bank) and it can be used in an Exam
-    If it is, then we need to create a copy of it.
-    But then we have a duplicate (same content, different id)
-    How to prevent showing same question N times in question bank?
-
-    We create a hash oq question attributes:
-    - question
-    - options
-    - etc
-
-    Now we have a unique key to distinguish questions by content.
-    Each question type should have its own hash generation logic.
-
-     */
-    @Column(length = 32)
-    protected String hash;
 
     // In UI, section has been expanded
     @Column(columnDefinition="boolean default false")
     private boolean expanded;
-
 
     public String getState() { return state; }
 
@@ -162,30 +117,6 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.attachment = attachment;
     }
 
-    public EvaluationPhrase getEvaluationPhrases() {
-        return evaluationPhrases;
-    }
-
-    public void setEvaluationPhrases(EvaluationPhrase evaluationPhrases) {
-        this.evaluationPhrases = evaluationPhrases;
-    }
-
-    public Comment getComments() {
-        return comments;
-    }
-
-    public void setComments(Comment comments) {
-        this.comments = comments;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
-
     public boolean getExpanded() {
         return expanded;
     }
@@ -210,14 +141,6 @@ abstract public class AbstractQuestion extends SitnetModel {
         this.evaluatedScore = evaluatedScore;
     }
 
-    public AbstractQuestion getAncestor(AbstractQuestion abstractQuestion) {
-        if(abstractQuestion.getParent() == null) {
-            return abstractQuestion;
-        } else {
-            return abstractQuestion.getAncestor(this.getParent());
-        }
-    }
-
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -227,21 +150,17 @@ abstract public class AbstractQuestion extends SitnetModel {
             return false;
         }
         AbstractQuestion other = (AbstractQuestion)object;
-        return other.getId().equals(getId());
+        return new EqualsBuilder().append(id, other.getId()).build();
     }
 
-	@Override
-    public Object clone() {
-        return SitnetUtil.getClone(this);
-    }
-	
+	public abstract AbstractQuestion copy();
+
    	@Override
     public String toString() {
         return "AbstractQuestion [type=" + type + ", question=" + question
                 + ", shared=" + shared + ", instruction=" + instruction
                 + ", parent=" + parent
-                + ", evaluationCriterias=" + evaluationCriterias + ", hash="
-                + hash + "]";
+                + ", evaluationCriterias=" + evaluationCriterias + "]";
     }
 
 }

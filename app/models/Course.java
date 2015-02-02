@@ -177,7 +177,6 @@ public class Course extends Model {
     }
 
     public Course(String name) {
-        super();
         this.name = name;
     }
 

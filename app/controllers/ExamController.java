@@ -1,7 +1,5 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
-import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -11,11 +9,12 @@ import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import exceptions.MalformedDataException;
+import exceptions.SitnetException;
 import models.*;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
-import models.questions.MultipleChoiseOption;
 import org.springframework.util.CollectionUtils;
 import play.Logger;
 import play.data.DynamicForm;
@@ -756,47 +755,21 @@ public class ExamController extends SitnetController {
 
     private static AbstractQuestion clone(String type, Long id) {
         switch (type) {
-            case "MultipleChoiceQuestion": {
-                MultipleChoiceQuestion multiQuestion = Ebean.find(MultipleChoiceQuestion.class)
-                        .fetch("attachment")
-                        .where()
-                        .eq("id", id)
-                        .findUnique();
-
-                MultipleChoiceQuestion clone = (MultipleChoiceQuestion) multiQuestion.clone();
-                clone.setParent(multiQuestion);
-                clone.setCreator(UserController.getLoggedUser());
-                clone.setCreated(new Date());
-                // this is dumb, should fix the generic clone implementation
-                clone.setOptions(new ArrayList<MultipleChoiseOption>());
-                SitnetUtil.setModifier(clone);
-                clone.save();
-                List<MultipleChoiseOption> options = multiQuestion.getOptions();
-                for (MultipleChoiseOption o : options) {
-                    MultipleChoiseOption clonedOpt = (MultipleChoiseOption) o.clone();
-                    clonedOpt.setQuestion(clone);
-                    clonedOpt.save();
-                    clone.getOptions().add(clonedOpt);
-                }
-                return clone;
-            }
-            case "EssayQuestion": {
-                EssayQuestion essayQuestion = Ebean.find(EssayQuestion.class)
-                        .fetch("attachment")
-                        .where()
-                        .eq("id", id)
-                        .findUnique();
-
-                EssayQuestion clone;
-                clone = (EssayQuestion) essayQuestion.clone();
-                clone.setParent(essayQuestion);
-                SitnetUtil.setModifier(clone);
-                clone.save();
-                return clone;
-            }
-            default: {
+            case "MultipleChoiceQuestion":
+                MultipleChoiceQuestion choice = Ebean.find(MultipleChoiceQuestion.class, id).copy();
+                choice.setCreator(UserController.getLoggedUser());
+                choice.setCreated(new Date());
+                SitnetUtil.setModifier(choice);
+                choice.save();
+                Ebean.save(choice.getOptions());
+                return choice;
+            case "EssayQuestion":
+                EssayQuestion essay = Ebean.find(EssayQuestion.class, id).copy();
+                SitnetUtil.setModifier(essay);
+                essay.save();
+                return essay;
+            default:
                 return null;
-            }
         }
     }
 

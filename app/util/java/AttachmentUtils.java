@@ -2,9 +2,6 @@ package util.java;
 
 import java.io.*;
 
-/**
- * Created by Mikko Katajamaki on 10/09/14.
- */
 public class AttachmentUtils {
 
     public static ByteArrayOutputStream setData(File file) {

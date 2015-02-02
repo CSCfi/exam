@@ -1,10 +1,10 @@
-import Exceptions.AuthenticateException;
-import Exceptions.MalformedDataException;
 import akka.actor.Cancellable;
 import com.avaje.ebean.Ebean;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import controllers.StatisticsController;
+import exceptions.AuthenticateException;
+import exceptions.MalformedDataException;
 import models.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -96,7 +96,7 @@ public class Global extends GlobalSettings {
     private void weeklyEmailReport() {
         // TODO: store the time of last dispatch in db so we know if scheduler was not run and send an extra report
         // in that case?
-        
+
         // Every Monday at 5AM UTC
         FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
         FiniteDuration frequency = FiniteDuration.create(7, TimeUnit.DAYS);
@@ -130,7 +130,9 @@ public class Global extends GlobalSettings {
                 Throwable cause = t.getCause();
                 String errorMessage = cause.getMessage();
 
-                if(Logger.isDebugEnabled()) {Logger.debug("onError: " + errorMessage);}
+                if (Logger.isDebugEnabled()) {
+                    Logger.debug("onError: " + errorMessage);
+                }
 
                 if (cause instanceof AuthenticateException) {
                     return Results.unauthorized(Json.toJson(errorMessage));
@@ -148,7 +150,9 @@ public class Global extends GlobalSettings {
 
     @Override
     public Promise<SimpleResult> onBadRequest(Http.RequestHeader request, final String error) {
-        if(Logger.isDebugEnabled()) {Logger.debug("onBadRequest: " + error);}
+        if (Logger.isDebugEnabled()) {
+            Logger.debug("onBadRequest: " + error);
+        }
         return F.Promise.promise(new F.Function0<SimpleResult>() {
             public SimpleResult apply() {
                 return Results.badRequest(Json.toJson(new ApiError(error)));
@@ -169,7 +173,7 @@ public class Global extends GlobalSettings {
         String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
 
-        if(session != null && request.path().indexOf("checkSession") == -1) {
+        if (session != null && !request.path().contains("checkSession")) {
             session.setSince(DateTime.now());
             Cache.set(SITNET_CACHE_KEY + token, session);
         }
@@ -183,12 +187,13 @@ public class Global extends GlobalSettings {
         String loginType = ConfigFactory.load().getString("sitnet.login");
         String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
-        AuditLogger.log(request, actionMethod, session);
+        AuditLogger.log(request, session);
 
         if (session == null) {
             Logger.info("Session with token {} not found", token);
             return super.onRequest(request, actionMethod);
         }
+
         //ugh, this works, apparently. I don't like play.
         if (!session.isValid()) {
             Logger.warn("Session #{} is marked as invalid", token);
@@ -289,11 +294,11 @@ public class Global extends GlobalSettings {
             } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                 // Right room, wrong machine
                 header = "x-sitnet-wrong-machine";
-                message = enrolment.getId().toString() + ":::" + lookedUp.getName();
+                message = enrolment.getId() + ":::" + lookedUp.getName();
             } else {
                 // Wrong room
                 header = "x-sitnet-wrong-room";
-                message = enrolment.getId().toString() + ":::" + lookedUp.getRoom() + ":::" +
+                message = enrolment.getId() + ":::" + lookedUp.getRoom() + ":::" +
                         lookedUp.getRoom().getRoomCode() + ":::" + lookedUp.getName();
             }
             headers.put(header, DatatypeConverter.printBase64Binary(message.getBytes()));
@@ -356,12 +361,12 @@ public class Global extends GlobalSettings {
 
         public AddHeader(Action action, Map<String, String> headers) {
             this.headers = headers;
-            this.delegate = action;
+            delegate = action;
         }
 
         @Override
         public Promise<SimpleResult> call(Http.Context context) throws Throwable {
-            final Promise<SimpleResult> promise = this.delegate.call(context);
+            Promise<SimpleResult> promise = delegate.call(context);
             Http.Response response = context.response();
 
             for (Map.Entry<String, String> entry : headers.entrySet()) {

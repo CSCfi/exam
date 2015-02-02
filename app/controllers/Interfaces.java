@@ -1,7 +1,7 @@
 package controllers;
 
 
-import Exceptions.NotFoundException;
+import exceptions.NotFoundException;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;

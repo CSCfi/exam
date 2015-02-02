@@ -13,7 +13,6 @@ public class ExamScore extends Model {
     @Temporal(TemporalType.TIMESTAMP)
     protected Timestamp ebeanTimestamp;
 
-    // Tallennetaan Sitnet tietokantaan, koska osassa organisaatioita suoritukset viedään erä-ajona
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;

@@ -8,13 +8,6 @@ import javax.persistence.*;
 import java.util.Date;
 import java.sql.Timestamp;
 
-
-/* 
- * Tilavaraus
- * http://tietomalli.csc.fi/Tilavaraus-kaavio.html
- * 
- * 
- */
 @Entity
 public class Reservation extends Model {
 

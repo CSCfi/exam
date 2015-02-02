@@ -9,11 +9,6 @@ import java.util.ArrayList;
 import java.sql.Timestamp;
 import java.util.List;
 
-/*
- * Tenttikone jolla opiskelija tekee tentin
- * Kone sijaitsee Tenttiakvaariossa
- * 
- */
 @Entity
 public class ExamMachine extends Model {
 
@@ -25,18 +20,10 @@ public class ExamMachine extends Model {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
-    /*
-     * jonkinlainen ID jolla kone tunnistetaan
-     *
-     * Esim akvaario-koneenID  IT103-7
-     */
     private String name;
 
-    /*
-     * Other identifier for the exam machine, specified in task SIT-84
-     */
     private String otherIdentifier;
-    // Esteettömyystieto
+
     @Deprecated
     private String accessibilityInfo;
 
@@ -45,11 +32,9 @@ public class ExamMachine extends Model {
     @Deprecated
     private boolean accessible;
 
-    // Ohjelmistot
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Software> softwareInfo = new ArrayList<>();
 
-    // Esteettömyys
     @ManyToMany(cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Accessibility> accessibility;

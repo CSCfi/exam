@@ -1,8 +1,7 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import play.Logger;
-import util.SitnetUtil;
+import org.springframework.beans.BeanUtils;
 
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorValue;
@@ -11,39 +10,16 @@ import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by avainik on 3/7/14.
- */
 @Entity
 @DiscriminatorValue("MultipleChoiceQuestion")
-public class MultipleChoiceQuestion extends AbstractQuestion implements QuestionInterface {
+public class MultipleChoiceQuestion extends AbstractQuestion {
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "question")
     @JsonManagedReference
     private List<MultipleChoiseOption> options = new ArrayList<>();
 
-
     public MultipleChoiceQuestion() {
-        this.type = this.getClass().getSimpleName();
-    }
-
-    @Override
-    public String generateHash() {
-
-        String attributes = question + instruction;
-
-        for (MultipleChoiseOption option : options) {
-            attributes += option.getOption();
-        }
-
-        this.hash = SitnetUtil.encodeMD5(attributes);
-        Logger.debug("Question hash: " + this.hash);
-        return hash;
-    }
-
-    @Override
-    public String getType() {
-        return this.type;
+        type = getClass().getSimpleName();
     }
 
     public List<MultipleChoiseOption> getOptions() {
@@ -62,9 +38,14 @@ public class MultipleChoiceQuestion extends AbstractQuestion implements Question
     }
 
     @Override
-    public Object clone() {
-
-        return SitnetUtil.getClone(this);
+    public MultipleChoiceQuestion copy() {
+        MultipleChoiceQuestion question = new MultipleChoiceQuestion();
+        BeanUtils.copyProperties(this, question, new String[]{"id", "answer", "options"});
+        question.setParent(this);
+        for (MultipleChoiseOption o : options) {
+            question.getOptions().add(o.copy());
+        }
+        return question;
     }
 
 }

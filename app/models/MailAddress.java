@@ -17,14 +17,13 @@ public class MailAddress extends Model {
     protected Timestamp ebeanTimestamp;
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     private String street;
 
     private String zip;
 
-    // postitoimipakka
     private String city;
 
     public Long getId() {
@@ -61,6 +60,6 @@ public class MailAddress extends Model {
 
     @Override
     public String toString() {
-        return street +", "+ city +", "+ zip;
+        return street + ", " + city + ", " + zip;
     }
 }

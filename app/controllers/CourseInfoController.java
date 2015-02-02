@@ -1,6 +1,6 @@
 package controllers;
 
-import Exceptions.NotFoundException;
+import exceptions.NotFoundException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;

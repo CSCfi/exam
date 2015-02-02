@@ -1,7 +1,7 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
-import Exceptions.NotFoundException;
+import exceptions.MalformedDataException;
+import exceptions.NotFoundException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;

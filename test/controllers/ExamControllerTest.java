@@ -108,11 +108,10 @@ public class ExamControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsTeacher
-    public void testGetExam() {
+    public void testGetExam() throws Exception {
         // Setup
         long id = 1L;
         Exam expected = Ebean.find(Exam.class, id);
-
         // Execute
         Result result = get("/exams/" + id);
 
@@ -166,7 +165,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     }
 
     private String[] getExamSectionFieldsOfExam(String index) {
-        String[] fields = new String[] {"name", "totalScore", "id", "expanded", "lotteryOn", "lotteryItemCount"};
+        String[] fields = {"name", "totalScore", "id", "expanded", "lotteryOn", "lotteryItemCount"};
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = "examSections[" + index + "]." + fields[i];
         }
@@ -174,7 +173,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     }
 
     private String[] getSectionQuestionFieldsOfSection(String sectionIndex, String sectionQuestionIndex) {
-        String[] fields = new String[] {"sequenceNumber", "question", "question.question", "question.answer"};
+        String[] fields = {"sequenceNumber", "question", "question.question", "question.answer"};
         for (int i = 0; i < fields.length; ++i) {
             fields[i] = "examSections[" + sectionIndex + "].sectionQuestions[" + sectionQuestionIndex + "]." + fields[i];
         }

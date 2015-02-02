@@ -194,9 +194,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1000
     shared: true
     expanded: false
@@ -208,9 +206,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1024
     shared: false
     expanded: false
@@ -222,9 +218,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Select
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 2250
     shared: false
     expanded: false
@@ -237,9 +231,7 @@ question_essay:
     maxScore: 5
     evaluationType: Select
    #materials:
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 2250
     shared: false
     expanded: false
@@ -253,9 +245,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1000
     shared: true
     expanded: false
@@ -277,9 +267,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1024
     shared: false
     expanded: false
@@ -302,9 +290,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Select
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 2250
     shared: false
     expanded: false
@@ -326,9 +312,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1000
     shared: true
     expanded: false
@@ -350,9 +334,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1024
     shared: false
     expanded: false
@@ -375,9 +357,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Select
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 2250
     shared: false
     expanded: false
@@ -401,9 +381,7 @@ question_multiple_choice:
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     attachment: *att1
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
@@ -418,9 +396,7 @@ question_multiple_choice:
     created: 2014-01-03 12:40:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
@@ -435,9 +411,7 @@ question_multiple_choice:
     created: 2014-01-01 12:10:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Antiteflon, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Adheesio, correctOption: false, score: 1}
@@ -451,9 +425,7 @@ question_multiple_choice:
     created: 2014-01-02 12:50:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Lampaita, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Ihmisiä, correctOption: false, score: 1}
@@ -468,9 +440,7 @@ question_multiple_choice:
     created: 2014-01-06 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Tulevaisuus valkenee, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false, score: 1}
@@ -484,9 +454,7 @@ question_multiple_choice:
     created: 2014-01-07 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: kosmonautti, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: kosmetologi, correctOption: false, score: 1}
@@ -499,9 +467,7 @@ question_multiple_choice:
     created: 2014-01-08 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Ytimessä, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Säteilyvyöhykkeessä, correctOption: false, score: 1}
@@ -514,9 +480,7 @@ question_multiple_choice:
     created: 2014-01-09 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Aikaa, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Etäisyyttä, correctOption: true, score: 1}
@@ -529,9 +493,7 @@ question_multiple_choice:
     created: 2014-01-10 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
@@ -544,9 +506,7 @@ question_multiple_choice:
     created: 2014-01-11 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}
@@ -560,9 +520,7 @@ question_multiple_choice:
     created: 2014-01-12 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Aineen palamisesta ilmakehässä, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Kaasujen hehkumisesta, correctOption: false, score: 1}
@@ -575,9 +533,7 @@ question_multiple_choice:
     created: 2014-01-13 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maa, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Jupiter, correctOption: true, score: 1}
@@ -591,9 +547,7 @@ question_multiple_choice:
     created: 2014-01-14 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Jupiterin korkeapaineen aluetta, correctOption: true, score: 1}
@@ -607,9 +561,7 @@ question_multiple_choice:
     created: 2014-01-15 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true, score: 1}
@@ -623,9 +575,7 @@ question_multiple_choice:
     created: 2014-01-16 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Kuu on Auringon ja Maan välissä, correctOption: true, score: 1}
@@ -639,9 +589,7 @@ question_multiple_choice:
     created: 2014-01-17 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Kuun vetovoima, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Auringon vetovoima, correctOption: true, score: 1}
@@ -657,9 +605,7 @@ question_multiple_choice:
     parent: *multi1
     attachment: *att1
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
@@ -675,9 +621,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-03 12:40:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
@@ -694,9 +638,7 @@ question_multiple_choice:
     creator: *arvo
     created: 2014-01-02 12:50:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Lampaita, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Ihmisiä, correctOption: false, score: 1}
@@ -712,9 +654,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-10 12:30:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
@@ -728,9 +668,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-11 12:30:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}
@@ -748,9 +686,7 @@ question_multiple_choice:
     parent: *multi1
     attachment: *att1
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
@@ -766,9 +702,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-03 12:40:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
@@ -785,9 +719,7 @@ question_multiple_choice:
     creator: *arvo
     created: 2014-01-02 12:50:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Lampaita, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Ihmisiä, correctOption: false, score: 1}
@@ -803,9 +735,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-10 12:30:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
@@ -819,9 +749,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-11 12:30:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}

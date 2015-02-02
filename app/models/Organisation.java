@@ -6,19 +6,6 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
 
-// http://tietomalli.csc.fi/Korkeakoulu-kaavio.html
-// http://tietomalli.csc.fi/Sis%C3%A4inen%20organisaatio-kaavio.html
-/* 
- * Dummy Organisaatio
- * 
- * Tämä rakenne mahdolistaa heirarkisen puurakenteen
- * 
- * 								Oulun Yliopisto
- * 								/				\
- * 		Luonnontieteellinen tiedetkunta			Teknillinen tiedekunta
- * 			/					\					/					\
- * Biologian laitos		Maantieteen laitos		Konetekniikka		Tuotantotalous
- */
 @Entity
 public class Organisation extends Model {
 
@@ -32,14 +19,11 @@ public class Organisation extends Model {
 	
     private String code;
 	
-	// Selkokielinen nimi esim Oulun Yliopisto
 	private String name;
 
-	//Nimilyhenne   OAMK
 	private String nameAbbreviation;
 
 
-	// Organisaatiolla on N kappaletta lapsia, joilla voi olla omia lapsia
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name="organisation_organisation",
     	      joinColumns=@JoinColumn(name="parent_id"),
@@ -50,8 +34,6 @@ public class Organisation extends Model {
 
     private String recordsWhitelistIp;
 
-    // VAT identification number
-	// Y-tunnus
 	private String vatIdNumber;
 
     public String getCode() {

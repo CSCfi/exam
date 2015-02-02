@@ -8,10 +8,6 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
 
-
-/**
- * Created by avainik on 4/22/14.
- */
 @Entity
 @DiscriminatorValue("ExceptionWorkingHours")
 public class ExceptionWorkingHours extends Model {

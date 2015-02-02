@@ -1,17 +1,15 @@
 package models;
 
 import annotations.NonCloneable;
-import play.Logger;
-import play.data.format.Formats;
+import play.data.format.Formats.DateTime;
 import play.db.ebean.Model;
-import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.Date;
 
 @MappedSuperclass
-abstract public class SitnetModel extends Model implements Cloneable {
+public abstract class SitnetModel extends Model {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -21,16 +19,14 @@ abstract public class SitnetModel extends Model implements Cloneable {
     @Temporal(TemporalType.TIMESTAMP)
     protected Timestamp ebeanTimestamp;
 	
-//	@CreatedTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    @Formats.DateTime(pattern="yyyy/MM/dd")
+    @DateTime(pattern="yyyy/MM/dd")
     protected Date created;
 	
 	@OneToOne
     @NonCloneable
 	protected User creator;
 	
-//	@UpdatedTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     protected Date modified;
 	
@@ -39,11 +35,9 @@ abstract public class SitnetModel extends Model implements Cloneable {
 	protected User modifier;
 	
 	public SitnetModel() {
-		super();
 	}
 	
 	public SitnetModel(User creator) {
-		super();
 		this.creator = creator;
 	}
 
@@ -87,13 +81,4 @@ abstract public class SitnetModel extends Model implements Cloneable {
 		this.modifier = modifier;
 	}
 
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-
-        SitnetModel copy = (SitnetModel)SitnetUtil.getClone(this);
-
-        Logger.debug("clone: " + copy);
-
-        return copy;
-    }
 }

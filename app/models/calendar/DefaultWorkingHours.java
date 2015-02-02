@@ -10,7 +10,6 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 @Entity
-//@EntityConcurrencyMode(ConcurrencyMode.NONE)
 public class DefaultWorkingHours extends Model {
 
     public enum Day {

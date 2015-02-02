@@ -40,8 +40,6 @@ public class ValidationUtil {
             return "sitnet_error_end_sooner_than_now";
         }
 
-
-
         return "OK";
     }
 }

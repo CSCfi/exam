@@ -22,8 +22,6 @@ public class User extends Model implements Subject {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private ShibbolethUser shibbolethUser;
-
     private String email;
 
     // used identify user
@@ -55,18 +53,18 @@ public class User extends Model implements Subject {
     
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
-    private List<ExamEnrolment> enrolments;
+    private List<ExamEnrolment> enrolments = new ArrayList<>();
     
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
-    private List<ExamParticipation> participations;
+    private List<ExamParticipation> participations = new ArrayList<>();
     
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
-    private List<ExamInspection> inspections;
+    private List<ExamInspection> inspections = new ArrayList<>();
 
     @Column(columnDefinition="BOOLEAN DEFAULT FALSE")
-    private boolean hasAcceptedUserAgreament = false;
+    private boolean hasAcceptedUserAgreament;
 
 
     public boolean isHasAcceptedUserAgreament() {
@@ -108,15 +106,6 @@ public class User extends Model implements Subject {
     public void setId(Long id) {
         this.id = id;
     }
-
-    public ShibbolethUser getShibbolethUser() {
-        return shibbolethUser;
-    }
-
-    public void setShibbolethUser(ShibbolethUser shibbolethUser) {
-        this.shibbolethUser = shibbolethUser;
-    }
-
 
     public String getEmail() {
         return email;
@@ -175,10 +164,6 @@ public class User extends Model implements Subject {
     }
 
     public List<ExamEnrolment> getEnrolments() {
-
-        if(enrolments == null) {
-            enrolments = new ArrayList<ExamEnrolment>();
-        }
         return enrolments;
 	}
 
@@ -187,10 +172,6 @@ public class User extends Model implements Subject {
 	}
 
 	public List<ExamParticipation> getParticipations() {
-
-        if(participations == null) {
-            participations = new ArrayList<ExamParticipation>();
-        }
         return participations;
 	}
 
@@ -199,10 +180,6 @@ public class User extends Model implements Subject {
 	}
 
 	public List<ExamInspection> getInspections() {
-
-        if(inspections == null) {
-            inspections = new ArrayList<ExamInspection>();
-        }
         return inspections;
 	}
 
@@ -217,7 +194,7 @@ public class User extends Model implements Subject {
 
     public boolean hasRole(String name) {
 
-        for (SitnetRole role : this.roles) {
+        for (SitnetRole role : roles) {
             if(role.getName().equals(name))
                 return true;
         }

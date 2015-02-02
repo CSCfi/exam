@@ -1,6 +1,6 @@
 package controllers;
 
-import Exceptions.NotFoundException;
+import exceptions.NotFoundException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -26,8 +26,8 @@ public class CalendarController extends SitnetController {
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws NotFoundException {
-        final User user = UserController.getLoggedUser();
-        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        User user = UserController.getLoggedUser();
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("user.id", user.getId())
                 .eq("reservation.id", id)
@@ -221,7 +221,7 @@ public class CalendarController extends SitnetController {
     }
 
     private static Exam getEnrolledExam(Long examId) {
-        final User user = UserController.getLoggedUser();
+        User user = UserController.getLoggedUser();
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where()

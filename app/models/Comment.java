@@ -7,15 +7,11 @@ import javax.persistence.OneToOne;
 @Entity
 public class Comment extends SitnetModel {
 
-//	@ManyToOne(cascade = CascadeType.PERSIST)
-//	private AbstractQuestion question;
-
     @Column(columnDefinition = "TEXT")
 	private String comment;
 
 	@OneToOne
 	private Comment reply;
-
 
 	public String getComment() {
 		return comment;

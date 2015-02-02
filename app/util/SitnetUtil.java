@@ -1,22 +1,17 @@
 package util;
 
-import Exceptions.SitnetException;
-import annotations.NonCloneable;
 import com.avaje.ebean.Ebean;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.typesafe.config.ConfigFactory;
 import controllers.UserController;
+import exceptions.SitnetException;
 import models.*;
-import models.questions.QuestionInterface;
 import org.apache.commons.codec.digest.DigestUtils;
+import play.Logger;
 import play.libs.Yaml;
 
 import javax.persistence.PersistenceException;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,84 +20,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * Created by avainik on 3/19/14.
- */
 public class SitnetUtil {
 
     public static String getHostName() {
         return ConfigFactory.load().getString("sitnet.application.hostname");
     }
 
-    //FIXME: This reflection thing is f*cked up, we should have customized cloning methods and not rely on this
-    public static Object getClone(Object object) {
-
-        Object clone;
-        try {
-            clone = object.getClass().newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Walk up the superclass hierarchy
-        for (Class obj = object.getClass(); !obj.equals(Object.class); obj = obj.getSuperclass()) {
-            Field[] fields = obj.getDeclaredFields();
-            for (Field field : fields) {
-                field.setAccessible(true);
-                try {
-                    if (field.get(object) != null && field.getAnnotation(JsonBackReference.class) == null) {
-                        if (field.getAnnotation(NonCloneable.class) == null) {
-                            field.setAccessible(true);
-                            Class<?> clazz = field.get(object).getClass();
-                            Class<?> superclass = clazz.getSuperclass();
-                            if (SitnetModel.class.isAssignableFrom(superclass)) {
-                                try {
-                                    Method method = clazz.getDeclaredMethod("clone");
-                                    if (method == null) {
-                                        break;
-                                    } else {
-                                        if (field.get(object) != null) {
-                                            Object obo = method.invoke(field.get(object));
-                                            field.set(clone, obo);
-                                        }
-                                    }
-                                } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            } else {
-                                if (field.get(object) != null) {
-                                    String name = field.getName().toLowerCase();
-
-                                    // if this is SitnetModel and must be cloned; set ID null
-                                    // http://avaje.org/topic-112.html
-                                    // removing ebean fields helps in some cases
-                                    if (!name.startsWith("_ebean"))
-                                        field.set(clone, field.get(object));
-                                    if (name.equals("id"))
-                                        field.set(clone, null);
-                                    if (name.equals("ebeantimestamp"))
-                                        field.set(clone, null);
-                                }
-                            }
-                        } else
-                            try {
-                                field.setAccessible(true);
-                                if (field.get(object) != null)
-                                    field.set(clone, field.get(object));
-                            } catch (IllegalAccessException e) {
-                                throw new RuntimeException(e);
-                            }
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-        return clone;
-    }
-
-    static public SitnetModel setCreator(SitnetModel object) throws SitnetException {
+    public static SitnetModel setCreator(SitnetModel object) throws SitnetException {
 
         User user = UserController.getLoggedUser();
 
@@ -115,7 +39,7 @@ public class SitnetUtil {
         return object;
     }
 
-    static public SitnetModel setModifier(SitnetModel object) {
+    public static SitnetModel setModifier(SitnetModel object) {
 
         User user = UserController.getLoggedUser();
 
@@ -125,7 +49,7 @@ public class SitnetUtil {
         return object;
     }
 
-    static public boolean isInspector(Exam exam) {
+    public static boolean isInspector(Exam exam) {
 
         User user = UserController.getLoggedUser();
         Exam examToCheck = exam.getParent() == null ? exam : exam.getParent();
@@ -137,7 +61,7 @@ public class SitnetUtil {
                 .findUnique() != null;
     }
 
-    static public boolean isOwner(SitnetModel object) {
+    public static boolean isOwner(SitnetModel object) {
 
         User user = UserController.getLoggedUser();
 
@@ -156,16 +80,16 @@ public class SitnetUtil {
         return object.getCreator() != null && object.getCreator().getId().equals(user.getId());
     }
 
-    static public String encodeMD5(String str) {
+    public static String encodeMD5(String str) {
         return DigestUtils.md5Hex(str);
     }
 
-    static public void removeAttachmentFile(String filePath) {
+    public static void removeAttachmentFile(String filePath) {
         // Perform disk clean upon attachment removal.
         Path path = FileSystems.getDefault().getPath(filePath);
         try {
             if (!Files.deleteIfExists(path)) {
-                System.err.println("Could not delete " + path + " because it did not exist.");
+                Logger.error("Could not delete " + path + " because it did not exist.");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -221,15 +145,9 @@ public class SitnetUtil {
                 Ebean.save(all.get("exam-enrolments"));
                 Ebean.save(all.get("user-agreament"));
                 Ebean.save(all.get("grades"));
+                Ebean.save(all.get("question_multiple_choice"));
 
-                // generate hashes for questions
-                List<Object> questions = all.get("question_multiple_choice");
-                for (Object q : questions) {
-                    ((QuestionInterface) q).generateHash();
-                }
-                Ebean.save(questions);
-
-                // generate hashes for questions
+                // generate hashes for exams
                 List<Object> exams = all.get("exams");
                 for (Object e : exams) {
                     ((Exam) e).generateHash();

@@ -48,17 +48,6 @@ public class StatisticsUtils {
         }
     }
 
-    public static void setBytes(FileInputStream fis, ByteArrayOutputStream bos) {
-        byte[] buf = new byte[1024];
-        try {
-            for (int readNum; (readNum = fis.read(buf)) != -1; ) {
-                bos.write(buf, 0, readNum);
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public static void addCell(Row dataRow, int index, String content) {
         if (content == null) {
             dataRow.createCell(index).setCellValue("");
