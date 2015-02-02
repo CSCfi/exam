@@ -20,15 +20,11 @@ public class EnrollController extends Controller {
     public static Result enrollExamList(String code) {
 
         List<Exam> activeExams = Ebean.find(Exam.class)
-                .fetch("course")
-                .fetch("examLanguages")
                 .where()
                 .eq("course.code", code)
                 .eq("state", "PUBLISHED")
-//                .betweenProperties("examActiveStartDate", "examActiveEndDate", now)
-                .gt("examActiveEndDate", new Date())   // Students should be able to enroll, before exam starts.
+                .ge("examActiveEndDate", new Date())
                 .findList();
-
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, " +

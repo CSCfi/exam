@@ -376,7 +376,7 @@
                         "state": $scope.newExam.state,
                         "shared": $scope.newExam.shared,
                         "examActiveStartDate": new Date($scope.newExam.examActiveStartDate).getTime(),
-                        "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).getTime(),
+                        "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999),
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.grading,
                         "expanded": $scope.newExam.expanded
