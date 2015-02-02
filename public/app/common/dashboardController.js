@@ -140,7 +140,9 @@
                 };
 
                 $scope.beforeDate = function(date) {
-                    return Date.now() <= new Date(date);
+                    var today = new Date();
+                    today.setHours(0,0,0,0);
+                    return today <= new Date(date);
                 };
 
                 $scope.afterDate = function(date) {

@@ -45,7 +45,7 @@ public class ExamControllerTest extends IntegrationTestCase {
             e.update();
             ids.add(e.getId());
         }
-        String[] expectedPaths = new String[]{"id", "name", "course.code", "examActiveStartDate", "examActiveEndDate"};
+        String[] expectedPaths = {"id", "name", "course.code", "examActiveStartDate", "examActiveEndDate"};
 
         // Execute
         Result result = get("/activeexams");
