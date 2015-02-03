@@ -106,7 +106,7 @@
                             backdrop: 'static',
                             keyboard: false,
                             controller: function ($scope, $modalInstance, sessionService) {
-cd.
+
                                 $scope.ok = function () {
                                     console.log("ok");
                                     // OK button
