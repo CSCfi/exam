@@ -36,7 +36,7 @@
                                 $rootScope.$broadcast('wrongMachine');
                             }
                             else if (wrongMachine) {
-                                var parts = b64_to_utf8(wrongMachine).split(":::");
+                                parts = b64_to_utf8(wrongMachine).split(":::");
                                 waitingRoomService.setEnrolmentId(parts[0]);
                                 waitingRoomService.setActualMachine(parts[1]);
                                 $location.path('/student/wrongmachine');

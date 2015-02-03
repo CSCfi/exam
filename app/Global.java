@@ -262,7 +262,6 @@ public class Global extends GlobalSettings {
         return Ebean.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findUnique() != null;
     }
 
-
     private boolean machineOk(ExamEnrolment enrolment, Request request, Map<String,
             String> headers) {
         ExamMachine examMachine = enrolment.getReservation().getMachine();
@@ -270,8 +269,6 @@ public class Global extends GlobalSettings {
 
         String machineIp = examMachine.getIpAddress();
         String remoteIp = request.remoteAddress();
-        // for testing ->
-        //String remoteIp = "127.0.0.1";
 
         Logger.debug("\nUser ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
 
