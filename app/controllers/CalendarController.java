@@ -36,7 +36,7 @@ public class CalendarController extends SitnetController {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
         Reservation reservation = enrolment.getReservation();
-        if (reservation != null && reservation.toInterval().contains(DateTime.now())) {
+        if (reservation != null && reservation.toInterval().isBefore(DateTime.now())) {
             // Reservation is already in effect, too late to modify it
             return forbidden("sitnet_reservation_in_effect");
         }
@@ -78,7 +78,7 @@ public class CalendarController extends SitnetController {
             return badRequest("sitnet_error_enrolment_not_found");
         }
         Reservation oldReservation = enrolment.getReservation();
-        if (oldReservation != null && oldReservation.toInterval().contains(DateTime.now())) {
+        if (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now())) {
             // Reservation is already in effect, too late to modify it
             return forbidden("sitnet_reservation_in_effect");
         }

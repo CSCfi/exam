@@ -28,9 +28,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by avainik on 3/3/14.
- */
 public class StudentExamController extends SitnetController {
 
     @Restrict({@Group("STUDENT")})
@@ -160,7 +157,7 @@ public class StudentExamController extends SitnetController {
                 .where()
                 .eq("user.id", uid)
                 .disjunction()
-                .gt("reservation.startAt", new Date())
+                .gt("reservation.egitndAt", new Date())
                 .isNull("reservation")
                 .endJunction()
                 .disjunction()
