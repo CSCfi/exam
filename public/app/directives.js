@@ -241,15 +241,10 @@
                 require: 'ngModel',
                 template: '<div id="sitnet-header" class="header">' +
                     '<div class="col-md-8 header-wrapper">' +
-                        '<span class="header-text">' + $translate("sitnet_welcome") + ',{{getUsername()}}</span>' +
+                        '<span class="header-text">' + $translate("sitnet_welcome") + ', {{getUsername()}}</span>' +
                     '</div>' +
                     '<div class="col-md-2 header-wrapper"></div>' +
                     '<div class="col-md-2 ">' +
-                /*<span class="header-clock pull-right">
-                    <span class="col-md-12  weekday">24. lauantai</span>
-                    <span class="col-md-12  date">Toukokuuta 2014</span>
-                    <span class="col-md-12  clock"></span>
-                </span>*/
                     '</div>' +
                 '</div>'
             };

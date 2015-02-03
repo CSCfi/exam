@@ -108,7 +108,7 @@
                             controller: function ($scope, $modalInstance, sessionService) {
 
                                 $scope.ok = function () {
-                                    console.log("ok")
+                                    console.log("ok");
                                     // OK button
                                     UserRes.updateAgreementAccepted.update({id: user.id}, function (user) {
                                         sessionService.setUser(user);
@@ -149,6 +149,6 @@
             };
 
             login();
-            $http.get('/ping');
+
         }]);
 }());
