@@ -157,7 +157,7 @@ public class StudentExamController extends SitnetController {
                 .where()
                 .eq("user.id", uid)
                 .disjunction()
-                .gt("reservation.egitndAt", new Date())
+                .gt("reservation.endAt", new Date())
                 .isNull("reservation")
                 .endJunction()
                 .disjunction()
