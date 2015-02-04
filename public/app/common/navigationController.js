@@ -1,17 +1,17 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('NavigationCtrl', ['$scope', '$modal', '$translate', '$location', 'sessionService', 'waitingRoomService',
-            function ($scope, $modal, $translate, $location, sessionService, waitingRoomService) {
+        .controller('NavigationCtrl', ['$scope', '$rootScope', '$modal', '$translate', '$location', 'sessionService', 'waitingRoomService',
+            function ($scope, $rootScope, $modal, $translate, $location, sessionService, waitingRoomService) {
 
                 $scope.isActive = function (link) {
                     return link.href === "#" + $location.path();
                 };
 
                 $scope.loggedOut = false;
-                $scope.user = sessionService.getUser();
 
                 var links = function () {
+                    $scope.user = sessionService.getUser();
 
                     if($scope.user && $scope.user.isLoggedOut) {
                         $scope.loggedOut = true;
@@ -42,13 +42,14 @@
                     $scope.links = links();
                 });
 
-                $scope.$on('userUpdated', function () {
+                $rootScope.$on('userUpdated', function () {
                     $scope.links = links();
                 });
 
                 $scope.$on('invalidToken', function () {
                     $scope.links = links();
-                    var user = sessionService.getUser()['isLoggedOut'] = true;
+                    var user = sessionService.getUser();
+                    user['isLoggedOut'] = true;
                     sessionService.setUser(user);
                     $location.path("/invalid_session");
                 });
