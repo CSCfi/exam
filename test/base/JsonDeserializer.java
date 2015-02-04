@@ -34,7 +34,7 @@ public final class JsonDeserializer {
             } catch (ParseException e) {
                 try {
                     return new Date(json.getAsLong());
-                } catch (Exception e2) {
+                } catch (RuntimeException e2) {
                     Logger.warn("Failed to parse date " + json.getAsString());
                 }
             }

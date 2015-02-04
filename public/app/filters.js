@@ -1,11 +1,11 @@
-(function() {
+(function () {
     'use strict';
     angular.module('sitnet.filters')
-        .filter('newlines', function(text) {
+        .filter('newlines', function (text) {
             return text.replace(/\n/g, '');
         })
-        .filter('utc', function() {
-            return function(val) {
+        .filter('utc', function () {
+            return function (val) {
                 var date = new Date(val);
                 return new Date(date.getUTCFullYear(),
                     date.getUTCMonth(),
@@ -16,18 +16,18 @@
             };
 
         })
-        .filter('truncate', function() {
-            return function(text, after) {
-                if(text && text.indexOf("math-tex") === -1) {
+        .filter('truncate', function () {
+            return function (text, after) {
+                if (text && text.indexOf("math-tex") === -1) {
                     return text.substring(0, after) + "...";
                 }
                 return text;
             };
         })
-        .filter('striphtml', function() {
-            return function(html) {
+        .filter('striphtml', function () {
+            return function (html) {
                 // test if mathjax formula
-                if(html && html.indexOf("math-tex") === -1) {
+                if (html && html.indexOf("math-tex") === -1) {
                     var div = document.createElement("div");
                     div.innerHTML = html;
                     return div.textContent || div.innerText || "";
@@ -38,13 +38,13 @@
                 return html;
             };
         })
-        .filter('charcount', function() {
-            return function(text) {
+        .filter('charcount', function () {
+            return function (text) {
                 return text.replace(/(^"|"$|\\n)/g, "").replace(/\s+/g, ' ').trim().length;
             };
         })
-        .filter('wordcount', function() {
-            return function(text) {
+        .filter('wordcount', function () {
+            return function (text) {
                 var words = text.replace(/(\S\.)(?!\s)/g, "$1 ").replace(/(^"|"$|\\n)/g, '').match(/\S+/g);
                 return words ? words.length : 0;
             };
@@ -63,13 +63,20 @@
             var magicNumber = (1000 * 60 * 60 * 24);
 
             return function (fromDate) {
-                if(fromDate){
+                if (fromDate) {
                     var diff = (new Date(fromDate).getTime() - new Date().getTime()) / magicNumber;
-                    if(diff < 0) {
+                    if (diff < 0) {
                         return '<span class="sitnet-text-alarm">' + Math.floor(diff) + '</span>';
                     }
                     return '<span>' + Math.floor(diff) + '</span>';
                 }
             };
-    });
+        })
+        .filter('offset', function () {
+            return function(input, start) {
+                if (!input) return [];
+                start = parseInt(start);
+                return input.slice(start);
+            }
+        });
 }());

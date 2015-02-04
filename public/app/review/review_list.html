@@ -34,7 +34,7 @@
     <div class="row base" ng-show="toggleReviews">
         <div class="exams-list col-md-12">
             <div class="exams-table-borders">
-                <table class="table table-bordered exams-table">
+                <table class="table table-bordered table-striped exams-table">
                     <thead>
                     <tr>
                         <!--
@@ -58,7 +58,7 @@
                     </thead>
 
                     <tbody>
-                    <tr ng-repeat="review in examReviews | orderBy:reviewPredicate:reverse"
+                    <tr ng-repeat="review in examReviews | orderBy:reviewPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize"
                         ng-click="go('/exams/review/' + review.exam.id)" class="pointer">
                         <!--
                         <td class="table-column-flag"><i class="sitnet-dark-blue fa fa-flag"></i></td>
@@ -85,6 +85,7 @@
                 </table>
             </div>
         </div>
+        <paginator items="examReviews" page-size="pageSize" />
     </div>
 
     <!--Tarkastettu-->
@@ -143,6 +144,7 @@
                 </table>
             </div>
         </div>
+        <paginator items="gradedReviews" page-size="pageSize" />
     </div>
     <!--Kirjattu-->
     <div class="col-md-12 row">
@@ -197,5 +199,7 @@
                 </table>
             </div>
         </div>
+        <paginator items="gradedLoggedReviews" page-size="pageSize" />
     </div>
+
 </div>

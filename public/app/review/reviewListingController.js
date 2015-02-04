@@ -10,10 +10,11 @@
                 $scope.toggleReviews = false;
                 $scope.toggleGradedReviews = false;
 
+                $scope.pageSize = 10;
+
                 $scope.go = function (location) {
                     $location.path(location);
                 };
-
                 ExamRes.exams.get({id: $routeParams.id}, function(exam) {
                     $scope.examInfo = exam.course.code + " " + exam.name;
                 });
@@ -25,6 +26,10 @@
                         }
                     });
                 };
+
+                $scope.setCurrentPage = function(page) {
+                    $scope.currentPage = page;
+                }
 
                 // Unreviewed exams
                 ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW,', 'REVIEW_STARTED', 'ABORTED']},

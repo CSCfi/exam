@@ -248,5 +248,67 @@
                     '</div>' +
                 '</div>'
             };
-        }]);
+        }])
+        .directive('paginator', function() {
+            return {
+                restrict: 'E',
+                replace: true,
+                template: '<div class="row col-md-12 paginate">' +
+                    '<ul style="padding-left: 0">' +
+                    '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&larr;</a></li>' +
+                    '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{n * pageSize + 1}} - {{(n+1)*pageSize}}</a></li>' +
+                    '<li ng-class="nextPageDisabled()"><a href="" ng-click="nextPage()">&rarr;</a></li>' +
+                    '</ul>' +
+                    '</div>',
+                scope: {
+                    items: '=items',
+                    pageSize: '=pageSize'
+                }, // We might want to wire this with the table this paginates upon. The question is: HOW :)
+                link: function (scope, element, attrs) {
+                    var pageCount = 0;
+                    scope.$parent.currentPage = 0;
+                    scope.$watch('items', function(items) {
+                        if (items) pageCount = Math.ceil(items.length / scope.pageSize) - 1;
+                    });
+
+                    scope.previousPage = function() {
+                        if (scope.$parent.currentPage > 0) {
+                            scope.$parent.currentPage--;
+                        }
+                    };
+
+                    scope.isCurrent = function(n)
+                    {
+                        return n === scope.$parent.currentPage;
+                    };
+
+                    scope.previousPageDisabled = function() {
+                        return scope.$parent.currentPage === 0 ? "disabled" : "";
+                    };
+
+
+                    scope.nextPage = function() {
+                        if (scope.$parent.currentPage < pageCount) {
+                            scope.$parent.currentPage++;
+                        }
+                    };
+
+                    scope.nextPageDisabled = function() {
+                        return scope.$parent.currentPage === pageCount ? "disabled" : "";
+                    };
+
+                    scope.range = function() {
+                        var ret = [], x;
+                        for (x = 0; x <= pageCount; ++x) {
+                            ret.push(x);
+                        }
+                        return ret;
+                    };
+
+                    scope.setPage = function(n) {
+                        scope.$parent.currentPage = n;
+                    };
+                }
+            }
+        });
 }());
