@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module('sitnet.services')
-        .factory('sessionService', ['$q', '$localStorage', '$translate', '$injector', 'SITNET_CONF', function ($q, $localStorage, $translate, $injector, SITNET_CONF) {
+        .factory('sessionService', ['$q', '$sessionStorage', '$translate', '$injector', 'SITNET_CONF', function ($q, $sessionStorage, $translate, $injector, SITNET_CONF) {
             var _user;
             var _pending;
             var getUser = function () {
@@ -40,7 +40,7 @@
             var logout = function () {
                 var deferred = $q.defer();
                 http().post('/logout').success(function () {
-                    delete $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+                    delete $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY];
                     delete http().defaults.headers.common;
                     _user = undefined;
                     deferred.resolve();
@@ -75,7 +75,7 @@
                             hasAcceptedUserAgreament: user.hasAcceptedUserAgreament
                         };
 
-                        $localStorage[SITNET_CONF.AUTH_STORAGE_KEY] = _user;
+                        $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY] = _user;
                         _pending = false;
                         deferred.resolve();
                     }).error(function (error) {

@@ -9,16 +9,16 @@
                 };
 
                 $scope.loggedOut = false;
+                $scope.user = sessionService.getUser();
 
                 var links = function () {
-                    var sessionUser = sessionService.getUser();
 
-                    if(sessionUser && sessionUser.isLoggedOut) {
+                    if($scope.user && $scope.user.isLoggedOut) {
                         $scope.loggedOut = true;
                         return [];
                     }
 
-                    var user = sessionUser || {};
+                    var user = $scope.user || {};
                     var admin = user.isAdmin || false;
                     var student = user.isStudent || false;
                     var teacher = user.isTeacher || false;

@@ -1,8 +1,10 @@
 (function () {
+    // This is the controller for logging out and logging in if using dev type login. Haka initiated login is initiated
+    // automatically by the run block in sitnet.js
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$rootScope', '$localStorage', '$location', '$modal', '$translate', 'sessionService', 'UserRes', 'SITNET_CONF', 'tmhDynamicLocale',
-            function ($scope, $rootScope, $localStorage, $location, $modal, $translate, sessionService, UserRes, SITNET_CONF, tmhDynamicLocale) {
+        .controller('SessionCtrl', ['$scope', '$rootScope', '$location', '$modal', '$translate', 'sessionService', 'UserRes', 'SITNET_CONF', 'tmhDynamicLocale',
+            function ($scope, $rootScope, $location, $modal, $translate, sessionService, UserRes, SITNET_CONF, tmhDynamicLocale) {
 
                 $scope.credentials = {};
 
@@ -39,7 +41,6 @@
                                 controller: function ($scope, $modalInstance, sessionService) {
 
                                     $scope.ok = function () {
-                                        console.log("ok")
                                         // OK button
                                         UserRes.updateAgreementAccepted.update({id: user.id}, function (user) {
                                             sessionService.setUser(user);
@@ -47,10 +48,7 @@
                                             toastr.error(error.data);
                                         });
                                         $modalInstance.dismiss();
-                                        if ($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
-                                            $location.path($localStorage["LOCATION.PATH"]);
-                                            $localStorage["LOCATION.PATH"] = "";
-                                        } else {
+                                        if ($location.url() === '/login'|| $location.url() === '/logout') {
                                             $location.path("/home");
                                         }
                                     };
@@ -60,15 +58,16 @@
                                     };
                                 }
                             });
-                        } else { // We might want to somehow redirect user to provided URL path here
+                        } else if ($location.url() === '/login' || $location.url() === '/logout') {
                             $location.path("/home");
                         }
                     }, function (message) {
-                        toastr.error(message);
-                        $location.path("/login");
+                        if ($location.url() === '/login') {
+                            $location.path("/logout");
+                            toastr.error(message);
+                        }
                     });
                 };
-
             }
         ]);
 }());

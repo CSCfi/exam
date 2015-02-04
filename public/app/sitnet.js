@@ -41,24 +41,22 @@
         });
         $translateProvider.preferredLanguage('fi');
     }]);
-    sitnet.run(['$http', '$interval', '$modal', '$localStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
-        function ($http, $interval, $modal, $localStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
+    // Executed each time the site is loaded
+    sitnet.run(['$http', '$route', '$interval', '$modal', '$sessionStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
+        function ($http, $route, $interval, $modal, $sessionStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
 
-            $localStorage["LOCATION.PATH"] = $location.path();
-
-            var user = $localStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+            var user = $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY];
             if (user) {
                 var header = {};
-
                 header[SITNET_CONF.AUTH_HEADER] = user.token;
                 $http.defaults.headers.common = header;
                 sessionService.setUser(user);
             }
-            var scheduler = null;
+            var scheduler;
             var PING_INTERVAL = 60 * 1000;
 
             var checkSession = function () {
-                $http.get('/checkSession').success(function (data, status, headers, config) {
+                $http.get('/checkSession').success(function (data) {
                     if (data === "alarm") {
                         toastr.options = {
                             "closeButton": false,
@@ -79,10 +77,14 @@
                         }
                         $location.path("/logout")
                     }
-                }).
-                    error(function (data, status, headers, config) {
+                });
+            };
 
-                    });
+            var restartSessionCheck = function() {
+                if (scheduler) {
+                    $interval.cancel(scheduler);
+                }
+                scheduler = $interval(checkSession, PING_INTERVAL);
             };
 
             $rootScope.$on('$destroy', function () {
@@ -97,11 +99,10 @@
                     $rootScope.$broadcast('userUpdated');
                     toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
 
-                    scheduler = $interval(checkSession, PING_INTERVAL);
+                    restartSessionCheck();
                     if (user.isStudent && !user.hasAcceptedUserAgreament) {
 
                         $modal.open({
-
                             templateUrl: SITNET_CONF.TEMPLATES_PATH + 'common/show_eula.html',
                             backdrop: 'static',
                             keyboard: false,
@@ -116,11 +117,10 @@
                                         toastr.error(error.data);
                                     });
                                     $modalInstance.dismiss();
-                                    if ($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
-                                        $location.path($localStorage["LOCATION.PATH"]);
-                                        $localStorage["LOCATION.PATH"] = "";
-                                    } else {
+                                    if ($location.url() === '/login' || $location.url() === '/logout') {
                                         $location.path("/home");
+                                    } else {
+                                        $route.reload();
                                     }
                                 };
                                 $scope.cancel = function () {
@@ -129,26 +129,26 @@
                                 };
                             }
                         });
-                    } else { // We might want to somehow redirect user to provided URL path here
-                        if ($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
-                            $location.path($localStorage["LOCATION.PATH"]);
-                            $localStorage["LOCATION.PATH"] = "";
-                        } else {
-                            $location.path("/home");
-                        }
+                    } else if ($location.url() === '/login' || $location.url() === '/logout') {
+                        $location.path("/home");
+                    } else {
+                        $route.reload();
                     }
                 }, function (message) {
-                    if ($localStorage["LOCATION.PATH"].indexOf("login") === -1) {
-                        $location.path($localStorage["LOCATION.PATH"]);
-                        $localStorage["LOCATION.PATH"] = "";
-                    } else {
+                    if ($location.url() === '/login') {
                         toastr.error(message);
-                        $location.path("/login");
+                        $location.path("/logout");
+                    } else {
+                        $route.reload();
                     }
                 });
             };
 
-            login();
+            if (!user) {
+                login();
+            } else {
+                restartSessionCheck();
+            }
 
         }]);
 }());
