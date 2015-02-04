@@ -85,7 +85,9 @@
                 </table>
             </div>
         </div>
-        <paginator items="examReviews" page-size="pageSize" />
+        <div ng-if="examReviews.length > pageSize">
+            <paginator items="examReviews" page-size="pageSize" current-page="currentPage" />
+        </div>
     </div>
 
     <!--Tarkastettu-->
@@ -144,7 +146,9 @@
                 </table>
             </div>
         </div>
-        <paginator items="gradedReviews" page-size="pageSize" />
+        <div ng-if="gradedReviews.length > pageSize">
+            <paginator items="gradedReviews" page-size="pageSize" current-page="currentPage" />
+        </div>
     </div>
     <!--Kirjattu-->
     <div class="col-md-12 row">
@@ -199,7 +203,9 @@
                 </table>
             </div>
         </div>
-        <paginator items="gradedLoggedReviews" page-size="pageSize" />
+        <div ng-if="gradedLoggedReviews.length > pageSize">
+            <paginator items="gradedLoggedReviews" page-size="pageSize" current-page="currentPage" />
+        </div>
     </div>
 
 </div>

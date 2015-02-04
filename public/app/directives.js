@@ -256,45 +256,52 @@
                 template: '<div class="row col-md-12 paginate">' +
                     '<ul style="padding-left: 0">' +
                     '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&larr;</a></li>' +
-                    '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{n * pageSize + 1}} - {{(n+1)*pageSize}}</a></li>' +
+                    '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{ printRange(n) }}</a></li>' +
                     '<li ng-class="nextPageDisabled()"><a href="" ng-click="nextPage()">&rarr;</a></li>' +
                     '</ul>' +
                     '</div>',
                 scope: {
                     items: '=items',
-                    pageSize: '=pageSize'
+                    pageSize: '=pageSize',
+                    currentPage: '=currentPage'
                 }, // We might want to wire this with the table this paginates upon. The question is: HOW :)
                 link: function (scope, element, attrs) {
                     var pageCount = 0;
-                    scope.$parent.currentPage = 0;
+                    scope.currentPage = 0;
                     scope.$watch('items', function(items) {
                         if (items) pageCount = Math.ceil(items.length / scope.pageSize) - 1;
                     });
 
+                    scope.printRange = function(n) {
+                        var begin = n * scope.pageSize +1;
+                        var end = Math.min(scope.items.length, (n + 1) * scope.pageSize);
+                        return begin + " - " + end;
+                    };
+
                     scope.previousPage = function() {
-                        if (scope.$parent.currentPage > 0) {
-                            scope.$parent.currentPage--;
+                        if (scope.currentPage > 0) {
+                            scope.currentPage--;
                         }
                     };
 
                     scope.isCurrent = function(n)
                     {
-                        return n === scope.$parent.currentPage;
+                        return n === scope.currentPage;
                     };
 
                     scope.previousPageDisabled = function() {
-                        return scope.$parent.currentPage === 0 ? "disabled" : "";
+                        return scope.currentPage === 0 ? "disabled" : "";
                     };
 
 
                     scope.nextPage = function() {
-                        if (scope.$parent.currentPage < pageCount) {
-                            scope.$parent.currentPage++;
+                        if (scope.currentPage < pageCount) {
+                            scope.currentPage++;
                         }
                     };
 
                     scope.nextPageDisabled = function() {
-                        return scope.$parent.currentPage === pageCount ? "disabled" : "";
+                        return scope.currentPage === pageCount ? "disabled" : "";
                     };
 
                     scope.range = function() {
@@ -306,7 +313,7 @@
                     };
 
                     scope.setPage = function(n) {
-                        scope.$parent.currentPage = n;
+                        scope.currentPage = n;
                     };
                 }
             }

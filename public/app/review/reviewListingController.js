@@ -27,10 +27,6 @@
                     });
                 };
 
-                $scope.setCurrentPage = function(page) {
-                    $scope.currentPage = page;
-                }
-
                 // Unreviewed exams
                 ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW,', 'REVIEW_STARTED', 'ABORTED']},
                     function (examReviews) {
