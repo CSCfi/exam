@@ -4,62 +4,83 @@
         .controller('ReviewListingController', ['$scope', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService',
             function ($scope, $routeParams, $location, $translate, ExamRes, dateService) {
 
-                $scope.examLocalInspections = {};
+                $scope.reviewPredicate = 'examReview.deadline';
+                $scope.reverse = false;
+                $scope.toggleLoggedReviews = false;
+                $scope.toggleReviews = false;
+                $scope.toggleGradedReviews = false;
 
-                $scope.toggleReviewExams = false;
                 $scope.go = function (location) {
                     $location.path(location);
                 };
 
-                $scope.toggleGradedExams = false;
-                $scope.toggleLoggedExams = false;
+                ExamRes.exams.get({id: $routeParams.id}, function(exam) {
+                    $scope.examInfo = exam.course.code + " " + exam.name;
+                });
 
-                $scope.getExamInfo = function () {
-                    if ($scope.examReviews && $scope.examReviews.length > 0) {
-                        return $scope.examReviews[0].exam.course.code + " " + $scope.examReviews[0].exam.name;
-                    } else {
-                        return $translate('sitnet_no_participations_for_exam');
-                    }
+                var parseDurations= function (reviews) {
+                    angular.forEach(reviews, function (review) {
+                        if (review.duration) {
+                            review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
+                        }
+                    });
                 };
 
-
-                ExamRes.examReviews.query({eid: $routeParams.id},
+                // Unreviewed exams
+                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW,', 'REVIEW_STARTED', 'ABORTED']},
                     function (examReviews) {
-                        $scope.examReviews = examReviews;
-
-                        angular.forEach($scope.examReviews, function (review) {
-
-                            if (review && review.duration) {
+                        if (examReviews.length > 0) {
+                            $scope.toggleReviews = true;
+                        }
+                        angular.forEach(examReviews, function(review) {
+                            if (review.duration) {
                                 review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
                             }
-                            if (review.exam.state === "REVIEW" || review.exam.state === "ABORTED" || review.exam.state === "REVIEW_STARTED") {
-                                $scope.toggleReviewExams = true;
-                            }
-                            if (review.exam.state === "GRADED") {
-                                $scope.toggleGradedExams = true;
-                            }
-                            if (review.exam.state === "GRADED_LOGGED") {
-                                $scope.toggleLoggedExams = true;
-                            }
-
-                            ExamRes.inspections.get({id: review.exam.id},
-                                function (locals) {
-                                    $scope.examLocalInspections[review.exam.id] = locals;
-                                },
-                                function (error) {
-                                    toastr.error(error.data);
-                                }
-                            );
+                            ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
+                                review.inspections = inspections;
+                            });
                         });
+                        $scope.examReviews = examReviews;
                     },
                     function (error) {
                         toastr.error(error.data);
                     }
                 );
 
+                // Graded exams
+                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['GRADED']},
+                    function (examReviews) {
+                        if (examReviews.length > 0) {
+                            $scope.toggleGradedReviews = true;
+                        }
+                        angular.forEach(examReviews, function(review) {
+                            if (review.duration) {
+                                review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
+                            }
+                            ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
+                                review.inspections = inspections;
+                            });
+                        });
+                        $scope.gradedReviews = examReviews;
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                    }
+                );
 
-                $scope.reviewPredicate = 'examReview.deadline';
-                $scope.reverse = false;
+                // Logged exams
+                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['GRADED_LOGGED']},
+                    function (examReviews) {
+                        if (examReviews.length > 0) {
+                            $scope.toggleLoggedReviews = true;
+                        }
+                        $scope.gradedLoggedReviews = examReviews;
+                        parseDurations($scope.gradedLoggedReviews);
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                    }
+                );
 
                 $scope.isLongerThanSixMonths = function (gradedDate) {
 
@@ -73,38 +94,16 @@
                     return dateService.printExamDuration(exam);
                 };
 
-                $scope.getLocalInspection = function (eid) {
-                    return $scope.examLocalInspections[eid];
+                $scope.toggleUnreviewed = function() {
+                    $scope.toggleReviews = !$scope.toggleReviews;
+                };
+                $scope.toggleGraded = function() {
+                    $scope.toggleGradedReviews = !$scope.toggleGradedReviews;
                 };
 
-                $scope.isLocalReady = function (eid, userId) {
-                    var ready = false;
-                    if ($scope.examLocalInspections[eid] && $scope.examLocalInspections[eid].length > 0) {
-                        angular.forEach($scope.examLocalInspections[eid], function (localInspection) {
-                            if (localInspection.user.id && localInspection.user.id === userId) {
-                                ready = localInspection.ready;
-                            }
-                        });
-                    }
-                    return ready;
+                $scope.toggleLogged = function() {
+                    $scope.toggleLoggedReviews = !$scope.toggleLoggedReviews;
                 };
 
-                $scope.byState = function (state) {
-                    return function (examReview) {
-                        return examReview.exam.state === state;
-                    };
-                };
-
-                $scope.byStates = function (states) {
-                    var b = false;
-                    return function (examReview) {
-                        angular.forEach(states, function (state) {
-                            if (examReview.exam.state === state) {
-                                b = true;
-                            }
-                        });
-                        return b;
-                    };
-                };
             }]);
 }());

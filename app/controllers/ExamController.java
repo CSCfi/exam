@@ -364,15 +364,16 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getExamReviews(Long eid) {
-
+    public static Result getExamReviews(Long eid, List<String> statuses) {
+        // Assure that ongoing exams will not be returned
+        statuses.remove(Exam.State.STUDENT_STARTED.toString());
         // Todo: Assume that exam creator is also exam inspector
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user")
                 .fetch("exam")
                 .where()
                 .eq("exam.parent.id", eid)
-                .ne("exam.state", Exam.State.STUDENT_STARTED.toString())
+                .in("exam.state", statuses)
                 .findList();
 
         if (participations == null) {
