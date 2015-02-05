@@ -1,10 +1,10 @@
-(function() {
+(function () {
     'use strict';
     angular.module('sitnet.directives')
-        .directive('ckEditor', function() {
+        .directive('ckEditor', function () {
             return {
                 require: '?ngModel',
-                link: function(scope, elm, attr, ngModel) {
+                link: function (scope, elm, attr, ngModel) {
                     var ck = CKEDITOR.replace(elm[0]);
                     var tmp;
 
@@ -12,21 +12,21 @@
                         return;
                     }
 
-                    ck.on('instanceReady', function() {
+                    ck.on('instanceReady', function () {
                         ck.setData(tmp);
                         //ck.setData(ngModel.$viewValue);
                     });
 
 
                     function updateModel() {
-                        scope.$apply(function() {
+                        scope.$apply(function () {
                             ngModel.$setViewValue(ck.getData());
                         });
                     }
 
                     // use "$scope.updateProperties" in controllers if needed to save the editor after losing focus a.k.a "onblur"
-                    ck.on('blur', function(){
-                        if(scope.updateProperties !== undefined) {
+                    ck.on('blur', function () {
+                        if (scope.updateProperties !== undefined) {
                             scope.updateProperties();
                         }
                     });
@@ -34,7 +34,7 @@
                     ck.on('key', updateModel);
                     ck.on('dataReady', updateModel);
 
-                    ngModel.$render = function(value) {
+                    ngModel.$render = function (value) {
                         tmp = ngModel.$modelValue;
                         ck.setData(ngModel.$viewValue);
                     };
@@ -42,18 +42,18 @@
             };
         })
 
-        .directive('uiBlur', function() {
-            return function(scope, elem, attrs) {
+        .directive('uiBlur', function () {
+            return function (scope, elem, attrs) {
 
-                elem.bind('blur', function() {
+                elem.bind('blur', function () {
                     scope.$apply(attrs.uiBlur);
                 });
             };
         })
 
-        .directive('answerState', ['$translate', function($translate) {
+        .directive('answerState', ['$translate', function ($translate) {
             return {
-                link: function(scope, elem, attrs, ngModel) {
+                link: function (scope, elem, attrs, ngModel) {
 
                     if (scope.option.correctOption === true) {
                         scope.answerState = $translate("sitnet_multiplechoice_question_correct");
@@ -61,7 +61,7 @@
                         scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");
                     }
 
-                    elem.bind('change', function() {
+                    elem.bind('change', function () {
                         scope.$apply(attrs.uiChange);
                     });
                 }
@@ -85,25 +85,25 @@
 //            };
 //        }])
 
-        .directive('uiChange', function() {
+        .directive('uiChange', function () {
             return {
                 restrict: 'A', // only activate on element attribute
 
-                link: function(scope, elem, attrs) {
+                link: function (scope, elem, attrs) {
 
-                    elem.bind('change', function() {
+                    elem.bind('change', function () {
                         scope.$apply(attrs.uiChange);
                     });
                 }
             };
         })
 
-        .directive('snLibrary', function($window) {
+        .directive('snLibrary', function ($window) {
 
             return {
                 restrict: 'A',
 
-                link: function(scope, elem, attrs) {
+                link: function (scope, elem, attrs) {
 
                     var winHeight = $window.innerHeight;
                     elem.css('height', winHeight - 15);
@@ -111,15 +111,15 @@
             };
         })
 
-        .directive('fileModel', ['$parse', function($parse) {
+        .directive('fileModel', ['$parse', function ($parse) {
             return {
                 restrict: 'A',
-                link: function(scope, element, attrs) {
+                link: function (scope, element, attrs) {
                     var model = $parse(attrs.fileModel);
                     var modelSetter = model.assign;
 
-                    element.bind('change', function() {
-                        scope.$apply(function() {
+                    element.bind('change', function () {
+                        scope.$apply(function () {
                             modelSetter(scope.$parent, element[0].files[0]);
                         });
                     });
@@ -127,21 +127,21 @@
             };
         }])
 
-        .directive('mathjax', function() {
+        .directive('mathjax', function () {
             return {
                 restrict: 'EA',
-                link: function(scope, element, attrs) {
-                    scope.$watch(attrs.ngModel, function() {
+                link: function (scope, element, attrs) {
+                    scope.$watch(attrs.ngModel, function () {
                         MathJax.Hub.Queue(['Typeset', MathJax.Hub, element.get(0)]);
                     });
                 }
             };
         })
 
-        .directive('focusOn', function() {
-            return function(scope, elem, attr) {
-                scope.$on('focusOn', function(e, name) {
-                    if(name === attr.focusOn) {
+        .directive('focusOn', function () {
+            return function (scope, elem, attr) {
+                scope.$on('focusOn', function (e, name) {
+                    if (name === attr.focusOn) {
                         elem[0].focus();
                     }
                 });
@@ -149,13 +149,13 @@
         })
 
         // http://developer.the-hideout.de/?p=119
-        .directive('dateFix', ['dateFilter', 'datepickerPopupConfig', function(dateFilter, datepickerPopupConfig) {
+        .directive('dateFix', ['dateFilter', 'datepickerPopupConfig', function (dateFilter, datepickerPopupConfig) {
             // return the directive link function. (compile function not needed)
             return {
                 restrict: 'EA',
                 require: 'ngModel', // get a hold of NgModelController
 
-                link: function(scope, element, attrs, ngModel) {
+                link: function (scope, element, attrs, ngModel) {
 
                     var format = attrs.datepickerPopup;
                     var maxDate = scope[attrs.max];
@@ -163,7 +163,7 @@
                     var datefilter = dateFilter;
                     var model = ngModel;
 
-                    ngModel.$parsers.push(function(viewValue) {
+                    ngModel.$parsers.push(function (viewValue) {
                         var newDate = model.$viewValue;
                         var date = null;
 
@@ -193,7 +193,7 @@
                         return date ? date : viewValue;
                     });
 
-                    element.on('keydown', {scope: scope, varOpen: attrs.isOpen}, function(e) {
+                    element.on('keydown', {scope: scope, varOpen: attrs.isOpen}, function (e) {
                         var response = true;
                         // the scope of the date control
                         var scope = e.data.scope;
@@ -223,7 +223,7 @@
                     });
 
                     // set input to the value set in the popup, which can differ if input was manually!
-                    element.on('blur', {scope: scope}, function(e) {
+                    element.on('blur', {scope: scope}, function (e) {
                         // the value is an object if date has been changed! Otherwise it was set as a string.
                         if (typeof model.$viewValue === "object") {
                             element.context.value = isNaN(model.$viewValue) ? "" : dateFilter(model.$viewValue, format);
@@ -235,31 +235,31 @@
                 }
             };
         }])
-        .directive('sitnetHeader', ['$translate', function($translate) {
+        .directive('sitnetHeader', ['$translate', function ($translate) {
             return {
                 restrict: 'E',
                 require: 'ngModel',
                 template: '<div id="sitnet-header" class="header">' +
-                    '<div class="col-md-8 header-wrapper">' +
-                        '<span class="header-text">' + $translate("sitnet_welcome") + ', {{getUsername()}}</span>' +
-                    '</div>' +
-                    '<div class="col-md-2 header-wrapper"></div>' +
-                    '<div class="col-md-2 ">' +
-                    '</div>' +
+                '<div class="col-md-8 header-wrapper">' +
+                '<span class="header-text">' + $translate("sitnet_welcome") + ', {{getUsername()}}</span>' +
+                '</div>' +
+                '<div class="col-md-2 header-wrapper"></div>' +
+                '<div class="col-md-2 ">' +
+                '</div>' +
                 '</div>'
             };
         }])
-        .directive('paginator', function() {
+        .directive('paginator', function () {
             return {
                 restrict: 'E',
                 replace: true,
-                template: '<div class="row col-md-12 paginate">' +
-                    '<ul style="padding-left: 0">' +
-                    '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&larr;</a></li>' +
-                    '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{ printRange(n) }}</a></li>' +
-                    '<li ng-class="nextPageDisabled()"><a href="" ng-click="nextPage()">&rarr;</a></li>' +
-                    '</ul>' +
-                    '</div>',
+                template: '<div class="paginate">' +
+                '<ul style="padding-left: 0">' +
+                '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&larr;</a></li>' +
+                '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{ printRange(n) }}</a></li>' +
+                '<li ng-class="nextPageDisabled()"><a href="" ng-click="nextPage()">&rarr;</a></li>' +
+                '</ul>' +
+                '</div>',
                 scope: {
                     items: '=items',
                     pageSize: '=pageSize',
@@ -268,51 +268,52 @@
                 link: function (scope, element, attrs) {
                     var pageCount = 0;
                     scope.currentPage = 0;
-                    scope.$watch('items', function(items) {
-                        if (items) pageCount = Math.ceil(items.length / scope.pageSize) - 1;
+                    scope.$watch('items', function (items) {
+                        if (items) {
+                            pageCount = Math.ceil(items.length / scope.pageSize) - 1;
+                        }
                     });
 
-                    scope.printRange = function(n) {
-                        var begin = n * scope.pageSize +1;
+                    scope.printRange = function (n) {
+                        var begin = n * scope.pageSize + 1;
                         var end = Math.min(scope.items.length, (n + 1) * scope.pageSize);
                         return begin + " - " + end;
                     };
 
-                    scope.previousPage = function() {
+                    scope.previousPage = function () {
                         if (scope.currentPage > 0) {
                             scope.currentPage--;
                         }
                     };
 
-                    scope.isCurrent = function(n)
-                    {
+                    scope.isCurrent = function (n) {
                         return n === scope.currentPage;
                     };
 
-                    scope.previousPageDisabled = function() {
+                    scope.previousPageDisabled = function () {
                         return scope.currentPage === 0 ? "disabled" : "";
                     };
 
 
-                    scope.nextPage = function() {
+                    scope.nextPage = function () {
                         if (scope.currentPage < pageCount) {
                             scope.currentPage++;
                         }
                     };
 
-                    scope.nextPageDisabled = function() {
+                    scope.nextPageDisabled = function () {
                         return scope.currentPage === pageCount ? "disabled" : "";
                     };
 
-                    scope.range = function() {
-                        var ret = [], x;
-                        for (x = 0; x <= pageCount; ++x) {
+                    scope.range = function () {
+                        var ret = [];
+                        for (var x = 0; x <= pageCount; ++x) {
                             ret.push(x);
                         }
                         return ret;
                     };
 
-                    scope.setPage = function(n) {
+                    scope.setPage = function (n) {
                         scope.currentPage = n;
                     };
                 }
