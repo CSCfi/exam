@@ -51,33 +51,34 @@
                             {{'sitnet_review_deadline' | translate }}</span>
                         </th>
                         <th>{{'sitnet_inspection_status' | translate}}</th>
-                        <!--<th>{{'sitnet_exam_state' | translate}}</th>  tentin tila -->
+                        <th>{{'sitnet_exam_state' | translate}}</th>
                     </tr>
                     </thead>
 
                     <tbody>
                         <tr ng-repeat="review in examReviews | orderBy:reviewPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize"
-                            ng-click="go('/exams/review/' + review.exam.id)" class="pointer">
+                            ng-click="go(review.exam)" class="pointer">
                             <td class="table-column-examname">{{review.user.firstName}} {{review.user.lastName}}
                             </td>
                             <td>{{review.user.email}}</td>
                             <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
                                 translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
-                                ({{review.started | diffInMinutesTo:examReview.ended }}min)
+                                ({{review.started | diffInMinutesTo:review.ended }}min)
                             </td>
                             <td class="table-column-20">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                                     ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                             </td>
                             <td class="table-column-teachers">
                                 <div class="col-md-12" ng-repeat="inspection in review.inspections">
-                                    <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">{{inspection.user.firstName}} {{inspection.user.lastName}}</span>
+                                    <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
+                                        {{inspection.user.firstName}} {{inspection.user.lastName}}</span>
                                 </div>
                             </td>
-                            <!--<td class="table-column-open-until">{{examReview.exam.state}}</td>-->
+                            <td class="table-column-20" ng-class="review.exam.state !== 'ABORTED' ? 'sitnet-text-ready' : 'sitnet-text-alarm'">{{review.exam.state}}</td>
                         </tr>
                         <!--Fill if page not full-->
                         <tr ng-repeat="r in [] | pagefill: examReviews.length:currentPage:pageSize">
-                            <td class="table-column-examname">&nbsp;</td><td></td><td></td><td></td><td></td>
+                            <td class="table-column-examname">&nbsp;</td><td></td><td></td><td></td><td></td><td></td>
                         </tr>
                     </tbody>
                 </table>

@@ -475,5 +475,6 @@
   "sitnet_no_participations_for_exam": "Koesuorituksia ei ole",
   "sitnet_reservation_in_effect": "Varaus on jo astunut voimaan ja sitä ei voi enää muuttaa",
   "sitnet_no_machines_available": "Valitettavasti vapaita koneita ei enää ole",
-  "sitnet_error_enrolment_not_found": "Et ole ilmoittautunut tähän tenttiin"
+  "sitnet_error_enrolment_not_found": "Et ole ilmoittautunut tähän tenttiin",
+  "sitnet_not_allowed_to_review_aborted_exam": "Keskeytettyjä tenttejä ei voi arvioida"
 }

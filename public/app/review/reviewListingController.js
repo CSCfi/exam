@@ -12,9 +12,14 @@
 
                 $scope.pageSize = 10;
 
-                $scope.go = function (location) {
-                    $location.path(location);
+                $scope.go = function (exam) {
+                    if (exam.state === 'ABORTED') {
+                        alert($translate("sitnet_not_allowed_to_review_aborted_exam"));
+                    } else {
+                        $location.path('/exams/review/' + exam.id);
+                    }
                 };
+
                 ExamRes.exams.get({id: $routeParams.id}, function(exam) {
                     $scope.examInfo = exam.course.code + " " + exam.name;
                 });

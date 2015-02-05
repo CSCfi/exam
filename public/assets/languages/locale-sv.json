@@ -475,5 +475,6 @@
   "sitnet_no_participations_for_exam": "Inga svar",
   "sitnet_reservation_in_effect": "Bokningen pågår och kan inte längre ändras",
   "sitnet_no_machines_available": "Lediga datorer finns tyvärr inte längre",
-  "sitnet_error_enrolment_not_found": "Du har inte anmält dig för den här tenten"
+  "sitnet_error_enrolment_not_found": "Du har inte anmält dig för den här tenten",
+  "sitnet_not_allowed_to_review_aborted_exam": "Inte möjligt att värdera avbrutna tent"
 }

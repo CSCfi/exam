@@ -1047,6 +1047,8 @@ public class ExamController extends SitnetController {
                 .eq("user.id", uid)
                 .eq("exam.parent.id", eid)
                 .disjunction()
+                .eq("exam.state", Exam.State.ABORTED.toString())
+                .eq("exam.state", Exam.State.GRADED.toString())
                 .eq("exam.state", Exam.State.GRADED_LOGGED.toString())
                 .eq("exam.state", Exam.State.ARCHIVED.toString())
                 .endJunction()
@@ -1054,7 +1056,7 @@ public class ExamController extends SitnetController {
         JsonContext context = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("started, exam");
-        options.setPathProperties("exam", "id, grade");
+        options.setPathProperties("exam", "id, grade, state");
         return ok(context.toJsonString(participations, true, options)).as("application/json");
     }
 
