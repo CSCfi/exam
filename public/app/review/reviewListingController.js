@@ -28,7 +28,7 @@
                 };
 
                 // Unreviewed exams
-                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW,', 'REVIEW_STARTED', 'ABORTED']},
+                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW', 'REVIEW_STARTED', 'ABORTED']},
                     function (examReviews) {
                         if (examReviews.length > 0) {
                             $scope.toggleReviews = true;

@@ -275,9 +275,11 @@
                     });
 
                     scope.printRange = function (n) {
-                        var begin = n * scope.pageSize + 1;
-                        var end = Math.min(scope.items.length, (n + 1) * scope.pageSize);
-                        return begin + " - " + end;
+                        if (scope.items) {
+                            var begin = n * scope.pageSize + 1;
+                            var end = Math.min(scope.items.length, (n + 1) * scope.pageSize);
+                            return begin + " - " + end;
+                        }
                     };
 
                     scope.previousPage = function () {
