@@ -1274,6 +1274,10 @@ public class ExamController extends SitnetController {
     public static Result updateInspection(Long id, boolean ready) {
 
         ExamInspection inspection = Ebean.find(ExamInspection.class, id);
+
+        if(inspection == null) {
+            return notFound();
+        }
         inspection.setReady(ready);
         inspection.update();
 
@@ -1284,10 +1288,6 @@ public class ExamController extends SitnetController {
     public static Result sendInspectionMessage(Long eid, String msg) {
 
         final Exam exam = Ebean.find(Exam.class, eid);
-
-        if (exam == null) {
-            return notFound();
-        }
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("user")
                 .fetch("exam")
@@ -1307,6 +1307,10 @@ public class ExamController extends SitnetController {
             Logger.error("Failure to access message template on disk", e);
             return internalServerError("sitnet_internal_error");
         }
+        if (exam == null) {
+            return notFound();
+        }
+
         return ok();
     }
 
@@ -1317,6 +1321,9 @@ public class ExamController extends SitnetController {
         final User recipient = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
 
+        if(recipient == null || exam == null) {
+            return notFound();
+        }
         inspection.setExam(exam);
         inspection.setUser(recipient);
         inspection.setAssignedBy(UserController.getLoggedUser());

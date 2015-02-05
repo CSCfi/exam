@@ -128,7 +128,7 @@
 
                         $scope.toggleReady = function() {
                             angular.forEach($scope.localInspections, function(localInspection) {
-                                if (localInspection.user.id === $scope.user.id) {
+                                if (localInspection && localInspection.user.id === $scope.user.id) {
                                     // toggle ready ->
                                     var ready = !$scope.reviewReady;
                                     ExamRes.inspectionReady.update({id: localInspection.id, ready: ready}, function(result) {
@@ -522,7 +522,10 @@
                 };
 
                 $scope.stripHtml = function(text) {
-                    return String(text).replace(/<[^>]+>/gm, '');
+                    if(text && text.indexOf("math-tex") === -1) {
+                        return String(text).replace(/<[^>]+>/gm, '');
+                    }
+                    return text;
                 };
             }
         ]);
