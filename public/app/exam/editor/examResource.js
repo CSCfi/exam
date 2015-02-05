@@ -133,10 +133,11 @@
 
                 examReviews: $resource("/reviews/:eid",
                 {
-                    eid: "@eid"
+                    eid: "@eid",
+                    statuses: "@statuses"
                 },
                 {
-                    "get": {method: "GET", params: { eid: "@eid" }}
+                    "get": {method: "GET", params: { eid: "@eid", statuses: "@statuses" }}
                 }),
 
                 comment: $resource("/review/:eid/comment/:cid",
