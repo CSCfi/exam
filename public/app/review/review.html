@@ -70,13 +70,13 @@
                 <div class="col-md-6 top-margin-1">
                     <span ng-show="!isReadOnly">
                         <!-- do not enable this if already graded and form has errors! -->
-                        <button ng-disabled="examToBeReviewed.state === 'GRADED' && !examForm.$valid"
+                        <button ng-disabled="isGraded && ( !examForm.$valid || !isCreator() )"
                                 ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
                             {{'sitnet_save' | translate}}
                         </button>
                     </span>
-                    <span ng-show="isReadOnly" style="padding: 40px 0;">
-                        <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="col-md-12">
+                    <span ng-show="isReadOnly || (!isCreator() && isGraded)" class="row">
+                        <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="row">
                             <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
                         </a>
                     </span>

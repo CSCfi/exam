@@ -489,10 +489,12 @@
                 // called when Save button is clicked
                 $scope.updateExam = function (reviewed_exam) {
                     if (!$scope.isCreator(reviewed_exam)) {
-                        // Just save feedback and leave
-                        $scope.saveFeedback(true);
-                        toastr.info($translate('sitnet_saved'));
-                        $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                        if (reviewed_exam.state !== 'GRADED') {
+                            // Just save feedback and leave
+                            $scope.saveFeedback(true);
+                            toastr.info($translate('sitnet_saved'));
+                            $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                        }
                     }
                     else {
                         if (!checkCredit()) {
