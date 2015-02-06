@@ -101,6 +101,7 @@ $sitnet-family-georgia: Georgia, Helvetica, Arial;
 
 // #### layout colors ############################################
 $sitnet-alarm: #C0001F;
+$sitnet-aborted: #770505;
 $sitnet-notice: #E1A117;
 $sitnet-ready: #6AA33A;
 $sitnet-theme: #3FA9F5;
@@ -122,6 +123,7 @@ $sitnet-background: #ffffff;
 .sitnet-text-notice { color: $sitnet-notice; }
 .sitnet-text-ready { color: $sitnet-ready; }
 .sitnet-text-alarm { color: $sitnet-alarm; }
+.sitnet-text-aborted { color: $sitnet-aborted; }
 .sitnet-text { color: $sitnet-text; }
 
 

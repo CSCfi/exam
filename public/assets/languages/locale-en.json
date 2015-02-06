@@ -476,5 +476,8 @@
   "sitnet_reservation_in_effect": "Reservation is already in effect and can not be changed",
   "sitnet_no_machines_available": "Unfortunately all the machines were already taken",
   "sitnet_error_enrolment_not_found": "You are not enrolled for this exam",
-  "sitnet_not_allowed_to_review_aborted_exam": "Not possible to review aborted exams"
+  "sitnet_not_allowed_to_review_aborted_exam": "Not possible to review aborted exams",
+  "sitnet_exam_choose_response_language": "Choose response language",
+  "sitnet_review_saved": "Review saved as incomplete",
+  "sitnet_review_graded": "Review marked as complete and saved"
 }

@@ -20,7 +20,10 @@
     </div>
 </div>
 
-<div class="exam-general-information row sitnet-info-text-bold">{{'sitnet_grading_info' | translate}}:</div>
+<div class="row">
+    <div class="col-md-12 sitnet-info-text-bold">{{'sitnet_grading_info' | translate}}:</div>
+</div>
+
 
 <div class="row">
     <div class="col-md-2">
@@ -46,9 +49,9 @@
         <div class="col-md-1" style="padding-left:1.5em;">
             <h5> op</h5>
         </div>
-        <div class="col-md-3">
+        <!--div class="col-md-3">
             <button class="btn btn-primary btn-sm" ng-click="modifyCredit()">{{ 'sitnet_save' | translate }}</button>
-        </div>
+        </div-->
     </div>
 </div>
 
@@ -77,39 +80,44 @@
     </div>
 </div>
 
-<div class="row" ng-show="globalInspections.length > 1">
-    <div class="top-margin-1 col-md-12 bottom-padding-2 pull-left" ng-show="!isReadOnly">
-        <div class="col-md-12 sitnet-horizontal-line top-margin-1"></div>
-        <div class="col-md-6">
-            <div class="col-md-12 row">
-                <span class="col-md-6 sitnet-info-text">{{'sitnet_exam_instructor' | translate}}</span>
-                <span class="col-md-6 sitnet-info-text">{{'sitnet_inspection_status' | translate}}</span>
+<div class="row">
+    <div class="col-md-12">
+       <div class="col-md-12 sitnet-horizontal-line top-margin-1"></div>
+    </div>
+</div>
+
+<div class="row" ng-show="globalInspections.length > 1 && !isReadOnly">
+    <div class="col-md-6">
+        <div class="col-md-12 row">
+            <span class="col-md-6 sitnet-info-text">{{'sitnet_exam_instructor' | translate}}</span>
+            <span class="col-md-6 sitnet-info-text">{{'sitnet_inspection_status' | translate}}</span>
+        </div>
+        <div class="col-md-12 row" ng-repeat="inspection in globalInspections">
+            <div class="col-md-6 vertical-padding-1">{{ inspection.user.firstName }} {{
+                inspection.user.lastName }}
             </div>
-            <div class="col-md-12 row" ng-repeat="inspection in globalInspections">
-                <div class="col-md-6 vertical-padding-1">{{ inspection.user.firstName }} {{
-                    inspection.user.lastName }}
-                </div>
-                <div class="col-md-6 vertical-padding-1">
-                    <span class="col-md-6 input-group-sm row">
-                        <select ng-model="reviewReady" class="form-control" ng-disabled="isReadOnly"
-                                ng-options="s.key as s.value for s in reviewStatus"
-                                ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
-                        </select>
-                    </span>
-                    <span class="col-md-12 row" ng-show="inspection.user.id !== user.id">
-                        <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.user.id) === true">{{'sitnet_ready' | translate}}</span>
-                        <span class="sitnet-text-alarm"
-                              ng-show="isLocalReady(inspection.user.id) === false">{{'sitnet_in_progress' | translate}}</span>
-                    </span>
-                </div>
+            <div class="col-md-6 vertical-padding-1">
+                <span class="col-md-6 input-group-sm row">
+                    <select ng-model="reviewReady" class="form-control" ng-disabled="isReadOnly"
+                            ng-options="s.key as s.value for s in reviewStatus"
+                            ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
+                    </select>
+                </span>
+                <span class="col-md-12 row" ng-show="inspection.user.id !== user.id">
+                    <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.user.id) === true">{{'sitnet_ready' | translate}}</span>
+                    <span class="sitnet-text-alarm"
+                          ng-show="isLocalReady(inspection.user.id) === false">{{'sitnet_in_progress' | translate}}</span>
+                </span>
             </div>
         </div>
-        <div class="col-md-6 pull-right">
-            <div class="sitnet-info-text">
+    </div>
+    <div class="col-md-6 top-margin-1 pull-right">
+        <div class="col-md-12">
+            <div class="col-md-12 sitnet-info-text-compact">
                 {{'sitnet_send_to_other_reviewers' | translate}}:
             </div>
 
-            <div class="input-group exam-info">
+            <div class="col-md-10 input-group exam-info">
                 <dl class="col-md-12 pull-left row">
                     <dt class="pull-left inline col-md-11 row">
                         <textarea class="form-control" ng-model="$parent.message" rows="3" cols="120"
@@ -123,6 +131,5 @@
                 </dl>
             </div>
         </div>
-        <div class="col-md-12 sitnet-horizontal-line top-margin-1"></div>
     </div>
 </div>

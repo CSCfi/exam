@@ -476,5 +476,8 @@
   "sitnet_reservation_in_effect": "Varaus on jo astunut voimaan ja sitä ei voi enää muuttaa",
   "sitnet_no_machines_available": "Valitettavasti vapaita koneita ei enää ole",
   "sitnet_error_enrolment_not_found": "Et ole ilmoittautunut tähän tenttiin",
-  "sitnet_not_allowed_to_review_aborted_exam": "Keskeytettyjä tenttejä ei voi arvioida"
+  "sitnet_not_allowed_to_review_aborted_exam": "Keskeytettyjä tenttejä ei voi arvioida",
+  "sitnet_exam_choose_response_language": "Valitse tentin vastauskieli",
+  "sitnet_review_saved": "Arviointi tallennettu keskeneräisenä",
+  "sitnet_review_graded": "Arviointi merkitty valmiiksi ja tallennettu"
 }
