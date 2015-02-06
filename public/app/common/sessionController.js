@@ -62,7 +62,7 @@
                             $location.path("/home");
                         }
                     }, function (message) {
-                        if ($location.url() === '/login') {
+                        if ($location.url() === '/login' || $location.url() === '/logout') {
                             $location.path("/logout");
                             toastr.error(message);
                         }

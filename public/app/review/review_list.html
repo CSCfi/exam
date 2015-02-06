@@ -127,7 +127,7 @@
 
                     <tbody>
                     <tr ng-repeat="review in gradedReviews | offset: currentPageGraded*pageSize | limitTo: pageSize"
-                        ng-click="go('/exams/review/' + review.exam.id)" class="pointer">
+                        ng-click="go(review.exam)" class="pointer">
                         <!--<td class="table-column-flag"><i class="sitnet-dark-blue fa fa-flag"></i></td>
                         <td class="table-column-exclamation"><i class="sitnet-red fa fa-flash"></i></td>-->
                         <td class="table-column-examcode">{{review.exam.course.code}}</td>

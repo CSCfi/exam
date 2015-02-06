@@ -29,14 +29,14 @@
     <div class="col-md-2">
         <div class="sitnet-info-text">{{'sitnet_exam_grade' | translate}}:</div>
         <select name="examGrade" class="form-control" ng-model="examToBeReviewed.grade"
-                ng-disabled="isReadOnly"
-                required ng-disabled="!isCreator()" ng-options="grade for grade in examGrading">
+                ng-disabled="isReadOnly || !isCreator()"
+                required ng-options="grade for grade in examGrading">
         </select>
     </div>
     <div class="col-md-4">
         <div class="sitnet-info-text">{{'sitnet_exam_choose_credit_type' | translate}}:</div>
         <select name="creditType" class="form-control" ng-model="examToBeReviewed.creditType"
-                ng-disabled="isReadOnly" required>
+                ng-disabled="isReadOnly || !isCreator()" required>
             <option value="Partial">{{'sitnet_exam_credit_type_partial' | translate}}</option>
             <option value="Final" selected>{{'sitnet_exam_credit_type_final' | translate}}</option>
         </select>
@@ -44,14 +44,12 @@
     <div class="col-md-3 col-lg-offset-1">
         <div class="sitnet-info-text">{{'sitnet_exam_credit' | translate}}:</div>
         <div class="col-md-5 row" style="padding-right:0;">
-            <input type="text" class="form-control col-md-2" maxlength="4" ng-model="examToBeReviewed.customCredit"/>
+            <input type="number" ng-disabled="isReadOnly || !isCreator()" required min="0" class="form-control col-md-2"
+                   maxlength="3" ng-model="examToBeReviewed.customCredit"/>
         </div>
         <div class="col-md-1" style="padding-left:1.5em;">
             <h5> op</h5>
         </div>
-        <!--div class="col-md-3">
-            <button class="btn btn-primary btn-sm" ng-click="modifyCredit()">{{ 'sitnet_save' | translate }}</button>
-        </div-->
     </div>
 </div>
 
@@ -60,7 +58,7 @@
     <div class="col-md-12">
         <div class="sitnet-info-text">{{'sitnet_exam_record_language' | translate}}</div>
         <select name="answerLanguage" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                ng-disabled="isReadOnly"
+                ng-disabled="isReadOnly || !isCreator()"
                 ng-model="selectedLanguage"
                 ng-change="setLanguage(selectedLanguage)" required>
             <option value="">{{'sitnet_choose' | translate}}</option>
@@ -98,7 +96,7 @@
             </div>
             <div class="col-md-6 vertical-padding-1">
                 <span class="col-md-6 input-group-sm row">
-                    <select ng-model="reviewReady" class="form-control" ng-disabled="isReadOnly"
+                    <select ng-model="reviewReady" class="form-control" ng-disabled="isGraded || isReadOnly"
                             ng-options="s.key as s.value for s in reviewStatus"
                             ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
                     </select>
@@ -126,7 +124,8 @@
                     </dt>
                     <dd class="pull-right inline col-md-1 top-padding-2 row">
                         <input type="button" class="btn btn-primary btn-sm top-margin-1 pull-left"
-                               ng-click="sendEmailMessage()" value="{{'sitnet_send' | translate}}"/>
+                               ng-disabled="isReadOnly" ng-click="sendEmailMessage()"
+                               value="{{'sitnet_send' | translate}}"/>
                     </dd>
                 </dl>
             </div>

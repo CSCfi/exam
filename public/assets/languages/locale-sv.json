@@ -479,5 +479,8 @@
   "sitnet_not_allowed_to_review_aborted_exam": "Inte möjligt att värdera avbrutna tent",
   "sitnet_exam_choose_response_language": "Välj svarets språk",
   "sitnet_review_saved": "Värdering sparad som ofullständig",
-  "sitnet_review_graded": "Värdering markerad som fullständig och sparad"
+  "sitnet_review_graded": "Värdering markerad som fullständig och sparad",
+  "sitnet_confirm_grade_review": "Efter att du värderat kursvitsordet kan de tillfälliga utvärderarna inte redigera sina utvärderingar. Vill du fortsätta?",
+  "sitnet_saved": "Sparat"
+
 }

@@ -35,7 +35,6 @@ import static play.test.Helpers.*;
 public class IntegrationTestCase {
 
     private static FakeApplication app;
-    private static DdlGenerator generator;
     protected String sessionToken;
     protected Long userId;
 
@@ -59,9 +58,9 @@ public class IntegrationTestCase {
         // Ebean (batching) or an issue with our question entity JPA mappings.
         startApp();
         EbeanServer server = Ebean.getServer("default");
-        generator = new DdlGenerator();
-        generator.setup((SpiEbeanServer) server, new PostgresPlatform(), new ServerConfig());
 
+        DdlGenerator generator = new DdlGenerator();
+        generator.setup((SpiEbeanServer) server, new PostgresPlatform(), new ServerConfig());
         // Drop
         generator.runScript(false, generator.generateDropDdl());
         // Create

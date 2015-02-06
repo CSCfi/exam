@@ -43,7 +43,7 @@
                 ExamRes.reviewerExam.get({eid: $routeParams.id},
                     function (exam) {
                         $scope.examToBeReviewed = exam;
-                        if ($scope.examToBeReviewed.customCredit == undefined || $scope.examToBeReviewed.customCredit == '') {
+                        if (!$scope.examToBeReviewed.customCredit) {
                             $scope.examToBeReviewed.customCredit = $scope.examToBeReviewed.course.credits;
                         }
 
@@ -78,6 +78,7 @@
                                 $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
                         };
                         $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED";
+                        $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";
 
                         switch ($scope.examToBeReviewed.grading) {
                             case "0-5":
@@ -136,6 +137,7 @@
                                     }, function (result) {
                                         toastr.info($translate('sitnet_exam_updated'));
                                         $scope.reviewReady = ready;
+                                        $scope.startReview();
                                     }, function (error) {
                                         toastr.error(error.data);
                                     });
@@ -373,6 +375,26 @@
                     sectionQuestion.question.reviewExpanded = !sectionQuestion.question.reviewExpanded;
                 };
 
+                var getReviewUpdate = function (exam, state) {
+                    return {
+                        "id": exam.id,
+                        "state": state,
+                        "grade": exam.grade,
+                        "customCredit": exam.customCredit,
+                        "totalScore": exam.totalScore,
+                        "creditType": exam.creditType,
+                        "answerLanguage": $scope.selectedLanguage
+                    };
+                };
+
+                // Set review status as started if not already done so
+                $scope.startReview = function () {
+                    if ($scope.examToBeReviewed.state === 'REVIEW') {
+                        var review = getReviewUpdate($scope.examToBeReviewed, 'REVIEW_STARTED');
+                        ExamRes.review.update({id: review.id}, review);
+                    }
+                };
+
                 $scope.insertEssayScore = function (sectionQuestion) {
                     var question = sectionQuestion.question;
                     QuestionRes.score.update({id: question.id}, {"evaluatedScore": question.evaluatedScore}, function (q) {
@@ -380,6 +402,7 @@
                         if (q.evaluationType === "Select") {
                             refreshRejectedAcceptedCounts();
                         }
+                        $scope.startReview();
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -412,6 +435,7 @@
                             if (!withoutNotice) {
                                 toastr.info($translate("sitnet_comment_updated"));
                             }
+                            $scope.startReview();
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -425,37 +449,26 @@
                                 toastr.info($translate("sitnet_comment_added"));
                             }
                             $scope.examToBeReviewed.examFeedback.comment = comment;
+                            $scope.startReview();
                         }, function (error) {
                             toastr.error(error.data);
                         });
                     }
                 };
 
-                // called when Save button is clicked
-                $scope.updateExam = function (reviewed_exam) {
-                    var messages = [];
-                    if (!reviewed_exam.grade) {
-                        messages.push('sitnet_participation_unreviewed');
+                var checkCredit = function () {
+                    var credit = $scope.examToBeReviewed.customCredit;
+                    var valid = !isNaN(credit) && credit >= 0;
+                    if (!valid) {
+                        toastr.error($translate('sitnet_not_a_valid_custom_credit'));
+                        // Reset to default
+                        $scope.examToBeReviewed.customCredit = $scope.examToBeReviewed.course.credits;
                     }
-                    if (!reviewed_exam.creditType) {
-                        messages.push('sitnet_exam_choose_credit_type');
-                    }
-                    if (!$scope.selectedLanguage) {
-                        messages.push('sitnet_exam_choose_response_language');
-                    }
-                    var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
+                    return valid;
+                };
 
-                    var examToReview = {
-                        "id": reviewed_exam.id,
-                        "state": newState,
-                        "grade": reviewed_exam.grade,
-                        "customCredit": reviewed_exam.customCredit,
-                        "totalScore": reviewed_exam.totalScore,
-                        "creditType": reviewed_exam.creditType,
-                        "answerLanguage": $scope.selectedLanguage
-                    };
-
-                    ExamRes.review.update({id: examToReview.id}, examToReview, function (exam) {
+                var doUpdate = function(newState, review, messages, exam) {
+                    ExamRes.review.update({id: review.id}, review, function () {
                         $scope.saveFeedback(true);
                         if (newState === 'REVIEW_STARTED') {
                             messages.forEach(function (msg) {
@@ -466,11 +479,42 @@
                             }, 1000);
                         } else {
                             toastr.info($translate("sitnet_review_graded"));
-                            $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                            $location.path("exams/reviews/" + exam.parent.id);
                         }
                     }, function (error) {
                         toastr.error(error.data);
                     });
+                };
+
+                // called when Save button is clicked
+                $scope.updateExam = function (reviewed_exam) {
+                    if (!$scope.isCreator(reviewed_exam)) {
+                        // Just save feedback and leave
+                        $scope.saveFeedback(true);
+                        toastr.info($translate('sitnet_saved'));
+                        $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                    }
+                    else {
+                        if (!checkCredit()) {
+                            return;
+                        }
+                        var messages = [];
+                        if (!reviewed_exam.grade) {
+                            messages.push('sitnet_participation_unreviewed');
+                        }
+                        if (!reviewed_exam.creditType) {
+                            messages.push('sitnet_exam_choose_credit_type');
+                        }
+                        if (!$scope.selectedLanguage) {
+                            messages.push('sitnet_exam_choose_response_language');
+                        }
+                        var oldState = reviewed_exam.state;
+                        var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
+                        if (newState !== 'GRADED' || oldState == 'GRADED' || confirm($translate('sitnet_confirm_grade_review'))) {
+                            var review = getReviewUpdate(reviewed_exam, newState);
+                            doUpdate(newState, review, messages, reviewed_exam);
+                        }
+                    }
                 };
 
                 // called when send email button is clicked
@@ -486,36 +530,29 @@
                     });
                 };
 
-                $scope.additionalInfo = "";
-
                 $scope.saveExamRecord = function (reviewed_exam) {
-
-                    if (reviewed_exam.grade == undefined || reviewed_exam.grade == "") {
-                        toastr.error($translate('sitnet_participation_unreviewed') + ". " + $translate('sitnet_result_not_sended_to_registry'));
+                    if (!checkCredit()) {
                         return;
                     }
-
-
-                    if (reviewed_exam.creditType == undefined || reviewed_exam.creditType == "") {
-                        toastr.error($translate('sitnet_exam_choose_credit_type') + ". " + $translate('sitnet_result_not_sended_to_registry'));
-                        return;
+                    var messages = [];
+                    if (!reviewed_exam.grade) {
+                        messages.push('sitnet_participation_unreviewed');
                     }
-
-                    if (confirm($translate('sitnet_confirm_record_review'))) {
-
-                        $scope.saveFeedback();
-
-                        var examToRecord = {
-                            "id": reviewed_exam.id,
-                            "state": "GRADED_LOGGED",
-                            "grade": reviewed_exam.grade,
-                            "customCredit": reviewed_exam.customCredit,
-                            "totalScore": reviewed_exam.totalScore,
-                            "creditType": reviewed_exam.creditType,
-                            "sendFeedback": true,
-                            "answerLanguage": $scope.selectedLanguage,
-                            "additionalInfo": $scope.additionalInfo
-                        };
+                    if (!reviewed_exam.creditType) {
+                        messages.push('sitnet_exam_choose_credit_type');
+                    }
+                    if (!$scope.selectedLanguage) {
+                        messages.push('sitnet_exam_choose_response_language');
+                    }
+                    if (messages.length > 0) {
+                        messages.forEach(function (msg) {
+                            toastr.error($translate(msg));
+                        });
+                    }
+                    else if (confirm($translate('sitnet_confirm_record_review'))) {
+                        $scope.saveFeedback(true);
+                        var examToRecord = getReviewUpdate(reviewed_exam, 'GRADED_LOGGED');
+                        examToRecord.additionalInfo = $scope.additionalInfo;
 
                         ExamRes.saveRecord.add(examToRecord, function (exam) {
                             toastr.info($translate('sitnet_review_recorded'));
@@ -524,23 +561,6 @@
                             toastr.error(error.data);
                         });
                     }
-                };
-
-                $scope.modifyCredit = function () {
-
-                    if ($scope.examToBeReviewed.customCredit === '' || $scope.examToBeReviewed.customCredit === undefined || isNaN($scope.examToBeReviewed.customCredit)) {
-                        toastr.error($translate('sitnet_not_a_valid_custom_credit'));
-                        return;
-                    }
-
-                    ExamRes.credit.update({
-                        eid: $scope.examToBeReviewed.id,
-                        credit: $scope.examToBeReviewed.customCredit
-                    }, function () {
-                        toastr.info($translate("sitnet_exam_updated"));
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
                 };
 
                 $scope.stripHtml = function (text) {

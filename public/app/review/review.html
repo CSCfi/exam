@@ -45,7 +45,7 @@
             <!-- Grading -->
             <div class="row" ng-include="gradingPath"></div>
             <!-- Floating feedback window -->
-            <div class="col-md-11" ng-show="!isReadOnly">
+            <div class="col-md-11" ng-hide="(isGraded && !isCreator()) || isReadOnly">
                 <div class="col-md-5 col-md-offset-4 review-feedback" bs-affix data-offset-top="150">
                     <div class="review-feedback" ng-click="hideEditor = toggleFeedbackHiding(hideEditor)">
                         <span>
@@ -69,7 +69,9 @@
                 <div class="col-md-12 sitnet-horizontal-line"></div>
                 <div class="col-md-6 top-margin-1">
                     <span ng-show="!isReadOnly">
-                        <button ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
+                        <!-- do not enable this if already graded and form has errors! -->
+                        <button ng-disabled="examToBeReviewed.state === 'GRADED' && !examForm.$valid"
+                                ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
                             {{'sitnet_save' | translate}}
                         </button>
                     </span>
@@ -89,14 +91,14 @@
                                 <dt class="pull-left inline col-md-11 row">
                                     <textarea class="form-control" ng-model="$parent.additionalInfo" rows="3"
                                               cols="120"
-                                              ng-disabled="isReadOnly || !isCreator()">
+                                              ng-disabled="isReadOnly || !isGraded || !isCreator() || !examForm.$valid">
                                     </textarea>
                                 </dt>
                                 <dd class="pull-right inline col-md-1 top-padding-2 row">
                                     <input type="button" class="btn btn-primary btn-sm top-margin-1 pull-left"
-                                       ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
-                                       ng-click="saveExamRecord(examToBeReviewed)"
-                                       value="{{'sitnet_send_result_to_registry' | translate}}"
+                                           ng-disabled="isReadOnly || !isGraded || !isCreator() || !examForm.$valid"
+                                           ng-click="saveExamRecord(examToBeReviewed)"
+                                           value="{{'sitnet_send_result_to_registry' | translate}}"
                                     />
                                 </dd>
                             </dl>
