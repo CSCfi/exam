@@ -475,5 +475,8 @@
   "sitnet_no_participations_for_exam": "There are no participants for exam",
   "sitnet_reservation_in_effect": "Reservation is already in effect and can not be changed",
   "sitnet_no_machines_available": "Unfortunately all the machines were already taken",
-  "sitnet_error_enrolment_not_found": "You are not enrolled for this exam"
+  "sitnet_error_enrolment_not_found": "You are not enrolled for this exam",
+  "sitnet_send_results_to_registry": "Submit the results to the study register",
+  "sitnet_check_uncheck_all": "Select all / remove selected",
+  "sitnet_results_send_ok": "Results submit success"
 }

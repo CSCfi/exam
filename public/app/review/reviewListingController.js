@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ReviewListingController', ['$scope', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService',
-            function ($scope, $routeParams, $location, $translate, ExamRes, dateService) {
+        .controller('ReviewListingController', ['$scope', '$q','$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService',
+            function ($scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService) {
 
                 $scope.reviewPredicate = 'examReview.deadline';
                 $scope.reverse = false;
@@ -25,6 +25,80 @@
                             review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
                         }
                     });
+                };
+
+                $scope.selectAll = function(selectAllCssClass, checkboxesCssClass) {
+
+                    var isSelected = angular.element("." + selectAllCssClass).prop("checked");
+
+                    angular.forEach(angular.element("." + checkboxesCssClass), function (input) {
+                        angular.element(input).prop("checked", isSelected);
+                    });
+                };
+
+                $scope.preventRowAction = function() {
+                    event.stopPropagation(); // prevent row click
+                };
+
+                $scope.sendSelectedToRegistry = function() {
+
+                    var isEmpty = true,
+                        boxes = angular.element(".gradedReviewsBox");
+
+                    angular.forEach(boxes, function (input) {
+                        if(angular.element(input).prop("checked")) {
+                            isEmpty = false;
+                        }
+                    });
+
+                    if(isEmpty) {
+                        toastr.warning($translate('sitnet_choose_atleast_one'));
+                        return;
+                    }
+
+                    if (confirm($translate('sitnet_confirm_record_review'))) {
+
+                        var promises = [];
+
+                        angular.forEach(boxes, function (input) {
+
+                            var isSelected = angular.element(input).prop("checked");
+
+                            if (isSelected) {
+
+                                angular.forEach($scope.gradedReviews, function (review) {
+
+                                    if (parseInt(angular.element(input).val()) === review.exam.id) {
+
+                                        ExamRes.reviewerExam.get({eid: review.exam.id}, function(exam) {
+
+                                            if ((exam.grade != undefined || exam.grade != "") || (exam.creditType != undefined || exam.creditType != "")) {
+
+                                                var examToRecord = {
+                                                    "id": exam.id,
+                                                    "state": "GRADED_LOGGED",
+                                                    "grade": exam.grade,
+                                                    "customCredit": exam.customCredit,
+                                                    "totalScore": exam.totalScore,
+                                                    "creditType": exam.creditType,
+                                                    "sendFeedback": true,
+                                                    "answerLanguage": exam.answerLanguage,
+                                                    "additionalInfo": ""
+                                                };
+
+                                                ExamRes.saveRecord.add(examToRecord, function() {
+                                                    $route.reload();
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+
+                        toastr.info($translate('sitnet_results_send_ok'));
+
+                    }
                 };
 
                 // Unreviewed exams
@@ -58,9 +132,6 @@
                             if (review.duration) {
                                 review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
                             }
-                            ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
-                                review.inspections = inspections;
-                            });
                         });
                         $scope.gradedReviews = examReviews;
                     },
@@ -89,6 +160,10 @@
                     var graded = Date.parse(gradedDate);
 
                     return new Date().getTime() > graded + sixMonths;
+                };
+
+                $scope.printExamCredit = function(courseCredit, customCredit) {
+                    return customCredit && customCredit !== courseCredit ? customCredit : courseCredit;
                 };
 
                 $scope.printExamDuration = function (exam) {

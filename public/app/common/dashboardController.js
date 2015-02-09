@@ -152,7 +152,6 @@
                     $location.path("/feedback/exams/" + id);
                 };
 
-
                 $scope.getUsername = function() {
                     return sessionService.getUserName();
                 };

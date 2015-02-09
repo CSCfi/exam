@@ -475,5 +475,8 @@
   "sitnet_no_participations_for_exam": "Inga svar",
   "sitnet_reservation_in_effect": "Bokningen pågår och kan inte längre ändras",
   "sitnet_no_machines_available": "Lediga datorer finns tyvärr inte längre",
-  "sitnet_error_enrolment_not_found": "Du har inte anmält dig för den här tenten"
+  "sitnet_error_enrolment_not_found": "Du har inte anmält dig för den här tenten",
+  "sitnet_send_results_to_registry": "Submit the results to the study register",
+  "sitnet_check_uncheck_all": "Select all / remove selected",
+  "sitnet_results_send_ok": "Results submit success"
 }

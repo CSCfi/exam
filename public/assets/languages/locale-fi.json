@@ -475,5 +475,9 @@
   "sitnet_no_participations_for_exam": "Koesuorituksia ei ole",
   "sitnet_reservation_in_effect": "Varaus on jo astunut voimaan ja sitä ei voi enää muuttaa",
   "sitnet_no_machines_available": "Valitettavasti vapaita koneita ei enää ole",
-  "sitnet_error_enrolment_not_found": "Et ole ilmoittautunut tähän tenttiin"
+  "sitnet_error_enrolment_not_found": "Et ole ilmoittautunut tähän tenttiin",
+  "sitnet_choose_atleast_one": "Valitse ainakin yksi",
+  "sitnet_send_results_to_registry": "Lähetä valitut suoritukset rekisteriin",
+  "sitnet_check_uncheck_all": "Valitse kaikki / poista valinnat",
+  "sitnet_results_send_ok": "Suoritusten lähettäminen onnistui"
 }
