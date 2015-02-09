@@ -1,6 +1,5 @@
 package models;
 
-import annotations.NonCloneable;
 import play.data.format.Formats.DateTime;
 import play.db.ebean.Model;
 
@@ -24,23 +23,17 @@ public abstract class SitnetModel extends Model {
     protected Date created;
 	
 	@OneToOne
-    @NonCloneable
-	protected User creator;
+    protected User creator;
 	
     @Temporal(TemporalType.TIMESTAMP)
     protected Date modified;
 	
 	@OneToOne
-    @NonCloneable
-	protected User modifier;
+    protected User modifier;
 	
 	public SitnetModel() {
 	}
 	
-	public SitnetModel(User creator) {
-		this.creator = creator;
-	}
-
 	public Long getId() {
 		return id;
 	}

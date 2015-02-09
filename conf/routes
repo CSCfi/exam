@@ -32,7 +32,6 @@ DELETE        /exams/:id                                                       c
 PUT           /review/:id                                                      controllers.ExamController.reviewExam(id: Long)
 POST          /review/:eid/comment/:cid                                        controllers.ExamController.insertComment(eid: Long, cid: Long)
 PUT           /review/:eid/comment/:cid                                        controllers.ExamController.updateComment(eid: Long, cid: Long)
-PUT           /exam/:eid/credit/:credit                                        controllers.ExamController.updateCredit(eid: Long, credit: Double)
 GET           /reviews/:eid                                                    controllers.ExamController.getExamReviews(eid: Long, statuses: java.util.List[String])
 GET           /review/info/:eid                                                controllers.ExamController.getExamStudentInfo(eid: Long)
 GET           /exams/state/:state                                              controllers.ExamController.getExamsByState(state: String)
@@ -41,7 +40,6 @@ POST          /exams/:id/section                                               c
 DELETE        /exams/:eid/section/:sid                                         controllers.ExamController.removeSection(eid: Long, sid: Long)
 PUT           /exams/:eid/section/:sid                                         controllers.ExamController.updateSection(eid: Long, sid: Long)
 PUT           /exams/:eid/course/:cid                                          controllers.ExamController.updateCourse(eid: Long, cid: Long)
-PUT           /exams/:eid/room/:rid                                            controllers.ExamController.updateRoom(eid: Long, rid: Long)
 GET           /exams/:eid/reservation                                          controllers.ExamController.getReservationInformationForExam(eid: Long)
 GET           /finishedexams                                                   controllers.ExamController.getFinishedExams()
 GET           /activeexams                                                     controllers.ExamController.getActiveExams()
@@ -54,7 +52,6 @@ GET           /examparticipations/:eid                                         c
 GET           /examparticipations/:eid/:uid                                    controllers.ExamController.getParticipationsForExamAndUser(eid: Long, uid: Long)
 
 GET           /examparticipationsandreviews/:eid                               controllers.ExamController.getParticipationsAndReviewedForExam(eid: Long)
-POST          /exams/:eid/examtype/:etid                                       controllers.ExamController.insertExamType(eid: Long, etid: Long)
 POST          /exam/record                                                     controllers.ExamRecordController.addExamRecord()
 
 GET           /examenrolmentroom/:eid                                          controllers.ExamController.getRoomInfoFromEnrollment(eid: Long)
@@ -73,7 +70,7 @@ PUT           /exams/:eid/section/:sid/:from/:to                               c
 GET           /draft                                                           controllers.ExamController.createExamDraft()
 
 PUT           /exam/:eid/software/:sid                                         controllers.ExamController.updateExamSoftwareInfo(eid: Long, sid: Long)
-PUT           /exam/resetsoftware/:eid                                         controllers.ExamController.resetExamSoftwareInfo(eid: Long)
+DELETE        /exam/:eid/software                                              controllers.ExamController.resetExamSoftwareInfo(eid: Long)
 
 PUT           /exam/:eid/language/:code                                        controllers.ExamController.addExamLanguage(eid: Long, code: String)
 DELETE        /exam/:eid/languages                                             controllers.ExamController.resetExamLanguages(eid: Long)

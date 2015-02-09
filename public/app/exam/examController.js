@@ -121,15 +121,18 @@
 
                     if ($scope.newExam.softwares.length !== $scope.softwaresUpdate) {
 
-                        ExamRes.machines.reset({eid: $scope.newExam.id});
+                        ExamRes.softwares.reset({eid: $scope.newExam.id}, function () {
+                            var promises = [];
+                            angular.forEach($scope.newExam.softwares, function (software) {
+                                promises.push(ExamRes.software.add({eid: $scope.newExam.id, sid: software.id}));
+                            });
+                            $q.all(promises).then(function () {
+                                toastr.info($translate('sitnet_exam_software_updated'));
+                                $scope.selectedSoftwares($scope.newExam);
 
-                        angular.forEach($scope.newExam.softwares, function (software) {
-                            ExamRes.machine.add({eid: $scope.newExam.id, sid: software.id});
+                                $scope.softwaresUpdate = $scope.newExam.softwares.length;
+                            });
                         });
-                        toastr.info($translate('sitnet_exam_software_updated'));
-                        $scope.selectedSoftwares($scope.newExam);
-
-                        $scope.softwaresUpdate = $scope.newExam.softwares.length;
                     }
                 };
 
@@ -242,16 +245,6 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                };
-
-                $scope.setExamRoom = function (room) {
-
-                    ExamRes.room.update({eid: $scope.newExam.id, rid: room.id}, function (exam) {
-                        $scope.newExam.room = room;
-                        toastr.info($translate("sitnet_exam_updated"));
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
                 };
 
                 $scope.setExamDuration = function (duration) {

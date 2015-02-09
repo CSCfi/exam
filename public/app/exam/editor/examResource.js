@@ -73,22 +73,6 @@
                     "insert": {method: "POST", params: { code: "@code"}}
                 }),
 
-                room: $resource("/exams/:eid/room/:rid",
-                {
-                    eid: "@eid", rid: "@rid"
-                },
-                {
-                    "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}}
-                }),
-
-                examType: $resource("/exams/:eid/examtype/:etid",
-                {
-                    eid: "@eid", etid: "@etid"
-                },
-                {
-                    "insert": {method: "POST", params: { eid: "@eid", etid: "@etid" }}
-                }),
-
                 section: $resource("/section/:sectionId",
                 {
                     sectionId: "@sectionId"
@@ -149,14 +133,6 @@
                     "update": {method: "PUT", params: { eid: "@eid" , sid: "@cid"}}
                 
                 }),
-
-                credit: $resource("/exam/:eid/credit/:credit",
-                    {
-                        id: "@eid", credit: "@credit"
-                    },
-                    {
-                        "update": {method: "PUT", params: { eid: "@eid" , credit: "@credit"}}
-                    }),
 
                 inspections: $resource("/exam/:id/inspections",
                 {
@@ -257,30 +233,6 @@
                 {
                     "add": {method: "POST"}
                 }),
-                machines: $resource("exam/resetsoftware/:eid",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "reset": {method: "PUT"}
-                }),
-
-                languages: $resource("exam/:eid/languages",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "reset": {method: "DELETE"}
-                }),
-
-                machine: $resource("/exam/:eid/software/:sid",
-                {
-                    eid: "@eid",
-                    sid: "@sid"
-                },
-                {
-                    "add": {method: "PUT"}
-                }),
                 language: $resource("/exam/:eid/language/:code",
                 {
                     eid: "@eid",
@@ -288,6 +240,28 @@
                 },
                 {
                     "add": {method: "PUT"}
+                }),
+                languages: $resource("exam/:eid/languages",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "reset": {method: "DELETE"}
+                }),
+                software: $resource("/exam/:eid/software/:sid",
+                {
+                    eid: "@eid",
+                    sid: "@sid"
+                },
+                {
+                    "add": {method: "PUT"}
+                }),
+                softwares: $resource("exam/:eid/software",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "reset": {method: "DELETE"}
                 }),
                 reservation: $resource("/exams/:eid/reservation",
                 {
