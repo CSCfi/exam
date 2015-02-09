@@ -1,6 +1,5 @@
 package models.questions;
 
-import annotations.NonCloneable;
 import models.Attachment;
 import models.SitnetModel;
 import models.answers.AbstractAnswer;
@@ -33,7 +32,6 @@ public abstract class AbstractQuestion extends SitnetModel {
     protected Double evaluatedScore;
 
     @OneToOne(cascade = CascadeType.PERSIST) // do not delete parent question
-    @NonCloneable
     protected AbstractQuestion parent;
 
     @OneToOne (cascade = CascadeType.ALL)

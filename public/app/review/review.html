@@ -1,7 +1,7 @@
 <!-- Refresh MathJax syntax some time after page was rendered -->
 <script type="text/javascript">
-    $(document).ready(function() {
-        setTimeout(function() {
+    $(document).ready(function () {
+        setTimeout(function () {
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
         }, 500);
     });
@@ -43,11 +43,11 @@
                 <div ng-include="reviewSectionPath" ng-repeat="section in examToBeReviewed.examSections"></div>
             </div>
             <!-- Grading -->
-            <div class="exam-general-information" ng-include="gradingPath"></div>
+            <div class="row" ng-include="gradingPath"></div>
             <!-- Floating feedback window -->
-            <div class="col-md-11" ng-show="!isReadOnly">
+            <div class="col-md-11" ng-hide="(isGraded && !isCreator()) || isReadOnly">
                 <div class="col-md-5 col-md-offset-4 review-feedback" bs-affix data-offset-top="150">
-                    <div class="review-feedback" ng-click="hideEditor = !hideEditor">
+                    <div class="review-feedback" ng-click="hideEditor = toggleFeedbackHiding(hideEditor)">
                         <span>
                             <i class="fa fa-2x" ng-class="!hideEditor ? 'fa-chevron-circle-right sitnet-green' :
                                'fa-chevron-circle-down sitnet-red'">
@@ -65,31 +65,44 @@
                 </div>
             </div>
             <!-- Bottom toolbar -->
-            <div class="col-md-12 row top-padding-2 bottom-padding-2">
-                <div class="col-md-6">
-                    <span>
-                        <button ng-show="!isReadOnly" ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
+            <div class="row bottom-padding-2">
+                <div class="col-md-12 sitnet-horizontal-line"></div>
+                <div class="col-md-6 top-margin-1">
+                    <span ng-show="!isReadOnly">
+                        <!-- do not enable this if already graded and form has errors! -->
+                        <button ng-disabled="isGraded && ( !examForm.$valid || !isCreator() )"
+                                ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
                             {{'sitnet_save' | translate}}
                         </button>
                     </span>
-                    <span ng-show="isReadOnly" style="padding: 40px 0;">
-                        <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="col-md-12">
+                    <span ng-show="isReadOnly || (!isCreator() && isGraded)" class="row">
+                        <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="row">
                             <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
                         </a>
                     </span>
                 </div>
-                <div class="col-md-4 pull-right">
-                    <div style="padding-left: 1em" ng-show="!isReadOnly">
-                        <button ng-click="saveExamRecord(examToBeReviewed)"
-                                ng-disabled="!isCreator() || isReadOnly || !examForm.$valid"
-                                class="btn btn-primary pull-right">{{'sitnet_send_result_to_registry' | translate}}
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-2 pull-right">
-                    <div ng-show="!isReadOnly">
-                        <div class="sitnet-info-text-compact" style="font-size: 0.9em;">{{'sitnet_additional_info_for_registry' | translate}}:</div>
-                        <textarea class="form-control pull-right col-md-12" ng-model="additionalInfo"></textarea>
+                <div class="col-md-6 top-margin-1 pull-right" ng-show="!isReadOnly">
+                    <div class="col-md-12">
+                        <div class="col-md-12 sitnet-info-text-compact pull-left">
+                            {{'sitnet_additional_info_for_registry' | translate}}:
+                        </div>
+                        <div class="col-md-10 input-group exam-info">
+                            <dl class="col-md-12 pull-left row">
+                                <dt class="pull-left inline col-md-11 row">
+                                    <textarea class="form-control" ng-model="$parent.additionalInfo" rows="3"
+                                              cols="120"
+                                              ng-disabled="isReadOnly || !isGraded || !isCreator() || !examForm.$valid">
+                                    </textarea>
+                                </dt>
+                                <dd class="pull-right inline col-md-1 top-padding-2 row">
+                                    <input type="button" class="btn btn-primary btn-sm top-margin-1 pull-left"
+                                           ng-disabled="isReadOnly || !isGraded || !isCreator() || !examForm.$valid"
+                                           ng-click="saveExamRecord(examToBeReviewed)"
+                                           value="{{'sitnet_send_result_to_registry' | translate}}"
+                                    />
+                                </dd>
+                            </dl>
+                        </div>
                     </div>
                 </div>
             </div>

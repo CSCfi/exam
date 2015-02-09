@@ -476,6 +476,12 @@
   "sitnet_reservation_in_effect": "Bokningen pågår och kan inte längre ändras",
   "sitnet_no_machines_available": "Lediga datorer finns tyvärr inte längre",
   "sitnet_error_enrolment_not_found": "Du har inte anmält dig för den här tenten",
+  "sitnet_not_allowed_to_review_aborted_exam": "Inte möjligt att värdera avbrutna tent",
+  "sitnet_exam_choose_response_language": "Välj svarets språk",
+  "sitnet_review_saved": "Värdering sparad som ofullständig",
+  "sitnet_review_graded": "Värdering markerad som fullständig och sparad",
+  "sitnet_confirm_grade_review": "Efter att du värderat kursvitsordet kan de tillfälliga utvärderarna inte redigera sina utvärderingar. Vill du fortsätta?",
+  "sitnet_saved": "Sparat",
   "sitnet_send_results_to_registry": "Submit the results to the study register",
   "sitnet_check_uncheck_all": "Select all / remove selected",
   "sitnet_results_send_ok": "Results submit success"

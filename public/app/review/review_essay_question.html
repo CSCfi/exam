@@ -87,14 +87,14 @@
             'sitnet_comments' | translate}}:</div>
         <div class="col-md-3">
             <span ng-show="sectionQuestion.question.evaluationType === 'Points'">
-                <select class="form-control" ng-model="sectionQuestion.question.evaluatedScore" ng-change="insertEssayScore(sectionQuestion)" ng-disabled="isReadOnly">
+                <select class="form-control" ng-model="sectionQuestion.question.evaluatedScore" ng-change="insertEssayScore(sectionQuestion)" ng-disabled="(isGraded && !isCreator()) || isReadOnly">
                     <option ng-repeat="i in range(0, sectionQuestion.question.maxScore, 1)" value="{{ i }}"
                             ng-selected="sectionQuestion.question.evaluatedScore == i">{{ i }} / {{sectionQuestion.question.maxScore}}
                     </option>
                 </select>
             </span>
             <span ng-show="sectionQuestion.question.evaluationType === 'Select'">
-                <select class="form-control" ng-model="sectionQuestion.question.evaluatedScore" ng-change="insertEssayScore(sectionQuestion)" ng-disabled="isReadOnly">
+                <select class="form-control" ng-model="sectionQuestion.question.evaluatedScore" ng-change="insertEssayScore(sectionQuestion)" ng-disabled="(isGraded && !isCreator()) || isReadOnly">
                     <option value="1" ng-selected="sectionQuestion.question.evaluatedScore == 1">{{ 'sitnet_approved' | translate }}</option>
                     <option value="0" ng-selected="sectionQuestion.question.evaluatedScore == 0">{{ 'sitnet_rejected' | translate }}</option>
                 </select>

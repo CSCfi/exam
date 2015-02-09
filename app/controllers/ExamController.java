@@ -463,24 +463,6 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateCredit(Long eid, Double credit) {
-
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
-            return notFound();
-        }
-
-        if (credit == -1) {
-            exam.setCustomCredit(null);
-        } else {
-            exam.setCustomCredit(credit);
-        }
-        exam.save();
-
-        return ok();
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateExam(Long id) {
 
         DynamicForm df = Form.form().bindFromRequest();
@@ -718,36 +700,6 @@ public class ExamController extends SitnetController {
             Course course = Ebean.find(Course.class, cid);
             exam.setCourse(course);
             exam.save();
-            return ok(Json.toJson(exam));
-        } else {
-            return forbidden("sitnet_error_access_forbidden");
-        }
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateRoom(Long eid, Long rid) {
-
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
-            ExamRoom room = Ebean.find(ExamRoom.class, rid);
-            exam.setRoom(room);
-            exam.save();
-            return ok(Json.toJson(exam));
-        } else {
-            return forbidden("sitnet_error_access_forbidden");
-        }
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result insertExamType(Long eid, Long etid) {
-
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
-
-            ExamType examType = Ebean.find(ExamType.class, etid);
-            exam.setExamType(examType);
-            exam.save();
-
             return ok(Json.toJson(exam));
         } else {
             return forbidden("sitnet_error_access_forbidden");
@@ -1047,6 +999,8 @@ public class ExamController extends SitnetController {
                 .eq("user.id", uid)
                 .eq("exam.parent.id", eid)
                 .disjunction()
+                .eq("exam.state", Exam.State.ABORTED.toString())
+                .eq("exam.state", Exam.State.GRADED.toString())
                 .eq("exam.state", Exam.State.GRADED_LOGGED.toString())
                 .eq("exam.state", Exam.State.ARCHIVED.toString())
                 .endJunction()
@@ -1054,7 +1008,7 @@ public class ExamController extends SitnetController {
         JsonContext context = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("started, exam");
-        options.setPathProperties("exam", "id, grade");
+        options.setPathProperties("exam", "id, grade, state");
         return ok(context.toJsonString(participations, true, options)).as("application/json");
     }
 

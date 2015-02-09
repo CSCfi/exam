@@ -1,6 +1,5 @@
 package models;
 
-import annotations.NonCloneable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import exceptions.SitnetException;
@@ -30,11 +29,9 @@ public class Exam extends SitnetModel {
     private String name;
 
     @ManyToOne
-    @NonCloneable
     private Course course;
 
     @OneToOne
-    @NonCloneable
     private ExamType examType;
     
     // Instruction written by teacher, shown during exam
@@ -53,34 +50,22 @@ public class Exam extends SitnetModel {
     @JsonManagedReference
     private List<ExamSection> examSections = new ArrayList<>();
 
-    /*
-     *  Kun opiskelijalle tehdään kopio tentistä, tämä tulee viittaamaan alkuperäiseen tenttiin
-     *  
-     *  Lisäksi tentaattori pitää löytää joukko tenttejä, jotka ovat suoritettuja, jotka pitää tarkistaa
-     *  tätä viitettä voidaan käyttää niiden tenttien löytämiseen  
-     */
     @OneToOne
-    @NonCloneable
     private Exam parent;
 
 
     @Column(length = 32, unique = true)
     private String hash;
 
-    // tentin voimassaoloaika, tentti on avoin opiskelijoille tästä lähtien
+    // Exam valid/enrollable from
     @Temporal(TemporalType.TIMESTAMP)
     private Date examActiveStartDate;
     
-    // tentin voimassaoloaika, tentti sulkeutuu
+    // Exam valid/enrollable until
     @Temporal(TemporalType.TIMESTAMP)
     private Date examActiveEndDate;
 
-    // Akvaario
-    @OneToOne
-    private ExamRoom room;
-
-    // tentin kesto
-//    @Constraints.Required
+    // Exam duration (minutes)
     private Integer duration;
 
     // Exam grading, e.g. 0-5
@@ -115,7 +100,6 @@ public class Exam extends SitnetModel {
      * in WebOodi, or other system
      */
     @JsonBackReference
-    @NonCloneable
     @OneToOne
     private User gradedByUser;
 
@@ -192,10 +176,6 @@ public class Exam extends SitnetModel {
         this.expanded = expanded;
     }
 
-    public void setRoom(ExamRoom room) {
-        this.room = room;
-    }
-
     public String getName() {
         return name;
     }
@@ -247,10 +227,6 @@ public class Exam extends SitnetModel {
     public String getHash() {
         return hash;
     }
-
-	public ExamRoom getRoom() {
-		return room;
-	}
 
 	public Integer getDuration() {
 		return duration;

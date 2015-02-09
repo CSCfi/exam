@@ -85,11 +85,17 @@
                 current = parseInt(current, 10);
                 pageSize = parseInt(pageSize, 10);
                 var pages = Math.floor(total / pageSize);
-                if (current === pages) {
+                if (pages > 0 && current === pages) {
                     var amount = (pages + 1) * pageSize - total;
                     for (var i = 0; i < amount; ++i) input.push(i);
                 }
                 return input;
+            }
+        })
+        .filter('zeropad', function () {
+            return function(input) {
+                input += '';
+                return input.length > 1 ? input : '0' + input;
             }
         }
     );
