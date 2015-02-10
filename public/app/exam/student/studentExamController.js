@@ -34,10 +34,13 @@
                 });
 
                 $scope.getQuestionAmount = function (section, type) {
-                    var answered = type === 'answered';
-                    return section.sectionQuestions.filter(function (sectionQuestion) {
-                        return sectionQuestion.question.answered === answered;
-                    }).length;
+                    if(type === 'total') {
+                        return section.sectionQuestions.length;
+                    } else if(type === 'answered') {
+                        return section.sectionQuestions.filter(function (sectionQuestion) {
+                            return sectionQuestion.question.answered;
+                        }).length;
+                    }
                 };
 
                 $scope.printExamDuration = function (exam) {
@@ -87,6 +90,7 @@
 
                             // Loop through all questions in the active section
                             angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
+                                $scope.setQuestionColors(sectionQuestion);
                                 var question = sectionQuestion.question;
                                 var template = "";
                                 switch (question.type) {
@@ -246,7 +250,6 @@
                             if (question.expanded == null) {
                                 question.expanded = true;
                             }
-
                             $scope.setQuestionColors(question);
                         });
                         cancelAutosavers();
@@ -427,15 +430,6 @@
 
                 count(); // start the clock
 
-                // Called when the chevron is clicked
-                $scope.chevronClicked = function (sectionQuestion) {
-                    var question = sectionQuestion.question;
-                    if (question.type == "EssayQuestion") {
-
-                    }
-                    $scope.setQuestionColors(question);
-                };
-
                 $scope.isAnswer = function (question, option) {
 
                     if (question && question.answer === null) {
@@ -451,7 +445,10 @@
 
                 $scope.setQuestionColors = function (question) {
                     // State machine for resolving how the question header is drawn
-                    if (question.answered || question.answer) {
+                    if (question.answered ||
+                        (question.answer && question.type === "EssayQuestion" && question.answer.answer && $scope.stripHtml(question.answer.answer).length > 0) || // essay not empty
+                        (question.answer && question.type === "MultipleChoiceQuestion" && question.answer.option) // has option selected
+                        ) {
                         question.answered = true;
                         question.questionStatus = $translate("sitnet_question_answered");
 
@@ -560,6 +557,13 @@
                     }, function () {
                         // Cancel button
                     });
+                };
+
+                $scope.stripHtml = function(text) {
+                    if(text && text.indexOf("math-tex") === -1) {
+                        return String(text).replace(/<[^>]+>/gm, '');
+                    }
+                    return text;
                 };
             }]);
 }());

@@ -15,9 +15,9 @@
             </span>
             <span ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-dark'">{{section.name}}</span>
             <div class="col-md-6 pull-right">
-                <span class="pull-left sitnet-text-notice bold">{{ getQuestionAmount(section,'open') }}</span>
-                <span class="pull-left horizontal-padding-05"> / </span>
                 <span class="pull-left sitnet-text-ready bold">{{ getQuestionAmount(section,'answered') }}</span>
+                <span class="pull-left horizontal-padding-05"> / </span>
+                <span class="pull-left bold">{{ getQuestionAmount(section,'total') }}</span>
             </div>
         </li>
     </ul>
