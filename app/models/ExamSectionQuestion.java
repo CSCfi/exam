@@ -2,24 +2,27 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.questions.AbstractQuestion;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
 
 @Entity
-@IdClass(ExamSectionQuestionPK.class)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"examSection_id", "question_id"}))
 public class ExamSectionQuestion extends Model {
 
-    @EmbeddedId
-    private ExamSectionQuestionPK pk = new ExamSectionQuestionPK();
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
 
     @ManyToOne
-    @JoinColumn(name="exam_section_id", insertable = false, updatable = false)
+    @JoinColumn(name = "exam_section_id")
     @JsonBackReference
     private ExamSection examSection;
 
-    @ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="question_id", insertable = false, updatable = false)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "question_id")
     private AbstractQuestion question;
 
     @Column
@@ -29,14 +32,12 @@ public class ExamSectionQuestion extends Model {
 
     }
 
-    public ExamSectionQuestion(ExamSection section, AbstractQuestion question) {
-        this.examSection = section;
-        this.question = question;
+    public Long getId() {
+        return this.id;
+    }
 
-        this.pk.setExamSectionId(section.getId());
-        this.pk.setQuestionId(question.getId());
-
-        section.getSectionQuestions().add(this);
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public ExamSection getExamSection() {
@@ -71,14 +72,13 @@ public class ExamSectionQuestion extends Model {
         if (!(o instanceof ExamSectionQuestion)) {
             return false;
         }
-        ExamSectionQuestion that = (ExamSectionQuestion) o;
-        return pk.equals(that.pk);
+        ExamSectionQuestion other = (ExamSectionQuestion)o;
+        return new EqualsBuilder().append(getExamSection(), other.getExamSection())
+                .append(getQuestion(), other.getQuestion()).build();
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (pk != null ? pk.hashCode() : 0);
-        return result;
+        return new HashCodeBuilder().append(getExamSection()).append(getQuestion()).build();
     }
 }

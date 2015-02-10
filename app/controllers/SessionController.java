@@ -85,18 +85,24 @@ public class SessionController extends SitnetController {
                     user.setLastName(toUtf8(request().getHeader("sn")));
                     user.setFirstName(toUtf8(request().getHeader("displayName")));
 
-                    String language = toUtf8(request().getHeader("preferredLanguage"));
-                    if (language != null && !language.isEmpty()) {
-                        user.getUserLanguage().setNativeLanguageCode(language);
-                        user.getUserLanguage().setUILanguageCode(language);
-                    } else {
-                        UserLanguage lang = Ebean.find(UserLanguage.class)
+                    UserLanguage language = null;
+                    String languageCode = toUtf8(request().getHeader("preferredLanguage"));
+                    if (languageCode != null && !languageCode.isEmpty()) {
+                        // for example: en-US -> en
+                        languageCode = languageCode.split("-")[0].toLowerCase();
+                        language = Ebean.find(UserLanguage.class)
+                                .where()
+                                .eq("nativeLanguageCode", languageCode)
+                                .findUnique();
+                    }
+                    if (language == null) {
+                        // Default to English
+                        language = Ebean.find(UserLanguage.class)
                                 .where()
                                 .eq("nativeLanguageCode", "en")
                                 .findUnique();
-
-                        user.setUserLanguage(lang);
                     }
+                    user.setUserLanguage(language);
 
                     String shibRole = toUtf8(request().getHeader("unscoped-affiliation"));
                     Logger.debug("unscoped-affiliation: " + shibRole);
@@ -106,7 +112,6 @@ public class SessionController extends SitnetController {
                     } else {
                         user.getRoles().add(role);
                     }
-
                     user.save();
                 }
             } else {
