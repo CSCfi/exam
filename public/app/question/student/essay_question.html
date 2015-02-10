@@ -1,16 +1,16 @@
 <div class="row" ng-hide="!sectionQuestion.question.maxCharacters">
-    <div class="sitnet-info-text col-md-12 pull-right">Vastauksen pituuden suositus:
-        {{sectionQuestion.question.maxCharacters}} kirjainmerkkiä
+    <div class="sitnet-info-text col-md-12 pull-right">{{ 'sitnet_essay_length_recommendation' | translate }}:&nbsp;
+        {{ sectionQuestion.question.maxCharacters }}
     </div>
 </div>
 <div class="row">
     <textarea ck-editor rows="10" cols="80" ng-model="sectionQuestion.question.answer.answer"></textarea>
 </div>
 <div class="row" ng-hide="!sectionQuestion.question.autosaved">
-    <div class="sitnet-info-text col-md-12 pull-right">automaattisesti tallennettu:
-        {{sectionQuestion.question.autosaved | date:'HH:mm'}}</div>
+    <div class="sitnet-info-text col-md-12 pull-right">{{'sitnet_autosaved' | translate}}:&nbsp;
+        {{ sectionQuestion.question.autosaved | date:'HH:mm'}}</div>
 </div>
 <div class="row">
     <button ng-click="saveEssay(sectionQuestion.question, sectionQuestion.question.answer.answer)"
-            class="btn btn-primary pull-right">Tallenna</button>
+            class="btn btn-primary pull-right">{{'sitnet_save' | translate }}</button>
 </div>

@@ -485,5 +485,6 @@
   "sitnet_choose_atleast_one": "Valitse ainakin yksi",
   "sitnet_send_results_to_registry": "Lähetä valitut suoritukset rekisteriin",
   "sitnet_check_uncheck_all": "Valitse kaikki / poista valinnat",
-  "sitnet_results_send_ok": "Suoritusten lähettäminen onnistui"
+  "sitnet_results_send_ok": "Suoritusten lähettäminen onnistui",
+  "sitnet_autosaved": "Vastaus automaattisesti tallennettu"
 }
