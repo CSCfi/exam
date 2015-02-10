@@ -62,7 +62,7 @@
                             <td>{{review.user.email}}</td>
                             <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
                                 translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
-                                ({{review.started | diffInMinutesTo:examReview.ended }}min)
+                                ({{review.started | diffInMinutesTo:review.ended }}min)
                             </td>
                             <td class="table-column-20">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                                     ng-bind-html="review.deadline | diffInDaysToNow"></span>)
@@ -195,7 +195,7 @@
                     </thead>
 
                     <tbody>
-                    <tr ng-repeat="review in gradedLoggedReviews | offset: currentPageGradedLogged*pageSize | limitTo: pageSize" ng-click="go(review.exam)">
+                    <tr ng-repeat="review in gradedLoggedReviews | offset: currentPageGradedLogged*pageSize | limitTo: pageSize" ng-click="go(review.exam)" class="pointer">
                         <!--<td class="table-column-flag"><i class="sitnet-dark-blue fa fa-flag"></i></td>
                         <td class="table-column-exclamation"><i class="sitnet-red fa fa-flash"></i></td>-->
                         <td class="table-column-examname"><a ng-click="preventRowAction()" href="mailto:{{review.user.email}}">{{review.user.firstName}} {{review.user.lastName}}</a></td>

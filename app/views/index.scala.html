@@ -41,13 +41,9 @@
 
 
         <!-- vendor -->
-        <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-        <script>
-            // cdn loaded check
-            if(typeof MathJax == 'undefined') {
-                document.write('<script src="@routes.Assets.at("components/vendor/MathJax-2.3-latest/MathJax.js?config=TeX-AMS_HTML")" type="text/javascript">' + '</scr' + 'ipt>');
-            }
-        </script>
+        <!--<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>-->
+        <script src="@routes.Assets.at("components/vendor/MathJax-2.3-latest/MathJax.js?config=TeX-AMS_HTML")" type="text/javascript"></script>
+
         <script src="@routes.Assets.at("components/vendor/jquery.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/jquery-ui.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/fullcalendar.min.js")" type="text/javascript"></script>
