@@ -1,23 +1,11 @@
 #studentexam {
 
-  .sidebutton {
-    color: $sitnet-common-dark;
-    cursor: pointer;
-    padding-top:0.3em;
+  .sidebutton-text {
+    padding-top:0.2em;
 
     :hover {
       color: $sitnet-theme;
     }
-  }
-
-  .sidebutton-alarm {
-    color: $sitnet-alarm;
-    cursor: pointer;
-  }
-
-  .sidebutton-save {
-    color: $sitnet-student-darkgreen;
-    cursor: pointer;
   }
 
   padding: 1em;
