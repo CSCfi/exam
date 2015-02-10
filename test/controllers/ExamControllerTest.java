@@ -99,7 +99,6 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(status(result)).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         Long id = node.get("id").asLong();
-        assertPathsExist(node, "id");
         Exam draft = Ebean.find(Exam.class, id);
         assertThat(draft).isNotNull();
         assertThat(draft.getName()).isEqualTo("Kirjoita tentin nimi tähän");
@@ -461,7 +460,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         return new String[] {"id", "name", "course.id", "course.code", "course.name", "course.level",
                 "course.courseUnitType", "course.credits", "course.institutionName", "course.department", "parent",
                 "examType", "instruction", "enrollInstruction", "shared", "examActiveStartDate",
-                "examActiveEndDate", "room", "duration", "grading", "grade", "customCredit", "totalScore",
+                "examActiveEndDate", "duration", "grading", "grade", "customCredit", "totalScore",
                 "answerLanguage","state", "examFeedback", "creditType", "expanded", "attachment", "creator.id",
                 "creator.firstName", "creator.lastName"};
     }

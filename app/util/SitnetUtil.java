@@ -1,6 +1,8 @@
 package util;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.TxType;
+import com.avaje.ebean.annotation.Transactional;
 import com.typesafe.config.ConfigFactory;
 import controllers.UserController;
 import exceptions.SitnetException;
@@ -107,6 +109,7 @@ public class SitnetUtil {
                 StandardCopyOption.COPY_ATTRIBUTES);
     }
 
+    @Transactional(type = TxType.REQUIRES_NEW)
     @SuppressWarnings("unchecked")
     public static void initializeDataModel() {
         int userCount;
