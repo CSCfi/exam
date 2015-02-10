@@ -288,6 +288,7 @@
                                 toastr.info($translate('sitnet_exam_returned'));
                                 $timeout.cancel($scope.remainingTimePoller);
                                 $location.path("/logout");
+                                $rootScope.$broadcast('examEnded');
                             }, function () {
 
                             });
@@ -303,6 +304,7 @@
                             toastr.info($translate('sitnet_exam_aborted'));
                             $timeout.cancel($scope.remainingTimePoller);
                             $location.path("/logout");
+                            $rootScope.$broadcast('examEnded');
                         }, function () {
 
                         });
@@ -397,6 +399,7 @@
                             StudentExamRes.exams.update({id: $scope.doexam.id}, function () {
                                 toastr.info($translate("sitnet_exam_time_is_up"));
                                 $location.path("/logout");
+                                $rootScope.$broadcast('examEnded');
                             }, function () {
 
                             });

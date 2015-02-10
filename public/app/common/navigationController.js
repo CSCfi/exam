@@ -9,6 +9,7 @@
                 };
 
                 $scope.loggedOut = false;
+                $scope.examStarted = false;
 
                 var links = function () {
                     $scope.user = sessionService.getUser();
@@ -24,10 +25,11 @@
                     var teacher = user.isTeacher || false;
 
                     // Do not show if waiting for exam to begin
-                    var dashboardVisible = waitingRoomService.getEnrolmentId() === undefined && (student || admin || teacher);
+                    var hideDashboard = (waitingRoomService.getEnrolmentId() || $scope.examStarted) && student;
+
 
                     return [
-                        {href: "#/home", visible: dashboardVisible, class: "fa-home", name: $translate("sitnet_dashboard")},
+                        {href: "#/home", visible: !hideDashboard, class: "fa-home", name: $translate("sitnet_dashboard")},
                         {href: "#/questions", visible: (admin || teacher), class: "fa-list-ol", name: $translate("sitnet_questions"), sub: []},
                         {href: "#/exams", visible: (admin || teacher), class: "fa-paste", name: $translate("sitnet_exams"), sub: []},
                         {href: "#/rooms", visible: (admin), class: "fa-building-o", name: $translate("sitnet_exam_rooms"), sub: []},
@@ -55,6 +57,16 @@
                 });
 
                 $scope.$on('upcomingExam', function() {
+                    $scope.links = links();
+                });
+
+                $scope.$on('examStarted', function() {
+                    $scope.examStarted = true;
+                    $scope.links = links();
+                });
+
+                $scope.$on('examEnded', function() {
+                    $scope.examStarted = false;
                     $scope.links = links();
                 });
 
