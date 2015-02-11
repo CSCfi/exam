@@ -297,7 +297,7 @@ public class StudentExamController extends SitnetController {
                         + ", " + examRoom.getMailAddress().toString()
                         + ", sitnet_exam_machine " + possibleEnrolment.getReservation().getMachine().getName();
 
-                return forbidden(message);
+                //return forbidden(message);
             }
 
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)

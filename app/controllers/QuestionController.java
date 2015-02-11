@@ -195,8 +195,6 @@ public class QuestionController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteQuestion(Long id) {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
-
         List<AbstractQuestion> children = Ebean.find(AbstractQuestion.class)
                 .where()
                 .eq("parent.id", id)

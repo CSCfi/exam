@@ -814,6 +814,15 @@ public class ExamController extends SitnetController {
             if (sectionQuestion == null) {
                 return notFound("sitnet_error_not_found");
             }
+            // Detach possible student exam questions from this one
+            List<AbstractQuestion> children = Ebean.find(AbstractQuestion.class)
+                    .where()
+                    .eq("parent.id", sectionQuestion.getQuestion().getId())
+                    .findList();
+            for (AbstractQuestion child : children) {
+                child.setParent(null);
+                child.save();
+            }
             sectionQuestion.delete();
             section.getSectionQuestions().remove(sectionQuestion);
 
