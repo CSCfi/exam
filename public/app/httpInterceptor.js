@@ -49,6 +49,7 @@
                                     $rootScope.$broadcast('upcomingExam');
                                 } else {
                                     $location.path('/student/doexam/' + hash);
+                                    $rootScope.$broadcast('examStarted');
                                 }
                             } else if (enrolmentId) {
                                 // no exams for today

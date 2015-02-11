@@ -26,17 +26,23 @@
 
             <div class="exam-question-container" ng-show="sectionQuestion.question.expanded">
                 <div class="exam-question-instruction row">{{sectionQuestion.question.instruction}}</div>
+
                 <div class="question" ng-include="sectionQuestion.question.template"></div>
-                <div ng-show="sectionQuestion.question.attachment" class="col-md-6" ng-controller="AttachmentController">
+
+                <div ng-show="sectionQuestion.question.attachment" class="exam-question-instruction row" ng-controller="AttachmentController">
                     <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)"> {{'sitnet_download_attachment' | translate }} <span class="sitnet-text-medium"><small>({{sectionQuestion.question.attachment.fileName}})</small></span></a>
                 </div>
-                <div class="col-md-6 pull-right" ng-controller="AttachmentController" ng-show="sectionQuestion.question.type === 'EssayQuestion'">
-                    <div class="sitnet-info-text">
-                        {{'sitnet_answer_attachment' | translate}}
+
+                <div class="exam-question-instruction row bottom-padding-2" ng-controller="AttachmentController" ng-show="sectionQuestion.question.type === 'EssayQuestion'">
+                    <div>
+                        {{'sitnet_answer_attachment' | translate}}:
                     </div>
-                    <div ng-if="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName !== null">
+                    <div ng-show="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName">
                         <a class="pointer" ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, hash)">{{sectionQuestion.question.answer.attachment.fileName}}</a>
                         <span class="sitnet-red pointer" ng-click="removeQuestionAnswerAttachment(sectionQuestion.question, hash);"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
+                    </div>
+                    <div ng-show="!sectionQuestion.question.answer || !sectionQuestion.question.answer.attachment || !sectionQuestion.question.answer.attachment.fileName">
+                       &nbsp;
                     </div>
                     <br>
                     <button ng-click="selectFile(sectionQuestion.question)" class="btn btn-primary pull-left">{{'sitnet_attach_file' | translate}}</button>

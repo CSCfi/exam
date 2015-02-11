@@ -64,7 +64,6 @@ public class EnrollController extends Controller {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
-                .fetch("room")
                 .fetch("examLanguages")
                 .where()
                 .eq("course.code", code)
@@ -77,9 +76,8 @@ public class EnrollController extends Controller {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
-                + "grading, room, course, creator, expanded, examType, enrollInstruction, examLanguages, " +
+                + "grading, course, creator, expanded, examType, enrollInstruction, examLanguages, " +
                 "answerLanguage");
-        options.setPathProperties("room", "name, roomCode, buildingName, campus");
         options.setPathProperties("examType", "type");
         options.setPathProperties("course", "code, name, level, type, credits");
         options.setPathProperties("creator", "firstName, lastName, email");

@@ -484,5 +484,6 @@
   "sitnet_saved": "Sparat",
   "sitnet_send_results_to_registry": "Submit the results to the study register",
   "sitnet_check_uncheck_all": "Select all / remove selected",
-  "sitnet_results_send_ok": "Results submit success"
+  "sitnet_results_send_ok": "Results submit success",
+  "sitnet_autosaved": "Svaret automatiskt sparat"
 }
