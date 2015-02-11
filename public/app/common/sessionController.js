@@ -29,7 +29,9 @@
                     sessionService.login($scope.credentials.username, $scope.credentials.password).then(function () {
                         var user = sessionService.getUser();
                         $rootScope.$broadcast('userUpdated');
-                        toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
+                        $rootScope.$on('$translateChangeSuccess', function() {
+                            toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
+                        });
 
                         if (user.isStudent && !user.hasAcceptedUserAgreament) {
 

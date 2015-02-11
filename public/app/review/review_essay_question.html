@@ -69,8 +69,8 @@
     <div class="row" ng-show="sectionQuestion.question.reviewExpanded">
         <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_answer_length' | translate}}:</div>
         <div class="col-md-8 sitnet-info-text">
-            {{ 'sitnet_approximately' | translate }}
             {{ sectionQuestion.question.answer.answer | striphtml | wordcount }} {{'sitnet_words' | translate }},
+            {{ 'sitnet_approximately' | translate }}
             {{ sectionQuestion.question.answer.answer | striphtml | charcount }} {{'sitnet_characters' | translate }}
         </div>
     </div>
