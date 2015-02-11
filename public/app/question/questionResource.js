@@ -30,10 +30,7 @@
                     "copy": {method: "POST"}
                 }),
 
-                questionlist: $resource("/questionlist/user/:id",
-                {
-                    id: "@id"
-                },
+                questionlist: $resource("/questions",null,
                 {
                 }),
 

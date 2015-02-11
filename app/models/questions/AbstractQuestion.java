@@ -1,17 +1,21 @@
 package models.questions;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.Attachment;
+import models.ExamSectionQuestion;
 import models.SitnetModel;
 import models.answers.AbstractAnswer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "question")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "question_type", discriminatorType = DiscriminatorType.STRING)
-public abstract class AbstractQuestion extends SitnetModel {
+public class AbstractQuestion extends SitnetModel {
 
     protected String type;
 
@@ -31,14 +35,22 @@ public abstract class AbstractQuestion extends SitnetModel {
     @Column(columnDefinition="numeric default 0")
     protected Double evaluatedScore;
 
-    @OneToOne(cascade = CascadeType.PERSIST) // do not delete parent question
+    @ManyToOne(cascade = CascadeType.PERSIST) // do not delete parent question
     protected AbstractQuestion parent;
+
+    @OneToMany(mappedBy = "parent")
+    @JsonBackReference
+    protected List<AbstractQuestion> children = new ArrayList<>();
 
     @OneToOne (cascade = CascadeType.ALL)
     protected AbstractAnswer answer;
 
     @Column(columnDefinition = "TEXT")
     protected String evaluationCriterias;
+
+    @OneToOne(mappedBy = "question")
+    @JsonBackReference
+    private ExamSectionQuestion examSectionQuestion;
 
     @OneToOne(cascade = CascadeType.ALL)
     protected Attachment attachment;
@@ -139,6 +151,22 @@ public abstract class AbstractQuestion extends SitnetModel {
         this.evaluatedScore = evaluatedScore;
     }
 
+    public ExamSectionQuestion getExamSectionQuestion() {
+        return examSectionQuestion;
+    }
+
+    public void setExamSectionQuestion(ExamSectionQuestion examSectionQuestion) {
+        this.examSectionQuestion = examSectionQuestion;
+    }
+
+    public List<AbstractQuestion> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<AbstractQuestion> children) {
+        this.children = children;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -151,7 +179,9 @@ public abstract class AbstractQuestion extends SitnetModel {
         return new EqualsBuilder().append(id, other.getId()).build();
     }
 
-	public abstract AbstractQuestion copy();
+	public AbstractQuestion copy() {
+        throw new RuntimeException("Not implemented");
+    }
 
    	@Override
     public String toString() {

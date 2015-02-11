@@ -14,7 +14,7 @@
                 var links = function () {
                     $scope.user = sessionService.getUser();
 
-                    if($scope.user && $scope.user.isLoggedOut) {
+                    if (!$scope.user || $scope.user.isLoggedOut) {
                         $scope.loggedOut = true;
                         return [];
                     }
@@ -29,14 +29,59 @@
 
 
                     return [
-                        {href: "#/home", visible: !hideDashboard, class: "fa-home", name: $translate("sitnet_dashboard")},
-                        {href: "#/questions", visible: (admin || teacher), class: "fa-list-ol", name: $translate("sitnet_questions"), sub: []},
-                        {href: "#/exams", visible: (admin || teacher), class: "fa-paste", name: $translate("sitnet_exams"), sub: []},
-                        {href: "#/rooms", visible: (admin), class: "fa-building-o", name: $translate("sitnet_exam_rooms"), sub: []},
-                        {href: "#/reports", visible: (admin), class: "fa-file-word-o", name: $translate("sitnet_reports"), sub: []},
-                        {href: "#/admin/reservations", visible: (admin), class: "fa-clock-o", name: $translate("sitnet_reservations"), sub: []},
-                        {href: "#/logout", visible: (student || admin || teacher), class: "fa-sign-out", name: $translate("sitnet_logout")},
-                        {href: "#/login", visible: (sessionService.getUser() == undefined), class: "fa-sign-in", name: $translate("sitnet_login")}
+                        {
+                            href: "#/home",
+                            visible: !hideDashboard,
+                            class: "fa-home",
+                            name: $translate("sitnet_dashboard")
+                        },
+                        {
+                            href: "#/questions",
+                            visible: (admin || teacher),
+                            class: "fa-list-ol",
+                            name: $translate("sitnet_questions"),
+                            sub: []
+                        },
+                        {
+                            href: "#/exams",
+                            visible: (admin || teacher),
+                            class: "fa-paste",
+                            name: $translate("sitnet_exams"),
+                            sub: []
+                        },
+                        {
+                            href: "#/rooms",
+                            visible: (admin),
+                            class: "fa-building-o",
+                            name: $translate("sitnet_exam_rooms"),
+                            sub: []
+                        },
+                        {
+                            href: "#/reports",
+                            visible: (admin),
+                            class: "fa-file-word-o",
+                            name: $translate("sitnet_reports"),
+                            sub: []
+                        },
+                        {
+                            href: "#/admin/reservations",
+                            visible: (admin),
+                            class: "fa-clock-o",
+                            name: $translate("sitnet_reservations"),
+                            sub: []
+                        },
+                        {
+                            href: "#/logout",
+                            visible: (student || admin || teacher),
+                            class: "fa-sign-out",
+                            name: $translate("sitnet_logout")
+                        },
+                        {
+                            href: "#/login",
+                            visible: (sessionService.getUser() == undefined),
+                            class: "fa-sign-in",
+                            name: $translate("sitnet_login")
+                        }
                     ];
                 };
 
@@ -56,21 +101,21 @@
                     $location.path("/invalid_session");
                 });
 
-                $scope.$on('upcomingExam', function() {
+                $scope.$on('upcomingExam', function () {
                     $scope.links = links();
                 });
 
-                $scope.$on('examStarted', function() {
+                $scope.$on('examStarted', function () {
                     $scope.examStarted = true;
                     $scope.links = links();
                 });
 
-                $scope.$on('examEnded', function() {
+                $scope.$on('examEnded', function () {
                     $scope.examStarted = false;
                     $scope.links = links();
                 });
 
-                $scope.$on('wrongMachine', function() {
+                $scope.$on('wrongMachine', function () {
                     $scope.links = links();
                 });
 
