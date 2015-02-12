@@ -42,7 +42,15 @@
                     "update": {method: "PUT", params: {oid: "@oid"}},
                     "create": {method: "POST", params: {qid: "@qid"}},
                     "delete": {method: "DELETE", params: {oid: "@oid"}}
-                })
+                }),
+
+                metadata: $resource("/questions/metadata/:id",
+                    {
+                        id: "@id"
+                    },
+                    {
+                        "get": {method: "GET", params: {id: "@id"}}
+                    })
             };
         }]);
 }());

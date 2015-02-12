@@ -131,6 +131,7 @@ DELETE        /questions/option/:oid                                           c
 
 GET           /options                                                         controllers.QuestionController.createOption()
 GET           /options/:id                                                     controllers.QuestionController.getOption(id: Long)
+GET           /questions/metadata/:id                                          controllers.MetaDataController.getQuestionMetaDataByQuestion(id: Long)
 
 ############### Reservation interface ###############
 
