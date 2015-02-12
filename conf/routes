@@ -115,7 +115,7 @@ POST          /courses/insert/:code                                            c
 
 ############### Question interface ###############
 
-GET           /questions                                                       controllers.QuestionController.getQuestions(exam: java.util.List[String], course: java.util.List[String])
+GET           /questions                                                       controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long])
 GET           /questions/:id                                                   controllers.QuestionController.getQuestion(id: Long)
 
 PUT           /questions/:id                                                   controllers.QuestionController.updateQuestion(id: Long)

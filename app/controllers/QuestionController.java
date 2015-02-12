@@ -8,7 +8,6 @@ import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import exceptions.MalformedDataException;
 import exceptions.SitnetException;
-import models.Exam;
 import models.ExamSectionQuestion;
 import models.User;
 import models.questions.AbstractQuestion;
@@ -21,67 +20,28 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class QuestionController extends SitnetController {
 
-    private static JsonWriteOptions getOptions() {
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
-                "evaluatedScore, parent, evaluationCriterias, attachment, " +
-                "expanded, maxCharacters, evaluationType, options");
-        options.setPathProperties("creator", "id");
-        options.setPathProperties("parent", "id");
-        options.setPathProperties("attachment", "id, fileName");
-        options.setPathProperties("options", "id, option, correctOption, score");
-
-        return options;
-    }
-
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getQuestions(List<String> examNames, List<String> courseCodes) {
+    public static Result getQuestions(List<Long> examIds, List<Long> courseIds) {
         User user = UserController.getLoggedUser();
-        ExpressionList<AbstractQuestion> query = Ebean.find(AbstractQuestion.class)
-                .fetch("children")
-                .fetch("children.examSectionQuestion")
-                .fetch("children.examSectionQuestion.examSection")
-                .fetch("children.examSectionQuestion.examSection.exam")
-                .fetch("children.examSectionQuestion.examSection.exam.course")
-                .where()
-                .isNull("parent");
+        ExpressionList<AbstractQuestion> query = Ebean.find(AbstractQuestion.class).where().isNull("parent");
         if (user.hasRole("TEACHER")) {
             query = query.disjunction()
                     .eq("creator.id", user.getId())
                     .eq("shared", true)
                     .endJunction();
         }
-        List<AbstractQuestion> questions = query.orderBy("created desc").findList();
-        if (!examNames.isEmpty() || !courseCodes.isEmpty()) {
-            Iterator<AbstractQuestion> it = questions.listIterator();
-            while (it.hasNext()) {
-                AbstractQuestion parent = it.next();
-                Set<String> exams = new HashSet<>();
-                Set<String> courses = new HashSet<>();
-                for (AbstractQuestion child : parent.getChildren()) {
-                    ExamSectionQuestion esq = child.getExamSectionQuestion();
-                    if (esq == null) {
-                        // should not happen
-                        continue;
-                    }
-                    Exam exam = esq.getExamSection().getExam();
-                    exams.add(exam.getName());
-                    if (exam.getCourse() != null) {
-                        courses.add(exam.getCourse().getCode());
-                    }
-                }
-                if (!exams.containsAll(examNames) || !courses.containsAll(courseCodes)) {
-                    it.remove();
-                }
-            }
+        // AND condition, if we want OR we should change this to query = query.in("...", examIds);
+        for (Long id : examIds) {
+            query = query.eq("children.examSectionQuestion.examSection.exam.id", id);
         }
+        for (Long id : courseIds) {
+            query = query.eq("children.examSectionQuestion.examSection.exam.course.id", id);
+        }
+        List<AbstractQuestion> questions = query.orderBy("created desc").findList();
         JsonContext jsonContext = Ebean.createJsonContext();
         return ok(jsonContext.toJsonString(questions, true, getOptions())).as("application/json");
     }
@@ -250,6 +210,19 @@ public class QuestionController extends SitnetController {
 
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
         return ok(Json.toJson(option));
+    }
+
+    private static JsonWriteOptions getOptions() {
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
+                "evaluatedScore, parent, evaluationCriterias, attachment, " +
+                "expanded, maxCharacters, evaluationType, options");
+        options.setPathProperties("creator", "id");
+        options.setPathProperties("parent", "id");
+        options.setPathProperties("attachment", "id, fileName");
+        options.setPathProperties("options", "id, option, correctOption, score");
+
+        return options;
     }
 
 }
