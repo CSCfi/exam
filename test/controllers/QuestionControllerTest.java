@@ -44,7 +44,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
                 .put("maxScore", 3)
                 .put("question", "What is love?")
                 .put("instruction", "This is how you do it")
-                .put("evaluationCriterias", "This how you evaluate it")
+                .put("evaluationCriterias", "This is how you evaluate it")
                 .put("maxCharacters", 3000)
                 .put("evaluationType", "Points");
         result = request(Helpers.PUT, "/questions/" + question.getId(), questionUpdate);
@@ -66,5 +66,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertThat(Ebean.find(ExamSectionQuestion.class).where()
                 .eq("question.parent.id", question.getId()).findUnique()).isNotNull();
     }
+
+
 
 }
