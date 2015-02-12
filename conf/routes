@@ -110,6 +110,7 @@ DELETE        /clearsection/:sid                                               c
 
 ############### Courses interface ###############
 GET           /courses                                                         controllers.CourseController.getCourses(filter: Option[FilterType], q: Option[String])
+GET           /courses/user/:id                                                controllers.CourseController.listUsersCourses(id: Long)
 GET           /courses/:id                                                     controllers.CourseController.getCourse(id: Long)
 POST          /courses/insert/:code                                            controllers.CourseInfoController.insertCourseFromInterface(code: String)
 

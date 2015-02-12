@@ -18,7 +18,7 @@
         })
         .filter('truncate', function () {
             return function (text, after) {
-                if (text && text.indexOf("math-tex") === -1) {
+                if (text && text.length > after && text.indexOf("math-tex") === -1) {
                     return text.substring(0, after) + "...";
                 }
                 return text;
