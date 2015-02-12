@@ -32,9 +32,9 @@ public class MetaDataController extends SitnetController {
         ObjectNode obj = json.createObjectNode();
 
         for (AbstractQuestion child : children) {
-            String examName = child.getSectionQuestion().getExamSection().getExam().getName();
-            String courseCode = child.getSectionQuestion().getExamSection().getExam().getCourse().getCode();
-            String sectionName = child.getSectionQuestion().getExamSection().getName();
+            String examName = child.getExamSectionQuestion().getExamSection().getExam().getName();
+            String courseCode = child.getExamSectionQuestion().getExamSection().getExam().getCourse().getCode();
+            String sectionName = child.getExamSectionQuestion().getExamSection().getName();
 
             ArrayNode array = json.createArrayNode()
                     .insert(0, json.createObjectNode().put("examName", examName != null ? examName : ""))

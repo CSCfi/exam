@@ -21,6 +21,7 @@ import play.mvc.Result;
 import util.SitnetUtil;
 
 import java.util.List;
+import java.util.Set;
 
 public class QuestionController extends SitnetController {
 
@@ -34,14 +35,13 @@ public class QuestionController extends SitnetController {
                     .eq("shared", true)
                     .endJunction();
         }
-        // AND condition, if we want OR we should change this to query = query.in("...", examIds);
-        for (Long id : examIds) {
-            query = query.eq("children.examSectionQuestion.examSection.exam.id", id);
+        if (!examIds.isEmpty()) {
+            query = query.in("children.examSectionQuestion.examSection.exam.id", examIds);
         }
-        for (Long id : courseIds) {
-            query = query.eq("children.examSectionQuestion.examSection.exam.course.id", id);
+        if (!courseIds.isEmpty()) {
+            query = query.in("children.examSectionQuestion.examSection.exam.course.id", courseIds);
         }
-        List<AbstractQuestion> questions = query.orderBy("created desc").findList();
+        Set<AbstractQuestion> questions = query.orderBy("created desc").findSet();
         JsonContext jsonContext = Ebean.createJsonContext();
         return ok(jsonContext.toJsonString(questions, true, getOptions())).as("application/json");
     }

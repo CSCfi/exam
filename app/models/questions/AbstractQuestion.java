@@ -59,18 +59,6 @@ public class AbstractQuestion extends SitnetModel {
     @Column(columnDefinition="boolean default false")
     private boolean expanded;
 
-    @OneToMany(mappedBy = "question_id")
-    @JsonBackReference
-    private ExamSectionQuestion sectionQuestion;
-
-    public ExamSectionQuestion getSectionQuestion() {
-        return sectionQuestion;
-    }
-
-    public void setSectionQuestion(ExamSectionQuestion sectionQuestion) {
-        this.sectionQuestion = sectionQuestion;
-    }
-
     public String getState() { return state; }
 
     public void setState(String state) {
