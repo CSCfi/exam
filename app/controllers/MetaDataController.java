@@ -15,37 +15,45 @@ import java.util.List;
 
 public class MetaDataController extends SitnetController {
 
+    /**
+     * NOT WORKING !!!!!!!!!!!!
+     * @param parentQuestionId
+     * @return
+     */
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getQuestionMetaDataByQuestion(long questionId) {
+    public static Result getQuestionMetaDataByQuestion(long parentQuestionId) {
 
         List<AbstractQuestion> children = Ebean.find(AbstractQuestion.class)
-                .fetch("exam")
-                .fetch("exam.course")
-                .fetch("exam.examSections")
-                .fetch("examSections.sectionQuestions.question")
                 .where()
-                .eq("parent.id", questionId)
+                .eq("parent.id", parentQuestionId)
                 .findList();
 
-        ObjectMapper json = new ObjectMapper();
+        Logger.debug("children.size()=" + children.size());
 
+        ObjectMapper json = new ObjectMapper();
         ObjectNode obj = json.createObjectNode();
 
-        for (AbstractQuestion child : children) {
-            String examName = child.getSectionQuestion().getExamSection().getExam().getName();
-            String courseCode = child.getSectionQuestion().getExamSection().getExam().getCourse().getCode();
-            String sectionName = child.getSectionQuestion().getExamSection().getName();
+        if(!children.isEmpty()) {
 
-            ArrayNode array = json.createArrayNode()
-                    .insert(0, json.createObjectNode().put("examName", examName != null ? examName : ""))
-                    .insert(1, json.createObjectNode().put("courseCode", courseCode != null ? courseCode : ""))
-                    .insert(2, json.createObjectNode().put("sectionName", sectionName != null ? sectionName : ""))
-                    .insert(3, json.createObjectNode().put("created", child.getCreated().toString()))
-                    .insert(4, json.createObjectNode().put("modified", child.getModified().toString()))
-                    .insert(5, json.createObjectNode().put("creator", child.getCreator().getFirstName() + " " + child.getCreator().getLastName()))
-                    .insert(6, json.createObjectNode().put("shared", child.isShared()));
+            for (AbstractQuestion child : children) {
 
-            obj.putArray(array.toString());
+                String examName = child.getExamSectionQuestion().getExamSection().getExam().getName() != null ?
+                        child.getExamSectionQuestion().getExamSection().getExam().getName() : "";
+                String courseCode = child.getExamSectionQuestion().getExamSection().getExam().getCourse().getCode() != null ?
+                        child.getExamSectionQuestion().getExamSection().getExam().getCourse().getCode() : "";
+                String sectionName = child.getExamSectionQuestion().getExamSection().getName() != null ?
+                        child.getExamSectionQuestion().getExamSection().getName() : "";
+
+                ArrayNode array = json.createArrayNode()
+                        .insert(0, json.createObjectNode().put("examName", examName))
+                        .insert(1, json.createObjectNode().put("courseCode", courseCode))
+                        .insert(2, json.createObjectNode().put("sectionName", sectionName))
+                        .insert(3, json.createObjectNode().put("created", child.getCreated() != null ? child.getCreated().toString() : ""))
+                        .insert(4, json.createObjectNode().put("modified", child.getModified() != null ? child.getModified().toString() : ""))
+                        .insert(5, json.createObjectNode().put("creator", child.getCreator() != null ? child.getCreator().getFirstName() + " " + child.getCreator().getLastName() : ""))
+                        .insert(6, json.createObjectNode().put("shared", child.isShared()));
+                obj.putObject(array.toString());
+            }
         }
 
         if(Logger.isDebugEnabled()) {

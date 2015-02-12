@@ -51,6 +51,7 @@
                             angular.forEach($scope.examToBeReviewed.examSections, function (section) {
                                 angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                                     var question = sectionQuestion.question;
+
                                     if (question.type === "EssayQuestion") {
                                         if (question.evaluationType === "Select") {
                                             if (question.evaluatedScore == 1) {
