@@ -1,6 +1,8 @@
 package models.questions;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.Attachment;
+import models.ExamSectionQuestion;
 import models.SitnetModel;
 import models.answers.AbstractAnswer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -46,6 +48,18 @@ public abstract class AbstractQuestion extends SitnetModel {
     // In UI, section has been expanded
     @Column(columnDefinition="boolean default false")
     private boolean expanded;
+
+    @OneToMany(mappedBy = "question_id")
+    @JsonBackReference
+    private ExamSectionQuestion sectionQuestion;
+
+    public ExamSectionQuestion getSectionQuestion() {
+        return sectionQuestion;
+    }
+
+    public void setSectionQuestion(ExamSectionQuestion sectionQuestion) {
+        this.sectionQuestion = sectionQuestion;
+    }
 
     public String getState() { return state; }
 
