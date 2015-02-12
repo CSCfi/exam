@@ -3,11 +3,13 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import exceptions.MalformedDataException;
 import exceptions.SitnetException;
 import models.ExamSectionQuestion;
+import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
@@ -23,79 +25,25 @@ import java.util.List;
 public class QuestionController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getQuestions() {
-
-        List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
-                .fetch("parent")
-                .where()
-                .eq("parent", null)
-                .findList();
-
-        if (questions == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
-                    "evaluatedScore, parent, evaluationCriterias, attachment, evaluationPhrases, hash, " +
-                    "expanded, maxCharacters, evaluationType, options");
-            options.setPathProperties("creator", "id");
-            options.setPathProperties("parent", "id");
-            options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("options", "id, option, correctOption, score");
-            return ok(jsonContext.toJsonString(questions, true, options)).as("application/json");
-        }
-//        return ok(Json.toJson(questions));
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getQuestionsForUser(Long id) {
-
-        List<AbstractQuestion> questions = null;
-        List<AbstractQuestion> shared;
-
-        if (UserController.getLoggedUser().hasRole("TEACHER")) {
-            // TODO: should use SELECT LIMIT from to
-            questions = Ebean.find(AbstractQuestion.class)
-                    .where()
-                    .eq("creator.id", id)
-                    .eq("parent", null)
-                    .orderBy("created desc")
-                    .findList();
-
-            shared = Ebean.find(AbstractQuestion.class)
-                    .where()
-                    .ne("creator.id", id)
-                    .eq("parent", null)
+    public static Result getQuestions(List<Long> examIds, List<Long> courseIds) {
+        User user = UserController.getLoggedUser();
+        ExpressionList<AbstractQuestion> query = Ebean.find(AbstractQuestion.class).where().isNull("parent");
+        if (user.hasRole("TEACHER")) {
+            query = query.disjunction()
+                    .eq("creator.id", user.getId())
                     .eq("shared", true)
-                    .orderBy("created desc")
-                    .findList();
-
-            questions.addAll(shared);
-        } else if (UserController.getLoggedUser().hasRole("ADMIN")) {
-            // TODO: should use SELECT LIMIT from to
-            questions = Ebean.find(AbstractQuestion.class)
-                    .where()
-                    .eq("parent", null)
-                    .orderBy("created desc")
-                    .findList();
+                    .endJunction();
         }
-
-        if (questions == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
-                    "evaluatedScore, parent, evaluationCriterias, attachment, evaluationPhrases, hash, " +
-                    "expanded, maxCharacters, evaluationType, options");
-            options.setPathProperties("creator", "id");
-            options.setPathProperties("parent", "id");
-            options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("options", "id, option, correctOption, score");
-            return ok(jsonContext.toJsonString(questions, true, options)).as("application/json");
+        // AND condition, if we want OR we should change this to query = query.in("...", examIds);
+        for (Long id : examIds) {
+            query = query.eq("children.examSectionQuestion.examSection.exam.id", id);
         }
-//        return ok(Json.toJson(questions));
+        for (Long id : courseIds) {
+            query = query.eq("children.examSectionQuestion.examSection.exam.course.id", id);
+        }
+        List<AbstractQuestion> questions = query.orderBy("created desc").findList();
+        JsonContext jsonContext = Ebean.createJsonContext();
+        return ok(jsonContext.toJsonString(questions, true, getOptions())).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
@@ -111,7 +59,7 @@ public class QuestionController extends SitnetController {
         SitnetUtil.setCreator(question);
         question.save();
         if (question instanceof MultipleChoiceQuestion) {
-            Ebean.save(((MultipleChoiceQuestion)question).getOptions());
+            Ebean.save(((MultipleChoiceQuestion) question).getOptions());
         }
         return ok(Json.toJson(question));
     }
@@ -195,8 +143,6 @@ public class QuestionController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteQuestion(Long id) {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
-
         List<AbstractQuestion> children = Ebean.find(AbstractQuestion.class)
                 .where()
                 .eq("parent.id", id)
@@ -264,6 +210,19 @@ public class QuestionController extends SitnetController {
 
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
         return ok(Json.toJson(option));
+    }
+
+    private static JsonWriteOptions getOptions() {
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
+                "evaluatedScore, parent, evaluationCriterias, attachment, " +
+                "expanded, maxCharacters, evaluationType, options");
+        options.setPathProperties("creator", "id");
+        options.setPathProperties("parent", "id");
+        options.setPathProperties("attachment", "id, fileName");
+        options.setPathProperties("options", "id, option, correctOption, score");
+
+        return options;
     }
 
 }

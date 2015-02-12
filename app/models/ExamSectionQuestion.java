@@ -22,7 +22,7 @@ public class ExamSectionQuestion extends Model {
     @JsonBackReference
     private ExamSection examSection;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "question_id")
     private AbstractQuestion question;
 

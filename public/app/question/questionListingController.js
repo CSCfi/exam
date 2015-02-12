@@ -4,7 +4,7 @@
         .controller('QuestionListingController', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'sessionService',
             function($scope, $routeParams, $location, $translate, QuestionRes, sessionService) {
 
-                $scope.questions = QuestionRes.questionlist.query({id: sessionService.getUser().id});
+                $scope.questions = QuestionRes.questionlist.query();
 
                 $scope.createQuestion = function(type) {
                     var newQuestion;

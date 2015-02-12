@@ -31,8 +31,7 @@
                 };
             };
 
-            // FIXME: no need to provide login user here, it is known by backend anyways
-            QuestionRes.questionlist.query({id: sessionService.getUser().id}, function (data) {
+            QuestionRes.questionlist.query(function (data) {
                 data.map(function (item) {
                     var icon = "";
                     switch (item.type) {
