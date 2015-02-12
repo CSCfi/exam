@@ -47,7 +47,7 @@ object CourseController extends Controller with ScalaHacks {
 
   @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
   def listUsersCourses(userId : Long) = Action {
-        Ebean.find(classOf[Course]).where().eq("exams.creator.id", userId).orderBy("name desc").findList
+        Ebean.find(classOf[Course]).where.eq("exams.creator.id", userId).orderBy("name desc").findList
   }
 
 }
