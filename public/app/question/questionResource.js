@@ -44,12 +44,12 @@
                     "delete": {method: "DELETE", params: {oid: "@oid"}}
                 }),
 
-                metadata: $resource("/questions/metadata/:id",
+                metadata: $resource("/question/:id/metadata",
                     {
                         id: "@id"
                     },
                     {
-                        "get": {method: "GET", params: {id: "@id"}}
+                        "get": {method: "GET", isArray: true, params: {id: "@id"}}
                     })
             };
         }]);

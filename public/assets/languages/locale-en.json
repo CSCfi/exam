@@ -485,5 +485,8 @@
   "sitnet_send_results_to_registry": "Submit the results to the study register",
   "sitnet_check_uncheck_all": "Select all / remove selected",
   "sitnet_results_send_ok": "Results submit success",
-  "sitnet_autosaved": "Answer autosaved"
+  "sitnet_autosaved": "Answer autosaved",
+  "sitnet_question_metainfo": "Question categories",
+  "sitnet_added_to_exams": "Added to exams",
+  "sitnet_added_to_sections": "Added to sections"
 }
