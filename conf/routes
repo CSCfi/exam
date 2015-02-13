@@ -115,7 +115,7 @@ POST          /courses/insert/:code                                            c
 
 ############### Question interface ###############
 
-GET           /questions                                                       controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long])
+GET           /questions                                                       controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long])
 GET           /questions/:id                                                   controllers.QuestionController.getQuestion(id: Long)
 
 PUT           /questions/:id                                                   controllers.QuestionController.updateQuestion(id: Long)
@@ -208,11 +208,6 @@ GET           /integration/recordalphabetic/:startDate                         c
 GET           /time                                                            controllers.TimeController.getTime()
 GET           /time/:id                                                        controllers.TimeController.getExamRemainingTime(id: Long)
 
-
-############### SQLinterface ###############
-
-
-
 ################# Calendar interface ##################
 GET           /calendar/:examId/:roomId                                        controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: java.util.List[Integer])
 POST          /calendar/reservation                                            controllers.CalendarController.createReservation()
@@ -220,6 +215,10 @@ DELETE        /calendar/reservation/:id                                        c
 
 ################# Language interface ##################
 GET           /languages                                                       controllers.LanguageController.getSupportedLanguages()
+
+################# Language interface ##################
+GET           /tags                                                            controllers.TagController.listTags()
+
 
 ################# General Settings interface ##################
 
