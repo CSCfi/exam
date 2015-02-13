@@ -75,6 +75,22 @@
                         </div>
                     </div>
 
+                    <div class="col-md-12 row sitnet-info-text">
+                        {{'sitnet_question_metainfo' | translate}}
+                    </div>
+                    <div class="col-md-12 row top-margin-1">
+                        <div class="col-md-2 pull-left">{{'sitnet_added_to_exams' | translate}}:</div>
+                        <div class="col-md-10">
+                            <div ng-repeat="name in examNames"><span class="sitnet-badge pull-left inline">{{ name }}</span></div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 row bottom-padding-2 top-margin-1">
+                        <div class="col-md-2 pull-left">{{'sitnet_added_to_sections' | translate}}:</div>
+                        <div class="col-md-10">
+                            <div ng-repeat="name in sectionNames"><span class="sitnet-badge pull-left inline">{{ name }}</span></div>
+                        </div>
+                    </div>
+
                     <div class="sitnet-info-text">
                         {{'sitnet_question_instruction' | translate}}
                         <textarea class="form-control" rows="3" ng-model="newQuestion.instruction" ui-change="updateQuestion()"

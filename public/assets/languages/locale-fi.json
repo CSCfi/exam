@@ -488,5 +488,8 @@
   "sitnet_results_send_ok": "Suoritusten lähettäminen onnistui",
   "sitnet_autosaved": "Vastaus automaattisesti tallennettu",
   "sitnet_course": "Opintojakso",
-  "sitnet_category": "Kategoria"
+  "sitnet_category": "Kategoria",
+  "sitnet_question_metainfo": "Kysymyksen kategoriat",
+  "sitnet_added_to_exams": "Liitetty tentteihin",
+  "sitnet_added_to_sections": "Liitetty aihealueisiin"
 }

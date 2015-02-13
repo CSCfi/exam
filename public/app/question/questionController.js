@@ -20,6 +20,9 @@
                 $scope.questionTemplate = null;
                 $scope.returnURL = null;
 
+                $scope.examNames = [];
+                $scope.sectionNames = [];
+
                 var qid = $routeParams.editId || $routeParams.id;
 
                 QuestionRes.questions.get({id: qid},
@@ -29,6 +32,53 @@
                         if ($scope.newQuestion.evaluationType && $scope.newQuestion.evaluationType === 'Select') {
                             $scope.newQuestion.maxScore = undefined; // will screw up validation otherwise
                         }
+
+                        if($routeParams.examId) {
+
+                            ExamRes.exams.get({id: $routeParams.examId},
+                                function (exam) {
+
+                                    if (exam.name) {
+                                        var code = "";
+                                        if (exam.course != undefined && exam.course.code != undefined) {
+                                            code = " (" + exam.course.code + ")";
+                                        }
+                                        $scope.examNames.push(exam.name + code);
+                                    }
+                                    if(exam.examSections && exam.examSections.length > 0) {
+
+                                        angular.forEach(exam.examSections, function(section){
+                                              if(section.id == $routeParams.sectionId) {
+                                                  $scope.sectionNames.push(section.name);
+                                              }
+                                        });
+                                    }
+                                },
+                                function (error) {
+                                    toastr.error(error.data);
+                                }
+                            );
+                        } else {
+                            QuestionRes.metadata.get({id: qid}, function (result) {
+
+                                    angular.forEach(result, function (question) {
+                                        if (question.examSectionQuestion.examSection.exam.name && $scope.examNames.indexOf(question.examSectionQuestion.examSection.exam.name) === -1) {
+                                            var code = "";
+                                            if (question.examSectionQuestion.examSection.exam.course != undefined && question.examSectionQuestion.examSection.exam.course.code != undefined) {
+                                                code = " (" + question.examSectionQuestion.examSection.exam.course.code + ")";
+                                            }
+                                            $scope.examNames.push(question.examSectionQuestion.examSection.exam.name + code);
+                                        }
+                                        if (question.examSectionQuestion.examSection.name && $scope.sectionNames.indexOf(question.examSectionQuestion.examSection.name) === -1) {
+                                            $scope.sectionNames.push(question.examSectionQuestion.examSection.name);
+                                        }
+                                    });
+                                },
+                                function (error) {
+                                    toastr.error(error.data);
+                                });
+                        }
+
                     },
                     function(error) {
                         toastr.error(error.data);

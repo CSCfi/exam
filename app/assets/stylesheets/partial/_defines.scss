@@ -346,3 +346,12 @@ $sitnet-icon-size: 32px;
     border-right:0.15em solid $sitnet-common-light;
   }
 }
+.sitnet-badge {
+  padding:0.25em 0.6em 0.1em;
+  font-size: 0.9em;
+  background-color: $sitnet-theme;
+  color:$sitnet-white;
+  margin:0.1em;
+  text-align: center;
+
+}
