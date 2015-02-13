@@ -9,7 +9,9 @@ import util.scala.ScalaHacks
 object CourseController extends Controller with ScalaHacks {
 
   sealed trait FilterType
+
   case object FilterByName extends FilterType
+
   case object FilterByCode extends FilterType
 
   val CriteriaLengthLimiter = 2
@@ -29,12 +31,17 @@ object CourseController extends Controller with ScalaHacks {
           throw new IllegalArgumentException("Too short criteria")
         case _ =>
           Ebean.find(classOf[Course]).findList
-        }
+      }
     }
 
   @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
   def getCourse(id: Long) = Action {
     Ebean.find(classOf[Course], id)
+  }
+
+  @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
+  def listUsersCourses(userId : Long) = Action {
+        Ebean.find(classOf[Course]).where.eq("exams.creator.id", userId).orderBy("name desc").findList
   }
 
 }

@@ -26,14 +26,13 @@
                 {
                     "get":      {method: "GET", isArray: true}
                 }),
-
                 enrolmentsByReservation: $resource("/enroll/reservation/:id",
-                    {
-                        code: "@id"
-                    },
-                    {
-                        "get":      {method: "GET", isArray: true, params: {code: "@code"}}
-                    }),
+                {
+                    code: "@id"
+                },
+                {
+                    "get":      {method: "GET", isArray: true, params: {code: "@code"}}
+                }),
             };
         }]);
 }());

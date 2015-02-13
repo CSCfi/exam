@@ -1,56 +1,77 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LibraryCtrl', ['$scope', 'sessionService', 'QuestionRes', '$translate', function ($scope, sessionService, QuestionRes, $translate) {
+        .controller('LibraryCtrl', ['$scope', 'sessionService', 'QuestionRes', 'ExamRes', 'CourseRes', '$translate', function ($scope, sessionService, QuestionRes, ExamRes, CourseRes, $translate) {
 
-            var randomQuestions = function (questions) {
-                var result = [];
-                var randomQuestions = [];
-                angular.extend(randomQuestions, questions);
-                var shuffle = function () {
-                    randomQuestions.sort(function () {
-                        return 0.5 - Math.random();
-                    });
-                };
-                shuffle();
-                var limit = function (desiredAmount) {
-                    var amount = desiredAmount || 1;
+            $scope.courses = [];
+            $scope.exams = [];
 
-                    if (amount >= randomQuestions.length) {
-                        toastr.warning($translate("sitnet_answer_amount_too_great") + amount + " (" + randomQuestions.length + ")");
-                        return randomQuestions;
-                    }
-                    result.length = 0;
-                    result.push.apply(result, randomQuestions.slice(0, amount));
-                    shuffle();
-                    return result;
-                };
-                return {
-                    limit: limit,
-                    shuffle: shuffle
-                };
+            $scope.getTags = function() {
+                var courses = $scope.courses.filter(function(course) {
+                    return course.filtered;
+                });
+                var exams = $scope.exams.filter(function(exam) {
+                    return exam.filtered;
+                });
+                return courses.concat(exams);
             };
 
-            QuestionRes.questionlist.query(function (data) {
-                data.map(function (item) {
-                    var icon = "";
-                    switch (item.type) {
-                        case "MultipleChoiceQuestion":
-                            icon = "fa-list-ul";
-                            break;
-                        case "EssayQuestion":
-                            icon = "fa-edit";
-                            break;
-                        default:
-                            icon = "fa-edit";
-                            break;
-                    }
-                    item.icon = icon;
-                    return item;
+            var query = function() {
+                var courseIds = $scope.courses.filter(function(course) {
+                   return course.filtered;
+                }).map(function(course) {
+                    return course.id;
                 });
-                $scope.questions = data;
-                $scope.random = randomQuestions(data).limit;
+                var examIds = $scope.exams.filter(function(exam) {
+                    return exam.filtered;
+                }).map(function(exam) {
+                    return exam.id;
+                });
+                QuestionRes.questionlist.query({exam: examIds, course: courseIds}, function (data) {
+                    data.map(function (item) {
+                        var icon = "";
+                        switch (item.type) {
+                            case "MultipleChoiceQuestion":
+                                icon = "fa-list-ul";
+                                break;
+                            case "EssayQuestion":
+                                icon = "fa-edit";
+                                break;
+                            default:
+                                icon = "fa-edit";
+                                break;
+                        }
+                        item.icon = icon;
+                        return item;
+                    });
+                    $scope.questions = data;
+                });
+            };
+
+            query();
+
+            $scope.removeTag = function(tag) {
+                tag.filtered = false;
+                query();
+            };
+
+            ExamRes.exams.query(function (data) {
+                $scope.exams = data;
             });
+
+            CourseRes.userCourses.query({id: sessionService.getUser().id}, function (data) {
+                $scope.courses = data;
+            });
+
+            $scope.setExamFilter = function(exam) {
+                exam.filtered = !exam.filtered;
+                query();
+            };
+
+            $scope.setCourseFilter = function(course) {
+                course.filtered = !course.filtered;
+                query();
+            };
 
             $scope.stripHtml = function(text) {
                 if(text && text.indexOf("math-tex") === -1) {
@@ -90,10 +111,6 @@
                 }
                 return text ? text.replace("&nbsp;", "").replace("&auml;", "ä").replace("&ouml;", "ö").replace("&aring;", "å") : "";
             };
-
-            $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
-            $scope.libraryFilter = "";
-            $scope.selected = undefined;
 
         }]);
 }());

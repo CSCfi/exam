@@ -486,5 +486,7 @@
   "sitnet_check_uncheck_all": "Select all / remove selected",
   "sitnet_results_send_ok": "Results submit success",
   "sitnet_autosaved": "Svaret automatiskt sparat",
+  "sitnet_course": "Kurs",
+  "sitnet_category": "Kategori",
   "sitnet_question_metainfo": "Question categories"
 }

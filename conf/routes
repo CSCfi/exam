@@ -99,7 +99,6 @@ GET           /enroll/:code                                                    c
 GET           /enroll/reservation/:id                                          controllers.EnrollController.enrolmentsByReservation(id: Long)
 GET           /enroll/:code/exam/:id                                           controllers.EnrollController.enrollExamInfo(code: String, id: Long)
 POST          /enroll/:code/exam/:id                                           controllers.EnrollController.createEnrolment(code: String, id: Long)
-DELETE        /enroll/:code/exam/:id                                           controllers.EnrollController.deleteEnrolment(code: String, id: Long)
 
 ############### Section interface ###############
 
@@ -110,6 +109,7 @@ DELETE        /clearsection/:sid                                               c
 
 ############### Courses interface ###############
 GET           /courses                                                         controllers.CourseController.getCourses(filter: Option[FilterType], q: Option[String])
+GET           /courses/user/:id                                                controllers.CourseController.listUsersCourses(id: Long)
 GET           /courses/:id                                                     controllers.CourseController.getCourse(id: Long)
 POST          /courses/insert/:code                                            controllers.CourseInfoController.insertCourseFromInterface(code: String)
 

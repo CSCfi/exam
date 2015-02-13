@@ -20,12 +20,19 @@
             $(window).resize(resizeFn);
         });
 
+
+
+        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function(e) {
+            e.stopPropagation();
+        });
+
     });
 </script>
 
 <div id="library">
     <div class="col-md-4">
-        <div sn-library bs-affix class="library-main" data-spy="affix" data-offset-top="150" data-clampedwidth=".col-md-4">
+        <div sn-library bs-affix class="library-main" data-spy="affix" data-offset-top="150"
+             data-clampedwidth=".col-md-4">
             <div class="library-header">
                 <h4>
                     <div ng-click="session.minimizeLibrary = ! session.minimizeLibrary">
@@ -43,39 +50,96 @@
                                 {{'sitnet_library' | translate}}
                             </div>
                         </div>
-                     </div>
-                    <!--<div class="col-md-2">
-                        <div class="pull-right dropdown">
-                            <div class="dropdown-toggle"><i class="sitnet-orange fa fa-cog"></i>
-                            </div>
-                            <ul class="dropdown-menu">
-                                <li><a class="pointer-hand">{{'sitnet_settings' | translate}}</a></li>
-                                <li><a class="pointer-hand">Toiminnallisuutta ei ole</a></li>
-                                <li><a class="pointer-hand">Vielä toteutettu</a></li>
+                    </div>
+                    <div class="col-md-12">
+                        <span class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                                    data-toggle="dropdown" aria-expanded="true">
+                                {{'sitnet_course' | translate}}&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                                aria-labelledby="dropDownMenu1">
+                                <li role="presentation" class="input-group">
+                                    <input ng-model="limitCourses" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-search fa-fw"></i>
+                                    </div>
+                                </li>
+                                <li ng-repeat="course in courses | filter:limitCourses" role="presentation"
+                                    ng-class="course.filtered ? 'active': ''" ng-click="setCourseFilter(course)">
+                                    <a role="menuitem">{{course.name | truncate:30}}</a>
+                                </li>
                             </ul>
-                        </div>
-                    </div>-->
+                        </span>
+                        <span class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                                    data-toggle="dropdown" aria-expanded="true">
+                                {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
+                                aria-labelledby="dropDownMenu2">
+                                <li role="presentation" class="input-group">
+                                    <input ng-model="limitExams" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-search fa-fw"></i>
+                                    </div>
+                                </li>
+                                <li ng-repeat="exam in exams | filter:limitExams" role="presentation"
+                                    ng-class="exam.filtered ? 'active': ''" ng-click="setExamFilter(exam)">
+                                    <a role="menuitem">{{exam.name | truncate:30}}</a>
+                                </li>
+                            </ul>
+                        </span>
+
+                        <span class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
+                                    data-toggle="dropdown" aria-expanded="true">
+                                {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                                aria-labelledby="dropDownMenu3">
+                                <li role="presentation" class="input-group">
+                                    <input ng-model="limitCategories" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-search fa-fw"></i>
+                                    </div>
+                                </li>
+                                <li role="menuitem">
+                                    <a>{{'not implemented yet' | truncate:30}}</a>
+                                </li>
+                            </ul>
+                        </span>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 0.5em;">
+                    <div class="col-md-12">
+                        <ul class="inline-list">
+                            <li>
+                                <button ng-repeat='tag in getTags()' type='button'
+                                        ng-click="removeTag(tag)" class="btn btn-primary btn-xs" style="margin: 0.2em">
+                                    {{tag.name}}
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="input-group">
-                    <input ng-model="selected" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                    <input ng-model="selected" type="text" class="form-control"
+                           placeholder="{{'sitnet_search' | translate }}">
+
                     <div class="input-group-addon">
                         <i class="fa fa-search fa-fw"></i>
                     </div>
                 </div>
                 <ul class="list-group results">
-                    <li class="library-question-header-inactive" ng-repeat="question in questions | filter:selected" draggable="question" draggable-target=".sortable">
-                        <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i></div>
+                    <li class="library-question-header-inactive" ng-repeat="question in questions | filter:selected"
+                        draggable="question" draggable-target=".sortable">
+                        <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
+                        </div>
                         <div class="library-row-text-wrap">
                             <div class="library-row-text" mathjax ng-bind-html="shortText(question.question,55)"></div>
                         </div>
                     </li>
-
-                    <!-- SIT-568, Temporarily disabled -->
-                    <!--<li>-->
-                        <!--<div class="menu-item">-->
-                            <!--{{ 'sitnet_add_random_questions' | translate }} <input type="number" ng-model="amount" min="1" placeholder="0" />-->
-                        <!--</div>-->
-                    <!--</li>-->
                 </ul>
             </div>
         </div>
