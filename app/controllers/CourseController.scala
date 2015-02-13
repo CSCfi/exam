@@ -16,12 +16,6 @@ object CourseController extends Controller with ScalaHacks {
 
   val CriteriaLengthLimiter = 2
 
-  /*def getLoggedUser : User = {
-    String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
-      Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
-    return Ebean.find(User.class, session.getUserId());
-  }*/
-
   @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
   def getCourses(filterType: Option[FilterType], criteria: Option[String]) =
     Action {

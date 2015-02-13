@@ -27,7 +27,7 @@ public class ExamEnrolment extends Model {
 	@JsonBackReference
 	private Exam exam;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
 
 	@Temporal(TemporalType.TIMESTAMP)

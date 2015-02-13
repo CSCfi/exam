@@ -486,5 +486,7 @@
   "sitnet_send_results_to_registry": "Lähetä valitut suoritukset rekisteriin",
   "sitnet_check_uncheck_all": "Valitse kaikki / poista valinnat",
   "sitnet_results_send_ok": "Suoritusten lähettäminen onnistui",
-  "sitnet_autosaved": "Vastaus automaattisesti tallennettu"
+  "sitnet_autosaved": "Vastaus automaattisesti tallennettu",
+  "sitnet_course": "Opintojakso",
+  "sitnet_category": "Kategoria"
 }

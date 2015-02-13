@@ -7,6 +7,7 @@ import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.Exam;
 import models.ExamEnrolment;
+import models.Reservation;
 import models.User;
 import org.joda.time.DateTime;
 import play.mvc.Controller;
@@ -110,8 +111,9 @@ public class EnrollController extends Controller {
 
         // remove old one
         if (enrolment != null) {
+            Reservation reservation = enrolment.getReservation();
             // Check that user has no ongoing reservation for this enrolment
-            if (enrolment.getReservation().toInterval().contains(DateTime.now())) {
+            if (reservation != null && reservation.toInterval().contains(DateTime.now())) {
                 return forbidden("sitnet_reservation_in_effect");
             }
             enrolment.delete();
@@ -124,31 +126,6 @@ public class EnrollController extends Controller {
         enrolment.save();
 
         return ok();
-    }
-
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public static Result deleteEnrolment(String code, Long id) {
-
-        User user = UserController.getLoggedUser();
-
-        Exam exam = Ebean.find(Exam.class)
-                .where()
-                .eq("course.code", code)
-                .eq("id", id)
-                .findUnique();
-        if (exam != null) {
-            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                    .where()
-                    .eq("user.id", user.getId())
-                    .eq("exam.id", exam.getId())
-                    .findUnique();
-
-            enrolment.delete();
-
-            return ok();
-        } else {
-            return notFound("sitnet_error_exam_not_found");
-        }
     }
 
 }

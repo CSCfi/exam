@@ -112,9 +112,5 @@
                 return text ? text.replace("&nbsp;", "").replace("&auml;", "ä").replace("&ouml;", "ö").replace("&aring;", "å") : "";
             };
 
-            $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
-            $scope.libraryFilter = "";
-            $scope.selected = undefined;
-
         }]);
 }());
