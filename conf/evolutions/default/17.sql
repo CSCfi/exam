@@ -2,9 +2,15 @@
 CREATE TABLE tag (
     id BIGINT NOT NULL,
     name VARCHAR(32) NOT NULL,
+    created TIMESTAMP WITHOUT TIME ZONE,
+    creator_id BIGINT,
+    modified TIMESTAMP WITHOUT TIME ZONE,
+    modifier_id BIGINT,
     ebean_timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     CONSTRAINT pk_tag PRIMARY KEY (id)
 );
+ALTER TABLE tag ADD CONSTRAINT fk_tag_creator FOREIGN KEY (creator_id) REFERENCES sitnet_users(id);
+ALTER TABLE tag ADD CONSTRAINT fk_tag_modifier FOREIGN KEY (modifier_id) REFERENCES sitnet_users(id);
 ALTER TABLE tag ADD CONSTRAINT ak_tag_name UNIQUE (name);
 
 CREATE TABLE question_tag (
