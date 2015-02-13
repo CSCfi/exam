@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.Attachment;
 import models.ExamSectionQuestion;
 import models.SitnetModel;
+import models.Tag;
 import models.answers.AbstractAnswer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -58,6 +59,10 @@ public class AbstractQuestion extends SitnetModel {
     // In UI, section has been expanded
     @Column(columnDefinition="boolean default false")
     private boolean expanded;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<Tag> tags = new ArrayList<>();
+
 
     public String getState() { return state; }
 
@@ -166,6 +171,16 @@ public class AbstractQuestion extends SitnetModel {
     public void setChildren(List<AbstractQuestion> children) {
         this.children = children;
     }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
+
+
 
     @Override
     public boolean equals(Object object) {
