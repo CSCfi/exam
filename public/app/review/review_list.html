@@ -131,7 +131,7 @@
                         ng-click="go(review.exam)" class="pointer">
                         <!--<td class="table-column-flag"><i class="sitnet-dark-blue fa fa-flag"></i></td>
                         <td class="table-column-exclamation"><i class="sitnet-red fa fa-flash"></i></td>-->
-                        <td ng-click="preventRowAction()"><input type="checkbox" class="gradedReviewsBox" value="{{review.exam.id}}" ng-click="preventRowAction()"/></td>
+                        <td ng-click="$event.stopPropagation();"><input type="checkbox" class="gradedReviewsBox" value="{{review.exam.id}}"/></td>
                         <td class="table-column-examname"><a ng-click="preventRowAction()" href="mailto:{{review.user.email}}">{{review.user.firstName}} {{review.user.lastName}}</a></td>
                         <td>{{review.user.email}}</td>
                         <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' | translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}

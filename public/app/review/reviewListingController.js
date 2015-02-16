@@ -41,10 +41,6 @@
                     });
                 };
 
-                $scope.preventRowAction = function() {
-                    event.stopPropagation(); // prevent row click
-                };
-
                 $scope.sendSelectedToRegistry = function() {
 
                     var isEmpty = true,
