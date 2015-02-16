@@ -27,11 +27,14 @@
 
                 $scope.login = function () {
                     sessionService.login($scope.credentials.username, $scope.credentials.password).then(function () {
+
                         var user = sessionService.getUser();
                         $rootScope.$broadcast('userUpdated');
-                        $rootScope.$on('$translateChangeSuccess', function() {
+
+                        var welcome = function () {
                             toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
-                        });
+                        };
+                        setTimeout(welcome, 2000);
 
                         if (user.isStudent && !user.hasAcceptedUserAgreament) {
 

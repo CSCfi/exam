@@ -97,11 +97,10 @@
                 sessionService.login('', '').then(function () {
                     var user = sessionService.getUser();
                     $rootScope.$broadcast('userUpdated');
-
-                    $rootScope.$on('$translateChangeSuccess', function() {
+                    var welcome = function () {
                         toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
-                    });
-
+                    };
+                    setTimeout(welcome, 2000);
                     restartSessionCheck();
                     if (user.isStudent && !user.hasAcceptedUserAgreament) {
 
