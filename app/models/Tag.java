@@ -12,7 +12,7 @@ public class Tag extends SitnetModel {
     @Column(unique = true, nullable = false, length = 32)
 	private String name;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
     private List<AbstractQuestion> questions = new ArrayList<>();
 
 	public String getName() {

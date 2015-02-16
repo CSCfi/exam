@@ -1,10 +1,11 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LibraryCtrl', ['$scope', 'sessionService', 'QuestionRes', 'ExamRes', 'CourseRes', '$translate', function ($scope, sessionService, QuestionRes, ExamRes, CourseRes, $translate) {
+        .controller('LibraryCtrl', ['$scope', 'sessionService', 'QuestionRes', 'ExamRes', 'CourseRes', 'TagRes', function ($scope, sessionService, QuestionRes, ExamRes, CourseRes, TagRes) {
 
             $scope.courses = [];
             $scope.exams = [];
+            $scope.tags = [];
 
             $scope.getTags = function() {
                 var courses = $scope.courses.filter(function(course) {
@@ -13,7 +14,10 @@
                 var exams = $scope.exams.filter(function(exam) {
                     return exam.filtered;
                 });
-                return courses.concat(exams);
+                var tags = $scope.tags.filter(function(tag) {
+                    return tag.filtered;
+                });
+                return courses.concat(exams).concat(tags);
             };
 
             var query = function() {
@@ -27,7 +31,12 @@
                 }).map(function(exam) {
                     return exam.id;
                 });
-                QuestionRes.questionlist.query({exam: examIds, course: courseIds}, function (data) {
+                var tagIds = $scope.tags.filter(function(tag) {
+                    return tag.filtered;
+                }).map(function(tag) {
+                    return tag.id;
+                });
+                QuestionRes.questionlist.query({exam: examIds, course: courseIds, tag: tagIds}, function (data) {
                     data.map(function (item) {
                         var icon = "";
                         switch (item.type) {
@@ -63,6 +72,10 @@
                 $scope.courses = data;
             });
 
+            TagRes.tags.query(function(data) {
+                $scope.tags = data;
+            });
+
             $scope.setExamFilter = function(exam) {
                 exam.filtered = !exam.filtered;
                 query();
@@ -70,6 +83,11 @@
 
             $scope.setCourseFilter = function(course) {
                 course.filtered = !course.filtered;
+                query();
+            };
+
+            $scope.setTagFilter = function(tag) {
+                tag.filtered = !tag.filtered;
                 query();
             };
 
@@ -96,6 +114,12 @@
                 return text;
             };
 
+            function decodeHtml(html) {
+                var txt = document.createElement("textarea");
+                txt.innerHTML = html;
+                return txt.value;
+            }
+
             /**
              * if mathjax formula then no cut
              **/
@@ -105,11 +129,10 @@
                     // remove HTML tags
                     var str = String(text).replace(/<[^>]+>/gm, '');
                     // shorten string
-                    // ugly hack
-                    str = str.replace("&auml;", "ä").replace("&ouml;", "ö").replace("&aring;", "å");
-                    return str.length + 3 > maxLength ? String(str).replace("&nbsp;", "").substr(0, maxLength) + "..." : str;
+                    str = decodeHtml(str);
+                    return str.length + 3 > maxLength ? str.substr(0, maxLength) + "..." : str;
                 }
-                return text ? text.replace("&nbsp;", "").replace("&auml;", "ä").replace("&ouml;", "ö").replace("&aring;", "å") : "";
+                return text ? decodeHtml(text): "";
             };
 
         }]);

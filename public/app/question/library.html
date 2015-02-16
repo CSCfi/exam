@@ -104,8 +104,9 @@
                                         <i class="fa fa-search fa-fw"></i>
                                     </div>
                                 </li>
-                                <li role="menuitem">
-                                    <a>{{'not implemented yet' | truncate:30}}</a>
+                                <li ng-repeat="tag in tags | filter:limitTags" role="presentation"
+                                    ng-class="tag.filtered ? 'active': ''" ng-click="setTagFilter(tag)">
+                                    <a role="menuitem">{{tag.name | truncate:30}}</a>
                                 </li>
                             </ul>
                         </span>
