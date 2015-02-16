@@ -488,5 +488,7 @@
   "sitnet_autosaved": "Svaret automatiskt sparat",
   "sitnet_course": "Kurs",
   "sitnet_category": "Kategori",
-  "sitnet_question_metainfo": "Question categories"
+  "sitnet_question_metainfo": "Question categories",
+  "sitnet_added_to_exams": "Added to exams",
+  "sitnet_added_to_sections": "Added to sections"
 }
