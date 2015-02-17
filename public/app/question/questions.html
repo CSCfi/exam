@@ -25,8 +25,10 @@
                 {{'sitnet_toolbar_new_question' | translate}}</a>
             <ul class="dropdown-menu" role="menu">
                 <li>
-                    <a ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question' | translate}}</a>
-                    <a ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' | translate}}</a>
+                    <a ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question'
+                        | translate}}</a>
+                    <a ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' |
+                        translate}}</a>
                 </li>
             </ul>
         </div>
@@ -43,9 +45,10 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="question in questions">
+                <tr ng-repeat="question in questions | offset: currentPage*pageSize | limitTo: pageSize">
                     <td>
-                        <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax ng-bind-html="shortText(question.question)"></a>
+                        <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax
+                           ng-bind-html="shortText(question.question)"></a>
                     </td>
                     <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
@@ -56,11 +59,22 @@
                         <span class="status_theme" ng-if="!question.shared">{{ 'sitnet_own' | translate }}</span>
                     </td>
                     <td class="text-center">
-                        <a class="bold-button" ng-click="deleteQuestion(question)"><i class="fa fa-lg fa-times sitnet-red"></i></a>
+                        <a class="bold-button" ng-click="deleteQuestion(question)"><i
+                                class="fa fa-lg fa-times sitnet-red"></i></a>
                     </td>
+                </tr>
+                <!--Fill if page not full-->
+                <tr ng-repeat="r in [] | pagefill: questions.length:currentPage:pageSize">
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
                 </tbody>
             </table>
+        </div>
+        <div id="dashboard" ng-show="questions.length > pageSize">
+            <paginator items="questions" page-size="pageSize" current-page="currentPage"/>
         </div>
     </div>
 </div>

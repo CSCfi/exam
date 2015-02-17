@@ -1,10 +1,14 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('QuestionListingController', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes', 'sessionService',
-            function($scope, $routeParams, $location, $translate, QuestionRes, sessionService) {
+        .controller('QuestionListingController', ['$scope', '$routeParams', '$location', '$translate', 'QuestionRes',
+            function($scope, $routeParams, $location, $translate, QuestionRes) {
 
-                $scope.questions = QuestionRes.questionlist.query();
+                $scope.pageSize = 25;
+
+                QuestionRes.questionlist.query(function(data) {
+                    $scope.questions = data;
+                });
 
                 $scope.createQuestion = function(type) {
                     var newQuestion;
