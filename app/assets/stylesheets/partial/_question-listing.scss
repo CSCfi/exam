@@ -51,6 +51,11 @@
     box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
   }
 
+  ul {
+    list-style-type: none;
+    padding-left: 1em;
+  }
+
   .questions-table {
 
     border: 0;

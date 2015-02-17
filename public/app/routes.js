@@ -12,7 +12,7 @@
 
             /* main navigation */
             $routeProvider.when('/home', { templateUrl: tmpl + 'common/home.html', controller: 'DashboardCtrl'});
-            $routeProvider.when('/questions', { templateUrl: tmpl + 'question/questions.html', controller: 'QuestionListingController'});
+            $routeProvider.when('/questions', { templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exam/exams.html', controller: 'ExamController'});
 
             // create question from exam
