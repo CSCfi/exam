@@ -441,11 +441,7 @@ public class ExamController extends SitnetController {
             return notFound();
         }
 
-        try {
-            comment = (Comment) SitnetUtil.setCreator(comment);
-        } catch (SitnetException e) {
-            e.printStackTrace();
-        }
+        SitnetUtil.setCreator(comment);
         comment.setComment(bindComment.getComment());
         comment.save();
 
@@ -629,22 +625,13 @@ public class ExamController extends SitnetController {
         Exam exam = new Exam();
         exam.setName("Kirjoita tentin nimi tähän");
         exam.setState(Exam.State.DRAFT.toString());
-        try {
-            SitnetUtil.setCreator(exam);
-        } catch (SitnetException e) {
-            e.printStackTrace();
-            return ok(e.getMessage());
-        }
+        SitnetUtil.setCreator(exam);
         exam.save();
 
         ExamSection examSection = new ExamSection();
         examSection.setName("Aihealue");
-        try {
-            SitnetUtil.setCreator(examSection);
-        } catch (SitnetException e) {
-            e.printStackTrace();
-            return ok(e.getMessage());
-        }
+        SitnetUtil.setCreator(examSection);
+
         examSection.setExam(exam);
         examSection.setExpanded(true);
         examSection.save();
@@ -678,13 +665,7 @@ public class ExamController extends SitnetController {
 
             ExamSection section = bindForm(ExamSection.class);
             section.setExam(Ebean.find(Exam.class, id));
-            try {
-                section = (ExamSection) SitnetUtil.setCreator(section);
-            } catch (SitnetException e) {
-                e.printStackTrace();
-                return ok(e.getMessage());
-            }
-
+            SitnetUtil.setCreator(section);
             section.save();
             return ok(Json.toJson(section));
         } else {
