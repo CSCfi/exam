@@ -106,7 +106,6 @@ public class ExamControllerTest extends IntegrationTestCase {
     }
 
 
-
     @Test
     @RunAsTeacher
     public void testGetExam() throws Exception {

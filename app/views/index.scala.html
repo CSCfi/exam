@@ -36,14 +36,10 @@
 
         <!--  style -->
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-            <!-- todo: uncomment in production and comment previous line
-        <link rel="stylesheet" media="screen" href=" @routes.Assets.at("stylesheets/main.min.css")">-->
-
 
         <!-- vendor -->
         <!--<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>-->
         <script src="@routes.Assets.at("components/vendor/MathJax-2.3-latest/MathJax.js?config=TeX-AMS_HTML")" type="text/javascript"></script>
-
         <script src="@routes.Assets.at("components/vendor/jquery.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/jquery-ui.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/fullcalendar.min.js")" type="text/javascript"></script>
@@ -150,7 +146,7 @@
         <script src="@routes.Assets.at("app/utility/attachmentController.js")" type="text/javascript"></script>
     </head>
 
-    <body ng-controller="SessionCtrl">
+    <body>
         <div ng-controller="NavigationCtrl">
             <div ng-hide="doExam" ng-hide="loggedOut" id="vmenu">
                 @*Logo*@
@@ -188,9 +184,6 @@
                 @*User info*@
                 <div ng-hide="minimizeNavigation" >
                     <div class="user">
-<!--                         <div class="user-picture"> -->
-<!--                             <img src="@routes.Assets.at("assets/images/user70.png")" alt="me" /> -->
-<!--                         </div> -->
                         <div class="user-name">
                             <a href="#/user">{{user.firstname}}<br>{{user.lastname}}&nbsp;</a>
                         </div>
@@ -229,7 +222,7 @@
             </div>
             @*App content*@
             <div class="container-fluid" ng-class="doExam ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
-                <div ng-view/>
+                <div ng-view />
             </div>
         </div>
     </body>
