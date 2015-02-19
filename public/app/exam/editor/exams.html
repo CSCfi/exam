@@ -1,46 +1,40 @@
 <div id="sitnet-header" class="header">
-    <div class="col-md-11 header-wrapper">
+    <div class="col-md-12 header-wrapper">
         <span class="header-text">{{'sitnet_exams' | translate}}</span>
     </div>
-    <div class="col-md-1 header-wrapper">
-
-    </div>
-    <div class="col-md-1 ">
-        <!--<span class="header-clock pull-right">
-            <span class="col-md-12  weekday">24. lauantai</span>
-            <span class="col-md-12  date">Toukokuuta 2014</span>
-            <span class="col-md-12  clock"></span>
-        </span>-->
-    </div>
 </div>
-<div id="exam" class="col-md-12 base">
-    <div class="col-md-12  header-top">
-        <div class="col-md-3 pull-left">
+
+<div id="dashboard">
+    <!-- toolbar -->
+    <div class="main-row">
+        <div class="col-md-12">
             <a class="header-top-link" ng-click="createExam()">
-        <span class="pull-left fa-stack fa-lg header-top-icon">
-            <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-            <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
-        </span>
-                {{'sitnet_toolbar_new_exam' | translate}}</a>
+                <span class="pull-left fa-stack fa-lg header-top-icon">
+                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                    <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
+                </span>
+                    {{'sitnet_toolbar_new_exam' | translate}}
+            </a>
         </div>
     </div>
-    <div class="col-md-12 top-padding-2">
-        <div class="col-md-12  exams-list-header">
+
+    <div class="main-row">
+        <div class="col-md-12">
              <span class="fa-stack fa-lg">
                 <i class="fa icon-ok fa-square fa-stack-2x"></i>
                 <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
              </span>
-             <span class="exams-info-title">{{ 'sitnet_published_exams' | translate }}</span>
-
+             <strong>{{ 'sitnet_published_exams' | translate }}</strong>
              <span class="fa-stack fa-lg">
                 <i class="fa icon-notice fa-square fa-stack-2x"></i>
                 <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
              </span>
-            <span class="exams-info-title">{{ 'sitnet_saved_exams' | translate }}</span>
+            <strong>{{ 'sitnet_saved_exams' | translate }}</strong>
         </div>
-
-        <div class="exams-table-borders">
-            <table class="table table-bordered exams-table">
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12">
+            <table class="table table-bordered table-striped exams-table">
                 <thead>
                 <tr>
                     <th>{{ 'sitnet_examcode' | translate }}</th>
@@ -91,12 +85,17 @@
             </table>
         </div>
     </div>
-    <div class="col-md-12 " style="margin:2em 0;">
+    <div class="detail-row">
         <div class="col-md-12">
-            <span class="exams-info-title">{{ 'sitnet_published_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_published_exams_info_main' | translate }} {{ 'sitnet_published_exams_info_other' | translate }}</span>
-        </div>
-        <div class="col-md-12">
-            <span class="exams-info-title">{{ 'sitnet_saved_exams' | translate }}: </span><span class="sitnet-text-medium italic">{{ 'sitnet_saved_exams_info_main' | translate }} {{ 'sitnet_saved_exams_info_other' | translate }}</span>
+            <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
+            <em class="sitnet-text-medium">{{ 'sitnet_published_exams_info_main' | translate }} {{ 'sitnet_published_exams_info_other' | translate }}</em>
         </div>
     </div>
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <strong>{{ 'sitnet_saved_exams' | translate }}: </strong>
+            <em class="sitnet-text-medium">{{ 'sitnet_saved_exams_info_main' | translate }} {{ 'sitnet_saved_exams_info_other' | translate }}</em>
+        </div>
+    </div>
+
 </div>

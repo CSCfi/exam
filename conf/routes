@@ -131,7 +131,7 @@ DELETE        /questions/option/:oid                                           c
 
 GET           /options                                                         controllers.QuestionController.createOption()
 GET           /options/:id                                                     controllers.QuestionController.getOption(id: Long)
-GET           /question/:id/metadata                                          controllers.MetaDataController.getQuestionMetaData(id: Long)
+GET           /question/:id/metadata                                           controllers.MetaDataController.getQuestionMetaData(id: Long)
 
 ############### Reservation interface ###############
 
@@ -218,7 +218,10 @@ GET           /languages                                                       c
 
 ################# Language interface ##################
 GET           /tags                                                            controllers.TagController.listTags()
-
+POST          /tags                                                            controllers.TagController.createTag()
+DELETE        /tags/:tid                                                       controllers.TagController.deleteTag(tid: Long)
+PUT           /tags/:tid/:qid                                                  controllers.TagController.tagQuestion(tid: Long, qid: Long)
+DELETE        /tags/:tid/:qid                                                  controllers.TagController.untagQuestion(tid: Long, qid: Long)
 
 ################# General Settings interface ##################
 

@@ -19,7 +19,7 @@
   }
 
   .logo {
-    padding: 0px;
+    padding: 0;
     width: 100%;
 
     img {
@@ -47,7 +47,6 @@
 
   .menu-item {
     display: inline-block;
-    color: $sitnet-dark-grey;
     margin: 0;
     padding-top: 1em;
     padding-bottom: 1em;
@@ -83,15 +82,14 @@
     padding: 1em;
     display: inline-block;
     position: relative;
-    left: 0px;
+    left: 0;
   }
 
   .user-name {
-    padding: 1em;
     display: inline-block;
-    padding-top: 1.5em;
+    padding: 1.5em 1em 1em;
     position: relative;
-    left: 0px;
+    left: 0;
     font-size: 1em;
     font-family: $sitnet-family-opensans-light;
     color: $sitnet-text;
@@ -114,15 +112,12 @@
   .locale-minimized {
     display: inline-block;
     position: relative;
-    left: 0px;
+    left: 0;
     padding: 0.5em;
   }
 
   .locale-bar {
-    margin-left: 1em;
-    margin-right: 1em;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    margin: 1em;
   }
 
   .locale-item {

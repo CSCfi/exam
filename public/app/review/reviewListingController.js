@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ReviewListingController', ['$scope', '$q','$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService',
+        .controller('ReviewListingController', ['$scope', '$q', '$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService',
             function ($scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService) {
 
                 $scope.reviewPredicate = 'examReview.deadline';
@@ -20,11 +20,11 @@
                     }
                 };
 
-                ExamRes.exams.get({id: $routeParams.id}, function(exam) {
+                ExamRes.exams.get({id: $routeParams.id}, function (exam) {
                     $scope.examInfo = exam.course.code + " " + exam.name;
                 });
 
-                var parseDurations= function (reviews) {
+                var parseDurations = function (reviews) {
                     angular.forEach(reviews, function (review) {
                         if (review.duration) {
                             review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
@@ -32,7 +32,7 @@
                     });
                 };
 
-                $scope.selectAll = function(selectAllCssClass, checkboxesCssClass) {
+                $scope.selectAll = function (selectAllCssClass, checkboxesCssClass) {
 
                     var isSelected = angular.element("." + selectAllCssClass).prop("checked");
 
@@ -41,18 +41,18 @@
                     });
                 };
 
-                $scope.sendSelectedToRegistry = function() {
+                $scope.sendSelectedToRegistry = function () {
 
                     var isEmpty = true,
                         boxes = angular.element(".gradedReviewsBox");
 
                     angular.forEach(boxes, function (input) {
-                        if(angular.element(input).prop("checked")) {
+                        if (angular.element(input).prop("checked")) {
                             isEmpty = false;
                         }
                     });
 
-                    if(isEmpty) {
+                    if (isEmpty) {
                         toastr.warning($translate('sitnet_choose_atleast_one'));
                         return;
                     }
@@ -71,7 +71,7 @@
 
                                     if (parseInt(angular.element(input).val()) === review.exam.id) {
 
-                                        ExamRes.reviewerExam.get({eid: review.exam.id}, function(exam) {
+                                        ExamRes.reviewerExam.get({eid: review.exam.id}, function (exam) {
 
                                             if ((exam.grade != undefined || exam.grade != "") || (exam.creditType != undefined || exam.creditType != "")) {
 
@@ -87,7 +87,7 @@
                                                     "additionalInfo": ""
                                                 };
 
-                                                ExamRes.saveRecord.add(examToRecord, function() {
+                                                ExamRes.saveRecord.add(examToRecord, function () {
                                                     $route.reload();
                                                 });
                                             }
@@ -108,7 +108,7 @@
                         if (examReviews.length > 0) {
                             $scope.toggleReviews = true;
                         }
-                        angular.forEach(examReviews, function(review) {
+                        angular.forEach(examReviews, function (review) {
                             if (review.duration) {
                                 review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
                             }
@@ -129,7 +129,7 @@
                         if (examReviews.length > 0) {
                             $scope.toggleGradedReviews = true;
                         }
-                        angular.forEach(examReviews, function(review) {
+                        angular.forEach(examReviews, function (review) {
                             if (review.duration) {
                                 review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
                             }
@@ -163,7 +163,7 @@
                     return new Date().getTime() > graded + sixMonths;
                 };
 
-                $scope.printExamCredit = function(courseCredit, customCredit) {
+                $scope.printExamCredit = function (courseCredit, customCredit) {
                     return customCredit && customCredit !== courseCredit ? customCredit : courseCredit;
                 };
 
@@ -171,15 +171,21 @@
                     return dateService.printExamDuration(exam);
                 };
 
-                $scope.toggleUnreviewed = function() {
-                    $scope.toggleReviews = !$scope.toggleReviews;
+                $scope.toggleUnreviewed = function () {
+                    if ($scope.examReviews.length > 0) {
+                        $scope.toggleReviews = !$scope.toggleReviews;
+                    }
                 };
-                $scope.toggleGraded = function() {
-                    $scope.toggleGradedReviews = !$scope.toggleGradedReviews;
+                $scope.toggleGraded = function () {
+                    if ($scope.gradedReviews.length > 0) {
+                        $scope.toggleGradedReviews = !$scope.toggleGradedReviews;
+                    }
                 };
 
-                $scope.toggleLogged = function() {
-                    $scope.toggleLoggedReviews = !$scope.toggleLoggedReviews;
+                $scope.toggleLogged = function () {
+                    if ($scope.gradedLoggedReviews.length > 0) {
+                        $scope.toggleLoggedReviews = !$scope.toggleLoggedReviews;
+                    }
                 };
 
             }]);

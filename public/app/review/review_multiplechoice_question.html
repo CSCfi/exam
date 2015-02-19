@@ -1,76 +1,71 @@
-<div class="row review-question">
-    <!-- question -->
-    <div class="row">
-        <div class="col-md-1">
-            <span ng-click="toggleQuestionExpansion(sectionQuestion)" class="fa-stack fa-lg pointer-hand">
-                <i class="sitnet-grey fa fa-square fa-stack-2x"></i>
-                <i ng-class="sectionQuestion.question.reviewExpanded ? 'fa-chevron-down' : 'fa-chevron-right'"
-                   class="sitnet-white fa fa-chevron-right fa-stack-1x"></i>
+<div id="exam">
+    <div class="review-question-border">
+        <div class="detail-row">
+            <span class="col-md-12">
+                <a ng-click="toggleQuestionExpansion(sectionQuestion)" class="fa-stack fa-lg pointer-hand">
+                    <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                    <i ng-hide="sectionQuestion.question.reviewExpanded" class="fa fa-chevron-right fa-stack-1x"></i>
+                    <i ng-show="sectionQuestion.question.reviewExpanded" class="fa fa-chevron-down fa-stack-1x"></i>
+                </a>
+                <strong>{{ 'sitnet_question' | translate }}</strong>
             </span>
         </div>
-        <div class="col-md-11 sitnet-info-text-bold">{{ 'sitnet_question' | translate }}:</div>
-    </div>
-    <div class="row">
-        <div class="col-md-11 col-md-offset-1 sitnet-info-text review-question-value">
-            <span mathjax ng-bind-html="sectionQuestion.question.question"></span>
-        </div>
-    </div>
-    <!-- question attachment -->
-    <div class="row" ng-show="sectionQuestion.question.reviewExpanded" ng-controller="AttachmentController">
-        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_question_attachment' | translate
-            }}:</div>
-        <div class="col-md-8 sitnet-info-text" ng-hide="sectionQuestion.question.attachment">N/A</div>
-        <div class="col-md-8 sitnet-info-text" ng-show="sectionQuestion.question.attachment">
-            <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)">
-                {{sectionQuestion.question.attachment.fileName}}</a>
-        </div>
-    </div>
-    <!-- answer -->
-    <div class="row">
-        <div class="col-md-11 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_exam_answer' | translate }}:</div>
-    </div>
-    <!-- compact -->
-    <div class="row" ng-hide="sectionQuestion.question.reviewExpanded">
-        <div class="col-md-6 col-md-offset-1 sitnet-info-text review-question-value">
-            <span mathjax ng-bind-html="sectionQuestion.question.answer.option.option"></span>
-        </div>
-        <div class="col-md-5 sitnet-info-text" ng-style="{color: sectionQuestion.question.backgroundColor}">
-            <span ng-if="sectionQuestion.question.answer.option.correctOption === true">({{'sitnet_multiplechoice_question_correct' |
-                translate}})</span>
-            <span ng-if="sectionQuestion.question.answer.option.correctOption === false">({{'sitnet_multiplechoice_question_incorrect' |
-                translate}})</span>
-        </div>
-    </div>
-    <!-- question attachment -->
-    <div class="row" ng-show="sectionQuestion.question.reviewExpanded" ng-controller="AttachmentController">
-        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold"> {{ 'sitnet_answer_attachment' | translate }}:</div>
-        <div class="col-md-8 sitnet-info-text" ng-hide="sectionQuestion.question.answer.attachment">N/A</div>
-        <div class="col-md-8 sitnet-info-text" ng-show="sectionQuestion.question.answer.attachment">
-            <a class="pointer" ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, examToBeReviewed.hash)">
-                {{sectionQuestion.question.answer.attachment.fileName}}</a>
-        </div>
-    </div>
-    <!-- full -->
-        <div class="row" ng-show="sectionQuestion.question.reviewExpanded" ng-repeat="option in sectionQuestion.question.options">
-            <div class="col-md-1 col-md-offset-1 review-question-value sitnet-info-text" style="text-align: center;">
-                <i class="fa" ng-class="option.option === sectionQuestion.question.answer.option.option ? 'fa-check-square-o' : 'fa-square-o'"></i>
+        <div class="detail-row">
+            <div class="col-md-12 review-question-value">
+                <span mathjax ng-bind-html="sectionQuestion.question.question"></span>
             </div>
-            <div class="col-md-6 sitnet-info-text">{{option.option}}</div>
-            <div class="col-md-2 sitnet-info-text" ng-style="{color: sectionQuestion.question.backgroundColor}">
-                <span ng-if="option.correctOption === true" style="color: green;">
-                    ({{'sitnet_multiplechoice_question_correct' | translate}})
+        </div>
+        <!-- question attachment -->
+        <div class="main-row" ng-show="sectionQuestion.question.reviewExpanded" ng-controller="AttachmentController">
+            <strong class="col-md-4 review-question"> {{ 'sitnet_question_attachment' | translate
+                }}:
+            </strong>
+            <div class="col-md-8" ng-hide="sectionQuestion.question.attachment">N/A</div>
+            <div class="col-md-8" ng-show="sectionQuestion.question.attachment">
+                <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)">
+                    {{sectionQuestion.question.attachment.fileName}}</a>
+            </div>
+        </div>
+        <!-- answer -->
+        <div class="main-row">
+            <strong class="col-md-12 review-question">{{ 'sitnet_exam_answer' | translate }}:</strong>
+        </div>
+        <!-- compact -->
+        <div class="detail-row" ng-hide="sectionQuestion.question.reviewExpanded">
+            <span class="col-md-12 review-question-value">
+                <span mathjax ng-bind-html="sectionQuestion.question.answer.option.option"></span>
+                <span ng-class="option.correctOption ? 'text-success' : 'text-danger'">&nbsp;&nbsp;
+                    <span ng-if="sectionQuestion.question.answer.option.correctOption === true">
+                        ({{'sitnet_multiplechoice_question_correct' | translate}})
+                    </span>
+                    <span ng-if="sectionQuestion.question.answer.option.correctOption === false">
+                        ({{'sitnet_multiplechoice_question_incorrect' | translate}})
+                    </span>
                 </span>
-                <span ng-if="option.correctOption === false" style="color:red;">
-                    ({{'sitnet_multiplechoice_question_incorrect' | translate}})
+            </span>
+        </div>
+        <!-- full -->
+        <div class="detail-row" ng-show="sectionQuestion.question.reviewExpanded"
+             ng-repeat="option in sectionQuestion.question.options">
+            <div class="col-md-12 review-question-value">
+                <span class="fa fa-stack">
+                    <i class="fa fa-stop-o fa-stack-2x"></i>
+                    <i class="fa fa-stack-1x"
+                        ng-class="option.option === sectionQuestion.question.answer.option.option ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                <span ng-class="option.correctOption ? 'text-success' : 'text-danger'" class="review-question-option-name">
+                    {{option.option}}</span>
                 </span>
             </div>
         </div>
-    
-    <!-- grade -->
-    <div class="row">
-        <div class="col-md-3 col-md-offset-1 sitnet-info-text-bold">{{ 'sitnet_word_points' | translate }}:</div>
-        <div class="col-md-3 sitnet-info-text">{{scoreMultipleChoiceAnswer(sectionQuestion)}} /
-            {{sectionQuestion.question.maxScore}}</div>
-    </div>
 
+        <!-- grade -->
+        <div class="main-row">
+            <strong class="col-md-12 review-question">{{ 'sitnet_word_points' | translate }}:</strong>
+         </div>
+        <div class="detail-row">
+            <div class="col-md-12 review-question-value">{{scoreMultipleChoiceAnswer(sectionQuestion)}} /
+                {{sectionQuestion.question.maxScore}}
+            </div>
+        </div>
+    </div>
 </div>

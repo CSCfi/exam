@@ -1,12 +1,16 @@
-    <span class="sitnet-info-text"><i> {{'sitnet_essay_length_recommendation' | translate}}</i></span>
-    <span ng-hide="questionForm.maxCharacters.$valid" class="sitnet-info-text sitnet-red">
-        {{'sitnet_essay_length_recommendation_bounds' | translate}}
-    </span>
-
-    <div class="input-group col-md-4">
-        <input name="maxCharacters" type="number" class="form-control" ng-model="newQuestion.maxCharacters"
-               ui-change="estimateWords(); questionForm.maxCharacters.$valid ? updateQuestion() : false" min="1"
-               max="1000000">
-        <span class="input-group-addon" title="Suomen kielessä sanan keskimääräinen pituus on 7.5 merkkiä">
-            {{'sitnet_approximately' | translate}} {{estimateWords()}} {{'sitnet_words' | translate}}</span>
+<div class="row">
+    <div class="form-group col-md-3">
+        <label class="sitnet-info-text" for="maxCharacters">{{'sitnet_essay_length_recommendation' | translate}}</label>
+        <label ng-hide="questionForm.maxCharacters.$valid" class="text-danger">
+            {{'sitnet_essay_length_recommendation_bounds' | translate}}
+        </label>
+        <div class="input-group" id="maxCharacters">
+            <input name="maxCharacters" type="number" class="form-control" ng-model="newQuestion.maxCharacters"
+                   ui-change="estimateWords(); questionForm.maxCharacters.$valid ? updateQuestion() : false" min="1"
+                   max="1000000">
+            <span class="input-group-addon" title="Suomen kielessä sanan keskimääräinen pituus on 7.5 merkkiä">
+                {{'sitnet_approximately' | translate}} {{estimateWords()}} {{'sitnet_words' | translate}}
+            </span>
+        </div>
     </div>
+</div>

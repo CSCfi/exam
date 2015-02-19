@@ -5,7 +5,6 @@ import com.avaje.ebean.TxType;
 import com.avaje.ebean.annotation.Transactional;
 import com.typesafe.config.ConfigFactory;
 import controllers.UserController;
-import exceptions.SitnetException;
 import models.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTimeZone;
@@ -34,15 +33,13 @@ public class SitnetUtil {
         return DateTimeZone.forID(config);
     }
 
-    public static SitnetModel setCreator(SitnetModel object) throws SitnetException {
+    public static SitnetModel setCreator(SitnetModel object) {
 
         User user = UserController.getLoggedUser();
 
         if (object.getCreator() == null) {
             object.setCreator(user);
             object.setCreated(new Date());
-        } else {
-            throw new SitnetException("Object already has creator");
         }
         return object;
     }

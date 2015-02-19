@@ -1,26 +1,33 @@
-<div id='reservation_details' class="base row">
-    <div class="col-md-12">
-        <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th>{{'sitnet_student' | translate}}</th>
-                <th>{{'sitnet_room' | translate}}</th>
-                <th>{{'sitnet_exam' | translate}}</th>
-                <th>{{'sitnet_date_time' | translate}}
-                    <a ng-click="toggleSort('reservation.startAt')">
-                    <i class="pointer" ng-class="(sort.order == true ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i></a></th>
-                <th>{{'sitnet_remove_reservation' | translate}}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="enrolment in enrolments | orderBy : sort.column : sort.order">
-                <td>{{enrolment.user.firstName}} {{enrolment.user.lastName}}</td>
-                <td>{{enrolment.reservation.machine.room.name}}</td>
-                <td>{{enrolment.exam.name}}</td>
-                <td>{{enrolment.reservation.startAt | date:'dd.MM.yyyy HH:mm'}}</td>
-                <td><button ng-click="removeReservation(enrolment)" class="btn btn-primary pull-left">{{'sitnet_remove_reservation' | translate}}</button></td>
-            </tr>
-            </tbody>
-        </table>
+<div class="main-row">
+    <div class="detail-row">
+        <div class="col-md-12">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>{{'sitnet_student' | translate}}</th>
+                    <th>{{'sitnet_room' | translate}}</th>
+                    <th>{{'sitnet_exam' | translate}}</th>
+                    <th>{{'sitnet_date_time' | translate}}
+                        <a ng-click="toggleSort('reservation.startAt')">
+                            <i class="pointer"
+                               ng-class="(sort.order == true ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i></a></th>
+                    <th>{{'sitnet_remove_reservation' | translate}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="enrolment in enrolments | orderBy : sort.column : sort.order">
+                    <td>{{enrolment.user.firstName}} {{enrolment.user.lastName}}</td>
+                    <td>{{enrolment.reservation.machine.room.name}}</td>
+                    <td>{{enrolment.exam.name}}</td>
+                    <td>{{enrolment.reservation.startAt | date:'dd.MM.yyyy HH:mm'}}</td>
+                    <td>
+                        <button ng-click="removeReservation(enrolment)" class="btn btn-primary pull-left">
+                            {{'sitnet_remove_reservation' | translate}}
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

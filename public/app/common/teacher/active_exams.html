@@ -1,21 +1,18 @@
 <!-- Active exams indications bar -->
-<div class="col-md-12 row">
-    <div class="col-md-5 exams-table-title-area">
-        <span ng-click="toggleActiveExams = !toggleActiveExams" class="exams-list-title-text pull-left pointer">{{ 'sitnet_active_exams' | translate }}</span>
-    </div>
-
-    <div class="col-md-7" ng-init="toggleActiveExams = true">
-        <!-- href="#/rooms/{{room.id}}" -->
-        <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon pull-right fa-stack fa-lg">
+<div class="main-row">
+    <span class="col-md-12" ng-init="toggleActiveExams = 'true'">
+        <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon fa-stack fa-lg">
             <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i ng-show="!toggleActiveExams" class="fa fa-chevron-left fa-stack-1x"></i>
+            <i ng-show="!toggleActiveExams" class="fa fa-chevron-right fa-stack-1x"></i>
             <i ng-show="toggleActiveExams" class="fa fa-chevron-down fa-stack-1x"></i>
         </a>
-    </div>
+        <span ng-click="toggleActiveExams = !toggleActiveExams" class="exams-list-title-text pointer">{{ 'sitnet_active_exams' | translate }}</span>
+    </span>
 </div>
-<div class="col-md-12" ng-show="toggleActiveExams">
-    <div class="exams-table-borders">
-        <table class="table table-bordered exams-table">
+
+<div class="detail-row" ng-show="toggleActiveExams">
+    <div class="col-md-12">
+        <table class="table table-bordered table-striped exams-table">
             <thead>
             <tr>
                 <th><i class="fa fa-flag"></i></th>
@@ -34,9 +31,14 @@
                 <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                 <td class="table-column-examcode">{{ activeExam.exam.course.code }}</td>
-                <td class="table-column-examname"><a href="#/exams/reviews/{{activeExam.exam.id}}">{{ activeExam.exam.name }}</a></td>
-                <td class="table-column-open-until">{{ activeExam.exam.examActiveStartDate | date:'dd.MM.yyyy' }} - {{ activeExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}</td>
-                <td class="table-column-enroll-participation">{{activeExam.examParticipations.length - activeExam.examParticipationsAndReviews.length}}</td>
+                <td class="table-column-examname"><a href="#/exams/reviews/{{activeExam.exam.id}}">{{
+                    activeExam.exam.name }}</a></td>
+                <td class="table-column-open-until">{{ activeExam.exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
+                    {{ activeExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}
+                </td>
+                <td class="table-column-enroll-participation">{{activeExam.examParticipations.length -
+                    activeExam.examParticipationsAndReviews.length}}
+                </td>
                 <td class="table-column-enroll-participation">{{ activeExam.activeExamEnrolments.length }}</td>
                 <td class="table-column-teachers">{{ activeExam.examInspections }}</td>
             </tr>

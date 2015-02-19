@@ -1,43 +1,36 @@
 <div id="sitnet-header" class="header">
-    <div class="col-md-8 header-wrapper">
+    <div class="col-md-12 header-wrapper">
         <span class="header-text">{{'sitnet_dashboard' | translate}}</span>
     </div>
 </div>
 
-<div id="settings" class="row base" ng-controller="SettingsController">
+<div id="dashboard">
 
-    <div class="row">
-        <div class="col-md-12 title">
-            {{'sitnet_user_agreament' | translate}}
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <textarea ck-editor rows="10" cols="80" ng-model="settings.eula" placeholder="{{'sitnet_question_write_name' | translate}}">
+    <div class="top-row" ng-controller="SettingsController">
+        <div class="col-md-12 form-group">
+            <label for="editor">{{'sitnet_user_agreament' | translate}}</label>
+            <textarea id="editor" name="editor" ck-editor rows="10" cols="80" ng-model="newQuestion.question"
+                      ui-change="updateQuestion()" required placeholder="{{'sitnet_question_write_name' | translate}}">
             </textarea>
         </div>
     </div>
-
-    <div class="row" style="margin-top: 1em">
+    <div class="detail-row">
         <div class="col-md-12">
-            <button ng-click="updateAgreement(settings)" class="btn btn-success pull-right">{{'sitnet_button_save' | translate}}</button>
-        </div>
-    </div>
-    <hr>
-    <div class="row">
-        <div class="sitnet-info-text">{{'sitnet_review_deadline' | translate}} ({{'sitnet_days' | translate}})</div>
-        <div class="col-md-1">
-            <input name="deadline" class="form-control" type="number" min="1" ng-model="settings.reviewDeadline"
-                   popover="{{'sitnet_info_deadline' | translate}}"  popover-trigger="focus">
+            <button ng-click="updateAgreement(settings)" class="btn btn-success">{{'sitnet_button_save' | translate}}</button>
         </div>
     </div>
 
-
-    <div class="row">
-        <div class="col-md-12">
-            <button ng-click="updateGeneralSettings(settings)" class="btn btn-success pull-right">{{'sitnet_save' | translate}}</button>
+    <div class="top-row">
+        <div class="col-md-3 form-group">
+            <label for="deadline">{{'sitnet_review_deadline' | translate}} ({{'sitnet_days' | translate}})</label>
+            <input id="deadline" name="deadline" class="form-control" type="number" min="1" ng-model="settings.reviewDeadline"
+                   popover="{{'sitnet_info_deadline' | translate}}"  popover-trigger="focus" />
         </div>
-    <hr>
+    </div>
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <button ng-click="updateGeneralSettings(settings)" class="btn btn-success">{{'sitnet_button_save' | translate}}</button>
+        </div>
     </div>
 
 </div>

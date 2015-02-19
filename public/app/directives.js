@@ -240,11 +240,8 @@
                 restrict: 'E',
                 require: 'ngModel',
                 template: '<div id="sitnet-header" class="header">' +
-                '<div class="col-md-8 header-wrapper">' +
+                '<div class="col-md-12 header-wrapper">' +
                 '<span class="header-text">' + $translate("sitnet_welcome") + ', {{getUsername()}}</span>' +
-                '</div>' +
-                '<div class="col-md-2 header-wrapper"></div>' +
-                '<div class="col-md-2 ">' +
                 '</div>' +
                 '</div>'
             };
@@ -253,13 +250,11 @@
             return {
                 restrict: 'E',
                 replace: true,
-                template: '<div class="paginate">' +
-                '<ul style="padding-left: 0">' +
+                template: '<ul class="pagination pagination-sm">' +
                 '<li ng-class="previousPageDisabled()"><a href="" ng-click="previousPage()">&larr;</a></li>' +
                 '<li ng-repeat="n in range()" ng-class="{active: isCurrent(n)}" ng-click="setPage(n)"><a href="">{{ printRange(n) }}</a></li>' +
-                '<li ng-class="nextPageDisabled()"><a href="" ng-click="nextPage()">&rarr;</a></li>' +
-                '</ul>' +
-                '</div>',
+                '<li ng-class="nextPageDisabled()"><a target="_blank" ng-click="nextPage()">&rarr;</a></li>' +
+                '</ul>',
                 scope: {
                     items: '=items',
                     pageSize: '=pageSize',

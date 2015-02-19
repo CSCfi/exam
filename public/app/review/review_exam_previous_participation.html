@@ -1,12 +1,14 @@
-<div class="row col-md-12">
-    <div class="col-md-2 sitnet-info-text-compact ">{{($index + 1) | zeropad}}.&nbsp;&nbsp;&nbsp;{{participation.started |
+    <div class="col-md-2 sitnet-info-text-compact ">{{participation.started |
         date:'dd.MM.yyyy' }}</div>
-    <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;{{participation.exam.grade}}</div>
-    <div class="col-md-3 sitnet-info-text-compact">{{'sitnet_exam_state' | translate}}:&nbsp;&nbsp;&nbsp;
+    <div class="col-md-4 sitnet-info-text-compact">{{'sitnet_exam_state' | translate}}:&nbsp;&nbsp;&nbsp;
         <span ng-style="participation.exam.state === 'ABORTED' ? {'color':'red'} : {'color': 'green'}">
-            {{participation.exam.state}}</span>
+            {{participation.exam.state}}
+        </span>
     </div>
-    <div class="col-md-2 sitnet-info-text-compact" ng-hide="participation.exam.state === 'ABORTED'">
+    <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;{{participation.exam.grade}}</div>
+    <div class="col-md-4 sitnet-info-text-compact" ng-hide="participation.exam.state === 'ABORTED'">
         <a class="pointer" ng-click="viewAnswers(participation.exam.id)">{{'sitnet_view_answers' | translate}}</a>
     </div>
-</div>
+    <div class="col-md-4 sitnet-info-text-compact" ng-show="participation.exam.state === 'ABORTED'">
+        &nbsp;
+    </div>
