@@ -14,27 +14,13 @@
                 $scope.tempQuestion = null;
                 $scope.previewSwitch = true;
 
-                $scope.switchButtons = function (section) {
-
-                    var i = section.index - 1;
-
-                    if ($scope.doexam.examSections[i - 1]) {
-                        $scope.previousButton = true;
-                        $scope.previousButtonText = $scope.doexam.examSections[i - 1].index + ". " + $scope.doexam.examSections[i - 1].name;
-                    } else {
-                        $scope.previousButton = true;
-                        $scope.previousButtonText = $translate("sitnet_exam_quide");
-                    }
-
-                    if (i == 0 && $scope.guide) {
-                        $scope.nextButton = true;
-                        $scope.nextButtonText = $scope.doexam.examSections[0].index + ". " + $scope.doexam.examSections[0].name;
-                    } else if (!$scope.guide && $scope.doexam.examSections[i + 1]) {
-                        $scope.nextButton = true;
-                        $scope.nextButtonText = $scope.doexam.examSections[i + 1].index + ". " + $scope.doexam.examSections[i + 1].name;
-                    } else {
-                        $scope.nextButton = false;
-                        $scope.nextButtonText = "";
+                $scope.getQuestionAmount = function (section, type) {
+                    if(type === 'total') {
+                        return section.sectionQuestions.length;
+                    } else if(type === 'answered') {
+                        return section.sectionQuestions.filter(function (sectionQuestion) {
+                            return sectionQuestion.question.answered;
+                        }).length;
                     }
                 };
 
@@ -84,7 +70,6 @@
                             } else {
                                 $scope.pages.splice(0, 1);
                                 $scope.setActiveSection($scope.pages[0]);
-                                $scope.activeSection.autosaver = getAutosaver();
                             }
 
                         }).
@@ -181,7 +166,6 @@
                             if (question.expanded == null) {
                                 question.expanded = true;
                             }
-
                             $scope.setQuestionColors(question);
                         });
                     }
@@ -221,7 +205,10 @@
 
                 $scope.setQuestionColors = function (question) {
                     // State machine for resolving how the question header is drawn
-                    if (question.answered || question.answer) {
+                    if (question.answered ||
+                        (question.answer && question.type === "EssayQuestion" && question.answer.answer && $scope.stripHtml(question.answer.answer).length > 0) || // essay not empty
+                        (question.answer && question.type === "MultipleChoiceQuestion" && question.answer.option) // has option selected
+                        ) {
                         question.answered = true;
                         question.questionStatus = $translate("sitnet_question_answered");
 
@@ -240,6 +227,13 @@
                             question.selectedAnsweredState = 'question-unanswered-header';
                         }
                     }
+                };
+
+                $scope.stripHtml = function(text) {
+                    if(text && text.indexOf("math-tex") === -1) {
+                        return String(text).replace(/<[^>]+>/gm, '');
+                    }
+                    return text;
                 };
             }]);
 }());

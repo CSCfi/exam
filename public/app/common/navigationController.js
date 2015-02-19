@@ -39,7 +39,7 @@
                             href: "#/questions",
                             visible: (admin || teacher),
                             class: "fa-list-ol",
-                            name: $translate("sitnet_questions"),
+                            name: $translate("sitnet_library"),
                             sub: []
                         },
                         {

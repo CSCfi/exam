@@ -42,9 +42,10 @@
   .question-active-header,
   .question-unanswered-header,
   .question-answered-header {
-    padding: 1px;
-    margin-top: 0.2em;
+    padding: 1em 0.5em;
+    margin-top: 1em;
     background-color: $sitnet-white;
+    border:1px solid $sitnet-common-dark;
   }
 
   .question-header {

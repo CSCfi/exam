@@ -494,5 +494,6 @@
   "sitnet_activate_room": "Take room in use",
   "sitnet_inactivate_room": "Take room out of use",
   "sitnet_room_activated": "Room taken in use",
-  "sitnet_room_inactivated": "Room taken out of use"
+  "sitnet_room_inactivated": "Room taken out of use",
+  "sitnet_answer_saved": "Answer saved"
 }

@@ -7,21 +7,21 @@
              ng-repeat="sectionQuestion in activeSection.sectionQuestions" ng-init="setQuestionColors(sectionQuestion.question);">
 
             <div ng-model="sectionQuestion.question">
+                <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion.question);" class="fa-stack fa-lg pointer pull-left col-md-1">
+                    <i ng-class="sectionQuestion.question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
+                       class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
+                    </i>
+                </span>
                 <span class="fa-stack fa-lg pull-left col-md-1">
                   <i class="fa fa-stop fa-stack-2x question-icon-bg"></i>
                   <i class="fa fa-stack-1x question-icon" ng-class="sectionQuestion.question.type === 'MultipleChoiceQuestion' ? 'fa-list-ul' : 'fa-pencil-square-o'"></i>
                 </span>
-
                 <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded;setQuestionColors(sectionQuestion.question);"
                 class="question-text pointer pull-left col-md-8" mathjax ng-bind-html="sectionQuestion.question.question"></span>
-                <span class="question-text pull-left col-md-2" ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; setQuestionColors(sectionQuestion.question);">
+                <span class="question-text pull-right col-md-2" ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; setQuestionColors(sectionQuestion.question);">
                     ({{sectionQuestion.question.maxScore}} {{'sitnet_unit_points' | translate}})
                 </span>
-                <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion.question);" class="fa-stack fa-lg pointer pull-right col-md-1">
-                    <i ng-class="sectionQuestion.question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-left sitnet-text-medium'"
-                       class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
-                    </i>
-                </span>
+
             </div>
 
             <div class="exam-question-container" ng-show="sectionQuestion.question.expanded">
@@ -35,7 +35,7 @@
 
                 <div class="exam-question-instruction row bottom-padding-2" ng-controller="AttachmentController" ng-show="sectionQuestion.question.type === 'EssayQuestion'">
                     <div>
-                        {{'sitnet_answer_attachment' | translate}}:
+                        {{'sitnet_answer_attachment' | translate}}:&nbsp;<a class="pointer bold" ng-click="selectFile(sectionQuestion.question)" class="btn btn-primary pull-left">{{'sitnet_attach_file' | translate}}</a>
                     </div>
                     <div ng-show="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName">
                         <a class="pointer" ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, hash)">{{sectionQuestion.question.answer.attachment.fileName}}</a>
@@ -44,8 +44,6 @@
                     <div ng-show="!sectionQuestion.question.answer || !sectionQuestion.question.answer.attachment || !sectionQuestion.question.answer.attachment.fileName">
                        &nbsp;
                     </div>
-                    <br>
-                    <button ng-click="selectFile(sectionQuestion.question)" class="btn btn-primary pull-left">{{'sitnet_attach_file' | translate}}</button>
                 </div>
             </div>
         </div>

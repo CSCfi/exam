@@ -323,7 +323,7 @@
                         },
                         function (updated_answer) {
                             question.answer = updated_answer;
-                            toastr.info($translate('sitnet_question_answered'));
+                            toastr.info($translate('sitnet_answer_saved'));
                         }, function (error) {
 
                         });
@@ -331,7 +331,7 @@
 
                 $scope.saveEssay = function (question, answer) {
                     question.answered = true;
-                    question.questionStatus = $translate("sitnet_question_answered");
+                    question.questionStatus = $translate("sitnet_answer_saved");
 
                     var params = {
                         hash: $scope.doexam.hash,
@@ -340,7 +340,7 @@
                     var msg = {};
                     msg.answer = answer;
                     StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
-                        toastr.info($translate("sitnet_question_answered"));
+                        toastr.info($translate("sitnet_answer_saved"));
                     }, function () {
 
                     });
@@ -496,7 +496,7 @@
                                 function (updated_answer) {
                                     question.answer = updated_answer;
                                     $scope.questionTemp.answer = updated_answer;
-                                    toastr.info($translate("sitnet_question_answered"));
+                                    toastr.info($translate("sitnet_answer_saved"));
                                 }, function (error) {
                                 });
 

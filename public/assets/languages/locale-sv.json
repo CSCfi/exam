@@ -494,5 +494,6 @@
   "sitnet_activate_room": "Ta salen av bruk",
   "sitnet_inactivate_room": "Ta salen i bruk",
   "sitnet_room_activated": "Salen tagen i bruk",
-  "sitnet_room_inactivated": "Salen tagen ur bruk"
+  "sitnet_room_inactivated": "Salen tagen ur bruk",
+  "sitnet_answer_saved": "Answer saved"
 }
