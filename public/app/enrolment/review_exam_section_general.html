@@ -1,5 +1,5 @@
-<div id="exam" class="row base">
-    <div class="exam-general-information-header">
+<div id="exam" class="main-row">
+    <div class="col-md-12 exam-general-information-header">
         <span class="exam-generic-info-title">{{'sitnet_exam_basic_information' | translate}}</span>
         <a class="sub-header-icon pull-right fa-stack fa-lg" ng-click="exam.expanded = !exam.expanded">
             <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
@@ -10,7 +10,7 @@
     <!-- General info section container -->
     <div ng-show="exam.expanded">
 
-        <div class="row">
+        <div class="detail-row">
             <!-- Start time field -->
             <div class="col-md-2">
                 <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}</div>
@@ -60,7 +60,7 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="detail-row">
 
             <!-- Room name field -->
             <div class="col-md-2">
@@ -111,7 +111,7 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="detail-row">
             <!-- Exam information field -->
             <div class="col-md-2">
                 <div class="sitnet-info-text">{{'sitnet_instruction' | translate}}</div>

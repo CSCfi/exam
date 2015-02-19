@@ -1,6 +1,38 @@
+@import "../vendor/bootstrap";
+
 #dashboard {
 
   min-height: $sitnet-header-height;
+
+  // Basic bootstrap grid rows with different kind of padding
+
+  .detail-row {
+    @extend .row;
+    margin: 0;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+  .bottom-row {
+    @extend .detail-row;
+    padding-bottom: 1em;
+  }
+
+  .top-row {
+    @extend .detail-row;
+    padding-top: 1em;
+  }
+
+  .main-row {
+    @extend .detail-row;
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+
+  .indented-row {
+    @extend .detail-row;
+    margin-left: 2em;
+  }
 
   .title {
     margin-top: 2em;
@@ -12,44 +44,14 @@
     font-weight: bold;
   }
 
-  .review-ongoing {
-    border: 2px;
-    border-radius: 25px;
-    background-color: #E1A117;
-    padding: 0.5em 4em;
-  }
-
-  .review-ready {
-    border: 2px;
-    border-radius: 25px;
-    background-color: #6AA33A;
-    padding: 0.5em 4em;
-  }
-
-  .toolbar-square {
-    font-size: 3em;
-  }
-
-  .toolbar-icon {
-    font-size: 2em;
-    padding-top: 0.2em;
-    padding-left: 0.2em;
-  }
-
-  .table-bordered-item {
-    border-bottom-style: solid;
-    border-bottom-width: thin;
-    border-right-style: solid;
-    border-right-width: thin;
-    border-color: lightgrey;
-  }
-
   .exams-table {
+    border-left: $sitnet-common-light solid 0.15em;
+    border-top: $sitnet-common-light solid 0.15em;
+    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
 
-    border: 0;
     font-family: $sitnet-family-opensans;
     font-weight: normal;
-    font-size:0.9em;
+    font-size: 0.9em;
 
     th {
       background-color: $sitnet-common-light;
@@ -57,15 +59,14 @@
       color: $sitnet-common-medium;
       font-style: italic;
       font-weight: normal;
-      border:0;
+      border: 0;
     }
-
 
     td:first-child {
-      border-left:0;
+      border-left: 0;
     }
     td:last-child {
-      border-right:0;
+      border-right: 0;
     }
 
     tr:last-child {
@@ -101,7 +102,7 @@
 
     span {
       font-size: 0.8em;
-      color:$sitnet-common-medium;
+      color: $sitnet-common-medium;
     }
   }
 
@@ -121,12 +122,6 @@
     width: 25%;
   }
 
-  .exams-table-borders {
-    border-left: $sitnet-common-light solid 0.15em;
-    border-top: $sitnet-common-light solid 0.15em;
-    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
-  }
-
   .exams-table-title-area {
     padding-left: 0.5em;
   }
@@ -137,113 +132,21 @@
     color: $sitnet-text;
     font-weight: 600;
     letter-spacing: 1px;
-    margin-top: 1em;
-    margin-bottom: 1em;
-    margin-left: 0.5em;
+    vertical-align: middle;
   }
 
   .exams-list {
     background-color: $sitnet-background;
   }
 
-  .toolbar {
-    margin-top: 1em;
-    margin-bottom: 1em;
-  }
-
-  .toolbar-item {
-    margin: 1em;
-  }
-
-  .toolbar-label {
-    vertical-align: middle;
-    vertical-position: middle;
-    font-size: 1em;
-    font-family: $sitnet-family-opensans-light;
-    color: $sitnet-text;
-    font-weight: 300;
-    letter-spacing: 1px;
-    margin-top: 1em;
-    padding-top: 1em;
-    padding-left: 1em;
-  }
-
-  .indicator-item {
-    margin-left: 4em;
-  }
-
-  .exam-header {
-    border-bottom: $sitnet-common-light solid 0.15em;
-    height:4em;
-  }
-
   .header-icon {
-    margin-top: 1em;
     cursor: pointer;
+    vertical-align: middle;
   }
 
-  .paginate {
-    height: 36px;
-    margin: 0 0;
-  }
-  .paginate ul {
-    display: inline-block;
-    *display: inline;
-    /* IE7 inline-block hack */
-
-    *zoom: 1;
-    margin-left: 0;
-    margin-bottom: 0;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  }
-  .paginate li {
-    display: inline;
-  }
-
-  .paginate a {
-    float: left;
-    padding: 0 14px;
-    line-height: 34px;
-    text-decoration: none;
-    border: 1px solid #ddd;
-    border-left-width: 0;
-  }
-  .paginate a:hover,
-  .paginate .active a {
-    background-color: #f5f5f5;
-  }
-  .paginate .active a {
-    color: #999999;
-    cursor: default;
-  }
-  .paginate .disabled span,
-  .paginate .disabled a,
-  .paginate .disabled a:hover {
-    color: #999999;
-    background-color: transparent;
-    cursor: default;
-  }
-  .paginate li:first-child a {
-    border-left-width: 1px;
-    -webkit-border-radius: 3px 0 0 3px;
-    -moz-border-radius: 3px 0 0 3px;
-    border-radius: 3px 0 0 3px;
-  }
-  .paginate li:last-child a {
-    -webkit-border-radius: 0 3px 3px 0;
-    -moz-border-radius: 0 3px 3px 0;
-    border-radius: 0 3px 3px 0;
-  }
-  .pagination-centered {
-    text-align: center;
-  }
-  .pagination-right {
-    text-align: right;
+  ul {
+    list-style-type: none;
+    padding-left: 1em;
   }
 
 }

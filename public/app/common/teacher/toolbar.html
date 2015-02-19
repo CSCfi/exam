@@ -1,7 +1,7 @@
 <!-- Toolbar -->
 <!-- Create new question icon and text -->
-<div class="col-md-12  header-top" ng-controller="LibraryCtrl">
-    <div class="col-md-3 pull-left">
+<div class="main-row">
+    <div class="col-md-3">
         <a class="header-top-link dropdown-toggle" data-toggle="dropdown">
          <span class="pull-left fa-stack fa-lg header-top-icon">
             <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
@@ -11,12 +11,14 @@
         </a>
         <ul class="dropdown-menu" role="menu">
             <li>
-                <a ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question' | translate}}</a>
-                <a ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' | translate}}</a>
+                <a ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question'
+                    | translate}}</a>
+                <a ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' |
+                    translate}}</a>
             </li>
         </ul>
     </div>
-    <div class="col-md-3 pull-left" ng-controller="ExamController">
+    <div class="col-md-9">
         <a class="header-top-link" ng-click="createExam()">
          <span class="pull-left fa-stack fa-lg header-top-icon">
             <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>

@@ -12,20 +12,6 @@
     color: white;
   }
 
-  .exam-name {
-    font-size: 1.6em;
-    padding: 0.8em 0;
-    font-family: $sitnet-family-opensans-semibold;
-    color: $sitnet-text;
-    font-weight: 600;
-    letter-spacing: 1px;
-    .input-lg {
-      margin-top: -0.5em;
-      margin-bottom: 0.5em;
-      font-size: 1.3em;
-    }
-  }
-
   .exam-general-information-header {
     padding-top: 0.5em;
     padding-bottom: 0.5em;
@@ -51,16 +37,6 @@
     padding: 2em;
   }
 
-  .exam-sections {
-    margin-top: 3em;
-    margin-left: 2em;
-  }
-
-  .exam-sections-compact {
-    margin-top: 1em;
-    margin-left: 2em;
-  }
-
   .section-header {
     height: 5.6em;
     margin-bottom: 1em;
@@ -68,24 +44,6 @@
 
   .line-height56 {
     line-height: 5.6em;
-  }
-  .section-header-compact {
-    margin-bottom: 1em;
-  }
-
-  .section-header:hover {
-  }
-  .section-header-text {
-    font-size: 1.4em;
-    padding: 0.25em 0;
-    font-family: $sitnet-family-opensans-semibold;
-    color: $sitnet-text;
-    font-weight: 400;
-  }
-  .section-header-number {
-    padding-left: 0.5em;
-    padding-right: 0.2em;
-    background-color: $sitnet-teacher-turquoise-light-inactive;
   }
 
   .exam-question-container {
@@ -143,40 +101,10 @@
     line-height: 2em;
   }
 
-  .exams-list-header {
-    padding: 0.5em;
-    border-bottom: $sitnet-common-light solid 0.15em;
-    height: 4em;
-  }
-
-  .exams-list-table {
-    border-left: $sitnet-common-light solid 0.15em;
-    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
-  }
-
-  .exam-list-published {
-    color: $sitnet-dark-grey;
-    border: dashed 3px $sitnet-white;
-    background-color: $sitnet-teacher-turquoise-dark-active;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 8px;
-  }
-
   .exam-list-saved {
     color: $sitnet-dark-grey;
     border: dashed 3px $sitnet-white;
     background-color: $sitnet-teacher-turquoise-dark-inactive;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 8px;
-    padding: 1em;
-  }
-
-  .exam-list-draft {
-    color: $sitnet-dark-grey;
-    border: dashed 3px $sitnet-white;
-    background-color: $sitnet-teacher-green-light;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 8px;
@@ -203,15 +131,13 @@
   .exam-question-expanded {
     margin-top: 3em;
   }
-  .exam-question-header-icon {
-    background-color: $sitnet-white;
-  }
 
   .single-question-header-active {
     color: $sitnet-white;
     background-color: $sitnet-teacher-turquoise-active-question;
     margin: 0.5em;
   }
+
   .single-question-header-inactive {
     display: inline-block;
     color: $sitnet-white;
@@ -238,27 +164,6 @@
 
   .pointer-hand {
     cursor: pointer;
-  }
-
-  .sitnet-list-item {
-    background-color: $sitnet-white;
-    color: $sitnet-grey;
-    padding: 1em;
-    margin-bottom: 1em;
-
-    a {
-      color: $sitnet-black;
-      text-decoration: none;
-      display: inline;
-    }
-    a:hover {
-      color: $sitnet-blue;
-    }
-  }
-
-  .sitnet-list-item-heading {
-    font-size: 1.5em;
-
   }
 
   .exams-table {
@@ -296,30 +201,24 @@
     }
   }
 
-  .exams-table-borders {
-    border-left: $sitnet-common-light solid 0.15em;
-    border-top: $sitnet-common-light solid 0.15em;
-    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
-  }
+  // REVIEW RELATED ->
 
-  .ellipsis-text {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 200px;
-    float: left;
-    display: inline;
-  }
-
-  .review-question {
+  .review-question-border {
     border: $sitnet-common-light solid 0.15em;
     border-radius: 25px;
     margin: 0.75em;
     padding: 0.5em;
   }
+  .review-question {
+    padding-left: 4em;
+  }
 
   .review-question-value {
-    text-indent: 1em;
+    padding-left: 6em;
+  }
+
+  .review-question-option-name {
+    padding-left: 2em;
   }
 
   .review-feedback {

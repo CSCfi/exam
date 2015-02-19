@@ -1,64 +1,10 @@
 #question-listing {
 
-  .questions-listing-header {
-    border-bottom: $sitnet-common-light solid 0.15em;
-    height:4em;
-  }
+  .questions-table {
 
-  .questions-main-label {
-    font-size: 1.6em;
-    padding: 2em;
-    font-family: $sitnet-family-opensans-semibold;
-    color: $sitnet-text;
-    font-weight: 600;
-    letter-spacing: 1px
-  }
-
-  .questions-listing-wrapper {
-    padding: 2em;
-  }
-
-  .questions-list {
-    padding: 1em;
-    border-left: $sitnet-common-light solid 0.15em;
-    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;;
-  }
-
-  .questions-header {
-    background-color: $sitnet-white;
-    padding-top: 1em;
-    padding-bottom: 0.1em;
-    color: $sitnet-teacher-turquoise-dark-active;
-    font-size: 2em;
-    border-bottom: 1px solid $sitnet-teacher-turquoise-dark-inactive;
-  }
-
-  .questions-header-number {
-    padding-left: 0.5em;
-    padding-right: 0.2em;
-    background-color: $sitnet-teacher-turquoise-light-inactive;
-  }
-
-  .questions-question-container {
-    border-left: 1px solid $sitnet-teacher-turquoise-dark-inactive;
-    padding-left: 0.5em;
-    padding-top: 0.5em;
-  }
-
-  .questions-table-borders {
     border-left: $sitnet-common-light solid 0.15em;
     border-top: $sitnet-common-light solid 0.15em;
     box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
-  }
-
-  ul {
-    list-style-type: none;
-    padding-left: 1em;
-  }
-
-  .questions-table {
-
-    border: 0;
     font-family: $sitnet-family-opensans;
     font-weight: normal;
     font-size:0.9em;

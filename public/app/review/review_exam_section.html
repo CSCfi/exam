@@ -1,13 +1,16 @@
-<div class="section-header-compact">
-    <!-- $index gives the ng-repeat loop items index starting from 0 -->
-    <span class="section-header-number">{{$index + 1}}.</span>
-    <span class="sitnet-info-text-bold">&nbsp;&nbsp;{{section.name}} </span>
-</div>
-
-<div id="question-editor" class="">
-    <div ng-repeat="sectionQuestion in section.sectionQuestions">
-        <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
-             ng-include="multiplechoiceQuestionPath"></div>
-        <div ng-if="sectionQuestion.question.type === 'EssayQuestion'" ng-include="essayQuestionPath"></div>
+<div class="detail-row">
+    <div class="detail-row">
+        <strong class="col-md-12">
+            <span class="btn btn-info">{{$index + 1}}.</span>&nbsp; &nbsp;{{section.name}}
+        </strong>
+        <div class="detail-row">
+            <div class="col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions">
+                <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
+                     ng-include="multiplechoiceQuestionPath"></div>
+                <div ng-if="sectionQuestion.question.type === 'EssayQuestion'"
+                     ng-include="essayQuestionPath"></div>
+            </div>
+        </div>
     </div>
 </div>
+
