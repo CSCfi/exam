@@ -240,11 +240,8 @@
                 restrict: 'E',
                 require: 'ngModel',
                 template: '<div id="sitnet-header" class="header">' +
-                '<div class="col-md-8 header-wrapper">' +
+                '<div class="col-md-12 header-wrapper">' +
                 '<span class="header-text">' + $translate("sitnet_welcome") + ', {{getUsername()}}</span>' +
-                '</div>' +
-                '<div class="col-md-2 header-wrapper"></div>' +
-                '<div class="col-md-2 ">' +
                 '</div>' +
                 '</div>'
             };
