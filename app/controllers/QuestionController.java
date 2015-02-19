@@ -8,7 +8,6 @@ import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import exceptions.MalformedDataException;
 import exceptions.SitnetException;
-import models.ExamSectionQuestion;
 import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
@@ -24,6 +23,10 @@ import java.util.List;
 import java.util.Set;
 
 public class QuestionController extends SitnetController {
+
+    enum QuestionState {
+        NEW, SAVED, DELETED;
+    }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds) {
@@ -45,7 +48,7 @@ public class QuestionController extends SitnetController {
         for (Long tagId : tagIds) {
             query = query.eq("tags.id", tagId);
         }
-        Set<AbstractQuestion> questions = query.orderBy("created desc").findSet();
+        Set<AbstractQuestion> questions = query.ne("state", QuestionState.DELETED.toString()).orderBy("created desc").findSet();
         JsonContext jsonContext = Ebean.createJsonContext();
         return ok(jsonContext.toJsonString(questions, true, getOptions())).as("application/json");
     }
@@ -84,7 +87,7 @@ public class QuestionController extends SitnetController {
         }
         AbstractQuestion question = bindForm(clazz);
         SitnetUtil.setCreator(question);
-        question.setState("NEW");
+        question.setState(QuestionState.NEW.toString());
         Ebean.save(question);
         return ok(Json.toJson(question));
     }
@@ -114,7 +117,7 @@ public class QuestionController extends SitnetController {
         question.setInstruction(df.get("instruction"));
         question.setEvaluationCriterias(df.get("evaluationCriterias"));
         question.setShared(Boolean.parseBoolean(df.get("shared")));
-        question.setState("SAVED");
+        question.setState(QuestionState.SAVED.toString());
         question.update();
         switch (df.get("type")) {
             case "EssayQuestion":
@@ -147,33 +150,10 @@ public class QuestionController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteQuestion(Long id) {
 
-        List<AbstractQuestion> children = Ebean.find(AbstractQuestion.class)
-                .where()
-                .eq("parent.id", id)
-                .findList();
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
 
-        for (AbstractQuestion a : children) {
-            a.setParent(null);
-            a.save();
-        }
-
-        List<MultipleChoiseOption> options = Ebean.find(MultipleChoiseOption.class)
-                .where()
-                .eq("question.id", id)
-                .findList();
-
-        for (MultipleChoiseOption o : options) {
-            o.setQuestion(null);
-            o.delete();
-        }
-
-        List<ExamSectionQuestion> sectionQuestions = Ebean.find(ExamSectionQuestion.class).where().eq("question.id",
-                id).findList();
-        for (ExamSectionQuestion esq : sectionQuestions) {
-            esq.delete();
-        }
-
-        Ebean.delete(AbstractQuestion.class, id);
+        question.setState(QuestionState.DELETED.toString());
+        question.save();
 
         return ok("Question deleted from database!");
     }
