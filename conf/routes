@@ -138,7 +138,9 @@ GET           /question/:id/metadata                                           c
 GET           /rooms                                                           controllers.RoomController.getExamRooms()
 GET           /rooms/:id                                                       controllers.RoomController.getExamRoom(id: Long)
 PUT           /rooms/:id                                                       controllers.RoomController.updateExamRoom(id: Long)
-DELETE        /rooms/:id                                                       controllers.RoomController.removeExamRoom(id: Long)
+DELETE        /rooms/:id                                                       controllers.RoomController.inactivateExamRoom(id: Long)
+POST          /rooms/:id                                                       controllers.RoomController.activateExamRoom(id: Long)
+
 PUT           /address/:id                                                     controllers.RoomController.updateExamRoomAddress(id: Long)
 
 PUT           /workinghours/:id                                                controllers.RoomController.updateExamRoomWorkingHours(id: Long)

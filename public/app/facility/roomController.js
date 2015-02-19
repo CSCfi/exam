@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('RoomCtrl', ['$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService', '$translate',
-            function ($scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService, $translate) {
+        .controller('RoomCtrl', ['$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService', '$translate', '$route',
+            function ($scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService, $translate, $route) {
 
                 $scope.dateService = dateService;
 
@@ -176,18 +176,19 @@
 
                 if ($scope.user.isAdmin || $scope.user.isTeacher) {
                     if ($routeParams.id === undefined) {
-                        $scope.rooms = RoomResource.rooms.query();
-                        if ($scope.rooms) {
-                            angular.forEach($scope.rooms, function (room) {
-                                if (room.examMachines) {
-                                    angular.forEach(room.machines, function (machine, index) {
-                                        if (machine.isArchived()) {
-                                            room.machines.slice(index, 1);
-                                        }
-                                    });
-                                }
-                            });
-                        }
+                        $scope.rooms = RoomResource.rooms.query(function () {
+                            if ($scope.rooms) {
+                                angular.forEach($scope.rooms, function (room) {
+                                    if (room.examMachines) {
+                                        angular.forEach(room.machines, function (machine, index) {
+                                            if (machine.isArchived()) {
+                                                room.machines.slice(index, 1);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
                     } else {
                         RoomResource.rooms.get({id: $routeParams.id},
                             function (room) {
@@ -407,19 +408,33 @@
                     );
                 };
 
-                // Tulevaisuudessä tässä pitää olla joku hieno logiikka
-                $scope.removeRoom = function (room) {
-                    if (confirm($translate('sitnet_confirm_room_removal'))) {
-                        RoomResource.rooms.remove({id: room.id},
-                            function () {
-                                $scope.rooms.splice($scope.rooms.indexOf(room), 1);
-                                toastr.info($translate('sitnet_room_removed'));
+                $scope.disableRoom = function (room) {
+                    if (confirm($translate('sitnet_confirm_room_inactivation'))) {
+                        RoomResource.rooms.inactivate({id: room.id},
+                            function (data) {
+                                //room = data;
+                                toastr.info($translate('sitnet_room_inactivated'));
+                                $route.reload();
                             },
                             function (error) {
                                 toastr.error(error.data);
                             }
                         );
                     }
+                };
+
+                $scope.enableRoom = function (room) {
+                    RoomResource.rooms.activate({id: room.id},
+                        function (data) {
+                            //room = data;
+                            toastr.info($translate('sitnet_room_activated'));
+                            $route.reload();
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+
                 };
 
                 var formatTime = function (time) {

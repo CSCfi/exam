@@ -408,7 +408,7 @@
   "sitnet_software_added": "Software needed for the exams has been added",
   "sitnet_software_removed": "Software needed for the exams has been deleted",
   "sitnet_room_removed": "Exam room has been deleted",
-  "sitnet_confirm_room_removal": "Do you want to delete the exam room with all reservations?",
+  "sitnet_confirm_room_inactivation": "Do you want to take the exam room out of use? It will no longer be eligible for use.",
   "sitnet_default_opening_hours_updated": "The opening hours have been updated",
   "sitnet_exception_time_removed": "The opening hours exception has been deleted",
   "sitnet_exception_time_added": "The opening hours exception has been added",
@@ -490,5 +490,9 @@
   "sitnet_category": "Category",
   "sitnet_question_metainfo": "Question categories",
   "sitnet_added_to_exams": "Added to exams",
-  "sitnet_added_to_sections": "Added to sections"
+  "sitnet_added_to_sections": "Added to sections",
+  "sitnet_activate_room": "Take room in use",
+  "sitnet_inactivate_room": "Take room out of use",
+  "sitnet_room_activated": "Room taken in use",
+  "sitnet_room_inactivated": "Room taken out of use"
 }

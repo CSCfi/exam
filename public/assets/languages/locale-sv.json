@@ -408,7 +408,7 @@
   "sitnet_software_added": "Programvaran har lagts till",
   "sitnet_software_removed": "Programvaran har raderats",
   "sitnet_room_removed": "Tentsalen är raderad",
-  "sitnet_confirm_room_removal": "Vill du radera tentsalen med alla bokningar?",
+  "sitnet_confirm_room_inactivation": "Vill du ta tentsalen ur bruk? Efteråt kan salen inte bokas?",
   "sitnet_default_opening_hours_updated": "Öppettiderna är uppdaterade",
   "sitnet_exception_time_removed": "Poikkeusaika poistettu",
   "sitnet_exception_time_added": "Poikkeusaika lisätty",
@@ -490,5 +490,9 @@
   "sitnet_category": "Kategori",
   "sitnet_question_metainfo": "Question categories",
   "sitnet_added_to_exams": "Added to exams",
-  "sitnet_added_to_sections": "Added to sections"
+  "sitnet_added_to_sections": "Added to sections",
+  "sitnet_activate_room": "Ta salen av bruk",
+  "sitnet_inactivate_room": "Ta salen i bruk",
+  "sitnet_room_activated": "Salen tagen i bruk",
+  "sitnet_room_inactivated": "Salen tagen ur bruk"
 }

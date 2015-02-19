@@ -3,20 +3,25 @@ package models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
-import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Locale;
 
 @Entity
 public class ExamRoom extends Model {
+
+    public enum State {ACTIVE, INACTIVE}
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
@@ -87,7 +92,7 @@ public class ExamRoom extends Model {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
     @JsonManagedReference
-    private List<ExamMachine> examMachines;
+    private List<ExamMachine> examMachines = new ArrayList<>();
 
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
@@ -324,8 +329,8 @@ public class ExamRoom extends Model {
     private List<Interval> getFromDefaultHours(LocalDate date) {
         String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
         List<Interval> intervals = new ArrayList<>();
-        for(DefaultWorkingHours defaultHour : defaultWorkingHours) {
-            if(defaultHour.getDay().equalsIgnoreCase(day)) {
+        for (DefaultWorkingHours defaultHour : defaultWorkingHours) {
+            if (defaultHour.getDay().equalsIgnoreCase(day)) {
                 LocalTime start = new LocalTime(defaultHour.getStartTime().getTime()); //Check this
                 LocalTime end = new LocalTime(defaultHour.getEndTime().getTime());
                 Interval interval = new Interval(date.toDateTime(start), date.toDateTime(end));
@@ -339,7 +344,7 @@ public class ExamRoom extends Model {
     public List<Interval> getWorkingHoursForDate(LocalDate date) {
         Interval exceptionEvents = getFromExceptionEvents(date);
 
-        if(exceptionEvents != null) {
+        if (exceptionEvents != null) {
             return Arrays.asList(exceptionEvents);
         }
 

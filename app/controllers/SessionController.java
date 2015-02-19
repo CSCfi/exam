@@ -251,7 +251,7 @@ public class SessionController extends SitnetController {
         final String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
 
-        if(session == null) {
+        if(session == null || session.getSince() == null) {
             Logger.info("Session not found");
             return ok("no_session");
         }
