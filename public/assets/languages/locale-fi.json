@@ -491,5 +491,6 @@
   "sitnet_category": "Kategoria",
   "sitnet_question_metainfo": "Kysymyksen kategoriat",
   "sitnet_added_to_exams": "Liitetty tentteihin",
-  "sitnet_added_to_sections": "Liitetty aihealueisiin"
+  "sitnet_added_to_sections": "Liitetty aihealueisiin",
+  "sitnet_answer_saved": "Vastaus tallennettu"
 }

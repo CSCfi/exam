@@ -490,5 +490,6 @@
   "sitnet_category": "Kategori",
   "sitnet_question_metainfo": "Question categories",
   "sitnet_added_to_exams": "Added to exams",
-  "sitnet_added_to_sections": "Added to sections"
+  "sitnet_added_to_sections": "Added to sections",
+  "sitnet_answer_saved": "Answer saved"
 }
