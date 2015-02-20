@@ -159,10 +159,7 @@ GET           /admin/students                                                  c
 GET           /admin/examrooms                                                 controllers.AdminReservationController.getExamRooms()
 GET           /admin/exams                                                     controllers.AdminReservationController.getExams()
 
-GET           /admin/reservations/list/student/:id/:start/:end                 controllers.AdminReservationController.getReservationsByStudent(id: Long, start: String, end: String)
-GET           /admin/reservations/list/room/:id/:start/:end                    controllers.AdminReservationController.getReservationsByRoom(id: Long, start: String, end: String)
-GET           /admin/reservations/list/exam/:id/:start/:end                    controllers.AdminReservationController.getReservationsByExam(id: Long, start: String, end: String)
-GET           /admin/reservations/list/student/:sid/room/:rid/exam/:eid        controllers.AdminReservationController.getReservations(sid: Long, rid: Long, eid: Long)
+GET           /admin/reservations                                              controllers.AdminReservationController.getReservations(studentId: play.libs.F.Option[java.lang.Long], roomId: play.libs.F.Option[java.lang.Long], machineId: play.libs.F.Option[java.lang.Long], examId: play.libs.F.Option[java.lang.Long], start: Long, end: Long)
 DELETE        /admin/reservations/delete/:id                                   controllers.AdminReservationController.removeReservation(id: Long)
 
 

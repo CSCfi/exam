@@ -1,4 +1,3 @@
-<div class="main-row">
     <div class="detail-row">
         <div class="col-md-12">
             <table class="table table-bordered">
@@ -6,6 +5,7 @@
                 <tr>
                     <th>{{'sitnet_student' | translate}}</th>
                     <th>{{'sitnet_room' | translate}}</th>
+                    <th>{{'sitnet_exam_machine' | translate}}</th>
                     <th>{{'sitnet_exam' | translate}}</th>
                     <th>{{'sitnet_date_time' | translate}}
                         <a ng-click="toggleSort('reservation.startAt')">
@@ -18,10 +18,12 @@
                 <tr ng-repeat="enrolment in enrolments | orderBy : sort.column : sort.order">
                     <td>{{enrolment.user.firstName}} {{enrolment.user.lastName}}</td>
                     <td>{{enrolment.reservation.machine.room.name}}</td>
+                    <td>{{enrolment.reservation.machine.name}}</td>
                     <td>{{enrolment.exam.name}}</td>
                     <td>{{enrolment.reservation.startAt | date:'dd.MM.yyyy HH:mm'}}</td>
                     <td>
-                        <button ng-click="removeReservation(enrolment)" class="btn btn-primary pull-left">
+                        <button ng-disabled="enrolment.exam.state !== 'PUBLISHED'" ng-click="removeReservation(enrolment)"
+                                class="btn btn-primary pull-left">
                             {{'sitnet_remove_reservation' | translate}}
                         </button>
                     </td>
@@ -30,4 +32,3 @@
             </table>
         </div>
     </div>
-</div>

@@ -24,7 +24,7 @@ import java.util.List;
 public class ExamMachineController extends SitnetController {
 
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("ADMIN")})
     public static Result getExamMachines() {
         List<ExamMachine> machines = Ebean.find(ExamMachine.class)
                 .where()
@@ -34,14 +34,14 @@ public class ExamMachineController extends SitnetController {
         return ok(Json.toJson(machines));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("ADMIN")})
     public static Result getExamMachine(Long id) {
         ExamMachine machine = Ebean.find(ExamMachine.class, id);
 
         return ok(Json.toJson(machine));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({@Group("ADMIN")})
     public static Result getExamMachineReservationsFromNow(Long id) {
 
         List<Reservation> reservations = Ebean.find(Reservation.class)

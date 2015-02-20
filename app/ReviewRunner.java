@@ -15,17 +15,17 @@ public class ReviewRunner extends Controller implements Runnable {
     @Override
     public void run() {
         Logger.info("Running exam participation clean up ...");
-        try {
-            List<ExamParticipation> participations = getNotEndedParticipations();
+        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+                .fetch("exam")
+                .where()
+                .eq("ended", null)
+                .findList();
 
-            if (participations == null || participations.isEmpty()) {
-                Logger.info(" -> no dirty participations found.");
-                return;
-            }
-            markEnded(participations);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (participations == null || participations.isEmpty()) {
+            Logger.info(" -> no dirty participations found.");
+            return;
         }
+        markEnded(participations);
     }
 
     private void markEnded(List<ExamParticipation> participations) {
@@ -64,11 +64,4 @@ public class ReviewRunner extends Controller implements Runnable {
         }
     }
 
-    private List<ExamParticipation> getNotEndedParticipations() {
-        return Ebean.find(ExamParticipation.class)
-                .fetch("exam")
-                .where()
-                .eq("ended", null)
-                .findList();
-    }
 }

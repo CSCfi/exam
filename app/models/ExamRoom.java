@@ -12,11 +12,7 @@ import org.joda.time.format.DateTimeFormatter;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 @Entity
 public class ExamRoom extends Model {
@@ -24,8 +20,7 @@ public class ExamRoom extends Model {
     public enum State {ACTIVE, INACTIVE}
 
     @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
