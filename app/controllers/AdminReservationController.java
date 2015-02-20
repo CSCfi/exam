@@ -120,7 +120,8 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservations(F.Option<Long> studentId, F.Option<Long> roomId, F.Option<Long> machineId, F.Option<Long> examId, Long start, Long end) {
+    public static Result getReservations(F.Option<Long> studentId, F.Option<Long> roomId, F.Option<Long> machineId,
+                                         F.Option<Long> examId, Long start, Long end) {
 
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class).where();
         DateMidnight startDate = new DateMidnight(start);

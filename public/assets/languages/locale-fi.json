@@ -496,5 +496,9 @@
   "sitnet_inactivate_room": "Poista huone käytöstä",
   "sitnet_room_activated": "Huone otettu käyttöön",
   "sitnet_room_inactivated": "Huone otettu pois käytöstä",
-  "sitnet_answer_saved": "Vastaus tallennettu"
+  "sitnet_answer_saved": "Vastaus tallennettu",
+  "sitnet_tag_question": "Lisää kategoriaan",
+  "sitnet_question_associated_with_tag": "Kysymys lisätty kategoriaan",
+  "sitnet_question_disassociated_with_tag": "Kysymys poistettu kategoriasta",
+  "sitnet_new_tag_added": "Kategoria luotu"
 }

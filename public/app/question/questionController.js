@@ -1,16 +1,16 @@
-(function() {
+(function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .factory('focus', function($rootScope, $timeout) {
-            return function(name) {
-                $timeout(function() {
+        .factory('focus', function ($rootScope, $timeout) {
+            return function (name) {
+                $timeout(function () {
                     $rootScope.$broadcast('focusOn', name);
                 });
             };
         })
 
-        .controller('QuestionCtrl', ['$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams', '$location', '$translate', 'focus', 'QuestionRes', 'ExamRes', 'SITNET_CONF',
-            function($rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus, QuestionRes, ExamRes, SITNET_CONF) {
+        .controller('QuestionCtrl', ['$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams', '$location', '$translate', 'focus', 'QuestionRes', 'ExamRes', 'TagRes', 'SITNET_CONF',
+            function ($rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus, QuestionRes, ExamRes, TagRes, SITNET_CONF) {
 
                 $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_option.html";
 
@@ -26,14 +26,14 @@
                 var qid = $routeParams.editId || $routeParams.id;
 
                 QuestionRes.questions.get({id: qid},
-                    function(question) {
+                    function (question) {
                         $scope.newQuestion = question;
                         $scope.setQuestionType();
                         if ($scope.newQuestion.evaluationType && $scope.newQuestion.evaluationType === 'Select') {
                             $scope.newQuestion.maxScore = undefined; // will screw up validation otherwise
                         }
 
-                        if($routeParams.examId) {
+                        if ($routeParams.examId) {
 
                             ExamRes.exams.get({id: $routeParams.examId},
                                 function (exam) {
@@ -45,12 +45,12 @@
                                         }
                                         $scope.examNames.push(exam.name + code);
                                     }
-                                    if(exam.examSections && exam.examSections.length > 0) {
+                                    if (exam.examSections && exam.examSections.length > 0) {
 
-                                        angular.forEach(exam.examSections, function(section){
-                                              if(section.id == $routeParams.sectionId) {
-                                                  $scope.sectionNames.push(section.name);
-                                              }
+                                        angular.forEach(exam.examSections, function (section) {
+                                            if (section.id == $routeParams.sectionId) {
+                                                $scope.sectionNames.push(section.name);
+                                            }
                                         });
                                     }
                                 },
@@ -80,12 +80,12 @@
                         }
 
                     },
-                    function(error) {
+                    function (error) {
                         toastr.error(error.data);
                     }
                 );
 
-                $scope.setQuestionType = function() {
+                $scope.setQuestionType = function () {
                     switch ($scope.newQuestion.type) {
                         case 'EssayQuestion':
                             $scope.questionTemplate = essayQuestionTemplate;
@@ -100,12 +100,12 @@
                     }
                 };
 
-                $scope.estimateWords = function() {
+                $scope.estimateWords = function () {
                     $scope.newQuestion.words = Math.ceil($scope.newQuestion.maxCharacters / 7.5) || 0;
                     return $scope.newQuestion.words;
                 };
 
-                var update = function() {
+                var update = function () {
                     var questionToUpdate = {
                         "id": $scope.newQuestion.id,
                         "type": $scope.newQuestion.type,
@@ -129,10 +129,10 @@
                     }
                     var deferred = $q.defer();
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
-                        function() {
+                        function () {
                             toastr.info($translate("sitnet_question_saved"));
                             deferred.resolve();
-                        }, function(error) {
+                        }, function (error) {
                             toastr.error(error.data);
                             deferred.reject();
                         }
@@ -140,9 +140,9 @@
                     return deferred.promise;
                 };
 
-                $scope.deleteQuestion = function() {
+                $scope.deleteQuestion = function () {
                     if (confirm($translate('sitnet_remove_question'))) {
-                        QuestionRes.questions.delete({'id': $scope.newQuestion.id}, function() {
+                        QuestionRes.questions.delete({'id': $scope.newQuestion.id}, function () {
                             toastr.info($translate('sitnet_question_removed'));
                             if ($routeParams.examId === undefined) {
                                 $location.path("/questions/");
@@ -153,7 +153,7 @@
                     }
                 };
 
-                $scope.saveQuestion = function() {
+                $scope.saveQuestion = function () {
                     var returnUrl, query;
                     //Set return URL pointing back to questions main page if we came from there
                     if ($routeParams.examId === undefined) {
@@ -164,7 +164,7 @@
                         query = {'scrollTo': 'section' + $routeParams.sectionId};
                         returnUrl = "/exams/" + $routeParams.examId;
                     }
-                    update().then(function() {
+                    update().then(function () {
                         // If creating new exam question also bind the question to section of the exam at this point
                         if (!$routeParams.examId || $routeParams.editId) {
                             if (query) {
@@ -179,29 +179,29 @@
                                 qid: $scope.newQuestion.id,
                                 seq: $routeParams.seqId
                             };
-                            ExamRes.sectionquestions.insert(params, function() {
+                            ExamRes.sectionquestions.insert(params, function () {
                                 toastr.info($translate("sitnet_question_added_to_section"));
                                 $location.search(query);
                                 $location.path(returnUrl);
-                            }, function(error) {
+                            }, function (error) {
                                 toastr.error(error.data);
                                 $location.search(query);
                                 $location.path(returnUrl);
                             });
                         }
-                    }, function() {
+                    }, function () {
                         $location.path(returnUrl);
                     });
                 };
 
-                $scope.updateEvaluationType = function() {
+                $scope.updateEvaluationType = function () {
                     if ($scope.newQuestion.evaluationType && $scope.newQuestion.evaluationType === 'Select') {
                         $scope.newQuestion.maxScore = undefined;
                     }
                     $scope.updateQuestion();
                 };
 
-                $scope.updateQuestion = function() {
+                $scope.updateQuestion = function () {
                     if (!$scope.newQuestion.maxScore) {
                         // TODO: how to put this check onto template? ui-change directive is applied in any case, even
                         // TODO: if the input is invalid or missing.
@@ -210,12 +210,21 @@
                     update();
                 };
 
+                $scope.removeTag = function (tag) {
+                    TagRes.question.remove({tid: tag.id, qid: $scope.newQuestion.id}, function () {
+                        toastr.info($translate('sitnet_question_disassociated_with_tag'));
+                        $scope.newQuestion.tags.splice($scope.newQuestion.tags.indexOf(tag, 1));
+                    }, function (err) {
+                        toastr.error(err);
+                    });
+                };
+
                 // from the editor directive activated "onblur"
-                $scope.updateProperties = function() {
+                $scope.updateProperties = function () {
                     $scope.updateQuestion();
                 };
 
-                $scope.addNewOption = function(newQuestion) {
+                $scope.addNewOption = function (newQuestion) {
 
                     var option_description = $translate('sitnet_default_option_description');
 
@@ -226,34 +235,34 @@
                     };
 
                     QuestionRes.options.create({qid: newQuestion.id}, option,
-                        function(response) {
+                        function (response) {
                             newQuestion.options.push(response);
                             toastr.info($translate('sitnet_option_added'));
                             focus('opt' + response.id);
                             //focus("opt" + response.id);
-                        }, function(error) {
+                        }, function (error) {
                             toastr.error(error.data);
                         }
                     );
                 };
 
-                $scope.radioChecked = function(option) {
+                $scope.radioChecked = function (option) {
                     option.correctOption = true;
 
-                    angular.forEach($scope.newQuestion.options, function(value) {
+                    angular.forEach($scope.newQuestion.options, function (value) {
                         if (value.id !== option.id) {
                             value.correctOption = false;
                         }
                     });
                 };
 
-                $scope.removeOption = function(option) {
+                $scope.removeOption = function (option) {
 
                     QuestionRes.options.delete({qid: null, oid: option.id},
-                        function() {
+                        function () {
                             $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
                             toastr.info($translate('sitnet_option_removed'));
-                        }, function(error) {
+                        }, function (error) {
                             toastr.error(error.data);
                         }
                     );
@@ -261,19 +270,19 @@
                 };
 
 
-                $scope.updateOption = function(option) {
+                $scope.updateOption = function (option) {
                     QuestionRes.options.update({oid: option.id}, option,
-                        function() {
+                        function () {
                             toastr.info($translate('sitnet_option_updated'));
-                        }, function(error) {
+                        }, function (error) {
                             toastr.error(error.data);
                         }
                     );
                 };
 
-                $scope.correctAnswerToggled = function(optionId, newQuestion) {
+                $scope.correctAnswerToggled = function (optionId, newQuestion) {
 
-                    angular.forEach(newQuestion.options, function(option) {
+                    angular.forEach(newQuestion.options, function (option) {
                         // This is the option that was clicked
                         if (option.id === optionId) {
                             // If the correct is false then switch it to true, otherwise do nothing
@@ -281,9 +290,9 @@
                                 option.correctOption = true;
 
                                 QuestionRes.options.update({oid: optionId}, option,
-                                    function() {
+                                    function () {
                                         toastr.info($translate('sitnet_correct_option_updated'));
-                                    }, function(error) {
+                                    }, function (error) {
                                         toastr.error(error.data);
                                     }
                                 );
@@ -294,8 +303,8 @@
                                 option.correctOption = false;
 
                                 QuestionRes.options.update({oid: optionId}, option,
-                                    function(response) {
-                                    }, function(error) {
+                                    function (response) {
+                                    }, function (error) {
                                         toastr.error(error.data);
                                     }
                                 );
@@ -304,15 +313,15 @@
                     });
                 };
 
-                $scope.selectFile = function() {
+                $scope.selectFile = function () {
 
                     var question = $scope.newQuestion;
 
-                    var ctrl = function($scope, $modalInstance) {
+                    var ctrl = function ($scope, $modalInstance) {
 
                         $scope.newQuestion = question;
 
-                        $scope.submit = function(question) {
+                        $scope.submit = function (question) {
 
                             var file = $scope.attachmentFile;
                             var url = "attachment/question";
@@ -324,17 +333,17 @@
                                 transformRequest: angular.identity,
                                 headers: {'Content-Type': undefined}
                             })
-                                .success(function(attachment) {
+                                .success(function (attachment) {
                                     $modalInstance.dismiss();
                                     question.attachment = attachment;
                                 })
-                                .error(function(error) {
+                                .error(function (error) {
                                     $modalInstance.dismiss();
                                     toastr.error(error);
                                 });
                         };
                         // Cancel button is pressed in the modal dialog
-                        $scope.cancel = function() {
+                        $scope.cancel = function () {
                             $modalInstance.dismiss('Canceled');
                         };
                     };
@@ -346,14 +355,13 @@
                         controller: ctrl
                     });
 
-                    modalInstance.result.then(function() {
+                    modalInstance.result.then(function () {
                         // OK button
                         $location.path('/questions/' + $scope.newQuestion.id);
-                    }, function() {
+                    }, function () {
                         // Cancel button
                     });
                 };
-
 
             }]);
 }());

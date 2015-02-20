@@ -216,7 +216,7 @@ DELETE        /calendar/reservation/:id                                        c
 GET           /languages                                                       controllers.LanguageController.getSupportedLanguages()
 
 ################# Language interface ##################
-GET           /tags                                                            controllers.TagController.listTags()
+GET           /tags                                                            controllers.TagController.listTags(filter: play.libs.F.Option[String])
 POST          /tags                                                            controllers.TagController.createTag()
 DELETE        /tags/:tid                                                       controllers.TagController.deleteTag(tid: Long)
 PUT           /tags/:tid/:qid                                                  controllers.TagController.tagQuestion(tid: Long, qid: Long)

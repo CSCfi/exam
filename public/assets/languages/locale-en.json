@@ -495,5 +495,9 @@
   "sitnet_inactivate_room": "Take room out of use",
   "sitnet_room_activated": "Room taken in use",
   "sitnet_room_inactivated": "Room taken out of use",
-  "sitnet_answer_saved": "Answer saved"
+  "sitnet_answer_saved": "Answer saved",
+  "sitnet_tag_question": "Add to category",
+  "sitnet_question_associated_with_tag": "Question added to category",
+  "sitnet_question_disassociated_with_tag": "Question removed from category",
+  "sitnet_new_tag_added": "Category created"
 }

@@ -47,9 +47,8 @@ public class QuestionController extends SitnetController {
         if (!courseIds.isEmpty()) {
             query = query.in("children.examSectionQuestion.examSection.exam.course.id", courseIds);
         }
-        // I take that tags are given directly to prototype questions?
         for (Long tagId : tagIds) {
-            query = query.eq("tags.id", tagId);
+            query = query.eq("children.tags.id", tagId);
         }
         Set<AbstractQuestion> questions = query.orderBy("created desc").findSet();
         JsonContext jsonContext = Ebean.createJsonContext();
