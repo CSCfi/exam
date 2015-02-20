@@ -27,6 +27,7 @@ import util.SitnetUtil;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -138,9 +139,30 @@ public class IntegrationTestCase {
         Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
         for (String path : paths) {
             try {
-                JsonPath.read(document, path);
+                Object object = JsonPath.read(document, path);
+                if (isIndefinite(path)) {
+                    Collection c = (Collection) object;
+                    assertThat(c).isNotEmpty();
+                }
             } catch (PathNotFoundException e) {
                 Assert.fail("Path not found: " + path);
+            }
+        }
+    }
+
+    protected void assertPathsDoNotExist(JsonNode node, String... paths) {
+        Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
+        for (String path : paths) {
+            try {
+                Object result = JsonPath.read(document, path);
+                if (isIndefinite(path)) {
+                    Collection c = (Collection) result;
+                    assertThat(c).isEmpty();
+                } else {
+                    Assert.fail("Expected path not to be found: " + path);
+                }
+            } catch (PathNotFoundException e) {
+                // OK
             }
         }
     }
@@ -168,6 +190,10 @@ public class IntegrationTestCase {
             }
         }
         return results.toArray(new String[results.size()]);
+    }
+
+    private boolean isIndefinite(String path) {
+        return path.contains("..") || path.contains("?(") || path.matches(".*(\\d+ *,)+.*");
     }
 
 }
