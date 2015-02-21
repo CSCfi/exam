@@ -12,11 +12,10 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.*;
 import org.junit.rules.TestName;
+import play.api.db.evolutions.InconsistentDatabase;
+import play.api.db.evolutions.OfflineEvolutions;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.FakeApplication;
@@ -41,6 +40,16 @@ public class IntegrationTestCase {
 
     @Rule
     public TestName currentTest = new TestName();
+
+    @BeforeClass
+    public static void evolve() {
+        // Apply evolutions manually to test database
+        try {
+            OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default");
+        } catch (InconsistentDatabase e) {
+            // This is fine
+        }
+    }
 
     public static void startApp() {
         Config config = ConfigFactory.parseFile(new File("conf/integrationtest.conf"));
