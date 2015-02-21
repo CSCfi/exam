@@ -47,7 +47,8 @@ public class IntegrationTestCase {
         try {
             OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default");
         } catch (InconsistentDatabase e) {
-            // This is fine
+            int revision = e.rev();
+            OfflineEvolutions.resolve(new File("."), IntegrationTestCase.class.getClassLoader(), "default", revision);
         }
     }
 
