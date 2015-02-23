@@ -56,9 +56,14 @@
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
 
-                            $scope.reviewerExams = reviewerExams;
-
-                            angular.forEach($scope.reviewerExams, function (review, index) {
+                            $scope.activeExams = reviewerExams.filter(function(review) {
+                                return $scope.beforeDate(review.exam.examActiveEndDate);
+                            });
+                            $scope.finishedExams = reviewerExams.filter(function(review) {
+                                return $scope.afterDate(review.exam.examActiveEndDate);
+                            });
+                            var allExams = $scope.activeExams.concat($scope.finishedExams);
+                            angular.forEach(allExams, function (review, index) {
                                 ExamRes.examEnrolmentsWithReservations.query({eid: review.exam.id},
                                     function (activeExamEnrolments) {
                                         review.activeExamEnrolments = activeExamEnrolments;
