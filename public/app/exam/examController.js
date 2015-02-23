@@ -10,6 +10,7 @@
                 $scope.questionPath = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section_question.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general.html";
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "question/library.html";
+                $scope.selectCourseTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general_course_select.html";
                 $scope.examsTemplate = "";
 
                 $scope.user = sessionService.getUser();
@@ -241,10 +242,14 @@
                     ExamRes.draft.get(
                         function (response) {
                             toastr.info($translate("sitnet_exam_added"));
-                            $location.path("/exams/" + response.id);
+                            $location.path("/exams/addcourse/" + response.id);
                         }, function (error) {
                             toastr.error(error.data);
                         });
+                };
+
+                $scope.continueToExam = function() {
+                    $location.path("/exams/" + $routeParams.id);
                 };
 
                 $scope.setExamDuration = function (duration) {

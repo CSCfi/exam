@@ -500,5 +500,9 @@
   "sitnet_tag_question": "Lisää kategoriaan",
   "sitnet_question_associated_with_tag": "Kysymys lisätty kategoriaan",
   "sitnet_question_disassociated_with_tag": "Kysymys poistettu kategoriasta",
-  "sitnet_new_tag_added": "Kategoria luotu"
+  "sitnet_new_tag_added": "Kategoria luotu",
+  "sitnet_select_exam_course": "Valitse tentin opintojakso",
+  "sitnet_course_removed_from_exam": "Opintojakso poistettu tentistä",
+  "sitnet_remove_course_from_exam": "Poista opintojakso tentistä",
+  "sitnet_continue": "Jatka"
 }

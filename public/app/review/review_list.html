@@ -139,7 +139,7 @@
                     ng-click="go(review.exam)" class="pointer">
                     <td ng-click="$event.stopPropagation();"><input type="checkbox" class="gradedReviewsBox"
                                                                     value="{{review.exam.id}}"/></td>
-                    <td class="table-column-examname"><a ng-click="preventRowAction()"
+                    <td class="table-column-examname"><a ng-click="$event.stopPropagation();"
                                                          href="mailto:{{review.user.email}}">{{review.user.firstName}}
                         {{review.user.lastName}}</a></td>
                     <td>{{review.user.email}}</td>
@@ -224,7 +224,7 @@
                     ng-click="go(review.exam)" class="pointer">
                     <!--<td class="table-column-flag"><i class="sitnet-dark-blue fa fa-flag"></i></td>
                     <td class="table-column-exclamation"><i class="sitnet-red fa fa-flash"></i></td>-->
-                    <td class="table-column-examname"><a ng-click="preventRowAction()"
+                    <td class="table-column-examname"><a ng-click="$event.stopPropagation();"
                                                          href="mailto:{{review.user.email}}">{{review.user.firstName}}
                         {{review.user.lastName}}</a></td>
                     <td>{{review.user.email}}</td>

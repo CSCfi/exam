@@ -499,5 +499,9 @@
   "sitnet_tag_question": "Add to category",
   "sitnet_question_associated_with_tag": "Question added to category",
   "sitnet_question_disassociated_with_tag": "Question removed from category",
-  "sitnet_new_tag_added": "Category created"
+  "sitnet_new_tag_added": "Category created",
+  "sitnet_select_exam_course": "Select exam course",
+  "sitnet_course_removed_from_exam": "Course removed from exam",
+  "sitnet_remove_course_from_exam": "Remove course from exam",
+  "sitnet_continue": "Continue"
 }

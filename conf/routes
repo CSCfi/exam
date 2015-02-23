@@ -61,6 +61,7 @@ POST          /exams/:eid/inspector/:uid                                       c
 DELETE        /exams/inspector/:id                                             controllers.ExamController.deleteInspection(id: Long)
 
 PUT           /exams/inspection/:id/:ready                                     controllers.ExamController.updateInspection(id: Long, ready: Boolean)
+PUT           /exams/removecourse/:id                                          controllers.ExamController.removeExamCourse(id: Long)
 POST          /exams/localInspection/:eid/:uid                                 controllers.ExamController.insertLocalInspectionWithoutCommentAndEmail(eid: Long, uid: Long)
 POST          /email/inspection/:eid/:msg                                      controllers.ExamController.sendInspectionMessage(eid: Long, msg: String)
 
