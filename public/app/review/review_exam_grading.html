@@ -40,10 +40,8 @@
                 <div class="col-md-2">
                     <label for="examGrade">{{'sitnet_exam_grade' | translate}}:</label>
                     <select id="examGrade" name="examGrade" class="form-control" ng-model="examToBeReviewed.grade"
-                            ng-disabled="isReadOnly || !isCreator()"
-                            required>
+                            ng-disabled="isReadOnly || !isCreator()" required ng-options="grade for grade in examGrading">
                         <option value="">{{'sitnet_choose' | translate}}</option>
-                        <option ng-repeat="grade for grade in examGrading">
                     </select>
                 </div>
                 <div class="col-md-4">

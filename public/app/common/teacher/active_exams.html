@@ -27,7 +27,7 @@
             </thead>
 
             <tbody>
-            <tr ng-repeat="activeExam in reviewerExams" ng-show="beforeDate(activeExam.exam.examActiveEndDate)">
+            <tr ng-repeat="activeExam in activeExams">
                 <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                 <td class="table-column-examcode">{{ activeExam.exam.course.code }}</td>

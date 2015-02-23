@@ -25,13 +25,16 @@ import java.util.Set;
 public class QuestionController extends SitnetController {
 
     enum QuestionState {
-        NEW, SAVED, DELETED;
+        NEW, SAVED, DELETED
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds) {
         User user = UserController.getLoggedUser();
-        ExpressionList<AbstractQuestion> query = Ebean.find(AbstractQuestion.class).where().isNull("parent");
+        ExpressionList<AbstractQuestion> query = Ebean.find(AbstractQuestion.class)
+                .where()
+                .isNull("parent")
+                .ne("state", QuestionState.DELETED.toString());
         if (user.hasRole("TEACHER")) {
             query = query.disjunction()
                     .eq("creator.id", user.getId())
@@ -44,11 +47,10 @@ public class QuestionController extends SitnetController {
         if (!courseIds.isEmpty()) {
             query = query.in("children.examSectionQuestion.examSection.exam.course.id", courseIds);
         }
-        // I take that tags are given directly to prototype questions?
         for (Long tagId : tagIds) {
-            query = query.eq("tags.id", tagId);
+            query = query.eq("children.tags.id", tagId);
         }
-        Set<AbstractQuestion> questions = query.ne("state", QuestionState.DELETED.toString()).orderBy("created desc").findSet();
+        Set<AbstractQuestion> questions = query.orderBy("created desc").findSet();
         JsonContext jsonContext = Ebean.createJsonContext();
         return ok(jsonContext.toJsonString(questions, true, getOptions())).as("application/json");
     }

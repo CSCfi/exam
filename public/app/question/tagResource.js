@@ -6,7 +6,7 @@
                 tags: $resource("/tags", null,
                     {
                         "query": {method: "GET", isArray: true},
-                        "create": {method: "POST"}
+                        "add": {method: "POST"}
                     }),
                 tag: $resource("/tags/:tid",
                     {tid: "@tid"},

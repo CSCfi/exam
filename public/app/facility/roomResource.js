@@ -9,7 +9,8 @@
                 },
                 {
                     "update": {method: "PUT"},
-                    "remove": {method: "DELETE"}
+                    "inactivate": {method: "DELETE"},
+                    "activate": {method: "POST"}
                 }),
 
                 addresses: $resource("/address/:id",

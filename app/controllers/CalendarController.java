@@ -130,7 +130,8 @@ public class CalendarController extends SitnetController {
             return notFound(String.format("No room with id: (%d)", roomId));
         }
         Map<String, List<FreeTimeSlot>> slots = new HashMap<>();
-        if (!room.getOutOfService() && isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {
+        if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString()) &&
+                isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {
             LocalDate searchDate = parseSearchDate(day, exam);
             // users reservations starting from now
             List<Reservation> reservations = Ebean.find(Reservation.class)

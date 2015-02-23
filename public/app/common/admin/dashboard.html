@@ -4,24 +4,23 @@
     </div>
 </div>
 
-<div id="dashboard">
+<div id="dashboard" ng-controller="SettingsController">
 
-    <div class="top-row" ng-controller="SettingsController">
+    <div class="top-row">
         <div class="col-md-12 form-group">
             <label for="editor">{{'sitnet_user_agreament' | translate}}</label>
-            <textarea id="editor" name="editor" ck-editor rows="10" cols="80" ng-model="newQuestion.question"
-                      ui-change="updateQuestion()" required placeholder="{{'sitnet_question_write_name' | translate}}">
+            <textarea id="editor" name="editor" ck-editor rows="10" cols="80" ng-model="settings.eula" placeholder="{{'sitnet_question_write_name' | translate}}">
             </textarea>
         </div>
     </div>
-    <div class="detail-row">
+    <div class="bottom-row">
         <div class="col-md-12">
             <button ng-click="updateAgreement(settings)" class="btn btn-success">{{'sitnet_button_save' | translate}}</button>
         </div>
     </div>
 
     <div class="top-row">
-        <div class="col-md-3 form-group">
+        <div class="col-md-2 form-group">
             <label for="deadline">{{'sitnet_review_deadline' | translate}} ({{'sitnet_days' | translate}})</label>
             <input id="deadline" name="deadline" class="form-control" type="number" min="1" ng-model="settings.reviewDeadline"
                    popover="{{'sitnet_info_deadline' | translate}}"  popover-trigger="focus" />

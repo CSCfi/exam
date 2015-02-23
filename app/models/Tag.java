@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.questions.AbstractQuestion;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ public class Tag extends SitnetModel {
 	private String name;
 
     @ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
+    @JsonBackReference
     private List<AbstractQuestion> questions = new ArrayList<>();
 
 	public String getName() {

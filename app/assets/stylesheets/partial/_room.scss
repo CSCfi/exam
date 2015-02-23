@@ -116,6 +116,10 @@
     padding-right:2em;
   }
 
+  .label-as-badge {
+    text-align: center;
+  }
+
   .room-info-span-text {
     font: $sitnet-family-opensans-bold;
     font-weight:bold;
@@ -126,14 +130,18 @@
     padding-left: 0.5em;
   }
 
-  .room-info-text {
-    padding-left: 0.5em;
-  }
-
   .room-machines {
     border-left: $sitnet-common-light solid 0.15em;
     box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
   }
+
+  .disabled-room {
+    z-index: 1000;
+    background-color: lightgrey;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
 
   .questionTable {
     max-height:100em;
@@ -141,26 +149,30 @@
   }
 
   .room-machines-table {
+    border-left: $sitnet-common-light solid 0.15em;
+    border-top: $sitnet-common-light solid 0.15em;
+    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
 
-    border:0;
-    margin-top:1em;
     font-family: $sitnet-family-opensans;
     font-weight: normal;
-    font-size:0.9em;
+    font-size: 0.9em;
+    margin-left: 2em;
+    padding-right: 2em;
 
     th {
       background-color: $sitnet-common-light;
       font-family: $sitnet-family-georgia;
+      color: $sitnet-common-medium;
       font-style: italic;
       font-weight: normal;
-      border:0;
+      border: 0;
     }
 
     td:first-child {
-      border-left:0;
+      border-left: 0;
     }
     td:last-child {
-      border-right:0;
+      border-right: 0;
     }
 
     tr:last-child {

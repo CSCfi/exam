@@ -12,11 +12,10 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.*;
 import org.junit.rules.TestName;
+import play.api.db.evolutions.InconsistentDatabase;
+import play.api.db.evolutions.OfflineEvolutions;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.FakeApplication;
@@ -27,6 +26,7 @@ import util.SitnetUtil;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -40,6 +40,17 @@ public class IntegrationTestCase {
 
     @Rule
     public TestName currentTest = new TestName();
+
+    @BeforeClass
+    public static void evolve() {
+        // Apply evolutions manually to test database
+        try {
+            OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default");
+        } catch (InconsistentDatabase e) {
+            int revision = e.rev();
+            OfflineEvolutions.resolve(new File("."), IntegrationTestCase.class.getClassLoader(), "default", revision);
+        }
+    }
 
     public static void startApp() {
         Config config = ConfigFactory.parseFile(new File("conf/integrationtest.conf"));
@@ -135,14 +146,11 @@ public class IntegrationTestCase {
     }
 
     protected void assertPathsExist(JsonNode node, String... paths) {
-        Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
-        for (String path : paths) {
-            try {
-                JsonPath.read(document, path);
-            } catch (PathNotFoundException e) {
-                Assert.fail("Path not found: " + path);
-            }
-        }
+        assertPaths(node, true, paths);
+    }
+
+    protected void assertPathsDoNotExist(JsonNode node, String... paths) {
+        assertPaths(node, false, paths);
     }
 
     protected void assertPathCounts(JsonNode node, int count, String... paths) {
@@ -168,6 +176,30 @@ public class IntegrationTestCase {
             }
         }
         return results.toArray(new String[results.size()]);
+    }
+
+    private void assertPaths(JsonNode node, boolean shouldExist, String ... paths) {
+        Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
+        for (String path : paths) {
+            try {
+                Object object = JsonPath.read(document, path);
+                if (isIndefinite(path)) {
+                    Collection c = (Collection) object;
+                    assertThat(c.isEmpty()).isNotEqualTo(shouldExist);
+                }
+                else if (!shouldExist) {
+                    Assert.fail("Expected path not to be found: " + path);
+                }
+            } catch (PathNotFoundException e) {
+                if (shouldExist) {
+                    Assert.fail("Path not found: " + path);
+                }
+            }
+        }
+    }
+
+    private boolean isIndefinite(String path) {
+        return path.contains("..") || path.contains("?(") || path.matches(".*(\\d+ *,)+.*");
     }
 
 }

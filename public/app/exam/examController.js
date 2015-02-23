@@ -625,6 +625,20 @@
                     });
                 };
 
+                var updateSection = function(section) {
+                    var index = -1;
+                    $scope.newExam.examSections.some(function(s, i) {
+                        if (s.id === section.id) {
+                            index = i;
+                            return true;
+                        }
+                    });
+                    if (index >= 0) {
+                        $scope.newExam.examSections[index] = section;
+                    }
+
+                };
+
                 $scope.insertQuestion = function (section, object, to) {
                     var question = angular.copy(object);
                     var sectionQuestion = {question: question};
@@ -634,10 +648,9 @@
                             seq: to,
                             qid: question.id
                         }, function (sec) {
-                            DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to)
+                            DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to);
                             toastr.info($translate("sitnet_question_added"));
-                            section = sec;
-                            $scope.updateExam();
+                            updateSection(sec); // needs manual update as the scope is somehow not automatically refreshed
                         }, function (error) {
                             toastr.error(error.data);
                         }

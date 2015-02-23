@@ -27,20 +27,20 @@
             </thead>
 
             <tbody>
-            <tr ng-repeat="activeExam in reviewerExams" ng-show="afterDate(activeExam.exam.examActiveEndDate)">
+            <tr ng-repeat="finishedExam in finishedExams">
                 <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                <td class="table-column-examcode">{{ activeExam.exam.course.code }}</td>
-                <td class="table-column-examname"><a href="#/exams/reviews/{{activeExam.exam.id}}">{{
-                    activeExam.exam.name }}</a></td>
-                <td class="table-column-open-until">{{ activeExam.exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
-                    {{ activeExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}
+                <td class="table-column-examcode">{{ finishedExam.exam.course.code }}</td>
+                <td class="table-column-examname"><a href="#/exams/reviews/{{finishedExam.exam.id}}">{{
+                    finishedExam.exam.name }}</a></td>
+                <td class="table-column-open-until">{{ finishedExam.exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
+                    {{ finishedExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}
                 </td>
-                <td class="table-column-enroll-participation">{{activeExam.examParticipations.length -
-                    activeExam.examParticipationsAndReviews.length}}
+                <td class="table-column-enroll-participation">{{finishedExam.examParticipations.length -
+                    finishedExam.examParticipationsAndReviews.length}}
                 </td>
-                <td class="table-column-enroll-participation">{{ activeExam.activeExamEnrolments.length }}</td>
-                <td class="table-column-teachers">{{ activeExam.examInspections }}</td>
+                <td class="table-column-enroll-participation">{{ finishedExam.activeExamEnrolments.length }}</td>
+                <td class="table-column-teachers">{{ finishedExam.examInspections }}</td>
             </tr>
             </tbody>
         </table>

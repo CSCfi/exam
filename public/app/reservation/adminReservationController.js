@@ -10,143 +10,74 @@
 
                 $scope.reservationDetails = SITNET_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
 
-                AdminReservationResource.students.query(null,
-                    function (students) {
+                $scope.selection = {};
+
+                AdminReservationResource.students.query(function (students) {
                         $scope.students = students;
                     },
                     function (error) {
                         toastr.error(error.data);
-                    },
-                    function(update) {
-                        toastr.info(update.data);
                     }
                 );
 
-                $scope.examrooms = AdminReservationResource.examrooms.query(null,
+                AdminReservationResource.examrooms.query(
                     function (examrooms) {
                         $scope.examrooms = examrooms;
 
                     },
                     function (error) {
                         toastr.error(error.data);
-                    },
-                    function(update) {
-                        toastr.info(update.data);
                     }
                 );
 
-                $scope.examrooms = AdminReservationResource.exams.query(null,
+                AdminReservationResource.exams.query(
                     function (exams) {
                         $scope.examnames = exams;
 
                     },
                     function (error) {
                         toastr.error(error.data);
-                    },
-                    function(update) {
-                        toastr.info(update.data);
                     }
                 );
 
-                $scope.setExam = function (value) {
-                    $scope.selectedExam = value;
-                    $scope.selectedExamRoom = null;
-                    $scope.selectedStudent = null;
-
-                    if(value != "")
-                        $scope.getReservationsByExam();
-                };
-
-                $scope.setRoom = function (value) {
-                    $scope.selectedExamRoom = value;
-                    $scope.selectedStudent = null;
-                    $scope.selectedExam = null;
-
-                    if(value != "")
-                        $scope.getReservationsByRoom();
-                };
-
-                $scope.setStudent = function (value) {
-                    $scope.selectedStudent = value;
-                    $scope.selectedExamRoom = null;
-                    $scope.selectedExam = null;
-
-                    if(value != "")
-                        $scope.getReservationsByStudent();
-                };
-
-                $scope.updateReservationsTable = function () {
-
-                    $scope.dateService.startTimestamp = $scope.dateService.startDate.getTime();
-                    $scope.dateService.endTimestamp = $scope.dateService.endDate.getTime();
-
-                    if ($scope.selectedStudent != null) {
-                        $scope.getReservationsByStudent();
-                    } else if ($scope.selectedExamRoom != null) {
-                        $scope.getReservationsByRoom();
-                    } else if ($scope.selectedExam != null) {
-                        $scope.getReservationsByExam();
+                AdminReservationResource.machines.query(
+                    function (machines) {
+                        $scope.machines = machines;
+                    },
+                    function (error) {
+                        toastr.error(error.data);
                     }
+                );
 
+                $scope.query = function () {
+                    if ($scope.dateService.startDate && $scope.dateService.endDate) {
+                        var params = $scope.selection;
+                        // have to clear empty strings completely
+                        for (var k in params) {
+                            if (params[k] === '') {
+                                params[k] = undefined;
+                            }
+                        }
+                        params.start = Date.parse($scope.dateService.startDate);
+                        params.end = Date.parse($scope.dateService.endDate);
+
+                        AdminReservationResource.reservations.query(params,
+                            function (enrolments) {
+                                $scope.enrolments = enrolments;
+                            }, function (error) {
+                                toastr.error(error.data);
+                            });
+                    }
                 };
 
-                $scope.getReservations = function() {
-
-                    AdminReservationResource.reservationListing.query({userId: $scope.selectedStudent, roomId: $scope.selectedRoom, examId: $scope.selectedExam},
-                    function (enrolments) {
-                        $scope.enrolments = enrolments;
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
-
-
-                };
-
-                $scope.getReservationsByStudent = function() {
-
-                    AdminReservationResource.reservationListingByStudent.query({userId: $scope.selectedStudent, start: $scope.dateService.startTimestamp, end: $scope.dateService.endTimestamp},
-                    function (enrolments) {
-                        $scope.enrolments = enrolments;
-
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
-
-
-                };
-
-                $scope.getReservationsByRoom = function() {
-
-                    AdminReservationResource.reservationListingByRoom.query({roomId: $scope.selectedExamRoom, start: $scope.dateService.startTimestamp, end: $scope.dateService.endTimestamp},
-                    function (enrolments) {
-                        $scope.enrolments = enrolments;
-
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
-
-                };
-
-                $scope.getReservationsByExam = function() {
-
-                    AdminReservationResource.reservationListingByExam.query({examId: $scope.selectedExam, start: $scope.dateService.startTimestamp, end: $scope.dateService.endTimestamp},
-                    function (enrolments) {
-                        $scope.enrolments = enrolments;
-
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
-
-                };
-
-                $scope.removeReservation = function (enrolment) {
+                $scope.removeReservation = function (enrolment) {
                     AdminReservationResource.reservationDeletion.remove({id: enrolment.reservation.id}, null,
-                    function () {
-                        $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1);
-                        $location.path("admin/reservations/")
-                    }, function (error) {
-                        toastr.error(error.data);
-                    });
+                        function () {
+                            $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1);
+                            $location.path("admin/reservations/")
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
                 };
 
                 $scope.sort = {
@@ -154,8 +85,8 @@
                     order: false
                 };
 
-                $scope.toggleSort = function(value){
-                    if ($scope.sort.column == value){
+                $scope.toggleSort = function (value) {
+                    if ($scope.sort.column == value) {
                         $scope.sort.order = !$scope.sort.order;
                         return;
                     }
