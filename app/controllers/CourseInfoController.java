@@ -1,9 +1,9 @@
 package controllers;
 
-import exceptions.NotFoundException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import exceptions.NotFoundException;
 import models.Course;
 import play.libs.Json;
 import play.mvc.Result;
@@ -19,17 +19,16 @@ public class CourseInfoController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result insertCourseFromInterface(String code) {
 
-        if(code == null || code.isEmpty()) {
+        if (code.isEmpty()) {
             return notFound("sitnet_course_not_found");
         }
 
-        // check that course do not exits
+        // check that course does not exist
         Course course = Ebean.find(Course.class)
                 .where()
                 .eq("code", code)
                 .findUnique();
-
-        if(course != null) {
+        if (course != null) {
             return ok(Json.toJson(course));
         }
 
@@ -40,7 +39,7 @@ public class CourseInfoController extends SitnetController {
             courseList = Interfaces.getCourseInfo(code);
             course = courseList.get(0);
 
-            if(courseList == null ||
+            if (courseList == null ||
                     course == null ||
                     course.getIdentifier().isEmpty() ||
                     course.getName().isEmpty()) {

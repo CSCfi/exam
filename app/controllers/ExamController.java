@@ -241,7 +241,8 @@ public class ExamController extends SitnetController {
         options.setPathProperties("creator", "id, firstName, lastName");
         options.setPathProperties("parent", "id, creator");
         options.setPathProperties("parent.creator", "id, firstName, lastName");
-        options.setPathProperties("course", "id, code, name, level, courseUnitType, credits, institutionName, department");
+        options.setPathProperties("course", "id, code, name, level, courseUnitType, credits, institutionName, department, organisation");
+        options.setPathProperties("course.organisation", "id, name");
         options.setPathProperties("room", "id, name");
         options.setPathProperties("softwares", "id, name");
         options.setPathProperties("examLanguages", "code");
@@ -265,6 +266,8 @@ public class ExamController extends SitnetController {
     private static Exam doGetExam(Long id) {
         return Ebean.find(Exam.class)
                 .fetch("examSections.sectionQuestions")
+                .fetch("course")
+                .fetch("course.organisation")
                 .where()
                 .eq("id", id)
                 .disjunction()
@@ -465,6 +468,7 @@ public class ExamController extends SitnetController {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
+                .fetch("course.organisation")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions")
                 .fetch("examSections.sectionQuestions.question")
