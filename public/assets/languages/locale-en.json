@@ -491,5 +491,9 @@
   "sitnet_question_metainfo": "Question categories",
   "sitnet_added_to_exams": "Added to exams",
   "sitnet_added_to_sections": "Added to sections",
-  "sitnet_answer_saved": "Answer saved"
+  "sitnet_answer_saved": "Answer saved",
+  "sitnet_select_exam_course": "Select exam course",
+  "sitnet_course_removed_from_exam": "Course removed from exam",
+  "sitnet_remove_course_from_exam": "Remove course from exam",
+  "sitnet_continue": "Continue"
 }

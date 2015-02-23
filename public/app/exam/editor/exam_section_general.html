@@ -1,4 +1,4 @@
-<div class="row exam-general-information-header">
+<div class="exam-general-information-header">
     <div class="col-md-1">
         <a class="pointer pull-left fa-stack fa-lg" popover-placement="left" popover-popup-delay="1000"
            popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
@@ -64,82 +64,9 @@
             </div>
         </div>
     </div>
-    <div class="row" ng-controller="CourseTypeaheadCtrl">
 
-        <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
-            <div class="input-group">
-                <input type="text" class="form-control ng-pristine ng-valid"
-                       ng-model="newExam.course.name" ui-change="updateExam()"
-                       placeholder="Opintojakson nimi"
-                       typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
-                       typeahead="c as c.name for c in getCourses('name', $viewValue)"
-                       typeahead-min-length="2"
-                       typeahead-loading="loadingCoursesByName">
-                       <span class="input-group-addon"
-                             ng-click="toaster.info('Opintojakson nimi');">
-                            <i class="fa fa-question-circle fa-fw"></i>
-                            <i ng-show="loadingCoursesByName" class="fa fa-refresh"></i>
-                       </span>
-
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}:</div>
-            <div class="input-group">
-                <input type="text" class="form-control ng-pristine ng-valid"
-                       ng-model="newExam.course.code"
-                       placeholder="{{'sitnet_course_code' | translate}}"
-                       typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
-                       typeahead="c as c.code for c in getCourses('code', $viewValue)"
-                       typeahead-loading="loadingCoursesByCode">
-                       <span class="input-group-addon"
-                             ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
-                            <i class="fa fa-question-circle fa-fw"></i>
-                            <i ng-show="loadingCoursesByCode" class="fa fa-refresh"></i>
-                       </span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Course scope and organization name input elements -->
     <div class="row">
-        <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}:</div>
-            <div class="input-group">
-                <!-- placeholder="opintopistettä" -->
-                <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits"
-                       ui-change="updateExam()">
-                    <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
-                        <i class="fa fa-question-circle fa-fw"></i>
-                    </span>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}:</div>
-            <div class="input-group">
-                <input disabled type="text" class="form-control ng-pristine ng-valid"
-                       ng-model="newExam.course.institutionName"
-                       ui-change="updateExam()">
-                    <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
-                        <i class="fa fa-question-circle fa-fw"></i>
-                    </span>
-            </div>
-        </div>
-    </div>
-
-    <div class="row" ng-hide="newExam.course === undefined">
-        <div class="row col-md-12">
-            <div class="sitnet-info-text col-md-12">{{'sitnet_enrolment_url' | translate}}:</div>
-        </div>
-        <div class="row col-md-12">
-            <div class="col-md-12">
-                <a href="{{ hostname.hostname }}/#/enroll/{{ newExam.course.code }}">{{ hostname.hostname }}/#/enroll/{{
-                    newExam.course.code }}</a>
-            </div>
-        </div>
+        <div ng-include="selectCourseTemplate" ng-model="selectCourseTemplate"></div>
     </div>
 
     <!-- Exam inspector and exam maxScore scale input elements -->

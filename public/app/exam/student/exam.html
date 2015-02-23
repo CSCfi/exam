@@ -4,7 +4,7 @@
     </div>
     <div class="col-md-2" style="line-height: 4em;">
         <span class="locale-item"> <a ng-click="switchLanguage('fi')">FIN</a></span>
-        <span class="locale-item"> <a ng-click="switchLanguage('swe')">SWE</a></span>
+        <span class="locale-item"> <a ng-click="switchLanguage('sv')">SWE</a></span>
         <span class="locale-item"> <a ng-click="switchLanguage('en')">ENG</a></span>
     </div>
     <div class="col-md-4">
@@ -73,19 +73,19 @@
             <div class="info-column">
                 <span class="header col-md-6"><span
                         class="sitnet-text-dark">{{ 'sitnet_course_name' | translate }}:</span></span>
-                <span class="text col-md-6">{{ doexam.course.name }}</span>
+                <span class="text col-md-6">{{ doexam.course.name }}&nbsp;</span>
             </div>
             <div class="info-column">
                 <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_course_code' | translate }}:</span></span>
-                <span class="text col-md-6">{{ doexam.course.code }}</span>
+                <span class="text col-md-6">{{ doexam.course.code }}&nbsp;</span>
             </div>
             <div class="info-column">
                 <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_exam_name' | translate }}:</span></span>
-                <span class="text col-md-6">{{ doexam.name }}</span>
+                <span class="text col-md-6">{{ doexam.name }}&nbsp;</span>
             </div>
             <div class="info-column">
                 <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_exam_time' | translate }}:</span></span>
-                <span class="text col-md-6">{{ printExamDuration(doexam) }}</span>
+                <span class="text col-md-6">{{ printExamDuration(doexam) }}&nbsp;</span>
             </div>
         </div>
         <div class="col-md-12 top-padding-2 bottom-padding-2" ng-include="sectionsBar"></div>

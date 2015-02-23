@@ -1,5 +1,13 @@
 #exam {
 
+  .courseBorder {
+    width:100%;
+    height: 100%;
+    padding:1em 1em 4.5em;
+    border:1px solid $sitnet-common-medium;
+    display: block;
+  }
+
   .section-border {
     width:100%;
     padding:1% 2%;

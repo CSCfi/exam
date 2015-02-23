@@ -492,5 +492,9 @@
   "sitnet_question_metainfo": "Kysymyksen kategoriat",
   "sitnet_added_to_exams": "Liitetty tentteihin",
   "sitnet_added_to_sections": "Liitetty aihealueisiin",
-  "sitnet_answer_saved": "Vastaus tallennettu"
+  "sitnet_answer_saved": "Vastaus tallennettu",
+  "sitnet_select_exam_course": "Valitse tentin opintojakso",
+  "sitnet_course_removed_from_exam": "Opintojakso poistettu tentistä",
+  "sitnet_remove_course_from_exam": "Poista opintojakso tentistä",
+  "sitnet_continue": "Jatka"
 }

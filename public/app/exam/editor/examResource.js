@@ -12,6 +12,19 @@
                     "remove": {method: "DELETE"}
                 }),
 
+                examcourse: $resource("/exams/removecourse/:id",
+                {
+                    id: "@id"
+                },
+                {
+                    "remove": {method: "PUT"}
+                }),
+
+                createupdatecourse: $resource("/createupdatecourse/:cid/exam/:eid ",
+                {
+                    cid: "@cid", eid: "@eid"
+                }),
+
                 questions: $resource("/exams/:eid/section/:sid/question/:qid",
                 {
                 	eid: "@eid", sid: "@sid", qid: "@qid"
