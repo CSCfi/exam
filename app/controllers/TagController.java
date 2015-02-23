@@ -54,6 +54,9 @@ public class TagController extends SitnetController {
         if (tag == null || question == null) {
             return notFound();
         }
+        if (question.getParent() != null) {
+            return forbidden("Tagging is available only for prototype questions");
+        }
         question.getTags().add(tag);
         question.update();
         return ok();
@@ -65,6 +68,9 @@ public class TagController extends SitnetController {
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, questionId);
         if (tag == null || question == null) {
             return notFound();
+        }
+        if (question.getParent() != null) {
+            return forbidden("Tagging is available only for prototype questions");
         }
         question.getTags().remove(tag);
         question.update();

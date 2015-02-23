@@ -48,7 +48,7 @@ public class QuestionController extends SitnetController {
             query = query.in("children.examSectionQuestion.examSection.exam.course.id", courseIds);
         }
         for (Long tagId : tagIds) {
-            query = query.eq("children.tags.id", tagId);
+            query = query.eq("tags.id", tagId);
         }
         Set<AbstractQuestion> questions = query.orderBy("created desc").findSet();
         JsonContext jsonContext = Ebean.createJsonContext();
