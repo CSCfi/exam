@@ -55,7 +55,6 @@
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/teacher/dashboard.html";
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
-
                             $scope.activeExams = reviewerExams.filter(function(review) {
                                 return $scope.beforeDate(review.exam.examActiveEndDate);
                             });
@@ -63,6 +62,7 @@
                                 return $scope.afterDate(review.exam.examActiveEndDate);
                             });
                             var allExams = $scope.activeExams.concat($scope.finishedExams);
+
                             angular.forEach(allExams, function (review, index) {
                                 ExamRes.examEnrolmentsWithReservations.query({eid: review.exam.id},
                                     function (activeExamEnrolments) {

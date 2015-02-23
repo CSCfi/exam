@@ -51,17 +51,17 @@ public class AbstractQuestion extends SitnetModel {
 
     @OneToOne(mappedBy = "question")
     @JsonBackReference
-    private ExamSectionQuestion examSectionQuestion;
+    protected ExamSectionQuestion examSectionQuestion;
 
     @OneToOne(cascade = CascadeType.ALL)
     protected Attachment attachment;
 
     // In UI, section has been expanded
     @Column(columnDefinition="boolean default false")
-    private boolean expanded;
+    protected boolean expanded;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Tag> tags = new ArrayList<>();
+    protected List<Tag> tags = new ArrayList<>();
 
 
     public String getState() { return state; }

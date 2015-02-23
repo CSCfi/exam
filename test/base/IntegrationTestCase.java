@@ -146,35 +146,11 @@ public class IntegrationTestCase {
     }
 
     protected void assertPathsExist(JsonNode node, String... paths) {
-        Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
-        for (String path : paths) {
-            try {
-                Object object = JsonPath.read(document, path);
-                if (isIndefinite(path)) {
-                    Collection c = (Collection) object;
-                    assertThat(c).isNotEmpty();
-                }
-            } catch (PathNotFoundException e) {
-                Assert.fail("Path not found: " + path);
-            }
-        }
+        assertPaths(node, true, paths);
     }
 
     protected void assertPathsDoNotExist(JsonNode node, String... paths) {
-        Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
-        for (String path : paths) {
-            try {
-                Object result = JsonPath.read(document, path);
-                if (isIndefinite(path)) {
-                    Collection c = (Collection) result;
-                    assertThat(c).isEmpty();
-                } else {
-                    Assert.fail("Expected path not to be found: " + path);
-                }
-            } catch (PathNotFoundException e) {
-                // OK
-            }
-        }
+        assertPaths(node, false, paths);
     }
 
     protected void assertPathCounts(JsonNode node, int count, String... paths) {
@@ -200,6 +176,26 @@ public class IntegrationTestCase {
             }
         }
         return results.toArray(new String[results.size()]);
+    }
+
+    private void assertPaths(JsonNode node, boolean shouldExist, String ... paths) {
+        Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
+        for (String path : paths) {
+            try {
+                Object object = JsonPath.read(document, path);
+                if (isIndefinite(path)) {
+                    Collection c = (Collection) object;
+                    assertThat(c.isEmpty()).isNotEqualTo(shouldExist);
+                }
+                else if (!shouldExist) {
+                    Assert.fail("Expected path not to be found: " + path);
+                }
+            } catch (PathNotFoundException e) {
+                if (shouldExist) {
+                    Assert.fail("Path not found: " + path);
+                }
+            }
+        }
     }
 
     private boolean isIndefinite(String path) {
