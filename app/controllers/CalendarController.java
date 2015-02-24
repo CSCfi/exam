@@ -28,6 +28,7 @@ public class CalendarController extends SitnetController {
     public static Result removeReservation(long id) throws NotFoundException {
         User user = UserController.getLoggedUser();
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
                 .eq("reservation.id", id)
