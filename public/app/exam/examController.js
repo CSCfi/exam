@@ -51,13 +51,9 @@
                     }
                 };
 
-                // Todo: Fill in durations from database for final version
-                $scope.examDurations = [
-                    "45",
-                    "90",
-                    "110",
-                    "180"
-                ];
+                SettingsResource.examDurations.get(function(data) {
+                    $scope.examDurations = data.examDurations;
+                });
 
                 // Todo: Fill in gradings from database for final version
                 $scope.examGradings = [

@@ -14,11 +14,9 @@
                     {
                         "update": { method: 'PUT'}
                     }),
-                hostname: $resource(
-                    "/settings/hostname", null,
-                    {
-                        "get": { method: 'GET'}
-                    })
+                hostname: $resource("/settings/hostname"),
+                examDurations: $resource("/settings/durations"
+                )
             }
         }]);
 }());
