@@ -149,7 +149,7 @@
 
     <body ng-controller="SessionCtrl">
         <div ng-controller="NavigationCtrl">
-            <div ng-hide="doExam" ng-hide="loggedOut" id="vmenu">
+            <div ng-hide="examStarted" id="vmenu">
                 @*Logo*@
                 <div class="logo">
                     <div ng-hide="minimizeNavigation">
@@ -222,7 +222,7 @@
                 </div>
             </div>
             @*App content*@
-            <div class="container-fluid" ng-class="doExam ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
+            <div class="container-fluid" ng-class="examStarted ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
                 <div ng-view />
             </div>
         </div>
