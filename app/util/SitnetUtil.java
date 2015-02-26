@@ -18,6 +18,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,15 @@ public class SitnetUtil {
 
     public static String getHostName() {
         return ConfigFactory.load().getString("sitnet.application.hostname");
+    }
+
+    public static List<Integer> getExamDurations() {
+        String[] durations = ConfigFactory.load().getString("sitnet.exam.durations").split(",");
+        List<Integer> values = new ArrayList<>();
+        for (String d : durations) {
+            values.add(Integer.parseInt(d));
+        }
+        return values;
     }
 
     public static DateTimeZone getDefaultTimeZone() {

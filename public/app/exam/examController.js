@@ -51,13 +51,9 @@
                     }
                 };
 
-                // Todo: Fill in durations from database for final version
-                $scope.examDurations = [
-                    "45",
-                    "90",
-                    "110",
-                    "180"
-                ];
+                SettingsResource.examDurations.get(function(data) {
+                    $scope.examDurations = data.examDurations;
+                });
 
                 // Todo: Fill in gradings from database for final version
                 $scope.examGradings = [
@@ -705,7 +701,7 @@
 
                 $scope.updateLotteryCount = function (section) {
 
-                    if (section.lotteryItemCount === undefined || section.lotteryItemCount == 0) {
+                    if (!section.lotteryItemCount) {
                         toastr.warning($translate("sitnet_warn_lottery_count"));
                         section.lotteryItemCount = section.lotteryItemCount === undefined || section.lotteryItemCount == 0 ? 1 : section.sectionQuestions.length;
                     }

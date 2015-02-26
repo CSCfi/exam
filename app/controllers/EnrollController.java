@@ -106,14 +106,24 @@ public class EnrollController extends Controller {
                 .fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
+                // either exam ID matches OR (exam parent ID matches AND exam is started by student)
+                .disjunction()
                 .eq("exam.id", exam.getId())
+                .disjunction()
+                .conjunction()
+                .eq("exam.parent.id", exam.getId())
+                .eq("exam.state", Exam.State.STUDENT_STARTED.toString())
+                .endJunction()
+                .endJunction()
+                .endJunction()
                 .findUnique();
 
         // remove old one
         if (enrolment != null) {
+            // Removal not permitted if reservation is in the past or if exam is already started
             Reservation reservation = enrolment.getReservation();
-            // Check that user has no ongoing reservation for this enrolment
-            if (reservation != null && reservation.toInterval().contains(DateTime.now())) {
+            if (enrolment.getExam().getState().equals(Exam.State.STUDENT_STARTED.toString()) ||
+                    (reservation != null && reservation.toInterval().isBefore(DateTime.now()))) {
                 return forbidden("sitnet_reservation_in_effect");
             }
             enrolment.delete();

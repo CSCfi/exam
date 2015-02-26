@@ -64,7 +64,7 @@
                 </div>
 
                 <!-- New tag -->
-                <div class="row">
+                <div class="row" ng-show="!newQuestion.parent">
                     <div class="form-group col-md-3">
                         <label class="sitnet-info-text" for="newTag">{{'sitnet_tag_question' | translate}}</label>
                         <div ng-controller="TagTypeaheadCtrl">
@@ -104,10 +104,17 @@
                         <div class="row">
                             <div class="col-md-2 sitnet-info-text-compact">{{'Liitetty kategorioihin' | translate}}:
                             </div>
-                            <div class="col-md-10">
+                            <div ng-show="newQuestion.parent" class="col-md-10">
+                                <div ng-repeat="tag in newQuestion.parent.tags">
+                                    <span class="sitnet-badge pull-left inline">
+                                        {{ tag.name }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div ng-hide="newQuestion.parent" class="col-md-10">
                                 <div ng-repeat="tag in newQuestion.tags">
-                                    <span class="pointer sitnet-badge pull-left inline" popover-placement="top"
-                                          popover-popup-delay="500" popover-trigger="mouseenter"
+                                    <span class="pointer sitnet-badge pull-left inline"
+                                          popover-placement="top" popover-popup-delay="500" popover-trigger="mouseenter"
                                           popover="{{ 'sitnet_remove' | translate }}" ng-click="removeTag(tag)">
                                         {{ tag.name }}
                                     </span>

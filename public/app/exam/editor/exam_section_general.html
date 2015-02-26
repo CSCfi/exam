@@ -65,6 +65,7 @@
         </div>
     </div>
 
+    <!-- Course -->
     <div class="row">
         <div ng-include="selectCourseTemplate" ng-model="selectCourseTemplate"></div>
     </div>
@@ -99,15 +100,8 @@
             <div class="sitnet-info-text">{{'sitnet_exam_duration' | translate}} ({{'sitnet_minutes' | translate}}):
             </div>
             <div class="input-group">
-                <button class="btn btn-default" ng-class="checkDuration(45)" ng-click="setExamDuration(45)">45</button>
-                &nbsp;
-                <button class="btn btn-default" ng-class="checkDuration(90)" ng-click="setExamDuration(90)">90</button>
-                &nbsp;
-                <button class="btn btn-default" ng-class="checkDuration(110)" ng-click="setExamDuration(110)">110
-                </button>
-                &nbsp;
-                <button class="btn btn-default" ng-class="checkDuration(180)" ng-click="setExamDuration(180)">180
-                </button>
+                <button ng-repeat="duration in examDurations" class="btn btn-default exam-duration-btn"
+                        ng-class="checkDuration(duration)" ng-click="setExamDuration(duration)">{{duration}}</button>
             </div>
         </div>
 

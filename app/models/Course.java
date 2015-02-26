@@ -67,6 +67,9 @@ public class Course extends Model {
     @JsonBackReference
     private List<Exam> exams = new ArrayList<>();
 
+    @ManyToOne
+    private Organisation organisation;
+
     public Course() {
 
     }
@@ -233,6 +236,14 @@ public class Course extends Model {
 
     public void setExams(List<Exam> exams) {
         this.exams = exams;
+    }
+
+    public Organisation getOrganisation() {
+        return organisation;
+    }
+
+    public void setOrganisation(Organisation organisation) {
+        this.organisation = organisation;
     }
 
     @Override

@@ -38,7 +38,7 @@ public class EssayQuestion extends AbstractQuestion {
     @Override
     public EssayQuestion copy() {
         EssayQuestion question = new EssayQuestion();
-        BeanUtils.copyProperties(this, question, new String[] {"id"});
+        BeanUtils.copyProperties(this, question, new String[] {"id", "tags"});
         question.setParent(this);
         return question;
     }

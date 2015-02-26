@@ -173,15 +173,16 @@ public class SessionController extends SitnetController {
     }
 
     static private Role getRole(String affiliation) {
+        List<String> affiliations = Arrays.asList(affiliation.split(";"));
 
         Map<String, List<String>> roles = getRoles();
         String roleName = null;
-        if (roles.get("STUDENT").contains(affiliation)) {
+        if (!Collections.disjoint(affiliations, roles.get("STUDENT"))) {
             roleName = "STUDENT";
-        } else if (roles.get("ADMIN").contains(affiliation)) {
-            roleName = "ADMIN";
-        } else if (roles.get("TEACHER").contains(affiliation)) {
+        } else if (!Collections.disjoint(affiliations, roles.get("TEACHER"))) {
             roleName = "TEACHER";
+        } else if (!Collections.disjoint(affiliations, roles.get("ADMIN"))) {
+            roleName = "ADMIN";
         }
         return roleName == null ? null : Ebean.find(SitnetRole.class)
                 .where()
@@ -197,20 +198,20 @@ public class SessionController extends SitnetController {
         Map<String, List<String>> roles = new HashMap<>();
 
         List<String> studentRoles = new ArrayList<>();
-        for (int i = 0; i < students.length; i++) {
-            studentRoles.add(students[i].trim());
+        for (String student : students) {
+            studentRoles.add(student.trim());
         }
         roles.put("STUDENT", studentRoles);
 
         List<String> teacherRoles = new ArrayList<>();
-        for (int i = 0; i < teachers.length; i++) {
-            teacherRoles.add(teachers[i].trim());
+        for (String teacher : teachers) {
+            teacherRoles.add(teacher.trim());
         }
         roles.put("TEACHER", teacherRoles);
 
         List<String> adminRoles = new ArrayList<>();
-        for (int i = 0; i < admins.length; i++) {
-            adminRoles.add(admins[i].trim());
+        for (String admin : admins) {
+            adminRoles.add(admin.trim());
         }
         roles.put("ADMIN", adminRoles);
 

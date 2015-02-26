@@ -1,7 +1,7 @@
-<div class="col-md-12">
+<div class="col-md-12" ng-controller="CourseTypeaheadCtrl">
     <div class="sitnet-info-text col-md-12 row">{{'sitnet_course' | translate}}:</div>
     <div class="col-md-12 section-border">
-        <div class="row" ng-controller="CourseTypeaheadCtrl">
+        <div class="row">
 
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
@@ -58,7 +58,7 @@
                 <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}:</div>
                 <div class="input-group">
                     <input disabled type="text" class="form-control ng-pristine ng-valid"
-                           ng-model="newExam.course.institutionName"
+                           ng-model="newExam.course.organisation.name"
                            ui-change="updateExam()">
                             <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
                                 <i class="fa fa-question-circle fa-fw"></i>

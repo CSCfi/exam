@@ -1,8 +1,8 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('WaitingRoomCtrl', ['$scope', '$timeout', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
-            function($scope, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
+        .controller('WaitingRoomCtrl', ['$scope', '$http', '$timeout', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
+            function($scope, $http, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
 
                 var user = sessionService.getUser();
 
@@ -57,6 +57,9 @@
                 $scope.getUsername = function() {
                     return sessionService.getUserName();
                 };
+
+                // This is just to get page refresh to route us back here
+                $http.get('/checkSession');
 
             }]);
 }());
