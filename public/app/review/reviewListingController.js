@@ -21,7 +21,11 @@
                 };
 
                 ExamRes.exams.get({id: $routeParams.id}, function (exam) {
-                    $scope.examInfo = exam.course.code + " " + exam.name;
+                    if(exam.course && exam.course.code) {
+                        $scope.examInfo = exam.course.code + " " + exam.name;
+                    } else {
+                        $scope.examInfo = exam.name;
+                    }
                 });
 
                 var parseDurations = function (reviews) {

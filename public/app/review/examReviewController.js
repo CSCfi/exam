@@ -414,7 +414,7 @@
                 };
 
                 $scope.toggleFeedbackHiding = function (hidden) {
-                    if (hidden && $scope.examToBeReviewed.examFeedback.comment) {
+                    if (hidden) {
                         $scope.saveFeedback();
                     }
                     return !hidden;

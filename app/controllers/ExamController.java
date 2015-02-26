@@ -241,7 +241,7 @@ public class ExamController extends SitnetController {
         options.setPathProperties("creator", "id, firstName, lastName");
         options.setPathProperties("parent", "id, creator");
         options.setPathProperties("parent.creator", "id, firstName, lastName");
-        options.setPathProperties("course", "id, code, name, level, courseUnitType, credits, institutionName, department, organisation");
+        options.setPathProperties("course", "id, code, name, level, courseUnitType, credits, institutionName, department, organisation, gradeScale");
         options.setPathProperties("course.organisation", "id, name");
         options.setPathProperties("room", "id, name");
         options.setPathProperties("softwares", "id, name");
@@ -445,7 +445,11 @@ public class ExamController extends SitnetController {
         }
 
         SitnetUtil.setCreator(comment);
-        comment.setComment(bindComment.getComment());
+        if(bindComment.getComment() != null) {
+            comment.setComment(bindComment.getComment());
+        } else {
+            comment.setComment("");
+        }
         comment.save();
 
         Exam exam = Ebean.find(Exam.class, eid);
