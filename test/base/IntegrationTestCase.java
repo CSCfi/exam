@@ -25,18 +25,28 @@ import util.SitnetUtil;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.*;
 
 public class IntegrationTestCase {
 
-    private static FakeApplication app;
+    protected static FakeApplication app;
     protected String sessionToken;
     protected Long userId;
+
+    private static final Map<String, String> HAKA_HEADERS = new HashMap<String, String>();
+    static {
+        HAKA_HEADERS.put("displayName", "George");
+        HAKA_HEADERS.put("eppn", "george.lazenby@funet.fi");
+        HAKA_HEADERS.put("sn", "Lazenby");
+        HAKA_HEADERS.put("preferredLanguage", "fi");
+        HAKA_HEADERS.put("Shib-Session-ID", "_5d9a583a894275c15edef02c5602c4d7");
+        HAKA_HEADERS.put("mail", "glazenby@funet.fi");
+        HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
+    }
+
 
     @Rule
     public TestName currentTest = new TestName();
@@ -52,8 +62,12 @@ public class IntegrationTestCase {
         }
     }
 
-    public static void startApp() {
-        Config config = ConfigFactory.parseFile(new File("conf/integrationtest.conf"));
+    protected String getConfigFile() {
+        return "conf/integrationtest.conf";
+    }
+
+    protected void startApp() {
+        Config config = ConfigFactory.parseFile(new File(getConfigFile()));
         app = fakeApplication(new play.Configuration(config).asMap());
         start(app);
     }
@@ -106,7 +120,14 @@ public class IntegrationTestCase {
     }
 
     protected Result request(String method, String path, JsonNode body) {
+        return request(method, path, body, Collections.<String, String>emptyMap());
+    }
+
+    protected Result request(String method, String path, JsonNode body, Map<String, String> headers) {
         FakeRequest request = fakeRequest(method, path);
+        for (Map.Entry<String, String> header : headers.entrySet()) {
+            request = request.withHeader(header.getKey(), header.getValue());
+        }
         if (body != null && !method.equals(Helpers.GET)) {
             request = request.withJsonBody(body, method);
         }
@@ -117,20 +138,19 @@ public class IntegrationTestCase {
     }
 
     protected void loginAsStudent() {
-        login("saulistu", "saulistu");
+        login("saulistu@funet.fi");
     }
 
     protected void loginAsTeacher() {
-        login("maikaope", "maikaope");
+        login("maikaope@funet.fi");
     }
 
-    protected void loginAsAdmin() {
-        login("sitnetad", "sitnetad");
-    }
+    protected void loginAsAdmin() { login("sitnetad@funet.fi"); }
 
-    protected void login(String username, String password) {
+    protected void login(String eppn) {
+        HAKA_HEADERS.put("eppn", eppn);
         Result result = request(Helpers.POST, "/login",
-                Json.newObject().put("username", username).put("password", password));
+                Json.newObject().put("username", "").put("password", ""), HAKA_HEADERS);
         assertThat(status(result)).isEqualTo(200);
         JsonNode user = Json.parse(contentAsString(result));
         sessionToken = user.get("token").asText();
