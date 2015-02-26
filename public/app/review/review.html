@@ -73,38 +73,5 @@
         </div>
     </div>
 
-    <!-- Bottom toolbar -->
-    <div class="detail-row">
-        <div class="col-md-12">
-            <span ng-show="!isReadOnly">
-                <!-- do not enable this if already graded and form has errors! -->
-                <button ng-disabled="isGraded && ( !examForm.$valid || !isCreator() )"
-                        ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
-                    {{'sitnet_save' | translate}}
-                </button>
-            </span>
-            <span ng-show="isReadOnly || (!isCreator() && isGraded)" class="row">
-                <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="row">
-                    <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
-                </a>
-            </span>
-        </div>
-    </div>
-    <div class="main-row">
-        <div class="col-md-4 form-group">
-            <label for="infoForRegistry">{{'sitnet_additional_info_for_registry' | translate}}:</label>
-            <textarea id="infoForRegistry" class="form-control" ng-model="$parent.additionalInfo" rows="3"
-                      ng-disabled="isReadOnly || !isGraded || !isCreator() || !examForm.$valid">
-            </textarea>
-        </div>
-    </div>
-    <div class="bottom-row">
-        <div class="col-md-12">
-            <input type="button" class="btn btn-primary btn-sm"
-                   ng-disabled="isReadOnly || !isGraded || !isCreator() || !examForm.$valid"
-                   ng-click="saveExamRecord(examToBeReviewed)"
-                   value="{{'sitnet_send_result_to_registry' | translate}}"
-                    />
-        </div>
-    </div>
+
 </div>
