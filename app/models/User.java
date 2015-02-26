@@ -36,6 +36,8 @@ public class User extends Model implements Subject {
 
     private String password;
 
+    private String employeeNumber;
+
     @ManyToMany(cascade = CascadeType.ALL)
     private List<SitnetRole> roles = new ArrayList<>();
 
@@ -73,6 +75,14 @@ public class User extends Model implements Subject {
 
     public void setHasAcceptedUserAgreament(boolean hasAcceptedUserAgreament) {
         this.hasAcceptedUserAgreament = hasAcceptedUserAgreament;
+    }
+
+    public String getEmployeeNumber() {
+        return employeeNumber;
+    }
+
+    public void setEmployeeNumber(String employeeNumber) {
+        this.employeeNumber = employeeNumber;
     }
 
     public String getUserIdentifier() {

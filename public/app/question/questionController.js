@@ -25,6 +25,11 @@
 
                 var qid = $routeParams.editId || $routeParams.id;
 
+                function isInArray(array, search) {
+                    return array.indexOf(search) >= 0;
+                }
+
+
                 QuestionRes.questions.get({id: qid},
                     function (question) {
                         $scope.newQuestion = question;
@@ -34,7 +39,6 @@
                         }
 
                         if ($routeParams.examId) {
-
                             ExamRes.exams.get({id: $routeParams.examId},
                                 function (exam) {
 
@@ -43,13 +47,17 @@
                                         if (exam.course != undefined && exam.course.code != undefined) {
                                             code = " (" + exam.course.code + ")";
                                         }
-                                        $scope.examNames.push(exam.name + code);
+                                        if(! isInArray($scope.examNames , exam.name + code)) {
+                                            $scope.examNames .push(exam.name + code);
+                                        }
                                     }
                                     if (exam.examSections && exam.examSections.length > 0) {
 
                                         angular.forEach(exam.examSections, function (section) {
                                             if (section.id == $routeParams.sectionId) {
-                                                $scope.sectionNames.push(section.name);
+                                                if(! isInArray($scope.sectionNames, section.name)) {
+                                                    $scope.sectionNames.push(section.name);
+                                                }
                                             }
                                         });
                                     }
@@ -58,18 +66,21 @@
                                     toastr.error(error.data);
                                 }
                             );
+
                         } else {
                             QuestionRes.metadata.get({id: qid}, function (result) {
 
                                     angular.forEach(result, function (question) {
-                                        if (question.examSectionQuestion.examSection.exam.name && $scope.examNames.indexOf(question.examSectionQuestion.examSection.exam.name) === -1) {
+                                        if (question.examSectionQuestion.examSection.exam.name && ! isInArray($scope.examNames, question.examSectionQuestion.examSection.exam.name)) {
                                             var code = "";
                                             if (question.examSectionQuestion.examSection.exam.course != undefined && question.examSectionQuestion.examSection.exam.course.code != undefined) {
                                                 code = " (" + question.examSectionQuestion.examSection.exam.course.code + ")";
                                             }
-                                            $scope.examNames.push(question.examSectionQuestion.examSection.exam.name + code);
+                                            if(! isInArray($scope.examNames , question.examSectionQuestion.examSection.exam.name + code)) {
+                                                $scope.examNames.push(question.examSectionQuestion.examSection.exam.name + code);
+                                            }
                                         }
-                                        if (question.examSectionQuestion.examSection.name && $scope.sectionNames.indexOf(question.examSectionQuestion.examSection.name) === -1) {
+                                        if(! isInArray($scope.sectionNames, question.examSectionQuestion.examSection.name)) {
                                             $scope.sectionNames.push(question.examSectionQuestion.examSection.name);
                                         }
                                     });

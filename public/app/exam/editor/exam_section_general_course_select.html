@@ -66,6 +66,12 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="col-md-12 row sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
+                <div class="col-md-12 row">{{newExam.course.gradeScale}}</div>
+            </div>
+        </div>
         <div class="row" ng-hide="newExam.course === undefined">
             <div class="row col-md-12">
                 <div class="sitnet-info-text col-md-12">{{'sitnet_enrolment_url' | translate}}:</div>

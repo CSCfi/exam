@@ -36,7 +36,7 @@
 
                     ngModel.$render = function (value) {
                         tmp = ngModel.$modelValue;
-                        ck.setData(ngModel.$viewValue);
+                        //ck.setData(ngModel.$viewValue);
                     };
                 }
             };

@@ -65,6 +65,10 @@ public class SessionController extends SitnetController {
                         user.setUserIdentifier(request().getHeader("schacPersonalUniqueCode"));
                     }
 
+                    if (request().getHeader("employeeNumber") != null) {
+                        user.setEmployeeNumber(request().getHeader("employeeNumber"));
+                    }
+
                     String email = toUtf8(request().getHeader("mail"));
                     user.setEmail(email);
                     user.save();
@@ -83,6 +87,10 @@ public class SessionController extends SitnetController {
                     user.setEmail(email);
                     user.setLastName(toUtf8(request().getHeader("sn")));
                     user.setFirstName(toUtf8(request().getHeader("displayName")));
+
+                    if (request().getHeader("employeeNumber") != null) {
+                        user.setEmployeeNumber(request().getHeader("employeeNumber"));
+                    }
 
                     UserLanguage language = null;
                     String languageCode = toUtf8(request().getHeader("preferredLanguage"));
