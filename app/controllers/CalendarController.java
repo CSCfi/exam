@@ -36,9 +36,10 @@ public class CalendarController extends SitnetController {
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
+        // Removal not permitted if reservation is in the past or if exam is already started
         Reservation reservation = enrolment.getReservation();
-        if (reservation != null && reservation.toInterval().isBefore(DateTime.now())) {
-            // Reservation is already in effect, too late to modify it
+        if (enrolment.getExam().getState().equals(Exam.State.STUDENT_STARTED.toString()) ||
+                (reservation != null && reservation.toInterval().isBefore(DateTime.now()))) {
             return forbidden("sitnet_reservation_in_effect");
         }
 
@@ -71,6 +72,7 @@ public class CalendarController extends SitnetController {
         User user = UserController.getLoggedUser();
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
                 .eq("exam.id", examId)
@@ -78,9 +80,10 @@ public class CalendarController extends SitnetController {
         if (enrolment == null) {
             return badRequest("sitnet_error_enrolment_not_found");
         }
+        // Removal not permitted if reservation is in the past or if exam is already started
         Reservation oldReservation = enrolment.getReservation();
-        if (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now())) {
-            // Reservation is already in effect, too late to modify it
+        if (enrolment.getExam().getState().equals(Exam.State.STUDENT_STARTED.toString()) ||
+                (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))) {
             return forbidden("sitnet_reservation_in_effect");
         }
 

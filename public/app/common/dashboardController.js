@@ -115,6 +115,8 @@
                         $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
                             delete enrolment.reservation;
                             toastr.success("ok");
+                        }).error(function(msg) {
+                            toastr.error(msg);
                         });
                     }
                 };
