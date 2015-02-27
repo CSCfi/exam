@@ -1,0 +1,268 @@
+package controllers;
+
+import base.IntegrationTestCase;
+import base.RunAsStudent;
+import com.avaje.ebean.Ebean;
+import models.*;
+import org.joda.time.DateTime;
+import org.junit.Before;
+import org.junit.Test;
+import play.libs.Json;
+import play.mvc.Result;
+import play.test.Helpers;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.status;
+
+
+public class CalendarControllerTest extends IntegrationTestCase {
+
+    private Exam exam;
+    private User user;
+
+    private ExamEnrolment enrolment;
+    private ExamRoom room;
+    private Reservation reservation;
+
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
+        exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED.toString()).findList().get(0);
+        user = Ebean.find(User.class, userId);
+        room = Ebean.find(ExamRoom.class, 1L);
+        enrolment = new ExamEnrolment();
+        enrolment.setExam(exam);
+        enrolment.setUser(user);
+        enrolment.save();
+
+        reservation = new Reservation();
+        reservation.setUser(user);
+    }
+
+    @Test
+    @RunAsStudent
+    public void testCreateReservation() throws Exception {
+        // Setup
+        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
+        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+
+        // Execute
+        Result result = request(Helpers.POST, "/calendar/reservation",
+                Json.newObject().put("roomId", room.getId())
+                        .put("examId", exam.getId())
+                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
+                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+        assertThat(status(result)).isEqualTo(200);
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
+        assertThat(ee.getReservation()).isNotNull();
+        assertThat(ee.getReservation().getStartAt()).isEqualTo(start);
+        assertThat(ee.getReservation().getEndAt()).isEqualTo(end);
+        assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
+        assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
+    }
+
+    @Test
+    @RunAsStudent
+    public void testCreateReservationPreviousInFuture() throws Exception {
+        // Setup
+        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
+        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+
+        reservation.setStartAt(DateTime.now().plusMinutes(10).toDate());
+        reservation.setEndAt(DateTime.now().plusMinutes(20).toDate());
+        reservation.save();
+        enrolment.setReservation(reservation);
+        enrolment.update();
+
+        // Execute
+        Result result = request(Helpers.POST, "/calendar/reservation",
+                Json.newObject().put("roomId", room.getId())
+                        .put("examId", exam.getId())
+                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
+                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+        assertThat(status(result)).isEqualTo(200);
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
+        assertThat(ee.getReservation()).isNotNull();
+        assertThat(ee.getReservation().getStartAt()).isEqualTo(start);
+        assertThat(ee.getReservation().getEndAt()).isEqualTo(end);
+        assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
+        assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
+    }
+
+    @Test
+    @RunAsStudent
+    public void testCreateReservationPreviousInPast() throws Exception {
+        // Setup
+        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
+        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+
+        reservation.setStartAt(DateTime.now().minusMinutes(30).toDate());
+        reservation.setEndAt(DateTime.now().minusMinutes(5).toDate());
+        reservation.save();
+        enrolment.setReservation(reservation);
+        enrolment.update();
+
+        ExamEnrolment newEnrolment = new ExamEnrolment();
+        Date enrolledOn = new Date();
+        newEnrolment.setEnrolledOn(enrolledOn);
+        newEnrolment.setExam(exam);
+        newEnrolment.setUser(user);
+        newEnrolment.save();
+
+        // Execute
+        Result result = request(Helpers.POST, "/calendar/reservation",
+                Json.newObject().put("roomId", room.getId())
+                        .put("examId", exam.getId())
+                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
+                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+        assertThat(status(result)).isEqualTo(200);
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, newEnrolment.getId());
+        assertThat(ee.getReservation()).isNotNull();
+        assertThat(ee.getReservation().getStartAt()).isEqualTo(start);
+        assertThat(ee.getReservation().getEndAt()).isEqualTo(end);
+        assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
+        assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
+    }
+
+
+    @Test
+    @RunAsStudent
+    public void testCreateReservationStartIsPast() throws Exception {
+        // Setup
+        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).minusHours(1).toDate();
+        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+
+        // Execute
+        Result result = request(Helpers.POST, "/calendar/reservation",
+                Json.newObject().put("roomId", room.getId())
+                        .put("examId", exam.getId())
+                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
+                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+        assertThat(status(result)).isEqualTo(400);
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
+        assertThat(ee.getReservation()).isNull();
+    }
+
+    @Test
+    @RunAsStudent
+    public void testCreateReservationEndsBeforeStarts() throws Exception {
+        // Setup
+        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
+
+        // Execute
+        Result result = request(Helpers.POST, "/calendar/reservation",
+                Json.newObject().put("roomId", room.getId())
+                        .put("examId", exam.getId())
+                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
+                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+        assertThat(status(result)).isEqualTo(400);
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
+        assertThat(ee.getReservation()).isNull();
+    }
+
+    @Test
+    @RunAsStudent
+    public void testCreateReservationPreviousInEffect() throws Exception {
+        // Setup
+        Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
+        Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
+
+        reservation.setStartAt(DateTime.now().minusMinutes(10).toDate());
+        reservation.setEndAt(DateTime.now().plusMinutes(10).toDate());
+        reservation.save();
+        enrolment.setReservation(reservation);
+        enrolment.update();
+
+        // Execute
+        Result result = request(Helpers.POST, "/calendar/reservation",
+                Json.newObject().put("roomId", room.getId())
+                        .put("examId", exam.getId())
+                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
+                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+        assertThat(status(result)).isEqualTo(403);
+        assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
+        assertThat(ee.getReservation().getId()).isEqualTo(reservation.getId());
+    }
+
+    @Test
+    @RunAsStudent
+    public void testRemoveReservation() throws Exception {
+
+        // Setup
+        reservation.setStartAt(DateTime.now().plusHours(1).toDate());
+        reservation.setEndAt(DateTime.now().plusHours(2).toDate());
+        reservation.save();
+        enrolment.setReservation(reservation);
+        enrolment.update();
+
+        // Execute
+        Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
+        assertThat(status(result)).isEqualTo(200);
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
+        assertThat(ee.getReservation()).isNull();
+        assertThat(Ebean.find(Reservation.class, reservation.getId())).isNull();
+    }
+
+    @Test
+    @RunAsStudent
+    public void testRemoveReservationInPast() throws Exception {
+
+        // Setup
+        reservation.setStartAt(DateTime.now().minusHours(2).toDate());
+        reservation.setEndAt(DateTime.now().minusHours(1).toDate());
+        reservation.save();
+        enrolment.setReservation(reservation);
+        enrolment.update();
+
+        // Execute
+        Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
+        assertThat(status(result)).isEqualTo(403);
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
+        assertThat(ee.getReservation().getId()).isEqualTo(reservation.getId());
+    }
+
+    @Test
+    @RunAsStudent
+    public void testRemoveReservationInProgress() throws Exception {
+
+        // Setup
+        reservation.setStartAt(DateTime.now().minusHours(1).toDate());
+        reservation.setEndAt(DateTime.now().plusHours(1).toDate());
+        reservation.save();
+        enrolment.setReservation(reservation);
+        enrolment.update();
+
+        // Execute
+        Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
+        assertThat(status(result)).isEqualTo(403);
+
+        // Verify
+        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
+        assertThat(ee.getReservation().getId()).isEqualTo(reservation.getId());
+    }
+
+}

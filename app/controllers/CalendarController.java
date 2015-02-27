@@ -55,18 +55,23 @@ public class CalendarController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result createReservation() { // TODO: needless checks?
+    public static Result createReservation() {
         // Parse request body
         JsonNode json = request().body().asJson();
         Long roomId = json.get("roomId").asLong();
         Long examId = json.get("examId").asLong();
-        Iterator<JsonNode> it = json.get("aids").elements();
         Set<Integer> aids = new HashSet<>();
-        while (it.hasNext()) {
-            aids.add(it.next().asInt());
+        if (json.has("aids")) {
+            Iterator<JsonNode> it = json.get("aids").elements();
+            while (it.hasNext()) {
+                aids.add(it.next().asInt());
+            }
         }
         DateTime start = DateTime.parse(json.get("start").asText(), dateTimeFormat);
         DateTime end = DateTime.parse(json.get("end").asText(), dateTimeFormat);
+        if (start.isBeforeNow() || end.isBefore(start)) {
+            return badRequest("invalid dates");
+        }
 
         User user = UserController.getLoggedUser();
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
@@ -82,8 +87,9 @@ public class CalendarController extends SitnetController {
                 .endJunction()
                 .findUnique();
         if (enrolment == null) {
-            return badRequest("sitnet_error_enrolment_not_found");
+            return forbidden("sitnet_error_enrolment_not_found");
         }
+        // no previous reservation or it's in the future
         // Removal not permitted if reservation is in the past or if exam is already started
         Reservation oldReservation = enrolment.getReservation();
         if (enrolment.getExam().getState().equals(Exam.State.STUDENT_STARTED.toString()) ||
@@ -93,7 +99,7 @@ public class CalendarController extends SitnetController {
 
         ExamMachine machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
         if (machine == null) {
-            return notFound("sitnet_no_machines_available");
+            return forbidden("sitnet_no_machines_available");
         }
 
         Reservation reservation = new Reservation();

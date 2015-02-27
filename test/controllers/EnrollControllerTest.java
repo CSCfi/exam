@@ -17,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.status;
 
 
@@ -67,6 +68,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST,
                 String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
         assertThat(status(result)).isEqualTo(403);
+        assertThat(contentAsString(result)).isEqualTo("sitnet_error_enrolment_exists");
 
         // Verify
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
@@ -117,7 +119,8 @@ public class EnrollControllerTest extends IntegrationTestCase {
         // Execute
         Result result = request(Helpers.POST,
                 String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
-        assertThat(status(result)).isEqualTo(403);
+        assertThat(status(result)).isEqualTo(403); // Not found
+        assertThat(contentAsString(result)).isEqualTo("sitnet_reservation_in_effect");
 
         // Verify
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
