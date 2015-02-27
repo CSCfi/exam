@@ -12,7 +12,7 @@
                 <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
                 <div class="input-group">
                     <input type="text" class="form-control ng-pristine ng-valid"
-                           ng-model="newExam.course.name" ui-change="updateExam()"
+                           ng-model="newExam.course.name"
                            placeholder="{{'sitnet_course_name' | translate}}"
                            typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
                            typeahead="c as c.name for c in getCourses('name', $viewValue)"
@@ -51,8 +51,7 @@
                 <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}:</div>
                 <div class="input-group">
                     <!-- placeholder="opintopistettä" -->
-                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits"
-                           ui-change="updateExam()">
+                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits">
                             <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
                                 <i class="fa fa-question-circle fa-fw"></i>
                             </span>
@@ -63,8 +62,7 @@
                 <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}:</div>
                 <div class="input-group">
                     <input disabled type="text" class="form-control ng-pristine ng-valid"
-                           ng-model="newExam.course.organisation.name"
-                           ui-change="updateExam()">
+                           ng-model="newExam.course.organisation.name">
                             <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
                                 <i class="fa fa-question-circle fa-fw"></i>
                             </span>
