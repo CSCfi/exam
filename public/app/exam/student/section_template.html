@@ -4,7 +4,7 @@
     </div>
     <div ng-show="!guide">
         <div class="{{sectionQuestion.question.selectedAnsweredState}} col-md-12 info-row"
-             ng-repeat="sectionQuestion in activeSection.sectionQuestions" ng-init="setQuestionColors(sectionQuestion.question);">
+             ng-repeat="sectionQuestion in activeSection.sectionQuestions" ng-init="setQuestionColors(sectionQuestion.question); sectionQuestion.question.expanded = false;">
 
             <div ng-model="sectionQuestion.question">
                 <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion.question);" class="fa-stack fa-lg pointer pull-left col-md-1">
