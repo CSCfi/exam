@@ -5,8 +5,9 @@
             return {
                 require: '?ngModel',
                 link: function (scope, elm, attr, ngModel) {
-                    var ck = CKEDITOR.replace(elm[0]);
                     var tmp;
+
+                    var ck = CKEDITOR.replace(elm[0]);
 
                     if (!ngModel) {
                         return;
@@ -14,9 +15,7 @@
 
                     ck.on('instanceReady', function () {
                         ck.setData(tmp);
-                        //ck.setData(ngModel.$viewValue);
                     });
-
 
                     function updateModel() {
                         scope.$apply(function () {
@@ -36,7 +35,7 @@
 
                     ngModel.$render = function (value) {
                         tmp = ngModel.$modelValue;
-                        //ck.setData(ngModel.$viewValue);
+                        ck.setData(ngModel.$viewValue);
                     };
                 }
             };
