@@ -1,10 +1,10 @@
 package controllers;
 
-import exceptions.NotFoundException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -36,10 +36,9 @@ public class CalendarController extends SitnetController {
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
-        // Removal not permitted if reservation is in the past or if exam is already started
+        // Removal not permitted if reservation is in the past or ongoing
         Reservation reservation = enrolment.getReservation();
-        if (enrolment.getExam().getState().equals(Exam.State.STUDENT_STARTED.toString()) ||
-                (reservation != null && reservation.toInterval().isBefore(DateTime.now()))) {
+        if (reservation.toInterval().isBeforeNow() || reservation.toInterval().containsNow()) {
             return forbidden("sitnet_reservation_in_effect");
         }
 
@@ -56,7 +55,7 @@ public class CalendarController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result createReservation() {
+    public static Result createReservation() { // TODO: needless checks?
         // Parse request body
         JsonNode json = request().body().asJson();
         Long roomId = json.get("roomId").asLong();
@@ -64,7 +63,7 @@ public class CalendarController extends SitnetController {
         Iterator<JsonNode> it = json.get("aids").elements();
         Set<Integer> aids = new HashSet<>();
         while (it.hasNext()) {
-               aids.add(it.next().asInt());
+            aids.add(it.next().asInt());
         }
         DateTime start = DateTime.parse(json.get("start").asText(), dateTimeFormat);
         DateTime end = DateTime.parse(json.get("end").asText(), dateTimeFormat);
@@ -76,6 +75,11 @@ public class CalendarController extends SitnetController {
                 .where()
                 .eq("user.id", user.getId())
                 .eq("exam.id", examId)
+                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .disjunction()
+                .isNull("reservation")
+                .gt("reservation.startAt", new Date())
+                .endJunction()
                 .findUnique();
         if (enrolment == null) {
             return badRequest("sitnet_error_enrolment_not_found");
@@ -162,7 +166,7 @@ public class CalendarController extends SitnetController {
      * Queries for available slots for given room and day
      */
     private static List<FreeTimeSlot> getFreeTimes(ExamRoom room, Exam exam, LocalDate date,
-            List<Reservation> reservations, List<ExamMachine> machines) {
+                                                   List<Reservation> reservations, List<ExamMachine> machines) {
 
         // Resolve the opening hours for room and day
         List<Interval> openingHours = room.getWorkingHoursForDate(date);
@@ -238,6 +242,11 @@ public class CalendarController extends SitnetController {
                 .where()
                 .eq("user", user)
                 .eq("exam.id", examId)
+                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .disjunction()
+                .isNull("reservation")
+                .gt("reservation.startAt", new Date())
+                .endJunction()
                 .findUnique();
         return enrolment == null ? null : enrolment.getExam();
     }
