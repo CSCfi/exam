@@ -134,7 +134,7 @@ public class EnrollController extends Controller {
                     return forbidden("sitnet_reservation_in_effect");
                 } else if (exam.getState().equals(Exam.State.PUBLISHED.toString())) {
                     // exam for reservation not started (yet?)
-                    // TODO: somehow mark this as a now-show after confirmation, but for now just forbid it
+                    // TODO: somehow mark this as a no-show after confirmation, but for now just forbid it
                     return forbidden("sitnet_reservation_in_effect");
                 }
             } else if (reservation.toInterval().isAfterNow()) {

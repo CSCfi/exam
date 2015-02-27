@@ -1,7 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LibraryCtrl', ['$scope', '$translate', 'sessionService', 'QuestionRes', 'ExamRes', 'CourseRes', 'TagRes', function ($scope, $translate, sessionService, QuestionRes, ExamRes, CourseRes, TagRes) {
+        .controller('LibraryCtrl', ['$scope', '$location', '$translate', 'sessionService', 'QuestionRes', 'ExamRes', 'CourseRes', 'TagRes', function (
+            $scope, $location, $translate, sessionService, QuestionRes, ExamRes, CourseRes, TagRes) {
 
             $scope.pageSize = 25;
             $scope.courses = [];
