@@ -9,7 +9,6 @@ import models.Exam;
 import models.ExamEnrolment;
 import models.Reservation;
 import models.User;
-import org.joda.time.DateTime;
 import play.mvc.Controller;
 import play.mvc.Result;
 
@@ -87,11 +86,18 @@ public class EnrollController extends Controller {
         return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }
 
+    private static void makeEnrolment(Exam exam, User user) {
+        ExamEnrolment enrolment = new ExamEnrolment();
+        enrolment.setEnrolledOn(new Date());
+        enrolment.setUser(user);
+        enrolment.setExam(exam);
+        enrolment.save();
+    }
+
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result createEnrolment(String code, Long id) {
 
         User user = UserController.getLoggedUser();
-
         Exam exam = Ebean.find(Exam.class)
                 .where()
                 .eq("course.code", code)
@@ -101,9 +107,7 @@ public class EnrollController extends Controller {
             return notFound("sitnet_error_exam_not_found");
         }
 
-        // check if enrolment already exists?
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                .fetch("reservation")
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
                 // either exam ID matches OR (exam parent ID matches AND exam is started by student)
@@ -116,25 +120,29 @@ public class EnrollController extends Controller {
                 .endJunction()
                 .endJunction()
                 .endJunction()
-                .findUnique();
+                .findList();
 
-        // remove old one
-        if (enrolment != null) {
-            // Removal not permitted if reservation is in the past or if exam is already started
+        for (ExamEnrolment enrolment : enrolments) {
             Reservation reservation = enrolment.getReservation();
-            if (enrolment.getExam().getState().equals(Exam.State.STUDENT_STARTED.toString()) ||
-                    (reservation != null && reservation.toInterval().isBefore(DateTime.now()))) {
-                return forbidden("sitnet_reservation_in_effect");
+            if (reservation == null) {
+                // enrolment without reservation already exists, no need to create a new one
+                return forbidden("sitnet_error_enrolment_exists");
+            } else if (reservation.toInterval().containsNow()) {
+                // reservation in effect
+                if (exam.getState().equals(Exam.State.STUDENT_STARTED.toString())) {
+                    // exam for reservation is ongoing
+                    return forbidden("sitnet_reservation_in_effect");
+                } else if (exam.getState().equals(Exam.State.PUBLISHED.toString())) {
+                    // exam for reservation not started (yet?)
+                    // TODO: somehow mark this as a now-show after confirmation, but for now just forbid it
+                    return forbidden("sitnet_reservation_in_effect");
+                }
+            } else if (reservation.toInterval().isAfterNow()) {
+                // reservation in the future, replace it
+                enrolment.delete();
             }
-            enrolment.delete();
         }
-
-        enrolment = new ExamEnrolment();
-        enrolment.setEnrolledOn(new Date());
-        enrolment.setUser(user);
-        enrolment.setExam(exam);
-        enrolment.save();
-
+        makeEnrolment(exam, user);
         return ok();
     }
 

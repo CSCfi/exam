@@ -504,5 +504,6 @@
   "sitnet_select_exam_course": "Valitse tentin opintojakso",
   "sitnet_course_removed_from_exam": "Opintojakso poistettu tentistä",
   "sitnet_remove_course_from_exam": "Poista opintojakso tentistä",
-  "sitnet_continue": "Jatka"
+  "sitnet_continue": "Jatka",
+  "sitnet_no_suitable_enrolment_found": "Sinulla on käynnissä oleva varaus kyseiseen tenttiin. Sen päätyttyä voit varata ajan uudelleen."
 }

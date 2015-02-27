@@ -503,5 +503,6 @@
   "sitnet_select_exam_course": "Select exam course",
   "sitnet_course_removed_from_exam": "Course removed from exam",
   "sitnet_remove_course_from_exam": "Remove course from exam",
-  "sitnet_continue": "Continue"
+  "sitnet_continue": "Continue",
+  "sitnet_no_suitable_enrolment_found": "Du har en pågående bokning på tenten. Försök åter när bokningen i fråga har ändat."
 }

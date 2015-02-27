@@ -44,6 +44,8 @@
 
                             $scope.daySlots = reply.data;
                         }, function() {
+                            // TODO: more fine grained error handling
+                            toastr.error($translate('sitnet_no_suitable_enrolment_found'));
                             $scope.daySlots = [];
                         });
                 };
