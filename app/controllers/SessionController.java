@@ -105,10 +105,10 @@ public class SessionController extends SitnetController {
 
     private static void updateUser(User user) {
         user.setUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode")));
-        user.setEmail(request().getHeader("mail"));
+        user.setEmail(toUtf8(request().getHeader("mail")));
         user.setLastName(toUtf8(request().getHeader("sn")));
         user.setFirstName(toUtf8(request().getHeader("displayName")));
-        user.setEmployeeNumber(request().getHeader("employeeNumber"));
+        user.setEmployeeNumber(toUtf8(request().getHeader("employeeNumber")));
         user.setUserLanguage(getLanguage(toUtf8(request().getHeader("preferredLanguage"))));
     }
 
