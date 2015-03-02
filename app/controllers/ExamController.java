@@ -260,6 +260,7 @@ public class ExamController extends SitnetController {
         options.setPathProperties("examSections.sectionQuestions.question.options", "id, option, correctOption");
         options.setPathProperties("examSections.sectionQuestions.question.comments", "id, comment");
         options.setPathProperties("examFeedback", "id, comment");
+        options.setPathProperties("examFeedback.comment", "id, comment, reply");
         return options;
     }
 

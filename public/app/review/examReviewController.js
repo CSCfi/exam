@@ -436,6 +436,7 @@
                             if (!withoutNotice) {
                                 toastr.info($translate("sitnet_comment_updated"));
                             }
+                            $scope.examToBeReviewed.examFeedback.comment = comment;
                             $scope.startReview();
                         }, function (error) {
                             toastr.error(error.data);
