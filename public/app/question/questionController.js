@@ -71,16 +71,25 @@
                             QuestionRes.metadata.get({id: qid}, function (result) {
 
                                     angular.forEach(result, function (question) {
-                                        if (question.examSectionQuestion && question.examSectionQuestion.examSection && question.examSectionQuestion.examSection.exam.name && ! isInArray($scope.examNames, question.examSectionQuestion.examSection.exam.name)) {
+                                        if (question &&
+                                            question.examSectionQuestion &&
+                                            question.examSectionQuestion.examSection &&
+                                            question.examSectionQuestion.examSection.exam &&
+                                            question.examSectionQuestion.examSection.exam.name &&
+                                            ! isInArray($scope.examNames, question.examSectionQuestion.examSection.exam.name)) {
                                             var code = "";
-                                            if (question.examSectionQuestion.examSection.exam.course != undefined && question.examSectionQuestion.examSection.exam.course.code != undefined) {
+                                            if (question.examSectionQuestion.examSection.exam.course && question.examSectionQuestion.examSection.exam.course.code) {
                                                 code = " (" + question.examSectionQuestion.examSection.exam.course.code + ")";
                                             }
                                             if(! isInArray($scope.examNames , question.examSectionQuestion.examSection.exam.name + code)) {
                                                 $scope.examNames.push(question.examSectionQuestion.examSection.exam.name + code);
                                             }
                                         }
-                                        if(question.examSectionQuestion && question.examSectionQuestion.examSection && ! isInArray($scope.sectionNames, question.examSectionQuestion.examSection.name)) {
+                                        if(question &&
+                                           question.examSectionQuestion &&
+                                           question.examSectionQuestion.examSection &&
+                                           question.examSectionQuestion.examSection.name &&
+                                            ! isInArray($scope.sectionNames, question.examSectionQuestion.examSection.name)) {
                                             $scope.sectionNames.push(question.examSectionQuestion.examSection.name);
                                         }
                                     });
