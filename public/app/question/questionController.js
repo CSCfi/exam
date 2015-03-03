@@ -233,7 +233,7 @@
                 $scope.removeTag = function (tag) {
                     TagRes.question.remove({tid: tag.id, qid: $scope.newQuestion.id}, function () {
                         toastr.info($translate('sitnet_question_disassociated_with_tag'));
-                        $scope.newQuestion.tags.splice($scope.newQuestion.tags.indexOf(tag, 1));
+                        $scope.newQuestion.tags.splice($scope.newQuestion.tags.indexOf(tag), 1);
                     }, function (err) {
                         toastr.error(err);
                     });
