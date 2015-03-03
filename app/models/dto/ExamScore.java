@@ -14,162 +14,162 @@ public class ExamScore extends Model {
     protected Timestamp ebeanTimestamp;
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String StudentId;
-    private String Student;
-    private String Identifier;
-    private String CourseUnitCode;
-    private String ExamDate;
-    private String Credits;
-    private String CreditLanguage;
-    private String StudentGrade;
-    private String GradeScale;
-    private String ExamScore;
-    private String CourseUnitLevel;
-    private String CourseUnitType;
-    private String CreditType;
-    private String Lecturer;
-    private String LecturerId;
-    private String Date;
-    private String CourseImplementation;
+    private String studentId;
+    private String student;
+    private String identifier;
+    private String courseUnitCode;
+    private String examDate;
+    private String credits;
+    private String creditLanguage;
+    private String studentGrade;
+    private String gradeScale;
+    private String examScore;
+    private String courseUnitLevel;
+    private String courseUnitType;
+    private String creditType;
+    private String lecturer;
+    private String lecturerId;
+    private String date;
+    private String courseImplementation;
     private String additionalInfo;
 
     public String getCourseImplementation() {
-        return CourseImplementation;
+        return courseImplementation;
     }
 
     public void setCourseImplementation(String courseImplementation) {
-        CourseImplementation = courseImplementation;
+        this.courseImplementation = courseImplementation;
     }
 
     public String getCourseUnitCode() {
-        return CourseUnitCode;
+        return courseUnitCode;
     }
 
     public void setCourseUnitCode(String courseUnitCode) {
-        CourseUnitCode = courseUnitCode;
+        this.courseUnitCode = courseUnitCode;
     }
 
     public String getCourseUnitLevel() {
-        return CourseUnitLevel;
+        return courseUnitLevel;
     }
 
     public void setCourseUnitLevel(String courseUnitLevel) {
-        CourseUnitLevel = courseUnitLevel;
+        this.courseUnitLevel = courseUnitLevel;
     }
 
     public String getCourseUnitType() {
-        return CourseUnitType;
+        return courseUnitType;
     }
 
     public void setCourseUnitType(String courseUnitType) {
-        CourseUnitType = courseUnitType;
+        this.courseUnitType = courseUnitType;
     }
 
     public String getCreditLanguage() {
-        return CreditLanguage;
+        return creditLanguage;
     }
 
     public void setCreditLanguage(String creditLanguage) {
-        CreditLanguage = creditLanguage;
+        this.creditLanguage = creditLanguage;
     }
 
     public String getCredits() {
-        return Credits;
+        return credits;
     }
 
     public void setCredits(String credits) {
-        Credits = credits;
+        this.credits = credits;
     }
 
     public String getCreditType() {
-        return CreditType;
+        return creditType;
     }
 
     public void setCreditType(String creditType) {
-        CreditType = creditType;
+        this.creditType = creditType;
     }
 
     public String getDate() {
-        return Date;
+        return date;
     }
 
     public void setDate(String date) {
-        Date = date;
+        this.date = date;
     }
 
     public String getExamDate() {
-        return ExamDate;
+        return examDate;
     }
 
     public void setExamDate(String examDate) {
-        ExamDate = examDate;
+        this.examDate = examDate;
     }
 
     public String getExamScore() {
-        return ExamScore;
+        return examScore;
     }
 
     public void setExamScore(String examScore) {
-        ExamScore = examScore;
+        this.examScore = examScore;
     }
 
     public String getGradeScale() {
-        return GradeScale;
+        return gradeScale;
     }
 
     public void setGradeScale(String gradeScale) {
-        GradeScale = gradeScale;
+        this.gradeScale = gradeScale;
     }
 
     public String getIdentifier() {
-        return Identifier;
+        return identifier;
     }
 
     public void setIdentifier(String identifier) {
-        Identifier = identifier;
+        this.identifier = identifier;
     }
 
     public String getLecturer() {
-        return Lecturer;
+        return lecturer;
     }
 
     public void setLecturer(String lecturer) {
-        Lecturer = lecturer;
+        this.lecturer = lecturer;
     }
 
     public String getLecturerId() {
-        return LecturerId;
+        return lecturerId;
     }
 
     public void setLecturerId(String lecturerId) {
-        LecturerId = lecturerId;
+        this.lecturerId = lecturerId;
     }
 
     public String getStudent() {
-        return Student;
+        return student;
     }
 
     public void setStudent(String student) {
-        Student = student;
+        this.student = student;
     }
 
     public String getStudentGrade() {
-        return StudentGrade;
+        return studentGrade;
     }
 
     public void setStudentGrade(String studentGrade) {
-        StudentGrade = studentGrade;
+        this.studentGrade = studentGrade;
     }
 
     public String getStudentId() {
-        return StudentId;
+        return studentId;
     }
 
     public void setStudentId(String studentId) {
-        StudentId = studentId;
+        this.studentId = studentId;
     }
 
     public Long getId() {
@@ -180,7 +180,23 @@ public class ExamScore extends Model {
         this.id = id;
     }
 
-    public String getAdditionalInfo() { return additionalInfo; }
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
 
-    public void setAdditionalInfo(String additionalInfo) { this.additionalInfo = additionalInfo; }
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
+    public static String[] getHeaders() {
+        return new String[]{"id", "studentId", "student", "identifier", "courseUnitCode", "examDate", "credits",
+                "creditLanguage", "studentGrade", "gradeScale", "courseUnitLevel", "courseUnitType", "creditType",
+                "lecturer", "lecturerId", "date", "courseImplementation", "additionalInfo"};
+    }
+
+    public String[] asArray() {
+        return new String[]{Long.toString(id), studentId, student, identifier, courseUnitCode, examDate, credits,
+                creditLanguage, studentGrade, gradeScale, courseUnitLevel, courseUnitType, creditType, lecturer,
+                lecturerId, date, courseImplementation, additionalInfo};
+    }
 }

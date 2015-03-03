@@ -12,11 +12,15 @@ import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Result;
+import util.java.CsvBuilder;
 import util.java.EmailComposer;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static util.java.AttachmentUtils.setData;
 
 /**
  * Created by alahtinen on 02/09/14.
@@ -121,6 +125,22 @@ public class ExamRecordController extends SitnetController {
         }
 
         return ok();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result exportExamRecordsAsCsv(String startDate) {
+        File file;
+        try {
+            file = CsvBuilder.build(startDate);
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_csv_file");
+        }
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        String content = com.ning.http.util.Base64.encode(setData(file).toByteArray());
+        if (!file.delete()) {
+            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
+        }
+        return ok(content);
     }
 
 }
