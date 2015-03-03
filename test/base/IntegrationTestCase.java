@@ -43,7 +43,7 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("sn", "Lazenby");
         HAKA_HEADERS.put("preferredLanguage", "fi");
         HAKA_HEADERS.put("Shib-Session-ID", "_5d9a583a894275c15edef02c5602c4d7");
-        HAKA_HEADERS.put("mail", "glazenby@funet.fi");
+        HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
     }
 
@@ -149,8 +149,7 @@ public class IntegrationTestCase {
 
     protected void login(String eppn) {
         HAKA_HEADERS.put("eppn", eppn);
-        Result result = request(Helpers.POST, "/login",
-                Json.newObject().put("username", "").put("password", ""), HAKA_HEADERS);
+        Result result = request(Helpers.POST, "/login", null, HAKA_HEADERS);
         assertThat(status(result)).isEqualTo(200);
         JsonNode user = Json.parse(contentAsString(result));
         sessionToken = user.get("token").asText();

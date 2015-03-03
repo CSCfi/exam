@@ -2,7 +2,6 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import exceptions.SitnetException;
 import org.springframework.beans.BeanUtils;
 import util.SitnetUtil;
 
@@ -33,7 +32,7 @@ public class Exam extends SitnetModel {
 
     @OneToOne
     private ExamType examType;
-    
+
     // Instruction written by teacher, shown during exam
     @Column(columnDefinition = "TEXT")
     private String instruction;
@@ -60,7 +59,7 @@ public class Exam extends SitnetModel {
     // Exam valid/enrollable from
     @Temporal(TemporalType.TIMESTAMP)
     private Date examActiveStartDate;
-    
+
     // Exam valid/enrollable until
     @Temporal(TemporalType.TIMESTAMP)
     private Date examActiveEndDate;
@@ -86,7 +85,7 @@ public class Exam extends SitnetModel {
 
     // Exam answer language
     private String answerLanguage;
-    
+
     private String state;
 
     private String grade;
@@ -115,7 +114,7 @@ public class Exam extends SitnetModel {
     private String creditType;
 
     // In UI, section has been expanded
-    @Column(columnDefinition="boolean default false")
+    @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -228,55 +227,55 @@ public class Exam extends SitnetModel {
         return hash;
     }
 
-	public Integer getDuration() {
-		return duration;
-	}
+    public Integer getDuration() {
+        return duration;
+    }
 
-	public void setDuration(Integer duration) {
-		this.duration = duration;
-	}
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
 
-	public String getGrading() {
-		return grading;
-	}
+    public String getGrading() {
+        return grading;
+    }
 
-	public void setGrading(String grading) {
-		this.grading = grading;
-	}
+    public void setGrading(String grading) {
+        this.grading = grading;
+    }
 
-	public Double getCustomCredit() {
-		return customCredit;
-	}
+    public Double getCustomCredit() {
+        return customCredit;
+    }
 
-	public void setCustomCredit(Double customCredit) {
-		this.customCredit = customCredit;
-	}
+    public void setCustomCredit(Double customCredit) {
+        this.customCredit = customCredit;
+    }
 
     public void setTotalScore(Double totalScore) {
         this.totalScore = totalScore;
     }
 
     public List<Language> getExamLanguages() {
-		return examLanguages;
-	}
+        return examLanguages;
+    }
 
-	public void setExamLanguages(List<Language> examLanguages) {
-		this.examLanguages = examLanguages;
-	}
+    public void setExamLanguages(List<Language> examLanguages) {
+        this.examLanguages = examLanguages;
+    }
 
-	public String getAnswerLanguage() {
-		return answerLanguage;
-	}
+    public String getAnswerLanguage() {
+        return answerLanguage;
+    }
 
-	public void setAnswerLanguage(String answerLanguage) {
-		this.answerLanguage = answerLanguage;
-	}
+    public void setAnswerLanguage(String answerLanguage) {
+        this.answerLanguage = answerLanguage;
+    }
 
     public String generateHash() {
         String attributes = name + state + new Random().nextDouble();
         hash = SitnetUtil.encodeMD5(attributes);
         return hash;
-        }
+    }
 
     public String getEnrollInstruction() {
         return enrollInstruction;
@@ -287,22 +286,22 @@ public class Exam extends SitnetModel {
     }
 
     public Exam getParent() {
-		return parent;
-	}
+        return parent;
+    }
 
-	public void setParent(Exam parent) {
-		this.parent = parent;
-	}
+    public void setParent(Exam parent) {
+        this.parent = parent;
+    }
 
-	public String getGrade() {
-		return grade;
-	}
+    public String getGrade() {
+        return grade;
+    }
 
-	public void setGrade(String grade) {
-		this.grade = grade;
-	}
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
 
-	public String getState() {
+    public String getState() {
         return state;
     }
 
@@ -334,7 +333,7 @@ public class Exam extends SitnetModel {
         softwares = softwareInfo;
     }
 
-    public Exam copy() throws SitnetException {
+    public Exam copy() {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "creator", "created"});
         clone.setParent(this);
@@ -385,7 +384,7 @@ public class Exam extends SitnetModel {
         return attachment;
     }
 
-	@Override
+    @Override
     public String toString() {
         return "Exam{" +
                 "course=" + course +

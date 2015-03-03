@@ -16,8 +16,6 @@ import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -264,42 +262,6 @@ public class StudentExamController extends SitnetController {
             DateTime now = DateTime.now();
             String clientIP = request().remoteAddress();
 
-            ExamEnrolment possibleEnrolment = Ebean.find(ExamEnrolment.class)
-                    .fetch("reservation")
-                    .fetch("reservation.machine")
-                    .fetch("reservation.machine.room")
-                    .where()
-                    .eq("user.id", user.getId())
-                    .eq("exam.id", blueprint.getId())
-                    .findUnique();
-
-            // if this is null, it means someone is trying to access an exam by wrong hash
-            // which is weird.
-            if (possibleEnrolment == null) {
-                return forbidden("sitnet_reservation_not_found");
-            }
-
-            // exam and enrolment found. Is student on the right machine?
-
-            if (possibleEnrolment.getReservation() == null) {
-                return forbidden("sitnet_reservation_not_found");
-            } else if (possibleEnrolment.getReservation().getMachine() == null) {
-                return forbidden("sitnet_reservation_machine_not_found");
-            } else if (!possibleEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
-
-                ExamRoom examRoom = Ebean.find(ExamRoom.class)
-                        .fetch("mailAddress")
-                        .where()
-                        .eq("id", possibleEnrolment.getReservation().getMachine().getRoom().getId())
-                        .findUnique();
-
-                String message = "sitnet_wrong_exam_machine " + examRoom.getName()
-                        + ", " + examRoom.getMailAddress().toString()
-                        + ", sitnet_exam_machine " + possibleEnrolment.getReservation().getMachine().getName();
-
-                return forbidden(message);
-            }
-
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
                     .fetch("reservation.machine")
@@ -311,46 +273,31 @@ public class StudentExamController extends SitnetController {
                     .gt("reservation.endAt", now.toDate())
                     .findUnique();
 
-            // Wrong moment in time. Student is early or late
-
+            // If this is null, it means someone is either trying to access an exam by wrong hash
+            // or the reservation is not in effect right now.
             if (enrolment == null) {
-
-                DateTime endAt = new DateTime(possibleEnrolment.getReservation().getEndAt().getTime());
-                DateTime startAt = new DateTime(possibleEnrolment.getReservation().getStartAt().getTime());
-
-                DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
-
-                // too late
-                if (now.isAfter(endAt)) {
-                    return forbidden("sitnet_exam_has_ended " + dateTimeFormat.print(endAt.getMillis()));
-                }
-                // early
-                else if (now.isBefore(startAt)) {
-                    return forbidden("sitnet_exam_starts " + dateTimeFormat.print(startAt.getMillis()));
-                } else {
-                    Logger.error("enrolment not found when it was supposed to");
-                    return internalServerError();
-                }
+                return forbidden("sitnet_reservation_not_found");
+            }
+            // Exam and enrolment found. Is student on the right machine?
+            if (enrolment.getReservation() == null) {
+                return forbidden("sitnet_reservation_not_found");
+            } else if (enrolment.getReservation().getMachine() == null) {
+                return forbidden("sitnet_reservation_machine_not_found");
+            } else if (!enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+                ExamRoom examRoom = Ebean.find(ExamRoom.class)
+                        .fetch("mailAddress")
+                        .where()
+                        .eq("id", enrolment.getReservation().getMachine().getRoom().getId())
+                        .findUnique();
+                String message = "sitnet_wrong_exam_machine " + examRoom.getName()
+                        + ", " + examRoom.getMailAddress().toString()
+                        + ", sitnet_exam_machine " + enrolment.getReservation().getMachine().getName();
+                return forbidden(message);
             }
 
-            /*
-            *
-            * Everything matches
-            * - time
-            * - place
-            * - exam machine IP
-            * - student
-            * - exam
-            *
-            * We can start the exam
-            *
-             */
+            // We are good to go (reservation and enrolment OK)
             Exam studentExam = blueprint.copy();
-            if (studentExam == null) {
-                return notFound("sitnet_error_creating_exam");
-            }
-
-            studentExam.setState("STUDENT_STARTED");
+            studentExam.setState(Exam.State.STUDENT_STARTED.toString());
             studentExam.setCreator(user);
             studentExam.setParent(blueprint);
             studentExam.generateHash();
