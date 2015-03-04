@@ -192,7 +192,7 @@ public class ExamScore extends Model {
     public static String[] getHeaders() {
         return new String[]{"id", "studentId", "student", "identifier", "courseUnitCode", "examDate", "credits",
                 "creditLanguage", "studentGrade", "gradeScale", "courseUnitLevel", "courseUnitType", "creditType",
-                "lecturer", "lecturerId", "date", "courseImplementation", "additionalInfo"};
+                "lecturer", "lecturerId", "date", "courseImplementation", "additionalInfo", "lecturerEmployeeNumber"};
     }
 
     public String[] asArray() {
