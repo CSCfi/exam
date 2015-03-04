@@ -1,0 +1,52 @@
+<form class="form-inline" role="form">
+    <div ng-show="guide">
+        <div class="guide-instruction col-md-12" ng-bind-html="doexam.instruction"></div>
+    </div>
+    <div ng-show="!guide">
+        <div class="{{sectionQuestion.question.selectedAnsweredState}} col-md-12 info-row"
+             ng-repeat="sectionQuestion in activeSection.sectionQuestions" ng-init="setQuestionColors(sectionQuestion.question); sectionQuestion.question.expanded = false;">
+
+            <div ng-model="sectionQuestion.question">
+                <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion.question);" class="fa-stack fa-lg pointer pull-left col-md-1">
+                    <i ng-class="sectionQuestion.question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
+                       class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
+                    </i>
+                </span>
+                <span class="fa-stack fa-lg pull-left col-md-1">
+                  <i class="fa fa-stop fa-stack-2x question-icon-bg"></i>
+                  <i class="fa fa-stack-1x question-icon" ng-class="sectionQuestion.question.type === 'MultipleChoiceQuestion' ? 'fa-list-ul' : 'fa-pencil-square-o'"></i>
+                </span>
+                <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded;setQuestionColors(sectionQuestion.question);"
+                class="question-text pointer pull-left col-md-8" mathjax ng-bind-html="sectionQuestion.question.question"></span>
+                <span class="question-text pull-right col-md-2" ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; setQuestionColors(sectionQuestion.question);">
+                    <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion' || (sectionQuestion.question.type == 'EssayQuestion' && sectionQuestion.question.evaluationType == 'Points')">({{sectionQuestion.question.maxScore}} {{'sitnet_unit_points' | translate}})</div>
+                    <div ng-if="sectionQuestion.question.type == 'EssayQuestion' && sectionQuestion.question.evaluationType == 'Select'">({{'sitnet_evaluation_type' | translate}}:<br/>{{'sitnet_evaluation_select' | translate}})</div>
+                </span>
+
+            </div>
+
+            <div class="exam-question-container" ng-show="sectionQuestion.question.expanded">
+                <div class="exam-question-instruction row">{{sectionQuestion.question.instruction}}</div>
+
+                <div class="question" ng-include="sectionQuestion.question.template"></div>
+
+                <div ng-show="sectionQuestion.question.attachment" class="exam-question-instruction row" ng-controller="AttachmentController">
+                    <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)"> {{'sitnet_download_attachment' | translate }} <span class="sitnet-text-medium"><small>({{sectionQuestion.question.attachment.fileName}})</small></span></a>
+                </div>
+
+                <div class="exam-question-instruction row bottom-padding-2" ng-controller="AttachmentController" ng-show="sectionQuestion.question.type === 'EssayQuestion'">
+                    <div>
+                        {{'sitnet_answer_attachment' | translate}}:&nbsp;<a class="pointer bold" ng-click="selectFile(sectionQuestion.question)" class="btn btn-primary pull-left">{{'sitnet_attach_file' | translate}}</a>
+                    </div>
+                    <div ng-show="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName">
+                        <a class="pointer" ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, hash)">{{sectionQuestion.question.answer.attachment.fileName}}</a>
+                        <span class="sitnet-red pointer" ng-click="removeQuestionAnswerAttachment(sectionQuestion.question, hash);"> <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i></span>
+                    </div>
+                    <div ng-show="!sectionQuestion.question.answer || !sectionQuestion.question.answer.attachment || !sectionQuestion.question.answer.attachment.fileName">
+                       &nbsp;
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,6 +1,38 @@
+@import "../vendor/bootstrap";
+
 #dashboard {
 
   min-height: $sitnet-header-height;
+
+  // Basic bootstrap grid rows with different kind of padding
+
+  .detail-row {
+    @extend .row;
+    margin: 0;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+  .bottom-row {
+    @extend .detail-row;
+    padding-bottom: 1em;
+  }
+
+  .top-row {
+    @extend .detail-row;
+    padding-top: 1em;
+  }
+
+  .main-row {
+    @extend .detail-row;
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+
+  .indented-row {
+    @extend .detail-row;
+    margin-left: 2em;
+  }
 
   .title {
     margin-top: 2em;
@@ -12,44 +44,14 @@
     font-weight: bold;
   }
 
-  .review-ongoing {
-    border: 2px;
-    border-radius: 25px;
-    background-color: #E1A117;
-    padding: 0.5em 4em;
-  }
-
-  .review-ready {
-    border: 2px;
-    border-radius: 25px;
-    background-color: #6AA33A;
-    padding: 0.5em 4em;
-  }
-
-  .toolbar-square {
-    font-size: 3em;
-  }
-
-  .toolbar-icon {
-    font-size: 2em;
-    padding-top: 0.2em;
-    padding-left: 0.2em;
-  }
-
-  .table-bordered-item {
-    border-bottom-style: solid;
-    border-bottom-width: thin;
-    border-right-style: solid;
-    border-right-width: thin;
-    border-color: lightgrey;
-  }
-
   .exams-table {
+    border-left: $sitnet-common-light solid 0.15em;
+    border-top: $sitnet-common-light solid 0.15em;
+    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
 
-    border: 0;
     font-family: $sitnet-family-opensans;
     font-weight: normal;
-    font-size:0.9em;
+    font-size: 0.9em;
 
     th {
       background-color: $sitnet-common-light;
@@ -57,15 +59,14 @@
       color: $sitnet-common-medium;
       font-style: italic;
       font-weight: normal;
-      border:0;
+      border: 0;
     }
-
 
     td:first-child {
-      border-left:0;
+      border-left: 0;
     }
     td:last-child {
-      border-right:0;
+      border-right: 0;
     }
 
     tr:last-child {
@@ -101,7 +102,7 @@
 
     span {
       font-size: 0.8em;
-      color:$sitnet-common-medium;
+      color: $sitnet-common-medium;
     }
   }
 
@@ -109,67 +110,42 @@
     width: 10%;
   }
 
+  .table-column-15 {
+    width: 15%;
+  }
+
+  .table-column-20 {
+    width: 20%;
+  }
+
   .table-column-teachers {
     width: 25%;
   }
 
-  .exams-table-borders {
-    border-left: $sitnet-common-light solid 0.15em;
-    border-top: $sitnet-common-light solid 0.15em;
-    box-shadow: 0 0.5em 0.25em 0 $sitnet-common-light;
-  }
-
   .exams-table-title-area {
-
+    padding-left: 0.5em;
   }
 
   .exams-list-title-text {
     font-size: 1.4em;
     font-family: $sitnet-family-opensans-light;
-    color: $sitnet-text;
     font-weight: 600;
     letter-spacing: 1px;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    vertical-align: middle;
   }
 
   .exams-list {
     background-color: $sitnet-background;
   }
 
-  .toolbar {
-    margin-top: 1em;
-    margin-bottom: 1em;
-  }
-
-  .toolbar-item {
-    margin: 1em;
-  }
-
-  .toolbar-label {
+  .header-icon {
+    cursor: pointer;
     vertical-align: middle;
-    vertical-position: middle;
-    font-size: 1em;
-    font-family: $sitnet-family-opensans-light;
-    color: $sitnet-text;
-    font-weight: 300;
-    letter-spacing: 1px;
-    margin-top: 1em;
-    padding-top: 1em;
+  }
+
+  ul {
+    list-style-type: none;
     padding-left: 1em;
   }
 
-  .indicator-item {
-    margin-left: 4em;
-  }
-
-  .exam-header {
-    border-bottom: $sitnet-common-light solid 0.15em;
-    height:4em;
-  }
-
-  .header-icon {
-    margin-top: 1em;
-    cursor: pointer;
-  }
 }

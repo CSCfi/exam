@@ -3,19 +3,24 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.*;
+import models.Exam;
+import models.ExamParticipation;
+import models.ExamRecord;
+import models.User;
 import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Result;
+import util.java.CsvBuilder;
 import util.java.EmailComposer;
 
+import java.io.File;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
+
+import static util.java.AttachmentUtils.setData;
 
 /**
  * Created by alahtinen on 02/09/14.
@@ -33,7 +38,8 @@ public class ExamRecordController extends SitnetController {
                 "customCredit",
                 "totalScore",
                 "creditType",
-                "answerLanguage")
+                "answerLanguage",
+                "additionalInfo")
                 .get();
 
         Exam exam = Ebean.find(Exam.class, form.getId());
@@ -67,11 +73,15 @@ public class ExamRecordController extends SitnetController {
         record.setExam(exam);
         record.setStudent(student);
         record.setTeacher(teacher);
-        record.setTimeStamp(new Timestamp(new Date().getTime()));
+        record.setTimeStamp(new Date());
 
+        DynamicForm df = Form.form().bindFromRequest();
+
+        String additionalInfo = df.get("additionalInfo");
 
         ExamScore score = new ExamScore();
 
+        score.setAdditionalInfo(additionalInfo);
         score.setStudent(student.getEppn());
         score.setStudentId(student.getUserIdentifier());
         if(exam.getCustomCredit() == null) {
@@ -83,6 +93,7 @@ public class ExamRecordController extends SitnetController {
 
         score.setLecturer(teacher.getEppn());
         score.setLecturerId(teacher.getUserIdentifier());
+        score.setLecturerEmployeeNumber(teacher.getEmployeeNumber());
 
         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
         // Record transfer timestamp (date)
@@ -104,7 +115,6 @@ public class ExamRecordController extends SitnetController {
         record.setExamScore(score);
         record.save();
 
-        DynamicForm df = Form.form().bindFromRequest();
         boolean sendFeedback = Boolean.parseBoolean(df.get("sendFeedback"));
 
         if (sendFeedback) {
@@ -118,14 +128,20 @@ public class ExamRecordController extends SitnetController {
         return ok();
     }
 
-    private static String getAttribute(String attrName, List<HakaAttribute> attrs) {
-
-        for (HakaAttribute ha : attrs) {
-
-            if (ha.getKey().equals(attrName)) {
-                return ha.getValue();
-            }
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result exportExamRecordsAsCsv(Long startDate, Long endDate) {
+        File file;
+        try {
+            file = CsvBuilder.build(startDate, endDate);
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_csv_file");
         }
-        return null;
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        String content = com.ning.http.util.Base64.encode(setData(file).toByteArray());
+        if (!file.delete()) {
+            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
+        }
+        return ok(content);
     }
+
 }

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.sql.Timestamp;
+
 
 @Entity
 public class ExamEnrolment extends Model {
@@ -25,11 +27,11 @@ public class ExamEnrolment extends Model {
 	@JsonBackReference
 	private Exam exam;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	private Timestamp enrolledOn;
+	private Date enrolledOn;
 
 	
 	public Long getId() {
@@ -48,11 +50,11 @@ public class ExamEnrolment extends Model {
 		this.user = user;
 	}
 
-	public Timestamp getEnrolledOn() {
+	public Date getEnrolledOn() {
 		return enrolledOn;
 	}
 
-	public void setEnrolledOn(Timestamp enrolledOn) {
+	public void setEnrolledOn(Date enrolledOn) {
 		this.enrolledOn = enrolledOn;
 	}
 

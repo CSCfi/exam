@@ -1,11 +1,12 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Update;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import exceptions.MalformedDataException;
 import models.GeneralSettings;
 import models.User;
 import play.data.DynamicForm;
@@ -16,9 +17,6 @@ import util.SitnetUtil;
 
 import java.util.List;
 
-/**
- * Created by avainik on 8/15/14.
- */
 public class SettingsController  extends SitnetController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT")})
@@ -81,4 +79,15 @@ public class SettingsController  extends SitnetController {
         node.put("hostname", SitnetUtil.getHostName());
         return ok(Json.toJson(node));
     }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER")})
+    public static Result getExamDurations() {
+        ObjectNode node = Json.newObject();
+        ArrayNode durations = node.putArray("examDurations");
+        for (Integer duration : SitnetUtil.getExamDurations()) {
+            durations.add(duration);
+        }
+        return ok(Json.toJson(node));
+    }
+
 }

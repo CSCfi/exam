@@ -1,10 +1,13 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /*
@@ -60,11 +63,18 @@ public class Course extends Model {
     @Column(columnDefinition = "TEXT")
     private String courseMaterial;
 
+    @OneToMany(mappedBy = "course")
+    @JsonBackReference
+    private List<Exam> exams = new ArrayList<>();
+
+    @ManyToOne
+    private Organisation organisation;
+
     public Course() {
 
     }
 
-    public Timestamp getEbeanTimestamp() {
+    public Date getEbeanTimestamp() {
         return ebeanTimestamp;
     }
 
@@ -177,7 +187,6 @@ public class Course extends Model {
     }
 
     public Course(String name) {
-        super();
         this.name = name;
     }
 
@@ -219,6 +228,22 @@ public class Course extends Model {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public List<Exam> getExams() {
+        return exams;
+    }
+
+    public void setExams(List<Exam> exams) {
+        this.exams = exams;
+    }
+
+    public Organisation getOrganisation() {
+        return organisation;
+    }
+
+    public void setOrganisation(Organisation organisation) {
+        this.organisation = organisation;
     }
 
     @Override

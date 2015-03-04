@@ -6,10 +6,10 @@ import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+
 import java.util.Date;
 
 @Entity
-@DiscriminatorValue("DefaultWorkingHours")
 public class DefaultWorkingHours extends Model {
 
     public enum Day {

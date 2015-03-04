@@ -5,17 +5,6 @@ import play.db.ebean.Model;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-
-/*
- * Kieli
- * http://tietomalli.csc.fi/Kieli.html
- * 
- * Language abbreviations
- *  * http://tilastokeskus.fi/meta/luokitukset/kieli/001-2003/index.html
- *
- *  Virallinen koodisto
- *  http://tilastokeskus.fi/meta/luokitukset/kieli/001-2003/index.html
- */
 @Entity
 public class UserLanguage extends Model {
 
@@ -27,16 +16,11 @@ public class UserLanguage extends Model {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-	// käyttäjän äidinkieli
 	private String nativeLanguageCode;
 
 	private String nativeLanguageName;
 
-	
-	/*
-	 *  käyttäjä saattaa haluta käyttää järjestelmää 
-	 *  eri kielellä kuin äidinkielellä
-	 */
+    // Preferred language is other than native one
 	private String UILanguageCode;
 	
 	private String UILanguageName;

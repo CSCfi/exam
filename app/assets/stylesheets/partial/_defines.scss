@@ -101,6 +101,7 @@ $sitnet-family-georgia: Georgia, Helvetica, Arial;
 
 // #### layout colors ############################################
 $sitnet-alarm: #C0001F;
+$sitnet-aborted: #770505;
 $sitnet-notice: #E1A117;
 $sitnet-ready: #6AA33A;
 $sitnet-theme: #3FA9F5;
@@ -122,6 +123,7 @@ $sitnet-background: #ffffff;
 .sitnet-text-notice { color: $sitnet-notice; }
 .sitnet-text-ready { color: $sitnet-ready; }
 .sitnet-text-alarm { color: $sitnet-alarm; }
+.sitnet-text-aborted { color: $sitnet-aborted; }
 .sitnet-text { color: $sitnet-text; }
 
 
@@ -151,7 +153,7 @@ $sitnet-background: #ffffff;
 .base {
   background-color: $sitnet-background;
   padding: 1em;
-  margin: 0em;
+  margin: 0;
 }
 
 $sitnet-icon-size: 32px;
@@ -329,7 +331,7 @@ $sitnet-icon-size: 32px;
   font-weight: normal;
 }
 .icon_fix {
-  margin-left:0.2em;
+  margin-left:1em;
   line-height:1.8em;
 }
 .light-table {
@@ -343,4 +345,13 @@ $sitnet-icon-size: 32px;
     border:0;
     border-right:0.15em solid $sitnet-common-light;
   }
+}
+.sitnet-badge {
+  padding:0.25em 0.6em 0.1em;
+  font-size: 0.9em;
+  background-color: $sitnet-theme;
+  color:$sitnet-white;
+  margin:0.1em;
+  text-align: center;
+
 }

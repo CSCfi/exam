@@ -1,0 +1,68 @@
+<div id='sitnet-header' class='header'>
+    <div class='col-md-8 header-wrapper'>
+        <span class='header-text'>{{'sitnet_calendar' | translate}}</span>
+    </div>
+</div>
+
+
+<div id='sitnet-calendar' class='base' ng-controller='CalendarCtrl'>
+
+    <div class='row'>
+
+        <div class="col-md-1"><i ng-click="prevMonth()" class="fa fa-2x fa-caret-square-o-left"></i></div>
+        <div class="col-md-2">{{selectedMonth.display}}</div>
+        <div class="col-md-1"><i ng-click="nextMonth()" class="fa fa-2x fa-caret-square-o-right"></i></div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+
+        <ul class="inline-list">
+            <li>
+                <button ng-repeat='room in rooms' type='button' ng-click="selectRoom(room)"
+                        ng-class="room.selected ? 'selected' : '' " class='btn btn-white btn-xs'>{{room.name}}
+                </button>
+                    <p ng-show="room.outOfService" class="note">{{'sitnet_room_out_of_service' | translate}} {{room.statusComment}}</p>
+            </li>
+        </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {{ 'sitnet_room_accessibility_info' | translate }}
+            <ul class="inline-list">
+                <li>
+                    <button ng-repeat='accessibility in accessibilities' type='button'
+                            ng-click="selectAccessibility(accessibility)"
+                            ng-class="accessibility.selected ? 'selected' : '' " class='btn btn-white btn-xs'>
+                        {{accessibility.name}}
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {{ 'sitnet_instruction' | translate }}:
+            <p mathjax ng-bind-html="reservationInstructions"></p>
+        </div>
+    </div>
+
+    <p>{{ selectedRoomsString }}</p>
+
+    <div class="row">
+        <div class="col-md-12">
+            <ul class="reservationRow">
+                <li ng-repeat='(date, slots) in daySlots'>
+                    <span class="date">{{formatDate(date)}}</span>
+                    <span ng-repeat='slot in slots' class="freeTime"><a class="pointer" ng-click="createReservation(slot)">{{formatTime(slot.start)}} - {{formatTime(slot.end)}}</a></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+</div>

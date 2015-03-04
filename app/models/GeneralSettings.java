@@ -5,9 +5,6 @@ import play.db.ebean.Model;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-/**
- * Created by avainik on 8/15/14.
- */
 @Entity
 public class GeneralSettings extends Model {
 
@@ -22,7 +19,6 @@ public class GeneralSettings extends Model {
     @Column(columnDefinition = "TEXT")
     private String eula;
 
-    // Opettajalla on näin monta päivää tarkastaa tentti
     @Column(columnDefinition="numeric default 14")
     private long reviewDeadline;
 
@@ -47,6 +43,6 @@ public class GeneralSettings extends Model {
     }
 
     public void setEula(String text) {
-        this.eula = text;
+        eula = text;
     }
 }

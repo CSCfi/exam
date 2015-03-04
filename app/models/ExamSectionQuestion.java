@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.questions.AbstractQuestion;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.beans.BeanUtils;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"examSection_id", "question_id"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"exam_section_id", "question_id"}))
 public class ExamSectionQuestion extends Model {
 
     @Id
@@ -21,7 +22,7 @@ public class ExamSectionQuestion extends Model {
     @JsonBackReference
     private ExamSection examSection;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "question_id")
     private AbstractQuestion question;
 
@@ -33,7 +34,7 @@ public class ExamSectionQuestion extends Model {
     }
 
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public void setId(Long id) {
@@ -62,6 +63,13 @@ public class ExamSectionQuestion extends Model {
 
     public void setSequenceNumber(int sequenceNumber) {
         this.sequenceNumber = sequenceNumber;
+    }
+
+    public ExamSectionQuestion copy() {
+        ExamSectionQuestion esq = new ExamSectionQuestion();
+        BeanUtils.copyProperties(this, esq, new String[] {"id"});
+        esq.setQuestion(question.copy());
+        return esq;
     }
 
     @Override

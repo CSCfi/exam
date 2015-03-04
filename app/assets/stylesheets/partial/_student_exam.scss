@@ -1,23 +1,11 @@
 #studentexam {
 
-  .sidebutton {
-    color: $sitnet-common-dark;
-    cursor: pointer;
-    padding-top:0.3em;
+  .sidebutton-text {
+    padding-top:0.2em;
 
     :hover {
       color: $sitnet-theme;
     }
-  }
-
-  .sidebutton-alarm {
-    color: $sitnet-alarm;
-    cursor: pointer;
-  }
-
-  .sidebutton-save {
-    color: $sitnet-student-darkgreen;
-    cursor: pointer;
   }
 
   padding: 1em;
@@ -54,20 +42,16 @@
   .question-active-header,
   .question-unanswered-header,
   .question-answered-header {
-    padding: 1px;
-    margin-top: 0.2em;
+    padding: 1em 0.5em;
+    margin-top: 1em;
     background-color: $sitnet-white;
-    font-weight: bold;
-    line-height:2.4em;
+    border:1px solid $sitnet-common-dark;
   }
 
   .question-header {
   }
 
   .question-active-header {
-    .question-text {
-      color: $sitnet-text;
-    }
     .question-icon-bg {
       color: $sitnet-notice;
     }
@@ -77,11 +61,8 @@
   }
 
   .question-unanswered-header {
-    .question-text {
-      color: $sitnet-common-medium;
-    }
     .question-icon-bg {
-        color: $sitnet-common-light;
+        color: $sitnet-common-medium;
     }
     .question-icon {
       color: $sitnet-white;
@@ -89,9 +70,6 @@
    }
 
   .question-answered-header {
-    .question-text {
-      color: $sitnet-common-medium;
-    }
     .question-icon-bg {
       color: $sitnet-ready;
     }
@@ -127,9 +105,15 @@
     line-height: 2.5em;
   }
 
+  .exam-question-instruction {
+    font-weight: 200;
+    font-size: 1em;
+    padding-bottom: 1em;
+  }
+
   .exam-question-container {
     background-color: $sitnet-white;
-    padding: 1.6em 1.2em 1.6em;
+    padding: 0.4em 1.2em 1.6em;
     clear:both;
   }
 
@@ -148,6 +132,7 @@
     padding: 0.5em 0;
     font-size: 0.9em;
     line-height: 1.8em;
+    white-space: pre-wrap;
   }
 
   .exam-answer-options {
@@ -217,7 +202,6 @@
   .blue_button_left, .blue_button_right {
 
     cursor: pointer;
-    font-size: 0.8em;
     text-decoration: none;
 
     span {
@@ -228,9 +212,7 @@
       background-color: $sitnet-theme;
       color: $sitnet-white;
       font-size: 0.9em;
-    }
-    i {
-      line-height: 2em;
+      font-weight: bold;
     }
     :hover {
       text-decoration: none;

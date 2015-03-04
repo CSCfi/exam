@@ -5,6 +5,7 @@ import com.avaje.ebean.Query;
 import com.typesafe.config.ConfigFactory;
 import models.*;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
@@ -15,29 +16,25 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
-/**
- * Created by alahtinen on 21.5.2014.
- */
 public class EmailComposer {
 
     /**
      * General template strings
      */
-    private final static String tagOpen = "{{";
-    private final static String tagClosed = "}}";
-    private final static String baseSystemURL = ConfigFactory.load().getString("sitnet.baseSystemURL");
-    private final static Charset ENCODING = Charset.defaultCharset();
-    private final static String TEMPLATES_ROOT = Play.application().path().getAbsolutePath() + "/app/assets/template/email/";
-    private static String hostname = SitnetUtil.getHostName();
-    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
-    private static DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
-    private static DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH:mm");
-
+    private static final String tagOpen = "{{";
+    private static final String tagClosed = "}}";
+    private static final String baseSystemURL = ConfigFactory.load().getString("sitnet.baseSystemURL");
+    private static final Charset ENCODING = Charset.defaultCharset();
+    private static final String TEMPLATES_ROOT = Play.application().path().getAbsolutePath() + "/app/assets/template/email/";
+    private static final String hostname = SitnetUtil.getHostName();
+    private static final DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm ZZZ");
+    private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
+    private static final DateTimeFormatter timeFormat = DateTimeFormat.forPattern("HH:mm");
+    private static final DateTimeZone tz = SitnetUtil.getDefaultTimeZone();
+    private static final String enrollmentTemplatePath = TEMPLATES_ROOT + "weeklySummary/enrollmentInfo.html";
 
     /**
      * This notification is sent to student, when teacher has reviewed the exam
@@ -75,7 +72,6 @@ public class EmailComposer {
      * @param assigner  The teacher who assigned the inspector.
      * @param exam      The exam to be inspected.
      */
-
     public static void composeChangeInspectorNotification(User inspector, User assigner, Exam exam,
                                                           String message) throws IOException {
 
@@ -136,7 +132,7 @@ public class EmailComposer {
         template = replaceAll(template, tagOpen, tagClosed, stringValues);
 
         //Send notification
-        EmailSender.sendInspectorNotification(inspector.getEmail(), assigner.getEmail(), subject, template);
+        EmailSender.send(inspector.getEmail(), assigner.getEmail(), subject, template);
     }
 
     /**
@@ -169,7 +165,7 @@ public class EmailComposer {
         template = replaceAll(template, tagOpen, tagClosed, stringValues);
 
         //Send notification
-        EmailSender.sendInspectorNotification(inspector.getEmail(), sender.getEmail(), subject, template);
+        EmailSender.send(inspector.getEmail(), sender.getEmail(), subject, template);
 
     }
 
@@ -202,57 +198,26 @@ public class EmailComposer {
         template = replaceAll(template, tagOpen, tagClosed, stringValues);
 
         //Send notification
-        EmailSender.sendInspectorNotification(inspector.getEmail(), sender.getEmail(), subject, template);
+        EmailSender.send(inspector.getEmail(), sender.getEmail(), subject, template);
 
     }
 
-    /**
-     * This notification is sent to teachers weekly
-     *
-     * @param teacher Teacher that this summary is made for
-     */
-    public static void composeWeeklySummary(User teacher) throws IOException {
+    private static String createEnrolmentBlock(User teacher) throws IOException {
 
-//        $ /path/to/bin/<project-name> -Dconfig.resource=prod.conf
+        String enrollmentTemplate = readFile(enrollmentTemplatePath, ENCODING);
+        StringBuilder enrolmentBlock = new StringBuilder();
 
-        Logger.info("Sending weekly report to: " + teacher.getEmail());
-
-        String templatePath = TEMPLATES_ROOT + "weeklySummary/weeklySummary.html";
-        String enrollmentTemplatePath = TEMPLATES_ROOT + "weeklySummary/enrollmentInfo.html";
-        String inspectionTemplatePath = TEMPLATES_ROOT + "weeklySummary/inspectionInfoSimple.html";
-
-        String subject = "EXAM viikkokooste";
-
-        final String template = readFile(templatePath, ENCODING);
-        final String enrollmentTemplate = readFile(enrollmentTemplatePath, ENCODING);
-        final String inspectionTemplate = readFile(inspectionTemplatePath, ENCODING);
-
-        // get all active exams created by this teachers
-        Timestamp now = new Timestamp(new Date().getTime());
-        List<Exam> activeExams = Ebean.find(Exam.class)
-                .select("id, creator.id")
+        // get all enrolments for this exam
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam.course")
                 .where()
-                .eq("state", "PUBLISHED")
-                .gt("examActiveEndDate", now)
-                .eq("creator.id", teacher.getId())
+                .eq("exam.creator.id", teacher.getId())
+                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .gt("exam.examActiveEndDate", new Date())
+                .orderBy("exam.id, id desc")
                 .findList();
-
-        StringBuilder enrollmentBlock = new StringBuilder();
-
-        for (Exam exam : activeExams) {
-            // TODO: oops theres a bug, this will list ALL exams, answered and unanswered
-            // get all enrolments for this exam
-            List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                    .fetch("exam")
-                    .fetch("exam.course")
-                    .select("exam.name, exam.course.code")
-                    .where()
-                    .eq("exam.id", exam.getId())
-                    .eq("exam.state", "PUBLISHED")
-                    .gt("exam.examActiveEndDate", now)
-                    .orderBy("exam.id, id desc")
-                    .findList();
-
+        for (ExamEnrolment enrolment : enrolments) {
+            Exam exam = enrolment.getExam();
             Map<String, String> stringValues = new HashMap<>();
             stringValues.put("exam_link", hostname + "/#/home/exams/" + exam.getId());
             stringValues.put("exam_name", exam.getName());
@@ -268,7 +233,7 @@ public class EmailComposer {
                 stringValues.put("enrollments", Integer.toString(enrolments.size()));
                 // TODO: there should not be enrolments without machine reservations
                 if (enrolments.get(0).getReservation() != null) {
-                    DateTime date = new DateTime(enrolments.get(0).getReservation().getStartAt());
+                    DateTime date = new DateTime(enrolments.get(0).getReservation().getStartAt(), tz);
                     stringValues.put("first_exam_date", dateTimeFormat.print(date));
                     subTemplate = enrollmentTemplate;
                 } else {
@@ -280,91 +245,68 @@ public class EmailComposer {
                         "{{course_code}} - ei ilmoittautumisia</p>";
             }
             String row = replaceAll(subTemplate, tagOpen, tagClosed, stringValues);
-            enrollmentBlock.append(row);
+            enrolmentBlock.append(row);
         }
+        return enrolmentBlock.toString();
+    }
 
-//        List<ExamParticipation> ownExams = Ebean.find(ExamParticipation.class)
-//                .select("id, exam.id")
-//                .fetch("exam")
-//                .where()
-//                .eq("exam.grade", null)     // Owh, should check if exam graded, somehow better
-//                .eq("exam.creator.id", teacher.getId())
-//                .findList();
-
-        List<ExamInspection> ownInspections = Ebean.find(ExamInspection.class)
-                .select("exam.id, user.id")
-                .fetch("exam")
-                .fetch("user")
-                .fetch("assignedBy")
-                .where()
-                .eq("exam.grade", null)     // Owh, should check if exam graded, somehow better
-                .eq("exam.creator.id", teacher.getId())
-                .findList();
-
-        List<ExamParticipation> ownExams = new ArrayList<>();
-
-        for (ExamInspection insp : ownInspections) {
-            List<ExamParticipation> temp = Ebean.find(ExamParticipation.class)
-                    .select("id")
-                    .fetch("exam")
-                    .fetch("exam.parent")
-                    .fetch("exam.course")
-                    .where()
-                    .eq("exam.parent.id", insp.getExam().getId())
-                    .eq("exam.grade", null) // Owh, should check if exam graded, somehow better
-                    .findList();
-
-            ownExams.addAll(temp);
-        }
-
-        // motako tarkastus-pyyntö arvioimatonta tenttiä
+    private static List<ExamParticipation> getReviews(User teacher) {
+        // find IDS for exams where teacher is as additional inspector
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
-                .select("exam.id, user.id")
-                .fetch("exam")
-                .fetch("user")
-                .fetch("assignedBy")
                 .where()
                 .eq("exam.parent", null)
-                .ne("assignedBy", null)     // this is stupid, should check somehow better
+                .isNotNull("assignedBy")     // this is stupid, should check somehow better
                 .eq("user.id", teacher.getId())
                 .findList();
-
-        List<ExamParticipation> reviewExams = new ArrayList<>();
-
-        for (ExamInspection insp : inspections) {
-            List<ExamParticipation> temp = Ebean.find(ExamParticipation.class)
-                    .select("id")
-                    .fetch("exam")
-                    .fetch("exam.parent")
-                    .fetch("exam.course")
-                    .where()
-                    .eq("exam.parent.id", insp.getExam().getId())
-                    .eq("exam.grade", null) // Owh, should check if exam graded, somehow better
-                    .findList();
-
-            reviewExams.addAll(temp);
+        Set<Long> examIds = new HashSet<>();
+        for (ExamInspection inspection : inspections) {
+            examIds.add(inspection.getExam().getId());
         }
+        // return exams in review state where teacher is either creator or inspector
+        return Ebean.find(ExamParticipation.class)
+                .fetch("exam.course")
+                .where()
+                .disjunction()
+                .in("exam.parent.id", examIds)
+                .eq("exam.parent.creator.id", teacher.getId())
+                .endJunction()
+                .disjunction()
+                .eq("exam.state", Exam.State.REVIEW.toString())
+                .eq("exam.state", Exam.State.REVIEW_STARTED.toString())
+                .endJunction()
+                .findList();
+    }
 
-        reviewExams.addAll(ownExams);
+    /**
+     * This notification is sent to teachers weekly
+     *
+     * @param teacher Teacher that this summary is made for
+     */
+    public static void composeWeeklySummary(User teacher) throws IOException {
 
-        int totalUngradedExams = reviewExams.size();
+        Logger.info("Sending weekly report to: " + teacher.getEmail());
+
+        String templatePath = TEMPLATES_ROOT + "weeklySummary/weeklySummary.html";
+        String inspectionTemplatePath = TEMPLATES_ROOT + "weeklySummary/inspectionInfoSimple.html";
+        String subject = "EXAM viikkokooste";
+        String template = readFile(templatePath, ENCODING);
+        String inspectionTemplate = readFile(inspectionTemplatePath, ENCODING);
+
+        String enrolmentBlock = createEnrolmentBlock(teacher);
+
+        List<ExamParticipation> reviews = getReviews(teacher);
+        int totalUngradedExams = reviews.size();
 
         // To ditch duplicate rows
         Set<String> inspectionRows = new LinkedHashSet<>();
 
-        for (ExamParticipation review : reviewExams) {
-            // Todo: should use this template  inspectionInfo.html
-            // now uses inspectionInfoSimple.html
-
+        for (ExamParticipation review : reviews) {
 //            <p><a href="{{exam_link}}">{{student_name}}</a>, {{exam_name}} - {{course_code}}</p>
-
             Map<String, String> stringValues = new HashMap<>();
             stringValues.put("exam_link", hostname + "/#/exams/reviews/" + review.getExam().getId());
             stringValues.put("student_name", review.getUser().getFirstName() + " " + review.getUser().getLastName());
             stringValues.put("exam_name", review.getExam().getName());
             stringValues.put("course_code", review.getExam().getCourse().getCode());
-
-
             String row = replaceAll(inspectionTemplate, tagOpen, tagClosed, stringValues);
             inspectionRows.add(row);
         }
@@ -385,11 +327,11 @@ public class EmailComposer {
         <p>{{inspection_info_other}}</p>*/
 
         Map<String, String> stringValues = new HashMap<>();
-        stringValues.put("enrollment_info", enrollmentBlock.toString());
-        stringValues.put("answer_count_total", totalUngradedExams + "");
+        stringValues.put("enrollment_info", enrolmentBlock);
+        stringValues.put("answer_count_total", Integer.toString(totalUngradedExams));
         stringValues.put("inspection_info_own", rowBuilder.toString());
 //        stringValues.put("inspection_comment", msg);
-        String content  = replaceAll(template, tagOpen, tagClosed, stringValues);
+        String content = replaceAll(template, tagOpen, tagClosed, stringValues);
         EmailSender.send(teacher.getEmail(), "sitnet@arcusys.fi", subject, content);
     }
 
@@ -405,20 +347,32 @@ public class EmailComposer {
         String exam_info = exam.getName() + " " + exam.getCourse().getCode();
         String teacher_name = exam.getCreator().getFirstName() + " " + exam.getCreator().getLastName();
 
-        String startDate = new SimpleDateFormat("dd.MM.yyyy").format(reservation.getStartAt());
-        String endDate = new SimpleDateFormat("dd.MM.yyyy").format(reservation.getEndAt());
-
-        String startTime = new SimpleDateFormat("HH:mm").format(reservation.getStartAt());
-        String endTime = new SimpleDateFormat("HH:mm").format(reservation.getEndAt());
+        DateTime startDate = new DateTime(reservation.getStartAt(), tz);
+        DateTime endDate = new DateTime(reservation.getEndAt(), tz);
 
         // Tenttiaika: 02.10.2015 klo 16:00 - 02.10.2015 klo 18:00”
 
-        String reservation_date = startDate + " klo " + startTime + " - " + endDate + " klo " + endTime;
+        String reservation_date = dateTimeFormat.print(startDate) + " - " + dateTimeFormat.print(endDate);
+
         String exam_duration = String.format("%dh %dmin", exam.getDuration() / 60, exam.getDuration() % 60);
-        String building_info = reservation.getMachine().getRoom().getBuildingName();
-        String room_name = reservation.getMachine().getRoom().getName();
-        String machine_name = reservation.getMachine().getName();
-        String room_instructions = reservation.getMachine().getRoom().getRoomInstruction();
+        String building_info =
+                reservation.getMachine() != null &&
+                        reservation.getMachine().getRoom() != null &&
+                        reservation.getMachine().getRoom().getBuildingName() != null ? reservation.getMachine().getRoom().getBuildingName() : "";
+
+        String room_name =
+                reservation.getMachine() != null &&
+                        reservation.getMachine().getRoom() != null &&
+                        reservation.getMachine().getRoom().getName() != null ? reservation.getMachine().getRoom().getName() : "";
+
+        String machine_name =
+                reservation.getMachine() != null &&
+                        reservation.getMachine().getName() != null ? reservation.getMachine().getName() : "";
+
+        String room_instructions =
+                reservation.getMachine() != null &&
+                        reservation.getMachine().getRoom() != null &&
+                        reservation.getMachine().getRoom().getRoomInstruction() != null ? reservation.getMachine().getRoom().getRoomInstruction() : "";
 
 
         Map<String, String> stringValues = new HashMap<>();
@@ -441,7 +395,9 @@ public class EmailComposer {
         stringValues.put("cancelation_link", hostname + "/#/home/\"");
 
         //Replace template strings
-        template = replaceAll(template, tagOpen, tagClosed, stringValues);
+        if (template != null) {
+            template = replaceAll(template, tagOpen, tagClosed, stringValues);
+        }
         EmailSender.send(student.getEmail(), "noreply@exam.fi", subject, template);
     }
 
@@ -510,15 +466,16 @@ public class EmailComposer {
          *
          */
 
-        String date = dateFormat.print(reservation.getStartAt().getTime());
-        String time = timeFormat.print(reservation.getStartAt().getTime());
+        String date = dateFormat.print(new DateTime(reservation.getStartAt(), tz));
+        String time = timeFormat.print(new DateTime(reservation.getStartAt(), tz));
         String room = reservation.getMachine().getRoom().getName();
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("reservation_date", date);
         stringValues.put("reservation_time", time);
         stringValues.put("room_name", room);
-        stringValues.put("cancelation_information", (message == null || message.length() < 1 ? "" : "Lisätietoja:<br>" + message));
+        stringValues.put("cancelation_information",
+                message == null || message.length() < 1 ? "" : "Lisätietoja:<br>" + message);
 
         String template = null;
         try {
@@ -545,9 +502,11 @@ public class EmailComposer {
      */
     private static String replaceAll(String original, String beginTag, String endTag, Map<String, String> stringValues) {
 
-        for (Entry<String, String> entry : stringValues.entrySet()) {
-            if (original.contains(entry.getKey())) {
-                original = original.replace(beginTag + entry.getKey() + endTag, entry.getValue());
+        if (stringValues != null && original != null && !original.isEmpty()) {
+            for (Entry<String, String> entry : stringValues.entrySet()) {
+                if (entry != null && entry.getKey() != null && original.contains(entry.getKey())) {
+                    original = original.replace(beginTag + entry.getKey() + endTag, entry.getValue() != null && !entry.getValue().isEmpty() ? entry.getValue() : "");
+                }
             }
         }
         return original;

@@ -1,15 +1,11 @@
 package models;
 
-import annotations.NonCloneable;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import models.questions.AbstractQuestion;
-import models.questions.MultipleChoiceQuestion;
-import models.questions.MultipleChoiseOption;
+import org.springframework.beans.BeanUtils;
 import util.SitnetUtil;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.*;
 
 @Entity
@@ -32,13 +28,11 @@ public class Exam extends SitnetModel {
     private String name;
 
     @ManyToOne
-    @NonCloneable
     private Course course;
 
     @OneToOne
-    @NonCloneable
     private ExamType examType;
-    
+
     // Instruction written by teacher, shown during exam
     @Column(columnDefinition = "TEXT")
     private String instruction;
@@ -55,34 +49,22 @@ public class Exam extends SitnetModel {
     @JsonManagedReference
     private List<ExamSection> examSections = new ArrayList<>();
 
-    /*
-     *  Kun opiskelijalle tehdään kopio tentistä, tämä tulee viittaamaan alkuperäiseen tenttiin
-     *  
-     *  Lisäksi tentaattori pitää löytää joukko tenttejä, jotka ovat suoritettuja, jotka pitää tarkistaa
-     *  tätä viitettä voidaan käyttää niiden tenttien löytämiseen  
-     */
     @OneToOne
-    @NonCloneable
     private Exam parent;
 
 
     @Column(length = 32, unique = true)
     private String hash;
 
-    // tentin voimassaoloaika, tentti on avoin opiskelijoille tästä lähtien
+    // Exam valid/enrollable from
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp examActiveStartDate;
-    
-    // tentin voimassaoloaika, tentti sulkeutuu
+    private Date examActiveStartDate;
+
+    // Exam valid/enrollable until
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp examActiveEndDate;
+    private Date examActiveEndDate;
 
-    // Akvaario
-    @OneToOne
-    private ExamRoom room;
-
-    // tentin kesto
-//    @Constraints.Required
+    // Exam duration (minutes)
     private Integer duration;
 
     // Exam grading, e.g. 0-5
@@ -94,12 +76,16 @@ public class Exam extends SitnetModel {
     // Exam total score - calculated from all section scores
     private Double totalScore;
 
+    // Cloned - needed as field for serialization :(
+    private Boolean cloned;
+
     // Exam language
-    private String examLanguage;
+    @ManyToMany
+    private List<Language> examLanguages = new ArrayList<>();
 
     // Exam answer language
     private String answerLanguage;
-    
+
     private String state;
 
     private String grade;
@@ -113,12 +99,11 @@ public class Exam extends SitnetModel {
      * in WebOodi, or other system
      */
     @JsonBackReference
-    @NonCloneable
     @OneToOne
     private User gradedByUser;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp gradedTime;
+    private Date gradedTime;
 
     @OneToOne
     private Comment examFeedback;
@@ -129,7 +114,7 @@ public class Exam extends SitnetModel {
     private String creditType;
 
     // In UI, section has been expanded
-    @Column(columnDefinition="boolean default false")
+    @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -157,6 +142,15 @@ public class Exam extends SitnetModel {
         return total;
     }
 
+    @Transient
+    public Boolean isCloned() {
+        return cloned;
+    }
+
+    public void setCloned(Boolean cloned) {
+        this.cloned = cloned;
+    }
+
     public Grade getExamGrade() {
         return examGrade;
     }
@@ -165,11 +159,11 @@ public class Exam extends SitnetModel {
         this.examGrade = examGrade;
     }
 
-    public Timestamp getGradedTime() {
+    public Date getGradedTime() {
         return gradedTime;
     }
 
-    public void setGradedTime(Timestamp gradedTime) {
+    public void setGradedTime(Date gradedTime) {
         this.gradedTime = gradedTime;
     }
 
@@ -179,10 +173,6 @@ public class Exam extends SitnetModel {
 
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
-    }
-
-    public void setRoom(ExamRoom room) {
-        this.room = room;
     }
 
     public String getName() {
@@ -237,64 +227,53 @@ public class Exam extends SitnetModel {
         return hash;
     }
 
-	public ExamRoom getRoom() {
-		return room;
-	}
+    public Integer getDuration() {
+        return duration;
+    }
 
-	public Integer getDuration() {
-		return duration;
-	}
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
 
-	public void setDuration(Integer duration) {
-		this.duration = duration;
-	}
+    public String getGrading() {
+        return grading;
+    }
 
-	public String getGrading() {
-		return grading;
-	}
+    public void setGrading(String grading) {
+        this.grading = grading;
+    }
 
-	public void setGrading(String grading) {
-		this.grading = grading;
-	}
+    public Double getCustomCredit() {
+        return customCredit;
+    }
 
-	public Double getCustomCredit() {
-		return customCredit;
-	}
-
-	public void setCustomCredit(Double customCredit) {
-		this.customCredit = customCredit;
-	}
+    public void setCustomCredit(Double customCredit) {
+        this.customCredit = customCredit;
+    }
 
     public void setTotalScore(Double totalScore) {
         this.totalScore = totalScore;
     }
 
-    public String getExamLanguage() {
-		return examLanguage;
-	}
+    public List<Language> getExamLanguages() {
+        return examLanguages;
+    }
 
-	public void setExamLanguage(String examLanguage) {
-		this.examLanguage = examLanguage;
-	}
+    public void setExamLanguages(List<Language> examLanguages) {
+        this.examLanguages = examLanguages;
+    }
 
-	public String getAnswerLanguage() {
-		return answerLanguage;
-	}
+    public String getAnswerLanguage() {
+        return answerLanguage;
+    }
 
-	public void setAnswerLanguage(String answerLanguage) {
-		this.answerLanguage = answerLanguage;
-	}
+    public void setAnswerLanguage(String answerLanguage) {
+        this.answerLanguage = answerLanguage;
+    }
 
     public String generateHash() {
-
-        Random rand = new Random();
-
-        // TODO: what attributes make examEvent unique?
-        // create unique hash for exam
-        String attributes = name + state + new String(rand.nextDouble()+"");
-
-        this.hash = SitnetUtil.encodeMD5(attributes);
-        play.Logger.debug("Exam hash: " + this.hash);
+        String attributes = name + state + new Random().nextDouble();
+        hash = SitnetUtil.encodeMD5(attributes);
         return hash;
     }
 
@@ -307,22 +286,22 @@ public class Exam extends SitnetModel {
     }
 
     public Exam getParent() {
-		return parent;
-	}
+        return parent;
+    }
 
-	public void setParent(Exam parent) {
-		this.parent = parent;
-	}
+    public void setParent(Exam parent) {
+        this.parent = parent;
+    }
 
-	public String getGrade() {
-		return grade;
-	}
+    public String getGrade() {
+        return grade;
+    }
 
-	public void setGrade(String grade) {
-		this.grade = grade;
-	}
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
 
-	public String getState() {
+    public String getState() {
         return state;
     }
 
@@ -351,132 +330,49 @@ public class Exam extends SitnetModel {
     }
 
     public void setSoftwareInfo(List<Software> softwareInfo) {
-        this.softwares = softwareInfo;
+        softwares = softwareInfo;
     }
 
-    @Override
-    public Object clone() {
-
-//        Exam clone = (Exam)SitnetUtil.getClone(this);
-
+    public Exam copy() {
         Exam clone = new Exam();
-
-        clone.setCreated(this.getCreated());
-//        clone.setCreator(this.getCreator());
-        clone.setModified(this.getModified());
-        clone.setModifier(this.getModifier());
-        clone.setName(this.getName());
-        clone.setCourse(this.getCourse());
-        clone.setExamType(this.getExamType());
-        clone.setInstruction(this.getInstruction());
-        clone.setShared(this.isShared());
-        clone.setRoom(this.getRoom());
-        clone.setDuration(this.getDuration());
-        clone.setGrading(this.getGrading());
-        clone.setTotalScore(this.getTotalScore());
-        clone.setExamLanguage(this.getExamLanguage());
-        clone.setAnswerLanguage(this.getAnswerLanguage());
-        clone.setGrade(this.getGrade());
-        clone.setExamFeedback(this.getExamFeedback());
-        clone.setCreditType(this.getCreditType());
+        BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "creator", "created"});
         clone.setParent(this);
-        clone.setAttachment(this.getAttachment());
+        SitnetUtil.setCreator(clone);
         SitnetUtil.setModifier(clone);
         clone.save();
-
-        List<ExamSection> examSections = this.getExamSections();
-        List<ExamSection> examSectionCopies = new ArrayList<>();
-
-        Collections.sort(examSections, sortSectionsById());
-
-        for (ExamSection es : examSections) {
-
-            ExamSection esCopy = (ExamSection)es._ebean_createCopy();
-            esCopy.setId(null);
-            esCopy.setExam(clone);
-            SitnetUtil.setModifier(esCopy);
-            esCopy.save();
-            List<ExamSectionQuestion> sectionQuestions = new ArrayList<>(es.getSectionQuestions());
-            if (es.getLotteryOn()) {
-                Collections.shuffle(sectionQuestions);
-                sectionQuestions = sectionQuestions.subList(0, es.getLotteryItemCount());
-            }
-            Collections.sort(sectionQuestions, sortBySequence());
-
-            for (ExamSectionQuestion esq : sectionQuestions) {
-                AbstractQuestion question = esq.getQuestion();
-                AbstractQuestion questionCopy = (AbstractQuestion)question._ebean_createCopy();
-                questionCopy.setId(null);
-                questionCopy.setParent(question);
-                SitnetUtil.setModifier(questionCopy);
-                switch (question.getType()) {
-                    case "MultipleChoiceQuestion": {
-                        List<MultipleChoiseOption> multipleChoiceOptionCopies = new ArrayList<>();
-                        List<MultipleChoiseOption> options = ((MultipleChoiceQuestion) question).getOptions();
-                        for (MultipleChoiseOption o : options) {
-                            MultipleChoiseOption m_option_copy = (MultipleChoiseOption)o._ebean_createCopy();
-                            m_option_copy.setId(null);
-                            multipleChoiceOptionCopies.add(m_option_copy);
-                        }
-                        ((MultipleChoiceQuestion)questionCopy).setOptions(multipleChoiceOptionCopies);
-                        questionCopy.save();
-                    }break;
-
-                    case "EssayQuestion": {
-                        // No need to implement because EssayQuestion doesn't have object relations
-                        questionCopy.save();
-                    } break;
-
-                }
-                ExamSectionQuestion esqCopy = new ExamSectionQuestion();
-                esqCopy.setExamSection(esCopy);
-                esqCopy.setQuestion(questionCopy);
-                esqCopy.setSequenceNumber(esq.getSequenceNumber());
-                esCopy.getSectionQuestions().add(esqCopy);
-            }
-            esCopy.save(); // (q)
-            examSectionCopies.add(esCopy);
-        }
-
-        Collections.sort(examSectionCopies, sortSectionsById());
-
-        clone.setExamSections(examSectionCopies);
         clone.generateHash();
 
-        return clone;
-    }
-
-    private static Comparator<ExamSection> sortSectionsById() {
-        return new Comparator<ExamSection>() {
+        for (ExamSection es : examSections) {
+            ExamSection esCopy = es.copy(clone, true);
+            esCopy.save();
+            for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
+                esq.getQuestion().save();
+                esq.save();
+            }
+            clone.getExamSections().add(esCopy);
+        }
+        Collections.sort(clone.getExamSections(), new Comparator<ExamSection>() {
             @Override
             public int compare(ExamSection o1, ExamSection o2) {
                 return (int) (o1.getId() - o2.getId());
             }
-        };
+        });
+        return clone;
     }
 
-    private static Comparator<ExamSectionQuestion> sortBySequence() {
-        return new Comparator<ExamSectionQuestion>() {
-            @Override
-            public int compare(ExamSectionQuestion o1, ExamSectionQuestion o2) {
-                return o1.getSequenceNumber() - o2.getSequenceNumber();
-            }
-        };
-    }
-
-    public Timestamp getExamActiveStartDate() {
+    public Date getExamActiveStartDate() {
         return examActiveStartDate;
     }
 
-    public void setExamActiveStartDate(Timestamp examActiveStartDate) {
+    public void setExamActiveStartDate(Date examActiveStartDate) {
         this.examActiveStartDate = examActiveStartDate;
     }
 
-    public Timestamp getExamActiveEndDate() {
+    public Date getExamActiveEndDate() {
         return examActiveEndDate;
     }
 
-    public void setExamActiveEndDate(Timestamp examActiveEndDate) {
+    public void setExamActiveEndDate(Date examActiveEndDate) {
         this.examActiveEndDate = examActiveEndDate;
     }
 
@@ -485,10 +381,10 @@ public class Exam extends SitnetModel {
     }
 
     public Attachment getAttachment() {
-        return this.attachment;
+        return attachment;
     }
 
-	@Override
+    @Override
     public String toString() {
         return "Exam{" +
                 "course=" + course +

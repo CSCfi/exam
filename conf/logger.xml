@@ -28,7 +28,6 @@
     <logger name="application" level="DEBUG">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
-
     </logger>
 
 </configuration>

@@ -1,0 +1,16 @@
+<div class="detail-row">
+    <div class="detail-row">
+        <strong class="col-md-12">
+            <span class="btn btn-info">{{$index + 1}}.</span>&nbsp; &nbsp;{{section.name}}
+        </strong>
+        <div class="detail-row">
+            <div class="col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions">
+                <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
+                     ng-include="multiplechoiceQuestionPath"></div>
+                <div ng-if="sectionQuestion.question.type === 'EssayQuestion'"
+                     ng-include="essayQuestionPath"></div>
+            </div>
+        </div>
+    </div>
+</div>
+

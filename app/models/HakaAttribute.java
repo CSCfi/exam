@@ -6,9 +6,6 @@ import play.db.ebean.Model;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-/**
- * Created by alahtinen on 05/09/14.
- */
 @Entity
 public class HakaAttribute extends Model {
 

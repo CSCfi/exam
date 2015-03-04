@@ -1,14 +1,9 @@
 package models;
 
-import util.SitnetUtil;
-
 import javax.persistence.Entity;
 
 @Entity
 public class Attachment extends SitnetModel {
-
-//	@ManyToOne(cascade = CascadeType.PERSIST)
-//	private AbstractQuestion question;
 
     private String fileName;
     private String filePath;
@@ -17,22 +12,18 @@ public class Attachment extends SitnetModel {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
-    public String getFileName() { return this.fileName; }
+    public String getFileName() { return fileName; }
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
     public String getFilePath() {
-        return this.filePath;
+        return filePath;
     }
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
     }
     public String getMimeType() {
-        return this.mimeType;
+        return mimeType;
     }
-    @Override
-    public Object clone() {
 
-        return SitnetUtil.getClone(this);
-    }
 }

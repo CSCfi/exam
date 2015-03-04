@@ -1,14 +1,13 @@
 package controllers;
 
-import Exceptions.UnauthorizedAccessException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import exceptions.SitnetException;
 import models.*;
 import models.answers.EssayAnswer;
 import models.answers.MultipleChoiseAnswer;
@@ -17,24 +16,16 @@ import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by avainik on 3/3/14.
- */
 public class StudentExamController extends SitnetController {
 
     @Restrict({@Group("STUDENT")})
@@ -164,9 +155,12 @@ public class StudentExamController extends SitnetController {
                 .where()
                 .eq("user.id", uid)
                 .disjunction()
+                .gt("reservation.endAt", new Date())
+                .isNull("reservation")
+                .endJunction()
+                .disjunction()
                 .eq("exam.state", "PUBLISHED")
                 .eq("exam.state", "STUDENT_STARTED")
-                        //.eq("exam.state", "ABORTED")
                 .endJunction()
                 .findList();
 
@@ -224,7 +218,7 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result createExam(String hash, User user) throws UnauthorizedAccessException {
+    public static Result createExam(String hash, User user) throws SitnetException {
 
         Exam blueprint = Ebean.find(Exam.class)
                 .fetch("examSections")
@@ -265,46 +259,8 @@ public class StudentExamController extends SitnetController {
 
         // Create new exam for student
         if (possibleClone == null) {
-
-            Timestamp now = SitnetUtil.getNowTime();
-            DateTime jodaNow = DateTime.now().plus(DateTimeZone.forID("Europe/Helsinki").getOffset(DateTime.now()));
+            DateTime now = DateTime.now();
             String clientIP = request().remoteAddress();
-
-            ExamEnrolment possibeEnrolment = Ebean.find(ExamEnrolment.class)
-                    .fetch("reservation")
-                    .fetch("reservation.machine")
-                    .fetch("reservation.machine.room")
-                    .where()
-                    .eq("user.id", user.getId())
-                    .eq("exam.id", blueprint.getId())
-                    .findUnique();
-
-            // if this is null, it means someone is trying to access an exam by wrong hash
-            // which is weird.
-            if (possibeEnrolment == null) {
-                return forbidden("sitnet_reservation_not_found");
-            }
-
-            // exam and enrolment found. Is student on the right machine?
-
-            if (possibeEnrolment.getReservation() == null) {
-                return forbidden("sitnet_reservation_not_found");
-            } else if (possibeEnrolment.getReservation().getMachine() == null) {
-                return forbidden("sitnet_reservation_machine_not_found");
-            } else if (!possibeEnrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
-
-                ExamRoom examRoom = Ebean.find(ExamRoom.class)
-                        .fetch("mailAddress")
-                        .where()
-                        .eq("id", possibeEnrolment.getReservation().getMachine().getRoom().getId())
-                        .findUnique();
-
-                String message = "sitnet_wrong_exam_machine " + examRoom.getName()
-                        + ", " + examRoom.getMailAddress().toString()
-                        + ", sitnet_exam_machine " + possibeEnrolment.getReservation().getMachine().getName();
-
-                return forbidden(message);
-            }
 
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                     .fetch("reservation")
@@ -313,50 +269,35 @@ public class StudentExamController extends SitnetController {
                     .where()
                     .eq("user.id", user.getId())
                     .eq("exam.id", blueprint.getId())
-                    .le("reservation.startAt", now)
-                    .gt("reservation.endAt", now)
+                    .le("reservation.startAt", now.toDate())
+                    .gt("reservation.endAt", now.toDate())
                     .findUnique();
 
-            // Wrong moment in time. Student is early or late
-
+            // If this is null, it means someone is either trying to access an exam by wrong hash
+            // or the reservation is not in effect right now.
             if (enrolment == null) {
-
-                DateTime endAt = new DateTime(possibeEnrolment.getReservation().getEndAt().getTime());
-                DateTime startAt = new DateTime(possibeEnrolment.getReservation().getStartAt().getTime());
-
-                DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
-
-                // too late
-                if (jodaNow.isAfter(endAt)) {
-                    return forbidden("sitnet_exam_has_ended " + dateTimeFormat.print(endAt.getMillis()));
-                }
-                // early
-                else if (jodaNow.isBefore(startAt)) {
-                    return forbidden("sitnet_exam_starts " + dateTimeFormat.print(startAt.getMillis()));
-                } else {
-                    Logger.error("enrolment not found when it was supposed to");
-                    return internalServerError();
-                }
+                return forbidden("sitnet_reservation_not_found");
+            }
+            // Exam and enrolment found. Is student on the right machine?
+            if (enrolment.getReservation() == null) {
+                return forbidden("sitnet_reservation_not_found");
+            } else if (enrolment.getReservation().getMachine() == null) {
+                return forbidden("sitnet_reservation_machine_not_found");
+            } else if (!enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+                ExamRoom examRoom = Ebean.find(ExamRoom.class)
+                        .fetch("mailAddress")
+                        .where()
+                        .eq("id", enrolment.getReservation().getMachine().getRoom().getId())
+                        .findUnique();
+                String message = "sitnet_wrong_exam_machine " + examRoom.getName()
+                        + ", " + examRoom.getMailAddress().toString()
+                        + ", sitnet_exam_machine " + enrolment.getReservation().getMachine().getName();
+                return forbidden(message);
             }
 
-            /*
-            *
-            * Everything matches
-            * - time
-            * - place
-            * - exam machine IP
-            * - student
-            * - exam
-            *
-            * We can start the exam
-            *
-             */
-            Exam studentExam = (Exam) blueprint.clone();
-            if (studentExam == null) {
-                return notFound("sitnet_error_creating_exam");
-            }
-
-            studentExam.setState("STUDENT_STARTED");
+            // We are good to go (reservation and enrolment OK)
+            Exam studentExam = blueprint.copy();
+            studentExam.setState(Exam.State.STUDENT_STARTED.toString());
             studentExam.setCreator(user);
             studentExam.setParent(blueprint);
             studentExam.generateHash();
@@ -368,18 +309,18 @@ public class StudentExamController extends SitnetController {
             ExamParticipation examParticipation = new ExamParticipation();
             examParticipation.setUser(user);
             examParticipation.setExam(studentExam);
-            examParticipation.setStarted(now);
+            examParticipation.setStarted(now.toDate());
             examParticipation.save();
             user.getParticipations().add(examParticipation);
 
+            studentExam.setCloned(true);
             setStudentExamContent(options);
-
             return ok(jsonContext.toJsonString(studentExam, true, options)).as("application/json");
 
         } else {
-            //palautetaan olemassa oleva koe, esim. sessio katkennut tms. jatketaan kokeen tekemistä.
+            // Returning an already existing student exam
+            possibleClone.setCloned(false);
             setStudentExamContent(options);
-
             return ok(jsonContext.toJsonString(possibleClone, true, options)).as("application/json");
         }
     }
@@ -387,7 +328,7 @@ public class StudentExamController extends SitnetController {
     private static void setStudentExamContent(JsonWriteOptions options) {
 
         options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
-                "duration, examLanguage, answerLanguage, state, expanded, attachment");
+                "duration, examLanguage, answerLanguage, state, expanded, attachment, cloned");
         options.setPathProperties("creator", "id");
         options.setPathProperties("attachment", "fileName");
         options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
@@ -406,7 +347,7 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result startExam(String hash) throws UnauthorizedAccessException {
+    public static Result startExam(String hash) throws SitnetException {
         User user = UserController.getLoggedUser();
         return createExam(hash, user);
     }
@@ -423,12 +364,12 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(SitnetUtil.getNowTime());
-            p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
+            p.setEnded(new Date());
+            p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
             int deadlineDays = (int) settings.getReviewDeadline();
-            Timestamp deadline = new Timestamp(new DateTime(p.getEnded()).plusDays(deadlineDays).getMillis());
+            Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
             p.setDeadline(deadline);
             p.save();
         }
@@ -451,12 +392,12 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(SitnetUtil.getNowTime());
-            p.setDuration(new Timestamp(p.getEnded().getTime() - p.getStarted().getTime()));
+            p.setEnded(new Date());
+            p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
 
-            p.setDeadline(new Timestamp(p.getEnded().getTime() + settings.getReviewDeadline()));
+            p.setDeadline(new Date(p.getEnded().getTime() + settings.getReviewDeadline()));
 
             p.save();
         }

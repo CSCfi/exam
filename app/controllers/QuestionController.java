@@ -1,15 +1,14 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
-import Exceptions.SitnetException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
-import models.ExamSectionQuestion;
-import models.SitnetModel;
-import models.answers.AbstractAnswer;
+import exceptions.MalformedDataException;
+import exceptions.SitnetException;
+import models.User;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
@@ -21,207 +20,78 @@ import play.mvc.Result;
 import util.SitnetUtil;
 
 import java.util.List;
+import java.util.Set;
 
 public class QuestionController extends SitnetController {
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getQuestions() {
-
-        List<AbstractQuestion> questions = Ebean.find(AbstractQuestion.class)
-                .fetch("parent")
-                .where()
-                .eq("parent", null)
-                .findList();
-
-        if (questions == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
-                    "evaluatedScore, parent, evaluationCriterias, attachment, evaluationPhrases, hash, " +
-                    "expanded, maxCharacters, evaluationType, options");
-            options.setPathProperties("creator", "id");
-            options.setPathProperties("parent", "id");
-            options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("options", "id, option, correctOption, score");
-            return ok(jsonContext.toJsonString(questions, true, options)).as("application/json");
-        }
-//        return ok(Json.toJson(questions));
+    enum QuestionState {
+        NEW, SAVED, DELETED
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getQuestionsForUser(Long id) {
-
-        List<AbstractQuestion> questions = null;
-        List<AbstractQuestion> shared;
-
-        if(UserController.getLoggedUser().hasRole("TEACHER"))
-        {
-            // TODO: should use SELECT LIMIT from to
-            questions = Ebean.find(AbstractQuestion.class)
-                    .where()
-                    .eq("creator.id", id)
-                    .eq("parent", null)
-                    .orderBy("created desc")
-                    .findList();
-
-            shared = Ebean.find(AbstractQuestion.class)
-                    .where()
-                    .ne("creator.id", id)
-                    .eq("parent", null)
+    public static Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds) {
+        User user = UserController.getLoggedUser();
+        ExpressionList<AbstractQuestion> query = Ebean.find(AbstractQuestion.class)
+                .where()
+                .isNull("parent")
+                .ne("state", QuestionState.DELETED.toString());
+        if (user.hasRole("TEACHER")) {
+            query = query.disjunction()
+                    .eq("creator.id", user.getId())
                     .eq("shared", true)
-                    .orderBy("created desc")
-                    .findList();
-
-            questions.addAll(shared);
+                    .endJunction();
         }
-        else if(UserController.getLoggedUser().hasRole("ADMIN"))
-        {
-            // TODO: should use SELECT LIMIT from to
-            questions = Ebean.find(AbstractQuestion.class)
-                    .where()
-                    .eq("parent", null)
-                    .orderBy("created desc")
-                    .findList();
+        if (!examIds.isEmpty()) {
+            query = query.in("children.examSectionQuestion.examSection.exam.id", examIds);
         }
-
-        if (questions == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
-                    "evaluatedScore, parent, evaluationCriterias, attachment, evaluationPhrases, hash, " +
-                    "expanded, maxCharacters, evaluationType, options");
-            options.setPathProperties("creator", "id");
-            options.setPathProperties("parent", "id");
-            options.setPathProperties("attachment", "id, fileName");
-            options.setPathProperties("options", "id, option, correctOption, score");
-            return ok(jsonContext.toJsonString(questions, true, options)).as("application/json");
+        if (!courseIds.isEmpty()) {
+            query = query.in("children.examSectionQuestion.examSection.exam.course.id", courseIds);
         }
-//        return ok(Json.toJson(questions));
+        for (Long tagId : tagIds) {
+            query = query.eq("tags.id", tagId);
+        }
+        Set<AbstractQuestion> questions = query.orderBy("created desc").findSet();
+        JsonContext jsonContext = Ebean.createJsonContext();
+        return ok(jsonContext.toJsonString(questions, true, getOptions())).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getQuestion(Long id) {
-
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
-
         return ok(Json.toJson(question));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result copyQuestion(Long id) throws MalformedDataException {
+    public static Result copyQuestion(Long id) throws SitnetException {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
-        EssayQuestion essayQuestion = null;
-        MultipleChoiceQuestion multipleChoiceQuestion = null;
-
-        switch (question.getType()) {
-            case "MultipleChoiceQuestion": {
-
-                multipleChoiceQuestion = (MultipleChoiceQuestion) question.clone();
-
-                try {
-                    multipleChoiceQuestion = (MultipleChoiceQuestion) SitnetUtil.setCreator(multipleChoiceQuestion);
-                } catch (SitnetException e) {
-                    e.printStackTrace();
-                }
-
-                multipleChoiceQuestion.getOptions().clear();
-                multipleChoiceQuestion.setAttachment(question.getAttachment());
-                multipleChoiceQuestion.save();
-                List<MultipleChoiseOption> options = ((MultipleChoiceQuestion)question).getOptions();
-                for (MultipleChoiseOption o : options) {
-                    MultipleChoiseOption clonedOpt = (MultipleChoiseOption) o.clone();
-                    clonedOpt.setQuestion(multipleChoiceQuestion);
-                    clonedOpt.save();
-                    multipleChoiceQuestion.getOptions().add(clonedOpt);
-                }
-                break;
-            }
-            case "EssayQuestion":
-
-                essayQuestion = (EssayQuestion) question.clone();
-
-                try {
-                    essayQuestion = (EssayQuestion) SitnetUtil.setCreator(essayQuestion);
-                } catch (SitnetException e) {
-                    e.printStackTrace();
-                }
-
-                AbstractAnswer answer = question.getAnswer();
-                essayQuestion.setAnswer(answer);
-                essayQuestion.setAttachment(question.getAttachment());
-                essayQuestion.save();
-
-                break;
-        }
-
-        Ebean.save(question);
-
-        switch (question.getType()) {
-            case "MultipleChoiceQuestion": return ok(Json.toJson(multipleChoiceQuestion));
-            case "EssayQuestion": return ok(Json.toJson(essayQuestion));
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id).copy();
+        SitnetUtil.setCreator(question);
+        question.save();
+        if (question instanceof MultipleChoiceQuestion) {
+            Ebean.save(((MultipleChoiceQuestion) question).getOptions());
         }
         return ok(Json.toJson(question));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result addQuestion() throws MalformedDataException {
-
+    public static Result addQuestion() throws SitnetException {
         DynamicForm df = Form.form().bindFromRequest();
-
-        try {
-            Class<?> clazz = Class.forName("models.questions." + df.get("type"));
-            Object question = clazz.newInstance();
-
-            question = bindForm(question.getClass());
-
-            switch (df.get("type")) {
-                case "MultipleChoiceQuestion": {
-
-                    try {
-                        SitnetUtil.setCreator((SitnetModel)question);
-                    } catch (SitnetException e) {
-                        e.printStackTrace();
-                        return ok(e.getMessage());
-                    }
-                    ((MultipleChoiceQuestion) question).generateHash();
-
-                } break;
-
-                case "EssayQuestion": {
-
-                    try {
-                        SitnetUtil.setCreator((SitnetModel)question);
-                    } catch (SitnetException e) {
-                        e.printStackTrace();
-                        return ok(e.getMessage());
-                    }
-                    ((EssayQuestion) question).generateHash();
-
-                } break;
-
-                case "MathQuestion": {
-
-
-                } break;
-
-                default:
-
-            }
-
-            ((AbstractQuestion)question).setState("NEW");
-            Ebean.save(question);
-            return ok(Json.toJson(question));
-
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
+        Class<? extends AbstractQuestion> clazz;
+        switch (df.get("type")) {
+            case "MultipleChoiceQuestion":
+                clazz = MultipleChoiceQuestion.class;
+                break;
+            case "EssayQuestion":
+                clazz = EssayQuestion.class;
+                break;
+            default:
+                throw new IllegalArgumentException("question type not supported");
         }
-
-        return ok("fail");
+        AbstractQuestion question = bindForm(clazz);
+        SitnetUtil.setCreator(question);
+        question.setState(QuestionState.NEW.toString());
+        Ebean.save(question);
+        return ok(Json.toJson(question));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -249,24 +119,24 @@ public class QuestionController extends SitnetController {
         question.setInstruction(df.get("instruction"));
         question.setEvaluationCriterias(df.get("evaluationCriterias"));
         question.setShared(Boolean.parseBoolean(df.get("shared")));
-        question.setState("SAVED");
+        question.setState(QuestionState.SAVED.toString());
         question.update();
         switch (df.get("type")) {
-           case "EssayQuestion":
-               EssayQuestion essay = Ebean.find(EssayQuestion.class, id);
-               if (df.get("maxCharacters") != null) {
-                   essay.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
-               }
-               if (df.get("evaluationType") != null) {
-                   essay.setEvaluationType(df.get("evaluationType"));
-               }
-               essay.update();
-               return ok(Json.toJson(essay));
-           case "MultipleChoiceQuestion":
-               return ok(Json.toJson(question));
+            case "EssayQuestion":
+                EssayQuestion essay = Ebean.find(EssayQuestion.class, id);
+                if (df.get("maxCharacters") != null) {
+                    essay.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
+                }
+                if (df.get("evaluationType") != null) {
+                    essay.setEvaluationType(df.get("evaluationType"));
+                }
+                essay.update();
+                return ok(Json.toJson(essay));
+            case "MultipleChoiceQuestion":
+                return ok(Json.toJson(question));
             default:
-               return badRequest();
-       }
+                return badRequest();
+        }
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -284,33 +154,8 @@ public class QuestionController extends SitnetController {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
 
-        List<AbstractQuestion> children = Ebean.find(AbstractQuestion.class)
-                .where()
-                .eq("parent.id", id)
-                .findList();
-
-        for(AbstractQuestion a : children) {
-            a.setParent(null);
-            a.save();
-        }
-
-        List<MultipleChoiseOption> options = Ebean.find(MultipleChoiseOption.class)
-                .where()
-                .eq("question.id", id)
-                .findList();
-
-        for (MultipleChoiseOption o : options) {
-            o.setQuestion(null);
-            o.delete();
-        }
-
-        List<ExamSectionQuestion> sectionQuestions = Ebean.find(ExamSectionQuestion.class).where().eq("question.id",
-                id).findList();
-        for (ExamSectionQuestion esq : sectionQuestions) {
-            esq.delete();
-        }
-
-        Ebean.delete(AbstractQuestion.class, id);
+        question.setState(QuestionState.DELETED.toString());
+        question.save();
 
         return ok("Question deleted from database!");
     }
@@ -337,10 +182,9 @@ public class QuestionController extends SitnetController {
 
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result createOption() throws MalformedDataException {
+    public static Result createOption() {
 
         MultipleChoiseOption option = new MultipleChoiseOption();
-//        option.setOption("Esimerkki vaihtoehto");
         option.setCorrectOption(false);
         option.save();
 
@@ -348,10 +192,23 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getOption(Long id) throws MalformedDataException {
+    public static Result getOption(Long id) {
 
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
         return ok(Json.toJson(option));
+    }
+
+    private static JsonWriteOptions getOptions() {
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
+                "evaluatedScore, parent, evaluationCriterias, attachment, " +
+                "expanded, maxCharacters, evaluationType, options");
+        options.setPathProperties("creator", "id");
+        options.setPathProperties("parent", "id");
+        options.setPathProperties("attachment", "id, fileName");
+        options.setPathProperties("options", "id, option, correctOption, score");
+
+        return options;
     }
 
 }

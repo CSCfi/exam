@@ -7,6 +7,8 @@ import play.db.ebean.Model;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
+import java.util.Date;
+
 /**
  * Created by alahtinen on 02/09/14.
  */
@@ -37,17 +39,17 @@ public class ExamRecord extends Model {
 
     // what timestamp is this? The moments teacher marked Exam as recorded
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp timeStamp;
+    private Date timeStamp;
 
     // the moment this record was exported to Education administration system
     @Temporal(TemporalType.TIMESTAMP)
-    private Timestamp recordedOn;
+    private Date recordedOn;
 
-    public Timestamp getRecordedOn() {
+    public Date getRecordedOn() {
         return recordedOn;
     }
 
-    public void setRecordedOn(Timestamp recordedOn) {
+    public void setRecordedOn(Date recordedOn) {
         this.recordedOn = recordedOn;
     }
 
@@ -83,11 +85,11 @@ public class ExamRecord extends Model {
         this.examScore = examScore;
     }
 
-    public Timestamp getTimeStamp() {
+    public Date getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(Timestamp timeStamp) {
+    public void setTimeStamp(Date timeStamp) {
         this.timeStamp = timeStamp;
     }
 

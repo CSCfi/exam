@@ -1,0 +1,80 @@
+<div class="section-header row">
+    <div class="col-md-1" id="section{{section.id}}">
+        <a class="pointer pull-left fa-stack fa-lg line-height56" popover-placement="left" popover-popup-delay="1000"
+           popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+           ng-click="section.expanded = !section.expanded; expandSection(section)">
+            <i ng-class="section.expanded ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
+        </a>
+    </div>
+    <div class="col-md-10">
+        <div class="sitnet-info-text" style="margin-left: 4em;">{{'sitnet_section_name' | translate}}:</div>
+        <div class="col-md-1 fa-stack fa-lg">
+            <i class="fa icon-theme fa-stop fa-stack-2x"></i>
+            <span class="fa sitnet-white fa-stack-1x">{{$index+1}}.</span>
+        </div>
+        <div class="col-md-5 pull-left">
+            <input type="text" class="form-control ng-pristine ng-valid "
+                   ng-model="section.name"
+                   ui-change="renameSection(section)" style="font-size: 1.3em"/>
+        </div>
+        <div class="col-md-1 dropdown pull-right" ng-click="editSection(section)">
+            <a class="dropdown-toggle sub-header-icon pull-right fa-stack fa-lg">
+                <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                <i class="fa fa-wrench fa-stack-1x"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a ng-click="clearAllQuestions(section)" class="pointer-hand">{{'sitnet_exam_clear' | translate}}</a></li>
+                <li><a ng-click="removeSection(section)" class="pointer-hand">{{'sitnet_exam_remove' | translate}}</a></li>
+            </ul>
+        </div>
+
+        <div class="col-md-5 pull-left">
+            <div>
+                <span class="col-md-7 pointer-hand" style="padding: 0.5em 0;font-size:0.9em;">
+                    <input style="margin-right: 0.5em" type="checkbox" name="On" value="On"
+                           ng-disabled="section.sectionQuestions.length < 2" ng-click="toggleLottery(section)"
+                           ng-model="section.lotteryOn">
+                        {{'sitnet_randomize_questions' | translate}}
+                    </input>
+                </span>
+                <span class="col-md-2" style="padding: 0.5em 0;" ng-show="section.lotteryOn && section.sectionQuestions.length > 1">
+                    <input style="width:2.5em;padding:0.1em;border:1px solid rgba(0,0,0,0.3);" type="number" name="" min="1" value="1" max="{{section.sectionQuestions.length}}"
+                           ng-model="section.lotteryItemCount" ng-change="updateLotteryCount(section)" autofocus />
+                </span>
+                <span class="col-md-2" style="padding: 0.7em 0;" ng-show="section.lotteryOn && section.sectionQuestions.length > 1">
+                    <span class="pull-left">/ <span class="pull-right" style="margin-left:0.5em;">{{section.sectionQuestions.length}}</span></span>
+                </span>
+            </div>
+        </div>
+    </div> <!--md-11-->
+</div>
+
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-10" ng-show="section.expanded">
+        <ul droppable="section.sectionQuestions" ng-move="moveQuestion(section, from, to)"
+            ng-create="insertQuestion(section, object, to)" class="sortable">
+            <li ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="questionPath"
+                ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
+            </li>
+            <li ng-show="section.sectionQuestions.length == 0" class="create-new dropdown">
+
+            </li>
+        </ul>
+        <div class="create-new dropdown">
+            <a class="dropdown-toggle pointer">
+                <i class="fa fa-2x fa-plus-circle"></i>
+                {{'sitnet_add_content'|translate}}
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
+                </li>
+                <li>
+                    <a ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_question_mc' | translate }}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-1"></div>
+</div>

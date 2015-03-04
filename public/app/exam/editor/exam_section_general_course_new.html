@@ -1,0 +1,76 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_exam' | translate}}</span>
+    </div>
+</div>
+<div class="col-md-12">
+    <div class="col-md-12 top-margin-1"><h4>{{'sitnet_select_exam_course' | translate}}:</h4></div>
+    <div class="col-md-12" ng-controller="CourseTypeaheadCtrl">
+        <div class="row">
+
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}:</div>
+                <div class="input-group">
+                    <input type="text" class="form-control ng-pristine ng-valid"
+                           ng-model="newExam.course.name"
+                           placeholder="{{'sitnet_course_name' | translate}}"
+                           typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
+                           typeahead="c as c.name for c in getCourses('name', $viewValue)"
+                           typeahead-min-length="2"
+                           typeahead-loading="loadingCoursesByName">
+                               <span class="input-group-addon"
+                                     ng-click="toaster.info('Opintojakson nimi');">
+                                    <i class="fa fa-question-circle fa-fw"></i>
+                                    <i ng-show="loadingCoursesByName" class="fa fa-refresh"></i>
+                               </span>
+
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}:</div>
+                <div class="input-group">
+                    <input type="text" class="form-control ng-pristine ng-valid"
+                           ng-model="newExam.course.code"
+                           placeholder="{{'sitnet_course_code' | translate}}"
+                           typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
+                           typeahead="c as c.code for c in getCourses('code', $viewValue)"
+                           typeahead-loading="loadingCoursesByCode">
+                               <span class="input-group-addon"
+                                     ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
+                                    <i class="fa fa-question-circle fa-fw"></i>
+                                    <i ng-show="loadingCoursesByCode" class="fa fa-refresh"></i>
+                               </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course scope and organization name input elements -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}:</div>
+                <div class="input-group">
+                    <!-- placeholder="opintopistettä" -->
+                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits">
+                            <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
+                                <i class="fa fa-question-circle fa-fw"></i>
+                            </span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}:</div>
+                <div class="input-group">
+                    <input disabled type="text" class="form-control ng-pristine ng-valid"
+                           ng-model="newExam.course.organisation.name">
+                            <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
+                                <i class="fa fa-question-circle fa-fw"></i>
+                            </span>
+                </div>
+            </div>
+        </div>
+        <div class="row col-md-12 top-margin-1">
+            <button ng-click="continueToExam()" class="btn btn-primary">{{'sitnet_continue' | translate}}</button>
+        </div>
+    </div>
+</div>

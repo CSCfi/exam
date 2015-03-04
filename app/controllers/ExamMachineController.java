@@ -1,24 +1,21 @@
 package controllers;
 
-import Exceptions.MalformedDataException;
+import exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.*;
+import models.ExamMachine;
+import models.ExamRoom;
+import models.Reservation;
+import models.Software;
 import org.joda.time.DateTime;
-import org.springframework.util.CollectionUtils;
-import play.Logger;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -27,7 +24,7 @@ import java.util.List;
 public class ExamMachineController extends SitnetController {
 
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("ADMIN")})
     public static Result getExamMachines() {
         List<ExamMachine> machines = Ebean.find(ExamMachine.class)
                 .where()
@@ -37,14 +34,14 @@ public class ExamMachineController extends SitnetController {
         return ok(Json.toJson(machines));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("ADMIN")})
     public static Result getExamMachine(Long id) {
         ExamMachine machine = Ebean.find(ExamMachine.class, id);
 
         return ok(Json.toJson(machine));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    @Restrict({@Group("ADMIN")})
     public static Result getExamMachineReservationsFromNow(Long id) {
 
         List<Reservation> reservations = Ebean.find(Reservation.class)
@@ -63,7 +60,7 @@ public class ExamMachineController extends SitnetController {
 
     @Restrict({@Group("ADMIN")})
     public static Result updateExamMachine(Long id) throws MalformedDataException {
-        ExamMachine machine =  Form.form(ExamMachine.class).bindFromRequest(
+        ExamMachine src =  Form.form(ExamMachine.class).bindFromRequest(
                 "id",
                 "name",
                 "otherIdentifier",
@@ -76,10 +73,21 @@ public class ExamMachineController extends SitnetController {
                 "statusComment",
                 "outOfService"
         ).get();
+        ExamMachine dest = Ebean.find(ExamMachine.class, id);
+        dest.setName(src.getName());
+        dest.setOtherIdentifier(src.getOtherIdentifier());
+        dest.setAccessibilityInfo(src.getAccessibilityInfo());
+        dest.setAccessible(src.isAccessible());
+        dest.setIpAddress(src.getIpAddress());
+        dest.setSurveillanceCamera(src.getSurveillanceCamera());
+        dest.setVideoRecordings(src.getVideoRecordings());
+        dest.setExpanded(src.getExpanded());
+        dest.setStatusComment(src.getStatusComment());
+        dest.setOutOfService(src.getOutOfService());
 
-        machine.update();
+        dest.update();
 
-        return ok(Json.toJson(machine));
+        return ok(Json.toJson(dest));
     }
 
     @Restrict({@Group("ADMIN")})
@@ -214,38 +222,6 @@ public class ExamMachineController extends SitnetController {
         Software software = Ebean.find(Software.class, id);
         software.delete();
 
-        return ok();
-    }
-
-    @Restrict(@Group({"ADMIN"}))
-    public static Result updateExamRoomAccessibility(Long id) throws MalformedDataException {
-        JsonNode json = request().body().asJson();
-        final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
-        room.getAccessibility().clear();
-        room.save();
-        for(String aid : ids){
-            System.out.println(aid);
-            Accessibility accessibility = Ebean.find(Accessibility.class, Integer.parseInt(aid.trim()));
-            room.getAccessibility().add(accessibility);
-            room.save();
-        }
-        return ok();
-    }
-
-    @Restrict(@Group({"ADMIN"}))
-    public static Result addExamRoomAccessibility(Long id) throws MalformedDataException {
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
-        final Accessibility accessibility = bindForm(Accessibility.class);
-        accessibility.save();
-        room.save();
-        return ok();
-    }
-
-    @Restrict(@Group({"ADMIN"}))
-    public static Result removeExamRoomAccessibility(Long id) throws MalformedDataException {
-        Accessibility accessibility = Ebean.find(Accessibility.class, id);
-        accessibility.delete();
         return ok();
     }
 

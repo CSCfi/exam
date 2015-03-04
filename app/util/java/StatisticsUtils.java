@@ -3,9 +3,9 @@ package util.java;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.*;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -48,17 +48,6 @@ public class StatisticsUtils {
         }
     }
 
-    public static void setBytes(FileInputStream fis, ByteArrayOutputStream bos) {
-        byte[] buf = new byte[1024];
-        try {
-            for (int readNum; (readNum = fis.read(buf)) != -1; ) {
-                bos.write(buf, 0, readNum);
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public static void addCell(Row dataRow, int index, String content) {
         if (content == null) {
             dataRow.createCell(index).setCellValue("");
@@ -67,19 +56,19 @@ public class StatisticsUtils {
         }
     }
 
-    public static void addDateCell(CellStyle style, Row dataRow, int index, Timestamp time) {
+    public static void addDateCell(CellStyle style, Row dataRow, int index, Date date) {
         Cell cell = dataRow.createCell(index);
-        if (time == null) {
+        if (date == null) {
             cell.setCellValue("");
         } else {
             cell.setCellStyle(style);
-            cell.setCellValue(time);
+            cell.setCellValue(date);
         }
 
 
     }
 
-    public static void addDateBetweenCell(Row dataRow, int index, Timestamp from, Timestamp to) {
+    public static void addDateBetweenCell(Row dataRow, int index, Date from, Date to) {
         if (from == null || to == null) {
             dataRow.createCell(index).setCellValue("");
         } else {
@@ -102,9 +91,9 @@ public class StatisticsUtils {
         return i;
     }
 
-    public static Cell dateCell(Workbook wb, Row row, int index, Timestamp timestamp, String format) {
+    public static Cell dateCell(Workbook wb, Row row, int index, Date date, String format) {
 
-        if (timestamp == null) {
+        if (date == null) {
             row.createCell(index).setCellValue("");
             return null;
         }

@@ -5,25 +5,25 @@
 
             <!-- To ensure proper mobile rendering and touch zooming -->
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
+        <meta charset="utf-8">
         <!-- IE11 - angular compatibility test -->
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 
-        <link rel="shortcut icon" type="img/png" href="@routes.Assets.at("images/favicon.ico")">
-        <link rel="apple-touch-icon" sizes="57x57" href="@routes.Assets.at("images/apple-touch-icon-57x57.png")">
-        <link rel="apple-touch-icon" sizes="114x114" href="@routes.Assets.at("images/apple-touch-icon-114x114.png")">
-        <link rel="apple-touch-icon" sizes="72x72" href="@routes.Assets.at("images/apple-touch-icon-72x72.png")">
-        <link rel="apple-touch-icon" sizes="144x144" href="@routes.Assets.at("images/apple-touch-icon-144x144.png")">
-        <link rel="apple-touch-icon" sizes="60x60" href="@routes.Assets.at("images/apple-touch-icon-60x60.png")">
-        <link rel="apple-touch-icon" sizes="120x120" href="@routes.Assets.at("images/apple-touch-icon-120x120.png")">
-        <link rel="apple-touch-icon" sizes="76x76" href="@routes.Assets.at("images/apple-touch-icon-76x76.png")">
-        <link rel="apple-touch-icon" sizes="152x152" href="@routes.Assets.at("images/apple-touch-icon-152x152.png")">
-        <link rel="apple-touch-icon" sizes="180x180" href="@routes.Assets.at("images/apple-touch-icon-180x180.png")">
-        <link rel="icon" type="image/png" href="@routes.Assets.at("images/favicon-192x192.png")" sizes="192x192">
-        <link rel="icon" type="image/png" href="@routes.Assets.at("images/favicon-160x160.png")" sizes="160x160">
-        <link rel="icon" type="image/png" href="@routes.Assets.at("images/favicon-96x96.png")" sizes="96x96">
-        <link rel="icon" type="image/png" href="@routes.Assets.at("images/favicon-16x16.png")" sizes="16x16">
-        <link rel="icon" type="image/png" href="@routes.Assets.at("images/favicon-32x32.png")" sizes="32x32">
+        <link rel="shortcut icon" type="img/png" href="@routes.Assets.at("assets/images/favicon.ico")">
+        <link rel="apple-touch-icon" sizes="57x57" href="@routes.Assets.at("assets/images/apple-touch-icon-57x57.png")">
+        <link rel="apple-touch-icon" sizes="114x114" href="@routes.Assets.at("assets/images/apple-touch-icon-114x114.png")">
+        <link rel="apple-touch-icon" sizes="72x72" href="@routes.Assets.at("assets/images/apple-touch-icon-72x72.png")">
+        <link rel="apple-touch-icon" sizes="144x144" href="@routes.Assets.at("assets/images/apple-touch-icon-144x144.png")">
+        <link rel="apple-touch-icon" sizes="60x60" href="@routes.Assets.at("assets/images/apple-touch-icon-60x60.png")">
+        <link rel="apple-touch-icon" sizes="120x120" href="@routes.Assets.at("assets/images/apple-touch-icon-120x120.png")">
+        <link rel="apple-touch-icon" sizes="76x76" href="@routes.Assets.at("assets/images/apple-touch-icon-76x76.png")">
+        <link rel="apple-touch-icon" sizes="152x152" href="@routes.Assets.at("assets/images/apple-touch-icon-152x152.png")">
+        <link rel="apple-touch-icon" sizes="180x180" href="@routes.Assets.at("assets/images/apple-touch-icon-180x180.png")">
+        <link rel="icon" type="image/png" href="@routes.Assets.at("assets/images/favicon-192x192.png")" sizes="192x192">
+        <link rel="icon" type="image/png" href="@routes.Assets.at("assets/images/favicon-160x160.png")" sizes="160x160">
+        <link rel="icon" type="image/png" href="@routes.Assets.at("assets/images/favicon-96x96.png")" sizes="96x96">
+        <link rel="icon" type="image/png" href="@routes.Assets.at("assets/images/favicon-16x16.png")" sizes="16x16">
+        <link rel="icon" type="image/png" href="@routes.Assets.at("assets/images/favicon-32x32.png")" sizes="32x32">
         <meta name="msapplication-TileColor" content="#000000">
         <meta name="msapplication-TileImage" content="images//mstile-144x144.png">
 
@@ -36,130 +36,134 @@
 
         <!--  style -->
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-            <!-- todo: uncomment in production and comment previous line
-        <link rel="stylesheet" media="screen" href=" @routes.Assets.at("stylesheets/main.min.css")">-->
-
 
         <!-- vendor -->
-        <script src="@routes.Assets.at("javascript/vendor/MathJax-2.3-latest/MathJax.js?config=TeX-AMS_HTML")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/jquery.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/jquery-ui.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/fullcalendar.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/toastr.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/angular.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/calendar.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/angular-route.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/angular-resource.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/angular-cookies.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/angular-sanitize.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/http-auth-interceptor.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/ngStorage.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/angular-translate.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/angular-translate-loader-static-files.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/ui-bootstrap-tpls-0.10.0.min.js")" type="text/javascript"></script>
-
-        <script src="@routes.Assets.at("javascript/vendor/debounce.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/dimensions.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/affix.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/draganddrop.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/moment-with-locales.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/ckeditor/ckeditor.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/multiselect-tpls.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/select2.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/ui-select2.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/vendor/FileSaver.js")" type="text/javascript"></script>
-
-        <!-- dynamic locale -->
-        <script src="@routes.Assets.at("javascript/vendor/tmhDynamicLocale.js")" type="text/javascript"></script>
-
-
-        @*<link rel="stylesheet" media="screen" href="@routes.Assets.at("javascript/vendor/ckeditor/sample.css")">*@
         @*<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>*@
+        <script src="@routes.Assets.at("components/vendor/jquery.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/jquery-ui.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/fullcalendar.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/toastr.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/angular.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/calendar.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/angular-route.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/angular-resource.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/angular-cookies.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/angular-sanitize.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/http-auth-interceptor.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/ngStorage.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/angular-translate.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/angular-translate-loader-static-files.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/ui-bootstrap-tpls-0.10.0.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/debounce.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/dimensions.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/affix.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/draganddrop.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/moment-with-locales.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/ckeditor_446/ckeditor.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/MathJax-2.3-latest/MathJax.js?config=TeX-AMS_HTML")" type="text/javascript"></script>
+        <script>
+            if(CKEDITOR) {
+                CKEDITOR.env.isCompatible = true;
+                CKEDITOR.cacheForceReload = Date.now();
+            }
+        </script>
+        <script src="@routes.Assets.at("components/vendor/multiselect-tpls.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/select2.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/ui-select2.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/FileSaver.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("components/vendor/tmhDynamicLocale.js")" type="text/javascript"></script>
+        <!-- internal component -->
+        <script src="@routes.Assets.at("components/language.js")" type="text/javascript"></script>
 
+        <!-- app general -->
+        <script src="@routes.Assets.at("app/sitnet.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/routes.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/modules.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/directives.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/filters.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/httpInterceptor.js")" type="text/javascript"></script>
 
-        <script src="@routes.Assets.at("javascript/sitnet.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/routes.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/modules.js")" type="text/javascript"></script>
+        <!-- administrative -->
+        <script src="@routes.Assets.at("app/administrative/settingsResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/administrative/reportResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/administrative/settingsController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/administrative/reportController.js")" type="text/javascript"></script>
 
-            <!-- directives -->
-        <script src="@routes.Assets.at("javascript/directives.js")" type="text/javascript"></script>
+        <!-- common -->
+        <script src="@routes.Assets.at("app/common/sessionService.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/common/userResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/common/sessionController.js")" type="text/javascript"> </script>
+        <script src="@routes.Assets.at("app/common/navigationController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/common/dashboardController.js")" type="text/javascript"></script>
 
-            <!-- filters -->
-        <script src="@routes.Assets.at("javascript/filters.js")" type="text/javascript"></script>
+        <!-- enrolment -->
+        <script src="@routes.Assets.at("app/enrolment/wrongRoomService.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/enrolment/waitingRoomService.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/enrolment/enrollResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/enrolment/enrollController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/enrolment/examFeedbackController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/enrolment/waitingRoomController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/enrolment/wrongMachineController.js")" type="text/javascript"></script>
 
-        <!-- utilities -->
-        <script src="@routes.Assets.at("javascript/utils/dragdrop.js")" type="text/javascript"></script>
+        <!-- exam -->
+        <script src="@routes.Assets.at("app/exam/editor/examResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/exam/student/studentExamResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/exam/editor/courseResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/exam/editor/languageResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/exam/examController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/exam/student/studentExamController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/exam/editor/teacherExamController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/exam/editor/courseTypeaheadController.js")" type="text/javascript"></script>
 
-        <!-- services -->
-        <script src="@routes.Assets.at("javascript/services/sessionService.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/services/dateService.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/services/examService.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/services/httpInterceptor.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/services/wrongRoomService.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/services/waitingRoomService.js")" type="text/javascript"></script>
+        <!-- facility -->
+        <script src="@routes.Assets.at("app/facility/roomResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/facility/softwareResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/facility/examMachineResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/facility/roomController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/facility/machineController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/facility/machineModalController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/facility/accessibilityController.js")" type="text/javascript"></script>
 
-            <!-- resources -->
-        <script src="@routes.Assets.at("javascript/resources/userResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/examResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/studentExamResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/courseResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/questionResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/roomResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/softwareResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/examMachineResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/attachmentResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/enrollResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/settingsResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/reportResource.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/resources/adminReservationResource.js")" type="text/javascript"></script>
+        <!-- question -->
+        <script src="@routes.Assets.at("app/question/questionResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/question/questionController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/question/libraryController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/question/tagResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/question/editor/tagTypeaheadController.js")" type="text/javascript"></script>
 
-            <!-- controllers -->
-        <script src="@routes.Assets.at("javascript/controllers/sessionController.js")" type="text/javascript"> </script>
-        <script src="@routes.Assets.at("javascript/controllers/navigationController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/dashboardController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/examController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/studentExamController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/teacherExamController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/courseController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/courseTypeaheadController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/userController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/question/questionController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/libraryController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/datepickerController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/timepickerController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/modalInstanceController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/dropdownController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/roomController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/calendarController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/examReviewController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("templates/teacher/essay-review/essayReviewController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/machineController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/examInspectionController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/question/questionListingController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/reviewListingController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/enrollController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/examFeedbackController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/attachmentController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/settingsController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/reportController.js")" type="text/javascript"></script>
-		<script src="@routes.Assets.at("javascript/controllers/machineModalController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/adminReservationController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/accessibilityController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/waitingRoomController.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascript/controllers/wrongMachineController.js")" type="text/javascript"></script>
+        <!-- reservation -->
+        <script src="@routes.Assets.at("app/reservation/adminReservationResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/reservation/calendarController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/reservation/adminReservationController.js")" type="text/javascript"></script>
+
+        <!-- review -->
+        <script src="@routes.Assets.at("app/review/examReviewController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/review/examInspectionController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/review/reviewListingController.js")" type="text/javascript"></script>
+
+        <!-- utility -->
+        <script src="@routes.Assets.at("app/utility/dateService.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/utility/dragdrop.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/utility/fileService.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/utility/attachmentResource.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/utility/datepickerController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/utility/timepickerController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/utility/modalInstanceController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/utility/dropdownController.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("app/utility/attachmentController.js")" type="text/javascript"></script>
     </head>
 
     <body ng-controller="SessionCtrl">
         <div ng-controller="NavigationCtrl">
-            <div ng-hide="doExam" ng-hide="loggedOut" id="vmenu">
+            <div ng-hide="examStarted" id="vmenu">
                 @*Logo*@
                 <div class="logo">
                     <div ng-hide="minimizeNavigation">
-                        <img src="@routes.Assets.at("images/exam-logo-black-small.png")" alt="exam" />
+                        <img src="@routes.Assets.at("assets/images/exam-logo-black-small.png")" alt="exam" />
                     </div>
                     <div ng-hide="!minimizeNavigation">
-                        @*<img src="@routes.Assets.at("images/Exam_logo_vert.png")" alt="exam" />*@
-                        <img width="50" height="90" src="@routes.Assets.at("images/exam-logo-black-small-v.png")" alt="exam" />
+                        @*<img src="@routes.Assets.at("assets/images/Exam_logo_vert.png")" alt="exam" />*@
+                        <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
                     </div>
                 </div>
                  @*Language selection*@
@@ -187,11 +191,8 @@
                 @*User info*@
                 <div ng-hide="minimizeNavigation" >
                     <div class="user">
-<!--                         <div class="user-picture"> -->
-<!--                             <img src="@routes.Assets.at("images/user70.png")" alt="me" /> -->
-<!--                         </div> -->
                         <div class="user-name">
-                            <a href="#/user">{{session.user.firstname}}<br>{{session.user.lastname}}&nbsp;</a>
+                            <a href="#/user">{{user.firstname}}<br>{{user.lastname}}&nbsp;</a>
                         </div>
                     </div>
 
@@ -227,8 +228,8 @@
                 </div>
             </div>
             @*App content*@
-            <div class="container-fluid" ng-class="doExam ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
-                <div ng-view/>
+            <div class="container-fluid" ng-class="examStarted ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
+                <div ng-view />
             </div>
         </div>
     </body>

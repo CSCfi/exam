@@ -194,9 +194,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1000
     shared: true
     expanded: false
@@ -208,9 +206,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1024
     shared: false
     expanded: false
@@ -222,9 +218,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Select
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 2250
     shared: false
     expanded: false
@@ -237,9 +231,7 @@ question_essay:
     maxScore: 5
     evaluationType: Select
    #materials:
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 2250
     shared: false
     expanded: false
@@ -253,9 +245,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1000
     shared: true
     expanded: false
@@ -277,9 +267,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1024
     shared: false
     expanded: false
@@ -302,9 +290,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Select
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 2250
     shared: false
     expanded: false
@@ -326,9 +312,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1000
     shared: true
     expanded: false
@@ -350,9 +334,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Points
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 1024
     shared: false
     expanded: false
@@ -375,9 +357,7 @@ question_essay:
     instruction:
     maxScore: 5
     evaluationType: Select
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     maxCharacters: 2250
     shared: false
     expanded: false
@@ -401,9 +381,7 @@ question_multiple_choice:
     question: Vastaus elämään, maailmankaikkeuteen ja kaikkeen muuhun sellaiseen?
     attachment: *att1
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
@@ -418,9 +396,7 @@ question_multiple_choice:
     created: 2014-01-03 12:40:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
@@ -435,9 +411,7 @@ question_multiple_choice:
     created: 2014-01-01 12:10:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Antiteflon, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Adheesio, correctOption: false, score: 1}
@@ -451,9 +425,7 @@ question_multiple_choice:
     created: 2014-01-02 12:50:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Lampaita, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Ihmisiä, correctOption: false, score: 1}
@@ -468,9 +440,7 @@ question_multiple_choice:
     created: 2014-01-06 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Tulevaisuus valkenee, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Aika-avaruus jatkumon vääristymä, correctOption: false, score: 1}
@@ -484,9 +454,7 @@ question_multiple_choice:
     created: 2014-01-07 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maailmankaikkeuden rakennetta, kehitystä ja alkuperää tutkiva tiedemies on kosmologi
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: kosmonautti, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: kosmetologi, correctOption: false, score: 1}
@@ -499,9 +467,7 @@ question_multiple_choice:
     created: 2014-01-08 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Auringon fuusioreaktiot tapahtuvat todellakin auringon ytimessä.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Ytimessä, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Säteilyvyöhykkeessä, correctOption: false, score: 1}
@@ -514,9 +480,7 @@ question_multiple_choice:
     created: 2014-01-09 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Astronominen yksikkö (eli tähtitieteellinen yksikkö, lyhennys AU) on pituuden yksikkö, jota käytetään lähinnä aurinkokunnan etäisyyksiä ilmoitettaessa. Maan keskietäisyys Auringosta on yksi astronominen yksikkö. Sen suuruus on 149,6 milj. km.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Aikaa, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Etäisyyttä, correctOption: true, score: 1}
@@ -529,9 +493,7 @@ question_multiple_choice:
     created: 2014-01-10 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
@@ -544,9 +506,7 @@ question_multiple_choice:
     created: 2014-01-11 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}
@@ -560,9 +520,7 @@ question_multiple_choice:
     created: 2014-01-12 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Hehku EI johdu aineen palamisesta ilmakehässä, eli väittämä on väärä!
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Aineen palamisesta ilmakehässä, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Kaasujen hehkumisesta, correctOption: false, score: 1}
@@ -575,9 +533,7 @@ question_multiple_choice:
     created: 2014-01-13 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Jupiter on suurin planeetta. Sen halkaisija on peräti 142 800 km, kun esimerkiksi maan halkaisija on 12 756 km.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maa, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Jupiter, correctOption: true, score: 1}
@@ -591,9 +547,7 @@ question_multiple_choice:
     created: 2014-01-14 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Jupiterin pinnalla on suuri punainen pilkku (Great Red Spot, GRS). Tätä kooltaan noin kahta maapalloa vastaavaa laikkua kutsutaan myös Jupiterin silmäksi.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Alkuräjähdystä edeltänyttä tiheää pistettä, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Jupiterin korkeapaineen aluetta, correctOption: true, score: 1}
@@ -607,9 +561,7 @@ question_multiple_choice:
     created: 2014-01-15 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maapallo kiertää Aurinkoa noin 23.5 asteen kulmassa. Tällöin vuorotellen pohjoinen ja eteläinen pallonpuolisko ovat enemmän kallistuneina Aurinkoon päin, ja saavat näin enemmän Auringon säteilyä kuin vastakkainen pallonpuolisko.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon akselikulman vaihtelemisesta, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Maapallon kiertämisestä Auringon ympäri, correctOption: true, score: 1}
@@ -623,9 +575,7 @@ question_multiple_choice:
     created: 2014-01-16 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias: Kiertoradallaan Kuu joutuu aika-ajoin Maan ja Auringon väliin. Tällöin se puoli Kuusta, joka on Maasta poispäin kääntyneenä, on valaistunut, ja maanpuoleinen puoli on pimeä. Tällöin Kuuta ei voi nähdä laisinkaan.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Kuu on kiertoradallaan Maasta katsottuna Auringon takana, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Kuu on Auringon ja Maan välissä, correctOption: true, score: 1}
@@ -639,9 +589,7 @@ question_multiple_choice:
     created: 2014-01-17 12:30:05.123
    #materials:
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Vesimolekyyleihin, kuten kaikkiin muihinkin maapallon pinnalla oleviin kappaleisiin, kohdistuu myös maapallon painovoimaa vastakkaiseen suuntaan vaikuttava voima, nimittäin Kuun painovoima, sekä myös Auringon painovoima, joka on puolet Kuun painovoiman vaikutuksesta.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Kuun vetovoima, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Auringon vetovoima, correctOption: true, score: 1}
@@ -657,9 +605,7 @@ question_multiple_choice:
     parent: *multi1
     attachment: *att1
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
@@ -675,9 +621,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-03 12:40:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
@@ -694,9 +638,7 @@ question_multiple_choice:
     creator: *arvo
     created: 2014-01-02 12:50:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Lampaita, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Ihmisiä, correctOption: false, score: 1}
@@ -712,9 +654,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-10 12:30:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
@@ -728,9 +668,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-11 12:30:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}
@@ -748,9 +686,7 @@ question_multiple_choice:
     parent: *multi1
     attachment: *att1
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: 3, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: 42, correctOption: true, score: 1}
@@ -766,9 +702,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-03 12:40:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: IDDQD, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: IDKFA, correctOption: false, score: 1}
@@ -785,9 +719,7 @@ question_multiple_choice:
     creator: *arvo
     created: 2014-01-02 12:50:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Lampaita, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Ihmisiä, correctOption: false, score: 1}
@@ -803,9 +735,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-10 12:30:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Maapallon ratatasoksi on määritelty 0 astetta, ja sitä sanotaan ekliptikaksi.
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Maapallon ratataso Aurinkoon nähden, correctOption: true, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
@@ -819,9 +749,7 @@ question_multiple_choice:
     creator: *sauli
     created: 2014-01-11 12:30:05.123
     maxScore: 5
-    evaluationPhrases:
     evaluationCriterias:  Meteori eli tähdenlento on valoilmiö, joka syntyy, kun pieni kivi eli meteoroidi "palaa" ilmakehässä
-    comments:
     options:
         - !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiseOption {option: Meteori, correctOption: true, score: 1}
@@ -830,7 +758,6 @@ question_multiple_choice:
     shared: false
     answer:
         !!models.answers.MultipleChoiseAnswer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiseOption {option: Meteoroidi, correctOption: false, score: 1}}
-
 
 ######################################################################
 
@@ -974,12 +901,45 @@ exam-types:
   - &final !!models.ExamType
     type: Loppusuoritus
 
+
+################################################################
+
+languages:
+
+  - &fi !!models.Language
+    code: fi
+  - &sv !!models.Language
+    code: sv
+  - &en !!models.Language
+    code: en
+  - &de !!models.Language
+    code: de
+
+################################################################
+
+softwares:
+  - &Matematica !!models.Software
+    name: Matematica
+
+  - &Firefox !!models.Software
+    name: Firefox
+
+  - &Excel !!models.Software
+    name: Excel
+
+  - &Mathcad !!models.Software
+    name: Mathcad
+
+  - &Notepad !!models.Software
+    name: Notepad
+
+
 ################################################################
 
 exams:
 
   - &alkeidenperusteetGraded !!models.Exam
-    creator: *sauli
+    creator: *maika
     created: 2014-01-01 12:30:05.123
     course: *alkeet
     name: Johdatus alkeiden perusteisiin
@@ -990,12 +950,19 @@ exams:
     examActiveEndDate: 2014-12-29 16:00:00.123
     grading: 0-5
     examSections:
-    state: GRADED
+    state: PUBLISHED
     examFeedback: *comment_sauli
     grade: 5
     duration: 90
     gradedTime: 2014-08-29 16:00:00.123
-
+    examLanguages:
+      - *fi
+      - *sv
+      - *en
+      - *de
+    softwareInfo:
+      - *Firefox
+      - *Matematica
 
   - &alkeidenperusteetReview !!models.Exam
     creator: *sauli
@@ -1012,7 +979,10 @@ exams:
     state: REVIEW
     grade: 5
     duration: 90
-
+    examLanguages:
+      - *fi
+      - *sv
+      - *en
 
   - &astronomianPerusteet !!models.Exam
     creator: *maika
@@ -1028,6 +998,9 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
+    examLanguages:
+      - *fi
+      - *sv
 
   - &tietokannat2013 !!models.Exam
     creator: *maika
@@ -1043,6 +1016,8 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
+    examLanguages:
+      - *fi
 
   - &tietokannat2014 !!models.Exam
     creator: *maika
@@ -1058,6 +1033,8 @@ exams:
     examSections:
     state: PUBLISHED
     duration: 90
+    examLanguages:
+      - *fi
 
   - &algoritmit !!models.Exam
     creator: *maika
@@ -1073,6 +1050,8 @@ exams:
     examSections:
     state: SAVED
     duration: 90
+    examLanguages:
+      - *de
 
   - &ooad !!models.Exam
     creator: *maika
@@ -1086,7 +1065,9 @@ exams:
     examActiveEndDate: 2014-12-29 16:00:00.123
     grading: 0-5
     examSections:
-    state: REVIEW
+    state: SAVED
+    examLanguages:
+      - *sv
 
 ################################################################
 
@@ -1095,128 +1076,311 @@ exam-sections:
   - &alkeet_mv_osio1 !!models.ExamSection
     name: Monivalinnat 1
     exam: *alkeidenperusteetGraded
-    questions:
-              - *multi1_sauli
-              - *multi2_sauli
     totalScore:
 
   - &alkeet_mv_osio2 !!models.ExamSection
     name: Monivalinnat 2
     exam: *alkeidenperusteetGraded
-    questions:
-              - *avaruus4_sauli
-              - *multi4_sauli
-              - *avaruus5_sauli
     totalScore:
 
   - &alkeet_essay !!models.ExamSection
     name: Essee kysymykset
     exam: *alkeidenperusteetGraded
-    questions:
-              - *essay1_sauli
-              - *essay2_sauli
-              - *essay3_sauli
     totalScore:
 
   - &alkeet_mv_osio1b !!models.ExamSection
     name: Monivalinnat 1
     exam: *alkeidenperusteetReview
-    questions:
-              - *multi1b_sauli
-              - *multi2b_sauli
     totalScore:
 
   - &alkeet_mv_osio2b !!models.ExamSection
     name: Monivalinnat 2
     exam: *alkeidenperusteetReview
-    questions:
-              - *avaruus4b_sauli
-              - *multi4b_sauli
-              - *avaruus5b_sauli
     totalScore:
 
   - &alkeet_essayb !!models.ExamSection
     name: Essee kysymykset
     exam: *alkeidenperusteetReview
-    questions:
-              - *essay1b_sauli
-              - *essay2b_sauli
-              - *essay3b_sauli
     totalScore:
 
   - &osio2 !!models.ExamSection
     name: Monivalinnat 2
     exam: *tietokannat2013
-    questions:
-              - *multi3
-              - *multi4
-              - *multi5
     totalScore:
 
   - &osio1_algo !!models.ExamSection
     name: Monivalinnat 1
     exam: *algoritmit
-    questions:
-              - *avaruus4
-              - *multi4
-              - *avaruus5
     totalScore:
 
   - &osio2_algo !!models.ExamSection
     name: Essee 1
     exam: *algoritmit
-    questions:
-              - *essay1
-              - *multi4
-              - *avaruus5
     totalScore:
 
   - &osio4 !!models.ExamSection
     name: Monivalinnat 4
     exam: *ooad
-    questions:
-              - *avaruus9
-              - *avaruus8
-              - *avaruus7
-              - *multi1
-              - *multi2
-              - *multi3
     totalScore:
 
   - &osio5 !!models.ExamSection
     name: Monivalinnat 5
     exam: *ooad
-    questions:
-              - *avaruus9
-              - *avaruus8
-              - *avaruus7
     totalScore:
 
   - &astro1 !!models.ExamSection
     name: Astronomian Monivalinnat
     exam: *astronomianPerusteet
-    questions:
-              - *avaruus1
-              - *avaruus2
-              - *avaruus3
-              - *avaruus4
-              - *avaruus5
-              - *avaruus6
-              - *avaruus7
-              - *avaruus8
-              - *avaruus9
-              - *avaruus10
-              - *avaruus11
     totalScore:
     
   - &ooadessay !!models.ExamSection
     name: Essee kysymykset
     exam: *ooad
-    questions:
-              - *essay1
-              - *essay2
-              - *essay3
     totalScore:
+
+######################################################################
+
+section-questions:
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1
+    question: *multi1_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1
+    question: *multi2_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2
+    question: *avaruus4_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2
+    question: *multi4_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2
+    question: *avaruus5_sauli
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essay
+    question: *essay1_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essay
+    question: *essay2_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essay
+    question: *essay3_sauli
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1b
+    question: *multi1b_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio1b
+    question: *multi2b_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2b
+    question: *avaruus4b_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2b
+    question: *multi4b_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_mv_osio2b
+    question: *avaruus5b_sauli
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essayb
+    question: *essay1b_sauli
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essayb
+    question: *essay2b_sauli
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *alkeet_essayb
+    question: *essay3b_sauli
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2
+    question: *multi3
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2
+    question: *multi4
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2
+    question: *multi5
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio1_algo
+    question: *avaruus4
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio1_algo
+    question: *multi4
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio1_algo
+    question: *avaruus5
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2_algo
+    question: *essay1
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2_algo
+    question: *multi4
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio2_algo
+    question: *avaruus5
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *avaruus9
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *avaruus8
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *avaruus7
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *multi1
+    sequenceNumber: 3
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *multi2
+    sequenceNumber: 4
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio4
+    question: *multi3
+    sequenceNumber: 5
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio5
+    question: *avaruus9
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio5
+    question: *avaruus8
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *osio5
+    question: *avaruus7
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus1
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus2
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus3
+    sequenceNumber: 2
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus4
+    sequenceNumber: 3
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus5
+    sequenceNumber: 4
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus6
+    sequenceNumber: 5
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus7
+    sequenceNumber: 6
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus8
+    sequenceNumber: 7
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus9
+    sequenceNumber: 8
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus10
+    sequenceNumber: 9
+
+  - !!models.ExamSectionQuestion
+    examSection: *astro1
+    question: *avaruus11
+    sequenceNumber: 10
+
+  - !!models.ExamSectionQuestion
+    examSection: *ooadessay
+    question: *essay1
+    sequenceNumber: 0
+
+  - !!models.ExamSectionQuestion
+    examSection: *ooadessay
+    question: *essay2
+    sequenceNumber: 1
+
+  - !!models.ExamSectionQuestion
+    examSection: *ooadessay
+    question: *essay3
+    sequenceNumber: 2
 
 ################################################################
 
@@ -1299,24 +1463,6 @@ calendar-events:
 
 ################################################################
 
-softwares:
-  - &Matematica !!models.Software
-    name: Matematica
-
-  - &Firefox !!models.Software
-    name: Firefox
-
-  - &Excel !!models.Software
-    name: Excel
-
-  - &Mathcad !!models.Software
-    name: Mathcad
-
-  - &Notepad !!models.Software
-    name: Notepad
-
-################################################################
-
 exam-rooms:
   - &room-pegasus !!models.ExamRoom
     name: Tenttiakvaario Pegasus
@@ -1350,7 +1496,7 @@ exam-machines:
     ipAddress: 123.456.789.123
     videoRecordings: www.utu.fi/examroom/1/recordings
     room: *room-pegasus
-    reservation:
+    reservations:
     outOfService: false
 
   - &exam-machine2 !!models.ExamMachine
@@ -1365,7 +1511,7 @@ exam-machines:
     ipAddress: 123.456.789.321
     videoRecordings: www.utu.fi/examroom/2/recordings
     room: *room-pegasus
-    reservation:
+    reservations:
     outOfService: false
 
   - &exam-machine3 !!models.ExamMachine
@@ -1381,7 +1527,7 @@ exam-machines:
     ipAddress: 123.456.789.132
     videoRecordings: www.utu.fi/examroom/3/recordings
     room: *room-pegasus
-    reservation:
+    reservations:
     outOfService: true
     statusComment: Näyttö rikki
 

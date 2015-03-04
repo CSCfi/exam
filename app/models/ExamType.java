@@ -6,13 +6,6 @@ import play.db.ebean.Model;
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-/*
- * Opetuksen toteutus
- * http://tietomalli.csc.fi/Opetuksen%20toteutus-kaavio.html
- * 
- * <Opetustapahtuman tyyppi> voi olla esim luento tai tentti.
- * 
- */
 @Entity
 public class ExamType extends Model {
 
@@ -24,8 +17,10 @@ public class ExamType extends Model {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
-	// TDOD: miten erilaiset tenttityypit määritellään?
-	// kaikille avoin, vain kutsusta, jne
+    public Long getId() {
+        return id;
+    }
+
 	private String type;
 
     public ExamType(String type) {

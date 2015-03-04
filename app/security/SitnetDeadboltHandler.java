@@ -7,9 +7,6 @@ import play.libs.F;
 import play.mvc.Http;
 import play.mvc.SimpleResult;
 
-/**
- * Created by avainik on 3/3/14.
- */
 public class SitnetDeadboltHandler  extends AbstractDeadboltHandler {
 
     @Override
@@ -35,6 +32,7 @@ public class SitnetDeadboltHandler  extends AbstractDeadboltHandler {
         {
             @Override
             public SimpleResult apply() throws Throwable {
+                // TODO: localize
                 return forbidden("Authentication failure");
             }
         });

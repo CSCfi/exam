@@ -7,11 +7,11 @@ import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import models.Exam;
 import models.ExamEnrolment;
+import models.Reservation;
 import models.User;
 import play.mvc.Controller;
 import play.mvc.Result;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -20,22 +20,19 @@ public class EnrollController extends Controller {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result enrollExamList(String code) {
 
-        Timestamp now = new Timestamp(new Date().getTime());
-
         List<Exam> activeExams = Ebean.find(Exam.class)
-                .fetch("course")
                 .where()
                 .eq("course.code", code)
                 .eq("state", "PUBLISHED")
-//                .betweenProperties("examActiveStartDate", "examActiveEndDate", now)
-                .gt("examActiveEndDate", now)   // Students should be able to enroll, before exam starts.
+                .ge("examActiveEndDate", new Date())
                 .findList();
-
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, creator, examLanguage");
+        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, " +
+                "creator, examLanguages");
         options.setPathProperties("course", "code");
         options.setPathProperties("creator", "firstName, lastName, organization");
+        options.setPathProperties("examLanguages", "code, name");
 
         return ok(jsonContext.toJsonString(activeExams, true, options)).as("application/json");
     }
@@ -67,7 +64,7 @@ public class EnrollController extends Controller {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
-                .fetch("room")
+                .fetch("examLanguages")
                 .where()
                 .eq("course.code", code)
                 .eq("id", id)
@@ -79,21 +76,28 @@ public class EnrollController extends Controller {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
-                + "grading, room, course, creator, expanded, examType, enrollInstruction, examLanguage, answerLanguage");
-        options.setPathProperties("room", "name, roomCode, buildingName, campus");
+                + "grading, course, creator, expanded, examType, enrollInstruction, examLanguages, " +
+                "answerLanguage");
         options.setPathProperties("examType", "type");
         options.setPathProperties("course", "code, name, level, type, credits");
         options.setPathProperties("creator", "firstName, lastName, email");
+        options.setPathProperties("examLanguages", "code, name");
 
         return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+    }
+
+    private static void makeEnrolment(Exam exam, User user) {
+        ExamEnrolment enrolment = new ExamEnrolment();
+        enrolment.setEnrolledOn(new Date());
+        enrolment.setUser(user);
+        enrolment.setExam(exam);
+        enrolment.save();
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result createEnrolment(String code, Long id) {
 
-        Timestamp now = new Timestamp(new Date().getTime());
         User user = UserController.getLoggedUser();
-
         Exam exam = Ebean.find(Exam.class)
                 .where()
                 .eq("course.code", code)
@@ -103,49 +107,43 @@ public class EnrollController extends Controller {
             return notFound("sitnet_error_exam_not_found");
         }
 
-        // check if enrolment already exists?
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
+                // either exam ID matches OR (exam parent ID matches AND exam is started by student)
+                .disjunction()
                 .eq("exam.id", exam.getId())
-                .findUnique();
+                .disjunction()
+                .conjunction()
+                .eq("exam.parent.id", exam.getId())
+                .eq("exam.state", Exam.State.STUDENT_STARTED.toString())
+                .endJunction()
+                .endJunction()
+                .endJunction()
+                .findList();
 
-        if (enrolment != null) {
-            return forbidden("sitnet_error_enrolment_exists");
+        for (ExamEnrolment enrolment : enrolments) {
+            Reservation reservation = enrolment.getReservation();
+            if (reservation == null) {
+                // enrolment without reservation already exists, no need to create a new one
+                return forbidden("sitnet_error_enrolment_exists");
+            } else if (reservation.toInterval().containsNow()) {
+                // reservation in effect
+                if (exam.getState().equals(Exam.State.STUDENT_STARTED.toString())) {
+                    // exam for reservation is ongoing
+                    return forbidden("sitnet_reservation_in_effect");
+                } else if (exam.getState().equals(Exam.State.PUBLISHED.toString())) {
+                    // exam for reservation not started (yet?)
+                    // TODO: somehow mark this as a no-show after confirmation, but for now just forbid it
+                    return forbidden("sitnet_reservation_in_effect");
+                }
+            } else if (reservation.toInterval().isAfterNow()) {
+                // reservation in the future, replace it
+                enrolment.delete();
+            }
         }
-
-        enrolment = new ExamEnrolment();
-        enrolment.setEnrolledOn(now);
-        enrolment.setUser(user);
-        enrolment.setExam(exam);
-        enrolment.save();
-
+        makeEnrolment(exam, user);
         return ok();
-    }
-
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public static Result deleteEnrolment(String code, Long id) {
-
-        User user = UserController.getLoggedUser();
-
-        Exam exam = Ebean.find(Exam.class)
-                .where()
-                .eq("course.code", code)
-                .eq("id", id)
-                .findUnique();
-        if (exam != null) {
-            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                    .where()
-                    .eq("user.id", user.getId())
-                    .eq("exam.id", exam.getId())
-                    .findUnique();
-
-            enrolment.delete();
-
-            return ok();
-        } else {
-            return notFound("sitnet_error_exam_not_found");
-        }
     }
 
 }

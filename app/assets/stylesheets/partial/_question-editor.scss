@@ -1,14 +1,6 @@
 #question-editor {
 
-//  .base {
-//    background-color: #fff;
-//    border: solid 1px $sitnet-grey;
-//    padding: 2em;
-//    margin-bottom: 1em;
-//  }
-
-  .create-new {
-    display: block;
+  .new-option {
     color: $sitnet-dark-grey;
     border: dashed 2px $sitnet-grey;
     background-color: $sitnet-beige;
@@ -19,12 +11,8 @@
     margin: 2em;
   }
 
-  .create-new:hover {
+  .new-option:hover {
     background-color: $sitnet-beige-active;
-  }
-
-  .question-editor-form {
-    padding-top: 2em;
   }
 
   .exam-question-container {
@@ -44,51 +32,13 @@
   }
 
   .answer-state {
-    border: 2px;
-    border-radius: 25px;
     padding: 0.3em 2em;
-  }
-
-  .correct-answer {
-    background-color: green;
-  }
-
-  .wrong-answer {
-    background-color: red;
-  }
-
-  .fa-1_5x {
-    font-size: 1.2em;
-    line-height: 0.9em;
-    padding-right: 0.3em;
   }
 
   .multiplechoice-question-input {
     margin-left: 0.3em;
     width: 100%;
-  }
-
-  .single-question {
-    background-color: $sitnet-green;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    margin: 5px;
-    padding: 5px;
-    min-height: 3em;
-
-    i {
-      float: left;
-      padding-right: 1.5em;
-    }
-    span {
-
-    }
-
-  }
-  .section {
-    margin-bottom: 2em;
-    background-color: $sitnet-light-grey;
+    cursor:text;
   }
 
   li {

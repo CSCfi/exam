@@ -1,0 +1,10 @@
+
+    <div id="question-editor">
+        <div ng-repeat="option in newQuestion.options" ng-include="newOptionTemplate" />
+        <div class="row">
+            <div class="col-md-11 col-md-offset-1 new-option" ng-click="addNewOption(newQuestion)">
+                <i class="fa fa-plus-circle"></i>
+                {{'sitnet_question_add_new_option'|translate}}
+            </div>
+        </div>
+    </div>

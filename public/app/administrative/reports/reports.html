@@ -1,0 +1,34 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_reports' | translate}}</span>
+    </div>
+</div>
+
+<div id="report" class="base">
+    <hr>
+    <div ng-include="examRoomReservations" ng-controller="DatepickerCtrl">
+    </div>
+    <hr>
+    <div ng-include="examReport">
+    </div>
+    <hr>
+    <div ng-include="examReportJson">
+    </div>
+    <hr>
+    <div ng-include="examEnrollmentsReport" ng-controller="DatepickerCtrl">
+    </div>
+    <hr>
+    <div ng-include="examAnswers" ng-controller="DatepickerCtrl">
+     </div>
+    <hr>
+    <div ng-include="reviewedExams" ng-controller="DatepickerCtrl">
+    </div>
+    <div ng-include="examRecordsCsv" ng-controller="DatepickerCtrl">
+    </div>
+    <hr>
+    <div ng-include="teacherExamsReport" ng-controller="DatepickerCtrl">
+    </div>
+    <hr>
+    <div ng-include="studentReport" ng-controller="DatepickerCtrl">
+    </div>
+</div>

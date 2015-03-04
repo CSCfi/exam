@@ -1,11 +1,12 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.springframework.beans.BeanUtils;
 import play.db.ebean.Model;
-import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+
 
 @Entity
 public class MultipleChoiseOption extends Model {
@@ -20,7 +21,7 @@ public class MultipleChoiseOption extends Model {
 
 	private String option;
     
-    private boolean correctOption = false;
+    private boolean correctOption;
 
     private Double score;
 
@@ -91,10 +92,10 @@ public class MultipleChoiseOption extends Model {
         this.question = question;
     }
 
-	@Override
-    public Object clone() {
-
-        return SitnetUtil.getClone(this);
+	public MultipleChoiseOption copy() {
+        MultipleChoiseOption option = new MultipleChoiseOption();
+        BeanUtils.copyProperties(this, option , new String[] {"id"});
+        return option;
     }
 
     public String toString() {

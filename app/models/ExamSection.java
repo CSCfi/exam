@@ -2,23 +2,15 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import models.questions.AbstractQuestion;
-import util.SitnetUtil;
+import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 
-/*
- * Tenttiosio, joka voi sisältää useita kysymyksiä (Kysymystyyppejä)
- * ryhmitää tentin kysymykset.
- * 
- *  Tentti sisältää ainakin yhden osion. 
- * 
- */
 @Entity
-public class ExamSection extends SitnetModel {
+public final class ExamSection extends SitnetModel {
 
     private String name;
 
@@ -30,7 +22,6 @@ public class ExamSection extends SitnetModel {
     @JsonBackReference
     private Exam exam;
 
-    // osion kokonaispisteet
     private Long totalScore;
 
     // In UI, section has been expanded
@@ -99,20 +90,23 @@ public class ExamSection extends SitnetModel {
         this.lotteryItemCount = lotteryItemCount;
     }
 
-    public boolean containsQuestion(AbstractQuestion question) {
-
-        for (ExamSectionQuestion esq : getSectionQuestions()) {
-            if (esq.getQuestion().getParent() != null && esq.getQuestion().getParent().equals(question)) {
-                return true;
-            }
-        }
-        return false;
+    public void shuffleQuestions() {
+        Collections.shuffle(sectionQuestions);
+        sectionQuestions = sectionQuestions.subList(0, lotteryItemCount);
     }
 
-    @Override
-    public Object clone() {
-
-        return SitnetUtil.getClone(this);
+    public ExamSection copy(Exam exam, boolean shuffleQuestions)
+    {
+        ExamSection section = new ExamSection();
+        BeanUtils.copyProperties(this, section, new String[] {"id", "exam", "sectionQuestions"});
+        section.setExam(exam);
+        for (ExamSectionQuestion esq : sectionQuestions) {
+            section.getSectionQuestions().add(esq.copy());
+        }
+        if (shuffleQuestions && lotteryOn) {
+            section.shuffleQuestions();
+        }
+        return section;
     }
 
     @Override

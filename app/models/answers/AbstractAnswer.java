@@ -5,17 +5,12 @@ import models.SitnetModel;
 
 import javax.persistence.*;
 
-/**
- * Created by avainik on 3/6/14.
- */
 @Entity
-@Table(name="answer")
-@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="answer_type",  discriminatorType=DiscriminatorType.STRING)
 @DiscriminatorValue("AbstractAnswer")
-
-
-abstract public class AbstractAnswer extends SitnetModel implements AnswerInterface {
+@DiscriminatorColumn(discriminatorType=DiscriminatorType.STRING, name="answer_type")
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@Table(name="answer")
+public abstract class AbstractAnswer extends SitnetModel implements AnswerInterface {
 
     protected String type;
 

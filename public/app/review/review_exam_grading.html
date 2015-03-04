@@ -1,0 +1,164 @@
+<div class="top-row">
+    <!-- Total score -->
+    <div class="col-md-12" ng-show="getExamMaxPossibleScore(examToBeReviewed) > 0">
+        {{'sitnet_total_score' | translate}}: {{getExamTotalScore(examToBeReviewed)}} / {{
+        getExamMaxPossibleScore(examToBeReviewed) }}
+    </div>
+</div>
+
+<div class="detail-row">
+    <!-- Approved -->
+    <div class="col-md-12" ng-if="hasEssayQuestions">
+        {{ 'sitnet_approved' | translate }}: {{ acceptedEssays }}
+    </div>
+</div>
+
+<div class="detail-row">
+    <!-- Rejected -->
+    <div class="col-md-12" ng-if="hasEssayQuestions">
+        {{ 'sitnet_rejected' | translate }}: {{ rejectedEssays }}
+    </div>
+</div>
+
+<div class="main-row">
+    <strong class="col-md-12">{{'sitnet_grading_info' | translate}}:</strong>
+</div>
+<div class="detail-row">
+    <div class="col-md-12">
+        <form name="examForm" role="form" novalidate>
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label for="creditType">{{'sitnet_exam_choose_credit_type' | translate}}:</label>
+                    <select id="creditType" name="creditType" class="form-control"
+                            ng-model="examToBeReviewed.creditType"
+                            ng-disabled="isReadOnly || !isCreator()" required>
+                        <option value="">{{'sitnet_choose' | translate}}</option>
+                        <option value="Partial">{{'sitnet_exam_credit_type_partial' | translate}}</option>
+                        <option value="Final" selected>{{'sitnet_exam_credit_type_final' | translate}}</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="examGrade">{{'sitnet_exam_grade' | translate}}:</label>
+                    <select id="examGrade" name="examGrade" class="form-control" ng-model="examToBeReviewed.grade"
+                            ng-disabled="isReadOnly || !isCreator()" required ng-options="grade for grade in examGrading">
+                        <option value="">{{'sitnet_choose' | translate}}</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="answerLanguage">{{'sitnet_exam_record_language' | translate}}:</label>
+                    <select id="answerLanguage" name="answerLanguage" class="form-control"
+                            ng-disabled="isReadOnly || !isCreator()"
+                            ng-model="selectedLanguage"
+                            ng-change="setLanguage(selectedLanguage)" required>
+                        <option value="">{{'sitnet_choose' | translate}}</option>
+                        <option ng-repeat="lang in languages" value="{{lang.name}}"
+                                ng-selected="{{lang.name === selectedLanguage}}">{{lang.name}}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="customCredit">{{'sitnet_exam_credit' | translate}} (op):</label>
+                    <input id="customCredit" type="number" ng-disabled="isReadOnly || !isCreator()" required min="0"
+                           class="form-control" maxlength="3" ng-model="examToBeReviewed.customCredit"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="main-row" ng-show="isReadOnly">
+    <strong class="col-md-12">{{'sitnet_teachers_comment' | translate}}:</strong>
+</div>
+
+<div class="detail-row" ng-show="isReadOnly">
+    <div class="col-md-12" mathjax ng-bind-html="examToBeReviewed.examFeedback.comment"></div>
+</div>
+
+<div class="main-row" ng-show="globalInspections.length > 1 && !isReadOnly">
+    <div class="main-row">
+        <div class="col-md-6">
+            <div class="row">
+                <strong class="col-md-8">
+                    {{'sitnet_exam_instructor' | translate}}
+                </strong>
+                <strong class="col-md-4">
+                    {{'sitnet_inspection_status' | translate}}
+                </strong>
+            </div>
+            <div class="row" ng-repeat="inspection in globalInspections">
+                <div class="col-md-8">
+                    {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                </div>
+                <div class="col-md-4">
+                <span ng-show="inspection.user.id !== user.id">
+                    <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.user.id) === true">{{'sitnet_ready' | translate}}</span>
+                    <span class="sitnet-text-alarm"
+                          ng-show="isLocalReady(inspection.user.id) === false">{{'sitnet_in_progress' | translate}}</span>
+                </span>
+                <span class="input-group-sm" ng-hide="inspection.user.id !== user.id">
+                    <select ng-model="reviewReady" class="form-control" ng-disabled="isGraded || isReadOnly"
+                            ng-options="s.key as s.value for s in reviewStatus"
+                            ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
+                    </select>
+                </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="row">
+                <strong class="col-md-12">
+                    {{'sitnet_send_to_other_reviewers' | translate}}:
+                </strong>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                <textarea class="form-control" ng-model="$parent.message" rows="3" cols="120"
+                          ng-disabled="isReadOnly">
+                </textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="button" class="btn btn-link"
+                           ng-disabled="isReadOnly" ng-click="sendEmailMessage()"
+                           value="{{'sitnet_send' | translate}}"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom toolbar -->
+<div class="detail-row">
+    <div class="col-md-12">
+            <span ng-show="!isReadOnly">
+                <!-- do not enable this if already graded and form has errors! -->
+                <button ng-disabled="isGraded && ( !examForm.$valid || !isCreator() )"
+                        ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
+                    {{'sitnet_save' | translate}}
+                </button>
+            </span>
+            <span ng-show="isReadOnly || (!isCreator() && isGraded)" class="row">
+                <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="row">
+                    <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
+                </a>
+            </span>
+    </div>
+</div>
+<div class="main-row">
+    <div class="col-md-4 form-group">
+        <label for="infoForRegistry">{{'sitnet_additional_info_for_registry' | translate}}:</label>
+            <textarea id="infoForRegistry" class="form-control" ng-model="$parent.additionalInfo" rows="3"
+                      ng-disabled="isReadOnly || !isGraded || !isCreator() || !examForm.$valid">
+            </textarea>
+    </div>
+</div>
+<div class="bottom-row">
+    <div class="col-md-12">
+        <input type="button" class="btn btn-primary btn-sm"
+               ng-disabled="isReadOnly || !isGraded || !isCreator() || !examForm.$valid"
+               ng-click="saveExamRecord(examToBeReviewed)"
+               value="{{'sitnet_send_result_to_registry' | translate}}"
+                />
+    </div>
+</div>

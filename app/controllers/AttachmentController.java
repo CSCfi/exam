@@ -1,7 +1,7 @@
 package controllers;
 
 
-import Exceptions.MalformedDataException;
+import exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -37,99 +37,67 @@ public class AttachmentController extends SitnetController {
     public static Result addAttachmentToQuestionAnswer() throws MalformedDataException {
 
         MultipartFormData body = request().body().asMultipartFormData();
-
         FilePart filePart = body.getFile("file");
-
+        if (filePart == null) {
+            return notFound();
+        }
         Map<String, String[]> m = body.asFormUrlEncoded();
+        Long qid = Long.parseLong(m.get("questionId")[0]);
 
-        String[] q = m.get("questionId");
+        String fileName = filePart.getFilename();
+        String contentType = filePart.getContentType();
+        File file = filePart.getFile();
+        String uploadPath = Play.application().configuration().getString("sitnet.question.answer.attachments.path");
+        String playPath = Play.application().path().getAbsolutePath();
 
-        String idstr = q[0];
-        Long qid = Long.parseLong(idstr);
+        // first check if answer already exist
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class)
+                .fetch("answer")
+                .where()
+                .eq("id", qid)
+                .findUnique();
 
-        if (filePart != null) {
-            String fileName = filePart.getFilename();
-            String contentType = filePart.getContentType();
-            File file = filePart.getFile();
-
-            String uploadPath = Play.application().configuration().getString("sitnet.question.answer.attachments.path");
-            String playPath = Play.application().path().getAbsolutePath();
-
-            // first check if answer already exist
-            AbstractQuestion question = Ebean.find(AbstractQuestion.class)
-                    .fetch("answer")
-                    .where()
-                    .eq("id", qid)
-                    .findUnique();
-
-            if (question.getAnswer() == null) {
-
-                switch (question.getType()) {
-                    case "EssayQuestion": {
-                        EssayAnswer essayQuestion = new EssayAnswer();
-                        question.setAnswer(essayQuestion);
-                        question.save();
-                    }
-                    break;
-
-                    case "MultipleChoiceQuestion": {
-                        MultipleChoiseAnswer multipleChoiseAnswer = new MultipleChoiseAnswer();
-                        question.setAnswer(multipleChoiseAnswer);
-                        question.save();
-                    }
-                    break;
-                    default:
-                        return notFound("Unsupported question type");
-                }
-            }
-
-
-            // TODO Use smarter config
-            String basePath = playPath + "/" + uploadPath + "/" + String.valueOf(qid) + "/answer/" + String.valueOf(question.getAnswer().getId());
-            File dir = new File(basePath);
-            if (dir.mkdirs()) {
-                Logger.info("Created attachment directory");
-            }
-            String rndFileName = UUID.randomUUID().toString();
-            String newFile = basePath + "/" + rndFileName;
-            Attachment attachment = null;
-
-            try {
-                if (SitnetUtil.copyFile(file, new File(newFile))) {
-
-                    attachment = question.getAnswer().getAttachment();
-
-                    // If the question didn't have an attachment before, it does now.
-                    if (attachment == null) {
-                        attachment = new Attachment();
-                    }
-
-                    attachment.setFileName(fileName);
-                    attachment.setFilePath(newFile);
-                    attachment.setMimeType(contentType);
-
-                    attachment.save();
-
-                    question.getAnswer().setAttachment(attachment);
+        if (question.getAnswer() == null) {
+            switch (question.getType()) {
+                case "EssayQuestion":
+                    question.setAnswer(new EssayAnswer());
                     question.save();
+                    break;
 
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                // TODO: send mail to admin? Could indicate an OOM.
-            }
-
-            if (attachment == null) {
-                return notFound("sitnet_error_creating_attachment");
-            } else {
-                JsonContext jsonContext = Ebean.createJsonContext();
-                JsonWriteOptions options = new JsonWriteOptions();
-                options.setRootPathProperties("id, fileName");
-
-                return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
+                case "MultipleChoiceQuestion":
+                    question.setAnswer(new MultipleChoiseAnswer());
+                    question.save();
+                    break;
+                default:
+                    return notFound("Unsupported question type");
             }
         }
-        return notFound();
+        // TODO Use smarter config
+        String basePath = String.format("%s/%s/%d/answer/%d", playPath, uploadPath, qid, question.getAnswer().getId());
+        File dir = new File(basePath);
+        if (dir.mkdirs()) {
+            Logger.info("Created attachment directory");
+        }
+        String rndFileName = UUID.randomUUID().toString();
+        String newFile = basePath + "/" + rndFileName;
+        try {
+            SitnetUtil.copyFile(file, new File(newFile));
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_attachment");
+        }
+        Attachment attachment = new Attachment();
+        attachment.setFileName(fileName);
+        attachment.setFilePath(newFile);
+        attachment.setMimeType(contentType);
+        attachment.save();
+        question.getAnswer().setAttachment(attachment);
+        question.save();
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, fileName");
+
+        return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
     }
 
 
@@ -137,77 +105,48 @@ public class AttachmentController extends SitnetController {
     public static Result addAttachmentToQuestion() throws MalformedDataException {
 
         MultipartFormData body = request().body().asMultipartFormData();
-
         FilePart filePart = body.getFile("file");
-
-        Map<String, String[]> m = body.asFormUrlEncoded();
-
-        String[] d = m.get("questionId");
-        String idstr = d[0];
-        Long id = Long.parseLong(idstr);
-
-        if (filePart != null) {
-            String fileName = filePart.getFilename();
-            String contentType = filePart.getContentType();
-            File file = filePart.getFile();
-
-            String uploadPath = Play.application().configuration().getString("sitnet.question.attachments.path");
-            String playPath = Play.application().path().getAbsolutePath();
-
-            // TODO Use smarter config
-            String basePath = playPath + "/" + uploadPath + "/" + String.valueOf(id);
-            File dir = new File(basePath);
-            if (dir.mkdirs()) {
-                Logger.info("Created attachment directory");
-            }
-            String rndFileName = UUID.randomUUID().toString();
-            String newFile = basePath + "/" + rndFileName;
-            Attachment attachment = null;
-
-            try {
-                if (SitnetUtil.copyFile(file, new File(newFile))) {
-
-                    AbstractQuestion question = Ebean.find(AbstractQuestion.class)
-                            .fetch("attachment")
-                            .where()
-                            .eq("id", id)
-                            .findUnique();
-
-                    if (question != null) {
-
-                        attachment = question.getAttachment();
-
-                        // If the question didn't have an attachment before, it does now.
-                        if (attachment == null) {
-                            attachment = new Attachment();
-                        }
-
-                        attachment.setFileName(fileName);
-                        attachment.setFilePath(newFile);
-                        attachment.setMimeType(contentType);
-
-                        attachment.save();
-
-                        question.setAttachment(attachment);
-                        question.save();
-                        Ebean.save(question);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (attachment == null) {
-                return notFound("sitnet_error_creating_attachment");
-            } else {
-                JsonContext jsonContext = Ebean.createJsonContext();
-                JsonWriteOptions options = new JsonWriteOptions();
-                options.setRootPathProperties("id, fileName");
-
-                return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
-            }
+        if (filePart == null) {
+            return notFound();
         }
-        return notFound();
+        Map<String, String[]> m = body.asFormUrlEncoded();
+        Long qid = Long.parseLong(m.get("questionId")[0]);
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+        if (question == null) {
+            return notFound();
+        }
+        File file = filePart.getFile();
+        String uploadPath = Play.application().configuration().getString("sitnet.question.attachments.path");
+        String playPath = Play.application().path().getAbsolutePath();
+
+        // TODO Use smarter config
+        String basePath = playPath + "/" + uploadPath + "/" + qid;
+        File dir = new File(basePath);
+        if (dir.mkdirs()) {
+            Logger.info("Created attachment directory");
+        }
+        String rndFileName = UUID.randomUUID().toString();
+        String newFile = basePath + "/" + rndFileName;
+
+        try {
+            SitnetUtil.copyFile(file, new File(newFile));
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_attachment");
+        }
+        Attachment attachment = new Attachment();
+        attachment.setFileName(filePart.getFilename());
+        attachment.setFilePath(newFile);
+        attachment.setMimeType(filePart.getContentType());
+        attachment.save();
+
+        question.setAttachment(attachment);
+        question.save();
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, fileName");
+
+        return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -254,79 +193,48 @@ public class AttachmentController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result addAttachmentToExam() throws MalformedDataException {
-
         MultipartFormData body = request().body().asMultipartFormData();
-
         FilePart filePart = body.getFile("file");
-
-        Map<String, String[]> m = body.asFormUrlEncoded();
-
-        String[] d = m.get("examId");
-        String idstr = d[0];
-        Long id = Long.parseLong(idstr);
-
-        if (filePart != null) {
-            String fileName = filePart.getFilename();
-            String contentType = filePart.getContentType();
-            File file = filePart.getFile();
-
-            String uploadPath = Play.application().configuration().getString("sitnet.exam.attachments.path");
-            String playPath = Play.application().path().getAbsolutePath();
-
-            // TODO Use smarter config
-            String basePath = playPath + "/" + uploadPath + "/" + String.valueOf(id);
-            File dir = new File(basePath);
-            if (dir.mkdirs()) {
-                Logger.info("Created attachment directory");
-            }
-            String rndFileName = UUID.randomUUID().toString();
-            String newFile = basePath + "/" + rndFileName;
-            Attachment attachment = null;
-
-            try {
-                if (SitnetUtil.copyFile(file, new File(newFile))) {
-
-                    Exam exam = Ebean.find(Exam.class)
-                            .fetch("attachment")
-                            .where()
-                            .eq("id", id)
-                            .findUnique();
-
-                    if (exam != null) {
-
-                        attachment = exam.getAttachment();
-
-                        // If the question didn't have an attachment before, it does now.
-                        if (attachment == null) {
-                            attachment = new Attachment();
-                        }
-
-                        attachment.setFileName(fileName);
-                        attachment.setFilePath(newFile);
-                        attachment.setMimeType(contentType);
-
-                        attachment.save();
-
-                        exam.setAttachment(attachment);
-                        exam.save();
-                        Ebean.save(exam);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (attachment == null) {
-                return notFound("sitnet_error_creating_attachment");
-            } else {
-                JsonContext jsonContext = Ebean.createJsonContext();
-                JsonWriteOptions options = new JsonWriteOptions();
-                options.setRootPathProperties("id, fileName");
-
-                return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
-            }
+        if (filePart == null) {
+            return notFound();
         }
-        return notFound();
+        Map<String, String[]> m = body.asFormUrlEncoded();
+        Long eid = Long.parseLong(m.get("examId")[0]);
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound();
+        }
+        File file = filePart.getFile();
+        String uploadPath = Play.application().configuration().getString("sitnet.exam.attachments.path");
+        String playPath = Play.application().path().getAbsolutePath();
+
+        // TODO Use smarter config
+        String basePath = playPath + "/" + uploadPath + "/" + eid;
+        File dir = new File(basePath);
+        if (dir.mkdirs()) {
+            Logger.info("Created attachment directory");
+        }
+        String rndFileName = UUID.randomUUID().toString();
+        String newFile = basePath + "/" + rndFileName;
+        try {
+            SitnetUtil.copyFile(file, new File(newFile));
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_attachment");
+        }
+        Attachment attachment = new Attachment();
+        attachment.setFileName(filePart.getFilename());
+        attachment.setFilePath(newFile);
+        attachment.setMimeType(filePart.getContentType());
+        attachment.save();
+
+        exam.setAttachment(attachment);
+        exam.save();
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, fileName");
+
+        return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
