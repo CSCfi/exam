@@ -7,7 +7,7 @@
 
     <!-- Start & End time datepickers -->
     <div class="col-md-5">
-        <h4>{{'sitnet_start_time' | translate}}</h4>
+        <h4>{{'sitnet_from' | translate}}</h4>
         <p class="input-group">
             <input type="text" class="form-control" datepicker-popup="{{format}}"
                    date-fix="{{format}}" ng-model="csvExport.startDate"
@@ -25,7 +25,7 @@
         </p>
     </div>
     <div class="col-md-5">
-        <h4>{{'sitnet_end_time' | translate}}</h4>
+        <h4>{{'sitnet_to' | translate}}</h4>
         <p class="input-group">
             <input type="text" class="form-control" datepicker-popup="{{format}}"
                    date-fix="{{format}}" ng-model="csvExport.endDate"
@@ -45,7 +45,7 @@
             <a ng-click="getExamRecords()" class="fa-stack fa-lg pointer" download popover-trigger="mouseenter"
                popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-                <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
+                <i class="fa fa-file-code-o sitnet-white fa-stack-1x"></i>
             </a>
         </h2>
     </div>
