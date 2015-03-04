@@ -37,9 +37,11 @@
                 $scope.onTagSelect = function (tag, question) {
                     if (!tag.id) {
                         // add first
-                        TagRes.tags.add(tag, function (data) {
-                            tag = data;
-                            toastr.info($translate('sitnet_new_tag_added'));
+                        TagRes.tags.add(tag, function (response) {
+                            if (response.status === 201) {
+                                toastr.info($translate('sitnet_new_tag_added'));
+                            }
+                            tag = response.data;
                             associate(tag, question);
                         }, function (error) {
                             toastr.error(error.data);

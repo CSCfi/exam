@@ -8,9 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(uniqueConstraints=@UniqueConstraint(columnNames = {"name", "creator_id"}))
 public class Tag extends SitnetModel {
 
-    @Column(unique = true, nullable = false, length = 32)
+    @Column(nullable = false, length = 32)
 	private String name;
 
     @ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)

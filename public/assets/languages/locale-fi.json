@@ -506,5 +506,7 @@
   "sitnet_remove_course_from_exam": "Poista tentti opintojaksolta",
   "sitnet_continue": "Jatka",
   "sitnet_no_suitable_enrolment_found": "Sinulla on käynnissä oleva varaus kyseiseen tenttiin. Voit tehdä uuden varauksen vasta kun edellinen on päättynyt.",
+  "sitnet_added_to_categories": "Liitetty avainsanoihin",
+  "sitnet_no_suitable_enrolment_found": "Sinulla on käynnissä oleva varaus kyseiseen tenttiin. Voit tehdä uuden varauksen vasta kun edellinen on päättynyt.",
   "sitnet_remove_question_from_library_only": "Haluatko poistaa kysymyksen kirjastosta? (Kysymys ei poistu tenteistä johon se on lisätty.)"
 }

@@ -506,5 +506,7 @@
   "sitnet_remove_course_from_exam": "Koppla bort tenten från studieperioden",
   "sitnet_continue": "Fortsätt",
   "sitnet_no_suitable_enrolment_found": "Du har en pågående bokning på tenten. Försök åter när bokningen i fråga har ändat.",
+  "sitnet_added_to_categories": "Används i kategorier",
+  "sitnet_no_suitable_enrolment_found": "Du har en pågående bokning på tenten. Försök åter när bokningen i fråga har ändat.",
   "sitnet_remove_question_from_library_only": "Are you sure you want to remove question from the library? (Will not remove question from exams.)"
 }

@@ -33,8 +33,15 @@ public class TagController extends SitnetController {
         Tag tag = bindForm(Tag.class);
         SitnetUtil.setCreator(tag);
         SitnetUtil.setModifier(tag);
-        tag.save();
-        return ok(Json.toJson(tag));
+        // Save only if not already exists
+        Tag existing = Ebean.find(Tag.class).where().eq("name", tag.getName())
+                .eq("creator.id", tag.getCreator().getId()).findUnique();
+        if (existing == null) {
+            tag.save();
+            return created(Json.toJson(tag));
+        } else {
+            return ok(Json.toJson(existing));
+        }
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
