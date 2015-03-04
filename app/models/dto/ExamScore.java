@@ -188,6 +188,9 @@ public class ExamScore extends Model {
     public void setAdditionalInfo(String additionalInfo) {
         this.additionalInfo = additionalInfo;
     }
+    public String getLecturerEmployeeNumber() { return lecturerEmployeeNumber; }
+
+    public void setLecturerEmployeeNumber(String lecturerEmployeeNumber) { this.lecturerEmployeeNumber = lecturerEmployeeNumber; }
 
     public static String[] getHeaders() {
         return new String[]{"id", "studentId", "student", "identifier", "courseUnitCode", "examDate", "credits",
@@ -198,10 +201,7 @@ public class ExamScore extends Model {
     public String[] asArray() {
         return new String[]{Long.toString(id), studentId, student, identifier, courseUnitCode, examDate, credits,
                 creditLanguage, studentGrade, gradeScale, courseUnitLevel, courseUnitType, creditType, lecturer,
-                lecturerId, date, courseImplementation, additionalInfo};
+                lecturerId, date, courseImplementation, additionalInfo, lecturerEmployeeNumber};
     }
- 
-    public String getLecturerEmployeeNumber() { return lecturerEmployeeNumber; }
 
-    public void setLecturerEmployeeNumber(String lecturerEmployeeNumber) { this.lecturerEmployeeNumber = lecturerEmployeeNumber; }
 }

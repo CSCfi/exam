@@ -20,7 +20,7 @@
                             saveFile(data, filename);
                         }).
                         error(function (error) {
-                            toastr(error.data);
+                            toastr.error(error.data || error);
                         });
                 };
 
