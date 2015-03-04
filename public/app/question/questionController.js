@@ -161,7 +161,7 @@
                 };
 
                 $scope.deleteQuestion = function () {
-                    if (confirm($translate('sitnet_remove_question'))) {
+                    if (confirm($translate('sitnet_remove_question_from_library_only'))) {
                         QuestionRes.questions.delete({'id': $scope.newQuestion.id}, function () {
                             toastr.info($translate('sitnet_question_removed'));
                             if ($routeParams.examId === undefined) {

@@ -505,5 +505,6 @@
   "sitnet_course_removed_from_exam": "The exam has been unattached from the course",
   "sitnet_remove_course_from_exam": "Unattach the exam from the course",
   "sitnet_continue": "Continue",
-  "sitnet_no_suitable_enrolment_found": "You have an ongoing reservation for the exam in question. Please try again after it has expired"
+  "sitnet_no_suitable_enrolment_found": "You have an ongoing reservation for the exam in question. Please try again after it has expired",
+  "sitnet_remove_question_from_library_only": "Are you sure you want to remove question from the library? (Will not remove question from exams.)"
 }

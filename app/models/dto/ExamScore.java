@@ -32,6 +32,7 @@ public class ExamScore extends Model {
     private String CreditType;
     private String Lecturer;
     private String LecturerId;
+    private String LecturerEmployeeNumber;
     private String Date;
     private String CourseImplementation;
     private String additionalInfo;
@@ -183,4 +184,8 @@ public class ExamScore extends Model {
     public String getAdditionalInfo() { return additionalInfo; }
 
     public void setAdditionalInfo(String additionalInfo) { this.additionalInfo = additionalInfo; }
+
+    public String getLecturerEmployeeNumber() { return LecturerEmployeeNumber; }
+
+    public void setLecturerEmployeeNumber(String lecturerEmployeeNumber) { this.LecturerEmployeeNumber = lecturerEmployeeNumber; }
 }
