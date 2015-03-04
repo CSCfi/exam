@@ -93,6 +93,7 @@ public class ExamRecordController extends SitnetController {
 
         score.setLecturer(teacher.getEppn());
         score.setLecturerId(teacher.getUserIdentifier());
+        score.setLecturerEmployeeNumber(teacher.getEmployeeNumber());
 
         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
         // Record transfer timestamp (date)

@@ -153,7 +153,7 @@
             };
 
             $scope.deleteQuestion = function(question) {
-                if (confirm($translate('sitnet_remove_question'))) {
+                if (confirm($translate('sitnet_remove_question_from_library_only'))) {
                     $scope.questions.splice($scope.questions.indexOf(question), 1);
 
                     QuestionRes.questions.delete({'id': question.id}, function() {

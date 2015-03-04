@@ -35,6 +35,7 @@ public class ExamScore extends Model {
     private String date;
     private String courseImplementation;
     private String additionalInfo;
+    private String lecturerEmployeeNumber;
 
     public String getCourseImplementation() {
         return courseImplementation;
@@ -191,7 +192,7 @@ public class ExamScore extends Model {
     public static String[] getHeaders() {
         return new String[]{"id", "studentId", "student", "identifier", "courseUnitCode", "examDate", "credits",
                 "creditLanguage", "studentGrade", "gradeScale", "courseUnitLevel", "courseUnitType", "creditType",
-                "lecturer", "lecturerId", "date", "courseImplementation", "additionalInfo"};
+                "lecturer", "lecturerId", "date", "courseImplementation", "additionalInfo", "lecturerEmployeeNumber"};
     }
 
     public String[] asArray() {
@@ -199,4 +200,8 @@ public class ExamScore extends Model {
                 creditLanguage, studentGrade, gradeScale, courseUnitLevel, courseUnitType, creditType, lecturer,
                 lecturerId, date, courseImplementation, additionalInfo};
     }
+ 
+    public String getLecturerEmployeeNumber() { return lecturerEmployeeNumber; }
+
+    public void setLecturerEmployeeNumber(String lecturerEmployeeNumber) { this.lecturerEmployeeNumber = lecturerEmployeeNumber; }
 }
