@@ -128,10 +128,10 @@ public class ExamRecordController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result exportExamRecordsAsCsv(String startDate) {
+    public static Result exportExamRecordsAsCsv(Long startDate, Long endDate) {
         File file;
         try {
-            file = CsvBuilder.build(startDate);
+            file = CsvBuilder.build(startDate, endDate);
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }

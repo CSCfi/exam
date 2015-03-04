@@ -85,7 +85,6 @@ public class RoomController extends SitnetController {
     public static Result updateExamRoom(Long id) {
 
         ExamRoom room = Form.form(ExamRoom.class).bindFromRequest(
-                "id",
                 "name",
                 "roomCode",
                 "buildingName",
@@ -104,9 +103,26 @@ public class RoomController extends SitnetController {
                 "state",
                 "expanded").get();
 
-        room.update();
+        ExamRoom existing = Ebean.find(ExamRoom.class, id);
+        existing.setName(room.getName());
+        existing.setRoomCode(room.getRoomCode());
+        existing.setBuildingName(room.getBuildingName());
+        existing.setCampus(room.getCampus());
+        existing.setTransitionTime(room.getTransitionTime());
+        existing.setAccessible(room.getAccessible());
+        existing.setRoomInstruction(room.getRoomInstruction());
+        existing.setRoomInstructionEN(room.getRoomInstructionEN());
+        existing.setRoomInstructionSV(room.getRoomInstructionSV());
+        existing.setContactPerson(room.getContactPerson());
+        existing.setVideoRecordingsURL(room.getVideoRecordingsURL());
+        existing.setStatusComment(room.getStatusComment());
+        existing.setOutOfService(room.getOutOfService());
+        existing.setState(room.getState());
+        existing.setExpanded(room.getExpanded());
 
-        return ok(Json.toJson(room));
+        existing.update();
+
+        return ok(Json.toJson(existing));
     }
 
     @Restrict(@Group({"ADMIN"}))

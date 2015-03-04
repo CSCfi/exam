@@ -32,7 +32,7 @@
             TEMPLATES_PATH: context_path + 'assets/app/'
         };
     }()));
-    sitnet.config(['$httpProvider', '$translateProvider', 'SITNET_CONF', function ($httpProvider, $translateProvider, SITNET_CONF) {
+    sitnet.config(['$translateProvider', 'SITNET_CONF', function ($translateProvider, SITNET_CONF) {
 
         var path = SITNET_CONF.LANGUAGES_PATH;
         $translateProvider.useStaticFilesLoader({

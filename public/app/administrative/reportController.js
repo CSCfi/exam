@@ -5,6 +5,7 @@
             function ($scope, $translate, SITNET_CONF, ReportResource, RoomResource, dateService, $filter, UserRes, fileService) {
 
                 $scope.dateService = dateService;
+                $scope.csvExport = {};
 
                 $scope.examRoomReservations = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/exam-room-reservations.html";
                 $scope.teacherExamsReport = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/teacher-exams.html";
@@ -14,6 +15,7 @@
                 $scope.examAnswers = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/exam-answers.html";
                 $scope.examEnrollmentsReport = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/exam-enrollments.html";
                 $scope.studentReport = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/student.html";
+                $scope.examRecordsCsv = SITNET_CONF.TEMPLATES_PATH + "administrative/reports/exam-records-csv.html";
 
                 $scope.selectedRoom = {
                     name: $translate("sitnet_choose")
@@ -58,7 +60,7 @@
 
                 $scope.getStudentReport = function (student, from, to) {
                     if (student) {
-                        var f = $filter("date")(from, "dd.MM.yyyy");
+                        var f = $filter("date")(from, "dd.MM.yyyy") ;
                         var t = $filter("date")(to, "dd.MM.yyyy");
                         fileService.download('/statistics/student/' + student + '/' + f + '/' + t, 'student_activity.xslx');
                     } else {
@@ -113,6 +115,18 @@
                     } else {
                         toastr.error($translate('sitnet_choose_room'));
                     }
+                };
+
+                $scope.getExamRecords = function () {
+                    var start = new Date($scope.csvExport.startDate).getTime();
+                    var end = new Date($scope.csvExport.endDate).setHours(23, 59, 59, 999);
+                    if (!start) {
+                        start = 0;
+                    }
+                    if (!end) {
+                        end = new Date().setHours(23, 59, 59, 999);
+                    }
+                    fileService.download('/exam/record', 'examrecords.csv', {'startDate': start, 'endDate': end});
                 };
 
             }]);

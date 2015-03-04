@@ -5,23 +5,23 @@ import au.com.bytecode.opencsv.CSVWriter;
 import com.avaje.ebean.Ebean;
 import models.ExamRecord;
 import models.dto.ExamScore;
-import org.joda.time.DateTime;
-import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class CsvBuilder {
 
-    public static File build(String startDate) throws IOException {
-        DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
+    public static File build(Long startDate, Long endDate) throws IOException {
+        Date start = new Date(startDate);
+        Date end = new Date(endDate);
         List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
                 .select("exam_score")
                 .where()
-                .gt("time_stamp", start.toDate())
+                .between("time_stamp", start, end)
                 .findList();
 
         List<ExamScore> examScores = new ArrayList<>();

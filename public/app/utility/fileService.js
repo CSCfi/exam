@@ -14,8 +14,8 @@
                     saveAs(blob, filename);
                 };
 
-                var download = function(url, filename) {
-                    $http.get(url, {responseType: 'arrayBuffer'}).
+                var download = function(url, filename, params) {
+                    $http.get(url, {params: params}).
                         success(function (data) {
                             saveFile(data, filename);
                         }).

@@ -1,0 +1,59 @@
+<div class="row">
+    <div class="col-md-12 sitnet-info-text">
+        Hae kaikki rekisteröidyt tenttisuoritukset CSV-muodossa aikavälillä pp.kk.vvvv - pp.kk.vvvv
+    </div>
+</div>
+<div class="row">
+
+    <!-- Start & End time datepickers -->
+    <div class="col-md-5">
+        <h4>{{'sitnet_start_time' | translate}}</h4>
+        <p class="input-group">
+            <input type="text" class="form-control" datepicker-popup="{{format}}"
+                   date-fix="{{format}}" ng-model="csvExport.startDate"
+                   is-open="startDateOpened"
+                   datepicker-options="dateOptions"
+                   close-text="{{'sitnet_close' | translate}}"
+                   current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                   clear-text="{{'sitnet_clear' | translate}}">
+
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="openStartDate($event)">
+                            <i class="fa fa-calendar"></i>
+                        </button>
+                    </span>
+        </p>
+    </div>
+    <div class="col-md-5">
+        <h4>{{'sitnet_end_time' | translate}}</h4>
+        <p class="input-group">
+            <input type="text" class="form-control" datepicker-popup="{{format}}"
+                   date-fix="{{format}}" ng-model="csvExport.endDate"
+                   is-open="endDateOpened" min="csvExport.startDate"
+                   datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
+                   current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                   clear-text="{{'sitnet_clear' | translate}}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" ng-click="openEndDate($event)">
+                        <i class="fa fa-calendar"></i>
+                    </button>
+                </span>
+        </p>
+    </div>
+    <div class="col-md-2 load-link">
+        <h2>
+            <a ng-click="getExamRecords()" class="fa-stack fa-lg pointer" download popover-trigger="mouseenter"
+               popover="{{'sitnet_download' | translate}}">
+                <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
+                <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
+            </a>
+        </h2>
+    </div>
+</div>
+<!--iv class="detail-row">
+    <div class="form-group col-md-12">
+        <button ng-disabled="!csvExport.endDate || !csvExport.startDate" ng-click="exportAsCsv()"
+                class="btn btn-primary">{{'Tallenna CSV-tiedostoon' | translate}}
+        </button>
+    </div>
+</div-->
