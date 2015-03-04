@@ -488,10 +488,10 @@
   "sitnet_results_send_ok": "Resultaten är skickade till registret ",
   "sitnet_autosaved": "Svaret är automatsparat",
   "sitnet_course": "Studieavsnitt",
-  "sitnet_category": "Kategori",
-  "sitnet_question_metainfo": "Sakord som är kombinerade med frågan",
-  "sitnet_added_to_exams": "Används i tenter",
-  "sitnet_added_to_sections": "Används i sektioner",
+  "sitnet_category": "Sakord",
+  "sitnet_question_metainfo": "Frågans kontext inom Exam",
+  "sitnet_added_to_exams": "Frågan används i tenter",
+  "sitnet_added_to_sections": "Frågan används i sektioner",
   "sitnet_activate_room": "Ta tentrummet i bruk",
   "sitnet_inactivate_room": "Ta tentrummet ur bruk",
   "sitnet_room_activated": "Tentrummet är i bruk",
@@ -505,7 +505,6 @@
   "sitnet_course_removed_from_exam": "Tenten är bortkopplad från studieperioden",
   "sitnet_remove_course_from_exam": "Koppla bort tenten från studieperioden",
   "sitnet_continue": "Fortsätt",
-  "sitnet_added_to_categories": "Används i kategorier",
-  "sitnet_no_suitable_enrolment_found": "Du har en pågående bokning på tenten. Försök åter när bokningen i fråga har ändat.",
-  "sitnet_remove_question_from_library_only": "Are you sure you want to remove question from the library? (Will not remove question from exams.)"
+  "sitnet_no_suitable_enrolment_found": "Du har redan en bokning till den här tenten. Du kan boka om först efter att antingen ha tagit tenten eller inhiberat den nuvarande bokningen.",
+  "sitnet_added_to_categories": "Sakord som är kombinerade med frågan"
 }

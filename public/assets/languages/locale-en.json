@@ -489,9 +489,9 @@
   "sitnet_autosaved": "The response is automatically saved",
   "sitnet_course": "Course",
   "sitnet_category": "Tag",
-  "sitnet_question_metainfo": "Tags attached to the question",
-  "sitnet_added_to_exams": "Included in exams",
-  "sitnet_added_to_sections": "Included in sections",
+  "sitnet_question_metainfo": "Question contexts within Exam",
+  "sitnet_added_to_exams": "The question is included in these exams",
+  "sitnet_added_to_sections": "The question is included in these sections",
   "sitnet_activate_room": "Take the exam room into use",
   "sitnet_inactivate_room": "Take the exam room off use",
   "sitnet_room_activated": "Exam room taken to use",
@@ -500,12 +500,11 @@
   "sitnet_tag_question": "Add a tag",
   "sitnet_question_associated_with_tag": "The tag has been attached to the question",
   "sitnet_question_disassociated_with_tag": "The tag has been unattached from the question",
-  "sitnet_new_tag_added": "The tag has been created",
+  "sitnet_new_tag_added": "The tag has been added",
   "sitnet_select_exam_course": "Select the course which the the exam belongs to",
   "sitnet_course_removed_from_exam": "The exam has been unattached from the course",
   "sitnet_remove_course_from_exam": "Unattach the exam from the course",
   "sitnet_continue": "Continue",
-  "sitnet_added_to_categories": "Tagged with",
-  "sitnet_no_suitable_enrolment_found": "You have an ongoing reservation for the exam in question. Please try again after it has expired",
-  "sitnet_remove_question_from_library_only": "Are you sure you want to remove question from the library? (Will not remove question from exams.)"
+  "sitnet_no_suitable_enrolment_found": "You already have one reservation for this exam. You can make another reservation only after taking the exam or by cancelling the reservation.",
+  "sitnet_added_to_categories": "Tags attached to the question"
 }
