@@ -28,6 +28,12 @@
                             }, function (error) {
                                 toastr.error(error.data);
                         });
+                };
+
+                $scope.showAttributes = function() {
+                  $http.get('/attributes').success(function(attributes) {
+                      $scope.attributes = attributes;
+                  })
                 }
             }]);
 }());
