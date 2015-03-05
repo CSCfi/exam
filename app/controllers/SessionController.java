@@ -143,23 +143,17 @@ public class SessionController extends SitnetController {
     }
 
     // prints HAKA attributes, used for debugging
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("ADMIN")})
     public static Result getAttributes() {
 
         Map<String, String[]> attributes = request().headers();
-        String output = "";
+        ObjectNode node = Json.newObject();
 
         for (Map.Entry<String, String[]> entry : attributes.entrySet()) {
-
-            String key = entry.getKey();
-            String[] value = entry.getValue();
-
-            output += key + "\t";
-            output += Arrays.toString(value);
-            output += "\n";
+            node.put(entry.getKey(), Arrays.toString(entry.getValue()));
         }
 
-        return ok(output);
+        return ok(node);
     }
 
     static private SitnetRole findRole(String affiliation) {
