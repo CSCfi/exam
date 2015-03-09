@@ -10,7 +10,7 @@
                 $scope.sectionTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/student/section_template.html";
 
                 // section back / forward buttons
-                $scope.pages = [$translate("sitnet_exam_quide")];
+                $scope.pages = ["guide"];
                 $scope.guide = false;
                 $scope.previousButton = false;
                 $scope.previousButtonText = "";
@@ -122,7 +122,7 @@
 
                             if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
                                 $scope.guide = true;
-                                $scope.setActiveSection($translate("sitnet_exam_quide"));
+                                $scope.setActiveSection("quide");
                             } else {
                                 $scope.pages.splice(0, 1);
                                 $scope.setActiveSection($scope.pages[0]);
@@ -187,7 +187,7 @@
 
                 $scope.setActiveSection = function (sectionName) {
 
-                    if (sectionName !== $translate("sitnet_exam_quide") || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === $translate("sitnet_exam_quide"))) {
+                    if (sectionName !== "quide" || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === "guide")) {
 
                         // next
                         if ($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
@@ -201,7 +201,11 @@
                         // previous
                         if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
                             $scope.previousButton = true;
-                            $scope.previousButtonText = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
+                            if($scope.pages.indexOf(sectionName) - 1 !== 0) {
+                                $scope.previousButtonText = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
+                            } else {
+                                $scope.previousButtonText = $translate("sitnet_exam_quide");
+                            }
                         } else {
                             $scope.previousButton = false;
                             $scope.previousButtonText = "";
@@ -217,7 +221,7 @@
                     }
 
                     $scope.activeSection = undefined;
-                    if (sectionName === $translate("sitnet_exam_quide")) {
+                    if (sectionName === "guide") {
                         $scope.guide = true;
                     } else {
                         $scope.guide = false;

@@ -220,7 +220,7 @@ public class StudentExamController extends SitnetController {
     @Restrict({@Group("STUDENT")})
     public static Result createExam(String hash, User user) throws SitnetException {
 
-        Exam blueprint = Ebean.find(Exam.class)
+        Exam prototype = Ebean.find(Exam.class)
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions")
                 .fetch("examSections.sectionQuestions.question")
@@ -241,7 +241,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         // no exam found for hash
-        if (blueprint == null && possibleClone == null) {
+        if (prototype == null && possibleClone == null) {
             return notFound();
         }
 
@@ -268,7 +268,7 @@ public class StudentExamController extends SitnetController {
                     .fetch("reservation.machine.room")
                     .where()
                     .eq("user.id", user.getId())
-                    .eq("exam.id", blueprint.getId())
+                    .eq("exam.id", prototype.getId())
                     .le("reservation.startAt", now.toDate())
                     .gt("reservation.endAt", now.toDate())
                     .findUnique();
@@ -296,10 +296,10 @@ public class StudentExamController extends SitnetController {
             }
 
             // We are good to go (reservation and enrolment OK)
-            Exam studentExam = blueprint.copy();
+            Exam studentExam = prototype.copy();
             studentExam.setState(Exam.State.STUDENT_STARTED.toString());
             studentExam.setCreator(user);
-            studentExam.setParent(blueprint);
+            studentExam.setParent(prototype);
             studentExam.generateHash();
             studentExam.save();
 
@@ -328,12 +328,13 @@ public class StudentExamController extends SitnetController {
     private static void setStudentExamContent(JsonWriteOptions options) {
 
         options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
-                "duration, examLanguage, answerLanguage, state, expanded, attachment, cloned");
+                "duration, examLanguages, answerLanguage, state, expanded, attachment, cloned");
         options.setPathProperties("creator", "id");
         options.setPathProperties("attachment", "fileName");
         options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
         options.setPathProperties("room", "roomInstruction, roomInstructionEN, roomInstructionSV");
         options.setPathProperties("examType", "id, type");
+        options.setPathProperties("examLanguages", "code");
         options.setPathProperties("examSections", "id, name, sectionQuestions, exam, expanded");
         options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
         options.setPathProperties("examSections.sectionQuestions.question", "id, type, question, instruction, " +
