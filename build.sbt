@@ -2,7 +2,7 @@ import net.litola.SassPlugin
 
 name := "sitnet"
 
-version := "1.0-SNAPSHOT"
+version := "1.2.1"
 
 javacOptions ++= Seq("-Xlint:unchecked")
 
