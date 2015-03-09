@@ -19,11 +19,8 @@ import play.libs.Akka;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.Json;
-import play.mvc.Action;
-import play.mvc.Http;
+import play.mvc.*;
 import play.mvc.Http.Request;
-import play.mvc.Results;
-import play.mvc.SimpleResult;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 import util.SitnetUtil;
@@ -124,9 +121,9 @@ public class Global extends GlobalSettings {
     }
 
     @Override
-    public Promise<SimpleResult> onError(Http.RequestHeader request, final Throwable t) {
-        return F.Promise.promise(new F.Function0<SimpleResult>() {
-            public SimpleResult apply() {
+    public Promise<Result> onError(Http.RequestHeader request, final Throwable t) {
+        return F.Promise.promise(new F.Function0<Result>() {
+            public Result apply() {
                 Throwable cause = t.getCause();
                 String errorMessage = cause.getMessage();
 
@@ -149,12 +146,12 @@ public class Global extends GlobalSettings {
     }
 
     @Override
-    public Promise<SimpleResult> onBadRequest(Http.RequestHeader request, final String error) {
+    public Promise<Result> onBadRequest(Http.RequestHeader request, final String error) {
         if (Logger.isDebugEnabled()) {
             Logger.debug("onBadRequest: " + error);
         }
-        return F.Promise.promise(new F.Function0<SimpleResult>() {
-            public SimpleResult apply() {
+        return F.Promise.promise(new F.Function0<Result>() {
+            public Result apply() {
                 return Results.badRequest(Json.toJson(new ApiError(error)));
             }
         });
@@ -198,9 +195,9 @@ public class Global extends GlobalSettings {
         if (!session.isValid()) {
             Logger.warn("Session #{} is marked as invalid", token);
             return new Action.Simple() {
-                public Promise<SimpleResult> call(final Http.Context ctx) throws Throwable {
-                    return F.Promise.promise(new F.Function0<SimpleResult>() {
-                        public SimpleResult apply() {
+                public Promise<Result> call(final Http.Context ctx) throws Throwable {
+                    return F.Promise.promise(new F.Function0<Result>() {
+                        public Result apply() {
                             ctx.response().getHeaders().put(SITNET_FAILURE_HEADER_KEY, "Invalid token");
                             return Action.badRequest("Token has expired / You have logged out, please close all browser windows and login again.");
                         }

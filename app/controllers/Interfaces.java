@@ -17,7 +17,9 @@ import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.F;
 import play.libs.Json;
-import play.libs.WS;
+import play.libs.ws.WS;
+import play.libs.ws.WSRequestHolder;
+import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
 
@@ -38,12 +40,8 @@ public class Interfaces extends SitnetController {
             // we already have it or we don't want to fetch it
             return courses;
         }
-        WS.Response response;
-        try {
-            response = WS.url(url).setTimeout(10 * 1000).setQueryParameter("courseUnitCode", code).get().get(10 * 1000);
-        } catch (RuntimeException e) {
-            throw new NotFoundException(e.getMessage());
-        }
+        WSRequestHolder requestHolder = WS.url(url).setTimeout(10 * 1000).setQueryParameter("courseUnitCode", code);
+        WSResponse response = requestHolder.get().get(10 * 1000);
         if (response.getStatus() != 200) {
             throw new NotFoundException();
         }
@@ -170,14 +168,14 @@ public class Interfaces extends SitnetController {
         }
 
         try {
-            WS.WSRequestHolder ws = WS.url(url)
+            WSRequestHolder ws = WS.url(url)
                     .setTimeout(10 * 1000)
                     .setQueryParameter("courseUnitCode", code);
 
             return ws.get().map(
-                    new F.Function<WS.Response, Result>() {
-                        public Result apply(WS.Response response) {
-                            JsonNode json = response.asJson();
+                    new F.Function<WSResponse, Result>() {
+                        public Result apply(WSResponse response) {
+                            JsonNode json = response. asJson();
                             return ok(json);
                         }
                     }

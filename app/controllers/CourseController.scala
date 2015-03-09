@@ -17,22 +17,21 @@ object CourseController extends Controller with ScalaHacks {
   val CriteriaLengthLimiter = 2
 
   @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
-  def getCourses(filterType: Option[FilterType], criteria: Option[String]) =
-    Action {
-      (filterType, criteria) match {
-        case (Some(FilterByCode), Some(x)) =>
-          Interfaces.getCourseInfo(x)
-        case (Some(FilterByName), Some(x)) if x.size >= CriteriaLengthLimiter =>
-          Ebean.find(classOf[Course]).where()
-            .ilike("name", s"$x%")
-            .orderBy("name desc")
-            .findList()
-        case (Some(FilterByName), Some(x)) =>
-          throw new IllegalArgumentException("Too short criteria")
-        case _ =>
-          Ebean.find(classOf[Course]).findList
-      }
+  def getCourses(filterType: Option[String], criteria: Option[String]) = Action {
+    (filterType, criteria) match {
+      case (Some("code"), Some(x)) =>
+        Interfaces.getCourseInfo(x);
+      case (Some("name"), Some(x)) if x.size >= CriteriaLengthLimiter =>
+        Ebean.find(classOf[Course]).where()
+          .ilike("name", s"$x%")
+          .orderBy("name desc")
+          .findList()
+      case (Some("name"), Some(x)) =>
+        throw new IllegalArgumentException("Too short criteria")
+      case _ =>
+        Ebean.find(classOf[Course]).findList()
     }
+  }
 
   @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
   def getCourse(id: Long) = Action {

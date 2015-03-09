@@ -7,7 +7,7 @@ import play.cache.Cache;
 import play.libs.F.Promise;
 import play.mvc.Action;
 import play.mvc.Http.Context;
-import play.mvc.SimpleResult;
+import play.mvc.Result;
 
 public class AuthenticateAction extends Action<Authenticate> {
 
@@ -16,7 +16,7 @@ public class AuthenticateAction extends Action<Authenticate> {
     public static final int SITNET_TIMEOUT_MINUTES = 30;
 
     @Override
-    public Promise<SimpleResult> call(Context ctx) throws Throwable {
+    public Promise<Result> call(Context ctx) throws Throwable {
         String token = ctx.request().getHeader(SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
         if (null == session) {

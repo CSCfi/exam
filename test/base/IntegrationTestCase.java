@@ -47,7 +47,6 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
     }
 
-
     @Rule
     public TestName currentTest = new TestName();
 
@@ -55,7 +54,7 @@ public class IntegrationTestCase {
     public static void evolve() {
         // Apply evolutions manually to test database
         try {
-            OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default");
+            OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default", true);
         } catch (InconsistentDatabase e) {
             int revision = e.rev();
             OfflineEvolutions.resolve(new File("."), IntegrationTestCase.class.getClassLoader(), "default", revision);
