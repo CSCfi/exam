@@ -40,14 +40,12 @@
                 });
                 QuestionRes.questionlist.query({exam: examIds, course: courseIds, tag: tagIds}, function (data) {
                     data.map(function (item) {
-                        var icon = "";
+                        var icon;
                         switch (item.type) {
                             case "MultipleChoiceQuestion":
                                 icon = "fa-list-ul";
                                 break;
                             case "EssayQuestion":
-                                icon = "fa-edit";
-                                break;
                             default:
                                 icon = "fa-edit";
                                 break;

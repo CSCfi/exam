@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
-            function ($scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
+        .controller('ExamController', ['$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
+            function ($scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
 
                 $scope.newExam = {};
 
@@ -12,6 +12,7 @@
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "question/library.html";
                 $scope.selectCourseTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general_course_select.html";
                 $scope.examsTemplate = "";
+                $scope.examTypes = [];
 
                 $scope.user = sessionService.getUser();
 
@@ -69,10 +70,18 @@
                     });
                 });
 
-                $scope.examTypes = [
-                    "Osasuoritus",
-                    "Loppusuoritus"
-                ];
+
+                var refreshExamTypes = function() {
+                    examService.refreshExamTypes().then(function(types) {
+                        $scope.examTypes = types;
+                    });
+                };
+
+                refreshExamTypes();
+
+                $scope.$on('$localeChangeSuccess', function() {
+                    refreshExamTypes();
+                });
 
                 if (($routeParams.id === undefined) && !$scope.user.isStudent) {
                     $scope.exams = ExamRes.exams.query();
@@ -269,10 +278,8 @@
                 };
 
                 $scope.checkType = function (type) {
-                    if (type && $scope.newExam.examType && "type" in $scope.newExam.examType) {
-                        return $scope.newExam.examType.type === type ? "btn-primary" : "";
-                    }
-                    return "";
+                    if (!$scope.newExam.examType) return "";
+                    return $scope.newExam.examType.type === type ? "btn-primary" : "";
                 };
 
                 $scope.setExamGrading = function (grading) {
@@ -284,10 +291,6 @@
                     $scope.newExam.examType.type = type;
                     $scope.updateExam();
                 };
-
-                $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
-                $scope.libraryFilter = "";
-                $scope.selected = undefined;
 
                 $scope.toggleSection = function (section) {
                     section.icon = "";

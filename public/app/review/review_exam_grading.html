@@ -30,11 +30,13 @@
                 <div class="col-md-4">
                     <label for="creditType">{{'sitnet_exam_choose_credit_type' | translate}}:</label>
                     <select id="creditType" name="creditType" class="form-control"
-                            ng-model="examToBeReviewed.creditType"
+                            ng-model="selectedType"
+                            ng-change="setCreditType(selectedType)"
                             ng-disabled="isReadOnly || !isCreator()" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
-                        <option value="Partial">{{'sitnet_exam_credit_type_partial' | translate}}</option>
-                        <option value="Final" selected>{{'sitnet_exam_credit_type_final' | translate}}</option>
+                        <option ng-repeat="examType in examTypes" value="{{examType.type}}"
+                                ng-selected="checkCreditType(examType)">{{examType.name}}
+                        </option>
                     </select>
                 </div>
                 <div class="col-md-2">

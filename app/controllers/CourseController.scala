@@ -2,7 +2,7 @@ package controllers
 
 import be.objectify.deadbolt.java.actions.{Group, Restrict}
 import com.avaje.ebean.Ebean
-import models.Course
+import models.{Course, User}
 import play.api.mvc.{Action, Controller}
 import util.scala.ScalaHacks
 
@@ -39,8 +39,11 @@ object CourseController extends Controller with ScalaHacks {
   }
 
   @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
-  def listUsersCourses(userId : Long) = Action {
-        Ebean.find(classOf[Course]).where.eq("exams.creator.id", userId).orderBy("name desc").findList
+  def listUsersCourses(userId: Long) = Action {
+    val user = Ebean.find(classOf[User], userId)
+    var query = Ebean.find(classOf[Course]).where
+    if (!user.hasRole("ADMIN")) query = query.eq("exams.creator.id", userId)
+    query.orderBy("name desc").findList
   }
 
 }

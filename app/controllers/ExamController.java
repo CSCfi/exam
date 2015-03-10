@@ -318,6 +318,12 @@ public class ExamController extends SitnetController {
         }
     }
 
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public static Result getExamTypes() {
+        List<ExamType> types = Ebean.find(ExamType.class).where().ne("deprecated", true).findList();
+        return ok(Ebean.createJsonContext().toJsonString(types));
+    }
+
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamPreview(Long id) {
@@ -545,16 +551,6 @@ public class ExamController extends SitnetController {
             if (enrollInstruction != null) {
                 exam.setEnrollInstruction(enrollInstruction);
             }
-
-            if (df.get("course.credits") != null) {
-                Double credits = new Double(df.get("course.credits"));
-
-                // TODO: this is not right, we cant set credits to Course,
-                // TODO: move this to Exam
-                exam.getCourse().setCredits(credits);
-                exam.getCourse().save();
-            }
-
             if (df.get("examType.type") != null) {
                 String examType = df.get("examType.type");
 
