@@ -59,10 +59,10 @@ users:
 exam-types:
 
   - &partial !!models.ExamType
-    type: Osasuoritus
+    type: PARTIAL
 
   - &final !!models.ExamType
-    type: Loppusuoritus
+    type: FINAL
 
 ################################################################
 

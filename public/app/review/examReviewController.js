@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamReviewController', ['$scope', "sessionService", '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
-            function ($scope, sessionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
+        .controller('ExamReviewController', ['$scope', 'sessionService', 'examService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
+            function ($scope, sessionService, examService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
 
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
@@ -11,7 +11,6 @@
                 $scope.studentInfoTemplate = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_student_info.html";
                 $scope.previousParticipationPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
                 $scope.gradingPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
-
 
                 $scope.user = sessionService.getUser();
 
@@ -22,6 +21,7 @@
                 $scope.globalInspections = [];
                 $scope.localInspections = [];
                 $scope.examGrading = [];
+                $scope.examTypes = [];
 
                 LanguageRes.languages.query(function (languages) {
                     $scope.languages = languages.map(function (language) {
@@ -34,6 +34,27 @@
                     $scope.selectedLanguage = lang;
                     $scope.examToBeReviewed.answerLanguage = lang ? lang.name : lang;
                 };
+
+                $scope.setCreditType = function (creditType) {
+                    $scope.selectedType = creditType;
+                    $scope.examToBeReviewed.creditType = creditType;
+                };
+
+                $scope.checkCreditType = function (creditType) {
+                    return creditType.type === $scope.selectedType;
+                };
+
+                var refreshExamTypes = function() {
+                    examService.refreshExamTypes().then(function(types) {
+                        $scope.examTypes = types;
+                    });
+                };
+
+                refreshExamTypes();
+
+                $scope.$on('$localeChangeSuccess', function() {
+                    refreshExamTypes();
+                });
 
                 $scope.hasEssayQuestions = false;
                 $scope.acceptedEssays = 0;
@@ -69,6 +90,12 @@
                             } else if (exam.examLanguages.length === 1) {
                                 // Use parent's language as default answer language if there is a single one to choose from
                                 $scope.selectedLanguage = getLanguageNativeName(exam.examLanguages[0].code);
+                            }
+                            if (exam.creditType) {
+                                $scope.selectedType = exam.creditType.toUpperCase();
+                            } else {
+                                // default to examType
+                                $scope.selectedType = exam.examType.type.toUpperCase();
                             }
                         }
 

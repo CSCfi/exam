@@ -254,13 +254,14 @@
                 {
                     "add": {method: "PUT"}
                 }),
-                languages: $resource("exam/:eid/languages",
+                languages: $resource("/exam/:eid/languages",
                 {
                     eid: "@eid"
                 },
                 {
                     "reset": {method: "DELETE"}
                 }),
+                examTypes: $resource("/examtypes"),
                 software: $resource("/exam/:eid/software/:sid",
                 {
                     eid: "@eid",
