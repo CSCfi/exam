@@ -221,14 +221,6 @@
                 {
                    "get": {method: "GET", params: { eid: "@eid", uid: "@uid"}}
                 }),
-                examParticipationsAndReviews: $resource("/examparticipationsandreviews/:eid",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "get": {method: "GET", params: { eid: "@eid" }}
-                }),
-
                 studentInfo: $resource("/review/info/:id",
                 {
                     id: "@id"

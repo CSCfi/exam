@@ -30,7 +30,7 @@ public class Exam extends SitnetModel {
     @ManyToOne
     private Course course;
 
-    @OneToOne
+    @ManyToOne
     private ExamType examType;
 
     // Instruction written by teacher, shown during exam
@@ -41,7 +41,6 @@ public class Exam extends SitnetModel {
     @Column(columnDefinition = "TEXT")
     private String enrollInstruction;
 
-
     private boolean shared;
 
     // An ExamSection may be used only in one Exam
@@ -49,9 +48,20 @@ public class Exam extends SitnetModel {
     @JsonManagedReference
     private List<ExamSection> examSections = new ArrayList<>();
 
-    @OneToOne
+    @ManyToOne
     private Exam parent;
 
+    @OneToMany(cascade=CascadeType.ALL, mappedBy = "exam")
+    @JsonManagedReference
+    private List<ExamEnrolment> examEnrolments = new ArrayList<>();
+
+    @OneToMany(cascade=CascadeType.ALL, mappedBy = "exam")
+    @JsonManagedReference
+    private List<ExamParticipation> examParticipations = new ArrayList<>();
+
+    @OneToMany(cascade=CascadeType.ALL, mappedBy = "exam")
+    @JsonManagedReference
+    private List<ExamInspection> examInspections = new ArrayList<>();
 
     @Column(length = 32, unique = true)
     private String hash;
@@ -99,7 +109,7 @@ public class Exam extends SitnetModel {
      * in WebOodi, or other system
      */
     @JsonBackReference
-    @OneToOne
+    @ManyToOne
     private User gradedByUser;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -333,9 +343,34 @@ public class Exam extends SitnetModel {
         softwares = softwareInfo;
     }
 
+    public List<ExamEnrolment> getExamEnrolments() {
+        return examEnrolments;
+    }
+
+    public void setExamEnrolments(List<ExamEnrolment> examEnrolments) {
+        this.examEnrolments = examEnrolments;
+    }
+
+    public List<ExamParticipation> getExamParticipations() {
+        return examParticipations;
+    }
+
+    public void setExamParticipations(List<ExamParticipation> examParticipations) {
+        this.examParticipations = examParticipations;
+    }
+
+    public List<ExamInspection> getExamInspections() {
+        return examInspections;
+    }
+
+    public void setExamInspections(List<ExamInspection> examInspections) {
+        this.examInspections = examInspections;
+    }
+
     public Exam copy() {
         Exam clone = new Exam();
-        BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "creator", "created"});
+        BeanUtils.copyProperties(this, clone, new String[] {"id", "examSections", "examEnrolments", "examParticipations",
+                "examInspections", "creator", "created"});
         clone.setParent(this);
         SitnetUtil.setCreator(clone);
         SitnetUtil.setModifier(clone);

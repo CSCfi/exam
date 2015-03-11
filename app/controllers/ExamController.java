@@ -3,7 +3,6 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.FetchConfig;
 import com.avaje.ebean.text.json.JsonContext;
@@ -26,7 +25,6 @@ import util.java.EmailComposer;
 import util.java.ValidationUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -103,51 +101,32 @@ public class ExamController extends SitnetController {
 
         User user = UserController.getLoggedUser();
 
-        //Get list of exams that user is assigned to inspect
-        // .setDistinct(true) not working !!!!
-        List<ExamInspection> examInspections = Ebean.find(ExamInspection.class)
-                .fetch("user")
-                .fetch("assignedBy")
-                .fetch("exam")
-                .fetch("exam.parent")
+        // Get list of exams that user is assigned to inspect or is owner of
+        List<Exam> exams = Ebean.find(Exam.class)
                 .where()
-                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.PUBLISHED.toString())
                 .disjunction()
-                .eq("user.id", user.getId())
-                .eq("assignedBy.id", user.getId())
-                .eq("exam.creator.id", user.getId())
+                .eq("examInspections.user.id", user.getId())
+                .eq("examInspections.assignedBy.id", user.getId())
+                .eq("creator.id", user.getId())
                 .endJunction()
-                .isNull("exam.parent")
+                .isNull("parent")
+                .orderBy("created")
                 .findList();
-
-        List<ExamInspection> distinctList = new ArrayList<>();
-
-        // distinct fix ->
-        if (!CollectionUtils.isEmpty(examInspections)) {
-
-            if (!CollectionUtils.isEmpty(examInspections)) {
-
-                List<Exam> exams = new ArrayList<>();
-                // java 1.7 ->
-                for (ExamInspection e : examInspections) {
-                    if (!exams.contains(e.getExam())) {
-                        exams.add(e.getExam());
-                        distinctList.add(e);
-                    }
-                }
-            }
-        }
-        // -- fix end
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, exam, user, assignedBy");
-        options.setPathProperties("exam", "id, name, course, examActiveStartDate, examActiveEndDate");
-        options.setPathProperties("user", "id");
-        options.setPathProperties("assignedBy", "id");
-        options.setPathProperties("exam.course", "code");
+        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, examEnrolments, examInspections");
+        options.setPathProperties("examInspections", "id, user, assignedBy, ready");
+        options.setPathProperties("examInspections.user", "id, firstName, lastName");
+        options.setPathProperties("examInspections.assignedBy", "id");
+        options.setPathProperties("course", "code");
 
-        return ok(jsonContext.toJsonString(distinctList, true, options)).as("application/json");
+        options.setPathProperties("examEnrolments", "id, enrolledOn, user, exam, reservation");
+        options.setPathProperties("examEnrolments.user", "id");
+        options.setPathProperties("examEnrolments.reservation", "id");
+
+        return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -452,7 +431,7 @@ public class ExamController extends SitnetController {
         }
 
         SitnetUtil.setCreator(comment);
-        if(bindComment.getComment() != null) {
+        if (bindComment.getComment() != null) {
             comment.setComment(bindComment.getComment());
         } else {
             comment.setComment("");
@@ -1067,13 +1046,9 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getEnrolmentsWithReservationsForExam(Long eid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
-                .fetch("exam.parent")
-                .fetch("reservation")
                 .where()
                 .ne("reservation", null)             // Just enrolled, not started
                 .eq("exam.id", eid)             // Just enrolled, not started
-//                .eq("exam.parent.id", eid)    // Exams that have been started by student
                 .findList();
 
         if (enrolments == null) {
@@ -1116,34 +1091,7 @@ public class ExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, user, exam, started, ended");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course");
-            options.setPathProperties("exam.course", "code");
-
-            return ok(jsonContext.toJsonString(participations, true, options)).as("application/json");
-        }
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getParticipationsAndReviewedForExam(Long eid) {
-        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
-                .fetch("exam")
-                .fetch("exam.parent")
-                .where()
-                .eq("exam.parent.id", eid)
-                .or(
-                        Expr.eq("exam.state", "GRADED"),
-                        Expr.eq("exam.state", "GRADED_LOGGED")
-                )
-                .findList();
-
-        if (participations == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, user, exam, started, ended");
-            options.setPathProperties("user", "id, firstName, lastName");
-            options.setPathProperties("exam", "id, name, course");
+            options.setPathProperties("exam", "id, name, course, state");
             options.setPathProperties("exam.course", "code");
 
             return ok(jsonContext.toJsonString(participations, true, options)).as("application/json");
@@ -1238,7 +1186,7 @@ public class ExamController extends SitnetController {
 
         ExamInspection inspection = Ebean.find(ExamInspection.class, id);
 
-        if(inspection == null) {
+        if (inspection == null) {
             return notFound();
         }
         inspection.setReady(ready);
@@ -1284,7 +1232,7 @@ public class ExamController extends SitnetController {
         final User recipient = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
 
-        if(recipient == null || exam == null) {
+        if (recipient == null || exam == null) {
             return notFound();
         }
         inspection.setExam(exam);
