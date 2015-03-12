@@ -86,10 +86,10 @@ public class SessionController extends SitnetController {
                     .findUnique();
         }
         if (language == null) {
-            // Default to Finnish
+            // Default to English
             language = Ebean.find(UserLanguage.class)
                     .where()
-                    .eq("nativeLanguageCode", "fi")
+                    .eq("nativeLanguageCode", "en")
                     .findUnique();
         }
         return language;
