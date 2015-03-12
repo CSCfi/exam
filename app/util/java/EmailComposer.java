@@ -322,7 +322,7 @@ public class EmailComposer {
         }
         values.put("new_reviewer", Messages.get(lang, "email.template.inspector.new", teacherName));
         values.put("exam_info", examInfo);
-        values.put("participation_count", Messages.get(lang, "email.template.participations", uninspectedCount));
+        values.put("participation_count", Messages.get(lang, "email.template.participation", uninspectedCount));
         values.put("inspector_message", Messages.get(lang, "email.template.inspector.message"));
         values.put("exam_link", linkToInspection);
         values.put("exam_link_text", Messages.get(lang, "email.template.link.to.exam"));

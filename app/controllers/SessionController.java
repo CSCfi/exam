@@ -86,10 +86,10 @@ public class SessionController extends SitnetController {
                     .findUnique();
         }
         if (language == null) {
-            // Default to English
+            // Default to Finnish
             language = Ebean.find(UserLanguage.class)
                     .where()
-                    .eq("nativeLanguageCode", "en")
+                    .eq("nativeLanguageCode", "fi")
                     .findUnique();
         }
         return language;
@@ -109,12 +109,12 @@ public class SessionController extends SitnetController {
         user.setLastName(toUtf8(request().getHeader("sn")));
         user.setFirstName(toUtf8(request().getHeader("displayName")));
         user.setEmployeeNumber(toUtf8(request().getHeader("employeeNumber")));
-        user.setUserLanguage(getLanguage(toUtf8(request().getHeader("preferredLanguage"))));
     }
 
     private static User createNewUser(String eppn) throws NotFoundException {
         User user = new User();
         user.getRoles().add(getRole(toUtf8(request().getHeader("unscoped-affiliation"))));
+        user.setUserLanguage(getLanguage(toUtf8(request().getHeader("preferredLanguage"))));
         user.setEppn(eppn);
         updateUser(user);
         return user;
@@ -134,6 +134,7 @@ public class SessionController extends SitnetController {
         result.put("token", token);
         result.put("firstname", user.getFirstName());
         result.put("lastname", user.getLastName());
+        result.put("lang", user.getUserLanguage().getUILanguageCode());
         result.put("roles", Json.toJson(user.getRoles()));
         result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
 
@@ -227,7 +228,7 @@ public class SessionController extends SitnetController {
         final String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
 
-        if(session == null) {
+        if (session == null) {
             return unauthorized();
         }
 
@@ -244,7 +245,7 @@ public class SessionController extends SitnetController {
         final String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
 
-        if(session == null || session.getSince() == null) {
+        if (session == null || session.getSince() == null) {
             Logger.info("Session not found");
             return ok("no_session");
         }
@@ -255,19 +256,19 @@ public class SessionController extends SitnetController {
         final long now = DateTime.now().getMillis();
         final long alarmTime = end - (2 * 60 * 1000); // now - 2 minutes
 
-        if(Logger.isDebugEnabled()) {
+        if (Logger.isDebugEnabled()) {
             DateFormat df = new SimpleDateFormat("HH:mm:ss");
             Logger.debug(" - current time: " + df.format(now));
             Logger.debug(" - session ends: " + df.format(end));
         }
 
         // session has 2 minutes left
-        if(now > alarmTime && now < end) {
+        if (now > alarmTime && now < end) {
             return ok("alarm");
         }
 
         // session ended check
-        if(now > end) {
+        if (now > end) {
             Logger.info("Session has expired");
             return ok("no_session");
         }
@@ -276,7 +277,9 @@ public class SessionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result ping() {return ok("pong");}
+    public static Result ping() {
+        return ok("pong");
+    }
 
     private static String toUtf8(String src) {
         if (src == null) {

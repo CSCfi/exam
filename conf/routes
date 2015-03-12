@@ -19,6 +19,7 @@ PUT           /users/:id                                            controllers.
 PUT           /users/agreement/:id                                  controllers.UserController.updateUserAgreementAccepted(id: Long)
 POST          /users                                                controllers.UserController.addUser()
 DELETE        /users/:id                                            controllers.UserController.deleteUser(id: Long)
+PUT           /user/lang                                            controllers.UserController.updateLanguage()
 
 
 
