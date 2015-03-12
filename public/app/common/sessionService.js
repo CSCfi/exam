@@ -53,7 +53,7 @@
                     return deferred.promise;
                 };
 
-                var translate = function(lang) {
+                var translate = function (lang) {
                     $translate.uses(lang);
                     tmhDynamicLocale.set(lang);
                 };
@@ -96,12 +96,16 @@
                 };
 
                 var switchLanguage = function (lang) {
-                    http().put('/user/lang', {lang: lang}).success(function () {
-                        _user.lang = lang;
-                       translate(lang);
-                    }).error(function() {
-                        toastr.error('failed to switch language');
-                    })
+                    if (!_user) {
+                        translate(lang);
+                    } else {
+                        http().put('/user/lang', {lang: lang}).success(function () {
+                            _user.lang = lang;
+                            translate(lang);
+                        }).error(function () {
+                            toastr.error('failed to switch language');
+                        })
+                    }
                 };
 
                 return {

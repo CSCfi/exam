@@ -184,6 +184,7 @@ public class UserController extends SitnetController {
         return result;
     }
 
+    @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     public static Result updateLanguage() {
         User user = getLoggedUser();
         String lang = request().body().asJson().get("lang").asText();
