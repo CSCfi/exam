@@ -100,13 +100,13 @@ public class Global extends GlobalSettings {
         // Every Monday at 5AM UTC
         FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
         FiniteDuration frequency = FiniteDuration.create(7, TimeUnit.DAYS);
-        Runnable showTime = new Runnable() {
+        Runnable reporter = new Runnable() {
             @Override
             public void run() {
 
                 Logger.info(new Date() + "Running weekly email report");
                 List<User> teachers = Ebean.find(User.class)
-                        .fetch("roles")
+                        .fetch("userLanguage")
                         .where()
                         .eq("roles.name", "TEACHER")
                         .findList();
@@ -120,7 +120,7 @@ public class Global extends GlobalSettings {
                 }
             }
         };
-        reportSender = Akka.system().scheduler().schedule(delay, frequency, showTime, Akka.system().dispatcher());
+        reportSender = Akka.system().scheduler().schedule(delay, frequency, reporter, Akka.system().dispatcher());
     }
 
     @Override
