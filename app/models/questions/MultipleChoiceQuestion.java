@@ -40,7 +40,7 @@ public class MultipleChoiceQuestion extends AbstractQuestion {
     @Override
     public MultipleChoiceQuestion copy() {
         MultipleChoiceQuestion question = new MultipleChoiceQuestion();
-        BeanUtils.copyProperties(this, question, new String[]{"id", "answer", "options", "tags"});
+        BeanUtils.copyProperties(this, question, new String[]{"id", "answer", "options", "tags", "children"});
         question.setParent(this);
         for (MultipleChoiseOption o : options) {
             question.getOptions().add(o.copy());

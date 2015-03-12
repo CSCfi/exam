@@ -14,10 +14,10 @@ fi
 
 echo '====='
 echo 'Keys:'
-$SED -e 's/=.*$//g' $1
+${SED} -e 's/=.*$//g' $1
 echo '\n======'
 echo 'Values:'
-$SED -e 's/^.*=//g' $1
+${SED} -e 's/^.*=//g' $1
 echo '\n======'
 
 exit 0;

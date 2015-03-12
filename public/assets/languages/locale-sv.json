@@ -506,5 +506,6 @@
   "sitnet_remove_course_from_exam": "Koppla bort tenten från studieperioden",
   "sitnet_continue": "Fortsätt",
   "sitnet_no_suitable_enrolment_found": "Du har redan en bokning till den här tenten. Du kan boka om först efter att antingen ha tagit tenten eller inhiberat den nuvarande bokningen.",
-  "sitnet_added_to_categories": "Sakord som är kombinerade med frågan"
+  "sitnet_added_to_categories": "Sakord som är kombinerade med frågan",
+  "sitnet_reservation": "Bokning"
 }
