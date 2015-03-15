@@ -76,10 +76,13 @@ public class EnrollController extends Controller {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
-                + "grading, course, creator, expanded, examType, enrollInstruction, examLanguages, " +
+                + "gradeScale, course, creator, expanded, examType, enrollInstruction, examLanguages, " +
                 "answerLanguage");
         options.setPathProperties("examType", "type");
-        options.setPathProperties("course", "code, name, level, type, credits");
+        options.setPathProperties("examLanguages", "code");
+        options.setPathProperties("gradeScale", "id, description");
+        options.setPathProperties("course", "code, name, level, type, credits, organisation");
+        options.setPathProperties("course.organisation", "name");
         options.setPathProperties("creator", "firstName, lastName, email");
         options.setPathProperties("examLanguages", "code, name");
 

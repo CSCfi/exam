@@ -215,16 +215,22 @@ public class ExamController extends SitnetController {
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, " +
                 "shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                "duration, grading, grade, customCredit, totalScore, answerLanguage, " +
+                "duration, gradeScale, grade, customCredit, totalScore, answerLanguage, " +
                 "state, examFeedback, creditType, expanded, attachment, creator, softwares, examLanguages");
         options.setPathProperties("creator", "id, firstName, lastName");
-        options.setPathProperties("parent", "id, creator");
+        options.setPathProperties("parent", "id, creator, gradeScale");
+        options.setPathProperties("grade", "id, name");
         options.setPathProperties("parent.creator", "id, firstName, lastName");
+        options.setPathProperties("parent.gradeScale", "description, grades");
+        options.setPathProperties("parent.gradeScale.grades", "id, name");
         options.setPathProperties("course", "id, code, name, level, courseUnitType, credits, institutionName, department, organisation, gradeScale");
         options.setPathProperties("course.organisation", "id, name");
+        options.setPathProperties("course.gradeScale", "id, description");
         options.setPathProperties("room", "id, name");
         options.setPathProperties("softwares", "id, name");
         options.setPathProperties("examLanguages", "code");
+        options.setPathProperties("gradeScale", "id, description, grades");
+        options.setPathProperties("gradeScale.grades", "id, name");
         options.setPathProperties("attachment", "id, fileName");
         options.setPathProperties("examType", "id, type");
         options.setPathProperties("examSections", "id, name, sectionQuestions, totalScore, expanded, " +
@@ -248,6 +254,7 @@ public class ExamController extends SitnetController {
                 .fetch("examSections.sectionQuestions")
                 .fetch("course")
                 .fetch("course.organisation")
+                .fetch("gradeScale.grades")
                 .where()
                 .eq("id", id)
                 .disjunction()
@@ -263,6 +270,7 @@ public class ExamController extends SitnetController {
     public static Result getExamReview(Long eid) {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("examSections.sectionQuestions")
+                .fetch("gradeScale.grades")
                 .where()
                 .eq("id", eid)
                 .disjunction()
@@ -303,6 +311,12 @@ public class ExamController extends SitnetController {
         return ok(Ebean.createJsonContext().toJsonString(types));
     }
 
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public static Result getExamGradeScales() {
+        List<GradeScale> scales = Ebean.find(GradeScale.class).findList();
+        return ok(Ebean.createJsonContext().toJsonString(scales));
+    }
+
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamPreview(Long id) {
@@ -331,11 +345,13 @@ public class ExamController extends SitnetController {
     public static Result reviewExam(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
         Exam exam = Ebean.find(Exam.class, id);
-        exam.setGrade(df.get("grade"));
+        Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
+        if (grade != null) {
+            exam.setGrade(Ebean.find(Grade.class, grade));
+        }
         exam.setCreditType(df.get("creditType"));
         exam.setAnswerLanguage(df.get("answerLanguage"));
         exam.setState(df.get("state"));
-        exam.setTotalScore(Double.parseDouble(df.get("totalScore")));
         if (df.get("customCredit") != null) {
             exam.setCustomCredit(Double.parseDouble(df.get("customCredit")));
         } else {
@@ -482,7 +498,7 @@ public class ExamController extends SitnetController {
             String examName = df.get("name");
             boolean shared = Boolean.parseBoolean(df.get("shared"));
             String duration = df.get("duration");
-            String grading = df.get("grading");
+            Integer grading = df.get("grading") == null ? null : Integer.parseInt(df.get("grading"));
             String answerLanguage = df.get("answerLanguage");
             String instruction = df.get("instruction");
             String enrollInstruction = df.get("enrollInstruction");
@@ -516,7 +532,7 @@ public class ExamController extends SitnetController {
             }
 
             if (grading != null) {
-                exam.setGrading(grading);
+                updateGrading(exam, grading);
             }
 
             if (answerLanguage != null) {
@@ -558,6 +574,14 @@ public class ExamController extends SitnetController {
             return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
         } else {
             return forbidden("sitnet_error_access_forbidden");
+        }
+    }
+
+    private static void updateGrading(Exam exam, int grading) {
+        // Allow updating grading if allowed in settings or if course does not restrict the setting
+        boolean canOverrideGrading = SitnetUtil.isExamGradeScaleOverridable();
+        if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
+            exam.setGradeScale(Ebean.find(GradeScale.class, grading));
         }
     }
 
@@ -996,6 +1020,7 @@ public class ExamController extends SitnetController {
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("started, exam");
         options.setPathProperties("exam", "id, grade, state");
+        options.setPathProperties("exam.grade", "id, name");
         return ok(context.toJsonString(participations, true, options)).as("application/json");
     }
 

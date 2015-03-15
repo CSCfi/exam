@@ -77,14 +77,11 @@ public class Exam extends SitnetModel {
     // Exam duration (minutes)
     private Integer duration;
 
-    // Exam grading, e.g. 0-5
-    private String grading;
+    @ManyToOne
+    private GradeScale gradeScale;
 
     // Custom course credit - if teachers changes course credit
     private Double customCredit;
-
-    // Exam total score - calculated from all section scores
-    private Double totalScore;
 
     // Cloned - needed as field for serialization :(
     private Boolean cloned;
@@ -98,7 +95,8 @@ public class Exam extends SitnetModel {
 
     private String state;
 
-    private String grade;
+    @ManyToOne
+    private Grade grade; // TODO: make this a Grade instead of String
 
     // Ohjelmistot
     @ManyToMany(cascade = CascadeType.ALL)
@@ -117,9 +115,6 @@ public class Exam extends SitnetModel {
 
     @OneToOne
     private Comment examFeedback;
-
-    @OneToOne
-    private Grade examGrade;
 
     private String creditType;
 
@@ -159,14 +154,6 @@ public class Exam extends SitnetModel {
 
     public void setCloned(Boolean cloned) {
         this.cloned = cloned;
-    }
-
-    public Grade getExamGrade() {
-        return examGrade;
-    }
-
-    public void setExamGrade(Grade examGrade) {
-        this.examGrade = examGrade;
     }
 
     public Date getGradedTime() {
@@ -245,12 +232,12 @@ public class Exam extends SitnetModel {
         this.duration = duration;
     }
 
-    public String getGrading() {
-        return grading;
+    public GradeScale getGradeScale() {
+        return gradeScale;
     }
 
-    public void setGrading(String grading) {
-        this.grading = grading;
+    public void setGradeScale(GradeScale gradeScale) {
+        this.gradeScale = gradeScale;
     }
 
     public Double getCustomCredit() {
@@ -259,10 +246,6 @@ public class Exam extends SitnetModel {
 
     public void setCustomCredit(Double customCredit) {
         this.customCredit = customCredit;
-    }
-
-    public void setTotalScore(Double totalScore) {
-        this.totalScore = totalScore;
     }
 
     public List<Language> getExamLanguages() {
@@ -303,11 +286,11 @@ public class Exam extends SitnetModel {
         this.parent = parent;
     }
 
-    public String getGrade() {
+    public Grade getGrade() {
         return grade;
     }
 
-    public void setGrade(String grade) {
+    public void setGrade(Grade grade) {
         this.grade = grade;
     }
 

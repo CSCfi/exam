@@ -159,7 +159,7 @@ public class StatisticsController extends SitnetController {
                 dateCell(wb, dataRow, 10, exam.getExamActiveEndDate(), "dd.MM.yyyy");
 
                 dataRow.createCell(11).setCellValue(exam.getDuration() == null ? "NULL" : exam.getDuration().toString());
-                dataRow.createCell(12).setCellValue(exam.getGrading());
+                dataRow.createCell(12).setCellValue(exam.getGradeScale().getDescription());
                 dataRow.createCell(13).setCellValue(exam.getState());
 
                 if (exam.getAttachment() == null)
@@ -181,7 +181,7 @@ public class StatisticsController extends SitnetController {
                 JsonContext jsonContext = Ebean.createJsonContext();
                 JsonWriteOptions options = new JsonWriteOptions();
                 options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                        "duration, grading, ,grade, customCredit, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
+                        "duration, gradeScale, grade, customCredit, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
                 options.setPathProperties("parent", "id");
                 options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
                 options.setPathProperties("room", "id, name");
@@ -582,7 +582,7 @@ public class StatisticsController extends SitnetController {
                                 addCell(dataRow, i, "");
                             break;
                         case 6: addCell(dataRow, i, credits); break;
-                        case 7: addCell(dataRow, i, e.getExam().getGrade() != null ? e.getExam().getGrade() : ""); break;
+                        case 7: addCell(dataRow, i, e.getExam().getGrade() != null ? e.getExam().getGrade().getName() : ""); break;
                         case 8: addCell(dataRow, i, e.getExam().getCreditType() != null ? e.getExam().getCreditType() : ""); break;
                         case 9: addCell(dataRow, i, e.getExam().getExamLanguages().isEmpty() ? "" :
                                 StringUtils.join(e.getExam().getExamLanguages(), ", ")); break;
@@ -906,8 +906,8 @@ public class StatisticsController extends SitnetController {
                 dataRow.createCell(j++).setCellValue(p.getExam().getDuration() == null ? "" : p.getExam().getDuration().toString());
                 dataRow.createCell(j++).setCellValue(p.getExam().getState() == null ? "" : p.getExam().getState());
                 dataRow.createCell(j++).setCellValue(p.getExam().getTotalScore() == null ? "" : p.getExam().getTotalScore().toString());
-                dataRow.createCell(j++).setCellValue(p.getExam().getGrading() == null ? "" : p.getExam().getGrading());
-                dataRow.createCell(j++).setCellValue(p.getExam().getGrade() == null ? "" : p.getExam().getGrade());
+                dataRow.createCell(j++).setCellValue(p.getExam().getGradeScale() == null ? "" : p.getExam().getGradeScale().getDescription());
+                dataRow.createCell(j++).setCellValue(p.getExam().getGrade() == null ? "" : p.getExam().getGrade().getName());
 
                 // arvosana annettu pvm
                 if (p.getExam().getGradedTime() != null) {
@@ -1137,8 +1137,8 @@ public class StatisticsController extends SitnetController {
             dataRow.createCell(index++).setCellValue(rol.getExam().getDuration() == null ? "" : rol.getExam().getDuration()+"");
             dataRow.createCell(index++).setCellValue(rol.getExam().getState());
             dataRow.createCell(index++).setCellValue(rol.getExam().getTotalScore());
-            dataRow.createCell(index++).setCellValue(rol.getExam().getGrading());
-            dataRow.createCell(index++).setCellValue(rol.getExam().getGrade());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getGradeScale().getDescription());
+            dataRow.createCell(index++).setCellValue(rol.getExam().getGrade().getName());
 
             // arvosana annettu pvm
             if(rol.getExam().getGradedTime() != null)

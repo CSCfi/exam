@@ -254,6 +254,7 @@
                     "reset": {method: "DELETE"}
                 }),
                 examTypes: $resource("/examtypes"),
+                gradeScales: $resource("/gradescales"),
                 software: $resource("/exam/:eid/software/:sid",
                 {
                     eid: "@eid",
