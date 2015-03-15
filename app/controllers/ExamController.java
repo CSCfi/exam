@@ -347,7 +347,12 @@ public class ExamController extends SitnetController {
         Exam exam = Ebean.find(Exam.class, id);
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
         if (grade != null) {
-            exam.setGrade(Ebean.find(Grade.class, grade));
+            Grade examGrade = Ebean.find(Grade.class, grade);
+            if (exam.getGradeScale().getGrades().contains(examGrade)) {
+                exam.setGrade(Ebean.find(Grade.class, grade));
+            } else {
+                return badRequest("Invalid grade for this grade scale");
+            }
         }
         exam.setCreditType(df.get("creditType"));
         exam.setAnswerLanguage(df.get("answerLanguage"));

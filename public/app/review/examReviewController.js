@@ -40,9 +40,8 @@
                     $scope.examToBeReviewed.creditType = creditType;
                 };
 
-                $scope.setGrade = function (grade) {
-                    $scope.selectedGrade = grade;
-                    $scope.examToBeReviewed.grade = grade;
+                $scope.setGrade = function (grade_id) {
+                    $scope.examToBeReviewed.grade = {id: grade_id};
                 };
 
 
@@ -51,7 +50,7 @@
                 };
 
                 $scope.checkGrade = function (grade) {
-                    return grade.id === $scope.selectedGrade.id;
+                    return $scope.selectedGrade && grade.id === $scope.selectedGrade.id;
                 };
 
                 var refreshExamTypes = function () {
@@ -416,7 +415,7 @@
                     return {
                         "id": exam.id,
                         "state": state,
-                        "grade": $scope.selectedGrade.id,
+                        "grade": exam.grade.id,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": exam.creditType,
@@ -443,10 +442,6 @@
                     }, function (error) {
                         toastr.error(error.data);
                     });
-                };
-
-                $scope.setExamGrade = function (grade) {
-                    $scope.examToBeReviewed.grade = grade;
                 };
 
                 $scope.toggleFeedbackHiding = function (hidden) {
