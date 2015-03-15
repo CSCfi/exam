@@ -150,7 +150,7 @@
                     <td class="table-column-20">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                             ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                     </td>
-                    <td class="table-column-open-until">{{review.exam.grade.name}}</td>
+                    <td class="table-column-open-until">{{translateGrade(review.exam)}}</td>
                     <td class="table-column-15">
                         {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
                     </td>
@@ -232,7 +232,7 @@
                         translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
                         ({{review.started | diffInMinutesTo:review.ended }}min)
                     </td>
-                    <td class="table-column-open-until">{{review.exam.grade.name}}</td>
+                    <td class="table-column-open-until">{{translateGrade(review.exam)}}git</td>
                     <td class="table-column-15">
                         {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
                     </td>

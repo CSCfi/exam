@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ReviewListingController', ['$scope', '$q', '$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService',
-            function ($scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService) {
+        .controller('ReviewListingController', ['$scope', '$q', '$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService', 'examService',
+            function ($scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService, examService) {
 
                 $scope.reviewPredicate = 'examReview.deadline';
                 $scope.reverse = false;
@@ -18,6 +18,13 @@
                     } else {
                         $location.path('/exams/review/' + exam.id);
                     }
+                };
+
+                $scope.translateGrade = function (exam) {
+                    if (!exam.grade) {
+                        return;
+                    }
+                    return examService.getExamGradeDisplayName(exam.grade.name);
                 };
 
                 ExamRes.exams.get({id: $routeParams.id}, function (exam) {
