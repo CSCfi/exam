@@ -55,6 +55,14 @@
                     "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", seq: "@seq", qid: "@qid"}}
 
                 }),
+                sectionquestionsmultiple: $resource("/exams/:eid/section/:sid/:seq/questions",
+                {
+                    eid: "@eid", sid: "@sid", seq: "@seq", questions: "@questions"
+                },
+                {
+                    "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", seq: "@seq", questions: "@questions"}}
+
+                }),
                 reordersection: $resource("/exams/:eid/section/:sid/:from/:to",
                 {
                     eid: "@eid", sid: "@sid", from: "@from", to: "@to"

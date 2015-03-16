@@ -1,14 +1,69 @@
 #library {
 
   .library {
+    display: inline-block;
     padding: 1em;
     min-height: 100%;
+    max-width:100%;
     //border: solid 1px $sitnet-grey;
     background-color: $sitnet-common-light;
     .results {
       margin-top: 1em;
     }
   }
+
+  .vertical-text {
+
+    display: inline;
+    padding:1em 0.25em;
+    height:100%;
+    min-height:150px;
+    max-height:100%;
+    text-align: center;
+    color:$sitnet-common-dark;
+    width:100%;
+    margin-bottom:0;
+
+    span {
+      font-size: 0.9em;
+      display: block;
+      min-height: 1em;
+      font-weight: bold;
+    }
+  }
+
+  .drag-all-wrap:hover {
+    background-color: $sitnet-theme;
+    color:white;
+  }
+
+  .questions-wrapper {
+    width:100%;
+    margin:1em 0 0 0;
+    padding:0;
+    height:100%;
+    display: inline-table;
+  }
+
+  .question-list-wrapper {
+    width:94%;
+    float:left;
+    margin-bottom:0;
+    height:100%;
+    min-height:100%;
+    max-width: 100%;
+  }
+
+  .drag-all-wrap {
+    float:left;
+    height:100%;
+    margin-top:0.3em;
+    cursor:move;
+    border-top:1px solid $sitnet-common-dark;
+    border-left:1px solid $sitnet-common-dark;
+    border-bottom:1px solid $sitnet-common-dark;
+  }
+
   .library-header {
     background-color: $sitnet-common-dark;
     color: white;
@@ -37,26 +92,28 @@
 
 .library-question-header-inactive:hover {
     background-color: $sitnet-theme;
-
+    cursor: move;
   }
 
   .single-question-header-inactive:active {
     background-color: $sitnet-notice;
-
+    cursor: move;
   }
 
   .library-row-icon {
     width:10%;
     float:left;
+    cursor: inherit;
   }
 
   .library-row-text p{
     margin:0.1em;
     padding:0.1em;
+    cursor: inherit;
   }
 
   .library-row-text {
-
+    cursor: inherit;
   }
 
   .library-row-text-wrap {

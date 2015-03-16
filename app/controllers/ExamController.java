@@ -808,6 +808,54 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result insertMultipleQuestions(Long eid, Long sid, Integer seq, String questions) {
+
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
+
+            ExamSection section = Ebean.find(ExamSection.class, sid);
+
+            for(String s : questions.split(",")) {
+
+                section = Ebean.find(ExamSection.class, sid);
+                AbstractQuestion question = Ebean.find(AbstractQuestion.class, Long.parseLong(s));
+                AbstractQuestion clone = clone(question.getType(), question.getId());
+                if (clone == null) {
+                    return notFound("Question type not specified");
+                }
+
+                // Assert that the sequence number provided is within limits
+                if (seq < 0) {
+                    seq = 0;
+                }
+                if (seq > section.getSectionQuestions().size()) {
+                    seq = section.getSectionQuestions().size();
+                }
+
+                // Increase sequences for the entries above the inserted one
+                for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                    int sequenceNumber = esq.getSequenceNumber();
+                    if (sequenceNumber >= seq) {
+                        esq.setSequenceNumber(sequenceNumber + 1);
+                        esq.update();
+                    }
+                }
+                // Insert new section question
+                ExamSectionQuestion sectionQuestion = new ExamSectionQuestion();
+                sectionQuestion.setExamSection(section);
+                sectionQuestion.setQuestion(clone);
+                sectionQuestion.setSequenceNumber(seq);
+                section.getSectionQuestions().add(sectionQuestion);
+                SitnetUtil.setModifier(section);
+                section.save();
+            }
+            section = Ebean.find(ExamSection.class, sid);
+            return ok(Json.toJson(section));
+        }
+        return forbidden("sitnet_error_access_forbidden");
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result removeQuestion(Long eid, Long sid, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
         if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
