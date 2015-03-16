@@ -30,11 +30,11 @@
             <tr ng-repeat="finishedExam in finishedExams">
                 <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
                 <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                <td class="table-column-examcode">{{ finishedExam.exam.course.code }}</td>
-                <td class="table-column-examname"><a href="#/exams/reviews/{{finishedExam.exam.id}}">{{
-                    finishedExam.exam.name }}</a></td>
-                <td class="table-column-open-until">{{ finishedExam.exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
-                    {{ finishedExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}
+                <td class="table-column-examcode">{{ finishedExam.course.code }}</td>
+                <td class="table-column-examname"><a href="#/exams/reviews/{{finishedExam.id}}">{{
+                    finishedExam.name }}</a></td>
+                <td class="table-column-open-until">{{ finishedExam.examActiveStartDate | date:'dd.MM.yyyy' }} -
+                    {{ finishedExam.examActiveEndDate | date:'dd.MM.yyyy' }}
                 </td>
                 <td class="table-column-enroll-participation">{{finishedExam.examParticipations.length -
                     finishedExam.examParticipationsAndReviews.length}}

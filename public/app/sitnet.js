@@ -33,17 +33,16 @@
         };
     }()));
     sitnet.config(['$translateProvider', 'SITNET_CONF', function ($translateProvider, SITNET_CONF) {
-
         var path = SITNET_CONF.LANGUAGES_PATH;
         $translateProvider.useStaticFilesLoader({
             prefix: path + '/locale-',
             suffix: '.json'
         });
-        $translateProvider.preferredLanguage('fi');
+        $translateProvider.preferredLanguage('en');
     }]);
     // Executed each time the site is loaded
-    sitnet.run(['$http', '$route', '$interval', '$modal', '$sessionStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
-        function ($http, $route, $interval, $modal, $sessionStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
+    sitnet.run(['$http', '$route', '$interval', '$timeout', '$modal', '$sessionStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
+        function ($http, $route, $interval, $timeout, $modal, $sessionStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
 
             var user = $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY];
             if (user) {
@@ -51,6 +50,10 @@
                 header[SITNET_CONF.AUTH_HEADER] = user.token;
                 $http.defaults.headers.common = header;
                 sessionService.setUser(user);
+                // Introduce a short timeout for this to give the translateProvider some time to settle
+                $timeout(function() {
+                    sessionService.translate(user.lang);
+                }, 100);
             }
             var scheduler;
             var PING_INTERVAL = 60 * 1000;

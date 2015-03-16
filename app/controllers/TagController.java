@@ -6,6 +6,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import exceptions.MalformedDataException;
 import models.Tag;
+import models.User;
 import models.questions.AbstractQuestion;
 import play.libs.F;
 import play.libs.Json;
@@ -18,8 +19,11 @@ public class TagController extends SitnetController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public static Result listTags(F.Option<String> filter) {
-        ExpressionList<Tag> query = Ebean.find(Tag.class).where()
-                .eq("creator.id", UserController.getLoggedUser().getId());
+        User user = UserController.getLoggedUser();
+        ExpressionList<Tag> query = Ebean.find(Tag.class).where();
+        if (!user.hasRole("ADMIN")) {
+            query = query.where().eq("creator.id", user.getId());
+        }
         if (filter.isDefined()) {
             String condition = String.format("%%%s%%", filter.get());
             query = query.ilike("name", condition);

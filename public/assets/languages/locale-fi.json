@@ -507,5 +507,6 @@
   "sitnet_continue": "Jatka",
   "sitnet_no_suitable_enrolment_found": "Sinulla on jo varaus tähän tenttiin. Voit tehdä uuden varauksen vasta, kun olet käynyt tentissä tai perunut varauksen.",
   "sitnet_added_to_categories": "Kysymystä kuvaavat asiasanat",
+  "sitnet_reservation": "Varaus",
   "sitnet_add_all": "Lisää kaikki"
 }

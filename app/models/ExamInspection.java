@@ -16,9 +16,9 @@ public class ExamInspection extends Model {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
-    @OneToOne
-	@JsonBackReference
+
+    @ManyToOne
+    @JsonBackReference
 	private Exam exam;
 
 	@ManyToOne

@@ -19,6 +19,7 @@ PUT           /users/:id                                            controllers.
 PUT           /users/agreement/:id                                  controllers.UserController.updateUserAgreementAccepted(id: Long)
 POST          /users                                                controllers.UserController.addUser()
 DELETE        /users/:id                                            controllers.UserController.deleteUser(id: Long)
+PUT           /user/lang                                            controllers.UserController.updateLanguage()
 
 
 
@@ -50,7 +51,6 @@ GET           /examenrolmentswithreservations/:eid                  controllers.
 GET           /examparticipations/:eid                              controllers.ExamController.getParticipationsForExam(eid: Long)
 GET           /examparticipations/:eid/:uid                         controllers.ExamController.getParticipationsForExamAndUser(eid: Long, uid: Long)
 
-GET           /examparticipationsandreviews/:eid                    controllers.ExamController.getParticipationsAndReviewedForExam(eid: Long)
 POST          /exam/record                                          controllers.ExamRecordController.addExamRecord()
 GET           /exam/record                                          controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
 
@@ -76,6 +76,9 @@ DELETE        /exam/:eid/software                                   controllers.
 
 PUT           /exam/:eid/language/:code                             controllers.ExamController.addExamLanguage(eid: Long, code: String)
 DELETE        /exam/:eid/languages                                  controllers.ExamController.resetExamLanguages(eid: Long)
+
+GET           /examtypes                                            controllers.ExamController.getExamTypes()
+GET           /gradescales                                          controllers.ExamController.getExamGradeScales()
 
 GET           /enrolments                                           controllers.ExamController.getEnrolments()
 GET           /inspections                                          controllers.ExamController.getInspections()
@@ -230,6 +233,7 @@ PUT           /agreement                                            controllers.
 PUT           /settings                                             controllers.SettingsController.updateSettings()
 GET           /settings/hostname                                    controllers.SettingsController.getHostname()
 GET           /settings/durations                                   controllers.SettingsController.getExamDurations()
+GET           /settings/gradescale                                  controllers.SettingsController.isExamGradeScaleOverridable()
 
 ################# Statistics interface ##################
 

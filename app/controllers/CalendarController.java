@@ -11,10 +11,12 @@ import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
+import java.io.IOException;
 import java.util.*;
 
 
@@ -44,7 +46,11 @@ public class CalendarController extends SitnetController {
 
         // if user who removes reservation is not Student himself, send email
         if (!user.getId().equals(enrolment.getUser().getId())) {
-            EmailComposer.composeReservationCancelationNotification(user, reservation, "");
+            try {
+                EmailComposer.composeReservationCancellationNotification(user, reservation, "");
+            } catch (IOException e) {
+                return internalServerError(e.getMessage());
+            }
         }
 
         enrolment.setReservation(null);
@@ -116,7 +122,11 @@ public class CalendarController extends SitnetController {
             Ebean.delete(oldReservation);
         }
 
-        EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
+        try {
+            EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
+        } catch (IOException e) {
+            Logger.error("Failed to send reservation confirmation email", e);
+        }
 
         return ok("ok");
     }

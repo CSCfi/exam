@@ -18,7 +18,6 @@ public class ExamBuilder {
         exam.setEnrollInstruction("enroll like this");
         exam.setExamActiveEndDate(DateTime.now().plusWeeks(1).toDate());
         exam.setExamActiveStartDate(new Date());
-        exam.setGrading("1-5");
         exam.setInstruction("do like this");
         exam.setName("Exam");
         exam.setState("SAVED");
@@ -64,11 +63,6 @@ public class ExamBuilder {
 
     public ExamBuilder withActiveEndDate(Date date) {
         exam.setExamActiveEndDate(date);
-        return this;
-    }
-
-    public ExamBuilder withGrading(String grading) {
-        exam.setGrading(grading);
         return this;
     }
 

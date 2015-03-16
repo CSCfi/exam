@@ -229,14 +229,6 @@
                 {
                    "get": {method: "GET", params: { eid: "@eid", uid: "@uid"}}
                 }),
-                examParticipationsAndReviews: $resource("/examparticipationsandreviews/:eid",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "get": {method: "GET", params: { eid: "@eid" }}
-                }),
-
                 studentInfo: $resource("/review/info/:id",
                 {
                     id: "@id"
@@ -262,13 +254,15 @@
                 {
                     "add": {method: "PUT"}
                 }),
-                languages: $resource("exam/:eid/languages",
+                languages: $resource("/exam/:eid/languages",
                 {
                     eid: "@eid"
                 },
                 {
                     "reset": {method: "DELETE"}
                 }),
+                examTypes: $resource("/examtypes"),
+                gradeScales: $resource("/gradescales"),
                 software: $resource("/exam/:eid/software/:sid",
                 {
                     eid: "@eid",

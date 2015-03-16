@@ -54,7 +54,6 @@ public class ExamRecordController extends SitnetController {
         exam.setGrade(form.getGrade());
         exam.setGradedByUser(UserController.getLoggedUser());
         exam.setCustomCredit(form.getCustomCredit());
-        exam.setTotalScore(form.getTotalScore());
         exam.setCreditType(form.getCreditType());
         exam.setAnswerLanguage(form.getAnswerLanguage());
         exam.update();
@@ -108,8 +107,8 @@ public class ExamRecordController extends SitnetController {
         score.setCreditLanguage(exam.getAnswerLanguage());
         score.setCreditType(exam.getCreditType());
         score.setIdentifier(exam.getCourse().getIdentifier());
-        score.setGradeScale(exam.getGrading());
-        score.setStudentGrade(exam.getGrade());
+        score.setGradeScale(exam.getGradeScale().getDescription());
+        score.setStudentGrade(exam.getGrade().getName());
 
         score.save();
         record.setExamScore(score);

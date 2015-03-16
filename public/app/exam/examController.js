@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
-            function ($scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
+        .controller('ExamController', ['$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
+            function ($scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
 
                 $scope.newExam = {};
 
@@ -12,6 +12,8 @@
                 $scope.libraryTemplate = SITNET_CONF.TEMPLATES_PATH + "question/library.html";
                 $scope.selectCourseTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general_course_select.html";
                 $scope.examsTemplate = "";
+                $scope.examTypes = [];
+                $scope.gradeScale = {};
 
                 $scope.user = sessionService.getUser();
 
@@ -34,33 +36,13 @@
                     $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exams.html";
                 }
 
-                // dynamic tab index - - -
-                var setExamTabs = function () {
-
-                    var tabindex = 1;
-                    var tabs = angular.element('input,select,li,button,.dropdown-menu.a,span.create-new,a');
-                    if (tabs) {
-                        angular.forEach(tabs, function (element) {
-                            if (element.type != "hidden") {
-                                angular.element(element).attr("tabindex", tabindex);
-                                tabindex++;
-                                console.log(element);
-
-                            }
-                        });
-                    }
-                };
-
-                SettingsResource.examDurations.get(function(data) {
+                SettingsResource.examDurations.get(function (data) {
                     $scope.examDurations = data.examDurations;
                 });
 
-                // Todo: Fill in gradings from database for final version
-                $scope.examGradings = [
-                    "0-5",
-                    "Improbatur-Laudatur",
-                    "Hyväksytty-Hylätty"
-                ];
+                SettingsResource.gradeScale.get(function (data) {
+                    $scope.gradeScale = data;
+                });
 
                 LanguageRes.languages.query(function (languages) {
                     $scope.examLanguages = languages.map(function (language) {
@@ -69,10 +51,22 @@
                     });
                 });
 
-                $scope.examTypes = [
-                    "Osasuoritus",
-                    "Loppusuoritus"
-                ];
+                var refreshExamTypes = function () {
+                    examService.refreshExamTypes().then(function (types) {
+                        $scope.examTypes = types;
+                    });
+                };
+                var refreshGradeScales = function () {
+                    examService.refreshGradeScales().then(function (scales) {
+                        $scope.examGradings = scales;
+                    });
+                };
+                refreshExamTypes();
+                refreshGradeScales();
+
+                $scope.$on('$localeChangeSuccess', function () {
+                    refreshExamTypes();
+                });
 
                 var initializeExam = function(){
                     ExamRes.exams.get({id: $routeParams.id},
@@ -82,13 +76,18 @@
                                 // Use front-end language names always to allow for i18n etc
                                 language.name = getLanguageNativeName(language.code);
                             });
-                            $scope.softwaresUpdate = $scope.newExam.softwares ? $scope.newExam.softwares.length : 0;
-                            $scope.languagesUpdate = $scope.newExam.examLanguages ? $scope.newExam.examLanguages.length : 0;
-
+                            $scope.softwaresUpdate = exam.softwares ? exam.softwares.length : 0;
+                            $scope.languagesUpdate = exam.examLanguages ? exam.examLanguages.length : 0;
+                            // Set exam grade scale from course default if not specifically set for exam
+                            if (!exam.gradeScale && exam.course.gradeScale) {
+                                $scope.newExam.gradeScale = exam.course.gradeScale;
+                                $scope.newExam.gradeScale.name = examService.getScaleDisplayName(
+                                    $scope.newExam.course.gradeScale.description);
+                            } else {
+                                $scope.newExam.gradeScale.name = examService.getScaleDisplayName(exam.gradeScale);
+                            }
                             $scope.reindexNumbering();
                             getInspectors();
-
-                            //setExamTabs(); not working
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -248,7 +247,7 @@
                         });
                 };
 
-                $scope.continueToExam = function() {
+                $scope.continueToExam = function () {
                     $location.path("/exams/" + $routeParams.id);
                 };
 
@@ -259,28 +258,24 @@
                 };
 
                 $scope.checkDuration = function (duration) {
-                    if (duration && $scope.newExam && "duration" in $scope.newExam) {
-                        return $scope.newExam.duration === duration ? "btn-primary" : "";
-                    }
-                    return "";
+                    if (!$scope.newExam.duration) return "";
+                    return $scope.newExam.duration === duration ? "btn-primary" : "";
                 };
 
                 $scope.checkGrading = function (grading) {
-                    if (grading && $scope.newExam && "grading" in $scope.newExam) {
-                        return $scope.newExam.grading === grading ? "btn-primary" : "";
+                    if (!$scope.newExam.gradeScale) {
+                        return "";
                     }
-                    return "";
+                    return $scope.newExam.gradeScale.id === grading.id ? "btn-primary" : "";
                 };
 
                 $scope.checkType = function (type) {
-                    if (type && $scope.newExam.examType && "type" in $scope.newExam.examType) {
-                        return $scope.newExam.examType.type === type ? "btn-primary" : "";
-                    }
-                    return "";
+                    if (!$scope.newExam.examType) return "";
+                    return $scope.newExam.examType.type === type ? "btn-primary" : "";
                 };
 
                 $scope.setExamGrading = function (grading) {
-                    $scope.newExam.grading = grading;
+                    $scope.newExam.gradeScale = grading;
                     $scope.updateExam();
                 };
 
@@ -288,10 +283,6 @@
                     $scope.newExam.examType.type = type;
                     $scope.updateExam();
                 };
-
-                $scope.contentTypes = ["aineistotyypit", "haettava", "kannasta", "Kaikki aineistotyypit - oletus"];
-                $scope.libraryFilter = "";
-                $scope.selected = undefined;
 
                 $scope.toggleSection = function (section) {
                     section.icon = "";
@@ -376,7 +367,7 @@
                         "examActiveStartDate": new Date($scope.newExam.examActiveStartDate).getTime(),
                         "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999),
                         "duration": $scope.newExam.duration,
-                        "grading": $scope.newExam.grading,
+                        "grading": $scope.newExam.gradeScale.id,
                         "expanded": $scope.newExam.expanded
                     };
                     for (var k in overrides) {
@@ -625,9 +616,9 @@
                     });
                 };
 
-                var updateSection = function(section) {
+                var updateSection = function (section) {
                     var index = -1;
-                    $scope.newExam.examSections.some(function(s, i) {
+                    $scope.newExam.examSections.some(function (s, i) {
                         if (s.id === section.id) {
                             index = i;
                             return true;

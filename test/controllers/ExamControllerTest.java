@@ -159,9 +159,9 @@ public class ExamControllerTest extends IntegrationTestCase {
         return new String[]{"id", "name", "course.id", "course.code", "course.name", "course.level",
                 "course.courseUnitType", "course.credits", "course.institutionName", "course.department", "parent",
                 "examType", "instruction", "enrollInstruction", "shared", "examActiveStartDate",
-                "examActiveEndDate", "duration", "grading", "grade", "customCredit", "totalScore",
-                "answerLanguage", "state", "examFeedback", "creditType", "expanded", "attachment", "creator.id",
-                "creator.firstName", "creator.lastName"};
+                "examActiveEndDate", "duration", "gradeScale", "gradeScale.description", "grade",
+                "customCredit", "answerLanguage", "state", "examFeedback", "creditType", "expanded",
+                "attachment", "creator.id", "creator.firstName", "creator.lastName"};
     }
 
     private String[] getExamSectionFieldsOfExam(String index) {

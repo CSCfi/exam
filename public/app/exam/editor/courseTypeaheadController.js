@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CourseTypeaheadCtrl', ['$http', '$scope', 'limitToFilter', 'CourseRes', 'ExamRes', '$translate',
-            function ($http, $scope, limitToFilter, CourseRes, ExamRes, $translate) {
+        .controller('CourseTypeaheadCtrl', ['$http', '$scope', 'limitToFilter', 'CourseRes', 'ExamRes', 'examService', '$translate',
+            function ($http, $scope, limitToFilter, CourseRes, ExamRes, examService, $translate) {
 
             $scope.getCourses = function(filter, criteria) {
                 return CourseRes.courses.query({filter: filter, q: criteria}).$promise.then(
@@ -13,6 +13,10 @@
                         toastr.error(error.data);
                     }
                 );
+            };
+
+            $scope.displayGradeScale = function (description) {
+                return examService.getScaleDisplayName(description);
             };
 
             $scope.onCourseSelect = function ($item, $model, $label, exam) {

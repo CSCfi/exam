@@ -1,45 +1,48 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import play.db.ebean.Model;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 @Entity
-public class Grade extends SitnetModel{
+public class Grade extends Model {
 
-    public String scale;
-    public String grade;
-    public String description;
+    @Id
+    private Integer id;
 
-    public String getScale() {
-        return scale;
+    @Column
+    private String name;
+
+    @ManyToOne
+    @JsonBackReference
+    private GradeScale gradeScale;
+
+    public Integer getId() {
+        return id;
     }
 
-    public void setScale(String scale) {
-        this.scale = scale;
+    public void setId() {
+        this.id = id;
     }
 
-    public String getGrade() {
-        return grade;
+    public String getName() {
+        return name;
     }
 
-    public void setGrade(String grade) {
-        this.grade = grade;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public GradeScale getGradeScale() {
+        return gradeScale;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setGradeScale(GradeScale gradeScale) {
+        this.gradeScale = gradeScale;
     }
 
-    @Override
-    public String toString() {
-        return "Grade{" +
-                "id=" + id +
-                ", scale='" + scale + '\'' +
-                ", grade=" + grade +
-                ", description=" + description +
-                '}';
-    }
 }
