@@ -38,6 +38,10 @@ public class SitnetUtil {
         return values;
     }
 
+    public static Boolean isExamGradeScaleOverridable() {
+        return ConfigFactory.load().getBoolean("sitnet.exam.grading.overridable");
+    }
+
     public static DateTimeZone getDefaultTimeZone() {
         String config = ConfigFactory.load().getString("sitnet.application.timezone");
         return DateTimeZone.forID(config);
@@ -139,6 +143,8 @@ public class SitnetUtil {
                 Ebean.save(all.get("organisations"));
                 Ebean.save(all.get("attachments"));
                 Ebean.save(all.get("users"));
+                Ebean.save(all.get("grade-scales"));
+                Ebean.save(all.get("grades"));
                 Ebean.save(all.get("question_essay"));
                 Ebean.save(all.get("question_multiple_choice"));
                 Ebean.save(all.get("softwares"));
@@ -160,7 +166,6 @@ public class SitnetUtil {
                 Ebean.save(all.get("exam-room-reservations"));
                 Ebean.save(all.get("exam-enrolments"));
                 Ebean.save(all.get("user-agreament"));
-                Ebean.save(all.get("grades"));
                 Ebean.save(all.get("question_multiple_choice"));
 
                 // generate hashes for exams
@@ -178,6 +183,7 @@ public class SitnetUtil {
                 Ebean.save(all.get("users"));
                 Ebean.save(all.get("exam-types"));
                 Ebean.save(all.get("softwares"));
+                Ebean.save(all.get("grade-scales"));
                 Ebean.save(all.get("grades"));
                 Ebean.save(all.get("general-settings"));
             }

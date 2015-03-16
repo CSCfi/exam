@@ -15,8 +15,8 @@
                         "update": { method: 'PUT'}
                     }),
                 hostname: $resource("/settings/hostname"),
-                examDurations: $resource("/settings/durations"
-                )
+                examDurations: $resource("/settings/durations"),
+                gradeScale: $resource("/settings/gradescale")
             }
         }]);
 }());

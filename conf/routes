@@ -18,6 +18,7 @@ PUT           /users/:id                                            controllers.
 PUT           /users/agreement/:id                                  controllers.UserController.updateUserAgreementAccepted(id: Long)
 POST          /users                                                controllers.UserController.addUser()
 DELETE        /users/:id                                            controllers.UserController.deleteUser(id: Long)
+PUT           /user/lang                                            controllers.UserController.updateLanguage()
 
 
 
@@ -49,7 +50,6 @@ GET           /examenrolmentswithreservations/:eid                  controllers.
 GET           /examparticipations/:eid                              controllers.ExamController.getParticipationsForExam(eid: Long)
 GET           /examparticipations/:eid/:uid                         controllers.ExamController.getParticipationsForExamAndUser(eid: Long, uid: Long)
 
-GET           /examparticipationsandreviews/:eid                    controllers.ExamController.getParticipationsAndReviewedForExam(eid: Long)
 POST          /exam/record                                          controllers.ExamRecordController.addExamRecord()
 GET           /exam/record                                          controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
 
@@ -65,6 +65,7 @@ POST          /exams/localInspection/:eid/:uid                      controllers.
 POST          /email/inspection/:eid/:msg                           controllers.ExamController.sendInspectionMessage(eid: Long, msg: String)
 
 POST          /exams/:eid/section/:sid/:seq/question/:qid           controllers.ExamController.insertQuestion(eid: Long, sid: Long, seq: Int, qid: Long)
+POST          /exams/:eid/section/:sid/:seq/questions               controllers.ExamController.insertMultipleQuestions(eid: Long, sid: Long, seq: Int, questions: String)
 DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
 PUT           /exams/:eid/section/:sid/:from/:to                    controllers.ExamController.reorderQuestion(eid: Long, sid: Long, from: Int, to: Int)
 GET           /draft                                                controllers.ExamController.createExamDraft()
@@ -76,6 +77,7 @@ PUT           /exam/:eid/language/:code                             controllers.
 DELETE        /exam/:eid/languages                                  controllers.ExamController.resetExamLanguages(eid: Long)
 
 GET           /examtypes                                            controllers.ExamController.getExamTypes()
+GET           /gradescales                                          controllers.ExamController.getExamGradeScales()
 
 GET           /enrolments                                           controllers.ExamController.getEnrolments()
 GET           /inspections                                          controllers.ExamController.getInspections()
@@ -117,7 +119,7 @@ POST          /courses/insert/:code                                 controllers.
 
 ############### Question interface ###############
 
-GET           /questions                                            controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long])
+GET           /questions                                            controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long], section: java.util.List[java.lang.Long])
 GET           /questions/:id                                        controllers.QuestionController.getQuestion(id: Long)
 
 PUT           /questions/:id                                        controllers.QuestionController.updateQuestion(id: Long)
@@ -230,6 +232,7 @@ PUT           /agreement                                            controllers.
 PUT           /settings                                             controllers.SettingsController.updateSettings()
 GET           /settings/hostname                                    controllers.SettingsController.getHostname()
 GET           /settings/durations                                   controllers.SettingsController.getExamDurations()
+GET           /settings/gradescale                                  controllers.SettingsController.isExamGradeScaleOverridable()
 
 ################# Statistics interface ##################
 

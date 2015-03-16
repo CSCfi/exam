@@ -39,13 +39,18 @@
                         </option>
                     </select>
                 </div>
+
                 <div class="col-md-2">
                     <label for="examGrade">{{'sitnet_exam_grade' | translate}}:</label>
-                    <select id="examGrade" name="examGrade" class="form-control" ng-model="examToBeReviewed.grade"
-                            ng-disabled="isReadOnly || !isCreator()" required ng-options="grade for grade in examGrading">
+                    <select id="examGrade" name="examGrade" class="form-control" ng-model="selectedGrade"
+                            ng-disabled="isReadOnly || !isCreator()" ng-change="setGrade(selectedGrade)" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
+                        <option ng-repeat="grade in examGrading" value="{{grade.id}}"
+                                ng-selected="checkGrade(grade)">{{ grade.name }}
+                        </option>
                     </select>
                 </div>
+
                 <div class="col-md-4">
                     <label for="answerLanguage">{{'sitnet_exam_record_language' | translate}}:</label>
                     <select id="answerLanguage" name="answerLanguage" class="form-control"

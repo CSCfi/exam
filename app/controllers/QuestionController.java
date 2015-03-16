@@ -29,7 +29,7 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds) {
+    public static Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
         User user = UserController.getLoggedUser();
         ExpressionList<AbstractQuestion> query = Ebean.find(AbstractQuestion.class)
                 .where()
@@ -49,6 +49,9 @@ public class QuestionController extends SitnetController {
         }
         for (Long tagId : tagIds) {
             query = query.eq("tags.id", tagId);
+        }
+        for (Long sectionId : sectionIds) {
+            query = query.eq("children.examSectionQuestion.examSection.id", sectionId);
         }
         Set<AbstractQuestion> questions = query.orderBy("created desc").findSet();
         JsonContext jsonContext = Ebean.createJsonContext();

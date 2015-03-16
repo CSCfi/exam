@@ -9,7 +9,6 @@ import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import exceptions.MalformedDataException;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateMidnight;
@@ -19,6 +18,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -85,7 +85,7 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result removeReservation(long id) throws MalformedDataException, NotFoundException {
+    public static Result removeReservation(long id) throws IOException, NotFoundException {
 
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
@@ -109,7 +109,7 @@ public class AdminReservationController extends SitnetController {
         // Lets not send emails about historical reservations
         if (reservation.getEndAt().after(new Date())) {
             User student = enrolment.getUser();
-            EmailComposer.composeReservationCancelationNotification(student, reservation, "");
+            EmailComposer.composeReservationCancellationNotification(student, reservation, "");
         }
 
         enrolment.setReservation(null);

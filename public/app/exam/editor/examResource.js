@@ -55,6 +55,14 @@
                     "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", seq: "@seq", qid: "@qid"}}
 
                 }),
+                sectionquestionsmultiple: $resource("/exams/:eid/section/:sid/:seq/questions",
+                {
+                    eid: "@eid", sid: "@sid", seq: "@seq", questions: "@questions"
+                },
+                {
+                    "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", seq: "@seq", questions: "@questions"}}
+
+                }),
                 reordersection: $resource("/exams/:eid/section/:sid/:from/:to",
                 {
                     eid: "@eid", sid: "@sid", from: "@from", to: "@to"
@@ -221,14 +229,6 @@
                 {
                    "get": {method: "GET", params: { eid: "@eid", uid: "@uid"}}
                 }),
-                examParticipationsAndReviews: $resource("/examparticipationsandreviews/:eid",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "get": {method: "GET", params: { eid: "@eid" }}
-                }),
-
                 studentInfo: $resource("/review/info/:id",
                 {
                     id: "@id"
@@ -262,6 +262,7 @@
                     "reset": {method: "DELETE"}
                 }),
                 examTypes: $resource("/examtypes"),
+                gradeScales: $resource("/gradescales"),
                 software: $resource("/exam/:eid/software/:sid",
                 {
                     eid: "@eid",

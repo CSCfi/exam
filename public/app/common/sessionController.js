@@ -3,8 +3,8 @@
     // automatically by the run block in sitnet.js
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$rootScope', '$location', '$modal', '$translate', 'sessionService', 'UserRes', 'SITNET_CONF', 'tmhDynamicLocale',
-            function ($scope, $rootScope, $location, $modal, $translate, sessionService, UserRes, SITNET_CONF, tmhDynamicLocale) {
+        .controller('SessionCtrl', ['$scope', '$rootScope', '$location', '$modal', '$translate', 'sessionService', 'UserRes', 'SITNET_CONF',
+            function ($scope, $rootScope, $location, $modal, $translate, sessionService, UserRes, SITNET_CONF) {
 
                 $scope.credentials = {};
 
@@ -21,8 +21,7 @@
                 }
 
                 $scope.switchLanguage = function (key) {
-                    $translate.uses(key);
-                    tmhDynamicLocale.set(key);
+                    sessionService.switchLanguage(key);
                 };
 
                 $scope.login = function () {

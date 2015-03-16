@@ -40,21 +40,47 @@
                     $scope.examToBeReviewed.creditType = creditType;
                 };
 
+                $scope.setGrade = function (grade_id) {
+                    $scope.examToBeReviewed.grade = {id: grade_id};
+                };
+
+
                 $scope.checkCreditType = function (creditType) {
                     return creditType.type === $scope.selectedType;
                 };
 
-                var refreshExamTypes = function() {
-                    examService.refreshExamTypes().then(function(types) {
+                $scope.checkGrade = function (grade) {
+                    return $scope.selectedGrade && grade.id === $scope.selectedGrade.id;
+                };
+
+                var refreshExamTypes = function () {
+                    examService.refreshExamTypes().then(function (types) {
                         $scope.examTypes = types;
                     });
                 };
 
                 refreshExamTypes();
 
-                $scope.$on('$localeChangeSuccess', function() {
+                $scope.$on('$localeChangeSuccess', function () {
                     refreshExamTypes();
+                    //refreshGradeNames();
                 });
+
+                var refreshGradeNames = function () {
+                    if (!$scope.examToBeReviewed) return;
+                    var scale = $scope.examToBeReviewed.gradeScale || $scope.examToBeReviewed.parent.gradeScale;
+                    $scope.examGrading = scale.grades.map(function (grade) {
+                        grade.name = examService.getExamGradeDisplayName(grade.name);
+                        return grade;
+                    });
+                };
+
+                $scope.translateGrade = function (exam) {
+                    if (!exam.grade) {
+                        return;
+                    }
+                    return examService.getExamGradeDisplayName(exam.grade.name);
+                };
 
                 $scope.hasEssayQuestions = false;
                 $scope.acceptedEssays = 0;
@@ -97,6 +123,9 @@
                                 // default to examType
                                 $scope.selectedType = exam.examType.type.toUpperCase();
                             }
+                            if (exam.grade) {
+                                $scope.selectedGrade = exam.grade;
+                            }
                         }
 
                         $scope.isCreator = function () {
@@ -108,28 +137,7 @@
                         $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED";
                         $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";
 
-                        switch ($scope.examToBeReviewed.grading) {
-                            case "0-5":
-                                $scope.examGrading = ["0", "1", "2", "3", "4", "5"];
-                                break;
-
-                            case "Hyväksytty-Hylätty":
-                                $scope.examGrading = ["Hyväksytty", "Hylätty"];
-                                break;
-
-                            case "Improbatur-Laudatur":
-                                $scope.examGrading = [
-                                    "Laudatur",
-                                    "Eximia cum laude approbatur",
-                                    "Magna cum laude approbatur",
-                                    "Cum laude approbatur",
-                                    "Non sine laude approbatur",
-                                    "Lubenter approbatur",
-                                    "Approbatur",
-                                    "Improbatur"
-                                ];
-                                break;
-                        }
+                        refreshGradeNames();
 
                         $scope.reviewStatus = [
                             {
@@ -407,7 +415,7 @@
                     return {
                         "id": exam.id,
                         "state": state,
-                        "grade": exam.grade,
+                        "grade": exam.grade.id,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": exam.creditType,
@@ -434,10 +442,6 @@
                     }, function (error) {
                         toastr.error(error.data);
                     });
-                };
-
-                $scope.setExamGrade = function (grade) {
-                    $scope.examToBeReviewed.grade = grade;
                 };
 
                 $scope.toggleFeedbackHiding = function (hidden) {
@@ -495,7 +499,7 @@
                     return valid;
                 };
 
-                var doUpdate = function(newState, review, messages, exam) {
+                var doUpdate = function (newState, review, messages, exam) {
                     ExamRes.review.update({id: review.id}, review, function () {
                         $scope.saveFeedback(true);
                         if (newState === 'REVIEW_STARTED') {
@@ -529,10 +533,10 @@
                             return;
                         }
                         var messages = [];
-                        if (!reviewed_exam.grade) {
+                        if (!$scope.selectedGrade) {
                             messages.push('sitnet_participation_unreviewed');
                         }
-                        if (!reviewed_exam.creditType) {
+                        if (!$scope.selectedType) {
                             messages.push('sitnet_exam_choose_credit_type');
                         }
                         if (!$scope.selectedLanguage) {

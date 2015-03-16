@@ -2,16 +2,14 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Weekly summary</title>
+    <title></title>
 </head>
 <body>
-    <p><h3>Ilmoittautumiset</h3></p>
-    <p>Opiskelijoita on ilmoittautunut tentteihisi seuraavasti:</p>
-    {{enrollment_info}}
-    <p><h3>Arvioinnit</h3></p>
-    <p>Sinulla on arvioimattomia vastauksia {{answer_count_total}} kpl näissä tenteissä:</p>
-    {{inspection_info_own}}
-    <!--<p>{{inspection_info_assigner}}</p>-->
-    <!--<p>{{inspection_info_other}}</p>-->
+    <h3>{{enrolments_title}}</h3>
+    <h4>{{enrolment_info_title}}</h4>
+    <p>{{enrolment_info}}</p>
+    <h3>{{inspections_title}}</h3>
+    <h4>{{inspections_info}}:</h4>
+    <p>{{inspection_info_own}}</p>
 </body>
 </html>

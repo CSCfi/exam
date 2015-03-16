@@ -56,47 +56,31 @@
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
                             $scope.activeExams = reviewerExams.filter(function(review) {
-                                return $scope.beforeDate(review.exam.examActiveEndDate);
+                                return $scope.beforeDate(review.examActiveEndDate);
                             });
                             $scope.finishedExams = reviewerExams.filter(function(review) {
-                                return $scope.afterDate(review.exam.examActiveEndDate);
+                                return $scope.afterDate(review.examActiveEndDate);
                             });
                             var allExams = $scope.activeExams.concat($scope.finishedExams);
 
-                            angular.forEach(allExams, function (review, index) {
-                                ExamRes.examEnrolmentsWithReservations.query({eid: review.exam.id},
-                                    function (activeExamEnrolments) {
-                                        review.activeExamEnrolments = activeExamEnrolments;
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    });
-
-                                ExamRes.examParticipations.query({eid: review.exam.id},
+                            angular.forEach(allExams, function (exam) {
+                                exam.activeExamEnrolments = exam.examEnrolments.filter(function(enrolment) {
+                                   return enrolment.reservation != undefined
+                                });
+                                ExamRes.examParticipations.query({eid: exam.id},
                                     function (examParticipations) {
-                                        review.examParticipations = examParticipations;
+                                        exam.examParticipations = examParticipations;
+                                        exam.examParticipationsAndReviews = examParticipations.filter(function(participation) {
+                                            var state = participation.exam.state;
+                                            return state === 'GRADED' || state === 'GRADED_LOGGED';
+                                        });
                                     },
                                     function (error) {
                                         toastr.error(error.data);
                                     });
-
-                                ExamRes.examParticipationsAndReviews.query({eid: review.exam.id},
-                                    function (examParticipationsAndReviews) {
-                                        review.examParticipationsAndReviews = examParticipationsAndReviews;
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    });
-
-                                ExamRes.inspections.get({id: review.exam.id},
-                                    function (inspections) {
-                                        review.examInspections = inspections.map(function (inspection) {
-                                            return inspection.user.firstName + " " + inspection.user.lastName;
-                                        }).join(", ");
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    });
+                                exam.examInspections = exam.examInspections.map(function (inspection) {
+                                    return inspection.user.firstName + " " + inspection.user.lastName;
+                                }).join(", ");
                             });
                         });
                     }

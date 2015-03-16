@@ -1,6 +1,5 @@
 package controllers;
 
-import exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -10,9 +9,11 @@ import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import exceptions.MalformedDataException;
 import models.ExamInspection;
 import models.Session;
 import models.User;
+import models.UserLanguage;
 import play.Logger;
 import play.cache.Cache;
 import play.libs.Json;
@@ -64,19 +65,6 @@ public class UserController extends SitnetController {
         for (User u : filteredUsers) {
             ObjectNode part = Json.newObject();
             part.put("id", u.getId());
-//        	part.put("firstName", u.getFirstName());
-//        	part.put("schacPersonalUniqueCode", u.getAttributes().get("schacPersonalUniqueCode"));
-
-//            List<HakaAttribute> attr = Ebean.find(HakaAttribute.class)
-//                    .where()
-//                    .eq("user_id", u.getId())
-//                    .like("key", "schacPersonalUniqueCode")
-//                    .findList();
-//
-//            for (HakaAttribute a : attr) {
-//                part.put(a.getKey(), a.getValue());
-//            }
-
             part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
             array.add(part);
         }
@@ -194,5 +182,18 @@ public class UserController extends SitnetController {
             result = ok(jsonContext.toJsonString(user, true, options)).as("application/json");
         }
         return result;
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    public static Result updateLanguage() {
+        User user = getLoggedUser();
+        String lang = request().body().asJson().get("lang").asText();
+        UserLanguage language = Ebean.find(UserLanguage.class).where().eq("UILanguageCode", lang).findUnique();
+        if (language == null) {
+            return badRequest("Unsupported language code");
+        }
+        user.setUserLanguage(language);
+        user.update();
+        return ok();
     }
 }

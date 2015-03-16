@@ -11,10 +11,12 @@ import com.typesafe.config.ConfigFactory;
 import exceptions.NotFoundException;
 import models.Course;
 import models.ExamRecord;
+import models.GradeScale;
 import models.Organisation;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
+import play.Logger;
 import play.libs.F;
 import play.libs.Json;
 import play.libs.ws.WS;
@@ -87,13 +89,25 @@ public class Interfaces extends SitnetController {
                 course.setDegreeProgramme(getFirstChildNameValue(json, "degreeProgramme"));
                 course.setDepartment(getFirstChildNameValue(json, "department"));
                 course.setLecturer(getFirstChildNameValue(json, "lecturer"));
-                course.setGradeScale(getFirstChildNameValue(json, "gradeScale"));
+                course.setGradeScale(getGradeScale(getFirstChildNameValue(json, "gradeScale")));
                 course.setCreditsLanguage(getFirstChildNameValue(json, "creditsLanguage"));
-
                 results.add(course);
             }
         }
         return results;
+    }
+
+    private static GradeScale getGradeScale(String value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            GradeScale.Type type = GradeScale.Type.valueOf(value);
+            return Ebean.find(GradeScale.class, type.getValue());
+        } catch (RuntimeException e) {
+            Logger.error("Unsupported grade scale received {}", value);
+            return null; // TODO: should we just throw an exception in order to cancel the whole import?
+        }
     }
 
     public static Result getNewRecords(String startDate) {

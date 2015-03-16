@@ -13,6 +13,7 @@
                 $scope.selectCourseTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general_course_select.html";
                 $scope.examsTemplate = "";
                 $scope.examTypes = [];
+                $scope.gradeScale = {};
 
                 $scope.user = sessionService.getUser();
 
@@ -35,33 +36,13 @@
                     $scope.examsTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exams.html";
                 }
 
-                // dynamic tab index - - -
-                var setExamTabs = function () {
-
-                    var tabindex = 1;
-                    var tabs = angular.element('input,select,li,button,.dropdown-menu.a,span.create-new,a');
-                    if (tabs) {
-                        angular.forEach(tabs, function (element) {
-                            if (element.type != "hidden") {
-                                angular.element(element).attr("tabindex", tabindex);
-                                tabindex++;
-                                console.log(element);
-
-                            }
-                        });
-                    }
-                };
-
-                SettingsResource.examDurations.get(function(data) {
+                SettingsResource.examDurations.get(function (data) {
                     $scope.examDurations = data.examDurations;
                 });
 
-                // Todo: Fill in gradings from database for final version
-                $scope.examGradings = [
-                    "0-5",
-                    "Improbatur-Laudatur",
-                    "Hyväksytty-Hylätty"
-                ];
+                SettingsResource.gradeScale.get(function (data) {
+                    $scope.gradeScale = data;
+                });
 
                 LanguageRes.languages.query(function (languages) {
                     $scope.examLanguages = languages.map(function (language) {
@@ -70,22 +51,25 @@
                     });
                 });
 
-
-                var refreshExamTypes = function() {
-                    examService.refreshExamTypes().then(function(types) {
+                var refreshExamTypes = function () {
+                    examService.refreshExamTypes().then(function (types) {
                         $scope.examTypes = types;
                     });
                 };
-
+                var refreshGradeScales = function () {
+                    examService.refreshGradeScales().then(function (scales) {
+                        $scope.examGradings = scales;
+                    });
+                };
                 refreshExamTypes();
+                refreshGradeScales();
 
-                $scope.$on('$localeChangeSuccess', function() {
+                $scope.$on('$localeChangeSuccess', function () {
                     refreshExamTypes();
+                    refreshGradeScales();
                 });
 
-                if (($routeParams.id === undefined) && !$scope.user.isStudent) {
-                    $scope.exams = ExamRes.exams.query();
-                } else {
+                var initializeExam = function(){
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
                             $scope.newExam = exam;
@@ -93,18 +77,29 @@
                                 // Use front-end language names always to allow for i18n etc
                                 language.name = getLanguageNativeName(language.code);
                             });
-                            $scope.softwaresUpdate = $scope.newExam.softwares ? $scope.newExam.softwares.length : 0;
-                            $scope.languagesUpdate = $scope.newExam.examLanguages ? $scope.newExam.examLanguages.length : 0;
-
+                            $scope.softwaresUpdate = exam.softwares ? exam.softwares.length : 0;
+                            $scope.languagesUpdate = exam.examLanguages ? exam.examLanguages.length : 0;
+                            // Set exam grade scale from course default if not specifically set for exam
+                            if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
+                                $scope.newExam.gradeScale = exam.course.gradeScale;
+                                $scope.newExam.gradeScale.name = examService.getScaleDisplayName(
+                                    $scope.newExam.course.gradeScale.description);
+                            } else if (exam.gradeScale) {
+                                $scope.newExam.gradeScale.name = examService.getScaleDisplayName(exam.gradeScale);
+                            }
                             $scope.reindexNumbering();
                             getInspectors();
-
-                            //setExamTabs(); not working
                         },
                         function (error) {
                             toastr.error(error.data);
                         }
                     );
+                };
+
+                if (($routeParams.id === undefined) && !$scope.user.isStudent) {
+                    $scope.exams = ExamRes.exams.query();
+                } else {
+                    initializeExam();
                 }
 
                 $scope.hostname = SettingsResource.hostname.get();
@@ -253,7 +248,7 @@
                         });
                 };
 
-                $scope.continueToExam = function() {
+                $scope.continueToExam = function () {
                     $location.path("/exams/" + $routeParams.id);
                 };
 
@@ -264,17 +259,15 @@
                 };
 
                 $scope.checkDuration = function (duration) {
-                    if (duration && $scope.newExam && "duration" in $scope.newExam) {
-                        return $scope.newExam.duration === duration ? "btn-primary" : "";
-                    }
-                    return "";
+                    if (!$scope.newExam.duration) return "";
+                    return $scope.newExam.duration === duration ? "btn-primary" : "";
                 };
 
                 $scope.checkGrading = function (grading) {
-                    if (grading && $scope.newExam && "grading" in $scope.newExam) {
-                        return $scope.newExam.grading === grading ? "btn-primary" : "";
+                    if (!$scope.newExam.gradeScale) {
+                        return "";
                     }
-                    return "";
+                    return $scope.newExam.gradeScale.id === grading.id ? "btn-primary" : "";
                 };
 
                 $scope.checkType = function (type) {
@@ -283,7 +276,7 @@
                 };
 
                 $scope.setExamGrading = function (grading) {
-                    $scope.newExam.grading = grading;
+                    $scope.newExam.gradeScale = grading;
                     $scope.updateExam();
                 };
 
@@ -375,7 +368,7 @@
                         "examActiveStartDate": new Date($scope.newExam.examActiveStartDate).getTime(),
                         "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999),
                         "duration": $scope.newExam.duration,
-                        "grading": $scope.newExam.grading,
+                        "grading": $scope.newExam.gradeScale.id,
                         "expanded": $scope.newExam.expanded
                     };
                     for (var k in overrides) {
@@ -624,9 +617,9 @@
                     });
                 };
 
-                var updateSection = function(section) {
+                var updateSection = function (section) {
                     var index = -1;
-                    $scope.newExam.examSections.some(function(s, i) {
+                    $scope.newExam.examSections.some(function (s, i) {
                         if (s.id === section.id) {
                             index = i;
                             return true;
@@ -639,21 +632,47 @@
                 };
 
                 $scope.insertQuestion = function (section, object, to) {
-                    var question = angular.copy(object);
-                    var sectionQuestion = {question: question};
-                    ExamRes.sectionquestions.insert({
-                            eid: $scope.newExam.id,
-                            sid: section.id,
-                            seq: to,
-                            qid: question.id
-                        }, function (sec) {
-                            DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to);
-                            toastr.info($translate("sitnet_question_added"));
-                            updateSection(sec); // needs manual update as the scope is somehow not automatically refreshed
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+
+                    if(object instanceof Array) {
+                        var questions = angular.copy(object).reverse();
+
+                        var sectionQuestions = questions.map(function(question){ return question.id; }).join(",");
+
+                        ExamRes.sectionquestionsmultiple.insert({
+                                eid: $scope.newExam.id,
+                                sid: section.id,
+                                seq: to,
+                                questions: sectionQuestions
+                            }, function (sec) {
+                                toastr.info($translate("sitnet_question_added"));
+                                var promises = [];
+                                promises.push(DragDropHandler.addObject(sectionQuestions, section.sectionQuestions, to));
+                                $q.all(promises).then(function(){
+                                    initializeExam();
+                                });
+
+                            }, function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+
+                    } else {
+                        var question = angular.copy(object);
+                        var sectionQuestion = {question: question};
+                        ExamRes.sectionquestions.insert({
+                                eid: $scope.newExam.id,
+                                sid: section.id,
+                                seq: to,
+                                qid: question.id
+                            }, function (sec) {
+                                DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to);
+                                toastr.info($translate("sitnet_question_added"));
+                                updateSection(sec); // needs manual update as the scope is somehow not automatically refreshed
+                            }, function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
                 };
 
                 //http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
