@@ -66,6 +66,7 @@
 
                 $scope.$on('$localeChangeSuccess', function () {
                     refreshExamTypes();
+                    refreshGradeScales();
                 });
 
                 if (($routeParams.id === undefined) && !$scope.user.isStudent) {
@@ -81,11 +82,11 @@
                             $scope.softwaresUpdate = exam.softwares ? exam.softwares.length : 0;
                             $scope.languagesUpdate = exam.examLanguages ? exam.examLanguages.length : 0;
                             // Set exam grade scale from course default if not specifically set for exam
-                            if (!exam.gradeScale && exam.course.gradeScale) {
+                            if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
                                 $scope.newExam.gradeScale = exam.course.gradeScale;
                                 $scope.newExam.gradeScale.name = examService.getScaleDisplayName(
                                     $scope.newExam.course.gradeScale.description);
-                            } else {
+                            } else if (exam.gradeScale) {
                                 $scope.newExam.gradeScale.name = examService.getScaleDisplayName(exam.gradeScale);
                             }
                             $scope.reindexNumbering();
