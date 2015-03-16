@@ -4,9 +4,9 @@ Sitnet Quickstart
 #### 1. Clone codes from Git ####
 
 
-#### 2. Install Play 2.2.2, for example from Homebrew ####
+#### 2. Install Activator, for example from Homebrew ####
 ```
-$ brew install play
+$ brew install typesafe-activator
 ```
 (using .zip distribution is ok as well)
 
@@ -19,7 +19,7 @@ $ gem install sass
 
 #### 4. Change to project directory and run ####
 ```
-$ play run
+$ activator run
 ```
 
 #### 5. Head to http://localhost:9000 ####

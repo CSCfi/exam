@@ -34,11 +34,16 @@
                     return exam.id;
                 });
                 var tagIds = $scope.tags.filter(function(tag) {
-                    return tag.filtered;
+                    return !tag.isSectionTag && tag.filtered;
                 }).map(function(tag) {
                     return tag.id;
                 });
-                QuestionRes.questionlist.query({exam: examIds, course: courseIds, tag: tagIds}, function (data) {
+                var sectionIds = $scope.tags.filter(function(tag) {
+                    return tag.isSectionTag && tag.filtered;
+                }).map(function(section) {
+                    return section.id;
+                });
+                QuestionRes.questionlist.query({exam: examIds, course: courseIds, tag: tagIds, section: sectionIds}, function (data) {
                     data.map(function (item) {
                         var icon;
                         switch (item.type) {
@@ -66,6 +71,12 @@
 
             ExamRes.exams.query(function (data) {
                 $scope.exams = data;
+                $scope.exams.forEach(function(exam) {
+                    $scope.tags = $scope.tags.concat(exam.examSections.map(function(section) {
+                        section.isSectionTag = true;
+                        return section;
+                    }));
+                });
             });
 
             CourseRes.userCourses.query({id: sessionService.getUser().id}, function (data) {

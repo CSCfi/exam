@@ -1,4 +1,3 @@
-
 GET           /                                                     controllers.Index.index()
 
 GET           /checkSession                                         controllers.SessionController.checkSession()
@@ -113,14 +112,14 @@ DELETE        /clearsection/:sid                                    controllers.
 
 
 ############### Courses interface ###############
-GET           /courses                                              controllers.CourseController.getCourses(filter: Option[FilterType], q: Option[String])
+GET           /courses                                              controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
 GET           /courses/user/:id                                     controllers.CourseController.listUsersCourses(id: Long)
 GET           /courses/:id                                          controllers.CourseController.getCourse(id: Long)
 POST          /courses/insert/:code                                 controllers.CourseInfoController.insertCourseFromInterface(code: String)
 
 ############### Question interface ###############
 
-GET           /questions                                            controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long])
+GET           /questions                                            controllers.QuestionController.getQuestions(exam: java.util.List[java.lang.Long], course: java.util.List[java.lang.Long], tag: java.util.List[java.lang.Long], section: java.util.List[java.lang.Long])
 GET           /questions/:id                                        controllers.QuestionController.getQuestion(id: Long)
 
 PUT           /questions/:id                                        controllers.QuestionController.updateQuestion(id: Long)

@@ -79,7 +79,7 @@
                         name = 'Improbatur-Laudatur';
                         break;
                     case 'APPROVED_REJECTED':
-                        name = 'Hyväksytty-Hylätty';
+                        name = $translate('sitnet_evaluation_select');
                         break;
                 }
                 return name;

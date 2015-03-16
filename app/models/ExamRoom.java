@@ -291,7 +291,7 @@ public class ExamRoom extends Model {
             if (isTimeRange) {
                 DateTime endDate = new DateTime(exception.getEndDate()).withTime(23, 59, 59, 999).toDateTime();
                 Interval range = new Interval(startDate, endDate);
-                if (!range.contains(date.toDateMidnight())) {
+                if (!range.contains(date.toDateTimeAtStartOfDay())) {
                     continue;
                 }
                 if (isClosedAllDay) {
@@ -322,7 +322,7 @@ public class ExamRoom extends Model {
 
     @Transient
     private Interval zeroSecondInterval(LocalDate date) {
-        return new Interval(date.toDateMidnight(), date.toDateMidnight());
+        return new Interval(date.toDateTimeAtStartOfDay(), date.toDateTimeAtStartOfDay());
     }
 
     @Transient
