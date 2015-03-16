@@ -9,7 +9,7 @@ INSERT INTO grade_scale VALUES(1, 'ZERO_TO_FIVE');
 INSERT INTO grade_scale VALUES(2, 'LATIN');
 INSERT INTO grade_scale VALUES(3, 'APPROVED_REJECTED');
 
-DROP TABLE IF EXISTS grade;
+DROP TABLE IF EXISTS grade CASCADE;
 CREATE TABLE grade (
   id INTEGER NOT NULL,
   name VARCHAR(32) NOT NULL,
@@ -42,7 +42,6 @@ ALTER TABLE exam ADD grade_scale_id INTEGER;
 UPDATE exam SET grade_scale_id=1 WHERE (grading IS NULL or grading='0-5');
 UPDATE exam SET grade_scale_id=2 WHERE grading='Improbatur-Laudatur';
 UPDATE exam SET grade_scale_id=3 WHERE grading='Hyväksytty-Hylätty';
-ALTER TABLE exam DROP COLUMN grading;
 ALTER TABLE exam ADD CONSTRAINT fk_exam_grade_scale FOREIGN KEY (grade_scale_id) REFERENCES grade_scale(id);
 
 ALTER TABLE exam ADD grade_id INTEGER;
@@ -63,11 +62,7 @@ UPDATE exam SET grade_id=14 WHERE grade='Magna cum laude approbatur';
 UPDATE exam SET grade_id=15 WHERE grade='Eximia cum laude approbatur';
 UPDATE exam SET grade_id=16 WHERE grade='Laudatur';
 
-UPDATE exam SET grade_scale_id=1 WHERE (grading IS NULL OR grading='0-5');
-UPDATE exam SET grade_scale_id=2 WHERE grading='Improbatur-Laudatur';
-UPDATE exam SET grade_scale_id=3 WHERE grading='Hyväksytty-Hylätty';
 ALTER TABLE exam DROP COLUMN grading;
-ALTER TABLE exam ADD CONSTRAINT fk_exam_grade_scale FOREIGN KEY (grade_scale_id) REFERENCES grade_scale(id);
 ALTER TABLE exam ADD CONSTRAINT fk_exam_grade FOREIGN KEY (grade_id) REFERENCES grade(id);
 
 # --- !Downs
