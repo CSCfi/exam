@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import play.libs.F;
 import play.libs.Json;
@@ -124,9 +123,9 @@ public class AdminReservationController extends SitnetController {
                                          F.Option<Long> examId, Long start, Long end) {
 
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class).where();
-        DateMidnight startDate = new DateMidnight(start);
+        DateTime startDate = new DateTime(start).withTimeAtStartOfDay();
         query = query.ge("reservation.startAt", startDate.toDate());
-        DateTime endDate = new DateMidnight(end).plusDays(1).toDateTime();
+        DateTime endDate = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
         query = query.lt("reservation.endAt", endDate.toDate());
         if (studentId.isDefined()) {
             query = query.eq("user.id", studentId.get());

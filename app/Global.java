@@ -359,8 +359,8 @@ public class Global extends GlobalSettings {
         }
 
         @Override
-        public Promise<SimpleResult> call(Http.Context context) throws Throwable {
-            Promise<SimpleResult> promise = delegate.call(context);
+        public Promise<Result> call(Http.Context context) throws Throwable {
+            Promise<Result> promise = delegate.call(context);
             Http.Response response = context.response();
 
             for (Map.Entry<String, String> entry : headers.entrySet()) {
