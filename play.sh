@@ -1,3 +1,2 @@
 #!/bin/bash
-export TZ="UTC"
-sudo -u sitnet /opt/sitnet/env/play/current/play -Dconfig.resource=production.conf -DapplyEvolutions.default=true
+sudo -u sitnet /opt/sitnet/env/activator/current/activator -Dconfig.file=conf/production.conf -DapplyEvolutions.default=true
