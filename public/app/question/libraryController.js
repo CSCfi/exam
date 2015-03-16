@@ -137,6 +137,17 @@
                 return text ? decodeHtml(text): "";
             };
 
+            $scope.longTextIfNotMath = function (text) {
+
+                if(text && text.length > 0 && text.indexOf("math-tex") === -1) {
+                    // remove HTML tags
+                    var str = String(text).replace(/<[^>]+>/gm, '');
+                    // shorten string
+                    return decodeHtml(str);
+                }
+                return "";
+            };
+
             $scope.createQuestion = function(type) {
                 var newQuestion;
                 newQuestion = {
@@ -162,6 +173,11 @@
                 }
             };
 
-
+            $scope.verticalText = function(textClass) {
+                console.log($translate('sitnet_add_all'));
+                var text = $translate('sitnet_add_all');
+                console.log(text);
+                document.getElementsByClassName(textClass)[0].innerHTML = '<span>' + text.split('').join('</span><span>') + '</span>';
+            };
         }]);
 }());

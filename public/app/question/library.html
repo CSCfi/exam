@@ -41,7 +41,7 @@
                     </div>
                 </h4>
             </div>
-            <div class="library" ng-controller="LibraryCtrl" ng-hide="session.minimizeLibrary">
+            <div class="library" ng-controller="LibraryCtrl" style="display: inline-block;" ng-hide="session.minimizeLibrary">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="library-name">
@@ -67,7 +67,7 @@
                                 </li>
                                 <li ng-repeat="course in courses | filter:limitCourses" role="presentation"
                                     ng-class="course.filtered ? 'active': ''" ng-click="setCourseFilter(course)">
-                                    <a role="menuitem">{{course.name | truncate:30}}</a>
+                                    <a role="menuitem" title="{{course.name}}">{{course.name | truncate:30}}</a>
                                 </li>
                             </ul>
                         </span>
@@ -86,7 +86,7 @@
                                 </li>
                                 <li ng-repeat="exam in exams | filter:limitExams" role="presentation"
                                     ng-class="exam.filtered ? 'active': ''" ng-click="setExamFilter(exam)">
-                                    <a role="menuitem">{{exam.name | truncate:30}}</a>
+                                    <a role="menuitem" title="{{exam.name}}">{{exam.name | truncate:30}}</a>
                                 </li>
                             </ul>
                         </span>
@@ -106,7 +106,7 @@
                                 </li>
                                 <li ng-repeat="tag in tags | filter:limitTags" role="presentation"
                                     ng-class="tag.filtered ? 'active': ''" ng-click="setTagFilter(tag)">
-                                    <a role="menuitem">{{tag.name | truncate:30}}</a>
+                                    <a role="menuitem" title="{{tag.name}}">{{tag.name | truncate:30}}</a>
                                 </li>
                             </ul>
                         </span>
@@ -132,18 +132,24 @@
                         <i class="fa fa-search fa-fw"></i>
                     </div>
                 </div>
-                <ul class="list-group results">
-                    <li class="library-question-header-inactive" ng-repeat="question in questions | filter:selected"
-                        draggable="question" draggable-target=".sortable">
-                        <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
-                        </div>
-                        <div class="library-row-text-wrap">
-                            <div class="library-row-text" mathjax ng-bind-html="shortText(question.question,55)"></div>
-                        </div>
-                    </li>
-                </ul>
+                <div style="max-width:100%;">
+                    <ul class="questions-wrapper"><!-- list-group results -->
+                        <li style="width:5%;" draggable="questions | filter:selected" draggable-target=".sortable" class="drag-all-wrap">
+                            <span class="vertical-text" ng-init="verticalText('vertical-text')"></span>
+                        </li>
+                        <li class="question-list-wrapper">
+                            <div class="library-question-header-inactive" ng-repeat="question in questions | filter:selected"
+                                draggable="question" draggable-target=".sortable">
+                                <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
+                                </div>
+                                <div class="library-row-text-wrap">
+                                    <div class="library-row-text" mathjax ng-bind-html="shortText(question.question,55)" title="{{longTextIfNotMath(question.question)}}"></div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 </div>
-

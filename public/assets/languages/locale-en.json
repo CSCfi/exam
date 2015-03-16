@@ -506,5 +506,6 @@
   "sitnet_remove_course_from_exam": "Unattach the exam from the course",
   "sitnet_continue": "Continue",
   "sitnet_no_suitable_enrolment_found": "You already have one reservation for this exam. You can make another reservation only after taking the exam or by cancelling the reservation.",
-  "sitnet_added_to_categories": "Tags attached to the question"
+  "sitnet_added_to_categories": "Tags attached to the question",
+  "sitnet_add_all": "Add all"
 }

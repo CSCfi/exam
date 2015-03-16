@@ -74,9 +74,7 @@
                     "Loppusuoritus"
                 ];
 
-                if (($routeParams.id === undefined) && !$scope.user.isStudent) {
-                    $scope.exams = ExamRes.exams.query();
-                } else {
+                var initializeExam = function(){
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
                             $scope.newExam = exam;
@@ -96,6 +94,12 @@
                             toastr.error(error.data);
                         }
                     );
+                };
+
+                if (($routeParams.id === undefined) && !$scope.user.isStudent) {
+                    $scope.exams = ExamRes.exams.query();
+                } else {
+                    initializeExam();
                 }
 
                 $scope.hostname = SettingsResource.hostname.get();
@@ -636,21 +640,47 @@
                 };
 
                 $scope.insertQuestion = function (section, object, to) {
-                    var question = angular.copy(object);
-                    var sectionQuestion = {question: question};
-                    ExamRes.sectionquestions.insert({
-                            eid: $scope.newExam.id,
-                            sid: section.id,
-                            seq: to,
-                            qid: question.id
-                        }, function (sec) {
-                            DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to);
-                            toastr.info($translate("sitnet_question_added"));
-                            updateSection(sec); // needs manual update as the scope is somehow not automatically refreshed
-                        }, function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+
+                    if(object instanceof Array) {
+                        var questions = angular.copy(object).reverse();
+
+                        var sectionQuestions = questions.map(function(question){ return question.id; }).join(",");
+
+                        ExamRes.sectionquestionsmultiple.insert({
+                                eid: $scope.newExam.id,
+                                sid: section.id,
+                                seq: to,
+                                questions: sectionQuestions
+                            }, function (sec) {
+                                toastr.info($translate("sitnet_question_added"));
+                                var promises = [];
+                                promises.push(DragDropHandler.addObject(sectionQuestions, section.sectionQuestions, to));
+                                $q.all(promises).then(function(){
+                                    initializeExam();
+                                });
+
+                            }, function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+
+                    } else {
+                        var question = angular.copy(object);
+                        var sectionQuestion = {question: question};
+                        ExamRes.sectionquestions.insert({
+                                eid: $scope.newExam.id,
+                                sid: section.id,
+                                seq: to,
+                                qid: question.id
+                            }, function (sec) {
+                                DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to);
+                                toastr.info($translate("sitnet_question_added"));
+                                updateSection(sec); // needs manual update as the scope is somehow not automatically refreshed
+                            }, function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
                 };
 
                 //http://draptik.github.io/blog/2013/07/28/restful-crud-with-angularjs/
