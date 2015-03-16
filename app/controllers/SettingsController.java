@@ -72,7 +72,7 @@ public class SettingsController  extends SitnetController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public static Result isExamGradeScaleOverridable() {
         ObjectNode node = Json.newObject();
-        node.put("overridable", SitnetUtil.isExamGradeScaleOverridable());
+        node.put("overridable", SitnetUtil.isCourseGradeScaleOverridable());
         return ok(Json.toJson(node));
     }
 

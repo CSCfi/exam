@@ -38,8 +38,8 @@ public class SitnetUtil {
         return values;
     }
 
-    public static Boolean isExamGradeScaleOverridable() {
-        return ConfigFactory.load().getBoolean("sitnet.exam.grading.overridable");
+    public static Boolean isCourseGradeScaleOverridable() {
+        return ConfigFactory.load().getBoolean("sitnet.course.gradescale.overridable");
     }
 
     public static DateTimeZone getDefaultTimeZone() {

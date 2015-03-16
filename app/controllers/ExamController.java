@@ -503,7 +503,7 @@ public class ExamController extends SitnetController {
             }
 
             String examName = df.get("name");
-            boolean shared = Boolean.parseBoolean(df.get("shared"));
+            Boolean shared = Boolean.parseBoolean(df.get("shared"));
             String duration = df.get("duration");
             Integer grading = df.get("grading") == null ? null : Integer.parseInt(df.get("grading"));
             String answerLanguage = df.get("answerLanguage");
@@ -520,9 +520,7 @@ public class ExamController extends SitnetController {
                 exam.setState(state);
             }
 
-            if (shared) {
-                exam.setShared(shared);
-            }
+            exam.setShared(shared);
 
             Long start = new Long(df.get("examActiveStartDate"));
             Long end = new Long(df.get("examActiveEndDate"));
@@ -586,7 +584,7 @@ public class ExamController extends SitnetController {
 
     private static void updateGrading(Exam exam, int grading) {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
-        boolean canOverrideGrading = SitnetUtil.isExamGradeScaleOverridable();
+        boolean canOverrideGrading = SitnetUtil.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
             exam.setGradeScale(Ebean.find(GradeScale.class, grading));
         }
@@ -740,7 +738,7 @@ public class ExamController extends SitnetController {
         Exam exam = Ebean.find(Exam.class, eid);
         if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
             ExamSection section = Ebean.find(ExamSection.class, sid);
-            if (from == to) {
+            if (from.equals(to)) {
                 return ok();
             }
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
@@ -770,10 +768,12 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result insertQuestion(Long eid, Long sid, Integer seq, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
+        ExamSection section = Ebean.find(ExamSection.class, sid);
+        if (section == null) {
+            return notFound();
+        }
         if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
-
-            ExamSection section = Ebean.find(ExamSection.class, sid);
             AbstractQuestion clone = clone(question.getType(), question.getId());
             if (clone == null) {
                 return notFound("Question type not specified");
@@ -812,13 +812,12 @@ public class ExamController extends SitnetController {
     public static Result insertMultipleQuestions(Long eid, Long sid, Integer seq, String questions) {
 
         Exam exam = Ebean.find(Exam.class, eid);
+        ExamSection section = Ebean.find(ExamSection.class, sid);
+        if (section == null) {
+            return notFound();
+        }
         if (SitnetUtil.isOwner(exam) || UserController.getLoggedUser().hasRole("ADMIN")) {
-
-            ExamSection section = Ebean.find(ExamSection.class, sid);
-
-            for(String s : questions.split(",")) {
-
-                section = Ebean.find(ExamSection.class, sid);
+            for (String s : questions.split(",")) {
                 AbstractQuestion question = Ebean.find(AbstractQuestion.class, Long.parseLong(s));
                 AbstractQuestion clone = clone(question.getType(), question.getId());
                 if (clone == null) {
@@ -1278,7 +1277,10 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result sendInspectionMessage(Long eid, String msg) {
 
-        final Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null) {
+            return notFound();
+        }
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("user")
                 .fetch("exam")
@@ -1298,10 +1300,6 @@ public class ExamController extends SitnetController {
             Logger.error("Failure to access message template on disk", e);
             return internalServerError("sitnet_internal_error");
         }
-        if (exam == null) {
-            return notFound();
-        }
-
         return ok();
     }
 
