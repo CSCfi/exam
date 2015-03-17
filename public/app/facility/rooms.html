@@ -84,7 +84,7 @@
                     <span class="sitnet-text-medium">{{ 'sitnet_exam_room_address' | translate }}:</span>
                 </div>
                 <div class="col-md-10">
-                    <span class="room-info-span-text">{{ room.mailAddress.street }}, {{ room.mailAddress.zip }} {{ room.mailAddress.city }}</span>
+                    <span class="room-info-span-text">{{ displayAddress(room.mailAddress) }}</span>
                 </div>
             </div>
 

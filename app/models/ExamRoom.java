@@ -42,8 +42,8 @@ public class ExamRoom extends Model {
     @OneToOne
     private Organisation organization;
 
-    @OneToOne
-    private MailAddress mailAddress;
+    @OneToOne(cascade = CascadeType.ALL)
+    private MailAddress mailAddress = new MailAddress();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room", fetch = FetchType.EAGER)
     private List<DefaultWorkingHours> defaultWorkingHours;

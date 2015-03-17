@@ -779,7 +779,7 @@
                 };
 
                 $scope.shortText = function (text) {
-                    // reomve HTML tags
+                    // remove HTML tags
                     return String(text).replace(/<[^>]+>/gm, '');
                 };
 

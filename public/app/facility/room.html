@@ -66,18 +66,6 @@
                             </span>
                 </div>
             </div>
-
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_room_organization' | translate}}</div>
-                <div class="input-group">
-                    <input type="text" class="form-control ng-pristine ng-valid" ng-model="roomInstance.organization.name"
-                           ui-change="updateRoom(roomInstance)">
-                                <span class="input-group-addon"
-                                      ng-click="toaster.info('Organisaatio, joka tenttitilan omistaa');">
-                                    <i class="fa fa-question-circle fa-fw"></i>
-                                </span>
-                </div>
-            </div>
         </div>
         <div class="base row col-md-12">
             <h2 class="header-text generic-header">{{'sitnet_room_default_working_hours' | translate}}</h2>
@@ -120,8 +108,8 @@
 
             <div class="sitnet-info-text">{{'sitnet_room_transition_time' | translate}} ({{'sitnet_minutes' | translate}})</div>
             <div class="input-group">
-                <input type="text" name="transitionTime" class="form-control ng-pristine ng-valid" ng-model="roomInstance.transitionTime"
-                       ui-change="roomForm.transitionTime.$valid ? updateRoom(roomInstance) : false" required ng-pattern="/^\d*(\.\d+)?$/">
+                <input type="number" min=0 max=59 name="transitionTime" class="form-control ng-pristine ng-valid" ng-model="roomInstance.transitionTime"
+                       ui-change="roomForm.transitionTime.$valid ? updateRoom(roomInstance) : false" required>
                     <span class="input-group-addon" popover-placement="top" popover-trigger="mouseenter" popover="Siirtymäaika on jakso, joka varataan tenttisuoritusten välille.">
                         <i class="fa fa-question-circle fa-fw"></i>
                     </span>
@@ -134,37 +122,13 @@
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}</div>
             <div>
- <!--
-             <div ng-repeat='access in roomInstance.accessibility'>{{access.name}}<a ng-click="removeAccessibility(access)"> poista</a></a></div>
-
-             <input type="text" class="form-control ng-pristine ng-valid" ng-model="newAccessibility">
-                <button ng-click="addAccessibility(newAccessibility)" class="btn btn-sm btn-default">
-                    {{'sitnet_add' | translate}}
-                </button>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" ng-model="roomInstance.accessible" ng-change="updateRoom(roomInstance)">
-                        {{'sitnet_room_accessible' | translate}}
-                    </label>
-                </div>
-            </div>       -->
-                                <multiselect class="input-xlarge"
-                                 multiple="true"
-                                 ng-model="roomInstance.accessibility"
-                                 header="{{'sitnet_select' | translate}}"
-                                 multiheader="selectedAccessibilities()"
-                                 options="access.name for access in accessibilities"
-                                 change="updateAccessibility(roomInstance)" ></multiselect>
-
-            <!--div class="input-group">
-                <textarea class="form-control ng-pristine ng-valid" ng-model="roomInstance.accessibilityInfo"
-                          ui-change="updateRoom(roomInstance)">
-                </textarea>
-                            <span class="input-group-addon"
-                                  ng-click="toaster.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">
-                                <i class="fa fa-question-circle fa-fw"></i>
-                            </span>
-            </div-->
+                <multiselect class="input-xlarge"
+                 multiple="true"
+                 ng-model="roomInstance.accessibility"
+                 header="{{'sitnet_select' | translate}}"
+                 multiheader="selectedAccessibilities()"
+                 options="access.name for access in accessibilities"
+                 change="updateAccessibility(roomInstance)" ></multiselect>
           </div>
     </div>
 
@@ -249,18 +213,6 @@
         </div>
     </div>
 
-    <!-- Exam room machines
-    <div>
-        <h3>{{'sitnet_exam_room_machines' | translate }}
-            <span>
-                <button ng-click="addNewMachine(roomInstance)" class="btn btn-primary" style="float: right">{{'sitnet_create_new' | translate}}</button>
-            </span>
-        </h3>
-    </div>
-    <div id="reservation" class="machines-section" ng-include="machineTemplate" ng-repeat="machine in roomInstance.examMachines"
-         style="padding-left: 1em; margin-bottom: 2em">
-    </div>
-    -->
     <!-- Button row -->
     <div class="row base" style="padding:2em 0;">
         <div class="col-md-6 col-md-offset-5">
