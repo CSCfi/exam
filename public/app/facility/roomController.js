@@ -174,25 +174,21 @@
                     return arr;
                 };
 
-                if ($scope.user.isAdmin || $scope.user.isTeacher) {
-                    if ($routeParams.id === undefined) {
-                        $scope.rooms = RoomResource.rooms.query(function () {
-                            if ($scope.rooms) {
-                                angular.forEach($scope.rooms, function (room) {
-                                    if (room.examMachines) {
-                                        angular.forEach(room.machines, function (machine, index) {
-                                            if (machine.isArchived()) {
-                                                room.machines.slice(index, 1);
-                                            }
-                                        });
-                                    }
+                if ($scope.user.isAdmin) {
+                    if (!$routeParams.id) {
+                        RoomResource.rooms.query(function (rooms) {
+                            $scope.rooms = rooms;
+                            angular.forEach($scope.rooms, function (room) {
+                                room.examMachines = room.examMachines.filter(function(machine) {
+                                   return !machine.archived;
                                 });
-                            }
+                            });
                         });
                     } else {
                         RoomResource.rooms.get({id: $routeParams.id},
                             function (room) {
                                 $scope.times = times;
+                                room.transitionTime = parseInt(room.transitionTime || 0); // TODO: tt should be int in db
                                 room.defaultWorkingHours.forEach(function (daySlot) {
                                     var timeSlots = slotToTimes(daySlot);
                                     setSelected(daySlot.day, timeSlots);
@@ -208,6 +204,7 @@
                                 }
 
                                 $scope.roomInstance = room;
+
 
                                 if (!isAnyExamMachines())
                                     toastr.error($translate('sitnet_room_has_no_machines_yet'));
@@ -254,7 +251,6 @@
                 $scope.createExamRoom = function () {
                     RoomResource.draft.get(
                         function (room) {
-                            $scope.roomInstance = room;
                             toastr.info($translate("sitnet_room_draft_created"));
                             $location.path("/rooms/" + room.id);
                         }, function (error) {
@@ -337,7 +333,7 @@
                 $scope.selectedAccessibilities = function () {
                     return $scope.roomInstance.accessibility.map(function (software) {
                         return software.name;
-                    }).join(",");
+                    }).join(", ");
                 };
 
                 $scope.updateAccessibility = function (room) {
@@ -359,7 +355,7 @@
                     };
 
                     ExamMachineResource.insert({id: room.id}, newMachine, function (machine) {
-                        toastr.info($translate("sitnet_computer_added"));
+                        toastr.info($translate("sitnet_machine_added"));
                         room.examMachines.push(machine);
                     }, function (error) {
                         toastr.error(error.data);
@@ -600,6 +596,14 @@
                 $scope.isArchived = function (machine) {
                     return machine.isArchived() === false;
                 };
+
+                $scope.displayAddress = function(address) {
+
+                    if (!address || (!address.street && !address.city && !address.zip)) return "N/A";
+                    var street = address.street ? address.street + ", " : "";
+                    var city = (address.city || "").toUpperCase();
+                    return street + address.zip + " " + city;
+                }
 
             }]);
 }());

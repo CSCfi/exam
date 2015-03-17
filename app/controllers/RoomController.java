@@ -6,10 +6,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
 import exceptions.MalformedDataException;
-import models.Accessibility;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.MailAddress;
+import models.*;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
@@ -66,18 +63,6 @@ public class RoomController extends SitnetController {
         examRoom.setName("Kirjoita tenttitilan nimi tähän");
         examRoom.setState("SAVED");
         examRoom.save();
-
-        MailAddress mailAddress = new MailAddress();
-        mailAddress.save();
-        examRoom.setMailAddress(mailAddress);
-
-        ExamMachine examMachine = new ExamMachine();
-        examMachine.setName("Kone");
-        examMachine.save();
-        examRoom.getExamMachines().add(examMachine);
-
-        examRoom.save();
-
         return ok(Json.toJson(examRoom));
     }
 
@@ -128,8 +113,11 @@ public class RoomController extends SitnetController {
     @Restrict(@Group({"ADMIN"}))
     public static Result updateExamRoomAddress(Long id) throws MalformedDataException {
         MailAddress address = bindForm(MailAddress.class);
-        address.update();
-
+        MailAddress existing = Ebean.find(MailAddress.class, id);
+        existing.setCity(address.getCity());
+        existing.setStreet(address.getStreet());
+        existing.setZip(address.getZip());
+        existing.update();
         return ok(Json.toJson(address));
     }
 
