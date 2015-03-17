@@ -154,6 +154,7 @@ public class StudentExamController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", uid)
+                .gt("exam.examActiveEndDate", new Date())
                 .disjunction()
                 .gt("reservation.endAt", new Date())
                 .isNull("reservation")

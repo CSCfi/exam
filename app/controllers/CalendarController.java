@@ -4,6 +4,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateTime;
@@ -144,7 +145,7 @@ public class CalendarController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) throws NotFoundException {
+    public static Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) {
         Exam exam = getEnrolledExam(examId);
         if (exam == null) {
             return notFound("sitnet_error_enrolment_not_found");
@@ -156,7 +157,14 @@ public class CalendarController extends SitnetController {
         Map<String, List<FreeTimeSlot>> slots = new HashMap<>();
         if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString()) &&
                 isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {
-            LocalDate searchDate = parseSearchDate(day, exam);
+            LocalDate searchDate;
+            try {
+                searchDate = parseSearchDate(day, exam);
+            } catch (NotFoundException e) {
+                ObjectNode node = Json.newObject();
+                node.put("cause", "EXAM_NOT_ACTIVE_TODAY");
+                return notFound(Json.toJson(node));
+            }
             // users reservations starting from now
             List<Reservation> reservations = Ebean.find(Reservation.class)
                     .where()
@@ -232,8 +240,7 @@ public class CalendarController extends SitnetController {
         }
         // if searching for month(s) after exam's end month -> no can do
         if (searchDate.isAfter(examEndDate)) {
-            throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) ending month (%s)",
-                    searchDate, exam.getId(), examEndDate));
+            throw new NotFoundException();
         }
         // Do not execute search before exam starts
         if (searchDate.isBefore(examStartDate)) {

@@ -43,9 +43,12 @@
                             });
 
                             $scope.daySlots = reply.data;
-                        }, function() {
-                            // TODO: more fine grained error handling
-                            toastr.error($translate('sitnet_no_suitable_enrolment_found'));
+                        }, function(error) {
+                            if (error.data && error.data.cause === 'EXAM_NOT_ACTIVE_TODAY') {
+                                toastr.error($translate('sitnet_exam_not_active_now'));
+                            } else {
+                                toastr.error($translate('sitnet_no_suitable_enrolment_found'));
+                            }
                             $scope.daySlots = [];
                         });
                 };

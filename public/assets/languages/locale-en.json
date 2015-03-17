@@ -508,5 +508,6 @@
   "sitnet_no_suitable_enrolment_found": "You already have one reservation for this exam. You can make another reservation only after taking the exam or by cancelling the reservation.",
   "sitnet_added_to_categories": "Tags attached to the question",
   "sitnet_reservation": "Reservation",
-  "sitnet_add_all": "Add all"
+  "sitnet_add_all": "Add all",
+  "sitnet_exam_not_active_now": "Exam period does not cover the selected date"
 }
