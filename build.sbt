@@ -18,7 +18,8 @@ libraryDependencies ++= Seq(javaJdbc, javaEbean, cache , javaWs,
   "org.apache.poi" % "poi-ooxml" % "3.11",
   "net.sf.opencsv" % "opencsv" % "2.3",
   "com.google.code.gson" % "gson" % "2.2.4" % "test",
-  "com.jayway.jsonpath" % "json-path" % "1.2.0" % "test"
+  "com.jayway.jsonpath" % "json-path" % "1.2.0" % "test",
+  "com.icegreen" % "greenmail" % "1.4.0" % "test"
 )
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
