@@ -567,7 +567,7 @@
                         errors.duration = $translate('sitnet_exam_duration_missing');
                     }
 
-                    if (exam.grading === undefined) {
+                    if ($scope.newExam.gradeScale === undefined) {
                         errors.grading = $translate('sitnet_exam_grade_scale_missing');
                     }
 
