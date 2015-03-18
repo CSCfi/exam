@@ -22,8 +22,20 @@
                     <span class="text col-md-8">{{ reviewedExam.course.credits }}</span>
                 </div>
                 <div class="info-row col-md-12 info-column">
+                    <span class="header col-md-4">{{'sitnet_total_score' | translate}}:</span>
+                    <span class="text col-md-8">{{ reviewedExam.totalScore}} / {{reviewedExam.maxScore}}</span>
+                </div>
+                <div class="info-row col-md-12 info-column">
+                    <span class="header col-md-4">{{'sitnet_approved' | translate}}:</span>
+                    <span class="text col-md-8">{{ reviewedExam.approvedAnswerCount}}</span>
+                </div>
+                <div class="info-row col-md-12 info-column">
+                    <span class="header col-md-4">{{'sitnet_rejected' | translate}}:</span>
+                    <span class="text col-md-8">{{ reviewedExam.rejectedAnswerCount}}</span>
+                </div>
+                <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{'sitnet_exam_grade' | translate}}:</span>
-                    <span class="text col-md-8">{{ reviewedExam.grade }}</span>
+                    <span class="text col-md-8">{{ reviewedExam.grade.displayName }}</span>
                 </div>
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{'sitnet_exam_graded_by' | translate}}:</span>
@@ -33,14 +45,21 @@
                     <span class="header col-md-4">{{'sitnet_teachers_comment' | translate}}:</span>
                     <span class="text col-md-8" ng-bind-html="reviewedExam.examFeedback.comment"></span>
                 </div>
+                <div class="col-md-12 top-padding-2">
+                    <a class="fa-stack pointer" ng-click="exitFeedback()">
+                        <i class="fa fa-stop fa-stack-2x sitnet-text-theme"></i>
+                        <i class="fa fa-sign-out sitnet-white fa-stack-1x"></i>
+                    </a>
+                    <span class="sitnet-text-theme icon_fix pointer" ng-click="exitFeedback()">{{'sitnet_exit_feedback' | translate}}</span>
+                </div>
             </div>
         </div>
-        <div class="top-padding-2 col-md-5 pull-right">
-            <a class="col-md-12 fa-stack pointer" ng-click="exitFeedback()">
+        <!--div class="col-md-5 pull-right">
+            <a class="fa-stack pointer" ng-click="exitFeedback()">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-theme"></i>
                 <i class="fa fa-sign-out sitnet-white fa-stack-1x"></i>
             </a>
             <span class="sitnet-text-theme icon_fix pointer" ng-click="exitFeedback()">{{'sitnet_exit_feedback' | translate}}</span>
-        </div>
+        </div-->
     </div>
 </div>

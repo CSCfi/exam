@@ -100,14 +100,24 @@ public class StudentExamController extends SitnetController {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("examFeedback")
+                .fetch("examRecord")
+                .fetch("examRecord.examScore")
+                .fetch("examSections")
+                .fetch("examSections.sectionQuestions")
+                .fetch("examSections.sectionQuestions.question")
                 .where()
                 .eq("id", id)
                 .findUnique();
-
+        exam.setMaxScore();
+        exam.setApprovedAnswerCount();
+        exam.setRejectedAnswerCount();
+        exam.setTotalScore();
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, grade, examActiveStartDate, examActiveEndDate, duration, gradeScale, " +
-                "room, course, creator, examFeedback, gradedByUser, enrollment, enrollInstruction");
+                "room, course, creator, examFeedback, gradedByUser, enrollment, totalScore, maxScore, rejectedAnswerCount," +
+                "approvedAnswerCount, enrollInstruction");
+        options.setPathProperties("grade", "name");
         options.setPathProperties("course", "code, name, level, type, credits");
         options.setPathProperties("creator", "firstName, lastName, email");
         options.setPathProperties("examFeedback", "comment");
