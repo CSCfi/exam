@@ -39,7 +39,8 @@ public class User extends Model implements Subject {
     private String employeeNumber;
 
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examOwners")
-    private List<Exam> teacherExams;
+    @JoinTable(name="exam_owner", joinColumns = @JoinColumn(name="user_id"))
+    private List<Exam> ownedExams;
 
     @ManyToMany(cascade = CascadeType.ALL)
     private List<SitnetRole> roles = new ArrayList<>();

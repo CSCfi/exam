@@ -37,6 +37,7 @@ public class Exam extends SitnetModel {
     private ExamType examType;
 
     @ManyToMany
+    @JoinTable(name="exam_owner", inverseJoinColumns = @JoinColumn(name="user_id"))
     private List<User> examOwners;
 
     // Instruction written by teacher, shown during exam
