@@ -33,6 +33,9 @@ public class Exam extends SitnetModel {
     @ManyToOne
     private ExamType examType;
 
+    @ManyToMany
+    private List<User> examOwners;
+
     // Instruction written by teacher, shown during exam
     @Column(columnDefinition = "TEXT")
     private String instruction;
@@ -145,6 +148,14 @@ public class Exam extends SitnetModel {
             }
         }
         return total;
+    }
+
+    public List<User> getExamOwners() {
+        return examOwners;
+    }
+
+    public void setExamOwners(List<User> examOwners) {
+        this.examOwners = examOwners;
     }
 
     @Transient
