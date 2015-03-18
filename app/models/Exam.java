@@ -2,6 +2,9 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.answers.MultipleChoiseAnswer;
+import models.questions.AbstractQuestion;
+import models.questions.EssayQuestion;
 import org.springframework.beans.BeanUtils;
 import util.SitnetUtil;
 
@@ -54,17 +57,20 @@ public class Exam extends SitnetModel {
     @ManyToOne
     private Exam parent;
 
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "exam")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
     private List<ExamEnrolment> examEnrolments = new ArrayList<>();
 
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "exam")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
     private List<ExamParticipation> examParticipations = new ArrayList<>();
 
-    @OneToMany(cascade=CascadeType.ALL, mappedBy = "exam")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
     private List<ExamInspection> examInspections = new ArrayList<>();
+
+    @OneToOne(mappedBy = "exam")
+    private ExamRecord examRecord;
 
     @Column(length = 32, unique = true)
     private String hash;
@@ -85,6 +91,13 @@ public class Exam extends SitnetModel {
 
     // Custom course credit - if teachers changes course credit
     private Double customCredit;
+
+    // Aggregate properties, required as fields by Ebean
+    private Double totalScore;
+    private Double maxScore;
+    private int rejectedAnswerCount;
+    private int approvedAnswerCount;
+
 
     // Cloned - needed as field for serialization :(
     private Boolean cloned;
@@ -139,11 +152,22 @@ public class Exam extends SitnetModel {
     @Transient
     public Double getTotalScore() {
         double total = 0;
-        if (examSections != null) {
-            for (ExamSection section : examSections) {
-                for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                    Double score = esq.getQuestion().getEvaluatedScore();
-                    total += score == null ? 0 : score;
+        for (ExamSection section : examSections) {
+            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                AbstractQuestion question = esq.getQuestion();
+                Double evaluatedScore = null;
+                if (question instanceof EssayQuestion) {
+                    EssayQuestion essayQuestion = (EssayQuestion) question;
+                    if (essayQuestion.getEvaluationType().equals("Points"))
+                    {
+                        evaluatedScore = essayQuestion.getEvaluatedScore();
+                    }
+                } else if (question.getAnswer() != null) {
+                    MultipleChoiseAnswer answer = (MultipleChoiseAnswer) question.getAnswer();
+                    evaluatedScore = answer.getOption().isCorrectOption() ? question.getMaxScore() : 0;
+                }
+                if (evaluatedScore != null) {
+                    total += evaluatedScore;
                 }
             }
         }
@@ -156,6 +180,82 @@ public class Exam extends SitnetModel {
 
     public void setExamOwners(List<User> examOwners) {
         this.examOwners = examOwners;
+    }
+
+    @Transient
+    public Double getMaxScore() {
+        double total = 0;
+        for (ExamSection section : examSections) {
+            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                AbstractQuestion question = esq.getQuestion();
+                double maxScore = 0;
+                if (question instanceof EssayQuestion) {
+                    EssayQuestion essayQuestion = (EssayQuestion) question;
+                    if (essayQuestion.getEvaluationType().equals("Points"))
+                    {
+                        maxScore = essayQuestion.getMaxScore();
+                    }
+                } else {
+                    maxScore = question.getMaxScore();
+                }
+                total += maxScore;
+            }
+        }
+        return total;
+    }
+
+    @Transient
+    public int getApprovedAnswerCount() {
+        int total = 0;
+        for (ExamSection section : examSections) {
+            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                AbstractQuestion question = esq.getQuestion();
+                if (question instanceof EssayQuestion) {
+                    EssayQuestion essayQuestion = (EssayQuestion) question;
+                    if (essayQuestion.getEvaluationType().equals("Select") && essayQuestion.getEvaluatedScore() == 1) {
+                        total++;
+                    }
+                }
+            }
+        }
+        return total;
+    }
+
+    @Transient
+    public int getRejectedAnswerCount() {
+        int total = 0;
+        for (ExamSection section : examSections) {
+            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                AbstractQuestion question = esq.getQuestion();
+                if (question instanceof EssayQuestion) {
+                    EssayQuestion essayQuestion = (EssayQuestion) question;
+                    if (essayQuestion.getEvaluationType().equals("Points") && essayQuestion.getEvaluatedScore() == 0) {
+                        total++;
+                    }
+                }
+            }
+        }
+        return total;
+    }
+
+
+    // This is dumb, required to be explicitly set by EBean
+    public void setTotalScore() {
+        totalScore = getTotalScore();
+    }
+    // This is dumb, required to be explicitly set by EBean
+    public void setMaxScore() {
+        maxScore = getMaxScore();
+    }
+
+    // This is dumb, required to be explicitly set by EBean
+    public void setRejectedAnswerCount() {
+        rejectedAnswerCount = getRejectedAnswerCount();
+    }
+
+    // This is dumb, required to be explicitly set by EBean
+    public void setApprovedAnswerCount() {
+        approvedAnswerCount = getApprovedAnswerCount();
     }
 
     @Transient
@@ -363,7 +463,7 @@ public class Exam extends SitnetModel {
 
     public Exam copy() {
         Exam clone = new Exam();
-        BeanUtils.copyProperties(this, clone, new String[] {"id", "examSections", "examEnrolments", "examParticipations",
+        BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "examEnrolments", "examParticipations",
                 "examInspections", "creator", "created"});
         clone.setParent(this);
         SitnetUtil.setCreator(clone);
