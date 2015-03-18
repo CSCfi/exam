@@ -289,6 +289,11 @@
 
                 };
 
+                $scope.selectIfDefault = function(value, $event) {
+                    if(value === $translate('sitnet_default_option_description')) {
+                        $event.target.select();
+                    }
+                };
 
                 $scope.updateOption = function (option) {
                     QuestionRes.options.update({oid: option.id}, option,
