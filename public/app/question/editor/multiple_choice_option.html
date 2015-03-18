@@ -2,7 +2,7 @@
     <div class="question-editor-option">
         <div class="col-md-8 col-md-offset-1">
             <input type="text" focus-on="opt{{option.id}}" class="form-group editable multiplechoice-question-input"
-                ng-model="option.option" ui-blur="updateOption(option)" placeholder="{{'sitnet_question_new_option' | translate}}">
+                ng-model="option.option" ui-blur="updateOption(option)" ng-click="selectIfDefault(option.option, $event)" placeholder="{{'sitnet_question_new_option' | translate}}">
         </div>
 
         <div class="col-md-2">

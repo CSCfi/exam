@@ -9,6 +9,8 @@
             $scope.exams = [];
             $scope.tags = [];
 
+            var text = $translate('sitnet_add_all');
+
             $scope.getTags = function() {
                 var courses = $scope.courses.filter(function(course) {
                     return course.filtered;
@@ -183,10 +185,15 @@
             };
 
             $scope.verticalText = function(textClass) {
-                console.log($translate('sitnet_add_all'));
-                var text = $translate('sitnet_add_all');
-                console.log(text);
-                document.getElementsByClassName(textClass)[0].innerHTML = '<span>' + text.split('').join('</span><span>') + '</span>';
+                var text = "Add all";
+                $scope.$watch(
+                    function() {
+                        text = $translate('sitnet_add_all');
+                        return text;
+                    },
+                    function(data) { document.getElementsByClassName(textClass)[0].innerHTML = '<span>' + text.split('').join('</span><span>') + '</span>'; }
+                );
+
             };
         }]);
 }());

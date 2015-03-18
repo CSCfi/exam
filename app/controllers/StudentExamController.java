@@ -349,7 +349,7 @@ public class StudentExamController extends SitnetController {
         options.setPathProperties("examSections", "id, name, sectionQuestions, exam, expanded");
         options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
         options.setPathProperties("examSections.sectionQuestions.question", "id, type, question, instruction, " +
-                "maxScore, maxCharacters, options, attachment, answer");
+                "maxScore, maxCharacters, options, attachment, answer, evaluationType");
         options.setPathProperties("examSections.sectionQuestions.question.answer", "id, type, option, attachment, answer");
         options.setPathProperties("examSections.sectionQuestions.question.answer.option", "id, option");
         options.setPathProperties("examSections.sectionQuestions.question.answer.attachment", "fileName");
