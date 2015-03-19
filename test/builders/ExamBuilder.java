@@ -13,7 +13,6 @@ public class ExamBuilder {
     private Exam exam = new Exam();
 
     private ExamBuilder() {
-        exam.setCreditType("final");
         exam.setDuration(45);
         exam.setEnrollInstruction("enroll like this");
         exam.setExamActiveEndDate(DateTime.now().plusWeeks(1).toDate());
@@ -38,11 +37,6 @@ public class ExamBuilder {
 
     public ExamBuilder withAnswerLanguage(String language) {
         exam.setAnswerLanguage(language);
-        return this;
-    }
-
-    public ExamBuilder withCreditType(String type) {
-        exam.setCreditType(type);
         return this;
     }
 
