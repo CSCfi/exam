@@ -236,6 +236,7 @@ public class ExamController extends SitnetController {
         options.setPathProperties("gradeScale.grades", "id, name");
         options.setPathProperties("attachment", "id, fileName");
         options.setPathProperties("examType", "id, type");
+        options.setPathProperties("creditType", "id, type");
         options.setPathProperties("examSections", "id, name, sectionQuestions, totalScore, expanded, " +
                 "lotteryOn, lotteryItemCount");
         options.setPathProperties("examSections.sectionQuestions", "sequenceNumber, question");
@@ -357,7 +358,16 @@ public class ExamController extends SitnetController {
                 return badRequest("Invalid grade for this grade scale");
             }
         }
-        exam.setCreditType(df.get("creditType"));
+        String creditType = df.get("creditType.type");
+        if (creditType != null) {
+            ExamType eType = Ebean.find(ExamType.class)
+                    .where()
+                    .eq("type", creditType)
+                    .findUnique();
+            if (eType != null) {
+                exam.setCreditType(eType);
+            }
+        }
         exam.setAnswerLanguage(df.get("answerLanguage"));
         exam.setState(df.get("state"));
         if (df.get("customCredit") != null) {
@@ -555,17 +565,12 @@ public class ExamController extends SitnetController {
             }
             if (df.get("examType.type") != null) {
                 String examType = df.get("examType.type");
-
                 ExamType eType = Ebean.find(ExamType.class)
                         .where()
                         .eq("type", examType)
                         .findUnique();
 
-                if (eType == null) {
-                    ExamType newType = new ExamType(examType);
-                    newType.save();
-                    exam.setExamType(newType);
-                } else {
+                if (eType != null) {
                     exam.setExamType(eType);
                 }
             }

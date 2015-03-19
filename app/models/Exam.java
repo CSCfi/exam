@@ -133,7 +133,8 @@ public class Exam extends SitnetModel {
     @OneToOne
     private Comment examFeedback;
 
-    private String creditType;
+    @ManyToOne
+    private ExamType creditType;
 
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
@@ -422,11 +423,11 @@ public class Exam extends SitnetModel {
         this.examFeedback = examFeedback;
     }
 
-    public String getCreditType() {
+    public ExamType getCreditType() {
         return creditType;
     }
 
-    public void setCreditType(String creditType) {
+    public void setCreditType(ExamType creditType) {
         this.creditType = creditType;
     }
 
