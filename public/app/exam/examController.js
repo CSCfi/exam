@@ -96,7 +96,7 @@
                     );
                 };
 
-                if (($routeParams.id === undefined) && !$scope.user.isStudent) {
+                if (!$routeParams.id && !$scope.user.isStudent) {
                     $scope.exams = ExamRes.exams.query();
                 } else {
                     initializeExam();

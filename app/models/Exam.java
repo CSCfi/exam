@@ -37,7 +37,7 @@ public class Exam extends SitnetModel {
     private ExamType examType;
 
     @ManyToMany
-    @JoinTable(name="exam_owner", inverseJoinColumns = @JoinColumn(name="user_id"))
+    @JoinTable(name = "exam_owner", inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> examOwners;
 
     // Instruction written by teacher, shown during exam
@@ -160,8 +160,7 @@ public class Exam extends SitnetModel {
                 Double evaluatedScore = null;
                 if (question instanceof EssayQuestion) {
                     EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType().equals("Points"))
-                    {
+                    if (essayQuestion.getEvaluationType().equals("Points")) {
                         evaluatedScore = essayQuestion.getEvaluatedScore();
                     }
                 } else if (question.getAnswer() != null) {
@@ -193,8 +192,7 @@ public class Exam extends SitnetModel {
                 double maxScore = 0;
                 if (question instanceof EssayQuestion) {
                     EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType().equals("Points"))
-                    {
+                    if (essayQuestion.getEvaluationType().equals("Points")) {
                         maxScore = essayQuestion.getMaxScore();
                     }
                 } else {
@@ -245,6 +243,7 @@ public class Exam extends SitnetModel {
     public void setTotalScore() {
         totalScore = getTotalScore();
     }
+
     // This is dumb, required to be explicitly set by EBean
     public void setMaxScore() {
         maxScore = getMaxScore();
@@ -513,6 +512,28 @@ public class Exam extends SitnetModel {
 
     public Attachment getAttachment() {
         return attachment;
+    }
+
+    @Transient
+    public boolean isCreatedBy(User user) {
+        return creator != null && creator.getId().equals(user.getId());
+    }
+
+    @Transient
+    public boolean isInspectedBy(User user) {
+        Exam examToCheck = parent == null ? this : parent;
+        for (ExamInspection inspection : examToCheck.examInspections) {
+            if (inspection.getUser().getId().equals(user.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transient
+    public boolean isInspectedOrCreatedBy(User user) {
+        Exam examToCheck = parent == null ? this : parent;
+        return examToCheck.isCreatedBy(user) || isInspectedBy(user);
     }
 
     @Override

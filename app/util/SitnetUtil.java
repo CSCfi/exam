@@ -48,9 +48,7 @@ public class SitnetUtil {
     }
 
     public static SitnetModel setCreator(SitnetModel object) {
-
         User user = UserController.getLoggedUser();
-
         if (object.getCreator() == null) {
             object.setCreator(user);
             object.setCreated(new Date());
@@ -59,44 +57,10 @@ public class SitnetUtil {
     }
 
     public static SitnetModel setModifier(SitnetModel object) {
-
         User user = UserController.getLoggedUser();
-
         object.setModifier(user);
         object.setModified(new Date());
-
         return object;
-    }
-
-    public static boolean isInspector(Exam exam) {
-
-        User user = UserController.getLoggedUser();
-        Exam examToCheck = exam.getParent() == null ? exam : exam.getParent();
-        boolean isCreator = examToCheck.getCreator().getId().equals(user.getId());
-        return isCreator || Ebean.find(ExamInspection.class)
-                .where()
-                .eq("exam.id", examToCheck.getId())
-                .eq("user.id", user.getId())
-                .findUnique() != null;
-    }
-
-    public static boolean isOwner(SitnetModel object) {
-
-        User user = UserController.getLoggedUser();
-
-        if (object.getCreator() == null) {
-            Class<?> clazz = object.getClass();
-
-            Object asd = Ebean.find(clazz)
-                    .select("creator.id")
-                    .where()
-                    .eq("id", object.getId())
-                    .findUnique();
-
-            object.setCreator(((SitnetModel) asd).getCreator());
-        }
-
-        return object.getCreator() != null && object.getCreator().getId().equals(user.getId());
     }
 
     public static String encodeMD5(String str) {
@@ -104,11 +68,11 @@ public class SitnetUtil {
     }
 
     public static void removeAttachmentFile(String filePath) {
-        // Perform disk clean upon attachment removal.
+        // Remove physical file upon attachment removal.
         Path path = FileSystems.getDefault().getPath(filePath);
         try {
             if (!Files.deleteIfExists(path)) {
-                Logger.error("Could not delete " + path + " because it did not exist.");
+                Logger.error("Could not delete " + path + " because it does not exist.");
             }
         } catch (IOException e) {
             e.printStackTrace();

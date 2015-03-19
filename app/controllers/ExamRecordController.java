@@ -3,13 +3,15 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.*;
+import models.Exam;
+import models.ExamParticipation;
+import models.ExamRecord;
+import models.User;
 import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Result;
-import util.SitnetUtil;
 import util.java.CsvBuilder;
 import util.java.EmailComposer;
 
@@ -77,8 +79,8 @@ public class ExamRecordController extends SitnetController {
         if (exam == null) {
             return notFound();
         }
-        User loggedUser = UserController.getLoggedUser();
-        if (!SitnetUtil.isOwner(exam.getParent()) && !loggedUser.hasRole("ADMIN")) {
+        User user = UserController.getLoggedUser();
+        if (!exam.getParent().isCreatedBy(user) && !user.hasRole("ADMIN")) {
             return forbidden("You are not allowed to modify this object");
         }
         if (exam.getGrade() == null || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||

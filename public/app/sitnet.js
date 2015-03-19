@@ -73,7 +73,7 @@
                             "tapToDismiss": false
                         },
                             toastr.options.preventDuplicates = true,
-                            toastr.warning($translate("sitnet_session_will_expire_soon") + "  " + "<button onclick=\"javascript:$http.get('/extendSession')\">" + $translate("sitnet_continue_session") + "</button>");
+                            toastr.warning($translate("sitnet_session_will_expire_soon") + "  " + "<button onclick=\"javascript:$http.put('/extendSession')\">" + $translate("sitnet_continue_session") + "</button>");
                     } else if (data === "no_session") {
                         if (scheduler) {
                             $interval.cancel(scheduler);
