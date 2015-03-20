@@ -509,5 +509,10 @@
   "sitnet_added_to_categories": "Kysymystä kuvaavat asiasanat",
   "sitnet_reservation": "Varaus",
   "sitnet_add_all": "Lisää kaikki",
-  "sitnet_exam_not_active_now": "Tenttiperiodi ei voimassa kyseiselle päivälle"
+  "sitnet_exam_not_active_now": "Tenttiperiodi ei voimassa kyseiselle päivälle",
+  "sitnet_exam_owner": "Tentaattori",
+  "sitnet_exam_owners": "Tentaattorit",
+  "sitnet_add_exam_owner": "Lisää tentaattori",
+  "sitnet_add_exam_examiner": "Lisää arvioija",
+  "sitnet_owner_name": "Tentaattorin nimi"
 }

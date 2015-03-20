@@ -14,6 +14,7 @@ GET           /users/:id                                            controllers.
 GET           /users/byrole/:role                                   controllers.UserController.getUsersByRole(role: String)
 GET           /users/filter/:role                                   controllers.UserController.getUsersByRoleFilter(role: String, q: String)
 GET           /users/filter/:role/:eid                              controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
+GET           /users/filter/owner/:role/:eid                        controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
 PUT           /users/:id                                            controllers.UserController.updateUser(id: Long)
 PUT           /users/agreement/:id                                  controllers.UserController.updateUserAgreementAccepted(id: Long)
 POST          /users                                                controllers.UserController.addUser()
@@ -58,6 +59,10 @@ GET           /examenrolmentroom/:eid                               controllers.
 GET           /exam/:id/inspections                                 controllers.ExamController.getExamInspections(id: Long)
 POST          /exams/:eid/inspector/:uid                            controllers.ExamController.insertInspection(eid: Long, uid: Long)
 DELETE        /exams/inspector/:id                                  controllers.ExamController.deleteInspection(id: Long)
+
+GET           /exam/:id/owners                                      controllers.ExamController.getExamOwners(id: Long)
+PUT           /exam/:eid/owner/:uid                                 controllers.ExamController.insertExamOwner(eid: Long, uid: Long)
+DELETE        /exam/:eid/owner/:uid                                 controllers.ExamController.removeExamOwner(eid: Long, uid: Long)
 
 PUT           /exams/inspection/:id/:ready                          controllers.ExamController.updateInspection(id: Long, ready: Boolean)
 PUT           /exams/removecourse/:id                               controllers.ExamController.removeExamCourse(id: Long)

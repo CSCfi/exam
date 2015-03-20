@@ -33,6 +33,12 @@
                     role: "@role"
                 }),
 
+                filterOwnersByExam: $resource("/users/filter/owner/:role/:eid",
+                    {
+                        eid: "@eid",
+                        role: "@role"
+                    }),
+
                 updateAgreementAccepted: $resource("/users/agreement/:id",
                  {
                      id: "@id"

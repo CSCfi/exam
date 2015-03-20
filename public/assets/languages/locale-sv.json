@@ -509,5 +509,10 @@
   "sitnet_added_to_categories": "Sakord som är kombinerade med frågan",
   "sitnet_reservation": "Bokning",
   "sitnet_add_all": "Add all",
-  "sitnet_exam_not_active_now": "Tentperiod ej giltig för vald dag"
+  "sitnet_exam_not_active_now": "Tentperiod ej giltig för vald dag",
+  "sitnet_exam_owner": "Exam owner",
+  "sitnet_exam_owners": "Exam owners",
+  "sitnet_add_exam_owner": "Add exam owner",
+  "sitnet_add_exam_examiner": "Add examiner",
+  "sitnet_owner_name": "Exam owner's name"
 }

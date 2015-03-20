@@ -217,7 +217,7 @@ public class ExamController extends SitnetController {
         options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, " +
                 "shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                 "duration, gradeScale, grade, customCredit, totalScore, answerLanguage, " +
-                "state, examFeedback, examOwners, creditType, expanded, attachment, creator, softwares, examLanguages");
+                "state, examFeedback, examOwners, creditType, expanded, attachment, creator, softwares, examLanguages, examOwners");
 
         options.setPathProperties("creator", "id, firstName, lastName");
         options.setPathProperties("examOwners", "id, firstName, lastName");
@@ -661,6 +661,8 @@ public class ExamController extends SitnetController {
         inspection.setExam(exam);
         inspection.setUser(UserController.getLoggedUser());
         inspection.save();
+
+        exam.getExamOwners().add(UserController.getLoggedUser());
 
         exam.setExpanded(true);
         exam.save();
@@ -1180,6 +1182,21 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExamOwners(Long id) {
+
+        Exam exam = Ebean.find(Exam.class)
+                .where()
+                .eq("id", id)
+                .findUnique();
+
+        if (exam == null) {
+            return notFound();
+        }
+
+        return ok(Json.toJson(exam.getExamOwners())).as("application/json");
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamInspections(Long id) {
 
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
@@ -1191,15 +1208,15 @@ public class ExamController extends SitnetController {
 
         if (inspections == null) {
             return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, user, exam, ready");
-            options.setPathProperties("user", "id, email, firstName, lastName, roles, userLanguage");
-            options.setPathProperties("exam", "id");
-
-            return ok(jsonContext.toJsonString(inspections, true, options)).as("application/json");
         }
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, user, exam, ready");
+        options.setPathProperties("user", "id, email, firstName, lastName, roles, userLanguage");
+        options.setPathProperties("exam", "id");
+
+        return ok(jsonContext.toJsonString(inspections, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -1222,6 +1239,42 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result insertExamOwner(Long eid, Long uid) {
+
+        final User owner = Ebean.find(User.class, uid);
+        final Exam exam = Ebean.find(Exam.class, eid);
+
+        if(owner != null && exam != null) {
+            try {
+                exam.getExamOwners().add(owner);
+                exam.update();
+            } catch (Exception e) {
+                return internalServerError("error adding exam owner. " + e.getMessage());
+            }
+            return ok();
+        }
+        return notFound();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result removeExamOwner(Long eid, Long uid) {
+
+        final User owner = Ebean.find(User.class, uid);
+        final Exam exam = Ebean.find(Exam.class, eid);
+
+        if(owner != null && exam != null) {
+            try {
+                exam.getExamOwners().remove(owner);
+                exam.update();
+            } catch (Exception e) {
+                return internalServerError("error removing exam owner. " + e.getMessage());
+            }
+            return ok();
+        }
+        return notFound();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result insertInspection(Long eid, Long uid) throws SitnetException {
 
         final ExamInspection inspection = bindForm(ExamInspection.class);
@@ -1236,21 +1289,27 @@ public class ExamController extends SitnetController {
         inspection.setUser(recipient);
         inspection.setAssignedBy(UserController.getLoggedUser());
 
-        inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
-        inspection.getComment().save();
+        if(inspection != null && inspection.getComment() != null) {
+            inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
+            inspection.getComment().save();
+        }
         inspection.save();
 
         Exam source = exam.getParent() == null ? exam : exam.getParent();
 
-        // SITNET-295
-        try {
-            EmailComposer.composeExamReviewedRequest(recipient, UserController.getLoggedUser(), source,
-                    inspection.getComment().getComment());
-        } catch (IOException e) {
-            Logger.error("Failure to access message template on disk", e);
-            e.printStackTrace();
+        if(inspection != null &&
+                inspection.getComment() != null &&
+                inspection.getComment().getComment() != null &&
+                inspection.getComment().getComment().length() > 0) {
+            // SITNET-295
+            try {
+                EmailComposer.composeExamReviewedRequest(recipient, UserController.getLoggedUser(), source,
+                        inspection.getComment().getComment());
+            } catch (IOException e) {
+                Logger.error("Failure to access message template on disk", e);
+                e.printStackTrace();
+            }
         }
-
         return ok(Json.toJson(inspection));
     }
 

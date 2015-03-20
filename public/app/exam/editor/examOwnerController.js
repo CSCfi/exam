@@ -1,27 +1,24 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamInspectionController', ['$scope', '$modalInstance', 'exam', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF','ExamRes', 'UserRes', 'limitToFilter',
+        .controller('ExamOwnerController', ['$scope', '$modalInstance', 'exam', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF','ExamRes', 'UserRes', 'limitToFilter',
             function ($scope, $modalInstance, exam, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, UserRes, limitToFilter) {
 
                 $scope.user = sessionService.getUser();
                 $scope.exam = exam;
 
-                $scope.newInspection = {
+                $scope.newOwner = {
                     "user": {
                         "id": null,
                         "name": null
                     },
                     "exam": {
                         "id": $scope.exam.id
-                    },
-                    "comment": {
-                        "comment": ""
                     }
                 };
 
-                $scope.examInspectors = function (filter, criteria) {
-                    return UserRes.filterUsersByExam.query({role: 'TEACHER', eid: $scope.newInspection.exam.id, q: criteria}).$promise.then(
+                $scope.examOwners = function (filter, criteria) {
+                    return UserRes.filterOwnersByExam.query({role: 'TEACHER', eid: $scope.exam.id, q: criteria}).$promise.then(
                         function (names) {
                             return limitToFilter(names, 15);
                         },
@@ -31,9 +28,8 @@
                     );
                 };
 
-                $scope.setExamInspector = function ($item, $model, $label) {
-                    $scope.newInspection.user.id = $item.id;
-                    $scope.newInspection.user.name = $item.name;
+                $scope.setExamOwner = function ($item, $model, $label) {
+                    $scope.newOwner.user.id = $item.id;
                 };
 
                 // Cancel button is pressed in the modal dialog
@@ -46,11 +42,11 @@
                     $modalInstance.close(data);
                 };
 
-                $scope.saveInspector = function () {
-                    if($scope.newInspection.user.id && $scope.newInspection.user.id > 0 && $scope.newInspection.exam.id && $scope.newInspection.exam.id > 0) {
-                        ExamRes.inspection.insert({eid: $scope.newInspection.exam.id, uid: $scope.newInspection.user.id}, $scope.newInspection, function (inspection) {
+                $scope.addExamOwner = function () {
+                    if($scope.newOwner.user.id && $scope.newOwner.user.id > 0 && $scope.newOwner.exam.id && $scope.newOwner.exam.id > 0) {
+                        ExamRes.examowner.insert({eid: $scope.newOwner.exam.id, uid: $scope.newOwner.user.id}, $scope.newOwner, function (owner) {
                             toastr.info($translate("sitnet_exam_saved"));
-                            $scope.ok(inspection);
+                            $scope.ok(owner);
                         }, function (error) {
                             toastr.error(error.data);
                             $scope.cancel();

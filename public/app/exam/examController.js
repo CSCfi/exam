@@ -89,6 +89,7 @@
                             }
                             $scope.reindexNumbering();
                             getInspectors();
+                            getExamOwners();
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -155,17 +156,33 @@
                     }
                 };
 
-                $scope.openInspectorModal = function () {
+                /**
+                 *
+                 * @param modalType "owner" or "inspector"
+                 */
+                $scope.openExamUserModal = function (modalType) {
 
                     var exam = {
-                        "id": $scope.newExam.id
+                        "id": $scope.newExam.id,
+                        "modalType": modalType
                     };
 
+                    var templateType = "",
+                        controllerType = "";
+
+                    if(modalType && modalType === 'owner') {
+                        templateType = SITNET_CONF.TEMPLATES_PATH + 'exam/editor/exam_owner.html';
+                        controllerType = "ExamOwnerController";
+                    } else {
+                        templateType = SITNET_CONF.TEMPLATES_PATH + 'exam/editor/exam_inspector.html';
+                        controllerType = "ExamInspectionController";
+                    }
+
                     var modalInstance = $modal.open({
-                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'exam/editor/exam_inspector.html',
+                        templateUrl: templateType,
                         backdrop: 'static',
                         keyboard: true,
-                        controller: "ExamInspectionController",
+                        controller: controllerType,
                         resolve: {
                             exam: function () {
                                 return exam;
@@ -173,12 +190,26 @@
                         }
                     });
 
-                    modalInstance.result.then(function (inspectors) {
+                    modalInstance.result.then(function (result) {
                         // OK button clicked
-                        getInspectors();
+                        if(modalType && modalType === 'owner') {
+                            getExamOwners();
+                        } else {
+                            getInspectors();
+                        }
                     }, function () {
                         // Cancel button clicked
                     });
+                };
+
+                $scope.removeOwner = function (id) {
+                    ExamRes.examowner.remove({eid: $scope.newExam.id, uid: id},
+                        function (result) {
+                            getExamOwners();
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        });
                 };
 
                 $scope.newSection = {
@@ -186,6 +217,20 @@
                     name: $translate("sitnet_exam_section_default_name"),
                     questions: []
                 };
+
+                $scope.examOwners = [];
+
+                function getExamOwners() {
+                    if ($scope.newExam.id) {
+                        ExamRes.owners.get({id: $scope.newExam.id},
+                            function (owners) {
+                                $scope.examOwners = owners;
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            });
+                    }
+                }
 
                 $scope.inspectors = {};
 

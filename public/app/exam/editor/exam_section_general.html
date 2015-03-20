@@ -73,20 +73,52 @@
     <!-- Exam inspector and exam maxScore scale input elements -->
     <div class="row">
         <div class="col-md-12">
-            <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_owners' | translate}}:</div>
             <div class="col-md-12 row">
                 <div class="pull-left col-md-2 row">
-                    <button class="btn btn-default" ng-click="openInspectorModal()">{{'sitnet_add' | translate}}
+                    <button class="btn btn-default" ng-click="openExamUserModal('owner')">{{'sitnet_add_exam_owner' | translate}}
                     </button>
                 </div>
                 <div class="pull-left col-md-9">
                     <ul>
-                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="inspection in inspectors"><h6>{{
-                            inspection.user.firstName }} {{ inspection.user.lastName }} <a
-                                    ng-show="inspection.user.id != newExam.creator.id"
-                                    ng-click="removeInspector(inspection.id)"><i class="fa fa-times pointer"
-                                                                                 title="{{'sitnet_remove' | translate}}"></i></a>
-                        </h6></li>
+                        <li class="pull-left horizontal-padding-05" ng-repeat="user in examOwners">
+                            <h5><span ng-if="examOwners.length > 1"
+                                      title="{{'sitnet_remove' | translate}}"
+                                      ng-click="removeOwner(user.id)"
+                                      class="sitnet-badge pointer">
+                                    {{user.firstName }} {{ user.lastName }}
+                                </span>
+                                <span ng-if="examOwners.length === 1"
+                                      class="sitnet-badge">
+                                    {{user.firstName }} {{ user.lastName }}
+                                </span>
+                            </h5>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
+            <div class="col-md-12 row">
+                <div class="pull-left col-md-2 row">
+                    <button class="btn btn-default" ng-click="openExamUserModal('inspector')">{{'sitnet_add_exam_examiner' | translate}}
+                    </button>
+                </div>
+                <div class="pull-left col-md-9">
+                    <ul>
+                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="inspection in inspectors">
+                            <h5>
+                                <span title="{{'sitnet_remove' | translate}}"
+                                  ng-click="removeInspector(inspection.id)"
+                                  class="sitnet-badge pointer">
+                                    {{inspection.user.firstName }} {{ inspection.user.lastName }}
+                                </span>
+                            </h5>
+                        </li>
                     </ul>
                 </div>
             </div>

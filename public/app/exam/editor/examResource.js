@@ -12,6 +12,15 @@
                     "remove": {method: "DELETE"}
                 }),
 
+                examowner: $resource("/exam/:eid/owner/:uid",
+                    {
+                        eid: "@eid", uid: "@uid"
+                    },
+                    {
+                        "insert": {method: "PUT"},
+                        "remove": {method: "DELETE"}
+                    }),
+
                 examcourse: $resource("/exams/removecourse/:id",
                 {
                     id: "@id"
@@ -162,6 +171,14 @@
                 {
                     "get": {method: "GET", isArray: true, params: { id: "@id" }}
                 }),
+
+                owners: $resource("/exam/:id/owners",
+                    {
+                        id: "@id"
+                    },
+                    {
+                        "get": {method: "GET", isArray: true, params: { id: "@id" }}
+                    }),
 
                 inspection: $resource("/exams/:eid/inspector/:uid",
                 {

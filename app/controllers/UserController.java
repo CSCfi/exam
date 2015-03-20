@@ -10,10 +10,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.MalformedDataException;
-import models.ExamInspection;
-import models.Session;
-import models.User;
-import models.UserLanguage;
+import models.*;
 import play.Logger;
 import play.cache.Cache;
 import play.libs.Json;
@@ -98,6 +95,47 @@ public class UserController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExamOwnersByRoleFilter(String role, Long eid, String criteria) {
+
+        List<User> users = Ebean.find(User.class)
+                .where()
+                .and(
+                        Expr.eq("roles.name", role),
+                        Expr.or(
+                                Expr.icontains("lastName", criteria),
+                                Expr.icontains("firstName", criteria)
+                        )
+                )
+                .findList();
+
+        Exam exam = Ebean.find(Exam.class).where().eq("id", eid).findUnique();
+
+        if(exam == null) {
+            return notFound();
+        }
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+        List<User> owners = exam.getExamOwners();
+        // removes all user who are already inspectors
+        for (User u : users) {
+            boolean b = true;
+            for (User owner : owners) {
+                if(u.getId().equals(owner.getId())) {
+                    b = false;
+                    break;
+                }
+            }
+            if (b) {
+                ObjectNode part = Json.newObject();
+                part.put("id", u.getId());
+                part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
+                array.add(part);
+            }
+        }
+
+        return ok(Json.toJson(array));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
 
         List<User> users = Ebean.find(User.class)
@@ -119,8 +157,9 @@ public class UserController extends SitnetController {
         for (User u : users) {
             boolean b = true;
             for (ExamInspection i : inspections) {
-                if (u.getId().equals(i.getUser().getId())) {
+                if(u.getId().equals(i.getUser().getId())) {
                     b = false;
+                    break;
                 }
             }
             if (b) {
