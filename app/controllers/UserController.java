@@ -9,9 +9,7 @@ import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.Session;
-import models.User;
-import models.UserLanguage;
+import models.*;
 import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Result;
@@ -102,7 +100,7 @@ public class UserController extends SitnetController {
 
         Exam exam = Ebean.find(Exam.class).where().eq("id", eid).findUnique();
 
-        if(exam == null) {
+        if (exam == null) {
             return notFound();
         }
         ArrayNode array = JsonNodeFactory.instance.arrayNode();
@@ -111,7 +109,7 @@ public class UserController extends SitnetController {
         for (User u : users) {
             boolean b = true;
             for (User owner : owners) {
-                if(u.getId().equals(owner.getId())) {
+                if (u.getId().equals(owner.getId())) {
                     b = false;
                     break;
                 }
@@ -149,7 +147,7 @@ public class UserController extends SitnetController {
         for (User u : users) {
             boolean b = true;
             for (ExamInspection i : inspections) {
-                if(u.getId().equals(i.getUser().getId())) {
+                if (u.getId().equals(i.getUser().getId())) {
                     b = false;
                     break;
                 }
