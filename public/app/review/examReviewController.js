@@ -37,7 +37,7 @@
 
                 $scope.setCreditType = function (creditType) {
                     $scope.selectedType = creditType;
-                    $scope.examToBeReviewed.creditType = creditType;
+                    $scope.examToBeReviewed.creditType = {type: creditType};
                 };
 
                 $scope.setGrade = function (grade_id) {
@@ -118,7 +118,7 @@
                                 $scope.selectedLanguage = getLanguageNativeName(exam.examLanguages[0].code);
                             }
                             if (exam.creditType) {
-                                $scope.selectedType = exam.creditType.toUpperCase();
+                                $scope.selectedType = exam.creditType.type.toUpperCase();
                             } else {
                                 // default to examType
                                 $scope.selectedType = exam.examType.type.toUpperCase();

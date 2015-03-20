@@ -27,7 +27,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testGetActiveExamsUnauthorized() {
-        Result result = get("/activeexams");
+        Result result = get("/reviewerexams");
         assertThat(status(result)).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
@@ -48,7 +48,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         String[] expectedPaths = {"id", "name", "course.code", "examActiveStartDate", "examActiveEndDate"};
 
         // Execute
-        Result result = get("/activeexams");
+        Result result = get("/reviewerexams");
 
         // Verify
         assertThat(status(result)).isEqualTo(200);

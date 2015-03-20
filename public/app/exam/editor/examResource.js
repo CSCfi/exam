@@ -13,25 +13,12 @@
                 }),
 
                 examowner: $resource("/exam/:eid/owner/:uid",
-                    {
-                        eid: "@eid", uid: "@uid"
-                    },
-                    {
-                        "insert": {method: "PUT"},
-                        "remove": {method: "DELETE"}
-                    }),
-
-                examcourse: $resource("/exams/removecourse/:id",
                 {
-                    id: "@id"
+                    eid: "@eid", uid: "@uid"
                 },
                 {
-                    "remove": {method: "PUT"}
-                }),
-
-                createupdatecourse: $resource("/createupdatecourse/:cid/exam/:eid ",
-                {
-                    cid: "@cid", eid: "@eid"
+                    "insert": {method: "PUT"},
+                    "remove": {method: "DELETE"}
                 }),
 
                 questions: $resource("/exams/:eid/section/:sid/question/:qid",
@@ -39,12 +26,8 @@
                 	eid: "@eid", sid: "@sid", qid: "@qid"
                 },
                 {
-                    "query":  {method: "GET"},
-                    "get":    {method: "GET", params: {eid: "@eid"}},
-                    "update": {method: "PUT"},
                     "remove": {method: "DELETE", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}}
                 }),
-
                 sections: $resource("/exams/:eid/section/:sid",
                 {
                     eid: "@eid", sid: "@sid"
@@ -55,7 +38,6 @@
                     "update": {method: "PUT", params: { eid: "@eid" , sid: "@sid"}}
 
                 }),
-
                 sectionquestions: $resource("/exams/:eid/section/:sid/:seq/question/:qid",
                 {
                     eid: "@eid", sid: "@sid", seq: "@seq", qid: "@qid"
@@ -102,58 +84,14 @@
                 {
                     "insert": {method: "POST", params: { code: "@code"}}
                 }),
-
-                section: $resource("/section/:sectionId",
-                {
-                    sectionId: "@sectionId"
-                },
-                {
-                    "deleteSection": {method: "DELETE", params: { sectionId: "@sectionId"}}
+                reviewerExams: $resource("/reviewerexams"),
+                reviewerExam: $resource("/reviewerexams/:eid", {eid: "@eid"}),
+                finishedExams: $resource("/finishedexams"),
+                draft: $resource("/draft"),
+                review: $resource("/review/:id", {id: "@id"}, {"update": {method: "PUT"}}),
+                examReviews: $resource("/reviews/:eid",{eid: "@eid", statuses: "@statuses"},
+                    {"get": {method: "GET", params: { eid: "@eid", statuses: "@statuses" }}
                 }),
-
-                examsByState: $resource("/exams/state/:state",
-                {
-                    state: "@state"
-                }),
-
-                activeExams: $resource("/activeexams", null,
-                {
-                }),
-
-                reviewerExams: $resource("/reviewerexams", null,
-                {
-                }),
-
-                reviewerExam: $resource("/reviewerexams/:eid",
-                {
-                    eid: "@eid"
-
-                }),
-                finishedExams: $resource("/finishedexams", null,
-                {
-                }),
-
-                draft: $resource("/draft", null,
-        		{
-        		}),
-
-                review: $resource("/review/:id",
-                {
-                    id: "@id"
-                },
-                {
-                    "update": {method: "PUT"}
-                }),
-
-                examReviews: $resource("/reviews/:eid",
-                {
-                    eid: "@eid",
-                    statuses: "@statuses"
-                },
-                {
-                    "get": {method: "GET", params: { eid: "@eid", statuses: "@statuses" }}
-                }),
-
                 comment: $resource("/review/:eid/comment/:cid",
                 {
                     id: "@eid", cid: "@cid"
@@ -161,9 +99,7 @@
                 {
                     "insert": {method: "POST", params: { eid: "@eid" }},
                     "update": {method: "PUT", params: { eid: "@eid" , sid: "@cid"}}
-                
                 }),
-
                 inspections: $resource("/exam/:id/inspections",
                 {
                     id: "@id"
@@ -185,9 +121,7 @@
                     eid: "@eid", uid: "@uid"
                 },
                 {
-                    "insert": {method: "POST", params: { eid: "@eid" , uid: "@uid"}},
-                    "remove": {method: "DELETE", params: { eid: "@eid" , uid: "@uid"}},
-                    "update": {method: "PUT", params: { eid: "@eid" , uid: "@uid"}}
+                    "insert": {method: "POST", params: { eid: "@eid" , uid: "@uid"}}
                 }),
 
                 inspectionReady: $resource("/exams/inspection/:id/:ready",
@@ -216,14 +150,6 @@
                 }),
 
                 examEnrolments: $resource("/examenrolments/:eid",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "get": {method: "GET", params: { eid: "@eid" }}
-                }),
-
-                examEnrolmentsWithReservations: $resource("/examenrolmentswithreservations/:eid",
                 {
                     eid: "@eid"
                 },

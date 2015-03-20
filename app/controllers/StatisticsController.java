@@ -31,6 +31,7 @@ import static util.java.StatisticsUtils.*;
  * Created by avainik on 8/15/14.
  */
 
+//FIXME: Refactor, this looks like shit ;)
 /*
 Pari muutoslauseketta:
 Muuta tämän tentin vastuuopettajaksi tämä opettaja (vaihdetaan opettaja esim. poissaolojen takia)
@@ -583,7 +584,7 @@ public class StatisticsController extends SitnetController {
                             break;
                         case 6: addCell(dataRow, i, credits); break;
                         case 7: addCell(dataRow, i, e.getExam().getGrade() != null ? e.getExam().getGrade().getName() : ""); break;
-                        case 8: addCell(dataRow, i, e.getExam().getCreditType() != null ? e.getExam().getCreditType() : ""); break;
+                        case 8: addCell(dataRow, i, e.getExam().getCreditType() != null ? e.getExam().getCreditType().getType() : ""); break;
                         case 9: addCell(dataRow, i, e.getExam().getExamLanguages().isEmpty() ? "" :
                                 StringUtils.join(e.getExam().getExamLanguages(), ", ")); break;
                     }
@@ -916,7 +917,7 @@ public class StatisticsController extends SitnetController {
                     dataRow.createCell(j++).setCellValue("");
                 }
 
-                dataRow.createCell(j).setCellValue(p.getExam().getCreditType() == null ? "" : p.getExam().getCreditType());
+                dataRow.createCell(j).setCellValue(p.getExam().getCreditType() == null ? "" : p.getExam().getCreditType().getType());
 
             }
         }
@@ -1146,7 +1147,7 @@ public class StatisticsController extends SitnetController {
             else {
                 dataRow.createCell(index++).setCellValue("");
             }
-            dataRow.createCell(index).setCellValue(rol.getExam().getCreditType());
+            dataRow.createCell(index).setCellValue(rol.getExam().getCreditType().getType());
 
         }
 
