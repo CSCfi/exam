@@ -283,14 +283,7 @@
 
                 // Called when create exam button is clicked
                 $scope.createExam = function () {
-
-                    ExamRes.draft.get(
-                        function (response) {
-                            toastr.info($translate("sitnet_exam_added"));
-                            $location.path("/exams/addcourse/" + response.id);
-                        }, function (error) {
-                            toastr.error(error.data);
-                        });
+                    examService.createExam();
                 };
 
                 $scope.continueToExam = function () {

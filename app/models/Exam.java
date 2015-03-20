@@ -37,8 +37,8 @@ public class Exam extends SitnetModel {
     private ExamType examType;
 
     @ManyToMany
-    @JoinTable(name = "exam_owner", inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> examOwners;
+    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name="exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> examOwners = new ArrayList<>();
 
     // Instruction written by teacher, shown during exam
     @Column(columnDefinition = "TEXT")
@@ -523,7 +523,7 @@ public class Exam extends SitnetModel {
     public boolean isInspectedBy(User user) {
         Exam examToCheck = parent == null ? this : parent;
         for (ExamInspection inspection : examToCheck.examInspections) {
-            if (inspection.getUser().getId().equals(user.getId())) {
+            if (inspection.getUser().equals(user)) {
                 return true;
             }
         }
@@ -531,9 +531,24 @@ public class Exam extends SitnetModel {
     }
 
     @Transient
-    public boolean isInspectedOrCreatedBy(User user) {
+    public boolean isOwnedBy(User user) {
         Exam examToCheck = parent == null ? this : parent;
-        return examToCheck.isCreatedBy(user) || isInspectedBy(user);
+        for (User owner : examToCheck.examOwners) {
+            if (owner.equals(user)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transient
+    public boolean isOwnedOrCreatedBy(User user) {
+        return isCreatedBy(user) || isOwnedBy(user);
+    }
+
+    @Transient
+    public boolean isInspectedOrCreatedOrOwnedBy(User user) {
+        return isInspectedBy(user) || isOwnedBy(user) || isCreatedBy(user);
     }
 
     @Override

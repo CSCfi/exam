@@ -2,7 +2,9 @@ package models;
 
 import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Subject;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -40,6 +42,7 @@ public class User extends Model implements Subject {
 
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examOwners")
     @JoinTable(name="exam_owner", joinColumns = @JoinColumn(name="user_id"))
+    @JsonBackReference
     private List<Exam> ownedExams;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -206,6 +209,22 @@ public class User extends Model implements Subject {
         return email;
     }
 
+    public List<HakaAttribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<HakaAttribute> attributes) {
+        this.attributes = attributes;
+    }
+
+    public List<Exam> getOwnedExams() {
+        return ownedExams;
+    }
+
+    public void setOwnedExams(List<Exam> ownedExams) {
+        this.ownedExams = ownedExams;
+    }
+
     public boolean hasRole(String name) {
 
         for (SitnetRole role : roles) {
@@ -220,12 +239,11 @@ public class User extends Model implements Subject {
         return "User [id=" + id + ", email=" + email + ", name=" + lastName + " " +
                 firstName + ", password=" + password + "]";
     }
-
-    public List<HakaAttribute> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(List<HakaAttribute> attributes) {
-        this.attributes = attributes;
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (!(other instanceof User)) return false;
+        User otherUser = (User) other;
+        return new EqualsBuilder().append(id, otherUser.id).build();
     }
 }

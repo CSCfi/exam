@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('DashboardCtrl', ['$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'StudentExamRes', 'dateService',
-            function ($scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, StudentExamRes, dateService) {
+        .controller('DashboardCtrl', ['$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService',
+            function ($scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, examService, questionService, StudentExamRes, dateService) {
 
                 $scope.dashboardToolbarPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html";
                 $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html";
@@ -151,5 +151,14 @@
                     var end = moment(enrolment.exam.examActiveEndDate).utc();
                     return end.isBefore(moment());
                 };
-        }]);
+
+                $scope.createExam = function () {
+                    examService.createExam();
+                };
+
+                $scope.createQuestion = function (type) {
+                    questionService.createQuestion(type);
+                };
+
+            }]);
 }());

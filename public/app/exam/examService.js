@@ -1,7 +1,17 @@
 (function () {
     'use strict';
     angular.module('sitnet.services')
-        .factory('examService', ['$translate', '$q', 'ExamRes', function ($translate, $q, ExamRes) {
+        .factory('examService', ['$translate', '$q', '$location', 'ExamRes', function ($translate, $q, $location, ExamRes) {
+
+            var createExam = function() {
+                ExamRes.draft.get(
+                    function (response) {
+                        toastr.info($translate("sitnet_exam_added"));
+                        $location.path("/exams/addcourse/" + response.id);
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+            };
 
             var getExamTypeDisplayName = function(type) {
                 var name;
@@ -97,6 +107,7 @@
             };
 
             return {
+                createExam: createExam,
                 refreshExamTypes: refreshExamTypes,
                 refreshGradeScales: refreshGradeScales,
                 getScaleDisplayName: getScaleDisplayName,

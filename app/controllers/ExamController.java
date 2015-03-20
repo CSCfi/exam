@@ -3,7 +3,6 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,32 +24,68 @@ import util.java.ValidationUtil;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
 public class ExamController extends SitnetController {
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getExams() {
-
-        User user = UserController.getLoggedUser();
-        ExpressionList<Exam> expr = Ebean.find(Exam.class)
+    private static List<Exam> getAllExams() {
+        return Ebean.find(Exam.class)
                 .fetch("course")
                 .where()
                 .disjunction()
                 .eq("state", Exam.State.PUBLISHED.toString())
                 .eq("state", Exam.State.SAVED.toString())
                 .eq("state", Exam.State.DRAFT.toString())
-                .endJunction();
-        if (user.hasRole("TEACHER")) {
-            expr = expr
-                    .disjunction()
-                    .eq("shared", true)
-                    .eq("creator.id", user.getId())
-                    .endJunction();
-        }
-        List<Exam> exams = expr.findList();
+                .endJunction().findList();
+    }
 
+    private static List<Exam> getAllExamsOfTeacher(User user) {
+        List<Exam> exams = Ebean.find(Exam.class)
+                .fetch("course")
+                .where()
+                .disjunction()
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.SAVED.toString())
+                .eq("state", Exam.State.DRAFT.toString())
+                .endJunction()
+                .disjunction()
+                .eq("shared", true)
+                .eq("creator", user)
+                .endJunction().findList();
+        // Get also those where user is owner
+        // Because of https://github.com/ebean-orm/avaje-ebeanorm/issues/37 a disjunction does not work here
+        // TODO: check if doable after having upgraded to Play 2.4
+        List<Exam> exams2 = Ebean.find(Exam.class)
+                .fetch("course")
+                .where()
+                .disjunction()
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.SAVED.toString())
+                .eq("state", Exam.State.DRAFT.toString())
+                .endJunction()
+                .eq("examOwners", user)
+                .findList();
+        exams.addAll(exams2);
+        Collections.sort(exams, new Comparator<Exam>() {
+            @Override
+            public int compare(Exam o1, Exam o2) {
+                return o1.getCreated().before(o2.getCreated()) ? -1 : 1;
+            }
+        });
+        return exams;
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExams() {
+        User user = UserController.getLoggedUser();
+        List<Exam> exams;
+        if (user.hasRole("ADMIN")) {
+            exams = getAllExams();
+        } else {
+            exams = getAllExamsOfTeacher(user);
+        }
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, creator, course, examActiveStartDate, examActiveEndDate, parent, state, examSections");
@@ -58,7 +93,6 @@ public class ExamController extends SitnetController {
         options.setPathProperties("creator", "firstName, lastName");
         options.setPathProperties("course", "code");
         options.setPathProperties("parent", "id");
-
         return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
     }
 
@@ -67,18 +101,33 @@ public class ExamController extends SitnetController {
 
         User user = UserController.getLoggedUser();
 
-        // Get list of exams that user is assigned to inspect or is owner of
+        // Get list of exams that user is assigned to inspect or is creator of
         List<Exam> exams = Ebean.find(Exam.class)
                 .where()
                 .eq("state", Exam.State.PUBLISHED.toString())
                 .disjunction()
-                .eq("examInspections.user.id", user.getId())
-                .eq("examInspections.assignedBy.id", user.getId())
-                .eq("creator.id", user.getId())
+                .eq("examInspections.user", user)
+                .eq("examInspections.assignedBy", user)
+                .eq("creator", user)
                 .endJunction()
                 .isNull("parent")
-                .orderBy("created")
                 .findList();
+        // Get also those where user is owner
+        // Because of https://github.com/ebean-orm/avaje-ebeanorm/issues/37 a disjunction does not work here
+        // TODO: check if doable after having upgraded to Play 2.4
+        List<Exam> exams2 = Ebean.find(Exam.class)
+                .where()
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("examOwners", user)
+                .isNull("parent")
+                .findList();
+        exams.addAll(exams2);
+        Collections.sort(exams, new Comparator<Exam>() {
+            @Override
+            public int compare(Exam o1, Exam o2) {
+                return o1.getCreated().before(o2.getCreated()) ? -1 : 1;
+            }
+        });
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
@@ -109,7 +158,7 @@ public class ExamController extends SitnetController {
     public static Result deleteExam(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
         User user = UserController.getLoggedUser();
-        if (user.hasRole("ADMIN") || exam.isCreatedBy(user)) {
+        if (user.hasRole("ADMIN") || exam.isOwnedOrCreatedBy(user)) {
 
             // check if exam has children
             // if true, we cannot delete it because children exams reference this exam
@@ -256,7 +305,7 @@ public class ExamController extends SitnetController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = UserController.getLoggedUser();
-        if (!exam.isInspectedOrCreatedBy(user)) {
+        if (!exam.isInspectedOrCreatedOrOwnedBy(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         JsonContext jsonContext = Ebean.createJsonContext();
@@ -270,7 +319,7 @@ public class ExamController extends SitnetController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = UserController.getLoggedUser();
-        if (exam.isShared() || exam.isInspectedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole("ADMIN")) {
             JsonContext jsonContext = Ebean.createJsonContext();
             return ok(jsonContext.toJsonString(exam, true, getJsonOptions())).as("application/json");
         } else {
@@ -298,7 +347,7 @@ public class ExamController extends SitnetController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = UserController.getLoggedUser();
-        if (exam.isShared() || exam.isInspectedOrCreatedBy(user) || UserController.getLoggedUser().hasRole("ADMIN")) {
+        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || UserController.getLoggedUser().hasRole("ADMIN")) {
             for (ExamSection es : exam.getExamSections()) {
                 if (es.getLotteryOn()) {
                     Collections.shuffle(es.getSectionQuestions());
@@ -477,7 +526,7 @@ public class ExamController extends SitnetController {
             return notFound();
         }
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || UserController.getLoggedUser().hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || UserController.getLoggedUser().hasRole("ADMIN")) {
             String str = ValidationUtil.validateExamForm(df);
             if (!str.equalsIgnoreCase("OK")) {
                 return badRequest(str);
@@ -645,7 +694,7 @@ public class ExamController extends SitnetController {
             return notFound();
         }
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             ExamSection section = bindForm(ExamSection.class);
             section.setExam(Ebean.find(Exam.class, id));
             SitnetUtil.setCreator(section);
@@ -660,7 +709,7 @@ public class ExamController extends SitnetController {
     public static Result updateCourse(Long eid, Long cid) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             Course course = Ebean.find(Course.class, cid);
             exam.setCourse(course);
             exam.save();
@@ -694,7 +743,7 @@ public class ExamController extends SitnetController {
     public static Result reorderQuestion(Long eid, Long sid, Integer from, Integer to) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             ExamSection section = Ebean.find(ExamSection.class, sid);
             if (from.equals(to)) {
                 return ok();
@@ -731,7 +780,7 @@ public class ExamController extends SitnetController {
             return notFound();
         }
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
             AbstractQuestion clone = clone(question.getType(), question.getId());
             if (clone == null) {
@@ -776,7 +825,7 @@ public class ExamController extends SitnetController {
             return notFound();
         }
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             for (String s : questions.split(",")) {
                 AbstractQuestion question = Ebean.find(AbstractQuestion.class, Long.parseLong(s));
                 AbstractQuestion clone = clone(question.getType(), question.getId());
@@ -819,7 +868,7 @@ public class ExamController extends SitnetController {
     public static Result removeQuestion(Long eid, Long sid, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
             ExamSection section = Ebean.find(ExamSection.class)
                     .fetch("sectionQuestions")
@@ -863,7 +912,7 @@ public class ExamController extends SitnetController {
     public static Result clearQuestions(Long sid) {
         ExamSection section = Ebean.find(ExamSection.class, sid);
         User user = UserController.getLoggedUser();
-        if (section.getExam().isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 esq.delete();
             }
@@ -879,7 +928,7 @@ public class ExamController extends SitnetController {
     public static Result removeSection(Long eid, Long sid) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             ExamSection section = Ebean.find(ExamSection.class, sid);
             exam.getExamSections().remove(section);
             exam.save();
@@ -916,7 +965,7 @@ public class ExamController extends SitnetController {
     public static Result getExamSections(Long examid) {
         Exam exam = Ebean.find(Exam.class, examid);
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             List<ExamSection> sections = Ebean.find(ExamSection.class).where()
                     .eq("id", examid)
                     .findList();
@@ -933,7 +982,7 @@ public class ExamController extends SitnetController {
                 .eq("examSections.id", sectionId)
                 .findUnique();
         User user = UserController.getLoggedUser();
-        if (exam.isCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             ExamSection section = Ebean.find(ExamSection.class, sectionId);
             exam.getExamSections().remove(section);
             exam.save();
