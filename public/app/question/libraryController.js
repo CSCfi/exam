@@ -1,8 +1,10 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LibraryCtrl', ['$scope', '$location', '$translate', 'sessionService', 'QuestionRes', 'ExamRes', 'CourseRes', 'TagRes', function (
-            $scope, $location, $translate, sessionService, QuestionRes, ExamRes, CourseRes, TagRes) {
+        .controller('LibraryCtrl', ['$scope', '$location', '$translate', 'sessionService', 'QuestionRes',
+            'questionService', 'ExamRes', 'CourseRes', 'TagRes',
+                function (
+                    $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes) {
 
             $scope.pageSize = 25;
             $scope.courses = [];
@@ -160,18 +162,7 @@
             };
 
             $scope.createQuestion = function(type) {
-                var newQuestion;
-                newQuestion = {
-                    type: type,
-                    question: $translate('sitnet_new_question_draft')
-                };
-
-                QuestionRes.questions.create(newQuestion,
-                    function(response) {
-                        toastr.info($translate('sitnet_question_added'));
-                        $location.path("/questions/" + response.id);
-                    }
-                );
+                questionService.createQuestion(type);
             };
 
             $scope.deleteQuestion = function(question) {
