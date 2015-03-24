@@ -25,10 +25,17 @@
 
                                         StudentExamRes.teachers.get({id: enrolment.exam.id},
                                             function (teachers) {
-
-                                                enrolment.teachers = teachers.map(function (teacher) {
-                                                    return teacher.user.firstName + " " + teacher.user.lastName;
-                                                }).join(", ");
+                                                enrolment.exam.examTeachers = [];
+                                                angular.forEach(teachers, function (inspection) {
+                                                    if(enrolment.exam.examTeachers.indexOf(inspection.user) === -1) {
+                                                        enrolment.exam.examTeachers.push(inspection.user);
+                                                    }
+                                                });
+                                                angular.forEach(enrolment.exam.examOwners, function(owner){
+                                                    if(enrolment.exam.examTeachers.indexOf(owner) === -1) {
+                                                        enrolment.exam.examTeachers.push(owner);
+                                                    }
+                                                });
                                             },
                                             function (error) {
                                                 toastr.error(error.data);
@@ -78,9 +85,19 @@
                                     function (error) {
                                         toastr.error(error.data);
                                     });
-                                exam.examInspections = exam.examInspections.map(function (inspection) {
-                                    return inspection.user.firstName + " " + inspection.user.lastName;
-                                }).join(", ");
+
+                                exam.examTeachers = [];
+                                angular.forEach(exam.examInspections, function (inspection) {
+                                    if(exam.examTeachers.indexOf(inspection.user) === -1) {
+                                        exam.examTeachers.push(inspection.user);
+                                    }
+                                });
+
+                                angular.forEach(exam.examOwners, function(owner){
+                                    if(exam.examTeachers.indexOf(owner) === -1) {
+                                        exam.examTeachers.push(owner);
+                                    }
+                                });
                             });
                         });
                     }

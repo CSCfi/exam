@@ -38,9 +38,10 @@
                                     </span>
                                 </div>
                                 <div class="info-row col-md-12 info-column">
-                                    <span class="header col-md-5">{{'sitnet_teacher' | translate}}:</span>
+                                    <span class="header col-md-5">{{'sitnet_teachers' | translate}}:</span>
                                     <span class="text col-md-7">
-                                        <span ng-if="exam.creator.organization.length > 0">{{exam.creator.organization}} - </span>{{exam.creator.firstName}} {{exam.creator.lastName}}
+                                        <span ng-if="exam.creator.organization.length > 0">{{exam.creator.organization}} - </span>
+                                        <span>{{exam.teachersStr}}</span>
                                     </span>
                                 </div>
                             </div>

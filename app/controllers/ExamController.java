@@ -423,7 +423,8 @@ public class ExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("user, exam, started, ended, duration, deadline");
             options.setPathProperties("user", "id, firstName, lastName, email");
-            options.setPathProperties("exam", "id, name, course, state, grade, gradedTime, customCredit");
+            options.setPathProperties("exam", "id, name, course, state, grade, gradedTime, customCredit, examOwners");
+            options.setPathProperties("exam.examOwners", "id, firstName, lastName");
             options.setPathProperties("exam.grade", "id, name");
             options.setPathProperties("exam.course", "code, credits");
 
@@ -1137,7 +1138,8 @@ public class ExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, user, exam, started, ended");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course, state");
+            options.setPathProperties("exam", "id, name, course, state, examOwners");
+            options.setPathProperties("exam.examOwners", "id, firstName, lastName");
             options.setPathProperties("exam.course", "code");
 
             return ok(jsonContext.toJsonString(participations, true, options)).as("application/json");
@@ -1227,8 +1229,10 @@ public class ExamController extends SitnetController {
 
         if(owner != null && exam != null) {
             try {
-                exam.getExamOwners().remove(owner);
-                exam.update();
+                if(exam.getExamOwners() != null && exam.getExamOwners().size() > 1) {
+                    exam.getExamOwners().remove(owner);
+                    exam.update();
+                }
             } catch (Exception e) {
                 return internalServerError("error removing exam owner. " + e.getMessage());
             }
