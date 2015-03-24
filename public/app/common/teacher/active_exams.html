@@ -40,7 +40,11 @@
                     activeExam.examParticipationsAndReviews.length}}
                 </td>
                 <td class="table-column-enroll-participation">{{ activeExam.activeExamEnrolments.length }}</td>
-                <td class="table-column-teachers">{{ activeExam.examInspections }}</td>
+                <td class="table-column-teachers">
+                    <span ng-repeat="teacher in activeExam.examTeachers" class="pull-left horizontal-padding-05">
+                        {{ teacher.firstName }} {{ teacher.lastName }}
+                    </span>
+                </td>
             </tr>
             </tbody>
         </table>

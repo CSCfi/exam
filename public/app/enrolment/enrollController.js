@@ -19,6 +19,21 @@
                                 return getLanguageNativeName(lang.code);
                             });
                             $scope.exam = exam;
+                            exam.examTeachers = [];
+                            exam.teachersStr = "";
+                            angular.forEach(exam.examInspections, function (inspection) {
+                                if(exam.examTeachers.indexOf(inspection.user) === -1) {
+                                    exam.examTeachers.push(inspection.user);
+                                }
+                            });
+                            angular.forEach(exam.examOwners, function(owner){
+                                if(exam.examTeachers.indexOf(owner) === -1) {
+                                    exam.examTeachers.push(owner);
+                                }
+                            });
+                            exam.teachersStr = exam.examTeachers.map(function(teacher) {
+                                return teacher.firstName + " " + teacher.lastName;
+                            }).join(", ");
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -31,6 +46,21 @@
                                 exam.languages = exam.examLanguages.map(function (lang) {
                                     return getLanguageNativeName(lang.code);
                                 });
+                                exam.examTeachers = [];
+                                exam.teachersStr = "";
+                                angular.forEach(exam.examInspections, function (inspection) {
+                                    if(exam.examTeachers.indexOf(inspection.user) === -1) {
+                                        exam.examTeachers.push(inspection.user);
+                                    }
+                                });
+                                angular.forEach(exam.examOwners, function(owner){
+                                    if(exam.examTeachers.indexOf(owner) === -1) {
+                                        exam.examTeachers.push(owner);
+                                    }
+                                });
+                                exam.teachersStr = exam.examTeachers.map(function(teacher) {
+                                    return teacher.firstName + " " + teacher.lastName;
+                                }).join(", ");
                                 return exam;
                             });
                         },

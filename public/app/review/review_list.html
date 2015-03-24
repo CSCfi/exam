@@ -68,9 +68,13 @@
                             ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                     </td>
                     <td class="table-column-teachers">
-                        <div class="col-md-12" ng-repeat="inspection in review.inspections">
+                        <div ng-repeat="inspection in review.inspections">
                                 <span ng-class="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
                                     {{inspection.user.firstName}} {{inspection.user.lastName}}</span>
+                        </div>
+                        <div ng-repeat="teacher in review.exam.examOwners" ng-if="isNotInspector(teacher, review.inspections)">
+                            <span class="sitnet-text-dark">
+                                    {{teacher.firstName}} {{teacher.lastName}}</span>
                         </div>
                     </td>
                     <td class="table-column-20"

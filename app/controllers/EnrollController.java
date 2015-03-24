@@ -29,8 +29,11 @@ public class EnrollController extends Controller {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, " +
-                "creator, examLanguages");
+                "creator, examLanguages, examOwners, examInspections");
+        options.setPathProperties("examInspections", "id, user");
+        options.setPathProperties("examInspections.user", "firstName, lastName");
         options.setPathProperties("course", "code");
+        options.setPathProperties("examOwners", "firstName, lastName");
         options.setPathProperties("creator", "firstName, lastName, organization");
         options.setPathProperties("examLanguages", "code, name");
 
@@ -51,8 +54,9 @@ public class EnrollController extends Controller {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, exam, user, reservation");
-        options.setPathProperties("exam", "id, name, course, examActiveStartDate, examActiveEndDate");
+        options.setPathProperties("exam", "id, name, course, examActiveStartDate, examActiveEndDate, examOwners");
         options.setPathProperties("exam.course", "code, name");
+        options.setPathProperties("exam.examOwners", "firstName, lastName");
         options.setPathProperties("user", "firstName, lastName, email");
         options.setPathProperties("reservation", "id, startAt, endAt");
 
@@ -77,8 +81,11 @@ public class EnrollController extends Controller {
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
                 + "gradeScale, course, creator, expanded, examType, enrollInstruction, examLanguages, " +
-                "answerLanguage");
+                "answerLanguage, examOwners, examInspections");
+        options.setPathProperties("examInspections", "id, user");
+        options.setPathProperties("examInspections.user", "firstName, lastName");
         options.setPathProperties("examType", "type");
+        options.setPathProperties("examOwners", "firstName, lastName");
         options.setPathProperties("examLanguages", "code");
         options.setPathProperties("gradeScale", "id, description");
         options.setPathProperties("course", "code, name, level, type, credits, organisation");

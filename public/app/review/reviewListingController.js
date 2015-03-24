@@ -113,6 +113,16 @@
                     }
                 };
 
+                $scope.isNotInspector = function(teacher, inspections) {
+                    var isNotInspector = true;
+                    angular.forEach(inspections, function(inspection){
+                        if(inspection.user.id === teacher.id) {
+                            isNotInspector = false;
+                        }
+                    });
+                    return isNotInspector;
+                };
+
                 // Unreviewed exams
                 ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW', 'REVIEW_STARTED', 'ABORTED']},
                     function (examReviews) {

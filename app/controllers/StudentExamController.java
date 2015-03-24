@@ -116,12 +116,13 @@ public class StudentExamController extends SitnetController {
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, grade, examActiveStartDate, examActiveEndDate, duration, gradeScale, " +
                 "room, course, creator, examFeedback, gradedByUser, enrollment, totalScore, maxScore, rejectedAnswerCount," +
-                "approvedAnswerCount, enrollInstruction");
+                "approvedAnswerCount, enrollInstruction, examOwners");
         options.setPathProperties("grade", "name");
         options.setPathProperties("course", "code, name, level, type, credits");
         options.setPathProperties("creator", "firstName, lastName, email");
         options.setPathProperties("examFeedback", "comment");
         options.setPathProperties("gradedByUser", "firstName, lastName");
+        options.setPathProperties("examOwners", "firstName, lastName");
 
         return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }
@@ -144,8 +145,9 @@ public class StudentExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction, examOwners");
             options.setPathProperties("exam.course", "name, code");
+            options.setPathProperties("exam.examOwners", "firstName, lastName");
             options.setPathProperties("reservation", "id, startAt, endAt, machine");
             options.setPathProperties("reservation.machine", "name");
             options.setPathProperties("reservation.machine", "name, room");
@@ -182,7 +184,8 @@ public class StudentExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction, examOwners");
+            options.setPathProperties("exam.examOwners", "firstName, lastName");
             options.setPathProperties("exam.course", "name, code");
             options.setPathProperties("reservation", "id, startAt, endAt, machine");
             options.setPathProperties("reservation.machine", "name");
@@ -339,8 +342,9 @@ public class StudentExamController extends SitnetController {
     private static void setStudentExamContent(JsonWriteOptions options) {
 
         options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
-                "duration, examLanguages, answerLanguage, state, expanded, attachment, cloned");
+                "duration, examLanguages, answerLanguage, state, expanded, attachment, cloned, examOwners");
         options.setPathProperties("creator", "id");
+        options.setPathProperties("examOwners", "firstName, lastName");
         options.setPathProperties("attachment", "fileName");
         options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
         options.setPathProperties("room", "roomInstruction, roomInstructionEN, roomInstructionSV");
