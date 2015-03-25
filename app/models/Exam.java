@@ -164,7 +164,7 @@ public class Exam extends SitnetModel {
                 Double evaluatedScore = null;
                 if (question instanceof EssayQuestion) {
                     EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType().equals("Points")) {
+                    if (essayQuestion.getEvaluationType() != null && essayQuestion.getEvaluationType().equals("Points")) {
                         evaluatedScore = essayQuestion.getEvaluatedScore();
                     }
                 } else if (question.getAnswer() != null) {
@@ -196,7 +196,7 @@ public class Exam extends SitnetModel {
                 double maxScore = 0;
                 if (question instanceof EssayQuestion) {
                     EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType().equals("Points")) {
+                    if (essayQuestion.getEvaluationType() != null && essayQuestion.getEvaluationType().equals("Points")) {
                         maxScore = essayQuestion.getMaxScore();
                     }
                 } else {
@@ -216,7 +216,8 @@ public class Exam extends SitnetModel {
                 AbstractQuestion question = esq.getQuestion();
                 if (question instanceof EssayQuestion) {
                     EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType().equals("Select") && essayQuestion.getEvaluatedScore() == 1) {
+                    if (essayQuestion.getEvaluationType() != null && essayQuestion.getEvaluationType().equals("Select")
+                            && essayQuestion.getEvaluatedScore() == 1) {
                         total++;
                     }
                 }
