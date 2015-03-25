@@ -418,7 +418,7 @@
                         "grade": exam.grade.id,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
-                        "creditType": exam.creditType,
+                        "creditType": $scope.selectedType,
                         "answerLanguage": $scope.selectedLanguage
                     };
                 };
