@@ -25,17 +25,7 @@
 
                                         StudentExamRes.teachers.get({id: enrolment.exam.id},
                                             function (teachers) {
-                                                enrolment.exam.examTeachers = [];
-                                                angular.forEach(teachers, function (inspection) {
-                                                    if(enrolment.exam.examTeachers.indexOf(inspection.user) === -1) {
-                                                        enrolment.exam.examTeachers.push(inspection.user);
-                                                    }
-                                                });
-                                                angular.forEach(enrolment.exam.examOwners, function(owner){
-                                                    if(enrolment.exam.examTeachers.indexOf(owner) === -1) {
-                                                        enrolment.exam.examTeachers.push(owner);
-                                                    }
-                                                });
+                                                setExamTeachers(enrolment.exam);
                                             },
                                             function (error) {
                                                 toastr.error(error.data);
@@ -104,6 +94,24 @@
                     else if ($scope.user.isAdmin) {
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/admin/dashboard.html";
                     }
+                }
+
+                function setExamTeachers(exam) {
+                    exam.examTeachers = [];
+                    exam.teachersStr = "";
+                    angular.forEach(exam.examInspections, function (inspection) {
+                        if(exam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
+                            exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
+                        }
+                    });
+                    angular.forEach(exam.examOwners, function(owner){
+                        if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
+                            exam.examTeachers.push(owner.firstName + " " + owner.lastName);
+                        }
+                    });
+                    exam.teachersStr = exam.examTeachers.map(function(teacher) {
+                        return teacher;
+                    }).join(", ");
                 }
 
                 $scope.printExamDuration = function(exam) {

@@ -1146,6 +1146,11 @@ public class ExamController extends SitnetController {
         }
     }
 
+    /**
+     * returns exam owners. if exam is a child, return parent exam owners
+     * @param id parent exam id
+     * @return list of users
+     */
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamOwners(Long id) {
 
@@ -1154,11 +1159,21 @@ public class ExamController extends SitnetController {
                 .eq("id", id)
                 .findUnique();
 
+        if (exam != null && exam.getParent() != null) {
+            exam = Ebean.find(Exam.class)
+                    .where()
+                    .eq("parent.id", id)
+                    .findUnique();
+        }
         if (exam == null) {
             return notFound();
         }
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, examOwners");
+        options.setPathProperties("exam.examOwners", "id, firstName, lastName");
 
-        return ok(Json.toJson(exam.getExamOwners())).as("application/json");
+        return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
