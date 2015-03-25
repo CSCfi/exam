@@ -23,10 +23,7 @@ import util.java.EmailComposer;
 import util.java.ValidationUtil;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ExamController extends SitnetController {
 
@@ -42,7 +39,7 @@ public class ExamController extends SitnetController {
     }
 
     private static List<Exam> getAllExamsOfTeacher(User user) {
-        List<Exam> exams = Ebean.find(Exam.class)
+        Set<Exam> exams = Ebean.find(Exam.class)
                 .fetch("course")
                 .where()
                 .disjunction()
@@ -53,11 +50,11 @@ public class ExamController extends SitnetController {
                 .disjunction()
                 .eq("shared", true)
                 .eq("creator", user)
-                .endJunction().findList();
+                .endJunction().findSet();
         // Get also those where user is owner
         // Because of https://github.com/ebean-orm/avaje-ebeanorm/issues/37 a disjunction does not work here
         // TODO: check if doable after having upgraded to Play 2.4
-        List<Exam> exams2 = Ebean.find(Exam.class)
+        Set<Exam> exams2 = Ebean.find(Exam.class)
                 .fetch("course")
                 .where()
                 .disjunction()
@@ -66,15 +63,16 @@ public class ExamController extends SitnetController {
                 .eq("state", Exam.State.DRAFT.toString())
                 .endJunction()
                 .eq("examOwners", user)
-                .findList();
+                .findSet();
         exams.addAll(exams2);
-        Collections.sort(exams, new Comparator<Exam>() {
+        List<Exam> examsList = new ArrayList<>(exams);
+        Collections.sort(examsList, new Comparator<Exam>() {
             @Override
             public int compare(Exam o1, Exam o2) {
                 return o1.getCreated().before(o2.getCreated()) ? -1 : 1;
             }
         });
-        return exams;
+        return examsList;
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -102,7 +100,7 @@ public class ExamController extends SitnetController {
         User user = UserController.getLoggedUser();
 
         // Get list of exams that user is assigned to inspect or is creator of
-        List<Exam> exams = Ebean.find(Exam.class)
+        Set<Exam> exams = Ebean.find(Exam.class)
                 .where()
                 .eq("state", Exam.State.PUBLISHED.toString())
                 .disjunction()
@@ -111,18 +109,19 @@ public class ExamController extends SitnetController {
                 .eq("creator", user)
                 .endJunction()
                 .isNull("parent")
-                .findList();
+                .findSet();
         // Get also those where user is owner
         // Because of https://github.com/ebean-orm/avaje-ebeanorm/issues/37 a disjunction does not work here
         // TODO: check if doable after having upgraded to Play 2.4
-        List<Exam> exams2 = Ebean.find(Exam.class)
+        Set<Exam> exams2 = Ebean.find(Exam.class)
                 .where()
                 .eq("state", Exam.State.PUBLISHED.toString())
                 .eq("examOwners", user)
                 .isNull("parent")
-                .findList();
+                .findSet();
         exams.addAll(exams2);
-        Collections.sort(exams, new Comparator<Exam>() {
+        List<Exam> examsList = new ArrayList<>(exams);
+        Collections.sort(examsList, new Comparator<Exam>() {
             @Override
             public int compare(Exam o1, Exam o2) {
                 return o1.getCreated().before(o2.getCreated()) ? -1 : 1;
@@ -141,7 +140,7 @@ public class ExamController extends SitnetController {
         options.setPathProperties("examEnrolments.user", "id");
         options.setPathProperties("examEnrolments.reservation", "id");
 
-        return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
+        return ok(jsonContext.toJsonString(examsList, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -235,11 +234,12 @@ public class ExamController extends SitnetController {
 
         options.setPathProperties("creator", "id, firstName, lastName");
         options.setPathProperties("examOwners", "id, firstName, lastName");
-        options.setPathProperties("parent", "id, creator, gradeScale");
+        options.setPathProperties("parent", "id, creator, gradeScale, examOwners");
         options.setPathProperties("grade", "id, name");
         options.setPathProperties("parent.creator", "id, firstName, lastName");
         options.setPathProperties("parent.gradeScale", "description, grades");
         options.setPathProperties("parent.gradeScale.grades", "id, name");
+        options.setPathProperties("parent.examOwners", "id, firstName, lastName");
         options.setPathProperties("course", "id, code, name, level, courseUnitType, credits, institutionName, department, organisation, gradeScale");
         options.setPathProperties("course.organisation", "id, name");
         options.setPathProperties("course.gradeScale", "id, description");
@@ -291,6 +291,7 @@ public class ExamController extends SitnetController {
                 .fetch("examSections.sectionQuestions")
                 .fetch("gradeScale.grades")
                 .fetch("parent")
+                .fetch("parent.examOwners")
                 .fetch("creator")
                 .where()
                 .eq("id", eid)
