@@ -11,7 +11,7 @@
 
                 // section back / forward buttons
                 $scope.pages = ["guide"];
-                $scope.guide = false;
+                $scope.guide = true;
                 $scope.previousButton = false;
                 $scope.previousButtonText = "";
                 $scope.nextButton = false;
@@ -121,8 +121,7 @@
                             $scope.activeSection.autosaver = getAutosaver();
 
                             if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
-                                $scope.guide = true;
-                                $scope.setActiveSection("quide");
+                                $scope.setActiveSection("guide");
                             } else {
                                 $scope.pages.splice(0, 1);
                                 $scope.setActiveSection($scope.pages[0]);
@@ -187,7 +186,7 @@
 
                 $scope.setActiveSection = function (sectionName) {
 
-                    if (sectionName !== "quide" || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === "guide")) {
+                    if (sectionName !== "guide" || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === "guide")) {
 
                         // next
                         if ($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {

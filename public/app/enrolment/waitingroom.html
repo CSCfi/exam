@@ -16,7 +16,7 @@
             </div>
         </div>
     </div>
-    <div class="main-row" ng-controller="WaitingRoomCtrl">
+    <div class="main-row">
         <div ng-hide="!enrolment" class="bottom-padding-2 light-table">
             <div class="col-md-4">
                 <div class="info-row col-md-12 pull-left">
@@ -58,7 +58,7 @@
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{ 'sitnet_teachers' | translate }}:</span>
                     <span class="text col-md-8">
-                        {{ enrolment.teachers }}
+                        {{ enrolment.exam.teachersStr }}
                     </span>
                 </div>
                 <div class="info-row col-md-12 info-column">

@@ -342,7 +342,9 @@ public class StudentExamController extends SitnetController {
     private static void setStudentExamContent(JsonWriteOptions options) {
 
         options.setRootPathProperties("id, name, creator, course, examType, instruction, shared, examSections, hash, examActiveStartDate, examActiveEndDate, room, " +
-                "duration, examLanguages, answerLanguage, state, expanded, attachment, cloned, examOwners");
+                "duration, examLanguages, answerLanguage, state, expanded, attachment, cloned, examOwners, examInspections");
+        options.setPathProperties("examInspections", "user");
+        options.setPathProperties("examInspections.user", "firstName, lastName");
         options.setPathProperties("creator", "id");
         options.setPathProperties("examOwners", "firstName, lastName");
         options.setPathProperties("attachment", "fileName");
