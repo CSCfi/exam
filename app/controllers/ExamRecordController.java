@@ -115,7 +115,7 @@ public class ExamRecordController extends SitnetController {
         } else {
             score.setCredits(exam.getCustomCredit().toString());
         }
-        score.setExamScore(exam.getTotalScore().toString());
+        score.setExamScore(exam.getTotalScore().toString()); // FIXME: HYV/HYL -> null
         score.setLecturer(record.getTeacher().getEppn());
         score.setLecturerId(record.getTeacher().getUserIdentifier());
         score.setLecturerEmployeeNumber(record.getTeacher().getEmployeeNumber());
@@ -123,17 +123,16 @@ public class ExamRecordController extends SitnetController {
         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
         // Record transfer timestamp (date)
         score.setDate(sdf.format(new Date()));
-        // Timestamp for exam
         score.setExamDate(sdf.format(examDate));
 
         score.setCourseImplementation(exam.getCourse().getCourseImplementation());
         score.setCourseUnitCode(exam.getCourse().getCode());
         score.setCourseUnitLevel(exam.getCourse().getLevel());
         score.setCourseUnitType(exam.getCourse().getCourseUnitType());
-        score.setCreditLanguage(exam.getAnswerLanguage());
-        score.setCreditType(exam.getCreditType().getType());
+        score.setCreditLanguage(exam.getAnswerLanguage()); // -> FIXME: should be language code!
+        score.setCreditType(exam.getCreditType().getType()); // FIXME: check Virta/etc
         score.setIdentifier(exam.getCourse().getIdentifier());
-        score.setGradeScale(exam.getGradeScale().getDescription());
+        score.setGradeScale(exam.getGradeScale().getDescription()); // FIXME -> check Virta/etc
         score.setStudentGrade(exam.getGrade().getName());
         return score;
     }

@@ -55,8 +55,12 @@ public class Exam extends SitnetModel {
     @JsonManagedReference
     private List<ExamSection> examSections = new ArrayList<>();
 
-    @ManyToOne
-    private Exam parent;
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    protected Exam parent;
+
+    @OneToMany(mappedBy = "parent")
+    @JsonBackReference
+    protected List<Exam> children = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
@@ -452,6 +456,14 @@ public class Exam extends SitnetModel {
 
     public void setExamParticipations(List<ExamParticipation> examParticipations) {
         this.examParticipations = examParticipations;
+    }
+
+    public List<Exam> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Exam> children) {
+        this.children = children;
     }
 
     public List<ExamInspection> getExamInspections() {
