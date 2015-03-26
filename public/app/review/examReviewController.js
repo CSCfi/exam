@@ -126,13 +126,6 @@
                             if (exam.grade) {
                                 $scope.selectedGrade = exam.grade;
                             }
-                            ExamRes.owners.get({id: exam.id},
-                                function (examOwners) {
-                                    $scope.examOwners = examOwners;
-                                },
-                                function (error) {
-
-                                });
                         }
 
                         $scope.isCreatorOrOwner = function () {
@@ -140,18 +133,6 @@
                                 ($scope.examToBeReviewed.parent.creator.id === $scope.user.id ||
                                 $scope.examToBeReviewed.parent.examOwners.map(function(owner) {
                                     return owner.id; }).indexOf($scope.user.id) !== -1);
-                        };
-                        $scope.isExamOwner = function () {
-
-                            var b = false;
-                            if($scope.examOwners) {
-                                angular.forEach($scope.examOwners, function (owner) {
-                                    if(owner.id === $scope.user.id){
-                                        b = true;
-                                    }
-                                });
-                            }
-                            return b;
                         };
                         $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED";
                         $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";

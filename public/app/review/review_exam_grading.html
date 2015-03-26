@@ -97,7 +97,7 @@
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <div class="pull-left col-md-12 row" ng-repeat="teacher in examOwners">
+                    <div class="pull-left col-md-12 row" ng-repeat="teacher in examToBeReviewed.parent.examOwners">
                         {{teacher.firstName}} {{teacher.lastName}}
                     </div>
                 </div>
@@ -168,7 +168,7 @@
     <div class="col-md-4 form-group">
         <label for="infoForRegistry">{{'sitnet_additional_info_for_registry' | translate}}:</label>
             <textarea id="infoForRegistry" class="form-control" ng-model="examToBeReviewed.additionalInfo" rows="3"
-                      ng-disabled="isReadOnly || !isExamOwner() || !examForm.$valid">
+                      ng-disabled="isReadOnly || !isCreatorOrOwner() || !examForm.$valid">
             </textarea>
     </div>
 </div>
