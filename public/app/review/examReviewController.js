@@ -41,7 +41,7 @@
                 };
 
                 $scope.setGrade = function (grade_id) {
-                    $scope.examToBeReviewed.grade = {id: grade_id};
+                    $scope.examToBeReviewed.grade = $scope.selectedGrade = {id: grade_id};
                 };
 
 
@@ -135,11 +135,11 @@
                                 });
                         }
 
-                        $scope.isCreator = function () {
+                        $scope.isCreatorOrOwner = function () {
                             return $scope.examToBeReviewed &&
-                                $scope.examToBeReviewed.parent &&
-                                $scope.examToBeReviewed.parent.creator &&
-                                $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
+                                ($scope.examToBeReviewed.parent.creator.id === $scope.user.id ||
+                                $scope.examToBeReviewed.parent.examOwners.map(function(owner) {
+                                    return owner.id; }).indexOf($scope.user.id) !== -1);
                         };
                         $scope.isExamOwner = function () {
 
@@ -437,7 +437,7 @@
                         "grade": exam.grade.id,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
-                        "creditType": exam.creditType,
+                        "creditType": $scope.selectedType,
                         "answerLanguage": $scope.selectedLanguage,
                         "additionalInfo": exam.additionalInfo
                     };
@@ -540,7 +540,7 @@
 
                 // called when Save button is clicked
                 $scope.updateExam = function (reviewed_exam) {
-                    if (!$scope.isExamOwner(reviewed_exam)) {
+                    if (!$scope.isCreatorOrOwner(reviewed_exam)) {
                         if (reviewed_exam.state !== 'GRADED') {
                             // Just save feedback and leave
                             $scope.saveFeedback(true);

@@ -15,6 +15,8 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.DateFormat;
@@ -45,14 +47,14 @@ public class SessionController extends SitnetController {
                 .where()
                 .eq("eppn", eppn)
                 .findUnique();
-        if (user == null) {
-            try {
+        try {
+            if (user == null) {
                 user = createNewUser(eppn);
-            } catch (NotFoundException e) {
-                return badRequest(e.getMessage());
+            } else {
+                updateUser(user);
             }
-        } else {
-            updateUser(user);
+        } catch (NotFoundException | AddressException e) {
+            return badRequest(e.getMessage());
         }
         user.save();
         return createSession(toUtf8(request().getHeader("Shib-Session-ID")), user);
@@ -103,15 +105,20 @@ public class SessionController extends SitnetController {
         return role;
     }
 
-    private static void updateUser(User user) {
+    private static String validateEmail(String email) throws AddressException {
+        new InternetAddress(email).validate();
+        return email;
+    }
+
+    private static void updateUser(User user) throws AddressException {
         user.setUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode")));
-        user.setEmail(toUtf8(request().getHeader("mail")));
+        user.setEmail(validateEmail(toUtf8(request().getHeader("mail"))));
         user.setLastName(toUtf8(request().getHeader("sn")));
         user.setFirstName(toUtf8(request().getHeader("displayName")));
         user.setEmployeeNumber(toUtf8(request().getHeader("employeeNumber")));
     }
 
-    private static User createNewUser(String eppn) throws NotFoundException {
+    private static User createNewUser(String eppn) throws NotFoundException, AddressException {
         User user = new User();
         user.getRoles().add(getRole(toUtf8(request().getHeader("unscoped-affiliation"))));
         user.setUserLanguage(getLanguage(toUtf8(request().getHeader("preferredLanguage"))));

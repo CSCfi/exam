@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.answers.MultipleChoiseAnswer;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 import util.SitnetUtil;
 
@@ -568,6 +570,21 @@ public class Exam extends SitnetModel {
     @Transient
     public boolean isInspectedOrCreatedOrOwnedBy(User user) {
         return isInspectedBy(user) || isOwnedBy(user) || isCreatedBy(user);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof Exam)) {
+            return false;
+        }
+        Exam otherExam = (Exam)other;
+        return new EqualsBuilder().append(id, otherExam.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
     }
 
     @Override

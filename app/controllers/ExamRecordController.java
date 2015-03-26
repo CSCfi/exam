@@ -27,9 +27,10 @@ public class ExamRecordController extends SitnetController {
     // Do not update anything else but state to GRADED_LOGGED regarding the exam
     // Instead assure that all required exam fields are set
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result addExamRecord() {
+    public static Result addExamRecord() throws IOException {
         DynamicForm df = Form.form().bindFromRequest();
-        Exam exam = Ebean.find(Exam.class, Long.parseLong(df.get("id")));
+        Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator")
+                .where().eq("id", Long.parseLong(df.get("id"))).findUnique();
         Result failure = validateExamState(exam);
         if (failure != null) {
             return failure;
@@ -48,14 +49,7 @@ public class ExamRecordController extends SitnetController {
         score.save();
         record.setExamScore(score);
         record.save();
-
-        if (Boolean.parseBoolean(df.get("sendFeedback"))) {
-            try {
-                EmailComposer.composeInspectionReady(exam.getCreator(), UserController.getLoggedUser(), exam);
-            } catch (IOException e) {
-                Logger.error("Failure to access message template on disk", e);
-            }
-        }
+        EmailComposer.composeInspectionReady(exam.getCreator(), UserController.getLoggedUser(), exam);
         return ok();
     }
 
@@ -80,7 +74,7 @@ public class ExamRecordController extends SitnetController {
             return notFound();
         }
         User user = UserController.getLoggedUser();
-        if (!exam.getParent().isCreatedBy(user) && !user.hasRole("ADMIN")) {
+        if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN")) {
             return forbidden("You are not allowed to modify this object");
         }
         if (exam.getGrade() == null || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||

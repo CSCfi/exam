@@ -32,7 +32,7 @@
                     <select id="creditType" name="creditType" class="form-control"
                             ng-model="selectedType"
                             ng-change="setCreditType(selectedType)"
-                            ng-disabled="isReadOnly || !isExamOwner()" required>
+                            ng-disabled="isReadOnly || !isCreatorOrOwner()" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
                         <option ng-repeat="examType in examTypes" value="{{examType.type}}"
                                 ng-selected="checkCreditType(examType)">{{examType.name}}
@@ -43,7 +43,7 @@
                 <div class="col-md-2">
                     <label for="examGrade">{{'sitnet_exam_grade' | translate}}:</label>
                     <select id="examGrade" name="examGrade" class="form-control" ng-model="selectedGrade"
-                            ng-disabled="isReadOnly || !isExamOwner()" ng-change="setGrade(selectedGrade)" required>
+                            ng-disabled="isReadOnly || !isCreatorOrOwner()" ng-change="setGrade(selectedGrade)" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
                         <option ng-repeat="grade in examGrading" value="{{grade.id}}"
                                 ng-selected="checkGrade(grade)">{{ grade.name }}
@@ -54,7 +54,7 @@
                 <div class="col-md-4">
                     <label for="answerLanguage">{{'sitnet_exam_record_language' | translate}}:</label>
                     <select id="answerLanguage" name="answerLanguage" class="form-control"
-                            ng-disabled="isReadOnly || !isExamOwner()"
+                            ng-disabled="isReadOnly || !isCreatorOrOwner()"
                             ng-model="selectedLanguage"
                             ng-change="setLanguage(selectedLanguage)" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="col-md-2">
                     <label for="customCredit">{{'sitnet_exam_credit' | translate}} (op):</label>
-                    <input id="customCredit" type="number" ng-disabled="isReadOnly || !isExamOwner()" required min="0"
+                    <input id="customCredit" type="number" ng-disabled="isReadOnly || !isCreatorOrOwner()" required min="0"
                            class="form-control" maxlength="3" ng-model="examToBeReviewed.customCredit"/>
                 </div>
             </div>
@@ -152,12 +152,12 @@
     <div class="col-md-12">
             <span ng-show="!isReadOnly">
                 <!-- do not enable this if already graded and form has errors! -->
-                <button ng-disabled="isGraded && ( !examForm.$valid || !isExamOwner() )"
+                <button ng-disabled="isGraded && ( !examForm.$valid || !isCreatorOrOwner() )"
                         ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
                     {{'sitnet_save' | translate}}
                 </button>
             </span>
-            <span ng-show="isReadOnly || (!isExamOwner() && isGraded)" class="row">
+            <span ng-show="isReadOnly || (!isCreatorOrOwner() && isGraded)" class="row">
                 <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="row">
                     <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
                 </a>
@@ -175,7 +175,7 @@
 <div class="bottom-row">
     <div class="col-md-12">
         <input type="button" class="btn btn-primary btn-sm"
-               ng-disabled="isReadOnly || !isGraded || !isExamOwner() || !examForm.$valid"
+               ng-disabled="isReadOnly || !isGraded || !isCreatorOrOwner() || !examForm.$valid"
                ng-click="saveExamRecord(examToBeReviewed)"
                value="{{'sitnet_send_result_to_registry' | translate}}"
                 />
