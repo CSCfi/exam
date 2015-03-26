@@ -223,8 +223,8 @@
                 function getExamOwners() {
                     if ($scope.newExam.id) {
                         ExamRes.owners.get({id: $scope.newExam.id},
-                            function (owners) {
-                                $scope.examOwners = owners;
+                            function (examOwners) {
+                                $scope.examOwners = examOwners;
                             },
                             function (error) {
                                 toastr.error(error.data);

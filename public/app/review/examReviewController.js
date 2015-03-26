@@ -126,6 +126,13 @@
                             if (exam.grade) {
                                 $scope.selectedGrade = exam.grade;
                             }
+                            ExamRes.owners.get({id: exam.id},
+                                function (examOwners) {
+                                    $scope.examOwners = examOwners;
+                                },
+                                function (error) {
+
+                                });
                         }
 
                         $scope.isCreator = function () {
@@ -133,6 +140,18 @@
                                 $scope.examToBeReviewed.parent &&
                                 $scope.examToBeReviewed.parent.creator &&
                                 $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
+                        };
+                        $scope.isExamOwner = function () {
+
+                            var b = false;
+                            if($scope.examOwners) {
+                                angular.forEach($scope.examOwners, function (owner) {
+                                    if(owner.id === $scope.user.id){
+                                        b = true;
+                                    }
+                                });
+                            }
+                            return b;
                         };
                         $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED";
                         $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";
@@ -419,7 +438,8 @@
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": exam.creditType,
-                        "answerLanguage": $scope.selectedLanguage
+                        "answerLanguage": $scope.selectedLanguage,
+                        "additionalInfo": exam.additionalInfo
                     };
                 };
 
@@ -520,7 +540,7 @@
 
                 // called when Save button is clicked
                 $scope.updateExam = function (reviewed_exam) {
-                    if (!$scope.isCreator(reviewed_exam)) {
+                    if (!$scope.isExamOwner(reviewed_exam)) {
                         if (reviewed_exam.state !== 'GRADED') {
                             // Just save feedback and leave
                             $scope.saveFeedback(true);

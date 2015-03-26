@@ -44,7 +44,7 @@ public class ExamRecordController extends SitnetController {
                 .findUnique();
 
         ExamRecord record = createRecord(exam, participation);
-        ExamScore score = createScore(record, df.get("additionalInfo"), participation.getEnded());
+        ExamScore score = createScore(record, participation.getEnded());
         score.save();
         record.setExamScore(score);
         record.save();
@@ -104,10 +104,10 @@ public class ExamRecordController extends SitnetController {
         return record;
     }
 
-    private static ExamScore createScore(ExamRecord record, String info, Date examDate) {
+    private static ExamScore createScore(ExamRecord record, Date examDate) {
         Exam exam = record.getExam();
         ExamScore score = new ExamScore();
-        score.setAdditionalInfo(info);
+        score.setAdditionalInfo(exam.getAdditionalInfo());
         score.setStudent(record.getStudent().getEppn());
         score.setStudentId(record.getStudent().getUserIdentifier());
         if (exam.getCustomCredit() == null) {

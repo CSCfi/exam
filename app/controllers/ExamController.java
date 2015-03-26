@@ -231,7 +231,7 @@ public class ExamController extends SitnetController {
         options.setRootPathProperties("id, name, course, parent, examType, instruction, enrollInstruction, " +
                 "shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
                 "duration, gradeScale, grade, customCredit, totalScore, answerLanguage, " +
-                "state, examFeedback, examOwners, creditType, expanded, attachment, creator, softwares, examLanguages, examOwners");
+                "state, examFeedback, examOwners, creditType, expanded, attachment, creator, softwares, examLanguages, examOwners, additionalInfo");
 
         options.setPathProperties("creator", "id, firstName, lastName");
         options.setPathProperties("examOwners", "id, firstName, lastName");
@@ -367,6 +367,7 @@ public class ExamController extends SitnetController {
         DynamicForm df = Form.form().bindFromRequest();
         Exam exam = Ebean.find(Exam.class, id);
         Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
+        String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
             Grade examGrade = Ebean.find(Grade.class, grade);
             if (exam.getGradeScale().getGrades().contains(examGrade)) {
@@ -385,6 +386,7 @@ public class ExamController extends SitnetController {
                 exam.setCreditType(eType);
             }
         }
+        exam.setAdditionalInfo(additionalInfo);
         exam.setAnswerLanguage(df.get("answerLanguage"));
         exam.setState(df.get("state"));
         if (df.get("customCredit") != null) {
@@ -423,8 +425,7 @@ public class ExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("user, exam, started, ended, duration, deadline");
             options.setPathProperties("user", "id, firstName, lastName, email");
-            options.setPathProperties("exam", "id, name, course, state, grade, gradedTime, customCredit, examOwners");
-            options.setPathProperties("exam.examOwners", "id, firstName, lastName");
+            options.setPathProperties("exam", "id, name, course, state, grade, gradedTime, customCredit");
             options.setPathProperties("exam.grade", "id, name");
             options.setPathProperties("exam.course", "code, credits");
 
@@ -506,7 +507,6 @@ public class ExamController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateExam(Long id) {
-
         DynamicForm df = Form.form().bindFromRequest();
 
         Exam exam = Ebean.find(Exam.class)
@@ -1154,26 +1154,26 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamOwners(Long id) {
 
+        List<User> owners;
+
         Exam exam = Ebean.find(Exam.class)
-                .where()
-                .eq("id", id)
-                .findUnique();
+        .where()
+        .eq("id", id)
+        .findUnique();
 
         if (exam != null && exam.getParent() != null) {
-            exam = Ebean.find(Exam.class)
-                    .where()
-                    .eq("parent.id", id)
-                    .findUnique();
-        }
-        if (exam == null) {
+            owners = exam.getParent().getExamOwners();
+        } else if (exam == null) {
             return notFound();
+        } else {
+            owners = exam.getExamOwners();
         }
+
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, examOwners");
-        options.setPathProperties("exam.examOwners", "id, firstName, lastName");
+        options.setRootPathProperties("id, firstName, lastName");
 
-        return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
+        return ok(jsonContext.toJsonString(owners, true, options)).as("application/json");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
