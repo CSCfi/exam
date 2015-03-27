@@ -670,12 +670,6 @@ public class ExamController extends SitnetController {
         exam.setExamType(Ebean.find(ExamType.class, 2)); // Final
         exam.save();
 
-        // add creator to inspector list (SITNET-178)
-        ExamInspection inspection = new ExamInspection();
-        inspection.setExam(exam);
-        inspection.setUser(UserController.getLoggedUser());
-        inspection.save();
-
         exam.getExamOwners().add(UserController.getLoggedUser());
 
         exam.setExpanded(true);
@@ -1293,6 +1287,18 @@ public class ExamController extends SitnetController {
                 e.printStackTrace();
             }
         }
+
+        // add to childs
+        if(source.getChildren() != null && !source.getChildren().isEmpty()) {
+            for(Exam child : source.getChildren()) {
+                ExamInspection i = new ExamInspection();
+                i.setExam(child);
+                i.setUser(recipient);
+                i.setAssignedBy(UserController.getLoggedUser());
+                i.save();
+            }
+        }
+
         return ok(Json.toJson(inspection));
     }
 

@@ -152,7 +152,7 @@
 
                         $scope.isLocalReady = function (userId) {
                             var ready = false;
-                            if ($scope.localInspections.length > 0) {
+                            if ($scope.localInspections && $scope.localInspections.length > 0) {
                                 angular.forEach($scope.localInspections, function (localInspection) {
                                     if (localInspection.user && localInspection.user.id && localInspection.user.id === userId) {
                                         ready = localInspection.ready;
@@ -566,9 +566,11 @@
                 };
 
                 $scope.saveExamRecord = function (reviewed_exam) {
+
                     if (!checkCredit()) {
                         return;
                     }
+
                     var messages = [];
                     if (!reviewed_exam.grade) {
                         messages.push('sitnet_participation_unreviewed');
