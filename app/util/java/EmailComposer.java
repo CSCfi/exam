@@ -258,11 +258,7 @@ public class EmailComposer {
 
     private static List<ExamEnrolment> getEnrolments(Exam exam) {
         List<ExamEnrolment> enrolments = exam.getExamEnrolments();
-        Collections.sort(enrolments, new Comparator<ExamEnrolment>() {
-            public int compare(ExamEnrolment o1, ExamEnrolment o2) {
-                return o1.getEnrolledOn().compareTo(o2.getEnrolledOn());
-            }
-        });
+        Collections.sort(enrolments);
         // Discard expired ones
         Iterator<ExamEnrolment> it = enrolments.listIterator();
         while (it.hasNext()) {

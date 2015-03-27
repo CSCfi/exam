@@ -92,8 +92,20 @@
                     });
                 };
 
+
+                var checkDST = function(stamp) {
+                    var date = moment(stamp, 'DD.MM.YYYY HH:mmZZ');
+                    var now = moment();
+                    if (date.isDST() && !now.isDST()) {
+                         date = date.add(-1, 'hours');
+                    } else if (!date.isDST() && now.isDST()) {
+                        date = date.add(1, 'hours');
+                    }
+                    return date;
+                };
+
                 $scope.formatTime = function(stamp) {
-                    return moment(stamp, 'DD.MM.YYYY HH:mmZZ').format('HH:mm');
+                    return moment(checkDST(stamp)).format('HH:mm');
                 };
 
                 $scope.nextMonth = function() {

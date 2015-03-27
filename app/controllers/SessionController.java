@@ -43,6 +43,9 @@ public class SessionController extends SitnetController {
 
     private static Result hakaLogin() {
         String eppn = toUtf8(request().getHeader("eppn"));
+        if (eppn == null) {
+            return badRequest("No credentials!");
+        }
         User user = Ebean.find(User.class)
                 .where()
                 .eq("eppn", eppn)

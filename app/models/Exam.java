@@ -10,11 +10,12 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 import util.SitnetUtil;
 
+import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class Exam extends SitnetModel {
+public class Exam extends SitnetModel implements Comparable<Exam> {
 
     public enum State {
         DRAFT,
@@ -594,5 +595,10 @@ public class Exam extends SitnetModel {
                 ", hash='" + hash + '\'' +
                 ", state='" + state + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(@Nonnull Exam other) {
+        return created.compareTo(other.created);
     }
 }
