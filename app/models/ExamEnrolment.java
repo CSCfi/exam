@@ -3,13 +3,14 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import play.db.ebean.Model;
 
+import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.Date;
 import java.sql.Timestamp;
+import java.util.Date;
 
 
 @Entity
-public class ExamEnrolment extends Model {
+public class ExamEnrolment extends Model implements Comparable<ExamEnrolment> {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
@@ -72,5 +73,10 @@ public class ExamEnrolment extends Model {
 
     public void setReservation(Reservation reservation) {
         this.reservation = reservation;
+    }
+
+    @Override
+    public int compareTo(@Nonnull ExamEnrolment other) {
+        return enrolledOn.compareTo(other.enrolledOn);
     }
 }

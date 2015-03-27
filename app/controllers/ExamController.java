@@ -66,12 +66,7 @@ public class ExamController extends SitnetController {
                 .findSet();
         exams.addAll(exams2);
         List<Exam> examsList = new ArrayList<>(exams);
-        Collections.sort(examsList, new Comparator<Exam>() {
-            @Override
-            public int compare(Exam o1, Exam o2) {
-                return o1.getCreated().before(o2.getCreated()) ? -1 : 1;
-            }
-        });
+        Collections.sort(examsList);
         return examsList;
     }
 
@@ -121,13 +116,7 @@ public class ExamController extends SitnetController {
                 .findSet();
         exams.addAll(exams2);
         List<Exam> examsList = new ArrayList<>(exams);
-        Collections.sort(examsList, new Comparator<Exam>() {
-            @Override
-            public int compare(Exam o1, Exam o2) {
-                return o1.getCreated().before(o2.getCreated()) ? -1 : 1;
-            }
-        });
-
+        Collections.sort(examsList);
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, examEnrolments, examInspections");
