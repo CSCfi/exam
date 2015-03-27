@@ -1280,11 +1280,13 @@ public class ExamController extends SitnetController {
         // add to childs
         if(source.getChildren() != null && !source.getChildren().isEmpty()) {
             for(Exam child : source.getChildren()) {
-                ExamInspection i = new ExamInspection();
-                i.setExam(child);
-                i.setUser(recipient);
-                i.setAssignedBy(UserController.getLoggedUser());
-                i.save();
+                if(!child.getState().equalsIgnoreCase("GRADED") && !child.getState().equalsIgnoreCase("GRADED_LOGGED")) {
+                    ExamInspection i = new ExamInspection();
+                    i.setExam(child);
+                    i.setUser(recipient);
+                    i.setAssignedBy(UserController.getLoggedUser());
+                    i.save();
+                }
             }
         }
 
