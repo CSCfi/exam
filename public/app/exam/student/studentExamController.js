@@ -50,22 +50,24 @@
                 var getAutosaver = function () {
                     if (!$scope.guide) {
                         return $interval(function () {
-                            angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
-                                var question = sectionQuestion.question;
-                                if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
-                                    var params = {
-                                        hash: $scope.doexam.hash,
-                                        qid: question.id
-                                    };
-                                    var msg = {};
-                                    msg.answer = question.answer.answer;
-                                    StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
-                                        question.autosaved = new Date();
-                                        $scope.setQuestionColors(question);
-                                    }, function () {
-                                    });
-                                }
-                            });
+                            if($scope.activeSection && $scope.activeSection.sectionQuestions) {
+                                angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
+                                    var question = sectionQuestion.question;
+                                    if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
+                                        var params = {
+                                            hash: $scope.doexam.hash,
+                                            qid: question.id
+                                        };
+                                        var msg = {};
+                                        msg.answer = question.answer.answer;
+                                        StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
+                                            question.autosaved = new Date();
+                                            $scope.setQuestionColors(question);
+                                        }, function () {
+                                        });
+                                    }
+                                });
+                            }
                         }, 1000 * 60);
                     }
                 };
@@ -140,27 +142,33 @@
                 function currentLanguage() {
                     var tmp = "";
 
-                    switch ($translate.uses()) {
-                        case "fi":
-                            if ($scope.info.reservation.machine.room.roomInstruction) {
-                                tmp = $scope.info.reservation.machine.room.roomInstruction;
-                            }
-                            break;
-                        case "sv":
-                            if ($scope.info.reservation.machine.room.roomInstructionSV) {
-                                tmp = $scope.info.reservation.machine.room.roomInstructionSV;
-                            }
-                            break;
-                        case "en":
-                            if ($scope.info.reservation.machine.room.roomInstructionEN) {
-                                tmp = $scope.info.reservation.machine.room.roomInstructionEN;
-                            }
-                            break;
-                        default:
-                            if ($scope.info.reservation.machine.room.roomInstructionEN) {
-                                tmp = $scope.info.reservation.machine.room.roomInstructionEN;
-                            }
-                            break;
+                    if($scope.info &&
+                        $scope.info.reservation &&
+                        $scope.info.reservation.machine &&
+                        $scope.info.reservation.machine.room) {
+
+                        switch ($translate.uses()) {
+                            case "fi":
+                                if ($scope.info.reservation.machine.room.roomInstruction) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstruction;
+                                }
+                                break;
+                            case "sv":
+                                if ($scope.info.reservation.machine.room.roomInstructionSV) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstructionSV;
+                                }
+                                break;
+                            case "en":
+                                if ($scope.info.reservation.machine.room.roomInstructionEN) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstructionEN;
+                                }
+                                break;
+                            default:
+                                if ($scope.info.reservation.machine.room.roomInstructionEN) {
+                                    tmp = $scope.info.reservation.machine.room.roomInstructionEN;
+                                }
+                                break;
+                        }
                     }
                     return tmp;
                 }

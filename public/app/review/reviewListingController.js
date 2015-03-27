@@ -136,6 +136,13 @@
                             ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
                                 review.inspections = inspections;
                             });
+                            ExamRes.owners.get({id: review.exam.id},
+                                function (examOwners) {
+                                    review.exam.examOwners = examOwners;
+                                },
+                                function (error) {
+
+                                });
                         });
                         $scope.examReviews = examReviews;
                     },

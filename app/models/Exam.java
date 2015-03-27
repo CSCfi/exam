@@ -140,6 +140,8 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
     @OneToOne
     private Comment examFeedback;
 
+    private String additionalInfo;
+
     @ManyToOne
     private ExamType creditType;
 
@@ -429,6 +431,10 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
     public void setExamFeedback(Comment examFeedback) {
         this.examFeedback = examFeedback;
     }
+
+    public String getAdditionalInfo() { return additionalInfo; }
+
+    public void setAdditionalInfo(String additionalInfo) { this.additionalInfo = additionalInfo; }
 
     public ExamType getCreditType() {
         return creditType;

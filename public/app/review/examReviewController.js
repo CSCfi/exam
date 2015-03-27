@@ -419,7 +419,8 @@
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": $scope.selectedType,
-                        "answerLanguage": $scope.selectedLanguage
+                        "answerLanguage": $scope.selectedLanguage,
+                        "additionalInfo": exam.additionalInfo
                     };
                 };
 

@@ -85,29 +85,41 @@
     <div class="main-row">
         <div class="col-md-6">
             <div class="row">
-                <strong class="col-md-8">
+                <strong class="col-md-4">
+                    {{'sitnet_exam_owners' | translate}}
+                </strong>
+                <strong class="col-md-4">
                     {{'sitnet_exam_instructor' | translate}}
                 </strong>
                 <strong class="col-md-4">
                     {{'sitnet_inspection_status' | translate}}
                 </strong>
             </div>
-            <div class="row" ng-repeat="inspection in globalInspections">
-                <div class="col-md-8">
-                    {{ inspection.user.firstName }} {{ inspection.user.lastName }}
-                </div>
+            <div class="row">
                 <div class="col-md-4">
-                <span ng-show="inspection.user.id !== user.id">
-                    <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.user.id) === true">{{'sitnet_ready' | translate}}</span>
-                    <span class="sitnet-text-alarm"
-                          ng-show="isLocalReady(inspection.user.id) === false">{{'sitnet_in_progress' | translate}}</span>
-                </span>
-                <span class="input-group-sm" ng-hide="inspection.user.id !== user.id">
-                    <select ng-model="reviewReady" class="form-control" ng-disabled="isGraded || isReadOnly"
-                            ng-options="s.key as s.value for s in reviewStatus"
-                            ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
-                    </select>
-                </span>
+                    <div class="pull-left col-md-12 row" ng-repeat="teacher in examToBeReviewed.parent.examOwners">
+                        {{teacher.firstName}} {{teacher.lastName}}
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="row" ng-repeat="inspection in globalInspections">
+                        <div class="col-md-6">
+                            {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                        </div>
+                        <div class="col-md-4">
+                            <span ng-show="inspection.user.id !== user.id">
+                                <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.user.id) === true">{{'sitnet_ready' | translate}}</span>
+                                <span class="sitnet-text-alarm"
+                                      ng-show="isLocalReady(inspection.user.id) === false">{{'sitnet_in_progress' | translate}}</span>
+                            </span>
+                            <span class="input-group-sm" ng-hide="inspection.user.id !== user.id">
+                                <select ng-model="reviewReady" class="form-control" ng-disabled="isGraded || isReadOnly"
+                                        ng-options="s.key as s.value for s in reviewStatus"
+                                        ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
+                                </select>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -155,8 +167,8 @@
 <div class="main-row">
     <div class="col-md-4 form-group">
         <label for="infoForRegistry">{{'sitnet_additional_info_for_registry' | translate}}:</label>
-            <textarea id="infoForRegistry" class="form-control" ng-model="$parent.additionalInfo" rows="3"
-                      ng-disabled="isReadOnly || !isGraded || !isCreatorOrOwner() || !examForm.$valid">
+            <textarea id="infoForRegistry" class="form-control" ng-model="examToBeReviewed.additionalInfo" rows="3"
+                      ng-disabled="isReadOnly || !isCreatorOrOwner() || !examForm.$valid">
             </textarea>
     </div>
 </div>
