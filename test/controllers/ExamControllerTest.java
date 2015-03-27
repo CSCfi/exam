@@ -7,7 +7,6 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.Exam;
-import models.ExamInspection;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
@@ -99,8 +98,6 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);
         assertThat(draft.getExpanded()).isTrue();
-        ExamInspection draftInspection = Ebean.find(ExamInspection.class).where().eq("exam.id", id).findUnique();
-        assertThat(draftInspection.getUser().getId()).isEqualTo(userId);
         int rowCount = Ebean.find(Exam.class).findRowCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
     }

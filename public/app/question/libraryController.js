@@ -54,7 +54,7 @@
                             case "MultipleChoiceQuestion":
                                 icon = "fa-list-ul";
                                 break;
-                            case "EssayQuestion":
+                            //case "EssayQuestion":
                             default:
                                 icon = "fa-edit";
                                 break;
@@ -63,6 +63,7 @@
                         return item;
                     });
                     $scope.questions = data;
+                    $scope.currentPage = 0;
                 });
             };
 
