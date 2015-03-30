@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
     angular.module('sitnet.services')
         .factory('dateService', function () {
@@ -20,6 +20,20 @@
                 }
             };
 
-            return { printExamDuration: printExamDuration };
+            var checkDST = function (stamp) {
+                var date = moment(stamp, 'DD.MM.YYYY HH:mmZZ');
+                var now = moment();
+                if (date.isDST() && !now.isDST()) {
+                    date = date.add(-1, 'hours');
+                } else if (!date.isDST() && now.isDST()) {
+                    date = date.add(1, 'hours');
+                }
+                return date;
+            };
+
+            return {
+                printExamDuration: printExamDuration,
+                checkDST: checkDST
+            };
         });
 }());

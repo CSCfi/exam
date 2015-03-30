@@ -6,10 +6,7 @@ import controllers.StatisticsController;
 import exceptions.AuthenticateException;
 import exceptions.MalformedDataException;
 import models.*;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
+import org.joda.time.*;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -72,7 +69,7 @@ public class Global extends GlobalSettings {
                 Akka.system().dispatcher()
         );
 
-        weeklyEmailReport();
+        scheduleWeeklyReport();
 
         SitnetUtil.initializeDataModel();
         StatisticsController.createReportDirectory();
@@ -90,21 +87,27 @@ public class Global extends GlobalSettings {
         if (nextRun.isBefore(now)) {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
+        // Check if default TZ has daylight saving in effect, need to adjust the hour offset in that case
+        if (!SitnetUtil.getDefaultTimeZone().isStandardOffset(System.currentTimeMillis())) {
+            nextRun = nextRun.minusHours(1);
+        }
+        Logger.info("Scheduled next weekly report to be run at {}", nextRun.toString());
         return Seconds.secondsBetween(now, nextRun).getSeconds();
     }
 
-    private void weeklyEmailReport() {
+    private void scheduleWeeklyReport() {
         // TODO: store the time of last dispatch in db so we know if scheduler was not run and send an extra report
         // in that case?
 
         // Every Monday at 5AM UTC
         FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
-        FiniteDuration frequency = FiniteDuration.create(7, TimeUnit.DAYS);
-        Runnable reporter = new Runnable() {
+        if (reportSender != null && !reportSender.isCancelled()) {
+            reportSender.cancel();
+        }
+        reportSender = Akka.system().scheduler().scheduleOnce(delay, new Runnable() {
             @Override
             public void run() {
-
-                Logger.info(new Date() + "Running weekly email report");
+                Logger.info("Running weekly email report");
                 List<User> teachers = Ebean.find(User.class)
                         .fetch("userLanguage")
                         .where()
@@ -117,10 +120,12 @@ public class Global extends GlobalSettings {
                 } catch (IOException e) {
                     Logger.error("Failed to read email template from disk!", e);
                     e.printStackTrace();
+                } finally {
+                    // Reschedule
+                    scheduleWeeklyReport();
                 }
             }
-        };
-        reportSender = Akka.system().scheduler().schedule(delay, frequency, reporter, Akka.system().dispatcher());
+        }, Akka.system().dispatcher());
     }
 
     @Override
