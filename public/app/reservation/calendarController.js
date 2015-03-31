@@ -35,24 +35,26 @@
                         return item.id;
                     });
                     var params = {day: day, aids: accessibility};
-                    $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id, {params: params})
-                        .then(function (reply) {
-                            Object.keys(reply.data).forEach(function (key) {
-                                if ($scope.selectedMonth.data.get('month') !==
-                                    moment(key, 'DD.MM.YYYY').get('month')) {
-                                    delete reply.data[key];
-                                }
-                            });
+                    if ($scope.selectedRoom) {
+                        $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id, {params: params})
+                            .then(function (reply) {
+                                Object.keys(reply.data).forEach(function (key) {
+                                    if ($scope.selectedMonth.data.get('month') !==
+                                        moment(key, 'DD.MM.YYYY').get('month')) {
+                                        delete reply.data[key];
+                                    }
+                                });
 
-                            $scope.daySlots = reply.data;
-                        }, function (error) {
-                            if (error.data && error.data.cause === 'EXAM_NOT_ACTIVE_TODAY') {
-                                toastr.error($translate('sitnet_exam_not_active_now'));
-                            } else {
-                                toastr.error($translate('sitnet_no_suitable_enrolment_found'));
-                            }
-                            $scope.daySlots = [];
-                        });
+                                $scope.daySlots = reply.data;
+                            }, function (error) {
+                                if (error.data && error.data.cause === 'EXAM_NOT_ACTIVE_TODAY') {
+                                    toastr.error($translate('sitnet_exam_not_active_now'));
+                                } else {
+                                    toastr.error($translate('sitnet_no_suitable_enrolment_found'));
+                                }
+                                $scope.daySlots = [];
+                            });
+                    }
                 };
 
                 $http.get('rooms').then(function (reply) {
@@ -96,18 +98,20 @@
 
 
                 $scope.formatTime = function (stamp) {
-                    return moment(dateService.checkDST(stamp)).format('HH:mm');
+                    var date = moment(stamp, 'DD.MM.YYYY HH:mmZZ');
+                    var offset = date.isDST() ? -1 : 0;
+                    return date.add(offset, 'hour').format('HH:mm');
                 };
 
                 $scope.nextMonth = function () {
                     var date = $scope.selectedMonth.data;
-                    formatMoment(date.add('months', 1));
+                    formatMoment(date.add(1, 'month'));
                     refresh();
                 };
 
                 $scope.prevMonth = function () {
                     var date = $scope.selectedMonth.data;
-                    formatMoment(date.subtract('months', 1));
+                    formatMoment(date.subtract(1, 'month'));
                     refresh();
                 };
 
