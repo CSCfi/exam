@@ -335,7 +335,14 @@ public class Global extends GlobalSettings {
     }
 
     private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
-        Date now = new Date();
+        DateTime now = new DateTime();
+        // Lets just use the default timezone for checking the DST for now, should be able to check on-a-room basis in
+        // the future. Then the query below needs to be replaced and times be checked by hand
+        DateTimeZone dtz = SitnetUtil.getDefaultTimeZone();
+        if (!dtz.isStandardOffset(now.getMillis())) {
+            // DST in effect, lets adjust the now-time accordingly
+            now = now.plusHours(1);
+        }
         DateTime future = new DateTime(now).plusMinutes(minutesToFuture);
         List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
