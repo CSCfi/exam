@@ -7,6 +7,7 @@ import exceptions.AuthenticateException;
 import exceptions.MalformedDataException;
 import models.*;
 import org.joda.time.*;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -292,7 +293,7 @@ public class Global extends GlobalSettings {
                         room.getBuildingName() + ":::" +
                         room.getRoomCode() + ":::" +
                         examMachine.getName() + ":::" +
-                        enrolment.getReservation().getStartAt().getTime();
+                        ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
             } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                 // Right room, wrong machine
                 header = "x-sitnet-wrong-machine";

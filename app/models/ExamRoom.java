@@ -7,13 +7,14 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import play.db.ebean.Model;
+import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 @Entity
 public class ExamRoom extends Model {
@@ -95,9 +96,8 @@ public class ExamRoom extends Model {
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
-    private static DateTimeFormatter format = DateTimeFormat.forPattern("HHmm");
+    private String localTimezone = SitnetUtil.getDefaultTimeZone().getID();
 
-    @Column(columnDefinition = "boolean default false")
     public boolean getExpanded() {
         return expanded;
     }
@@ -275,6 +275,14 @@ public class ExamRoom extends Model {
 
     public void setVideoRecordingsURL(String videoRecordingsURL) {
         this.videoRecordingsURL = videoRecordingsURL;
+    }
+
+    public String getLocalTimezone() {
+        return localTimezone;
+    }
+
+    public void setLocalTimezone(String localTimezone) {
+        this.localTimezone = localTimezone;
     }
 
     @Transient

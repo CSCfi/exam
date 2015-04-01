@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
@@ -189,14 +190,14 @@ public class CalendarController extends SitnetController {
     /**
      * Queries for available slots for given room and day
      */
-    private static List<FreeTimeSlot> getFreeTimes(ExamRoom room, Exam exam, LocalDate date,
-                                                   List<Reservation> reservations, List<ExamMachine> machines) {
+    private static List<FreeTimeSlot> getFreeTimes(
+            ExamRoom room, Exam exam, LocalDate date, List<Reservation> reservations, List<ExamMachine> machines) {
 
         // Resolve the opening hours for room and day
         List<Interval> openingHours = room.getWorkingHoursForDate(date);
         // Check machine availability for each slot
         List<Interval> eligibleSlots = new ArrayList<>();
-        for (Interval slot : allSlots(openingHours)) {
+        for (Interval slot : allSlots(openingHours, room.getLocalTimezone())) {
             if (hasReservationsDuring(reservations, slot)) {
                 // User has reservations during this time
                 continue;
@@ -277,11 +278,11 @@ public class CalendarController extends SitnetController {
     /**
      * @return all intervals of one hour that fall within provided working hours
      */
-    private static List<Interval> allSlots(List<Interval> openingHours) {
+    private static List<Interval> allSlots(List<Interval> openingHours, String roomTz) {
         List<Interval> intervals = new ArrayList<>();
-        DateTime nextFullHour = nextFullHour(DateTime.now());
+        DateTime nextFullHour = nextFullHour(DateTime.now(), roomTz);
         for (Interval oh : openingHours) {
-            DateTime rounded = nextFullHour(oh.getStart());
+            DateTime rounded = nextFullHour(oh.getStart(), null);
             DateTime beginning = rounded.isBefore(nextFullHour) ? nextFullHour : rounded;
             while (!beginning.plusHours(1).isAfter(oh.getEnd())) {
                 DateTime end = beginning.plusHours(1);
@@ -381,8 +382,15 @@ public class CalendarController extends SitnetController {
         return machine.getSoftwareInfo().containsAll(exam.getSoftwareInfo());
     }
 
-    private static DateTime nextFullHour(DateTime datetime) {
+    private static DateTime nextFullHour(DateTime datetime, String roomTz) {
         if (datetime.getMinuteOfHour() > 0 || datetime.getSecondOfMinute() > 0 || datetime.getMillisOfSecond() > 0) {
+            // If the room has DST in effect, we need to limit our offering: skip the ongoing non-DST hour
+            if (roomTz != null) {
+                DateTimeZone zone = DateTimeZone.forID(roomTz);
+                if (!zone.isStandardOffset(System.currentTimeMillis())) {
+                    datetime = datetime.plusHours(1);
+                }
+            }
             return datetime.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
         } else {
             return datetime;

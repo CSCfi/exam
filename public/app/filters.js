@@ -73,14 +73,14 @@
             };
         })
         .filter('offset', function () {
-            return function(input, start) {
+            return function (input, start) {
                 if (!input) return [];
                 start = parseInt(start);
                 return input.slice(start);
             }
         })
         .filter('pagefill', function () {
-            return function(input, total, current, pageSize) {
+            return function (input, total, current, pageSize) {
                 total = parseInt(total, 10);
                 current = parseInt(current, 10);
                 pageSize = parseInt(pageSize, 10);
@@ -93,10 +93,17 @@
             }
         })
         .filter('zeropad', function () {
-            return function(input) {
+            return function (input) {
                 input += '';
                 return input.length > 1 ? input : '0' + input;
             }
-        }
-    );
+        })
+        .filter('adjustdst', function () {
+            return function (date) {
+                if (moment().isDST()) {
+                    date = moment(date).add(-1, 'hour').format();
+                }
+                return date;
+            }
+        });
 }());
