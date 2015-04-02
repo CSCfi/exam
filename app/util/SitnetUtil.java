@@ -7,6 +7,7 @@ import com.typesafe.config.ConfigFactory;
 import controllers.UserController;
 import models.*;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import play.Logger;
 import play.libs.Yaml;
@@ -45,6 +46,25 @@ public class SitnetUtil {
     public static DateTimeZone getDefaultTimeZone() {
         String config = ConfigFactory.load().getString("sitnet.application.timezone");
         return DateTimeZone.forID(config);
+    }
+
+    public static DateTime adjustDST(DateTime dateTime) {
+        // FIXME: this method should be made unnecessary, DST adjustments should always be done based on reservation data.
+        // Until we get some of the queries rephrased, we have to live with this quick-fix
+        return adjustDST(dateTime, null);
+     }
+
+    public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
+        DateTimeZone dtz;
+        if (reservation == null) {
+            dtz = SitnetUtil.getDefaultTimeZone();
+        } else {
+            dtz = DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
+        }
+        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
+            dateTime = dateTime.plusHours(1);
+        }
+        return dateTime;
     }
 
     public static SitnetModel setCreator(SitnetModel object) {

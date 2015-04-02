@@ -51,12 +51,6 @@ public class User extends Model implements Subject {
     @OneToOne
     private UserLanguage userLanguage;
 
-    // Shibboleth attributes
-    //Map<String, String[]> attributes;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    @JsonManagedReference
-    private List<HakaAttribute> attributes;
-
     @OneToOne
     private Organisation organisation;
     
@@ -207,14 +201,6 @@ public class User extends Model implements Subject {
 	@Override
     public String getIdentifier() {
         return email;
-    }
-
-    public List<HakaAttribute> getAttributes() {
-        return attributes;
-    }
-
-    public void setAttributes(List<HakaAttribute> attributes) {
-        this.attributes = attributes;
     }
 
     public List<Exam> getOwnedExams() {

@@ -21,6 +21,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -159,6 +160,7 @@ public class StudentExamController extends SitnetController {
 
     @Restrict({@Group("STUDENT")})
     public static Result getEnrolmentsForUser(Long uid) {
+        DateTime now = SitnetUtil.adjustDST(new DateTime());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .fetch("reservation")
@@ -166,9 +168,9 @@ public class StudentExamController extends SitnetController {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", uid)
-                .gt("exam.examActiveEndDate", new Date())
+                .gt("exam.examActiveEndDate", now.toDate())
                 .disjunction()
-                .gt("reservation.endAt", new Date())
+                .gt("reservation.endAt", now.toDate())
                 .isNull("reservation")
                 .endJunction()
                 .disjunction()
@@ -191,7 +193,6 @@ public class StudentExamController extends SitnetController {
             options.setPathProperties("reservation.machine", "name");
             options.setPathProperties("reservation.machine", "name, room");
             options.setPathProperties("reservation.machine.room", "name, roomCode");
-
 
             return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
         }
@@ -273,7 +274,7 @@ public class StudentExamController extends SitnetController {
 
         // Create new exam for student
         if (possibleClone == null) {
-            DateTime now = DateTime.now();
+            DateTime now = SitnetUtil.adjustDST(DateTime.now());
             String clientIP = request().remoteAddress();
 
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)

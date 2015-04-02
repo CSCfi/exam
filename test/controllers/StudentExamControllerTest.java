@@ -38,7 +38,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         reservation.setMachine(machine);
         reservation.setUser(user);
         reservation.setStartAt(DateTime.now().minusMinutes(10).toDate());
-        reservation.setEndAt(DateTime.now().plusMinutes(10).toDate());
+        reservation.setEndAt(DateTime.now().plusMinutes(70).toDate());
         reservation.save();
         enrolment.setExam(exam);
         enrolment.setUser(user);

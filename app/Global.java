@@ -57,12 +57,14 @@ public class Global extends GlobalSettings {
 
     @Override
     public void onStart(Application app) {
+        String encoding = System.getProperty("file.encoding");
+        if (!encoding.equals("UTF-8")) {
+            Logger.warn("Default encoding is other than UTF-8 ({}). " +
+                    "This might cause problems with non-ASCII character handling!", encoding);
+        }
 
         System.setProperty("user.timezone", "UTC");
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-
-        //todo: make these interval and start times configurable via configuration files
-
         reviewRunner = Akka.system().scheduler().schedule(
                 Duration.create(SITNET_EXAM_REVIEWER_START_AFTER_MINUTES, TimeUnit.MINUTES),
                 Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.MINUTES),
@@ -335,15 +337,8 @@ public class Global extends GlobalSettings {
     }
 
     private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
-        DateTime now = new DateTime();
-        // Lets just use the default timezone for checking the DST for now, should be able to check on-a-room basis in
-        // the future. Then the query below needs to be replaced and times be checked by hand
-        DateTimeZone dtz = SitnetUtil.getDefaultTimeZone();
-        if (!dtz.isStandardOffset(now.getMillis())) {
-            // DST in effect, lets adjust the now-time accordingly
-            now = now.plusHours(1);
-        }
-        DateTime future = new DateTime(now).plusMinutes(minutesToFuture);
+        DateTime now = SitnetUtil.adjustDST(new DateTime());
+        DateTime future = now.plusMinutes(minutesToFuture);
         List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")

@@ -7,11 +7,6 @@
 
             var show = false;
 
-            var zeropad = function(n) {
-                n += '';
-                return n.length > 1 ? n : '0' + n;
-            };
-
             var display = function (data) {
                 if (show) {
                     return;

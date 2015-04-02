@@ -33,7 +33,6 @@ public class CalendarControllerTest extends IntegrationTestCase {
     private ExamRoom room;
     private Reservation reservation;
 
-    // ServerSetupTest.SMTP
     @Rule
     public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
 
@@ -97,8 +96,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
         Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
 
-        reservation.setStartAt(DateTime.now().plusMinutes(10).toDate());
-        reservation.setEndAt(DateTime.now().plusMinutes(20).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
+        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
@@ -246,8 +245,9 @@ public class CalendarControllerTest extends IntegrationTestCase {
     public void testRemoveReservation() throws Exception {
 
         // Setup
-        reservation.setStartAt(DateTime.now().plusHours(1).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(2).toDate());
+        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
+        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
@@ -267,6 +267,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
     public void testRemoveReservationInPast() throws Exception {
 
         // Setup
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().minusHours(2).toDate());
         reservation.setEndAt(DateTime.now().minusHours(1).toDate());
         reservation.save();
@@ -287,6 +288,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
     public void testRemoveReservationInProgress() throws Exception {
 
         // Setup
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().minusHours(1).toDate());
         reservation.setEndAt(DateTime.now().plusHours(1).toDate());
         reservation.save();

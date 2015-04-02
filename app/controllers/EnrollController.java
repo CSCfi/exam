@@ -9,8 +9,10 @@ import models.Exam;
 import models.ExamEnrolment;
 import models.Reservation;
 import models.User;
+import org.joda.time.DateTime;
 import play.mvc.Controller;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -117,7 +119,10 @@ public class EnrollController extends Controller {
             return notFound("sitnet_error_exam_not_found");
         }
 
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).fetch("reservation")
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", user.getId())
                 // either exam ID matches OR (exam parent ID matches AND exam is started by student)
@@ -137,7 +142,7 @@ public class EnrollController extends Controller {
             if (reservation == null) {
                 // enrolment without reservation already exists, no need to create a new one
                 return forbidden("sitnet_error_enrolment_exists");
-            } else if (reservation.toInterval().containsNow()) {
+            } else if (reservation.toInterval().contains(SitnetUtil.adjustDST(DateTime.now(), reservation))) {
                 // reservation in effect
                 if (exam.getState().equals(Exam.State.STUDENT_STARTED.toString())) {
                     // exam for reservation is ongoing
