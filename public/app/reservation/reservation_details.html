@@ -20,7 +20,7 @@
                     <td>{{enrolment.reservation.machine.room.name}}</td>
                     <td>{{enrolment.reservation.machine.name}}</td>
                     <td>{{enrolment.exam.name}}</td>
-                    <td>{{enrolment.reservation.startAt | date:'dd.MM.yyyy HH:mm'}}</td>
+                    <td>{{enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy HH:mm'}}</td>
                     <td>
                         <button ng-disabled="enrolment.exam.state !== 'PUBLISHED'" ng-click="removeReservation(enrolment)"
                                 class="btn btn-primary pull-left">

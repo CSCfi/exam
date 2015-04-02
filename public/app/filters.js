@@ -102,6 +102,8 @@
             return function (date) {
                 if (moment().isDST()) {
                     date = moment(date).add(-1, 'hour').format();
+                } else if (moment(date).isDST()) {
+                    date = moment(date).add(-1, 'hour').format();
                 }
                 return date;
             }
