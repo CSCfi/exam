@@ -55,7 +55,7 @@
             return function (fromDate, toDate) {
                 if (toDate && fromDate) {
                     var diff = (new Date(toDate).getTime() - new Date(fromDate).getTime()) / magicNumber;
-                    return Math.floor(diff);
+                    return Math.round(diff);
                 }
             };
         })

@@ -383,7 +383,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(new Date());
+            p.setEnded(SitnetUtil.adjustDST(DateTime.now()).toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
@@ -411,7 +411,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(new Date());
+            p.setEnded(SitnetUtil.adjustDST(DateTime.now()).toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
