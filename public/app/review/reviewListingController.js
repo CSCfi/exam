@@ -5,19 +5,20 @@
             function ($scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService, examService) {
 
                 $scope.reviewPredicate = 'examReview.deadline';
+                $scope.abortedPredicate = 'examReview.user.lastName';
                 $scope.reverse = false;
                 $scope.toggleLoggedReviews = false;
                 $scope.toggleReviews = false;
                 $scope.toggleGradedReviews = false;
+                $scope.showAborted = false;
+                $scope.setShowAborted = function (value) {
+                    $scope.showAborted = value;
+                };
 
                 $scope.pageSize = 10;
 
                 $scope.go = function (exam) {
-                    if (exam.state === 'ABORTED') {
-                        alert($translate("sitnet_not_allowed_to_review_aborted_exam"));
-                    } else {
-                        $location.path('/exams/review/' + exam.id);
-                    }
+                    $location.path('/exams/review/' + exam.id);
                 };
 
                 $scope.translateGrade = function (exam) {
@@ -123,8 +124,21 @@
                     return isNotInspector;
                 };
 
-                // Unreviewed exams
-                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW', 'REVIEW_STARTED', 'ABORTED']},
+                // Aborted exams
+                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['ABORTED']},
+                    function (abortedExams) {
+                        angular.forEach(abortedExams, function (aborted) {
+                            if (aborted.duration) {
+                                aborted.duration = moment.utc(Date.parse(aborted.duration)).format('HH:mm');
+                            }
+                        });
+                        $scope.abortedExams = abortedExams;
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                    }
+                );
+                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW', 'REVIEW_STARTED']},
                     function (examReviews) {
                         if (examReviews.length > 0) {
                             $scope.toggleReviews = true;

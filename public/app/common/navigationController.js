@@ -64,10 +64,10 @@
                             sub: []
                         },
                         {
-                            href: "#/admin/reservations",
+                            href: "#/settings",
                             visible: (admin),
-                            class: "fa-clock-o",
-                            name: $translate("sitnet_reservations"),
+                            class: "fa-wrench",
+                            name: $translate("sitnet_settings"),
                             sub: []
                         },
                         {

@@ -92,7 +92,7 @@
                         });
                     }
                     else if ($scope.user.isAdmin) {
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/admin/dashboard.html";
+                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "reservation/reservations.html";
                     }
                 }
 

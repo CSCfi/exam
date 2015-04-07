@@ -515,5 +515,8 @@
   "sitnet_add_exam_owner": "Add exam owner",
   "sitnet_add_exam_examiner": "Add examiner",
   "sitnet_owner_name": "Exam owner's name",
-  "sitnet_status_machine_available": "Computer available"
+  "sitnet_status_machine_available": "Computer available",
+  "sitnet_aborted_exams": "Aborted exams",
+  "sitnet_aborted_exam": "Aborted exam",
+  "sitnet_exam_time": "Exam time"
 }

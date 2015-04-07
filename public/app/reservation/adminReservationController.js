@@ -20,6 +20,14 @@
                     }
                 );
 
+                AdminReservationResource.teachers.query(function (teachers) {
+                        $scope.examOwners = teachers;
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                    }
+                );
+
                 AdminReservationResource.examrooms.query(
                     function (examrooms) {
                         $scope.examrooms = examrooms;
@@ -33,12 +41,39 @@
                 AdminReservationResource.exams.query(
                     function (exams) {
                         $scope.examnames = exams;
-
                     },
                     function (error) {
                         toastr.error(error.data);
                     }
                 );
+
+                $scope.printTeachers = function(examOwners) {
+                    if(examOwners && examOwners.length > 0) {
+                        return examOwners.map(function (teacher) {
+                            return teacher.firstName + " " + teacher.lastName;
+                        }).join(", ");
+                    }
+                    return "";
+                };
+
+                $scope.examStates = [
+                        'REVIEW',
+                        'REVIEW_STARTED',
+                        'GRADED',
+                        'GRADED_LOGGED',
+                        'STUDENT_STARTED',
+                        'PUBLISHED',
+                        'ABORTED',
+                        'NO_SHOW'
+                    ];
+
+                $scope.printExamState = function(enrolment) {
+                    if(enrolment.reservation.machine.otherIdentifier === "NO_SHOW") {
+                        return "NO_SHOW";
+                    } else {
+                        return enrolment.exam.state;
+                    }
+                };
 
                 AdminReservationResource.machines.query(
                     function (machines) {
