@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('RoomCtrl', ['$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService', '$translate', '$route',
-            function ($scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService, $translate, $route) {
+        .controller('RoomCtrl', ['dialogs','$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService', '$translate', '$route',
+            function (dialogs, $scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService, $translate, $route) {
 
                 $scope.dateService = dateService;
 
@@ -19,25 +19,25 @@
                 // initialize the timeslots
                 var week = {
                     'MONDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                        return {'index': i, type: ''}
+                        return {'index': i, type: ''};
                     }),
                     'TUESDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                        return {'index': i, type: ''}
+                        return {'index': i, type: ''};
                     }),
                     'WEDNESDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                        return {'index': i, type: ''}
+                        return {'index': i, type: ''};
                     }),
                     'THURSDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                        return {'index': i, type: ''}
+                        return {'index': i, type: ''};
                     }),
                     'FRIDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                        return {'index': i, type: ''}
+                        return {'index': i, type: ''};
                     }),
                     'SATURDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                        return {'index': i, type: ''}
+                        return {'index': i, type: ''};
                     }),
                     'SUNDAY': Array.apply(null, new Array(48)).map(function (x, i) {
-                        return {'index': i, type: ''}
+                        return {'index': i, type: ''};
                     })
                 };
 
@@ -393,7 +393,8 @@
                 };
 
                 $scope.disableRoom = function (room) {
-                    if (confirm($translate('sitnet_confirm_room_inactivation'))) {
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_room_inactivation'));
+                    dialog.result.then(function(btn){
                         RoomResource.rooms.inactivate({id: room.id},
                             function (data) {
                                 //room = data;
@@ -404,7 +405,7 @@
                                 toastr.error(error.data);
                             }
                         );
-                    }
+                    });
                 };
 
                 $scope.enableRoom = function (room) {

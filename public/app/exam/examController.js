@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
-            function ($scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
+        .controller('ExamController', ['dialogs','$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
+            function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
 
                 $scope.newExam = {};
 
@@ -329,8 +329,8 @@
                 };
 
                 $scope.removeSection = function (section) {
-                    if (confirm($translate('sitnet_remove_section'))) {
-
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_section'));
+                    dialog.result.then(function(btn){
                         ExamRes.sections.remove({eid: $scope.newExam.id, sid: section.id}, function (id) {
                             toastr.info($translate("sitnet_section_removed"));
                             $scope.newExam.examSections.splice($scope.newExam.examSections.indexOf(section), 1);
@@ -339,7 +339,7 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                    }
+                    });
                 };
 
                 $scope.renameSection = function (section) {
@@ -362,19 +362,20 @@
                 };
 
                 $scope.clearAllQuestions = function (section) {
-                    if (confirm($translate('sitnet_remove_all_questions'))) {
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_all_questions'));
+                    dialog.result.then(function(btn){
                         ExamRes.clearsection.clear({sid: section.id}, function () {
                             section.sectionQuestions.splice(0, section.sectionQuestions.length);
                             toastr.info($translate("sitnet_all_questions_removed"));
                         }, function (error) {
                             toastr.error(error.data);
                         });
-
-                    }
+                    });
                 };
 
                 $scope.removeQuestion = function (section, sectionQuestion) {
-                    if (confirm($translate('sitnet_remove_question'))) {
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_question'));
+                    dialog.result.then(function(btn){
                         ExamRes.questions.remove({
                             eid: $scope.newExam.id,
                             sid: section.id,
@@ -391,7 +392,7 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                    }
+                    });
                 };
 
                 var getUpdate = function (overrides) {
@@ -619,8 +620,8 @@
                 // TODO: this controller should be split on a per-view basis to avoid having this kind of duplication
 
                 $scope.deleteExam = function (exam) {
-                    if (confirm($translate('sitnet_remove_exam'))) {
-
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_exam'));
+                    dialog.result.then(function(btn){
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
                             toastr.success($translate('sitnet_exam_removed'));
                             $scope.exams.splice($scope.exams.indexOf(exam), 1);
@@ -628,19 +629,23 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                    }
+                    },function(btn){
+
+                    });
                 };
 
                 $scope.cancelNewExam = function (exam) {
-                    if (confirm($translate('sitnet_remove_exam'))) {
-
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_exam'));
+                    dialog.result.then(function(btn){
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
                             toastr.success($translate('sitnet_exam_removed'));
                             $location.path('/exams/');
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                    }
+                    },function(btn){
+
+                    });
                 };
 
                 $scope.moveQuestion = function (section, from, to) {

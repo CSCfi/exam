@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('StudentExamController', ['$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'dateService',
-            function ($rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, dateService) {
+        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'dateService',
+            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, dateService) {
 
                 $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
@@ -293,7 +293,8 @@
 
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
-                    if (confirm($translate('sitnet_confirm_turn_exam'))) {
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_turn_exam'));
+                    dialog.result.then(function(btn){
                         saveAllEssays().then(function () {
                             StudentExamRes.exams.update({id: doexam.id}, function () {
                                 toastr.info($translate('sitnet_exam_returned'));
@@ -304,13 +305,13 @@
 
                             });
                         });
-                    }
+                    });
                 };
 
                 // Called when the abort button is clicked
                 $scope.abortExam = function (doexam) {
-
-                    if (confirm($translate('sitnet_confirm_abort_exam'))) {
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_abort_exam'));
+                    dialog.result.then(function(btn){
                         StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
                             toastr.info($translate('sitnet_exam_aborted'));
                             $timeout.cancel($scope.remainingTimePoller);
@@ -319,7 +320,7 @@
                         }, function () {
 
                         });
-                    }
+                    });
                 };
 
                 // Called when a radiobutton is selected
