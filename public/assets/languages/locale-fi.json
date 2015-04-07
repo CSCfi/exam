@@ -519,5 +519,12 @@
   "sitnet_aborted_exams": "Keskeytetyt tentit",
   "sitnet_aborted_exam": "Keskeytetty tentti",
   "sitnet_exam_time": "Tenttiaika",
-  "sitnet_exam_validity": "Tentin voimassaoloaika"
+  "sitnet_exam_validity": "Tentin voimassaoloaika",
+  "sitnet_confirm": "Vahvista",
+
+  "DIALOGS_OK":"OK",
+  "DIALOGS_YES":"Kyllä",
+  "DIALOGS_NO":"Ei",
+  "DIALOGS_ERROR":"Virhe",
+  "DIALOGS_CLOSE":"Sulje"
 }

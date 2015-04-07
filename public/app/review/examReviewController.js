@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamReviewController', ['$scope', 'sessionService', 'examService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
-            function ($scope, sessionService, examService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
+        .controller('ExamReviewController', ['dialogs', '$scope', 'sessionService', 'examService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
+            function (dialogs, $scope, sessionService, examService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
 
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
@@ -545,9 +545,16 @@
                         }
                         var oldState = reviewed_exam.state;
                         var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
-                        if (newState !== 'GRADED' || oldState == 'GRADED' || confirm($translate('sitnet_confirm_grade_review'))) {
+
+                        if(newState !== 'GRADED' || oldState == 'GRADED') {
                             var review = getReviewUpdate(reviewed_exam, newState);
                             doUpdate(newState, review, messages, reviewed_exam);
+                        } else {
+                            var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_grade_review'));
+                            dialog.result.then(function (btn) {
+                                var review = getReviewUpdate(reviewed_exam, newState);
+                                doUpdate(newState, review, messages, reviewed_exam);
+                            });
                         }
                     }
                 };
@@ -586,16 +593,19 @@
                             toastr.error($translate(msg));
                         });
                     }
-                    else if (confirm($translate('sitnet_confirm_record_review'))) {
-                        $scope.saveFeedback(true);
-                        var examToRecord = getReviewUpdate(reviewed_exam, 'GRADED_LOGGED');
-                        examToRecord.additionalInfo = $scope.additionalInfo;
+                    else {
+                        var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_record_review'));
+                        dialog.result.then(function (btn) {
+                            $scope.saveFeedback(true);
+                            var examToRecord = getReviewUpdate(reviewed_exam, 'GRADED_LOGGED');
+                            examToRecord.additionalInfo = $scope.additionalInfo;
 
-                        ExamRes.saveRecord.add(examToRecord, function (exam) {
-                            toastr.info($translate('sitnet_review_recorded'));
-                            $location.path("exams/reviews/" + reviewed_exam.parent.id);
-                        }, function (error) {
-                            toastr.error(error.data);
+                            ExamRes.saveRecord.add(examToRecord, function (exam) {
+                                toastr.info($translate('sitnet_review_recorded'));
+                                $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                            }, function (error) {
+                                toastr.error(error.data);
+                            });
                         });
                     }
                 };

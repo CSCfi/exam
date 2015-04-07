@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('DashboardCtrl', ['$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService',
-            function ($scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, examService, questionService, StudentExamRes, dateService) {
+        .controller('DashboardCtrl', ['dialogs','$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService',
+            function (dialogs, $scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, examService, questionService, StudentExamRes, dateService) {
 
                 $scope.dashboardToolbarPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html";
                 $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html";
@@ -119,15 +119,15 @@
                 };
 
                 $scope.removeReservation = function(enrolment){
-                    if (confirm($translate('sitnet_are_you_sure'))) {
-
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_are_you_sure'));
+                    dialog.result.then(function(btn){
                         $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
                             delete enrolment.reservation;
                             toastr.success("ok");
                         }).error(function(msg) {
                             toastr.error(msg);
                         });
-                    }
+                    });
                 };
 
                 $scope.showInstructions = function(enrolment) {

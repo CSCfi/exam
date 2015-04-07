@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LibraryCtrl', ['$scope', '$location', '$translate', 'sessionService', 'QuestionRes',
+        .controller('LibraryCtrl', ['dialogs', '$scope', '$location', '$translate', 'sessionService', 'QuestionRes',
             'questionService', 'ExamRes', 'CourseRes', 'TagRes',
-            function ($scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes) {
+            function (dialogs, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes) {
 
                 $scope.pageSize = 25;
                 $scope.courses = [];
@@ -169,13 +169,14 @@
                 };
 
                 $scope.deleteQuestion = function (question) {
-                    if (confirm($translate('sitnet_remove_question_from_library_only'))) {
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_question_from_library_only'));
+                    dialog.result.then(function(btn){
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
                         QuestionRes.questions.delete({'id': question.id}, function () {
                             toastr.info($translate('sitnet_question_removed'));
                         });
-                    }
+                    });
                 };
 
                 $scope.verticalText = function (textClass) {

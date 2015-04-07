@@ -6,6 +6,7 @@
         'ngStorage',
         'http-auth-interceptor',
         'ui.bootstrap',
+        'dialogs.main',
         'sitnet.services',
         'sitnet.controllers',
         'sitnet.resources',

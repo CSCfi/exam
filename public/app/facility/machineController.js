@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('MachineCtrl', ['$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'SITNET_CONF', 'dateService', '$translate',
-            function ($scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, SITNET_CONF, dateService, $translate) {
+        .controller('MachineCtrl', ['dialogs', '$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'SITNET_CONF', 'dateService', '$translate',
+            function (dialogs, $scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, SITNET_CONF, dateService, $translate) {
 
                 $scope.dateService = dateService;
                 $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/machine.html";
@@ -45,7 +45,8 @@
 
 
                 $scope.removeMachine = function (machine) {
-                    if (confirm($translate('sitnet_remove_machine'))) {
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_machine'));
+                    dialog.result.then(function(btn){
                         ExamMachineResource.remove({id: machine.id},
                             function () {
                                 $scope.roomInstance.examMachines.splice($scope.roomInstance.examMachines.indexOf(machine), 1);
@@ -55,7 +56,7 @@
                                 toastr.error(error.data);
                             }
                         );
-                    }
+                    });
                     $location.path("/rooms/");
                 };
 

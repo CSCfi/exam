@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ReviewListingController', ['$scope', '$q', '$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService', 'examService',
-            function ($scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService, examService) {
+        .controller('ReviewListingController', ['dialogs', '$scope', '$q', '$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService', 'examService',
+            function (dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService, examService) {
 
                 $scope.reviewPredicate = 'examReview.deadline';
                 $scope.abortedPredicate = 'examReview.user.lastName';
@@ -69,7 +69,8 @@
                         return;
                     }
 
-                    if (confirm($translate('sitnet_confirm_record_review'))) {
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_record_review'));
+                    dialog.result.then(function (btn) {
 
                         var promises = [];
 
@@ -111,7 +112,7 @@
 
                         toastr.info($translate('sitnet_results_send_ok'));
 
-                    }
+                    });
                 };
 
                 $scope.isNotInspector = function(teacher, inspections) {
