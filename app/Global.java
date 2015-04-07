@@ -1,4 +1,5 @@
 import akka.actor.Cancellable;
+import akka.actor.Scheduler;
 import com.avaje.ebean.Ebean;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
@@ -6,7 +7,10 @@ import controllers.StatisticsController;
 import exceptions.AuthenticateException;
 import exceptions.MalformedDataException;
 import models.*;
-import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
+import org.joda.time.Minutes;
+import org.joda.time.Seconds;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Application;
 import play.GlobalSettings;
@@ -30,7 +34,10 @@ import util.java.EmailComposer;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class Global extends GlobalSettings {
@@ -41,17 +48,14 @@ public class Global extends GlobalSettings {
     public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 1;
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 1;
 
-    private Cancellable reportSender;
+    private Scheduler reportSender;
+    private Cancellable reportTask;
     private Cancellable reviewRunner;
 
     @Override
     public void onStop(Application app) {
-        if (reportSender != null && !reportSender.isCancelled()) {
-            reportSender.cancel();
-        }
-        if (reviewRunner != null && !reviewRunner.isCancelled()) {
-            reviewRunner.cancel();
-        }
+        cancelReportSender();
+        cancelReviewRunner();
         super.onStop(app);
     }
 
@@ -71,13 +75,25 @@ public class Global extends GlobalSettings {
                 new ReviewRunner(),
                 Akka.system().dispatcher()
         );
-
+        reportSender = Akka.system().scheduler();
         scheduleWeeklyReport();
 
         SitnetUtil.initializeDataModel();
         StatisticsController.createReportDirectory();
 
         super.onStart(app);
+    }
+
+    private void cancelReportSender() {
+        if (reportTask != null && !reportTask.isCancelled()) {
+            Logger.info("Canceling report sender returned: {}", reportTask.cancel());
+        }
+    }
+
+    private void cancelReviewRunner() {
+        if (reviewRunner != null && !reviewRunner.isCancelled()) {
+            reviewRunner.cancel();
+        }
     }
 
     private int secondsUntilNextMondayRun(int scheduledHour) {
@@ -104,10 +120,8 @@ public class Global extends GlobalSettings {
 
         // Every Monday at 5AM UTC
         FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
-        if (reportSender != null && !reportSender.isCancelled()) {
-            reportSender.cancel();
-        }
-        reportSender = Akka.system().scheduler().scheduleOnce(delay, new Runnable() {
+        cancelReportSender();
+        reportTask = reportSender.scheduleOnce(delay, new Runnable() {
             @Override
             public void run() {
                 Logger.info("Running weekly email report");
