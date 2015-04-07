@@ -134,7 +134,7 @@
                                 $scope.examToBeReviewed.parent.examOwners.map(function(owner) {
                                     return owner.id; }).indexOf($scope.user.id) !== -1);
                         };
-                        $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED";
+                        $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED" || $scope.examToBeReviewed.state === "ABORTED";
                         $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";
 
                         refreshGradeNames();

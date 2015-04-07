@@ -57,6 +57,7 @@
             $routeProvider.when('/rooms/:id', { templateUrl: tmpl + 'facility/room.html', controller: 'RoomCtrl'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'administrative/reports/reports.html', controller: 'ReportController'});
             $routeProvider.when('/admin/reservations/', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
+            $routeProvider.when('/settings', { templateUrl: tmpl + 'common/admin/settings.html'});
             $routeProvider.when('/admin/reservations/list/student/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
             $routeProvider.when('/admin/reservations/list/room/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
             $routeProvider.when('/admin/reservations/list/exam/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});

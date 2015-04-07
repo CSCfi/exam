@@ -514,5 +514,8 @@
   "sitnet_exam_owners": "Tentaattorit",
   "sitnet_add_exam_owner": "Lisää tentaattori",
   "sitnet_add_exam_examiner": "Lisää arvioija",
-  "sitnet_owner_name": "Tentaattorin nimi"
+  "sitnet_owner_name": "Tentaattorin nimi",
+  "sitnet_aborted_exams": "Keskeytetyt tentit",
+  "sitnet_aborted_exam": "Keskeytetty tentti",
+  "sitnet_exam_time": "Tenttiaika"
 }

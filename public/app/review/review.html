@@ -17,7 +17,10 @@
             <span class="pull-right">{{'sitnet_inspection_status' | translate}}:</span>
         </span>
         <span class="pull-right horizontal-padding-1 col-md-12">
-            <span ng-if="examToBeReviewed.state ==='REVIEW' || examToBeReviewed.state === 'REVIEW_STARTED'  || examToBeReviewed.state === 'ABORTED'  || examToBeReviewed.state === 'STUDENT_STARTED'"
+            <span ng-if="examToBeReviewed.state === 'ABORTED'"
+                  class="pull-right sitnet-text-alarm small">{{'sitnet_aborted_exam' | translate}}
+            </span>
+            <span ng-if="examToBeReviewed.state ==='REVIEW' || examToBeReviewed.state === 'REVIEW_STARTED'  || examToBeReviewed.state === 'STUDENT_STARTED'"
                   class="pull-right text-success small">{{'sitnet_exam_in_review' | translate}}
             </span>
             <span ng-if="examToBeReviewed.state === 'GRADED'" class="pull-right text-info small">

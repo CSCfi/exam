@@ -285,6 +285,7 @@ public class ExamController extends SitnetController {
                 .where()
                 .eq("id", eid)
                 .disjunction()
+                .eq("state", Exam.State.ABORTED.toString())
                 .eq("state", Exam.State.REVIEW.toString())
                 .eq("state", Exam.State.REVIEW_STARTED.toString())
                 .eq("state", Exam.State.GRADED.toString())
