@@ -11,6 +11,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.mvc.Controller;
 import play.mvc.Result;
+import util.SitnetUtil;
 
 
 public class TimeController extends Controller {
@@ -34,6 +35,8 @@ public class TimeController extends Controller {
 
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
                 .fetch("exam")
                 .where()
                 .eq("exam.id", examId)
@@ -46,7 +49,8 @@ public class TimeController extends Controller {
 
         final DateTime reservationStart = new DateTime(enrolment.getReservation().getStartAt());
         final int durationMinutes = enrolment.getExam().getDuration();
-        final Seconds timeLeft = Seconds.secondsBetween(DateTime.now(), reservationStart.plusMinutes(durationMinutes));
+        DateTime now = SitnetUtil.adjustDST(DateTime.now(), enrolment.getReservation());
+        final Seconds timeLeft = Seconds.secondsBetween(now, reservationStart.plusMinutes(durationMinutes));
 
         return ok(String.valueOf(timeLeft.getSeconds()));
     }

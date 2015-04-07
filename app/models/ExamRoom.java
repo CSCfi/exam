@@ -7,14 +7,12 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import play.db.ebean.Model;
+import util.SitnetUtil;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -98,9 +96,8 @@ public class ExamRoom extends Model {
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
-    private static DateTimeFormatter format = DateTimeFormat.forPattern("HHmm");
+    private String localTimezone = SitnetUtil.getDefaultTimeZone().getID();
 
-    @Column(columnDefinition = "boolean default false")
     public boolean getExpanded() {
         return expanded;
     }
@@ -280,8 +277,16 @@ public class ExamRoom extends Model {
         this.videoRecordingsURL = videoRecordingsURL;
     }
 
+    public String getLocalTimezone() {
+        return localTimezone;
+    }
+
+    public void setLocalTimezone(String localTimezone) {
+        this.localTimezone = localTimezone;
+    }
+
     @Transient
-    private Interval getFromExceptionEvents(LocalDate date) {
+    private Interval getExceptionEvent(LocalDate date) {
 
         for (ExceptionWorkingHours exception : calendarExceptionEvents) {
 
@@ -315,8 +320,8 @@ public class ExamRoom extends Model {
 
     @Transient
     private Interval getInterval(LocalDate date, ExceptionWorkingHours exception) {
-        LocalTime start = new LocalTime(exception.getStartTime().getTime());
-        LocalTime end = new LocalTime(exception.getEndTime().getTime());
+        LocalTime start = new LocalTime(exception.getStartTime().getTime()).withSecondOfMinute(0).withMillisOfSecond(0);
+        LocalTime end = new LocalTime(exception.getEndTime().getTime()).withSecondOfMinute(0).withMillisOfSecond(0);
         return new Interval(date.toDateTime(start), date.toDateTime(end));
     }
 
@@ -326,12 +331,12 @@ public class ExamRoom extends Model {
     }
 
     @Transient
-    private List<Interval> getFromDefaultHours(LocalDate date) {
+    private List<Interval> getDefaultWorkingHours(LocalDate date) {
         String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
         List<Interval> intervals = new ArrayList<>();
         for (DefaultWorkingHours defaultHour : defaultWorkingHours) {
             if (defaultHour.getDay().equalsIgnoreCase(day)) {
-                LocalTime start = new LocalTime(defaultHour.getStartTime().getTime()); //Check this
+                LocalTime start = new LocalTime(defaultHour.getStartTime().getTime());
                 LocalTime end = new LocalTime(defaultHour.getEndTime().getTime());
                 Interval interval = new Interval(date.toDateTime(start), date.toDateTime(end));
                 intervals.add(interval);
@@ -342,12 +347,33 @@ public class ExamRoom extends Model {
 
     @Transient
     public List<Interval> getWorkingHoursForDate(LocalDate date) {
-        Interval exceptionEvents = getFromExceptionEvents(date);
-
-        if (exceptionEvents != null) {
-            return Arrays.asList(exceptionEvents);
+        List<Interval> workingHours = getDefaultWorkingHours(date);
+        Interval exceptionEvent = getExceptionEvent(date);
+        List<Interval> availableHours = new ArrayList<>();
+        if (exceptionEvent != null) {
+            for (Interval slot : workingHours) {
+                if (slot.overlaps(exceptionEvent)) {
+                    if (slot.contains(exceptionEvent)) {
+                        Interval first = new Interval(slot.getStart(), exceptionEvent.getStart());
+                        if (first.toDurationMillis() > 0) {
+                            availableHours.add(first);
+                        }
+                        Interval second = new Interval(exceptionEvent.getEnd(), slot.getEnd());
+                        if (second.toDurationMillis() > 0) {
+                            availableHours.add(second);
+                        }
+                    }
+                    else if (slot.isBefore(exceptionEvent)) {
+                        availableHours.add(new Interval(slot.getStart(), exceptionEvent.getStart()));
+                    }
+                    else if (slot.isAfter(exceptionEvent)) {
+                        availableHours.add(new Interval(exceptionEvent.getEnd(), slot.getEnd()));
+                    }
+                }
+            }
+        } else {
+            availableHours = workingHours;
         }
-
-        return getFromDefaultHours(date);
+        return availableHours;
     }
 }

@@ -7,8 +7,12 @@
                 var user = sessionService.getUser();
 
                 var calculateOffset = function() {
-                    var startsAt = $scope.enrolment.reservation.startAt;
-                    return Date.parse(startsAt) - new Date().getTime(); // CHECK FF!
+                    var startsAt = moment($scope.enrolment.reservation.startAt);
+                    var now = moment();
+                    if (now.isDST()) {
+                        startsAt.add(-1, 'hour');
+                    }
+                    return Date.parse(startsAt.format()) - new Date().getTime();
                 };
 
                 var await = function() {

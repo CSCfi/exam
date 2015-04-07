@@ -41,19 +41,6 @@ user_languages:
       UILanguageCode: sv
       UILanguageName: ruotsi
 
-################################################################
-users:
-
-    - !!models.User
-      email:      sitnetad@funet.fi
-      eppn:       sitnetad@funet.fi
-      firstName:  Exam
-      lastName:   Admnistrator
-      password:   c74626d3eca0613f356cd34ecd1301c5  #sitnetad, works only in DEBUG mode, not used in HAKA login
-      roles:
-            - *role-admin
-      userLanguage: *suomi
-
 ######################################################################
 
 exam-types:

@@ -132,7 +132,7 @@ public class RoomController extends SitnetController {
         Ebean.delete(previous);
 
         JsonNode node = request().body().asJson();
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("DD.MM.YYYY HH:mmZZ");
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
         for (JsonNode weekday : node) {
             for (JsonNode block : weekday.get("blocks")) {
                 DefaultWorkingHours dwh = new DefaultWorkingHours();
@@ -140,8 +140,9 @@ public class RoomController extends SitnetController {
                 dwh.setDay(weekday.get("weekday").asText());
                 String startTime = block.get("start").asText();
                 String endTime = block.get("end").asText();
-                dwh.setStartTime(DateTime.parse(startTime, formatter).toDate());
-                dwh.setEndTime(DateTime.parse(endTime, formatter).toDate());
+                // Deliberately use first of Jan to have no DST in effect
+                dwh.setStartTime(DateTime.parse(startTime, formatter).withDayOfYear(1).toDate());
+                dwh.setEndTime(DateTime.parse(endTime, formatter).withDayOfYear(1).toDate());
                 dwh.save();
             }
         }
@@ -149,23 +150,15 @@ public class RoomController extends SitnetController {
         return ok();
     }
 
-    private static DateTime fromJS(JsonNode root, String field) {
-        try {
-            return ISODateTimeFormat.dateTime().parseDateTime(root.get(field).asText());
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     @Restrict(@Group({"ADMIN"}))
     public static Result addRoomExceptionHour(Long id) {
 
         final JsonNode root = request().body().asJson();
 
-        DateTime startDate = fromJS(root, "startDate");
-        DateTime startTime = fromJS(root, "startTime");
-        DateTime endDate = fromJS(root, "endDate");
-        DateTime endTime = fromJS(root, "endTime");
+        DateTime startDate = root.has("startDate") ? ISODateTimeFormat.dateTime().parseDateTime(root.get("startDate").asText()) : null;
+        DateTime startTime = root.has("startTime") ? ISODateTimeFormat.dateTime().parseDateTime(root.get("startTime").asText()) : null;
+        DateTime endDate = root.has("endDate") ? ISODateTimeFormat.dateTime().parseDateTime(root.get("endDate").asText()) : null;
+        DateTime endTime = root.has("endTime") ? ISODateTimeFormat.dateTime().parseDateTime(root.get("endTime").asText()) : null;
 
         final ExceptionWorkingHours hours = new ExceptionWorkingHours();
 
@@ -174,7 +167,7 @@ public class RoomController extends SitnetController {
         }
 
         if (startTime != null) {
-            hours.setStartTime(startTime.toDate());
+            hours.setStartTime(startTime.withDayOfYear(1).toDate());
         }
 
         if (endDate != null) {
@@ -182,9 +175,8 @@ public class RoomController extends SitnetController {
         }
 
         if (endTime != null) {
-            hours.setEndTime(endTime.toDate());
+            hours.setEndTime(endTime.withDayOfYear(1).toDate());
         }
-
 
         hours.save();
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);

@@ -3,10 +3,7 @@ package controllers;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
-import models.Exam;
-import models.ExamEnrolment;
-import models.Reservation;
-import models.User;
+import models.*;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +24,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
     private User user;
     private ExamEnrolment enrolment;
     private Reservation reservation;
+    private ExamRoom room;
 
     @Override
     @Before
@@ -40,6 +38,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
         enrolment.setUser(user);
         reservation = new Reservation();
         reservation.setUser(user);
+        room = Ebean.find(ExamRoom.class, 1L);
     }
 
     @Test
@@ -81,6 +80,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateEnrolmentFutureReservationExists() throws Exception {
         // Setup
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().plusDays(1).toDate());
         reservation.setEndAt(DateTime.now().plusDays(2).toDate());
         reservation.save();
@@ -107,6 +107,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateEnrolmentOngoingReservationExists() throws Exception {
         // Setup
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().minusDays(1).toDate());
         reservation.setEndAt(DateTime.now().plusDays(1).toDate());
         reservation.save();
@@ -133,6 +134,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateEnrolmentPastReservationExists() throws Exception {
         // Setup
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().minusDays(2).toDate());
         reservation.setEndAt(DateTime.now().minusDays(1).toDate());
         reservation.save();

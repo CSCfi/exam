@@ -1,4 +1,5 @@
 import akka.actor.Cancellable;
+import akka.actor.Scheduler;
 import com.avaje.ebean.Ebean;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
@@ -10,6 +11,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.Minutes;
 import org.joda.time.Seconds;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
@@ -32,7 +34,10 @@ import util.java.EmailComposer;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class Global extends GlobalSettings {
@@ -43,41 +48,52 @@ public class Global extends GlobalSettings {
     public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 1;
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 1;
 
-    private Cancellable reportSender;
+    private Scheduler reportSender;
+    private Cancellable reportTask;
     private Cancellable reviewRunner;
 
     @Override
     public void onStop(Application app) {
-        if (reportSender != null && !reportSender.isCancelled()) {
-            reportSender.cancel();
-        }
-        if (reviewRunner != null && !reviewRunner.isCancelled()) {
-            reviewRunner.cancel();
-        }
+        cancelReportSender();
+        cancelReviewRunner();
         super.onStop(app);
     }
 
     @Override
     public void onStart(Application app) {
+        String encoding = System.getProperty("file.encoding");
+        if (!encoding.equals("UTF-8")) {
+            Logger.warn("Default encoding is other than UTF-8 ({}). " +
+                    "This might cause problems with non-ASCII character handling!", encoding);
+        }
 
         System.setProperty("user.timezone", "UTC");
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-
-        //todo: make these interval and start times configurable via configuration files
-
         reviewRunner = Akka.system().scheduler().schedule(
                 Duration.create(SITNET_EXAM_REVIEWER_START_AFTER_MINUTES, TimeUnit.MINUTES),
                 Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                 new ReviewRunner(),
                 Akka.system().dispatcher()
         );
-
-        weeklyEmailReport();
+        reportSender = Akka.system().scheduler();
+        scheduleWeeklyReport();
 
         SitnetUtil.initializeDataModel();
         StatisticsController.createReportDirectory();
 
         super.onStart(app);
+    }
+
+    private void cancelReportSender() {
+        if (reportTask != null && !reportTask.isCancelled()) {
+            Logger.info("Canceling report sender returned: {}", reportTask.cancel());
+        }
+    }
+
+    private void cancelReviewRunner() {
+        if (reviewRunner != null && !reviewRunner.isCancelled()) {
+            reviewRunner.cancel();
+        }
     }
 
     private int secondsUntilNextMondayRun(int scheduledHour) {
@@ -90,21 +106,25 @@ public class Global extends GlobalSettings {
         if (nextRun.isBefore(now)) {
             nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
         }
+        // Check if default TZ has daylight saving in effect, need to adjust the hour offset in that case
+        if (!SitnetUtil.getDefaultTimeZone().isStandardOffset(System.currentTimeMillis())) {
+            nextRun = nextRun.minusHours(1);
+        }
+        Logger.info("Scheduled next weekly report to be run at {}", nextRun.toString());
         return Seconds.secondsBetween(now, nextRun).getSeconds();
     }
 
-    private void weeklyEmailReport() {
+    private void scheduleWeeklyReport() {
         // TODO: store the time of last dispatch in db so we know if scheduler was not run and send an extra report
         // in that case?
 
         // Every Monday at 5AM UTC
         FiniteDuration delay = FiniteDuration.create(secondsUntilNextMondayRun(5), TimeUnit.SECONDS);
-        FiniteDuration frequency = FiniteDuration.create(7, TimeUnit.DAYS);
-        Runnable reporter = new Runnable() {
+        cancelReportSender();
+        reportTask = reportSender.scheduleOnce(delay, new Runnable() {
             @Override
             public void run() {
-
-                Logger.info(new Date() + "Running weekly email report");
+                Logger.info("Running weekly email report");
                 List<User> teachers = Ebean.find(User.class)
                         .fetch("userLanguage")
                         .where()
@@ -117,10 +137,12 @@ public class Global extends GlobalSettings {
                 } catch (IOException e) {
                     Logger.error("Failed to read email template from disk!", e);
                     e.printStackTrace();
+                } finally {
+                    // Reschedule
+                    scheduleWeeklyReport();
                 }
             }
-        };
-        reportSender = Akka.system().scheduler().schedule(delay, frequency, reporter, Akka.system().dispatcher());
+        }, Akka.system().dispatcher());
     }
 
     @Override
@@ -287,7 +309,7 @@ public class Global extends GlobalSettings {
                         room.getBuildingName() + ":::" +
                         room.getRoomCode() + ":::" +
                         examMachine.getName() + ":::" +
-                        enrolment.getReservation().getStartAt().getTime();
+                        ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
             } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                 // Right room, wrong machine
                 header = "x-sitnet-wrong-machine";
@@ -329,8 +351,8 @@ public class Global extends GlobalSettings {
     }
 
     private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
-        Date now = new Date();
-        DateTime future = new DateTime(now).plusMinutes(minutesToFuture);
+        DateTime now = SitnetUtil.adjustDST(new DateTime());
+        DateTime future = now.plusMinutes(minutesToFuture);
         List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")

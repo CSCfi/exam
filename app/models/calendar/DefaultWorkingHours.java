@@ -1,12 +1,12 @@
 package models.calendar;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import models.ExamRoom;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-
 import java.util.Date;
 
 @Entity
@@ -31,9 +31,11 @@ public class DefaultWorkingHours extends Model {
     private Long id;
 
     @Temporal(TemporalType.TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
     protected Date startTime;
 
     @Temporal(TemporalType.TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
     protected Date endTime;
 
     private String day;

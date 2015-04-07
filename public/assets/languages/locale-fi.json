@@ -515,6 +515,7 @@
   "sitnet_add_exam_owner": "Lisää tentaattori",
   "sitnet_add_exam_examiner": "Lisää arvioija",
   "sitnet_owner_name": "Tentaattorin nimi",
+  "sitnet_status_machine_available": "Kone käytettävissä",
   "sitnet_aborted_exams": "Keskeytetyt tentit",
   "sitnet_aborted_exam": "Keskeytetty tentti",
   "sitnet_exam_time": "Tenttiaika"

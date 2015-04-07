@@ -61,7 +61,7 @@
                         {{review.user.lastName}}</a></td>
                     <td>{{review.user.email}}</td>
                     <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                        translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                        translate}}.{{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date: 'HH:mm'}}
                         ({{review.started | diffInMinutesTo:review.ended }}min)
                     </td>
                     <td class="table-column-20" class="sitnet-text-aborted">

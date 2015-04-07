@@ -193,21 +193,9 @@
                                     var timeSlots = slotToTimes(daySlot);
                                     setSelected(daySlot.day, timeSlots);
                                 });
-
-                                if (room.calendarExceptionEvents) {
-                                    room.calendarExceptionEvents = room.calendarExceptionEvents.map(function (exception) {
-                                        var n = new Date().getTimezoneOffset() * 60 * 1000;
-                                        exception.startTime += n;
-                                        exception.endTime += n;
-                                        return exception;
-                                    });
-                                }
-
                                 $scope.roomInstance = room;
-
-
                                 if (!isAnyExamMachines())
-                                    toastr.error($translate('sitnet_room_has_no_machines_yet'));
+                                    toastr.warning($translate('sitnet_room_has_no_machines_yet'));
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -434,8 +422,9 @@
                 };
 
                 var formatTime = function (time) {
+                    var hours = moment().isDST() ? 1 : 0;
                     return moment()
-                        .set('hour', time.split(':')[0])
+                        .set('hour', parseInt(time.split(':')[0]) + hours)
                         .set('minute', time.split(':')[1])
                         .format("DD.MM.YYYY HH:mmZZ");
                 };
@@ -494,16 +483,17 @@
                     }
                     return formatted;
                 };
+
                 $scope.formatTime = function (exception) {
                     var fmt = 'HH:mm';
                     if (!exception.startTime) {
                         return $translate('sitnet_out_of_service');
                     }
-                    var formatted = moment(exception.startTime).format(fmt);
-                    formatted += ' - ';
-                    formatted += moment(exception.endTime).format(fmt)
-                    return formatted;
+                    var start = moment(exception.startTime);
+                    var end = moment(exception.endTime);
+                    return start.format(fmt) + " - " + end.format(fmt);
                 };
+
 
                 $scope.addException = function () {
 
@@ -561,14 +551,18 @@
 
                             $scope.ok = function () {
 
+                                var hourOffset = moment().isDST() ? 1 : 0;
+                                var startTime = moment($scope.startTime).add(hourOffset, 'hour');
+                                var endTime = moment($scope.endTime).add(hourOffset, 'hour');
+
                                 var range = $scope.timeRange;
                                 var oos = $scope.outOfService;
 
                                 $modalInstance.close({
                                     "startDate": $scope.startDate,
                                     "endDate": range ? $scope.endDate : undefined,
-                                    "startTime": oos ? undefined : $scope.startTime,
-                                    "endTime": oos ? undefined : $scope.endTime
+                                    "startTime": oos ? undefined : startTime,
+                                    "endTime": oos ? undefined : endTime
                                 });
                             };
 
@@ -583,8 +577,7 @@
                         RoomResource.exception.update({id: $scope.roomInstance.id}, exception,
                             function (saveException) {
                                 toastr.info($translate('sitnet_exception_time_added'));
-                                exception.id = saveException.id;
-                                $scope.roomInstance.calendarExceptionEvents.push(exception);
+                                $scope.roomInstance.calendarExceptionEvents.push(saveException);
                             },
                             function (error) {
                                 toastr.error(error.data);

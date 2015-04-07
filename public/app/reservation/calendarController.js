@@ -1,13 +1,15 @@
-(function() {
+(function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService', '$locale', 'StudentExamRes',
-            function($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes) {
+        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService',
+            '$locale', 'StudentExamRes', 'dateService',
+            function ($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes,
+                      dateService) {
 
                 var enrolmentId = $routeParams.enrolment;
                 $scope.user = sessionService.getUser();
 
-                var formatMoment = function(data) {
+                var formatMoment = function (data) {
                     if (data.locale) {
                         data.locale($locale.id.substring(0, 2));
                     }
@@ -19,114 +21,107 @@
 
                 $scope.accessibilities = [];
 
-                $http.get('accessibility').success(function(data) {
+                $http.get('accessibility').success(function (data) {
                     $scope.accessibilities = data;
                 });
 
                 formatMoment(moment());
 
-                var refresh = function() {
+                var refresh = function () {
                     var day = $scope.selectedMonth.data.format("DD.MM.YYYYZZ");
-                    var accessibility = $scope.accessibilities.filter(function(item) {
+                    var accessibility = $scope.accessibilities.filter(function (item) {
                         return item.selected;
-                    }).map(function(item) {
+                    }).map(function (item) {
                         return item.id;
                     });
-                    var params = { day: day, aids: accessibility  };
-                    $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id, { params: params })
-                        .then(function(reply) {
-                            Object.keys(reply.data).forEach(function(key) {
-                                if ($scope.selectedMonth.data.get('month') !==
-                                    moment(key, 'DD.MM.YYYY').get('month')) {
-                                    delete reply.data[key];
-                                }
-                            });
+                    var params = {day: day, aids: accessibility};
+                    if ($scope.selectedRoom) {
+                        $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id, {params: params})
+                            .then(function (reply) {
+                                Object.keys(reply.data).forEach(function (key) {
+                                    if ($scope.selectedMonth.data.get('month') !==
+                                        moment(key, 'DD.MM.YYYY').get('month')) {
+                                        delete reply.data[key];
+                                    }
+                                });
 
-                            $scope.daySlots = reply.data;
-                        }, function(error) {
-                            if (error.data && error.data.cause === 'EXAM_NOT_ACTIVE_TODAY') {
-                                toastr.error($translate('sitnet_exam_not_active_now'));
-                            } else {
-                                toastr.error($translate('sitnet_no_suitable_enrolment_found'));
-                            }
-                            $scope.daySlots = [];
-                        });
+                                $scope.daySlots = reply.data;
+                            }, function (error) {
+                                if (error.data && error.data.cause === 'EXAM_NOT_ACTIVE_TODAY') {
+                                    toastr.error($translate('sitnet_exam_not_active_now'));
+                                } else {
+                                    toastr.error($translate('sitnet_no_suitable_enrolment_found'));
+                                }
+                                $scope.daySlots = [];
+                            });
+                    }
                 };
 
-                $http.get('rooms').then(function(reply) {
+                $http.get('rooms').then(function (reply) {
                     $scope.rooms = reply.data;
                     if ($scope.rooms) {
                         $scope.selectRoom(reply.data[0]);
                     }
                 });
 
-                StudentExamRes.reservationInstructions.get({"id": enrolmentId}, function(result) {
+                StudentExamRes.reservationInstructions.get({"id": enrolmentId}, function (result) {
                     $scope.reservationInstructions = result.enrollInstructions;
                 });
 
-                $scope.formatDate = function(stamp) {
+                $scope.formatDate = function (stamp) {
                     return moment(stamp, 'DD.MM.YYYY HH:mm').format('DD.MM.');
                 };
 
-                $scope.$on('$localeChangeSuccess', function() {
+                $scope.$on('$localeChangeSuccess', function () {
                     formatMoment($scope.selectedMonth.data);
                 });
 
 
-                $scope.createReservation = function(slot) {
+                $scope.createReservation = function (slot) {
 
                     slot.examId = enrolmentId;
                     slot.roomId = $scope.selectedRoom.id;
                     slot.aids = $scope.accessibilities.filter(
-                        function(item) {
+                        function (item) {
                             return item.selected;
-                        }).map(function(item) {
+                        }).map(function (item) {
                             return item.id;
                         });
 
 
-                    $http.post('calendar/reservation', slot).then(function() {
+                    $http.post('calendar/reservation', slot).then(function () {
                         $location.path('#/home');
-                    }, function(error) {
+                    }, function (error) {
                         toastr.error(error.data);
                     });
                 };
 
 
-                var checkDST = function(stamp) {
+                $scope.formatTime = function (stamp) {
                     var date = moment(stamp, 'DD.MM.YYYY HH:mmZZ');
-                    var now = moment();
-                    if (date.isDST() && !now.isDST()) {
-                         date = date.add(-1, 'hours');
-                    } else if (!date.isDST() && now.isDST()) {
-                        date = date.add(1, 'hours');
-                    }
-                    return date;
+                    var offset = date.isDST() ? -1 : 0;
+                    return date.add(offset, 'hour').format('HH:mm');
                 };
 
-                $scope.formatTime = function(stamp) {
-                    return moment(checkDST(stamp)).format('HH:mm');
-                };
-
-                $scope.nextMonth = function() {
+                $scope.nextMonth = function () {
                     var date = $scope.selectedMonth.data;
-                    formatMoment(date.add('months', 1));
+                    formatMoment(date.add(1, 'month'));
                     refresh();
                 };
 
-                $scope.prevMonth = function() {
+                $scope.prevMonth = function () {
                     var date = $scope.selectedMonth.data;
-                    formatMoment(date.subtract('months', 1));
+                    formatMoment(date.subtract(1, 'month'));
                     refresh();
                 };
 
-                $scope.selectAccessibility = function(accessibility) {
+                $scope.selectAccessibility = function (accessibility) {
                     accessibility.selected = !accessibility.selected;
                     refresh();
                 };
 
-                $scope.selectRoom = function(room) {
-                    $scope.rooms.forEach(function(room) {
+                $scope.selectRoom = function (room) {
+                    $scope.rooms.forEach(function (room) {
                         delete room.selected;
                     });
                     room.selected = true;
