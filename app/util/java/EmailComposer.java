@@ -149,8 +149,8 @@ public class EmailComposer {
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
         String teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
 
-        DateTime startDate = new DateTime(reservation.getStartAt(), TZ);
-        DateTime endDate = new DateTime(reservation.getEndAt(), TZ);
+        DateTime startDate = adjustDST(reservation.getStartAt(), TZ);
+        DateTime endDate = adjustDST(reservation.getEndAt(), TZ);
         String reservationDate = DTF.print(startDate) + " - " + DTF.print(endDate);
         String examDuration = String.format("%dh %dmin", exam.getDuration() / 60, exam.getDuration() % 60);
 
@@ -239,8 +239,8 @@ public class EmailComposer {
         Lang lang = getLang(student);
         String subject = Messages.get(lang, "email.reservation.cancellation.subject");
 
-        String date = DF.print(new DateTime(reservation.getStartAt(), TZ));
-        String time = TF.print(new DateTime(reservation.getStartAt(), TZ));
+        String date = DF.print(adjustDST(reservation.getStartAt(), TZ));
+        String time = TF.print(adjustDST(reservation.getStartAt(), TZ));
         String room = reservation.getMachine().getRoom().getName();
         String info = Messages.get(lang, "email.reservation.cancellation.info");
 
@@ -298,7 +298,7 @@ public class EmailComposer {
                 subTemplate = String.format(
                         "<p><a href=\"{{exam_link}}\">{{exam_name}}</a>, {{course_code}} - %s</p>", noEnrolments);
             } else {
-                DateTime date = new DateTime(enrolments.get(0).getReservation().getStartAt(), TZ);
+                DateTime date = adjustDST(enrolments.get(0).getReservation().getStartAt(), TZ);
                 stringValues.put("enrolments",
                         Messages.get(lang, "email.template.enrolment.first", enrolments.size(), DTF.print(date)));
                 subTemplate = enrolmentTemplate;
@@ -353,6 +353,16 @@ public class EmailComposer {
     private static Lang getLang(User user) {
         UserLanguage language = user.getUserLanguage();
         return Lang.forCode(language.getUILanguageCode());
+    }
+
+    private static DateTime adjustDST(Date date, DateTimeZone dtz) {
+        DateTime dateTime = new DateTime(date, dtz);
+        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
+            dateTime = dateTime.minusHours(1);
+        } else if (!dtz.isStandardOffset(date.getTime())) {
+            dateTime = dateTime.minusHours(1);
+        }
+        return dateTime;
     }
 
     private static String getRoomInstruction(ExamRoom room, Lang lang) {
