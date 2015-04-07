@@ -518,5 +518,6 @@
   "sitnet_status_machine_available": "Computer available",
   "sitnet_aborted_exams": "Aborted exams",
   "sitnet_aborted_exam": "Aborted exam",
-  "sitnet_exam_time": "Exam time"
+  "sitnet_exam_time": "Exam time",
+  "sitnet_confirm_room_inactivation": "Are you sure you want to take this room out of use?"
 }
