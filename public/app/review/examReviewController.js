@@ -128,12 +128,20 @@
                             }
                         }
 
-                        $scope.isCreatorOrOwner = function () {
-                            return $scope.examToBeReviewed &&
-                                ($scope.examToBeReviewed.parent.creator.id === $scope.user.id ||
-                                $scope.examToBeReviewed.parent.examOwners.map(function(owner) {
-                                    return owner.id; }).indexOf($scope.user.id) !== -1);
+                        var isOwner = function() {
+                            return $scope.examToBeReviewed.parent.examOwners.map(function (owner) {
+                                    return owner.id;
+                                }).indexOf($scope.user.id) !== -1;
                         };
+
+                        var isCreator = function() {
+                            return $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
+                        };
+
+                        $scope.isCreatorOrOwnerOrAdmin = function () {
+                            return $scope.examToBeReviewed && ($scope.user.isAdmin || isCreator() || isOwner());
+                        };
+
                         $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED" || $scope.examToBeReviewed.state === "ABORTED";
                         $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";
 
@@ -512,7 +520,11 @@
                             }, 1000);
                         } else {
                             toastr.info($translate("sitnet_review_graded"));
-                            $location.path("exams/reviews/" + exam.parent.id);
+                            if ($scope.user.isAdmin) {
+                                $location.path("/home");
+                            } else {
+                                $location.path("exams/reviews/" + exam.parent.id);
+                            }
                         }
                     }, function (error) {
                         toastr.error(error.data);
@@ -521,7 +533,7 @@
 
                 // called when Save button is clicked
                 $scope.updateExam = function (reviewed_exam) {
-                    if (!$scope.isCreatorOrOwner(reviewed_exam)) {
+                    if (!$scope.isCreatorOrOwnerOrAdmin()) {
                         if (reviewed_exam.state !== 'GRADED') {
                             // Just save feedback and leave
                             $scope.saveFeedback(true);
@@ -546,7 +558,7 @@
                         var oldState = reviewed_exam.state;
                         var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
 
-                        if(newState !== 'GRADED' || oldState == 'GRADED') {
+                        if (newState !== 'GRADED' || oldState == 'GRADED') {
                             var review = getReviewUpdate(reviewed_exam, newState);
                             doUpdate(newState, review, messages, reviewed_exam);
                         } else {
@@ -602,7 +614,11 @@
 
                             ExamRes.saveRecord.add(examToRecord, function (exam) {
                                 toastr.info($translate('sitnet_review_recorded'));
-                                $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                                if ($scope.user.isAdmin) {
+                                    $location.path("/home");
+                                } else {
+                                    $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                                }
                             }, function (error) {
                                 toastr.error(error.data);
                             });

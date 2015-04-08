@@ -296,7 +296,7 @@ public class ExamController extends SitnetController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = UserController.getLoggedUser();
-        if (!exam.isInspectedOrCreatedOrOwnedBy(user)) {
+        if (!exam.isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole("ADMIN")) {
             return forbidden("sitnet_error_access_forbidden");
         }
         JsonContext jsonContext = Ebean.createJsonContext();
