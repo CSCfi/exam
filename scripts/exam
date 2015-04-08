@@ -1,37 +1,39 @@
-#!/bin/bash
+#!/bin/sh
 #
 # exam
 #
 # chkconfig: 345 80 10
 
-APP_PATH=/opt/exam/sitnet
-ACTIVATOR_PATH=/opt/play-2.2.2/play
-APP_OPTS="-Dconfig.resource=production.conf -DapplyEvolutions.default=true clean compile run"
+APP_ROOT_PATH=/opt/exam/sitnet/target/universal/stage
+APP_PATH="$APP_ROOT_PATH/bin/exam"
+APP_OPTS="-DapplyEvolutions.default=true -Dapplication.secret=abcdefghijk"
 APP_USER=sitnet
+PID_FILE="$APP_ROOT_PATH/RUNNING_PID"
 
 start()
 {
-    echo -n "Starting EXAM"
-    cd $APP_PATH
-    sudo -u "$APP_USER" "$ACTIVATOR_PATH" $APP_OPTS
+    echo "Starting EXAM"
+    sudo -u "$APP_USER" nohup "$APP_PATH" $APP_OPTS > /dev/null 2>&1 < /dev/null &
+    sleep 3
+    PID=`cat $PID_FILE`
+    echo "DONE (PID=$PID)"
 }
+
 stop()
 {
     echo "Stopping EXAM"
-    pkill -u $APP_USER
+    sudo -u $APP_USER kill `cat $PID_FILE`
 }
 
 case "$1" in
-
     start)
-	start
-	;;
+        start
+        ;;
     stop)
-	stop
-	;;
+        stop
+        ;;
     restart)
        stop
        start
        ;;
 esac
-
