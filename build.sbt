@@ -22,8 +22,6 @@ libraryDependencies ++= Seq(javaJdbc, javaEbean, cache , javaWs,
   "com.icegreen" % "greenmail" % "1.4.0" % "test"
 )
 
-unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
-
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
 scalacOptions ++= Seq("-feature")

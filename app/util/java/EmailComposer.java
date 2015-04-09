@@ -26,7 +26,7 @@ public class EmailComposer {
     private static final String TAG_CLOSE = "}}";
     private static final String BASE_SYSTEM_URL = ConfigFactory.load().getString("sitnet.baseSystemURL");
     private static final Charset ENCODING = Charset.defaultCharset();
-    private static final String TEMPLATES_ROOT = String.format("%s/app/assets/template/email/",
+    private static final String TEMPLATES_ROOT = String.format("%s/conf/template/email/",
             Play.application().path().getAbsolutePath());
     private static final String HOSTNAME = SitnetUtil.getHostName();
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm ZZZ");
