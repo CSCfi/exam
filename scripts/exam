@@ -1,29 +1,53 @@
-#!/bin/sh
+#!/bin/bash
 #
 # exam
 #
-# chkconfig: 345 80 10
+# chkconfig: 90 10
 
 APP_ROOT_PATH=/opt/exam/sitnet
 APP_STAGING_PATH="$APP_ROOT_PATH/target/universal/stage"
 APP_PATH="$APP_STAGING_PATH/bin/exam"
-APP_OPTS="-DapplyEvolutions.default=true -Dapplication.secret=abcdefghijk"
 APP_USER=sitnet
-PID_FILE="$APP_STAGING_PATH/RUNNING_PID"
+PID_DIR=/var/run/exam
+PID_FILE="$PID_DIR/exam.pid"
+APP_OPTS="-Dconfig.file=$APP_ROOT_PATH/conf/demo.conf -Dapplication.secret=abcdefghijk -DapplyEvolutions.default=true -Dpidfile.path=$PID_FILE"
+
+. /etc/init.d/functions
 
 start()
 {
-    echo "Starting EXAM"
-    sudo -u "$APP_USER" nohup "$APP_PATH" $APP_OPTS > /dev/null 2>&1 < /dev/null &
-    sleep 3
-    PID=`cat $PID_FILE`
-    echo "DONE (PID=$PID)"
+    echo -n "Starting exam:"
+    mkdir -p $PID_DIR
+    chown $APP_USER:$APP_USER /var/run/exam
+    su -l $APP_USER -c "nohup $APP_PATH $APP_OPTS > /tmp/exam.log 2>&1 < /dev/null" &
+    i="0"
+    while [ $i -lt 20 ]
+    do
+        if [ -f $PID_FILE ]
+        then
+            break
+        fi
+        sleep 1
+        i=$[$i+1]
+    done
+    if [ -f $PID_FILE ]
+    then
+        success
+    else
+        failure
+    fi
+    echo
 }
 
 stop()
 {
-    echo "Stopping EXAM"
-    sudo -u $APP_USER kill `cat $PID_FILE`
+    echo -n "Stopping exam:"
+    if [ -f $PID_FILE ]
+    then
+        su -l $APP_USER -c "kill `cat $PID_FILE`"
+    fi
+    success
+    echo
 }
 
 case "$1" in
@@ -34,7 +58,7 @@ case "$1" in
         stop
         ;;
     restart)
-       stop
-       start
-       ;;
+        stop
+        start
+        ;;
 esac
