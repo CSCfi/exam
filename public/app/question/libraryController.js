@@ -9,6 +9,21 @@
                 $scope.courses = [];
                 $scope.exams = [];
                 $scope.tags = [];
+                $scope.filteredQuestions = [];
+
+                $scope.applyFreeSearchFilter = function (paginate) {
+                    var lower = paginate ? $scope.currentPage * $scope.pageSize : 0;
+                    var upper = paginate ? lower + $scope.pageSize : $scope.questions.length;
+                    if ($scope.selected) {
+                        $scope.filteredQuestions = $scope.questions.slice(lower, upper).filter(function(question) {
+                            if (!question.question) return false;
+                            var re = new RegExp($scope.selected, 'i');
+                            return question.question.match(re);
+                        })
+                    } else {
+                        $scope.filteredQuestions = $scope.questions;
+                    }
+                };
 
                 $scope.getTags = function () {
                     var courses = $scope.courses.filter(function (course) {
@@ -64,7 +79,7 @@
                             item.icon = icon;
                             return item;
                         });
-                        $scope.questions = data;
+                        $scope.questions = $scope.filteredQuestions = data;
                         $scope.currentPage = 0;
                     });
                 };
@@ -170,7 +185,7 @@
 
                 $scope.deleteQuestion = function (question) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_question_from_library_only'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
                         QuestionRes.questions.delete({'id': question.id}, function () {
