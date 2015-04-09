@@ -104,7 +104,7 @@
                 <div class="col-md-2">
                     <label for="examGrade">{{'sitnet_exam_grade' | translate}}:</label>
                     <select id="examGrade" name="examGrade" class="form-control" ng-model="selectedGrade"
-                            ng-disabled="isReadOnly || !isCreatorOrOwner()" ng-change="setGrade(selectedGrade)" required>
+                            ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()" ng-change="setGrade(selectedGrade)" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
                         <option ng-repeat="grade in examGrading" value="{{grade.id}}"
                                 ng-selected="checkGrade(grade)">{{ grade.name }}
@@ -117,7 +117,7 @@
                     <select id="creditType" name="creditType" class="form-control"
                             ng-model="selectedType"
                             ng-change="setCreditType(selectedType)"
-                            ng-disabled="isReadOnly || !isCreatorOrOwner()" required>
+                            ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
                         <option ng-repeat="examType in examTypes" value="{{examType.type}}"
                                 ng-selected="checkCreditType(examType)">{{examType.name}}
@@ -128,7 +128,7 @@
                 <div class="col-md-2">
                     <label for="answerLanguage">{{'sitnet_exam_record_language' | translate}}:</label>
                     <select id="answerLanguage" name="answerLanguage" class="form-control"
-                            ng-disabled="isReadOnly || !isCreatorOrOwner()"
+                            ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()"
                             ng-model="selectedLanguage"
                             ng-change="setLanguage(selectedLanguage)" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
@@ -139,13 +139,13 @@
                 </div>
                 <div class="col-md-2">
                     <label for="customCredit">{{'sitnet_exam_credit' | translate}} (op):</label>
-                    <input id="customCredit" type="number" ng-disabled="isReadOnly || !isCreatorOrOwner()" required min="0"
+                    <input id="customCredit" type="number" ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()" required min="0"
                            class="form-control" maxlength="3" ng-model="examToBeReviewed.customCredit"/>
                 </div>
                 <div class="col-md-4 form-group">
                     <label for="infoForRegistry">{{'sitnet_additional_info_for_registry' | translate}}:</label>
                     <textarea id="infoForRegistry" class="form-control" ng-model="examToBeReviewed.additionalInfo" rows="3"
-                              ng-disabled="isReadOnly || !isCreatorOrOwner()">
+                              ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()">
                     </textarea>
                 </div>
             </div>
@@ -158,12 +158,12 @@
     <div class="col-md-1">
             <span ng-show="!isReadOnly">
                 <!-- do not enable this if already graded and form has errors! -->
-                <button ng-disabled="isGraded && ( !examForm.$valid || !isCreatorOrOwner() )"
+                <button ng-disabled="isGraded && ( !examForm.$valid || !isCreatorOrOwnerOrAdmin() )"
                         ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
                     {{'sitnet_save' | translate}}
                 </button>
             </span>
-            <span ng-show="isReadOnly || (!isCreatorOrOwner() && isGraded)" class="row">
+            <span ng-show="isReadOnly || (!isCreatorOrOwnerOrAdmin() && isGraded)" class="row">
                 <a href="#/exams/reviews/{{ examToBeReviewed.parent.id }}" class="row">
                     <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
                 </a>
@@ -172,7 +172,7 @@
     <div class="col-md-2">
         <span ng-show="!isReadOnly">
             <input type="button" class="btn btn-primary btn-sm"
-               ng-disabled="isReadOnly || !isCreatorOrOwner() || !examForm.$valid"
+               ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin() || !examForm.$valid"
                ng-click="saveExamRecord(examToBeReviewed)"
                value="{{'sitnet_send_result_to_registry' | translate}}"/>
         </span>

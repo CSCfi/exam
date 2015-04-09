@@ -56,7 +56,7 @@
     <div ng-include="gradingPath"></div>
 
     <!-- Floating feedback window -->
-    <div id="exam" class="col-md-11" ng-hide="(isGraded && !isCreatorOrOwner()) || isReadOnly">
+    <div id="exam" class="col-md-11" ng-hide="(isGraded && !isCreatorOrOwnerOrAdmin()) || isReadOnly">
         <div ng-init="hideEditor = false" class="col-md-5 col-md-offset-4 review-feedback" bs-affix data-offset-top="150">
             <div class="review-feedback" ng-click="hideEditor = toggleFeedbackHiding(hideEditor)">
                         <span>

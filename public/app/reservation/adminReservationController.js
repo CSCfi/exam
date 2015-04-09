@@ -89,7 +89,7 @@
                         var params = $scope.selection;
                         // have to clear empty strings completely
                         for (var k in params) {
-                            if (params[k] === '') {
+                            if (params.hasOwnProperty(k) && params[k] === '') {
                                 params[k] = undefined;
                             }
                         }

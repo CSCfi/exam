@@ -10,12 +10,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.rules.TestName;
-import play.api.db.evolutions.InconsistentDatabase;
-import play.api.db.evolutions.OfflineEvolutions;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.FakeApplication;
@@ -23,7 +22,6 @@ import play.test.FakeRequest;
 import play.test.Helpers;
 import util.SitnetUtil;
 
-import java.io.File;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -50,24 +48,8 @@ public class IntegrationTestCase {
     @Rule
     public TestName currentTest = new TestName();
 
-    @BeforeClass
-    public static void evolve() {
-        // Apply evolutions manually to test database
-        try {
-            OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default", true);
-        } catch (InconsistentDatabase e) {
-            int revision = e.rev();
-            OfflineEvolutions.resolve(new File("."), IntegrationTestCase.class.getClassLoader(), "default", revision);
-        }
-    }
-
-    protected String getConfigFile() {
-        return "conf/integrationtest.conf";
-    }
-
     protected void startApp() {
-        Config config = ConfigFactory.parseFile(new File(getConfigFile()));
-        app = fakeApplication(new play.Configuration(config).asMap());
+        app = fakeApplication(new FakeGlobal());
         start(app);
     }
 

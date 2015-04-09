@@ -1,3 +1,5 @@
+package global;
+
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
 import com.avaje.ebean.Ebean;

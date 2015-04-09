@@ -234,13 +234,13 @@
                 }
             };
         }])
-        .directive('sitnetHeader', ['$translate', function ($translate) {
+        .directive('sitnetHeader', [function () {
             return {
                 restrict: 'E',
-                require: 'ngModel',
+                replace: true,
                 template: '<div id="sitnet-header" class="header">' +
                 '<div class="col-md-12 header-wrapper">' +
-                '<span class="header-text">' + $translate("sitnet_welcome") + ', {{getUsername()}}</span>' +
+                '<span class="header-text">{{ "sitnet_welcome" | translate }}, {{getUsername()}}</span>' +
                 '</div>' +
                 '</div>'
             };

@@ -52,7 +52,7 @@
                 $http.defaults.headers.common = header;
                 sessionService.setUser(user);
                 // Introduce a short timeout for this to give the translateProvider some time to settle
-                $timeout(function() {
+                $timeout(function () {
                     sessionService.translate(user.lang);
                 }, 100);
             }
@@ -71,10 +71,16 @@
                             "hideDuration": "0",
                             "timeOut": "30000",
                             "extendedTimeOut": "1000",
-                            "tapToDismiss": false
-                        },
-                            toastr.options.preventDuplicates = true,
-                            toastr.warning($translate("sitnet_session_will_expire_soon") + "  " + "<button onclick=\"javascript:$http.put('/extendSession')\">" + $translate("sitnet_continue_session") + "</button>");
+                            "tapToDismiss": false,
+                            "preventDuplicates": true
+                        };
+                        toastr.warning($translate("sitnet_session_will_expire_soon") +
+                        "&nbsp;<button onclick=\"" +
+                        "var request = new XMLHttpRequest();" +
+                        "request.open('PUT', '/extendSession', true); " +
+                        "request.setRequestHeader('" + SITNET_CONF.AUTH_HEADER + "', '" + user.token + "'); " +
+                        "request.send();\">" +
+                        $translate("sitnet_continue_session") + "</button>");
                     } else if (data === "no_session") {
                         if (scheduler) {
                             $interval.cancel(scheduler);
@@ -84,7 +90,7 @@
                 });
             };
 
-            var restartSessionCheck = function() {
+            var restartSessionCheck = function () {
                 if (scheduler) {
                     $interval.cancel(scheduler);
                 }
@@ -117,7 +123,8 @@
                                 $scope.ok = function () {
                                     console.log("ok");
                                     // OK button
-                                    UserRes.updateAgreementAccepted.update({id: user.id}, function (user) {
+                                    UserRes.updateAgreementAccepted.update({id: user.id}, function () {
+                                        user.hasAcceptedUserAgreament = true;
                                         sessionService.setUser(user);
                                     }, function (error) {
                                         toastr.error(error.data);

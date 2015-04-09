@@ -521,12 +521,11 @@
   "sitnet_exam_time": "Tenttiaika",
   "sitnet_exam_validity": "Tentin voimassaoloaika",
   "sitnet_confirm": "Vahvista",
-
   "DIALOGS_OK":"OK",
   "DIALOGS_YES":"Kyllä",
   "DIALOGS_NO":"Ei",
   "DIALOGS_ERROR":"Virhe",
   "DIALOGS_CLOSE":"Sulje",
-
+  "sitnet_confirm_room_inactivation": "Haluatko varmasti ottaa tilan pois käytöstä?",
   "sitnet_print_selected_to_file": "Tulosta valitut tiedostoon"
 }

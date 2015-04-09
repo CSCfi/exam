@@ -1,3 +1,5 @@
+package global;
+
 import com.avaje.ebean.Ebean;
 import models.Session;
 import models.User;

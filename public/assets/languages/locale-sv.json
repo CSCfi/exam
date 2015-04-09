@@ -521,11 +521,11 @@
   "sitnet_exam_time": "Exam time",
   "sitnet_exam_validity": "Exam validity period",
   "sitnet_confirm": "Confirm",
-
   "DIALOGS_OK":"OK",
   "DIALOGS_YES":"Yes",
   "DIALOGS_NO":"No",
   "DIALOGS_ERROR":"Error",
   "DIALOGS_CLOSE":"Close",
+  "sitnet_confirm_room_inactivation": "Är du säker att du vill ta rummet ur bruk?",
   "sitnet_print_selected_to_file": "Tulosta valitut tiedostoon"
 }
