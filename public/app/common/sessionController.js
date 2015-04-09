@@ -46,7 +46,8 @@
 
                                     $scope.ok = function () {
                                         // OK button
-                                        UserRes.updateAgreementAccepted.update({id: user.id}, function (user) {
+                                        UserRes.updateAgreementAccepted.update({id: user.id}, function () {
+                                            user.hasAcceptedUserAgreament = true;
                                             sessionService.setUser(user);
                                         }, function (error) {
                                             toastr.error(error.data);
