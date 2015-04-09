@@ -42,6 +42,7 @@ GET           /examparticipations/:eid/:uid                         controllers.
 
 POST          /exam/record                                          controllers.ExamRecordController.addExamRecord()
 GET           /exam/record                                          controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
+GET           /exam/record/export/:id                               controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
 
 GET           /examenrolmentroom/:eid                               controllers.ExamController.getRoomInfoFromEnrollment(eid: Long)
 

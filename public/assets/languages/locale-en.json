@@ -526,5 +526,6 @@
   "DIALOGS_NO":"No",
   "DIALOGS_ERROR":"Error",
   "DIALOGS_CLOSE":"Close",
-  "sitnet_confirm_room_inactivation": "Are you sure you want to take this room out of use?"
+  "sitnet_confirm_room_inactivation": "Are you sure you want to take this room out of use?",
+  "sitnet_print_selected_to_file": "Tulosta valitut tiedostoon"
 }

@@ -526,5 +526,6 @@
   "DIALOGS_NO":"No",
   "DIALOGS_ERROR":"Error",
   "DIALOGS_CLOSE":"Close",
-  "sitnet_confirm_room_inactivation": "Är du säker att du vill ta rummet ur bruk?"
+  "sitnet_confirm_room_inactivation": "Är du säker att du vill ta rummet ur bruk?",
+  "sitnet_print_selected_to_file": "Tulosta valitut tiedostoon"
 }

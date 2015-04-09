@@ -189,6 +189,13 @@
                 {
                     "add": {method: "POST"}
                 }),
+                record: $resource("/exam/record/export/:id",
+                    {
+                        id: "@id"
+                    },
+                    {
+                        "export": {method: "GET", params: { id: "@id"}}
+                    }),
                 language: $resource("/exam/:eid/language/:code",
                 {
                     eid: "@eid",
