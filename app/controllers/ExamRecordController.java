@@ -3,6 +3,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Exam;
 import models.ExamParticipation;
 import models.ExamRecord;
@@ -11,6 +12,7 @@ import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.Json;
 import play.mvc.Result;
 import util.java.CsvBuilder;
 import util.java.EmailComposer;
@@ -18,7 +20,9 @@ import util.java.EmailComposer;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static util.java.AttachmentUtils.setData;
 
@@ -67,6 +71,35 @@ public class ExamRecordController extends SitnetController {
             Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
         return ok(content);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result exportSelectedExamRecordsAsCsv(Long examId) {
+
+        String[] ids = request().queryString().get("childIds");
+        List<Long> childIds = new ArrayList<>();
+        if(ids != null) {
+            for(String s : ids) {
+                childIds.add(Long.parseLong(s));
+            }
+        }
+
+        File file;
+        try {
+            file = CsvBuilder.build(examId, childIds);
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_csv_file");
+        }
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        String content = com.ning.http.util.Base64.encode(setData(file).toByteArray());
+        if (!file.delete()) {
+            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
+        }
+
+        ObjectNode part = Json.newObject();
+        part.put("data", content);
+
+        return ok(Json.toJson(part));
     }
 
     private static Result validateExamState(Exam exam) {

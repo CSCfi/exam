@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ReviewListingController', ['dialogs', '$scope', '$q', '$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService', 'examService',
-            function (dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService, examService) {
+        .controller('ReviewListingController', ['$filter', 'dialogs', '$scope', '$q', '$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService', 'examService',
+            function ($filter, dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService, examService) {
 
                 $scope.reviewPredicate = 'examReview.deadline';
                 $scope.abortedPredicate = 'examReview.user.lastName';
@@ -51,6 +51,53 @@
                     angular.forEach(angular.element("." + checkboxesCssClass), function (input) {
                         angular.element(input).prop("checked", isSelected);
                     });
+                };
+
+                $scope.printSelected = function() {
+
+                    // check that atleast one has been selected
+                    var isEmpty = true,
+                        boxes = angular.element(".printToFileBox"),
+                        ids = [];
+
+                    angular.forEach(boxes, function (input) {
+                        if (angular.element(input).prop("checked")) {
+                            isEmpty = false;
+                            ids.push(angular.element(input).val());
+                        }
+                    });
+
+                    if (isEmpty) {
+                        toastr.warning($translate('sitnet_choose_atleast_one'));
+                        return;
+                    }
+
+                    // print to file
+                    var examsToPrint = {
+                        "id": $routeParams.id,
+                        "childIds": ids
+                    };
+
+                    ExamRes.record.export(examsToPrint, function (result) {
+
+                        var byteString = atob(result.data);
+                        var ab = new ArrayBuffer(byteString.length);
+                        var ia = new Uint8Array(ab);
+                        for (var i = 0; i < byteString.length; i++) {
+                            ia[i] = byteString.charCodeAt(i);
+                        }
+                        var blob = new Blob([ia], {type: "application/octet-stream;charset=utf-8"});
+
+                        var link = angular.element('<a></a>');
+                        link.attr('href',window.URL.createObjectURL(blob));
+                        link.attr('download', $translate("sitnet_grading_info") + '_' + $filter('date')(Date.now(), "dd-MM-yyyy") + '.csv');
+                        link[0].click();
+
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                    });
+
                 };
 
                 $scope.sendSelectedToRegistry = function () {

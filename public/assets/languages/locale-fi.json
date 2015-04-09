@@ -526,5 +526,7 @@
   "DIALOGS_YES":"Kyllä",
   "DIALOGS_NO":"Ei",
   "DIALOGS_ERROR":"Virhe",
-  "DIALOGS_CLOSE":"Sulje"
+  "DIALOGS_CLOSE":"Sulje",
+
+  "sitnet_print_selected_to_file": "Tulosta valitut tiedostoon"
 }

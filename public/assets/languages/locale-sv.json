@@ -526,5 +526,6 @@
   "DIALOGS_YES":"Yes",
   "DIALOGS_NO":"No",
   "DIALOGS_ERROR":"Error",
-  "DIALOGS_CLOSE":"Close"
+  "DIALOGS_CLOSE":"Close",
+  "sitnet_print_selected_to_file": "Tulosta valitut tiedostoon"
 }

@@ -283,8 +283,10 @@
                 <table class="table table-bordered table-striped exams-table">
                     <thead>
                     <tr>
-                        <!--<th><i class="fa fa-flag"></i></th>
-                        <th><i class="fa fa-exclamation-triangle"></i></th>-->
+                        <th><input type="checkbox" name="select_all" class="gradedLoggedAll"
+                                   ng-click="selectAll('gradedLoggedAll', 'printToFileBox')" popover-placement="right"
+                                   popover-trigger="mouseenter" popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
+                        </th>
                         <th colspan="2">{{'sitnet_student' | translate }}</th>
                         <th>{{'sitnet_exam_duration' | translate}}</th>
                         <th>{{'sitnet_grade' | translate }}</th>
@@ -296,8 +298,9 @@
                     <tbody>
                     <tr ng-repeat="review in gradedLoggedReviews | offset: currentPageGradedLogged*pageSize | limitTo: pageSize"
                         ng-click="go(review.exam)" class="pointer">
-                        <!--<td class="table-column-flag"><i class="sitnet-dark-blue fa fa-flag"></i></td>
-                        <td class="table-column-exclamation"><i class="sitnet-red fa fa-flash"></i></td>-->
+                        <td ng-click="$event.stopPropagation();">
+                            <input type="checkbox" class="printToFileBox" value="{{review.exam.id}}"/>
+                        </td>
                         <td class="table-column-examname"><a ng-click="$event.stopPropagation();"
                                                              href="mailto:{{review.user.email}}">{{review.user.firstName}}
                             {{review.user.lastName}}</a></td>
@@ -320,6 +323,7 @@
                         <td></td>
                         <td></td>
                         <td></td>
+                        <td></td>
                     </tr>
                     </tbody>
                 </table>
@@ -329,6 +333,14 @@
         <div class="detail-row">
             <div col-md-12 ng-show="toggleLoggedReviews && gradedLoggedReviews.length > pageSize">
                 <paginator items="gradedLoggedReviews" page-size="pageSize" current-page="currentPageGradedLogged"/>
+            </div>
+        </div>
+
+        <div class="main-row" ng-show="toggleLoggedReviews">
+            <div class="col-md-12">
+                <a target="_self" download="{{'sitnet_grading_info' | translate}}.csv" class="btn btn-primary" ng-click="printSelected()">
+                    {{'sitnet_print_selected_to_file' | translate}}
+                </a>
             </div>
         </div>
     </div>
