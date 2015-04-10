@@ -11,14 +11,11 @@
                 $scope.tags = [];
                 $scope.filteredQuestions = [];
 
-                $scope.applyFreeSearchFilter = function (paginate) {
-                    var lower = paginate ? $scope.currentPage * $scope.pageSize : 0;
-                    var upper = paginate ? lower + $scope.pageSize : $scope.questions.length;
+                $scope.applyFreeSearchFilter = function () {
                     if ($scope.selected) {
-                        $scope.filteredQuestions = $scope.questions.slice(lower, upper).filter(function(question) {
-                            if (!question.question) return false;
+                        $scope.filteredQuestions = $scope.questions.filter(function(question) {
                             var re = new RegExp($scope.selected, 'i');
-                            return question.question.match(re);
+                            return question.question && question.question.match(re);
                         })
                     } else {
                         $scope.filteredQuestions = $scope.questions;

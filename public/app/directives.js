@@ -266,9 +266,8 @@
                         if (items) {
                             pageCount = Math.ceil(items.length / scope.pageSize) - 1;
                         }
-                        if (items.length < scope.pageSize) {
-                            scope.currentPage=0;
-                        }
+                        // Go to first page always when the underlying collection gets modified
+                        scope.currentPage = 0;
                     });
 
                     scope.printRange = function (n) {
