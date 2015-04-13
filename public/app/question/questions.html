@@ -111,7 +111,7 @@
         <div class="col-md-4">
             <label for="freesearch">&nbsp;</label>
             <div id="freesearch" class="form-group input-group">
-                <input ng-model="selected" type="text" class="form-control"
+                <input ng-change="applyFreeSearchFilter()" ng-model="selected" type="text" class="form-control"
                        placeholder="{{'sitnet_search' | translate }}">
 
                 <div class="input-group-addon">
@@ -146,7 +146,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="question in questions | offset: currentPage*pageSize | limitTo: pageSize">
+                <tr ng-repeat="question in filteredQuestions | offset: currentPage*pageSize | limitTo: pageSize">
                     <td>
                         <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax
                            ng-bind-html="shortText(question.question)"></a>
@@ -167,7 +167,7 @@
                     </td>
                 </tr>
                 <!--Fill if page not full-->
-                <tr ng-repeat="r in [] | pagefill: questions.length:currentPage:pageSize">
+                <tr ng-repeat="r in [] | pagefill: filteredQuestions.length:currentPage:pageSize">
                     <td>&nbsp;</td>
                     <td></td>
                     <td></td>
@@ -178,8 +178,8 @@
         </div>
     </div>
     <div class="detail-row">
-        <div col-md-12 ng-show="questions.length > pageSize">
-            <paginator items="questions" page-size="pageSize" current-page="currentPage"/>
+        <div col-md-12 ng-show="filteredQuestions.length > pageSize">
+            <paginator items="filteredQuestions" page-size="pageSize" current-page="currentPage"/>
         </div>
     </div>
 </div>

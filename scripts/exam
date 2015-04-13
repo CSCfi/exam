@@ -5,32 +5,34 @@
 # chkconfig: 90 10
 
 APP_ROOT_PATH=/opt/exam/sitnet
-APP_STAGING_PATH="$APP_ROOT_PATH/target/universal/stage"
-APP_PATH="$APP_STAGING_PATH/bin/exam"
+APP_STAGING_PATH="${APP_ROOT_PATH}/target/universal/stage"
+APP_PATH="${APP_STAGING_PATH}/bin/exam"
 APP_USER=sitnet
 PID_DIR=/var/run/exam
-PID_FILE="$PID_DIR/exam.pid"
-APP_OPTS="-Dconfig.file=$APP_ROOT_PATH/conf/demo.conf -Dapplication.secret=abcdefghijk -DapplyEvolutions.default=true -Dpidfile.path=$PID_FILE"
+LOG_DIR=/var/log/exam
+PID_FILE="${PID_DIR}/exam.pid"
+APP_SECRET=abcdefghijkl
+APP_OPTS="-Dapplication.secret=${APP_SECRET} -DapplyEvolutions.default=true -Dpidfile.path=${PID_FILE}"
 
 . /etc/init.d/functions
 
 start()
 {
     echo -n "Starting exam:"
-    mkdir -p $PID_DIR
-    chown $APP_USER:$APP_USER /var/run/exam
-    su -l $APP_USER -c "nohup $APP_PATH $APP_OPTS > /tmp/exam.log 2>&1 < /dev/null" &
+    mkdir -p ${PID_DIR} ${LOG_DIR}
+    chown ${APP_USER}:${APP_USER} ${PID_DIR} ${LOG_DIR}
+    su -l ${APP_USER} -c "nohup ${APP_PATH} ${APP_OPTS} > ${LOG_DIR}/exam.log 2>&1 < /dev/null" &
     i="0"
-    while [ $i -lt 20 ]
+    while [ ${i} -lt 20 ]
     do
-        if [ -f $PID_FILE ]
+        if [ -f ${PID_FILE} ]
         then
             break
         fi
         sleep 1
         i=$[$i+1]
     done
-    if [ -f $PID_FILE ]
+    if [ -f ${PID_FILE} ]
     then
         success
     else
@@ -42,9 +44,9 @@ start()
 stop()
 {
     echo -n "Stopping exam:"
-    if [ -f $PID_FILE ]
+    if [ -f ${PID_FILE} ]
     then
-        su -l $APP_USER -c "kill `cat $PID_FILE`"
+        su -l ${APP_USER} -c "kill `cat ${PID_FILE}`"
     fi
     success
     echo

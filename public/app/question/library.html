@@ -125,7 +125,7 @@
                     </div>
                 </div>
                 <div class="input-group">
-                    <input ng-model="selected" type="text" class="form-control"
+                    <input ng-change="applyFreeSearchFilter()" ng-model="selected" type="text" class="form-control"
                            placeholder="{{'sitnet_search' | translate }}">
 
                     <div class="input-group-addon">
@@ -134,11 +134,11 @@
                 </div>
                 <div style="max-width:100%;">
                     <ul class="questions-wrapper"><!-- list-group results -->
-                        <li style="width:5%;" draggable="questions | filter:selected" draggable-target=".sortable" class="drag-all-wrap">
+                        <li style="width:5%;" draggable="filteredQuestions" draggable-target=".sortable" class="drag-all-wrap">
                             <span class="vertical-text" ng-init="verticalText('vertical-text')">{{'sitnet_add_all' | translate}}</span>
                         </li>
                         <li class="question-list-wrapper">
-                            <div class="library-question-header-inactive" ng-repeat="question in questions | filter:selected"
+                            <div class="library-question-header-inactive" ng-repeat="question in filteredQuestions"
                                 draggable="question" draggable-target=".sortable">
                                 <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
                                 </div>
