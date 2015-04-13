@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('EnrollController', ['$scope', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'SITNET_CONF', '$location',
-            function ($scope, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location) {
+        .controller('EnrollController', ['$scope', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'SITNET_CONF', '$location', '$translate',
+            function ($scope, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location, $translate) {
 
                 $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/review_exam_section_general.html";
@@ -76,7 +76,7 @@
                     EnrollRes.enroll.create({code: exam.course.code, id: exam.id},
                         function (exam) {
 
-                            toastr.success("Olet ilmoittautunut tenttiin<br>Muista varata tenttikone");
+                            toastr.success($translate('sitnet_you_have_enrolled_to_exam') + '<br/>' + $translate('sitnet_remember_exam_machine_reservation'));
                             $location.path('/calendar/' + exam.id);
                         },
                         function (error) {

@@ -188,7 +188,7 @@
                 );
                 ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW', 'REVIEW_STARTED']},
                     function (examReviews) {
-                        if (examReviews.length > 0) {
+                        if (examReviews && examReviews.length > 0) {
                             $scope.toggleReviews = true;
                         }
                         angular.forEach(examReviews, function (review) {
@@ -216,7 +216,7 @@
                 // Graded exams
                 ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['GRADED']},
                     function (examReviews) {
-                        if (examReviews.length > 0) {
+                        if (examReviews && examReviews.length > 0) {
                             $scope.toggleGradedReviews = true;
                         }
                         angular.forEach(examReviews, function (review) {
@@ -224,6 +224,7 @@
                                 review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
                             }
                         });
+
                         $scope.gradedReviews = examReviews;
                     },
                     function (error) {
@@ -234,7 +235,7 @@
                 // Logged exams
                 ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['GRADED_LOGGED']},
                     function (examReviews) {
-                        if (examReviews.length > 0) {
+                        if (examReviews && examReviews.length > 0) {
                             $scope.toggleLoggedReviews = true;
                         }
                         $scope.gradedLoggedReviews = examReviews;
@@ -262,18 +263,18 @@
                 };
 
                 $scope.toggleUnreviewed = function () {
-                    if ($scope.examReviews.length > 0) {
+                    if ($scope.examReviews && $scope.examReviews.length > 0) {
                         $scope.toggleReviews = !$scope.toggleReviews;
                     }
                 };
                 $scope.toggleGraded = function () {
-                    if ($scope.gradedReviews.length > 0) {
+                    if ($scope.gradedReviews && $scope.gradedReviews.length > 0) {
                         $scope.toggleGradedReviews = !$scope.toggleGradedReviews;
                     }
                 };
 
                 $scope.toggleLogged = function () {
-                    if ($scope.gradedLoggedReviews.length > 0) {
+                    if ($scope.gradedLoggedReviews && $scope.gradedLoggedReviews.length > 0) {
                         $scope.toggleLoggedReviews = !$scope.toggleLoggedReviews;
                     }
                 };

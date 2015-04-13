@@ -205,7 +205,7 @@
                                             $scope.localInspections = locals;
 
                                             // created local inspections, if not created ->
-                                            if ($scope.localInspections.length > 0) {
+                                            if ($scope.localInspections && $scope.localInspections.length > 0) {
                                                 angular.forEach($scope.localInspections, function (localInspection) {
                                                     if (localInspection.user.id === $scope.user.id) {
                                                         isCurrentUserInspectionCreated = true;
@@ -423,7 +423,7 @@
                     return {
                         "id": exam.id,
                         "state": state,
-                        "grade": exam.grade.id,
+                        "grade": exam.grade ? exam.grade.id : "",
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": $scope.selectedType,

@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module('sitnet.services')
-        .factory('wrongRoomService', ['$timeout', function ($timeout) {
+        .factory('wrongRoomService', ['$timeout', '$translate', function ($timeout, $translate) {
 
             var time = 1000 * 10;
 
@@ -32,12 +32,12 @@
                     startsAt.add(-1, 'hour');
                 }
                 if (startsAt.isAfter(now)) {
-                    toastr.warning('Sinulla on koe alkamassa klo ' + startsAt.format('HH:mm') +
-                        ' sijainnissa: ' + data[0] + ', ' + data[1] + ' huoneessa ' + data[2] +
-                        ' koneella ' + data[3]);
+                    toastr.warning($translate('sitnet_your_exam_will_start_at') + ' ' + startsAt.format('HH:mm') +
+                        ' ' + $translate('sitnet_at_location') + ': ' + data[0] + ', ' + data[1] + ' ' + $translate('sitnet_at_room') + ' ' + data[2] +
+                        ' ' + $translate('sitnet_at_machine') + ' ' + data[3]);
                 } else {
-                    var message = 'Sinulla on koe menossa sijainnissa: ' + data[0] + ', ' + data[1] + ' huoneessa ' +
-                        data[2] + ' koneella ' + data[3];
+                    var message = $translate('sitnet_you_have_ongoing_exam_at_location') + ': ' + data[0] + ', ' + data[1] + ' ' + $translate('sitnet_at_room') + ' ' +
+                        data[2] + ' ' + $translate('sitnet_at_machine') + ' ' + data[3];
                     toastr.error(message);
                 }
                 toastr.options = opts;

@@ -1,13 +1,13 @@
 <div class="row">
     <div class="col-md-12 sitnet-info-text">
-        Hae kaikki opettajan luomat tentit aikavälillä pp.kk.vvvv - pp.kk.vvvv
+        {{'sitnet_get_all_teacher_exams' | translate}}
     </div>
 </div>
 <div class="row">
 
     <div class="col-md-2">
         <h4>{{'sitnet_teacher' | translate}}</h4>
-        <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedTeacher" ng-change="setTeacher(selectedTeacher)" data-placeholder="Opettaja" style="min-width:50%;">
+        <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedTeacher" ng-change="setTeacher(selectedTeacher)" data-placeholder="{{'sitnet_teacher' | translate}}" style="min-width:50%;">
             <option value=""></option>
             <option ng-repeat="teacher in teachers" value="{{teacher.id}}">{{teacher.name}}</option>
         </select>

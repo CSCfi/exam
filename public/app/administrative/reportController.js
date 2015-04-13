@@ -54,7 +54,7 @@
                     if (exam) {
                         fileService.download('/statistics/examenrollments/' + exam, 'exam_enrolments.xlsx');
                     } else {
-                        toastr.error("Valitse tentti");
+                        toastr.error($translate('sitnet_choose_exam'));
                     }
                 };
 

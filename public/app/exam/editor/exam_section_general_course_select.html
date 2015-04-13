@@ -13,9 +13,8 @@
                            typeahead="c as c.name for c in getCourses('name', $viewValue)"
                            typeahead-min-length="2"
                            typeahead-loading="loadingCoursesByName">
-                               <span class="input-group-addon"
-                                     ng-click="toaster.info('Opintojakson nimi');">
-                                    <i class="fa fa-question-circle fa-fw"></i>
+                               <span class="input-group-addon">
+                                    <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_name' | translate}}"></i>
                                     <i ng-show="loadingCoursesByName" class="fa fa-refresh"></i>
                                </span>
 
@@ -31,9 +30,8 @@
                            typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
                            typeahead="c as c.code for c in getCourses('code', $viewValue)"
                            typeahead-loading="loadingCoursesByCode">
-                               <span class="input-group-addon"
-                                     ng-click="toaster.info('Opintojakson yksilöivä tunniste. Esim: 811380A');">
-                                    <i class="fa fa-question-circle fa-fw"></i>
+                               <span class="input-group-addon">
+                                    <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_unique_code' | translate}}"></i>
                                     <i ng-show="loadingCoursesByCode" class="fa fa-refresh"></i>
                                </span>
                 </div>
@@ -47,8 +45,8 @@
                 <div class="input-group">
                     <!-- placeholder="opintopistettä" -->
                     <input type="text" class="form-control ng-pristine ng-valid" ng-model="newExam.course.credits">
-                            <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
-                                <i class="fa fa-question-circle fa-fw"></i>
+                            <span class="input-group-addon">
+                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_scope' | translate}}"></i>
                             </span>
                 </div>
             </div>
@@ -58,8 +56,8 @@
                 <div class="input-group">
                     <input disabled type="text" class="form-control ng-pristine ng-valid"
                            ng-model="newExam.course.organisation.name">
-                            <span class="input-group-addon" title="Ohjeet organisaation lisäämisestä.">
-                                <i class="fa fa-question-circle fa-fw"></i>
+                            <span class="input-group-addon">
+                                <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_faculty_name' | translate}}"></i>
                             </span>
                 </div>
             </div>
