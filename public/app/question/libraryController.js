@@ -76,14 +76,10 @@
                     }, function (data) {
                         data.map(function (item) {
                             var icon;
-                            switch (item.type) {
-                                case "MultipleChoiceQuestion":
-                                    icon = "fa-list-ul";
-                                    break;
-                                //case "EssayQuestion":
-                                default:
-                                    icon = "fa-edit";
-                                    break;
+                            if (item.type === "MultipleChoiceQuestion") {
+                                icon = "fa-list-ul";
+                            } else {
+                                icon = "fa-edit";
                             }
                             item.icon = icon;
                             return item;
@@ -124,18 +120,6 @@
                         deferred.resolve();
                     });
                     return deferred.promise;
-                };
-
-                var handleTags = function(sections) {
-                    $scope.tags = union($scope.tags, data);
-                    var examSections = [];
-                    $scope.exams.forEach(function (exam) {
-                        examSections = examSections.concat(exam.examSections.map(function (section) {
-                            section.isSectionTag = true;
-                            return section;
-                        }));
-                    });
-                    $scope.tags = $scope.tags.concat(union(sections, examSections));
                 };
 
                 var doListTags = function(sections) {
