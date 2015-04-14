@@ -44,6 +44,8 @@ POST          /exam/record                                          controllers.
 GET           /exam/record                                          controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
 GET           /exam/record/export/:id                               controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
 
+GET           /examsearch                                           controllers.ExamController.listExams(courseIds: play.libs.F.Option[LongList], sectionIds: play.libs.F.Option[LongList], tagIds: play.libs.F.Option[LongList])
+
 GET           /examenrolmentroom/:eid                               controllers.ExamController.getRoomInfoFromEnrollment(eid: Long)
 
 GET           /exam/:id/inspections                                 controllers.ExamController.getExamInspections(id: Long)
@@ -104,7 +106,7 @@ DELETE        /clearsection/:sid                                    controllers.
 
 ############### Courses interface ###############
 GET           /courses                                              controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
-GET           /courses/user/:id                                     controllers.CourseController.listUsersCourses(id: Long)
+GET           /courses/user/:id                                     controllers.CourseController.listUsersCourses(id: Long, examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList])
 GET           /courses/:id                                          controllers.CourseController.getCourse(id: Long)
 POST          /courses/insert/:code                                 controllers.CourseInfoController.insertCourseFromInterface(code: String)
 
@@ -210,7 +212,7 @@ DELETE        /calendar/reservation/:id                             controllers.
 GET           /languages                                            controllers.LanguageController.getSupportedLanguages()
 
 ################# Language interface ##################
-GET           /tags                                                 controllers.TagController.listTags(filter: play.libs.F.Option[String])
+GET           /tags                                                 controllers.TagController.listTags(filter: play.libs.F.Option[String], examIds: play.libs.F.Option[LongList], courseIds: play.libs.F.Option[LongList], sectionIds: play.libs.F.Option[LongList])
 POST          /tags                                                 controllers.TagController.createTag()
 DELETE        /tags/:tid                                            controllers.TagController.deleteTag(tid: Long)
 PUT           /tags/:tid/:qid                                       controllers.TagController.tagQuestion(tid: Long, qid: Long)

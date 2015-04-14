@@ -4,7 +4,10 @@ import be.objectify.deadbolt.java.actions.{Group, Restrict}
 import com.avaje.ebean.Ebean
 import models.{Course, User}
 import play.api.mvc.{Action, Controller}
+import util.scala.Binders.IdList
 import util.scala.ScalaHacks
+
+import scala.collection.JavaConverters._
 
 object CourseController extends Controller with ScalaHacks {
 
@@ -20,7 +23,7 @@ object CourseController extends Controller with ScalaHacks {
   def getCourses(filterType: Option[String], criteria: Option[String]) = Action {
     (filterType, criteria) match {
       case (Some("code"), Some(x)) =>
-        Interfaces.getCourseInfo(x);
+        Interfaces.getCourseInfo(x)
       case (Some("name"), Some(x)) if x.size >= CriteriaLengthLimiter =>
         Ebean.find(classOf[Course]).where()
           .ilike("name", s"$x%")
@@ -39,10 +42,19 @@ object CourseController extends Controller with ScalaHacks {
   }
 
   @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
-  def listUsersCourses(userId: Long) = Action {
+  def listUsersCourses(userId: Long, examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList]) = Action {
     val user = Ebean.find(classOf[User], userId)
     var query = Ebean.find(classOf[Course]).where
     if (!user.hasRole("ADMIN")) query = query.eq("exams.creator.id", userId)
+    if (examIds.isDefined && examIds.get.size > 0) {
+      query = query.in("exams.id", examIds.get.asJava)
+    }
+    if (sectionIds.isDefined && sectionIds.get.size > 0) {
+      query = query.in("exams.examSections.id", sectionIds.get.asJava)
+    }
+    if (tagIds.isDefined && tagIds.get.size > 0) {
+      query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
+    }
     query.orderBy("name desc").findList
   }
 

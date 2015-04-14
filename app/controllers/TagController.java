@@ -18,7 +18,7 @@ import java.util.List;
 public class TagController extends SitnetController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public static Result listTags(F.Option<String> filter) {
+    public static Result listTags(F.Option<String> filter, F.Option<List<Long>> examIds, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds) {
         User user = UserController.getLoggedUser();
         ExpressionList<Tag> query = Ebean.find(Tag.class).where();
         if (!user.hasRole("ADMIN")) {
@@ -27,6 +27,15 @@ public class TagController extends SitnetController {
         if (filter.isDefined()) {
             String condition = String.format("%%%s%%", filter.get());
             query = query.ilike("name", condition);
+        }
+        if (examIds.isDefined() && !examIds.get().isEmpty()) {
+            query = query.in("questions.children.examSectionQuestion.examSection.exam.id", examIds.get());
+        }
+        if (courseIds.isDefined() && !courseIds.get().isEmpty()) {
+            query = query.in("questions.children.examSectionQuestion.examSection.exam.course.id", courseIds.get());
+        }
+        if (sectionIds.isDefined() && !sectionIds.get().isEmpty()) {
+            query = query.in("questions.children.examSectionQuestion.examSection.id", sectionIds.get());
         }
         List<Tag> tags = query.orderBy("name").findList();
         return ok(Json.toJson(tags));

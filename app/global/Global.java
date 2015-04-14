@@ -105,13 +105,14 @@ public class Global extends GlobalSettings {
                 .withSecondOfMinute(0)
                 .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
                 .withDayOfWeek(DateTimeConstants.MONDAY);
-        if (nextRun.isBefore(now)) {
-            nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
-        }
         // Check if default TZ has daylight saving in effect, need to adjust the hour offset in that case
         if (!SitnetUtil.getDefaultTimeZone().isStandardOffset(System.currentTimeMillis())) {
             nextRun = nextRun.minusHours(1);
         }
+        if (nextRun.isBefore(now)) {
+            nextRun = nextRun.plusWeeks(1); // now is a Monday after scheduled run time -> postpone
+        }
+
         Logger.info("Scheduled next weekly report to be run at {}", nextRun.toString());
         return Seconds.secondsBetween(now, nextRun).getSeconds();
     }

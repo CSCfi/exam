@@ -1,3 +1,5 @@
+import play.PlayImport.PlayKeys._
+
 name := "exam"
 
 version := "1.2.1"
@@ -25,4 +27,6 @@ libraryDependencies ++= Seq(javaJdbc, javaEbean, cache , javaWs,
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
 scalacOptions ++= Seq("-feature")
+
+routesImport += "util.scala.Binders._"
 
