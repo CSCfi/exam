@@ -570,5 +570,6 @@
   "sitnet_at_location": "at location",
   "sitnet_at_room": "at room",
   "sitnet_at_machine": "at machine",
-  "sitnet_you_have_ongoing_exam_at_location": "You have ongoing exam at location"
+  "sitnet_you_have_ongoing_exam_at_location": "You have ongoing exam at location",
+  "sitnet_exam_search": "Search for exams"
 }

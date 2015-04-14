@@ -75,7 +75,7 @@ DELETE        /exam/:eid/languages                                  controllers.
 GET           /examtypes                                            controllers.ExamController.getExamTypes()
 GET           /gradescales                                          controllers.ExamController.getExamGradeScales()
 
-GET           /student/exams                                        controllers.StudentExamController.listActiveExams()
+GET           /student/exams                                        controllers.StudentExamController.listAvailableExams(filter: play.libs.F.Option[String])
 GET           /student/inspectors/exam/:id                          controllers.StudentExamController.getExamInspectors(id: Long)
 GET           /student/finishedexams/:uid                           controllers.StudentExamController.getFinishedExams(uid: Long)
 GET           /feedback/exams/:eid                                  controllers.StudentExamController.getExamGeneralInfo(eid: Long)

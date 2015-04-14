@@ -3,6 +3,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
@@ -19,48 +20,68 @@ import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class StudentExamController extends SitnetController {
 
     @Restrict({@Group("STUDENT")})
-    public static Result listActiveExams() {
-
-        User user = UserController.getLoggedUser();
-
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
-                .fetch("exam")
+    public static Result listAvailableExams(F.Option<String> filter) {
+        ExpressionList<Exam> query = Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("examOwners")
                 .where()
-                .eq("user.id", user.getId())
-                .findList();
-
-        List<Exam> exams = new ArrayList<>();
-
-        for (ExamEnrolment e : enrolments) {
-            if (e.getExam().getState().equals("STUDENT_STARTED")) {
-                // if exam not over -> return
-                ExamParticipation participation = Ebean.find(ExamParticipation.class)
-                        .fetch("exam")
-                        .where()
-                        .eq("exam.id", e.getExam().getId())
-                        .findUnique();
-
-                if (participation != null && participation.getStarted().getTime() + ((e.getExam().getDuration()) * 60 * 1000) > new Date().getTime()) {
-                    exams.add(e.getExam());
-                }
-
-            } else {
-                exams.add(e.getExam());
-            }
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
+                .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate());
+        if (filter.isDefined() && !filter.get().isEmpty()) {
+            String condition = String.format("%%%s%%", filter.get());
+            query = query.disjunction()
+                    .ilike("name", condition)
+                    .ilike("course.code", condition)
+                            // Because of https://github.com/ebean-orm/avaje-ebeanorm/issues/37 a disjunction does not work here!
+                            // TODO: check if doable after having upgraded to Play 2.4
+                            //.ilike("examOwners.firstName", condition)
+                            //.ilike("examOwners.lastName", condition)
+                    .endJunction();
         }
+        Set<Exam> exams = query.findSet();
+        if (filter.isDefined() && !filter.get().isEmpty()) {
+            exams.addAll(Ebean.find(Exam.class)
+                    .fetch("course")
+                    .fetch("examOwners")
+                    .where()
+                    .eq("state", Exam.State.PUBLISHED.toString())
+                    .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
+                    .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate())
+                    .disjunction()
+                    .ilike("examOwners.firstName", String.format("%%%s%%", filter.get()))
+                    .ilike("examOwners.lastName", String.format("%%%s%%", filter.get()))
+                    .endJunction()
+                    .findSet());
+        }
+        List<Exam> examList = new ArrayList<>(exams);
+        Collections.sort(examList, new Comparator<Exam>() {
+            @Override
+            public int compare(Exam o1, Exam o2) {
+                return o1.getCourse().getCode().compareTo(o2.getCourse().getCode());
+            }
+        });
 
-        return ok(Json.toJson(exams));
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, " +
+                "creator, examLanguages, examOwners, examInspections");
+        options.setPathProperties("examInspections", "id, user");
+        options.setPathProperties("examInspections.user", "firstName, lastName");
+        options.setPathProperties("course", "code");
+        options.setPathProperties("examOwners", "firstName, lastName");
+        options.setPathProperties("creator", "firstName, lastName, organization");
+        options.setPathProperties("examLanguages", "code, name");
+        return ok(Ebean.createJsonContext().toJsonString(exams, true, options)).as("application/json");
     }
 
     @Restrict({@Group("STUDENT")})
