@@ -33,7 +33,7 @@ PID_DIR=/var/run/${prog}
 LOG_DIR=/var/log/${prog}
 PID_FILE="${PID_DIR}/${prog}.pid"
 LOCK_FILE=/var/lock/subsys/${prog}
-APP_SECRET="46bsvqiOr2X^OptDMMhHTmWKjeCJH[0]J7F2i8JxPY[nhrK9gBs:J02Et[X[7"
+APP_SECRET="mysecret"
 APP_OPTS="-Dapplication.secret=${APP_SECRET} -DapplyEvolutions.default=true -Dpidfile.path=${PID_FILE}"
 
 [ -e /etc/sysconfig/${prog} ] && . /etc/sysconfig/${prog}
@@ -41,14 +41,14 @@ APP_OPTS="-Dapplication.secret=${APP_SECRET} -DapplyEvolutions.default=true -Dpi
 start()
 {
     echo -n "Starting ${prog}:"
-    if [ -f ${LOCK_FILE} ] ; then
+    if [ -f ${LOCK_FILE} ]; then
         if [ -f ${PID_FILE} ]; then
             read PID < ${PID_FILE}
             if checkpid ${PID} 2>&1; then
                 echo "process already running"
-                    return 1;
+                return 1;
             else
-                echo "lock file found but no process running for pid $kpid, continuing"
+                echo "lock file found but no process running for pid ${PID}, continuing"
             fi
         fi
     fi
@@ -58,17 +58,14 @@ start()
 
     su -l ${APP_USER} -c "nohup ${APP_PATH} ${APP_OPTS} > ${LOG_DIR}/${prog}.log 2>&1 < /dev/null" &
     i="0"
-    while [ ${i} -lt 20 ]
-    do
-        if [ -f ${PID_FILE} ]
-        then
+    while [ ${i} -lt 20 ]; do
+        if [ -f ${PID_FILE} ]; then
             break
         fi
         sleep 1
         i=$[$i+1]
     done
-    if [ -f ${PID_FILE} ]
-    then
+    if [ -f ${PID_FILE} ]; then
         touch ${LOCK_FILE}
         success
     else
@@ -81,8 +78,7 @@ start()
 stop()
 {
     echo -n "Stopping exam:"
-    if [ -f ${PID_FILE} ]
-    then
+    if [ -f ${PID_FILE} ]; then
         su -l ${APP_USER} -c "kill `cat ${PID_FILE}`"
         rm -f ${LOCK_FILE} ${PID_FILE}
     fi
@@ -94,16 +90,16 @@ status()
 {
     if [ -f ${LOCK_FILE} ] && [ -f ${PID_FILE} ]; then
         read PID < ${PID_FILE}
-           if checkpid ${PID} 2>&1; then
+        if checkpid ${PID} 2>&1; then
             echo "${prog} (PID: ${PID}) is running"
         else
             echo "${prog} not running but subsystem is locked"
         fi
     elif [ ! -f ${PID_FILE} ] && [ -f ${LOCK_FILE} ]; then
-       echo "${prog} not running but subsystem is locked"
+        echo "${prog} not running but subsystem is locked"
     elif [ ! -f ${LOCK_FILE} ] && [ -f ${PID_FILE} ]; then
         read PID < ${PID_FILE}
-           if checkpid ${PID} 2>&1; then
+        if checkpid ${PID} 2>&1; then
             echo "${prog} (PID: ${PID}) running but subsystem is not locked"
         else
             echo "${prog} is stopped"
