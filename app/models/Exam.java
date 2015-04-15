@@ -221,7 +221,8 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
                 AbstractQuestion question = esq.getQuestion();
                 if (question instanceof EssayQuestion) {
                     EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType() != null && essayQuestion.getEvaluationType().equals("Select")
+                    if (essayQuestion.getEvaluationType() != null &&
+                            essayQuestion.getEvaluationType().equals("Select")
                             && essayQuestion.getEvaluatedScore() == 1) {
                         total++;
                     }
@@ -239,7 +240,9 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
                 AbstractQuestion question = esq.getQuestion();
                 if (question instanceof EssayQuestion) {
                     EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType().equals("Points") && essayQuestion.getEvaluatedScore() == 0) {
+                    if (essayQuestion.getEvaluationType() != null &&
+                            essayQuestion.getEvaluationType().equals("Select") &&
+                            essayQuestion.getEvaluatedScore() == 0) {
                         total++;
                     }
                 }

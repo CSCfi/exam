@@ -117,13 +117,14 @@ public class StudentExamController extends SitnetController {
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, grade, examActiveStartDate, examActiveEndDate, duration, gradeScale, " +
                 "room, course, creator, examFeedback, gradedByUser, enrollment, totalScore, maxScore, rejectedAnswerCount," +
-                "approvedAnswerCount, enrollInstruction, examOwners");
+                "approvedAnswerCount, enrollInstruction, parent, customCredit");
         options.setPathProperties("grade", "name");
         options.setPathProperties("course", "code, name, level, type, credits");
         options.setPathProperties("creator", "firstName, lastName, email");
         options.setPathProperties("examFeedback", "comment");
         options.setPathProperties("gradedByUser", "firstName, lastName");
-        options.setPathProperties("examOwners", "firstName, lastName");
+        options.setPathProperties("parent", "examOwners");
+        options.setPathProperties("parent.examOwners", "firstName, lastName");
 
         return ok(jsonContext.toJsonString(exam, true, options)).as("application/json");
     }

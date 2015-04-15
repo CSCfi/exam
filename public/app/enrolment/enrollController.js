@@ -19,7 +19,7 @@
                                 return getLanguageNativeName(lang.code);
                             });
                             $scope.exam = exam;
-                            setExamTeachers(exam);
+                            setExamOwners(exam);
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -32,7 +32,7 @@
                                 exam.languages = exam.examLanguages.map(function (lang) {
                                     return getLanguageNativeName(lang.code);
                                 });
-                                setExamTeachers(exam);
+                                setExamOwners(exam);
 
                                 return exam;
                             });
@@ -42,7 +42,20 @@
                         });
                 }
 
-                function setExamTeachers(exam) {
+                function setExamOwners(exam) {
+                    exam.examTeachers = [];
+                    exam.teachersStr = "";
+                    angular.forEach(exam.examOwners, function(owner){
+                        if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
+                            exam.examTeachers.push(owner.firstName + " " + owner.lastName);
+                        }
+                    });
+                    exam.teachersStr = exam.examTeachers.map(function(teacher) {
+                        return teacher;
+                    }).join(", ");
+                }
+
+                function setExamOwnersAndInspectors(exam) {
                     exam.examTeachers = [];
                     exam.teachersStr = "";
                     angular.forEach(exam.examInspections, function (inspection) {
@@ -86,7 +99,7 @@
 
                 $scope.enrollList = function () {
                     $location.path('enroll/' + $routeParams.code);
-                }
+                };
 
             }]);
 }());
