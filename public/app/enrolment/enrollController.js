@@ -5,6 +5,7 @@
             function ($scope, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location, $translate) {
 
                 $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
+                $scope.examPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/exam.html";
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/review_exam_section_general.html";
 
                 if ($routeParams.code === undefined) {
@@ -86,15 +87,7 @@
                 };
 
                 $scope.enrollExam = function (exam) {
-                    EnrollRes.enroll.create({code: exam.course.code, id: exam.id},
-                        function (exam) {
-
-                            toastr.success($translate('sitnet_you_have_enrolled_to_exam') + '<br/>' + $translate('sitnet_remember_exam_machine_reservation'));
-                            $location.path('/calendar/' + exam.id);
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        });
+                    enrolmentService.enroll(exam);
                 };
 
                 $scope.enrollList = function () {

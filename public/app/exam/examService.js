@@ -106,13 +106,32 @@
                 return deferred.promise;
             };
 
+            var setExamTeachers = function (exam) {
+                exam.examTeachers = [];
+                exam.teachersStr = "";
+                angular.forEach(exam.examInspections, function (inspection) {
+                    if(exam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
+                        exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
+                    }
+                });
+                angular.forEach(exam.examOwners, function(owner){
+                    if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
+                        exam.examTeachers.push(owner.firstName + " " + owner.lastName);
+                    }
+                });
+                exam.teachersStr = exam.examTeachers.map(function(teacher) {
+                    return teacher;
+                }).join(", ");
+            };
+
             return {
                 createExam: createExam,
                 refreshExamTypes: refreshExamTypes,
                 refreshGradeScales: refreshGradeScales,
                 getScaleDisplayName: getScaleDisplayName,
                 getExamTypeDisplayName: getExamTypeDisplayName,
-                getExamGradeDisplayName: getExamGradeDisplayName
+                getExamGradeDisplayName: getExamGradeDisplayName,
+                setExamTeachers: setExamTeachers
             };
 
         }]);

@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('LibraryCtrl', ['dialogs', '$scope', '$location', '$translate', 'sessionService', 'QuestionRes',
+        .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$location', '$translate', 'sessionService', 'QuestionRes',
             'questionService', 'ExamRes', 'CourseRes', 'TagRes',
-            function (dialogs, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes) {
+            function (dialogs, $q, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes) {
 
                 $scope.pageSize = 25;
                 $scope.courses = [];
@@ -13,7 +13,7 @@
 
                 $scope.applyFreeSearchFilter = function () {
                     if ($scope.selected) {
-                        $scope.filteredQuestions = $scope.questions.filter(function(question) {
+                        $scope.filteredQuestions = $scope.questions.filter(function (question) {
                             var re = new RegExp($scope.selected, 'i');
                             return question.question && question.question.match(re);
                         })
@@ -24,7 +24,7 @@
 
                 $scope.getTags = function () {
                     var courses = $scope.courses.filter(function (course) {
-                        return course.filtered;
+                        return course && course.filtered;
                     });
                     var exams = $scope.exams.filter(function (exam) {
                         return exam.filtered;
@@ -35,43 +35,51 @@
                     return courses.concat(exams).concat(tags);
                 };
 
-                var query = function () {
-                    var courseIds = $scope.courses.filter(function (course) {
-                        return course.filtered;
+                var getCourseIds = function () {
+                    return $scope.courses.filter(function (course) {
+                        return course && course.filtered;
                     }).map(function (course) {
                         return course.id;
                     });
-                    var examIds = $scope.exams.filter(function (exam) {
+                };
+
+                var getExamIds = function () {
+                    return $scope.exams.filter(function (exam) {
                         return exam.filtered;
                     }).map(function (exam) {
                         return exam.id;
                     });
-                    var tagIds = $scope.tags.filter(function (tag) {
+                };
+
+                var getTagIds = function () {
+                    return $scope.tags.filter(function (tag) {
                         return !tag.isSectionTag && tag.filtered;
                     }).map(function (tag) {
                         return tag.id;
                     });
-                    var sectionIds = $scope.tags.filter(function (tag) {
+                };
+
+                var getSectionIds = function () {
+                    return $scope.tags.filter(function (tag) {
                         return tag.isSectionTag && tag.filtered;
                     }).map(function (section) {
                         return section.id;
                     });
+                };
+
+                var query = function () {
                     QuestionRes.questionlist.query({
-                        exam: examIds,
-                        course: courseIds,
-                        tag: tagIds,
-                        section: sectionIds
+                        exam: getExamIds(),
+                        course: getCourseIds(),
+                        tag: getTagIds(),
+                        section: getSectionIds()
                     }, function (data) {
                         data.map(function (item) {
                             var icon;
-                            switch (item.type) {
-                                case "MultipleChoiceQuestion":
-                                    icon = "fa-list-ul";
-                                    break;
-                                //case "EssayQuestion":
-                                default:
-                                    icon = "fa-edit";
-                                    break;
+                            if (item.type === "MultipleChoiceQuestion") {
+                                icon = "fa-list-ul";
+                            } else {
+                                icon = "fa-edit";
                             }
                             item.icon = icon;
                             return item;
@@ -81,42 +89,72 @@
                     });
                 };
 
-                query();
-
-                $scope.removeTag = function (tag) {
-                    tag.filtered = false;
-                    query();
+                var union = function (filtered, tags) {
+                    var filteredIds = filtered.map(function(tag) {
+                        return tag.id;
+                    });
+                    return filtered.concat(tags.filter(function(tag) {
+                        return filteredIds.indexOf(tag.id) === -1;
+                    }));
                 };
 
-                // First get exams, then get the tags and combine those with exam sections
-                ExamRes.exams.query(function (data) {
-                    $scope.exams = data;
-                    TagRes.tags.query(function (data) {
-                        $scope.tags = data;
+                $scope.listCourses = function() {
+                    $scope.courses = $scope.courses.filter(function(course) {
+                       return course.filtered;
+                    });
+                    var deferred = $q.defer();
+                    CourseRes.userCourses.query({id: sessionService.getUser().id, examIds: getExamIds(), tagIds : getTagIds(), sectionIds : getSectionIds()}, function(data) {
+                        $scope.courses = union($scope.courses, data);
+                        deferred.resolve();
+                    });
+                    return deferred.promise;
+                };
+
+                $scope.listExams = function() {
+                    $scope.exams = $scope.exams.filter(function(exam) {
+                        return exam.filtered;
+                    });
+                    var deferred = $q.defer();
+                    ExamRes.examsearch.query({courseIds: getCourseIds(), sectionIds: getSectionIds(), tagIds: getTagIds()}, function(data) {
+                        $scope.exams = union($scope.exams, data);
+                        deferred.resolve();
+                    });
+                    return deferred.promise;
+                };
+
+                var doListTags = function(sections) {
+                    var deferred = $q.defer();
+                    TagRes.tags.query({examIds: getExamIds(), courseIds : getCourseIds(), sectionIds : getSectionIds()}, function(data) {
+                        $scope.tags = union($scope.tags, data);
+                        var examSections = [];
                         $scope.exams.forEach(function (exam) {
-                            $scope.tags = $scope.tags.concat(exam.examSections.map(function (section) {
+                            examSections = examSections.concat(exam.examSections.map(function (section) {
                                 section.isSectionTag = true;
                                 return section;
                             }));
                         });
+                        $scope.tags = $scope.tags.concat(union(sections, examSections));
+                        deferred.resolve();
                     });
-                });
-
-                CourseRes.userCourses.query({id: sessionService.getUser().id}, function (data) {
-                    $scope.courses = data;
-                });
-
-                $scope.setExamFilter = function (exam) {
-                    exam.filtered = !exam.filtered;
-                    query();
+                    return deferred.promise;
                 };
 
-                $scope.setCourseFilter = function (course) {
-                    course.filtered = !course.filtered;
-                    query();
+                $scope.listTags = function() {
+                    $scope.tags = $scope.tags.filter(function (tag) {
+                        return tag.filtered && !tag.isSectionTag;
+                    });
+                    var sections = $scope.tags.filter(function (tag) {
+                        return tag.filtered && tag.isSectionTag;
+                    });
+                    if (getExamIds().length === 0) {
+                        $scope.listExams().then(function () {
+                            return doListTags(sections);
+                        })
+                    }
+                    return doListTags(sections);
                 };
 
-                $scope.setTagFilter = function (tag) {
+                $scope.applyFilter = function (tag) {
                     tag.filtered = !tag.filtered;
                     query();
                 };
@@ -131,7 +169,7 @@
                 $scope.shortText = function (text) {
 
                     if (text && text.indexOf("math-tex") === -1) {
-                        // reomve HTML tags
+                        // remove HTML tags
                         var str = String(text).replace(/<[^>]+>/gm, '');
 
                         // shorten string
@@ -204,5 +242,8 @@
                     );
 
                 };
+
+                query();
+
             }]);
 }());

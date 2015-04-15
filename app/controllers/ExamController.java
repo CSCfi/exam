@@ -3,6 +3,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -16,6 +17,7 @@ import org.springframework.util.CollectionUtils;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
@@ -27,6 +29,8 @@ import java.util.*;
 
 public class ExamController extends SitnetController {
 
+    // TODO: refactor these helpers at some point
+
     private static List<Exam> getAllExams() {
         return Ebean.find(Exam.class)
                 .fetch("course")
@@ -36,6 +40,68 @@ public class ExamController extends SitnetController {
                 .eq("state", Exam.State.SAVED.toString())
                 .eq("state", Exam.State.DRAFT.toString())
                 .endJunction().findList();
+    }
+
+    private static ExpressionList<Exam> applyOptionalFilters(ExpressionList<Exam> query, F.Option<List<Long>> courseIds,
+                                             F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
+        if (courseIds.isDefined() && !courseIds.get().isEmpty()) {
+            query = query.in("course.id", courseIds.get());
+        }
+        if (sectionIds.isDefined() && !sectionIds.get().isEmpty()) {
+            query = query.in("examSections.id", sectionIds.get());
+        }
+        if (tagIds.isDefined() && !tagIds.get().isEmpty()) {
+            query = query.in("examSections.sectionQuestions.question.parent.tags.id", tagIds.get());
+        }
+        return query;
+    }
+
+    private static List<Exam> getAllExams( F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
+        ExpressionList<Exam> query = Ebean.find(Exam.class)
+                .fetch("course")
+                .where()
+                .disjunction()
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.SAVED.toString())
+                .eq("state", Exam.State.DRAFT.toString())
+                .endJunction();
+        query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
+        return query.findList();
+    }
+
+    private static List<Exam> getAllExamsOfTeacher(User user, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
+        ExpressionList<Exam> query = Ebean.find(Exam.class)
+                .fetch("course")
+                .where()
+                .disjunction()
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.SAVED.toString())
+                .eq("state", Exam.State.DRAFT.toString())
+                .endJunction()
+                .disjunction()
+                .eq("shared", true)
+                .eq("creator", user)
+                .endJunction();
+        query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
+        Set<Exam> exams = query.findSet();
+        // Get also those where user is owner
+        // Because of https://github.com/ebean-orm/avaje-ebeanorm/issues/37 a disjunction does not work here
+        // TODO: check if doable after having upgraded to Play 2.4
+        query = Ebean.find(Exam.class)
+                .fetch("course")
+                .where()
+                .disjunction()
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.SAVED.toString())
+                .eq("state", Exam.State.DRAFT.toString())
+                .endJunction()
+                .eq("examOwners", user);
+        query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
+        Set<Exam> exams2 = query.findSet();
+        exams.addAll(exams2);
+        List<Exam> examsList = new ArrayList<>(exams);
+        Collections.sort(examsList);
+        return examsList;
     }
 
     private static List<Exam> getAllExamsOfTeacher(User user) {
@@ -70,6 +136,8 @@ public class ExamController extends SitnetController {
         return examsList;
     }
 
+    // HELPER METHODS END
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExams() {
         User user = UserController.getLoggedUser();
@@ -84,7 +152,26 @@ public class ExamController extends SitnetController {
         options.setRootPathProperties("id, name, creator, course, examActiveStartDate, examActiveEndDate, parent, state, examSections");
         options.setPathProperties("examSections", "id, name");
         options.setPathProperties("creator", "firstName, lastName");
-        options.setPathProperties("course", "code");
+        options.setPathProperties("course", "id, name, code");
+        options.setPathProperties("parent", "id");
+        return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result listExams(F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
+        User user = UserController.getLoggedUser();
+        List<Exam> exams;
+        if (user.hasRole("ADMIN")) {
+            exams = getAllExams(courseIds, sectionIds, tagIds);
+        } else {
+            exams = getAllExamsOfTeacher(user, courseIds, sectionIds, tagIds);
+        }
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, creator, course, examActiveStartDate, examActiveEndDate, parent, state, examSections");
+        options.setPathProperties("examSections", "id, name");
+        options.setPathProperties("creator", "firstName, lastName");
+        options.setPathProperties("course", "id, name, code");
         options.setPathProperties("parent", "id");
         return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
     }
@@ -124,7 +211,7 @@ public class ExamController extends SitnetController {
         options.setPathProperties("examInspections", "id, user, assignedBy, ready");
         options.setPathProperties("examInspections.user", "id, firstName, lastName");
         options.setPathProperties("examInspections.assignedBy", "id");
-        options.setPathProperties("course", "code");
+        options.setPathProperties("course", "id, name, code");
 
         options.setPathProperties("examEnrolments", "id, enrolledOn, user, exam, reservation");
         options.setPathProperties("examEnrolments.user", "id");

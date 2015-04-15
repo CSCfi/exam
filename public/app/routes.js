@@ -46,6 +46,7 @@
             $routeProvider.when('/feedback/exams/:id', { templateUrl: tmpl + 'enrolment/exam_feedback.html', controller: 'ExamFeedbackController'});
             $routeProvider.when('/student/waitingroom', { templateUrl: tmpl + 'enrolment/waitingroom.html', controller: 'WaitingRoomCtrl'});
             $routeProvider.when('/student/wrongmachine', { templateUrl: tmpl + 'enrolment/wrong_machine.html', controller: 'WrongMachineCtrl'});
+            $routeProvider.when('/student/exams', { templateUrl: tmpl + 'exam/student/exam_search.html', controller: 'ExamSearchCtrl'});
 
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'review/review.html', controller: 'ExamReviewController'});

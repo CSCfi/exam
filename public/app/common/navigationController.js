@@ -71,6 +71,13 @@
                             sub: []
                         },
                         {
+                            href: "#/student/exams",
+                            visible: (student),
+                            class: "fa-search",
+                            name: $translate("sitnet_exam_search"),
+                            sub: []
+                        },
+                        {
                             href: "#/logout",
                             visible: (student || admin || teacher),
                             class: "fa-sign-out",

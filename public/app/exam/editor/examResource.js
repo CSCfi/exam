@@ -11,7 +11,7 @@
                     "update": {method: "PUT"},
                     "remove": {method: "DELETE"}
                 }),
-
+                examsearch: $resource("/examsearch"),
                 examowner: $resource("/exam/:eid/owner/:uid",
                 {
                     eid: "@eid", uid: "@uid"

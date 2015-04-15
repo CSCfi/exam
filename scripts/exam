@@ -1,27 +1,33 @@
-#!/bin/bash
+#!/bin/sh
 #
-# exam
+# /etc/init.d/exam
+# 
+# chkconfig: 35 90 10
+# description: EXAM service daemon
 #
-# chkconfig: 90 10
+# processname: exam
+
+. /etc/init.d/functions
+
+RETVAL=0
+prog="exam"
 
 APP_ROOT_PATH=/opt/exam/sitnet
 APP_STAGING_PATH="${APP_ROOT_PATH}/target/universal/stage"
 APP_PATH="${APP_STAGING_PATH}/bin/exam"
 APP_USER=sitnet
-PID_DIR=/var/run/exam
-LOG_DIR=/var/log/exam
-PID_FILE="${PID_DIR}/exam.pid"
-APP_SECRET=abcdefghijkl
+PID_DIR="/var/run/${prog}"
+LOG_DIR="/var/log/${prog}"
+PID_FILE="${PID_DIR}/${prog}.pid"
+APP_SECRET="46bsvqiOr2X^OptDMMhHTmWKjeCJH[0]J7F2i8JxPY[nhrK9gBs:J02Et[X[7"
 APP_OPTS="-Dapplication.secret=${APP_SECRET} -DapplyEvolutions.default=true -Dpidfile.path=${PID_FILE}"
-
-. /etc/init.d/functions
 
 start()
 {
-    echo -n "Starting exam:"
+    echo -n "Starting ${prog}:"
     mkdir -p ${PID_DIR} ${LOG_DIR}
     chown ${APP_USER}:${APP_USER} ${PID_DIR} ${LOG_DIR}
-    su -l ${APP_USER} -c "nohup ${APP_PATH} ${APP_OPTS} > ${LOG_DIR}/exam.log 2>&1 < /dev/null" &
+    su -l ${APP_USER} -c "nohup ${APP_PATH} ${APP_OPTS} > ${LOG_DIR}/${prog}.log 2>&1 < /dev/null" &
     i="0"
     while [ ${i} -lt 20 ]
     do
@@ -34,8 +40,11 @@ start()
     done
     if [ -f ${PID_FILE} ]
     then
+        RETVAL=0
+        touch /var/lock/subsys/${prog}
         success
     else
+        RETVAL=1
         failure
     fi
     echo
@@ -47,7 +56,9 @@ stop()
     if [ -f ${PID_FILE} ]
     then
         su -l ${APP_USER} -c "kill `cat ${PID_FILE}`"
+        rm -f /var/lock/subsys/${prog}
     fi
+    RETVAL=0
     success
     echo
 }
@@ -63,4 +74,12 @@ case "$1" in
         stop
         start
         ;;
+    status)
+        status ${prog}
+        RETVAL=$?
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart|status}"
+        RETVAL=1
 esac
+exit ${RETVAL}
