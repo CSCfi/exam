@@ -494,8 +494,6 @@ public class StudentExamController extends SitnetController {
     @Restrict({@Group("STUDENT")})
     public static Result insertAnswer(String hash, Long qid, Long oid) {
 
-        // Todo: onko käyttäjällä aikaa jäljellä tehdä koetta?
-
         AbstractQuestion question = Ebean.find(AbstractQuestion.class)
                 .fetch("answer")
                 .where()
