@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'dateService',
-            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, dateService) {
+        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'StudentExamRes', 'dateService', 'examService',
+            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, StudentExamRes, dateService, examService) {
 
                 $scope.sectionsBar = SITNET_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
@@ -40,6 +40,10 @@
                         return section.sectionQuestions.filter(function (sectionQuestion) {
                             return sectionQuestion.question.answered;
                         }).length;
+                    } else if(type === 'unanswered') {
+                        return section.sectionQuestions.length - section.sectionQuestions.filter(function (sectionQuestion) {
+                                return sectionQuestion.question.answered;
+                            }).length;
                     }
                 };
 
@@ -336,6 +340,7 @@
                         function (updated_answer) {
                             question.answer = updated_answer;
                             toastr.info($translate('sitnet_answer_saved'));
+                            examService.setQuestionColors(question);
                         }, function (error) {
 
                         });
@@ -353,6 +358,7 @@
                     msg.answer = answer;
                     StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
                         toastr.info($translate("sitnet_answer_saved"));
+                        examService.setQuestionColors(question);
                     }, function () {
 
                     });
@@ -458,32 +464,6 @@
                     }
                 };
 
-                $scope.setQuestionColors = function (question) {
-                    // State machine for resolving how the question header is drawn
-                    if (question.answered ||
-                        (question.answer && question.type === "EssayQuestion" && question.answer.answer && $scope.stripHtml(question.answer.answer).length > 0) || // essay not empty
-                        (question.answer && question.type === "MultipleChoiceQuestion" && question.answer.option) // has option selected
-                        ) {
-                        question.answered = true;
-                        question.questionStatus = $translate("sitnet_question_answered");
-
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-active-header';
-                        } else {
-                            question.selectedAnsweredState = 'question-answered-header';
-                        }
-                    } else {
-
-                        question.questionStatus = $translate("sitnet_question_unanswered");
-
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-active-header';
-                        } else {
-                            question.selectedAnsweredState = 'question-unanswered-header';
-                        }
-                    }
-                };
-
                 $scope.selectFile = function (question) {
 
                     $scope.questionTemp = question;
@@ -574,11 +554,5 @@
                     });
                 };
 
-                $scope.stripHtml = function(text) {
-                    if(text && text.indexOf("math-tex") === -1) {
-                        return String(text).replace(/<[^>]+>/gm, '');
-                    }
-                    return text;
-                };
             }]);
 }());
