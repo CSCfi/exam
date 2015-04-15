@@ -146,6 +146,36 @@
                 }
             };
 
+            var setQuestionColors = function (question) {
+
+                // State machine for resolving how the question header is drawn
+                if (question.answered ||
+                    (question.answer && question.type === "EssayQuestion" && question.answer.answer && stripHtml(question.answer.answer).length > 0) || // essay not empty
+                    (question.answer && question.type === "MultipleChoiceQuestion" && question.answer.option) // has option selected
+                ) {
+                    question.answered = true;
+                    question.questionStatus = $translate("sitnet_question_answered");
+                    question.selectedAnsweredState = 'question-answered-header';
+
+                } else {
+
+                    question.questionStatus = $translate("sitnet_question_unanswered");
+
+                    if (question.expanded) {
+                        question.selectedAnsweredState = 'question-active-header';
+                    } else {
+                        question.selectedAnsweredState = 'question-unanswered-header';
+                    }
+                }
+            };
+
+            var stripHtml = function(text) {
+                if(text && text.indexOf("math-tex") === -1) {
+                    return String(text).replace(/<[^>]+>/gm, '');
+                }
+                return text;
+            };
+
             return {
                 createExam: createExam,
                 refreshExamTypes: refreshExamTypes,
@@ -155,7 +185,9 @@
                 getExamGradeDisplayName: getExamGradeDisplayName,
                 setExamOwners: setExamOwners,
                 setExamOwnersAndInspectors: setExamOwnersAndInspectors,
-                setCredit: setCredit
+                setCredit: setCredit,
+                setQuestionColors: setQuestionColors,
+                stripHtml: stripHtml
             };
 
         }]);

@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('TeacherExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'dateService',
-            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, dateService) {
+        .controller('TeacherExamController', ['$scope', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'dateService', 'examService',
+            function ($scope, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, dateService, examService) {
 
                 $scope.multipleChoiseOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
                 $scope.essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/student/essay_question.html";
@@ -19,6 +19,10 @@
                         return section.sectionQuestions.length;
                     } else if(type === 'answered') {
                         return section.sectionQuestions.filter(function (sectionQuestion) {
+                            return sectionQuestion.question.answered;
+                        }).length;
+                    } else if(type === 'unanswered') {
+                        return section.sectionQuestions.length - section.sectionQuestions.filter(function (sectionQuestion) {
                             return sectionQuestion.question.answered;
                         }).length;
                     }
@@ -59,7 +63,7 @@
 
                                 question.expanded = false;
 
-                                $scope.setQuestionColors(question);
+                                examService.setQuestionColors(question);
                             });
 
                             $scope.currentLanguageText = "Room instructions";
@@ -77,6 +81,14 @@
                             // called asynchronously if an error occurs
                             // or server returns response with an error status.
                         });
+                };
+
+                $scope.saveEssay = function (question, answer) {
+                    if(answer) {
+                        question.answered = true;
+                        question.questionStatus = $translate("sitnet_answer_saved");
+                        examService.setQuestionColors(question);
+                    }
                 };
 
                 $scope.previewExam();
@@ -171,7 +183,7 @@
                             if (question.expanded == null) {
                                 question.expanded = true;
                             }
-                            $scope.setQuestionColors(question);
+                            examService.setQuestionColors(question);
                         });
                     }
                 };
@@ -185,8 +197,7 @@
                 $scope.radioChecked = function (doexam, question, option) {
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
-
-
+                    examService.setQuestionColors(question);
                 };
 
                 $scope.printExamDuration = function (exam) {
@@ -195,7 +206,7 @@
 
                 // Called when the chevron is clicked
                 $scope.chevronClicked = function (sectionQuestion) {
-                    $scope.setQuestionColors(sectionQuestion);
+                    examService.setQuestionColors(sectionQuestion);
                 };
 
                 $scope.isAnswer = function (question, option) {
@@ -208,37 +219,5 @@
                         return true;
                 };
 
-                $scope.setQuestionColors = function (question) {
-                    // State machine for resolving how the question header is drawn
-                    if (question.answered ||
-                        (question.answer && question.type === "EssayQuestion" && question.answer.answer && $scope.stripHtml(question.answer.answer).length > 0) || // essay not empty
-                        (question.answer && question.type === "MultipleChoiceQuestion" && question.answer.option) // has option selected
-                        ) {
-                        question.answered = true;
-                        question.questionStatus = $translate("sitnet_question_answered");
-
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-active-header';
-                        } else {
-                            question.selectedAnsweredState = 'question-answered-header';
-                        }
-                    } else {
-
-                        question.questionStatus = $translate("sitnet_question_unanswered");
-
-                        if (question.expanded) {
-                            question.selectedAnsweredState = 'question-active-header';
-                        } else {
-                            question.selectedAnsweredState = 'question-unanswered-header';
-                        }
-                    }
-                };
-
-                $scope.stripHtml = function(text) {
-                    if(text && text.indexOf("math-tex") === -1) {
-                        return String(text).replace(/<[^>]+>/gm, '');
-                    }
-                    return text;
-                };
             }]);
 }());
