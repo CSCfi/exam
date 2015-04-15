@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('EnrollController', ['$scope', 'EnrollRes', 'examService', 'enrolmentService', 'dateService', '$routeParams', 'SITNET_CONF', '$location', '$translate',
-            function ($scope, EnrollRes, examService, enrolmentService, dateService, $routeParams, SITNET_CONF, $location, $translate) {
+        .controller('EnrollController', ['$scope', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'SITNET_CONF', '$location', '$translate',
+            function ($scope, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location, $translate) {
 
                 $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
                 $scope.examPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/exam.html";
@@ -20,7 +20,7 @@
                                 return getLanguageNativeName(lang.code);
                             });
                             $scope.exam = exam;
-                            examService.setExamTeachers(exam);
+                            examService.setExamOwners(exam);
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -33,7 +33,8 @@
                                 exam.languages = exam.examLanguages.map(function (lang) {
                                     return getLanguageNativeName(lang.code);
                                 });
-                                examService.setExamTeachers(exam);
+                                examService.setExamOwners(exam);
+
                                 return exam;
                             });
                         },
@@ -60,7 +61,7 @@
 
                 $scope.enrollList = function () {
                     $location.path('enroll/' + $routeParams.code);
-                }
+                };
 
             }]);
 }());

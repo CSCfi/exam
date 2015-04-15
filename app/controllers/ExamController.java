@@ -206,7 +206,8 @@ public class ExamController extends SitnetController {
         Collections.sort(examsList);
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, examEnrolments, examInspections");
+        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, examEnrolments, examInspections, examOwners");
+        options.setPathProperties("examOwners", "id, firstName, lastName");
         options.setPathProperties("examInspections", "id, user, assignedBy, ready");
         options.setPathProperties("examInspections.user", "id, firstName, lastName");
         options.setPathProperties("examInspections.assignedBy", "id");

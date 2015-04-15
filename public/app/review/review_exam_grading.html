@@ -44,7 +44,7 @@
             </div>
             <div class="row">
                 <div class="col-md-4">
-                    <div class="pull-left col-md-12 row" ng-repeat="teacher in examToBeReviewed.parent.examOwners">
+                    <div ng-if="examToBeReviewed.parent.examOwners.length > 0" class="pull-left col-md-12 row" ng-repeat="teacher in examToBeReviewed.parent.examOwners">
                         {{teacher.firstName}} {{teacher.lastName}}
                     </div>
                 </div>
@@ -103,12 +103,15 @@
             <div class="form-group">
                 <div class="col-md-2">
                     <label for="examGrade">{{'sitnet_exam_grade' | translate}}:</label>
-                    <select id="examGrade" name="examGrade" class="form-control" ng-model="selectedGrade"
-                            ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()" ng-change="setGrade(selectedGrade)" required>
-                        <option value="">{{'sitnet_choose' | translate}}</option>
-                        <option ng-repeat="grade in examGrading" value="{{grade.id}}"
-                                ng-selected="checkGrade(grade)">{{ grade.name }}
-                        </option>
+                    <select id="examGrade"
+                            name="examGrade"
+                            class="form-control"
+                            ng-model="selectedGrade"
+                            ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()"
+                            ng-options="grade.id as grade.name for grade in examGrading"
+                            ng-selected="checkGrade(grade)"
+                            ng-change="setGrade(selectedGrade)" required>
+                        <option value="" ng-selected="!selectedGrade">{{'sitnet_choose' | translate}}</option>
                     </select>
                 </div>
 

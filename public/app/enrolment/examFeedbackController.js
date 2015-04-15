@@ -9,6 +9,8 @@
                 StudentExamRes.feedback.get({eid: $routeParams.id},
                     function (exam) {
                         exam.grade.displayName = examService.getExamGradeDisplayName(exam.grade.name);
+                        examService.setExamOwnersAndInspectors(exam);
+                        examService.setCredit(exam);
                         $scope.reviewedExam = exam;
                     },
                     function (error) {
@@ -19,7 +21,9 @@
                 //Go to feedback template to show teacher's comments
                 $scope.exitFeedback = function () {
                     $location.path("/home");
-                }
+                };
+
+
 
             }]);
 }());

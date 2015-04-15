@@ -1,52 +1,52 @@
 <!-- Finished exams indications bar -->
-<div class="main-row">
-    <span class="col-md-12" ng-init="toggleFinishedExams = 'true'">
-        <a ng-click="toggleFinishedExams = !toggleFinishedExams" class="header-icon fa-stack fa-lg">
-            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i ng-show="!toggleFinishedExams" class="fa fa-chevron-right fa-stack-1x"></i>
-            <i ng-show="toggleFinishedExams" class="fa fa-chevron-down fa-stack-1x"></i>
-        </a>
-        <span ng-click="toggleFinishedExams = !toggleFinishedExams" class="exams-list-title-text pointer">{{ 'sitnet_finished_exams' | translate }}</span>
-    </span>
-</div>
+<div ng-init="toggleFinishedExams = 'true'">
+    <div class="main-row">
+        <span class="col-md-12" ng-init="toggleFinishedExams = 'true'">
+            <a ng-click="toggleFinishedExams = !toggleFinishedExams" class="header-icon fa-stack fa-lg">
+                <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                <i ng-show="!toggleFinishedExams" class="fa fa-chevron-right fa-stack-1x"></i>
+                <i ng-show="toggleFinishedExams" class="fa fa-chevron-down fa-stack-1x"></i>
+            </a>
+            <span ng-click="toggleFinishedExams = !toggleFinishedExams" class="exams-list-title-text pointer">{{ 'sitnet_finished_exams' | translate }}</span>
+        </span>
+    </div>
 
-<div class="detail-row" ng-show="toggleFinishedExams">
-    <div class="col-md-12">
-        <table class="table table-bordered table-striped exams-table">
-            <thead>
-            <tr>
-                <th><i class="fa fa-flag"></i></th>
-                <th><i class="fa fa-exclamation-triangle"></i></th>
-                <th>{{ 'sitnet_examcode' | translate }}</th>
-                <th>{{ 'sitnet_exam_name' | translate }}</th>
-                <th>{{ 'sitnet_exam_open_until' | translate}}</th>
-                <th>{{ 'sitnet_participation_unreviewed' | translate }}</th>
-                <th>{{ 'sitnet_participation_enrolled' | translate }}</th>
-                <th>{{ 'sitnet_teachers' | translate}}</th>
-            </tr>
-            </thead>
+    <div class="detail-row" ng-show="toggleFinishedExams">
+        <div class="col-md-12">
+            <table class="table table-bordered table-striped exams-table">
+                <thead>
+                <tr>
+                    <th><i class="fa fa-flag"></i></th>
+                    <th><i class="fa fa-exclamation-triangle"></i></th>
+                    <th>{{ 'sitnet_examcode' | translate }}</th>
+                    <th>{{ 'sitnet_exam_name' | translate }}</th>
+                    <th>{{ 'sitnet_exam_open_until' | translate}}</th>
+                    <th>{{ 'sitnet_participation_unreviewed' | translate }}</th>
+                    <th>{{ 'sitnet_participation_enrolled' | translate }}</th>
+                    <th>{{ 'sitnet_teachers' | translate}}</th>
+                </tr>
+                </thead>
 
-            <tbody>
-            <tr ng-repeat="finishedExam in finishedExams">
-                <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                <td class="table-column-examcode">{{ finishedExam.course.code }}</td>
-                <td class="table-column-examname"><a href="#/exams/reviews/{{finishedExam.id}}">{{
-                    finishedExam.name }}</a></td>
-                <td class="table-column-open-until">{{ finishedExam.examActiveStartDate | date:'dd.MM.yyyy' }} -
-                    {{ finishedExam.examActiveEndDate | date:'dd.MM.yyyy' }}
-                </td>
-                <td class="table-column-enroll-participation">{{finishedExam.examParticipations.length -
-                    finishedExam.examParticipationsAndReviews.length}}
-                </td>
-                <td class="table-column-enroll-participation">{{ finishedExam.activeExamEnrolments.length }}</td>
-                <td class="table-column-teachers">
-                    <span ng-repeat="teacher in finishedExam.examTeachers" class="pull-left horizontal-padding-05">
-                        {{ teacher.firstName }} {{ teacher.lastName }}
-                    </span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                <tbody>
+                <tr ng-repeat="finishedExam in finishedExams">
+                    <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
+                    <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                    <td class="table-column-examcode">{{ finishedExam.course.code }}</td>
+                    <td class="table-column-examname"><a href="#/exams/reviews/{{finishedExam.id}}">{{
+                        finishedExam.name }}</a></td>
+                    <td class="table-column-open-until">{{ finishedExam.examActiveStartDate | date:'dd.MM.yyyy' }} -
+                        {{ finishedExam.examActiveEndDate | date:'dd.MM.yyyy' }}
+                    </td>
+                    <td class="table-column-enroll-participation">{{finishedExam.examParticipations.length -
+                        finishedExam.examParticipationsAndReviews.length}}
+                    </td>
+                    <td class="table-column-enroll-participation">{{ finishedExam.activeExamEnrolments.length }}</td>
+                    <td class="table-column-teachers">
+                        {{finishedExam.teachersStr}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

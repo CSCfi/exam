@@ -50,7 +50,7 @@
                 };
 
                 $scope.checkGrade = function (grade) {
-                    return $scope.selectedGrade && grade.id === $scope.selectedGrade.id;
+                    return $scope.selectedGrade && grade && grade.id === $scope.selectedGrade.id;
                 };
 
                 var refreshExamTypes = function () {
