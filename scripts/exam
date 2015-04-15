@@ -2,11 +2,24 @@
 #
 # /etc/init.d/exam
 # 
-# chkconfig: 35 90 10
+# chkconfig: - 90 10
 # description: EXAM service daemon
-#
 # processname: exam
+# pidfile: /var/run/exam/exam.pid
 
+### BEGIN INIT INFO
+# Provides: exam
+# Required-Start: $local_fs $remote_fs $network
+# Should-Start: $time
+# Should-Stop: $time
+# Required-Stop: $local_fs $remote_fs $network
+# Default-Start: 3 5
+# Default-Stop: 0 1 2 6
+# Short-Description: EXAM Service Provider Daemon
+# Description: Starts the EXAM Service Provider Daemon.
+### END INIT INFO
+
+# Source function library
 . /etc/init.d/functions
 
 RETVAL=0
@@ -16,17 +29,33 @@ APP_ROOT_PATH=/opt/exam/sitnet
 APP_STAGING_PATH="${APP_ROOT_PATH}/target/universal/stage"
 APP_PATH="${APP_STAGING_PATH}/bin/exam"
 APP_USER=sitnet
-PID_DIR="/var/run/${prog}"
-LOG_DIR="/var/log/${prog}"
+PID_DIR=/var/run/${prog}
+LOG_DIR=/var/log/${prog}
 PID_FILE="${PID_DIR}/${prog}.pid"
+LOCK_FILE=/var/lock/subsys/${prog}
 APP_SECRET="46bsvqiOr2X^OptDMMhHTmWKjeCJH[0]J7F2i8JxPY[nhrK9gBs:J02Et[X[7"
 APP_OPTS="-Dapplication.secret=${APP_SECRET} -DapplyEvolutions.default=true -Dpidfile.path=${PID_FILE}"
+
+[ -e /etc/sysconfig/${prog} ] && . /etc/sysconfig/${prog}
 
 start()
 {
     echo -n "Starting ${prog}:"
+    if [ -f ${LOCK_FILE} ] ; then
+        if [ -f ${PID_FILE} ]; then
+            read PID < ${PID_FILE}
+            if checkpid ${PID} 2>&1; then
+                echo "process already running"
+                    return 1;
+            else
+                echo "lock file found but no process running for pid $kpid, continuing"
+            fi
+        fi
+    fi
+
     mkdir -p ${PID_DIR} ${LOG_DIR}
     chown ${APP_USER}:${APP_USER} ${PID_DIR} ${LOG_DIR}
+
     su -l ${APP_USER} -c "nohup ${APP_PATH} ${APP_OPTS} > ${LOG_DIR}/${prog}.log 2>&1 < /dev/null" &
     i="0"
     while [ ${i} -lt 20 ]
@@ -40,12 +69,11 @@ start()
     done
     if [ -f ${PID_FILE} ]
     then
-        RETVAL=0
-        touch /var/lock/subsys/${prog}
+        touch ${LOCK_FILE}
         success
     else
-        RETVAL=1
         failure
+        RETVAL=1
     fi
     echo
 }
@@ -56,11 +84,33 @@ stop()
     if [ -f ${PID_FILE} ]
     then
         su -l ${APP_USER} -c "kill `cat ${PID_FILE}`"
-        rm -f /var/lock/subsys/${prog}
+        rm -f ${LOCK_FILE} ${PID_FILE}
     fi
-    RETVAL=0
     success
     echo
+}
+
+status()
+{
+    if [ -f ${LOCK_FILE} ] && [ -f ${PID_FILE} ]; then
+        read PID < ${PID_FILE}
+           if checkpid ${PID} 2>&1; then
+            echo "${prog} (PID: ${PID}) is running"
+        else
+            echo "${prog} not running but subsystem is locked"
+        fi
+    elif [ ! -f ${PID_FILE} ] && [ -f ${LOCK_FILE} ]; then
+       echo "${prog} not running but subsystem is locked"
+    elif [ ! -f ${LOCK_FILE} ] && [ -f ${PID_FILE} ]; then
+        read PID < ${PID_FILE}
+           if checkpid ${PID} 2>&1; then
+            echo "${prog} (PID: ${PID}) running but subsystem is not locked"
+        else
+            echo "${prog} is stopped"
+        fi
+    else
+       echo "${prog} is stopped"
+    fi
 }
 
 case "$1" in
@@ -72,10 +122,11 @@ case "$1" in
         ;;
     restart)
         stop
+        sleep 5
         start
         ;;
     status)
-        status ${prog}
+        status
         RETVAL=$?
         ;;
     *)
