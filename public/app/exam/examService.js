@@ -106,22 +106,44 @@
                 return deferred.promise;
             };
 
-            var setExamTeachers = function (exam) {
-                exam.examTeachers = [];
-                exam.teachersStr = "";
-                angular.forEach(exam.examInspections, function (inspection) {
-                    if(exam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
-                        exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
+            var setExamOwners = function (parentExam) {
+                parentExam.examTeachers = [];
+                parentExam.teachersStr = "";
+                angular.forEach(parentExam.examOwners, function(owner){
+                    if(parentExam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
+                        parentExam.examTeachers.push(owner.firstName + " " + owner.lastName);
                     }
                 });
-                angular.forEach(exam.examOwners, function(owner){
-                    if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
-                        exam.examTeachers.push(owner.firstName + " " + owner.lastName);
-                    }
-                });
-                exam.teachersStr = exam.examTeachers.map(function(teacher) {
+                parentExam.teachersStr = parentExam.examTeachers.map(function(teacher) {
                     return teacher;
                 }).join(", ");
+            };
+
+            var setExamOwnersAndInspectors = function (childExam) {
+                childExam.examTeachers = [];
+                childExam.teachersStr = "";
+
+                angular.forEach(childExam.examInspections, function (inspection) {
+                    if(childExam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
+                        childExam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
+                    }
+                });
+                angular.forEach(childExam.parent.examOwners, function(owner){
+                    if(childExam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
+                        childExam.examTeachers.push(owner.firstName + " " + owner.lastName);
+                    }
+                });
+                childExam.teachersStr = childExam.examTeachers.map(function(teacher) {
+                    return teacher;
+                }).join(", ");
+            };
+
+            var setCredit = function (exam) {
+                if(exam.customCredit !== undefined && exam.customCredit) {
+                    exam.credit = exam.customCredit;
+                } else {
+                    exam.course && exam.course.credits ? exam.credit = exam.course.credits : exam.credit = 0;
+                }
             };
 
             return {
@@ -131,7 +153,9 @@
                 getScaleDisplayName: getScaleDisplayName,
                 getExamTypeDisplayName: getExamTypeDisplayName,
                 getExamGradeDisplayName: getExamGradeDisplayName,
-                setExamTeachers: setExamTeachers
+                setExamOwners: setExamOwners,
+                setExamOwnersAndInspectors: setExamOwnersAndInspectors,
+                setCredit: setCredit
             };
 
         }]);

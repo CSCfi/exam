@@ -12,7 +12,7 @@
                             exam.languages = exam.examLanguages.map(function (lang) {
                                 return getLanguageNativeName(lang.code);
                             });
-                            examService.setExamTeachers(exam);
+                            examService.setExamOwnersAndInspectors(exam);
                         });
                         $scope.exams = exams;
                     });

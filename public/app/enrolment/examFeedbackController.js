@@ -9,8 +9,8 @@
                 StudentExamRes.feedback.get({eid: $routeParams.id},
                     function (exam) {
                         exam.grade.displayName = examService.getExamGradeDisplayName(exam.grade.name);
-                        setExamOwners(exam);
-                        setCredit(exam);
+                        examService.setExamOwnersAndInspectors(exam);
+                        examService.setCredit(exam);
                         $scope.reviewedExam = exam;
                     },
                     function (error) {
@@ -23,26 +23,7 @@
                     $location.path("/home");
                 };
 
-                function setExamOwners(exam) {
-                    exam.examTeachers = [];
-                    exam.teachersStr = "";
-                    angular.forEach(exam.parent.examOwners, function(owner){
-                        if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
-                            exam.examTeachers.push(owner.firstName + " " + owner.lastName);
-                        }
-                    });
-                    exam.teachersStr = exam.examTeachers.map(function(teacher) {
-                        return teacher;
-                    }).join(", ");
-                }
 
-                function setCredit(exam) {
-                    if(exam.customCredit !== undefined && exam.customCredit) {
-                        exam.credit = exam.customCredit;
-                    } else {
-                        exam.credit = exam.course.credits;
-                    }
-                }
 
             }]);
 }());
