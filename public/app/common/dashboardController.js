@@ -157,6 +157,29 @@
                     });
                 };
 
+                $scope.addEnrolmentInformation = function(enrolment) {
+                    var modalController = function($scope, $modalInstance) {
+                        $scope.ok = function (information) {
+                            $modalInstance.close("Accepted");
+                        };
+
+                        $scope.cancel = function() {
+                            $modalInstance.close("Canceled");
+                        }
+                    };
+
+                    var modalInstance = $modal.open({
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'enrolment/add_enrolment_information.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController
+                    });
+
+                    modalInstance.result.then(function() {
+                        console.log("closed");
+                    });
+                };
+
                 $scope.beforeDate = function(date) {
                     return Date.now() <= new Date(date);
                 };
