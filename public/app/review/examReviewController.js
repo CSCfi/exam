@@ -63,7 +63,6 @@
 
                 $scope.$on('$localeChangeSuccess', function () {
                     refreshExamTypes();
-                    //refreshGradeNames();
                 });
 
                 var refreshGradeNames = function () {
@@ -263,6 +262,12 @@
                                 $scope.reservation = reservation;
                             }
                         );
+                        ExamRes.examEnrolments.query({eid: $routeParams.id}, function (enrolments) {
+                            if (enrolments.length > 0) {
+                                console.log("WARNING: found several enrolments for a student exam!")
+                            }
+                            $scope.enrolment = enrolments[0];
+                        });
                     },
                     function (error) {
                         toastr.error(error.data);
