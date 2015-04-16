@@ -19,53 +19,54 @@ public class ExamEnrolment extends Model implements Comparable<ExamEnrolment> {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    
-	@ManyToOne
-	@JsonBackReference
-	private User user;
 
-	@ManyToOne
-	@JsonBackReference
-	private Exam exam;
+    @ManyToOne
+    @JsonBackReference
+    private User user;
+
+    @ManyToOne
+    @JsonBackReference
+    private Exam exam;
 
     @OneToOne(cascade = CascadeType.REMOVE)
     private Reservation reservation;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date enrolledOn;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date enrolledOn;
 
-	
-	public Long getId() {
-		return id;
-	}
+    private String information;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public User getUser() {
+        return user;
+    }
 
-	public Date getEnrolledOn() {
-		return enrolledOn;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-	public void setEnrolledOn(Date enrolledOn) {
-		this.enrolledOn = enrolledOn;
-	}
+    public Date getEnrolledOn() {
+        return enrolledOn;
+    }
 
-	public Exam getExam() {
-		return exam;
-	}
+    public void setEnrolledOn(Date enrolledOn) {
+        this.enrolledOn = enrolledOn;
+    }
 
-	public void setExam(Exam exam) {
-		this.exam = exam;
-	}
+    public Exam getExam() {
+        return exam;
+    }
+
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
 
     public Reservation getReservation() {
         return reservation;
@@ -73,6 +74,14 @@ public class ExamEnrolment extends Model implements Comparable<ExamEnrolment> {
 
     public void setReservation(Reservation reservation) {
         this.reservation = reservation;
+    }
+
+    public String getInformation() {
+        return information;
+    }
+
+    public void setInformation(String information) {
+        this.information = information;
     }
 
     @Override

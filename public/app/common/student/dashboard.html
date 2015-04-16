@@ -110,7 +110,8 @@
                     </div>
                     <div class="col-md-8">
                         <a class="text-info pointer" ng-click="addEnrolmentInformation(enrolment)">
-                            {{ 'sitnet_add' | translate }}
+                            <span ng-if="enrolment.information">{{ 'sitnet_edit' | translate }}</span>
+                            <span ng-if="!enrolment.information">{{ 'sitnet_add' | translate }}</span>
                         </a>
                     </div>
                 </div>

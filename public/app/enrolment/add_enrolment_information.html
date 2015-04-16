@@ -5,7 +5,7 @@
     <div class="modal-body">
         <form role="form" id="infoForm" name="infoForm" novalidate>
             <label for="infoForm">{{ 'sitnet_student_enrolment_info_description' | translate }}:</label>
-            <textarea rows="10" cols="80" ng-model="additionalInfo" required>
+            <textarea rows="10" cols="80" ng-model="enrolment.information">
             </textarea>
         </form>
     </div>
@@ -14,7 +14,7 @@
             <button class="btn btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}</button>
         </div>
         <div class="col-md-6">
-            <button ng-disabled="!infoForm.$valid" class="btn btn-success" ng-click="ok(additionalInfo)">
+            <button class="btn btn-success" ng-click="ok()">
                 {{'sitnet_button_save' | translate}}</button>
         </div>
     </div>

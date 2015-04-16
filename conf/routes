@@ -84,6 +84,7 @@ PUT           /student/exam/abort/:id                               controllers.
 GET           /student/doexam/:hash                                 controllers.StudentExamController.startExam(hash: String)
 GET           /enrolments/user/:uid                                 controllers.StudentExamController.getEnrolmentsForUser(uid: Long)
 GET           /enrolments/:eid                                      controllers.StudentExamController.getEnrolment(eid: Long)
+PUT           /enrolments/:eid                                      controllers.EnrollController.updateEnrolment(eid: Long)
 GET           /student/exams/:eid                                   controllers.StudentExamController.getReservationInstructions(eid: Long)
 
 POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
