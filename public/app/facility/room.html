@@ -81,7 +81,7 @@
     <div class="top-row">
         <h3 class="col-md-12 header-text">{{'sitnet_exception_datetimes' | translate}}</h3>
     </div>
-    <div class="bottom-row">
+    <div class="detail-row">
         <div class="col-md-12">
             <table class="table table-bordered">
                 <thead>
@@ -105,7 +105,13 @@
             </table>
         </div>
     </div>
-
+    <div class="bottom-row">
+        <div class="col-md-12">
+            <button ng-click="addException()" class="btn btn-primary">
+                {{'sitnet_add_exception_time' | translate}}
+            </button>
+        </div>
+    </div>
     <!-- Accessibility information -->
     <div class="detail-row">
         <div class="col-md-12">
