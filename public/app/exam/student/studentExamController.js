@@ -34,13 +34,13 @@
                 });
 
                 $scope.getQuestionAmount = function (section, type) {
-                    if(type === 'total') {
+                    if (type === 'total') {
                         return section.sectionQuestions.length;
-                    } else if(type === 'answered') {
+                    } else if (type === 'answered') {
                         return section.sectionQuestions.filter(function (sectionQuestion) {
                             return sectionQuestion.question.answered;
                         }).length;
-                    } else if(type === 'unanswered') {
+                    } else if (type === 'unanswered') {
                         return section.sectionQuestions.length - section.sectionQuestions.filter(function (sectionQuestion) {
                                 return sectionQuestion.question.answered;
                             }).length;
@@ -54,7 +54,7 @@
                 var getAutosaver = function () {
                     if (!$scope.guide) {
                         return $interval(function () {
-                            if($scope.activeSection && $scope.activeSection.sectionQuestions) {
+                            if ($scope.activeSection && $scope.activeSection.sectionQuestions) {
                                 angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                                     var question = sectionQuestion.question;
                                     if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
@@ -146,7 +146,7 @@
                 function currentLanguage() {
                     var tmp = "";
 
-                    if($scope.info &&
+                    if ($scope.info &&
                         $scope.info.reservation &&
                         $scope.info.reservation.machine &&
                         $scope.info.reservation.machine.room) {
@@ -163,10 +163,6 @@
                                 }
                                 break;
                             case "en":
-                                if ($scope.info.reservation.machine.room.roomInstructionEN) {
-                                    tmp = $scope.info.reservation.machine.room.roomInstructionEN;
-                                }
-                                break;
                             default:
                                 if ($scope.info.reservation.machine.room.roomInstructionEN) {
                                     tmp = $scope.info.reservation.machine.room.roomInstructionEN;
@@ -212,7 +208,7 @@
                         // previous
                         if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
                             $scope.previousButton = true;
-                            if($scope.pages.indexOf(sectionName) - 1 !== 0) {
+                            if ($scope.pages.indexOf(sectionName) - 1 !== 0) {
                                 $scope.previousButtonText = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
                             } else {
                                 $scope.previousButtonText = $translate("sitnet_exam_quide");
@@ -298,7 +294,7 @@
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_turn_exam'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         saveAllEssays().then(function () {
                             StudentExamRes.exams.update({id: doexam.id}, function () {
                                 toastr.info($translate('sitnet_exam_returned'));
@@ -315,7 +311,7 @@
                 // Called when the abort button is clicked
                 $scope.abortExam = function (doexam) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_abort_exam'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
                             toastr.info($translate('sitnet_exam_aborted'));
                             $timeout.cancel($scope.remainingTimePoller);
