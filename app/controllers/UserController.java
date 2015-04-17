@@ -38,18 +38,13 @@ public class UserController extends SitnetController {
     public static Result getUsersByRole(String role) {
 
         List<User> users = Ebean.find(User.class)
-                .fetch("attributes")
                 .where()
                 .eq("roles.name", role)
+                .orderBy("lastName")
                 .findList();
 
-        List<User> filteredUsers =
-                Ebean.filter(User.class)
-                        .sort("lastName asc")
-                        .filter(users);
-
         ArrayNode array = JsonNodeFactory.instance.arrayNode();
-        for (User u : filteredUsers) {
+        for (User u : users) {
             ObjectNode part = Json.newObject();
             part.put("id", u.getId());
             part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
