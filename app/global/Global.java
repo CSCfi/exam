@@ -5,7 +5,6 @@ import akka.actor.Scheduler;
 import com.avaje.ebean.Ebean;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
-import controllers.StatisticsController;
 import exceptions.AuthenticateException;
 import exceptions.MalformedDataException;
 import models.*;
@@ -81,7 +80,6 @@ public class Global extends GlobalSettings {
         scheduleWeeklyReport();
 
         SitnetUtil.initializeDataModel();
-        StatisticsController.createReportDirectory();
 
         super.onStart(app);
     }

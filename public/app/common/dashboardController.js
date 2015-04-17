@@ -98,24 +98,6 @@
                     }).join(", ");
                 }
 
-                function setExamOwnersAndInspectors(exam) {
-                    exam.examTeachers = [];
-                    exam.teachersStr = "";
-                    angular.forEach(exam.examInspections, function (inspection) {
-                        if(exam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
-                            exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
-                        }
-                    });
-                    angular.forEach(exam.parent.examOwners, function(owner){
-                        if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
-                            exam.examTeachers.push(owner.firstName + " " + owner.lastName);
-                        }
-                    });
-                    exam.teachersStr = exam.examTeachers.map(function(teacher) {
-                        return teacher;
-                    }).join(", ");
-                }
-
                 $scope.printExamDuration = function(exam) {
                    return dateService.printExamDuration(exam);
                 };
@@ -148,6 +130,39 @@
                         resolve: {
                             instructions: function () {
                                 return enrolment.exam.enrollInstruction;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function() {
+                        console.log("closed");
+                    });
+                };
+
+                $scope.addEnrolmentInformation = function(enrolment) {
+                    var modalController = function($scope, $modalInstance) {
+                        $scope.enrolment = angular.copy(enrolment);
+                        $scope.ok = function () {
+                            $modalInstance.close("Accepted");
+                            enrolment.information = $scope.enrolment.information;
+                            StudentExamRes.enrolment.update({eid: enrolment.id, information: $scope.enrolment.information}, function() {
+                                toastr.success($translate('sitnet_saved'));
+                            })
+                        };
+
+                        $scope.cancel = function() {
+                            $modalInstance.close("Canceled");
+                        }
+                    };
+
+                    var modalInstance = $modal.open({
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'enrolment/add_enrolment_information.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController,
+                        resolve: {
+                            enrolment: function () {
+                                return $scope.enrolment;
                             }
                         }
                     });

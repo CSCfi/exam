@@ -106,34 +106,35 @@
                 return deferred.promise;
             };
 
-            var setExamOwners = function (parentExam) {
-                parentExam.examTeachers = [];
-                parentExam.teachersStr = "";
-                angular.forEach(parentExam.examOwners, function(owner){
-                    if(parentExam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
-                        parentExam.examTeachers.push(owner.firstName + " " + owner.lastName);
+            var setExamOwners = function (exam) {
+                exam.examTeachers = [];
+                exam.teachersStr = "";
+                angular.forEach(exam.examOwners, function(owner){
+                    if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
+                        exam.examTeachers.push(owner.firstName + " " + owner.lastName);
                     }
                 });
-                parentExam.teachersStr = parentExam.examTeachers.map(function(teacher) {
+                exam.teachersStr = exam.examTeachers.map(function(teacher) {
                     return teacher;
                 }).join(", ");
             };
 
-            var setExamOwnersAndInspectors = function (childExam) {
-                childExam.examTeachers = [];
-                childExam.teachersStr = "";
+            var setExamOwnersAndInspectors = function (exam) {
+                exam.examTeachers = [];
+                exam.teachersStr = "";
 
-                angular.forEach(childExam.examInspections, function (inspection) {
-                    if(childExam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
-                        childExam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
+                angular.forEach(exam.examInspections, function (inspection) {
+                    if(exam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
+                        exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
                     }
                 });
-                angular.forEach(childExam.parent.examOwners, function(owner){
-                    if(childExam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
-                        childExam.examTeachers.push(owner.firstName + " " + owner.lastName);
+                var examToCheck = exam.parent || exam;
+                angular.forEach(examToCheck.examOwners, function(owner){
+                    if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
+                        exam.examTeachers.push(owner.firstName + " " + owner.lastName);
                     }
                 });
-                childExam.teachersStr = childExam.examTeachers.map(function(teacher) {
+                exam.teachersStr = exam.examTeachers.map(function(teacher) {
                     return teacher;
                 }).join(", ");
             };

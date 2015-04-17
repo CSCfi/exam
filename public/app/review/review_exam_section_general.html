@@ -16,6 +16,10 @@
     <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_exam_duration' | translate}}:</div>
     <div class="col-md-4 sitnet-info-text-compact">{{userInfo.duration}}</div>
 </div>
+<div class="detail-row" ng-show="enrolment && enrolment.information">
+    <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_student_enrolment_info' | translate }}:</div>
+    <div class="col-md-10 sitnet-info-text-compact">{{enrolment.information}}</div>
+</div>
 <div class="detail-row">
     <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_examination_location' | translate}}:</div>
     <div class="col-md-4 sitnet-info-text-compact" ng-if="reservation && reservation.room">
@@ -25,6 +29,7 @@
     <div class="col-md-4 sitnet-info-text-compact" ng-if="reservation">{{reservation.name}}</div>
     <div class="col-md-4 sitnet-info-text-compact" ng-if="!reservation">N/A</div>
 </div>
+
 <div class="top-row">
     <div class="col-md-12">
         <strong>{{'sitnet_previous_exam_participations' | translate}}:</strong>

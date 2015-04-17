@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.ning.http.util.Base64;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
@@ -17,18 +18,15 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
-import play.Play;
 import play.mvc.Result;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 
 public class StatisticsController extends SitnetController {
 
-    private static final String REPORTS_PATH = String.format("%s/%s/", Play.application().path().getAbsolutePath(),
-            Play.application().configuration().getString("sitnet.reports.path"));
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy");
 
 
@@ -79,9 +77,6 @@ public class StatisticsController extends SitnetController {
         values.put("Instructions", forceNotNull(exam.getInstruction()));
         values.put("Shared", Boolean.valueOf(exam.isShared()).toString());
 
-        String name = String.format("%sexam_%s.xlsx", REPORTS_PATH, exam.getName().toLowerCase().replace(" ", "-"));
-        File file = new File(name);
-
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet(exam.getName());
 
@@ -95,8 +90,8 @@ public class StatisticsController extends SitnetController {
         for (String value : values.values()) {
             dataRow.createCell(i++).setCellValue(value);
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(write(wb, file)));
+        response().setHeader("Content-Disposition", "attachment; filename=\"exams.xlsx\"");
+        return ok(encode(wb));
     }
 
     private static Result examToJson(Exam exam) {
@@ -117,15 +112,8 @@ public class StatisticsController extends SitnetController {
         options.setPathProperties("examSections.questions.comments", "id, comment");
         options.setPathProperties("examFeedback", "id, comment");
 
-        String name = String.format("%sexam_%s.json", REPORTS_PATH, exam.getName().toLowerCase().replace(" ", "-"));
-        File file = new File(name);
         String content = jsonContext.toJsonString(exam, true, options);
-        try (FileOutputStream fos = new FileOutputStream(file); PrintStream ps = new PrintStream(fos)) {
-            ps.print(content);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        response().setHeader("Content-Disposition", "attachment; filename=\"exams.json\"");
         return ok(com.ning.http.util.Base64.encode(content.getBytes()));
     }
 
@@ -170,8 +158,6 @@ public class StatisticsController extends SitnetController {
                 .orderBy("created")
                 .findList();
 
-        String name = String.format("%steachers_exams_%s_%s.xlsx", REPORTS_PATH, from.replace(".", "-"), to.replace(".", "-"));
-        File file = new File(String.format(name));
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("teacher's exams");
         String[] headers = {"exam", "created", "state", "course code", "active during", "credits", "exam type", "in review",
@@ -215,8 +201,8 @@ public class StatisticsController extends SitnetController {
                 dataRow.createCell(i).setCellValue(data[i]);
             }
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(write(wb, file)));
+        response().setHeader("Content-Disposition", "attachment; filename=\"teachers_exams.xlsx\"");
+        return ok(encode(wb));
     }
 
     @Restrict({@Group("ADMIN")})
@@ -224,8 +210,6 @@ public class StatisticsController extends SitnetController {
         Exam proto = Ebean.find(Exam.class).fetch("examEnrolments").fetch("examEnrolments.user")
                 .fetch("examEnrolments.reservation").fetch("course")
                 .where().eq("id", id).isNull("parent").findUnique();
-        String name = String.format("%senrolments.xlsx", REPORTS_PATH);
-        File file = new File(name);
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("enrolments");
         String[] headers = {"student name", "student ID", "student EPPN", "reservation time", "enrolment time"};
@@ -244,8 +228,8 @@ public class StatisticsController extends SitnetController {
                 dataRow.createCell(i).setCellValue(data[i]);
             }
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(write(wb, file)));
+        response().setHeader("Content-Disposition", "attachment; filename=\"enrolments.xlsx\"");
+        return ok(encode(wb));
     }
 
     /**
@@ -270,8 +254,6 @@ public class StatisticsController extends SitnetController {
                 .orderBy("creator.id")
                 .findList();
 
-        String name = String.format("%sgraded_exams_%s_%s.xlsx", REPORTS_PATH, from.replace(".", "-"), to.replace(".", "-"));
-        File file = new File(name);
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("graded exams");
         String[] headers = {"student", "exam", "course", "taken on", "graded on", "graded by",
@@ -298,8 +280,8 @@ public class StatisticsController extends SitnetController {
                 dataRow.createCell(i).setCellValue(data[i]);
             }
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(write(wb, file)));
+        response().setHeader("Content-Disposition", "attachment; filename=\"reviews.xlsx\"");
+        return ok(encode(wb));
     }
 
     @Restrict({@Group("ADMIN")})
@@ -316,9 +298,6 @@ public class StatisticsController extends SitnetController {
                 .lt("reservation.startAt", end)
                 .eq("reservation.machine.room.id", roomId)
                 .findList();
-
-        String name = String.format("%sreservations_%s_%s.xslx", REPORTS_PATH, from.replace(".", "-"), to.replace(".", "-"));
-        File file = new File(name);
 
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("reservations");
@@ -352,8 +331,8 @@ public class StatisticsController extends SitnetController {
                 dataRow.createCell(i).setCellValue(data[i]);
             }
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(write(wb, file)));
+        response().setHeader("Content-Disposition", "attachment; filename=\"reservations.xlsx\"");
+        return ok(encode(wb));
     }
 
     @Restrict({@Group("ADMIN")})
@@ -374,13 +353,10 @@ public class StatisticsController extends SitnetController {
                 .endJunction()
                 .findList();
 
-        String name = String.format("%sparticipations_%s_%s.xslx", REPORTS_PATH, from.replace(".", "-"), to.replace(".", "-"));
-        File file = new File(name);
-
         Workbook wb = new XSSFWorkbook();
         generateParticipationSheet(wb, participations, true);
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(write(wb, file)));
+        response().setHeader("Content-Disposition", "attachment; filename=\"all_exams.xlsx\"");
+        return ok(encode(wb));
     }
 
     @Restrict({@Group("ADMIN")})
@@ -398,9 +374,6 @@ public class StatisticsController extends SitnetController {
                 .eq("user.id", studentId)
                 .findList();
 
-        String name = String.format("%sstudent_activity_%s_%s.xslx", REPORTS_PATH, from.replace(".", "-"), to.replace(".", "-"));
-        File file = new File(name);
-
         Workbook wb = new XSSFWorkbook();
         Sheet studentSheet = wb.createSheet("student");
         String[] studentHeaders = {"id", "first name", "last name", "email", "language"};
@@ -413,15 +386,8 @@ public class StatisticsController extends SitnetController {
         dataRow.createCell(index++).setCellValue(student.getEmail());
         dataRow.createCell(index).setCellValue(student.getUserLanguage().getNativeLanguageName());
         generateParticipationSheet(wb, participations, false);
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        return ok(com.ning.http.util.Base64.encode(write(wb, file)));
-    }
-
-    public static void createReportDirectory() {
-        File dir = new File(REPORTS_PATH);
-        if (dir.mkdirs()) {
-            Logger.info("Report directory created");
-        }
+        response().setHeader("Content-Disposition", "attachment; filename=\"student_activity.xlsx\"");
+        return ok(encode(wb));
     }
 
     private static void generateParticipationSheet(Workbook workbook, List<ExamParticipation> participations,
@@ -494,18 +460,12 @@ public class StatisticsController extends SitnetController {
         return src == null ? "" : src;
     }
 
-    // Write workbook to file + return content as bytes
-    public static byte[] write(Workbook wb, File file) throws IOException {
-        byte[] content;
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); OutputStream os = new FileOutputStream(file); InputStream is = new FileInputStream(file)) {
-            wb.write(os);
-            byte[] buf = new byte[1024];
-            for (int readNum; (readNum = is.read(buf)) != -1; ) {
-                bos.write(buf, 0, readNum);
-            }
-            content = bos.toByteArray();
-        }
-        return content;
+    // Base64-encode workbook
+    public static String encode(Workbook wb) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        wb.write(bos);
+        bos.close();
+        return Base64.encode(bos.toByteArray());
     }
 
     public static void addHeader(Sheet sheet, String[] headers) {

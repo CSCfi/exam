@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.Exam;
 import models.ExamEnrolment;
 import models.Reservation;
@@ -104,6 +105,19 @@ public class EnrollController extends Controller {
         enrolment.setUser(user);
         enrolment.setExam(exam);
         enrolment.save();
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public static Result updateEnrolment(Long id) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
+        if (enrolment == null) {
+            return notFound("enrolment not found");
+        }
+        JsonNode json = request().body().asJson();
+        String info = json.get("information").asText();
+        enrolment.setInformation(info);
+        enrolment.update();
+        return ok();
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
