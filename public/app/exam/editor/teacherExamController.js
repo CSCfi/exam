@@ -91,6 +91,19 @@
                     }
                 };
 
+                function zeropad(n) {
+                    n += '';
+                    return n.length > 1 ? n : '0' + n;
+                }
+
+
+                $scope.formatRemainingTime = function (duration) {
+                    var time = duration;
+                    var hours = Math.floor(time / 60);
+                    var minutes = Math.floor(time) % 60;
+                    return hours + ":" + zeropad(minutes) + ":00";
+                };
+
                 $scope.previewExam();
 
                 $scope.guide = false;
