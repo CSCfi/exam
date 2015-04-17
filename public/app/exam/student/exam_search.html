@@ -4,17 +4,26 @@
     </div>
 </div>
 <!-- Enrolled exams list -->
-<div id="dashboard" ng-controller="ExamSearchCtrl">
+<div id="dashboard">
     <div class="main-row">
-        <div class="col-md-4">
-            <label for="freesearch">&nbsp;</label>
-            <div id="freesearch" class="form-group input-group">
+        <div class="col-md-4" ng-show="permissionCheck.active===false">
+            <div class="form-group input-group">
                 <input ng-change="search()" ng-model="filter" type="text" class="form-control"
                        placeholder="{{'sitnet_search' | translate }}">
                 <div class="input-group-addon">
                     <i class="fa fa-search fa-fw"></i>
                 </div>
             </div>
+        </div>
+        <div class="col-md-12" ng-show="permissionCheck.active===true">
+            <p class="text-info">{{ 'sitnet_search_restricted' | translate }}</p>
+        </div>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12">
+            <button ng-show="loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}...
+                <i class="fa fa-spinner fa-spin"></i>
+            </button>
         </div>
     </div>
     <div class="main-row">

@@ -575,5 +575,8 @@
   "sitnet_question_status_answered": "Vastattu",
   "sitnet_questions_total": "Kysymyksiä",
   "sitnet_student_enrolment_info": "Lisätiedot opettajille",
-  "sitnet_student_enrolment_info_description": "Anna lisätietoa liittyen esimerkiksi aiempiin suorituksiin, erityissopimuksiin tai tentittäviin kirjoihin"
+  "sitnet_student_enrolment_info_description": "Anna lisätietoa liittyen esimerkiksi aiempiin suorituksiin, erityissopimuksiin tai tentittäviin kirjoihin",
+  "sitnet_searching": "Haetaan",
+  "sitnet_request_timed_out": "Pyyntö aikakatkaistiin. Opintotietojärjestelmä ei vastaa",
+  "sitnet_search_restricted": "Valittavissa olevat tentit on määritelty organisaatiosi opintotietojärjestelmässä"
 }

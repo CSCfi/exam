@@ -575,5 +575,8 @@
   "sitnet_question_status_answered": "Answered",
   "sitnet_questions_total": "Questions total",
   "sitnet_student_enrolment_info": "Additional information for teachers",
-  "sitnet_student_enrolment_info_description": "Provide any additional information regarding for instance your study history, special agreements or exam material"
+  "sitnet_student_enrolment_info_description": "Provide any additional information regarding for instance your study history, special agreements or exam material",
+  "sitnet_searching": "Searching",
+  "sitnet_request_timed_out": "Request timed out. Base system did not respond in timely manner.",
+  "sitnet_search_restricted": "Available exams are provided by your organization"
 }

@@ -575,5 +575,8 @@
   "sitnet_question_status_answered": "Answered",
   "sitnet_questions_total": "Questions total",
   "sitnet_student_enrolment_info": "Tilläggsinformation för lärarna",
-  "sitnet_student_enrolment_info_description": "Ge tillägsinformation som gäller till exempel företidiga studier, speciella avtal eller tentmaterial"
+  "sitnet_student_enrolment_info_description": "Ge tillägsinformation som gäller till exempel företidiga studier, speciella avtal eller tentmaterial",
+  "sitnet_searching": "Sök pågår",
+  "sitnet_request_timed_out": "Request timed out. Base system did not respond in timely manner.",
+  "sitnet_search_restricted": "Tenter som visas hämtas från ditt institutets system"
 }
