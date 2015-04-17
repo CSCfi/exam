@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('EnrollController', ['$scope', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'SITNET_CONF', '$location', '$translate',
-            function ($scope, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location, $translate) {
+        .controller('EnrollController', ['$scope', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'SITNET_CONF', '$location', '$translate', 'enrolmentService',
+            function ($scope, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location, $translate, enrolmentService) {
 
                 $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
                 $scope.examPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/exam.html";

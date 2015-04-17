@@ -106,7 +106,7 @@
                             exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
                         }
                     });
-                    angular.forEach(exam.examOwners, function(owner){
+                    angular.forEach(exam.parent.examOwners, function(owner){
                         if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
                             exam.examTeachers.push(owner.firstName + " " + owner.lastName);
                         }

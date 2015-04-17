@@ -96,7 +96,7 @@
 
                             // Loop through all questions in the active section
                             angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
-                                $scope.setQuestionColors(sectionQuestion);
+                                examService.setQuestionColors(sectionQuestion);
                                 var question = sectionQuestion.question;
                                 var template = "";
                                 switch (question.type) {
@@ -114,7 +114,7 @@
 
                                 question.expanded = false;
 
-                                $scope.setQuestionColors(question);
+                                examService.setQuestionColors(question);
                             });
 
                             $http.get('/examenrolmentroom/' + $scope.doexam.id)
@@ -265,7 +265,7 @@
                             if (question.expanded == null) {
                                 question.expanded = true;
                             }
-                            $scope.setQuestionColors(question);
+                            examService.setQuestionColors(question);
                         });
                         cancelAutosavers();
                         $scope.activeSection.autosaver = getAutosaver();
@@ -389,7 +389,6 @@
                         var req = $http.get('/time/' + $scope.doexam.id);
                         req.success(function (reply) {
                             $scope.timeChecked = true;
-                            // console.log("from server: " + reply);
                             $scope.remainingTime = parseInt(reply);
                         });
                     }
