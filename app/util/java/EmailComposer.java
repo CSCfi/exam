@@ -25,6 +25,7 @@ public class EmailComposer {
     private static final String TAG_OPEN = "{{";
     private static final String TAG_CLOSE = "}}";
     private static final String BASE_SYSTEM_URL = ConfigFactory.load().getString("sitnet.baseSystemURL");
+    private static final String SYSTEM_ACCOUNT = ConfigFactory.load().getString("sitnet.email.system.account");
     private static final Charset ENCODING = Charset.defaultCharset();
     private static final String TEMPLATES_ROOT = String.format("%s/conf/template/email/",
             Play.application().path().getAbsolutePath());
@@ -135,7 +136,7 @@ public class EmailComposer {
         stringValues.put("inspection_info_own", rowBuilder.toString().isEmpty() ? "N/A" : rowBuilder.toString());
 
         String content = replaceAll(template, stringValues);
-        EmailSender.send(teacher.getEmail(), "noreply@exam.org", subject, content); // FIXME: sender email modifiable
+        EmailSender.send(teacher.getEmail(), SYSTEM_ACCOUNT, subject, content); // FIXME: sender email modifiable
     }
 
     public static void composeReservationNotification(User student, Reservation reservation, Exam exam)
@@ -184,7 +185,7 @@ public class EmailComposer {
         stringValues.put("cancellation_link_text", Messages.get(lang, "email.template.reservation.cancel.link.text"));
 
         String content = replaceAll(template, stringValues);
-        EmailSender.send(student.getEmail(), "noreply@exam.org", subject, content);
+        EmailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
     public static void composeExamReviewedRequest(User toUser, User fromUser, Exam exam, String message)
@@ -253,7 +254,7 @@ public class EmailComposer {
         stringValues.put("admin", Messages.get(lang, "email.template.admin"));
 
         String content = replaceAll(template, stringValues);
-        EmailSender.send(student.getEmail(), "noreply@exam.org", subject, content);
+        EmailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
     private static List<ExamEnrolment> getEnrolments(Exam exam) {
