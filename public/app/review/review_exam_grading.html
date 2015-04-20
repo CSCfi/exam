@@ -110,7 +110,7 @@
                             ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()"
                             ng-options="grade.id as grade.name for grade in examGrading"
                             ng-selected="checkGrade(grade)"
-                            ng-change="setGrade(selectedGrade)" required>
+                            ng-change="setGrade(selectedGrade.id)" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
                     </select>
                 </div>

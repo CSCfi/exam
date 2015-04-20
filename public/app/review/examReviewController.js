@@ -41,7 +41,7 @@
                 };
 
                 $scope.setGrade = function (grade_id) {
-                    $scope.examToBeReviewed.grade = $scope.selectedGrade;
+                    $scope.examToBeReviewed.grade = $scope.selectedGrade = {id: grade_id};
                 };
 
 
