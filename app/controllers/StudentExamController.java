@@ -334,7 +334,7 @@ public class StudentExamController extends SitnetController {
             ExamParticipation examParticipation = new ExamParticipation();
             examParticipation.setUser(user);
             examParticipation.setExam(studentExam);
-            examParticipation.setStarted(now.toDate());
+            examParticipation.setStarted(DateTime.now().toDate());
             examParticipation.save();
             user.getParticipations().add(examParticipation);
 
@@ -393,7 +393,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(SitnetUtil.adjustDST(DateTime.now()).toDate());
+            p.setEnded(DateTime.now().toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
