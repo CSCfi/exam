@@ -578,5 +578,5 @@
   "sitnet_student_enrolment_info_description": "Anna lisätietoa liittyen esimerkiksi aiempiin suorituksiin, erityissopimuksiin tai tentittäviin kirjoihin",
   "sitnet_searching": "Haetaan",
   "sitnet_request_timed_out": "Pyyntö aikakatkaistiin. Opintotietojärjestelmä ei vastaa",
-  "sitnet_search_restricted": "Valittavissa olevat tentit on määritelty organisaatiosi opintotietojärjestelmässä"
+  "sitnet_search_restricted": "Listassa näkyvät tentit, joihin sinulla on oikeus ilmoittautua ja joihin olet ilmoittautunut perusjärjestelmässä. Mikäli listastasi puuttuu jokin tentti, tarkista, että opinto-oikeutesi ja ilmoittautuminen perusjärjestelmässä on kunnossa "
 }

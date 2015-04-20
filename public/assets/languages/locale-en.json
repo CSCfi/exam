@@ -578,5 +578,5 @@
   "sitnet_student_enrolment_info_description": "Provide any additional information regarding for instance your study history, special agreements or exam material",
   "sitnet_searching": "Searching",
   "sitnet_request_timed_out": "Request timed out. Base system did not respond in timely manner.",
-  "sitnet_search_restricted": "Available exams are provided by your organization"
+  "sitnet_search_restricted": "Exams listed here are the ones you are entitled to enroll for according to data provided by the base system. In case you feel an exam is missing in the list, please check that the enrolment is valid within your base system"
 }
