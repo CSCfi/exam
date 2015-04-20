@@ -76,4 +76,11 @@ public class SettingsController  extends SitnetController {
         return ok(Json.toJson(node));
     }
 
+    @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    public static Result isEnrolmentPermissionCheckActive() {
+        ObjectNode node = Json.newObject();
+        node.put("active", SitnetUtil.isEnrolmentPermissionCheckActive());
+        return ok(Json.toJson(node));
+    }
+
 }

@@ -9,10 +9,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import exceptions.NotFoundException;
-import models.Course;
-import models.ExamRecord;
-import models.GradeScale;
-import models.Organisation;
+import models.*;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -24,28 +21,80 @@ import play.libs.ws.WSRequestHolder;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
+import util.SitnetUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 public class Interfaces extends SitnetController {
 
+    private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
+
     static {
         SORTED_MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
+    }
+
+    private static URL parseUrl(User user) throws MalformedURLException {
+        String url = ConfigFactory.load().getString("sitnet.integration.enrolmentPermissionCheck.url");
+        if (url == null || !url.contains(USER_ID_PLACEHOLDER)) {
+            throw new RuntimeException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
+        }
+        url = url.replace(USER_ID_PLACEHOLDER, user.getEmployeeNumber());
+        return new URL(url);
+    }
+
+    public static F.Promise<Collection<String>> getPermittedCourses(User user) throws MalformedURLException {
+        URL url = parseUrl(user);
+        WSRequestHolder request = WS.url(url.toString().split("\\?")[0]);
+        if (url.getQuery() != null) {
+            request = request.setQueryString(url.getQuery());
+        }
+        F.Function<WSResponse, Collection<String>> onSuccess = new F.Function<WSResponse, Collection<String>>() {
+            @Override
+            public Collection<String> apply(WSResponse response) throws Throwable {
+                Set<String> results = new HashSet<>();
+                for (JsonNode json : response.asJson()) {
+                    if (json.has("courseUnitCode")) {
+                        results.add(json.get("courseUnitCode").asText());
+                    } else {
+                        Logger.warn("Unexpected content {}", json.asText());
+                    }
+                }
+                return results;
+            }
+        };
+        F.Function<Throwable, Collection<String>> onFailure = new F.Function<Throwable, Collection<String>>() {
+            @Override
+            public Collection<String> apply(Throwable throwable) throws Throwable {
+                if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
+                    throw new TimeoutException("sitnet_request_timed_out");
+                }
+                throw throwable;
+            }
+        };
+        return request.get().map(onSuccess).recover(onFailure);
     }
 
     public static List<Course> getCourseInfo(String code) throws NotFoundException {
         String url = ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url");
         List<Course> courses = Ebean.find(Course.class).where().like("code", code + "%").orderBy("name desc").findList();
-        if (!courses.isEmpty() || !isSearchActive()) {
+        if (!courses.isEmpty() || !isCourseSearchActive()) {
             // we already have it or we don't want to fetch it
             return courses;
         }
         WSRequestHolder requestHolder = WS.url(url).setTimeout(10 * 1000).setQueryParameter("courseUnitCode", code);
-        WSResponse response = requestHolder.get().get(10 * 1000);
+        WSResponse response;
+        try {
+            response = requestHolder.get().get(10 * 1000);
+        } catch (RuntimeException e) {
+            throw new NotFoundException("Request timed out");
+        }
         if (response.getStatus() != 200) {
-            throw new NotFoundException();
+            throw new NotFoundException("Request not understood");
         }
         List<Course> results = new ArrayList<>();
         for (JsonNode json : response.asJson()) {
@@ -156,50 +205,22 @@ public class Interfaces extends SitnetController {
         return SORTED_MAPPER.writeValueAsString(obj);
     }
 
-    private static boolean isSearchActive() {
+    private static boolean isCourseSearchActive() {
         try {
             return ConfigFactory.load().getBoolean("sitnet.integration.courseUnitInfo.active");
         } catch (ConfigException e) {
+            Logger.error("Failed to load config", e);
             return false;
         }
     }
 
-    // TODO: Is this useful for anything?
-    public static F.Promise<Result> getInfo(String code) throws NotFoundException {
-
-        String url = ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url");
-        if (url == null || url.isEmpty()) {
-            final List<Course> courses = Ebean.find(Course.class)
-                    .where()
-                    .eq("code", code)
-                    .findList();
-
-            return F.Promise.promise(new F.Function0<Result>() {
-                public Result apply() {
-                    return Results.ok(Json.toJson(courses));
-                }
-            });
-        }
-
+    private static boolean isPermissionCheckActive() {
         try {
-            WSRequestHolder ws = WS.url(url)
-                    .setTimeout(10 * 1000)
-                    .setQueryParameter("courseUnitCode", code);
-
-            return ws.get().map(
-                    new F.Function<WSResponse, Result>() {
-                        public Result apply(WSResponse response) {
-                            JsonNode json = response. asJson();
-                            return ok(json);
-                        }
-                    }
-            );
-        } catch (Exception ex) {
-            throw new NotFoundException(ex.getMessage());
+            return SitnetUtil.isEnrolmentPermissionCheckActive();
+        } catch (ConfigException e) {
+            Logger.error("Failed to load config", e);
+            return false;
         }
     }
-
-
-
 
 }

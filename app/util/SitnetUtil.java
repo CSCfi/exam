@@ -43,6 +43,10 @@ public class SitnetUtil {
         return ConfigFactory.load().getBoolean("sitnet.course.gradescale.overridable");
     }
 
+    public static Boolean isEnrolmentPermissionCheckActive() {
+        return ConfigFactory.load().getBoolean("sitnet.integration.enrolmentPermissionCheck.active");
+    }
+
     public static DateTimeZone getDefaultTimeZone() {
         String config = ConfigFactory.load().getString("sitnet.application.timezone");
         return DateTimeZone.forID(config);

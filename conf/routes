@@ -195,8 +195,6 @@ GET           /attachment/exam/:id                                  controllers.
 
 
 #### integration ####
-
-GET           /integration/info/:code                               controllers.Interfaces.getInfo(code: String)
 GET           /integration/record/:startDate                        controllers.Interfaces.getNewRecords(startDate: String)
 GET           /integration/recordalphabetic/:startDate              controllers.Interfaces.getNewRecordsAlphabeticKeyOrder(startDate: String)
 
@@ -227,6 +225,7 @@ PUT           /settings                                             controllers.
 GET           /settings/hostname                                    controllers.SettingsController.getHostname()
 GET           /settings/durations                                   controllers.SettingsController.getExamDurations()
 GET           /settings/gradescale                                  controllers.SettingsController.isExamGradeScaleOverridable()
+GET           /settings/enrolmentPermissionCheck                    controllers.SettingsController.isEnrolmentPermissionCheckActive()
 
 ################# Statistics interface ##################
 

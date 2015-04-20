@@ -25,63 +25,51 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
+import java.net.MalformedURLException;
 import java.util.*;
 
 public class StudentExamController extends SitnetController {
 
-    @Restrict({@Group("STUDENT")})
-    public static Result listAvailableExams(F.Option<String> filter) {
-        ExpressionList<Exam> query = Ebean.find(Exam.class)
-                .fetch("course")
-                .fetch("examOwners")
-                .where()
-                .eq("state", Exam.State.PUBLISHED.toString())
-                .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
-                .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate());
-        if (filter.isDefined() && !filter.get().isEmpty()) {
-            String condition = String.format("%%%s%%", filter.get());
-            query = query.disjunction()
-                    .ilike("name", condition)
-                    .ilike("course.code", condition)
-                            // Because of https://github.com/ebean-orm/avaje-ebeanorm/issues/37 a disjunction does not work here!
-                            // TODO: check if doable after having upgraded to Play 2.4
-                            //.ilike("examOwners.firstName", condition)
-                            //.ilike("examOwners.lastName", condition)
-                    .endJunction();
-        }
-        Set<Exam> exams = query.findSet();
-        if (filter.isDefined() && !filter.get().isEmpty()) {
-            exams.addAll(Ebean.find(Exam.class)
-                    .fetch("course")
-                    .fetch("examOwners")
-                    .where()
-                    .eq("state", Exam.State.PUBLISHED.toString())
-                    .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
-                    .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate())
-                    .disjunction()
-                    .ilike("examOwners.firstName", String.format("%%%s%%", filter.get()))
-                    .ilike("examOwners.lastName", String.format("%%%s%%", filter.get()))
-                    .endJunction()
-                    .findSet());
-        }
-        List<Exam> examList = new ArrayList<>(exams);
-        Collections.sort(examList, new Comparator<Exam>() {
+    private static final boolean PERM_CHECK_ACTIVE = SitnetUtil.isEnrolmentPermissionCheckActive();
+
+    private static F.Promise<Result> listExams(final F.Option<String> filter, final Collection<String> courseCodes) {
+        F.Promise<String> result = F.Promise.promise(new F.Function0<String>() {
             @Override
-            public int compare(Exam o1, Exam o2) {
-                return o1.getCourse().getCode().compareTo(o2.getCourse().getCode());
+            public String apply() throws Throwable {
+                return listExamsAsJson(filter, courseCodes);
             }
         });
+        return result.map(new F.Function<String, Result>() {
+            @Override
+            public Result apply(String s) throws Throwable {
+                return ok(s).as("application/json");
+            }
+        });
+    }
 
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, " +
-                "creator, examLanguages, examOwners, examInspections");
-        options.setPathProperties("examInspections", "id, user");
-        options.setPathProperties("examInspections.user", "firstName, lastName");
-        options.setPathProperties("course", "code");
-        options.setPathProperties("examOwners", "firstName, lastName");
-        options.setPathProperties("creator", "firstName, lastName, organization");
-        options.setPathProperties("examLanguages", "code, name");
-        return ok(Ebean.createJsonContext().toJsonString(exams, true, options)).as("application/json");
+    @Restrict({@Group("STUDENT")})
+    public static F.Promise<Result> listAvailableExams(final F.Option<String> filter) throws MalformedURLException {
+        if (!PERM_CHECK_ACTIVE) {
+            return listExams(filter, Collections.<String>emptyList());
+        }
+        F.Promise<Collection<String>> promise = Interfaces.getPermittedCourses(UserController.getLoggedUser());
+        F.Promise<String> result = promise.map(new F.Function<Collection<String>, String>() {
+            @Override
+            public String apply(Collection<String> strings) throws Throwable {
+                return listExamsAsJson(filter, strings);
+            }
+        });
+        return result.map(new F.Function<String, Result>() {
+            @Override
+            public Result apply(String s) throws Throwable {
+                return ok(s).as("application/json");
+            }
+        }).recover(new F.Function<Throwable, Result>() {
+            @Override
+            public Result apply(Throwable throwable) throws Throwable {
+                return internalServerError(throwable.getMessage());
+            }
+        });
     }
 
     @Restrict({@Group("STUDENT")})
@@ -545,5 +533,63 @@ public class StudentExamController extends SitnetController {
             return insertEmptyAnswer(hash, qid);
         }
     }
+
+    private static String listExamsAsJson(F.Option<String> filter, Collection<String> courseCodes) {
+        ExpressionList<Exam> query = Ebean.find(Exam.class)
+                .fetch("course")
+                .fetch("examOwners")
+                .where()
+                .eq("state", Exam.State.PUBLISHED.toString())
+                .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
+                .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate());
+        if (!courseCodes.isEmpty()) {
+            query.in("course.code", courseCodes);
+        }
+        if (filter.isDefined() && !filter.get().isEmpty()) {
+            String condition = String.format("%%%s%%", filter.get());
+            query = query.disjunction()
+                    .ilike("name", condition)
+                    .ilike("course.code", condition)
+                            // Because of https://github.com/ebean-orm/avaje-ebeanorm/issues/37 a disjunction does not work here!
+                            // TODO: check if doable after having upgraded to Play 2.4
+                            //.ilike("examOwners.firstName", condition)
+                            //.ilike("examOwners.lastName", condition)
+                    .endJunction();
+        }
+        Set<Exam> exams = query.findSet();
+        if (filter.isDefined() && !filter.get().isEmpty()) {
+            exams.addAll(Ebean.find(Exam.class)
+                    .fetch("course")
+                    .fetch("examOwners")
+                    .where()
+                    .eq("state", Exam.State.PUBLISHED.toString())
+                    .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
+                    .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate())
+                    .disjunction()
+                    .ilike("examOwners.firstName", String.format("%%%s%%", filter.get()))
+                    .ilike("examOwners.lastName", String.format("%%%s%%", filter.get()))
+                    .endJunction()
+                    .findSet());
+        }
+        List<Exam> examList = new ArrayList<>(exams);
+        Collections.sort(examList, new Comparator<Exam>() {
+            @Override
+            public int compare(Exam o1, Exam o2) {
+                return o1.getCourse().getCode().compareTo(o2.getCourse().getCode());
+            }
+        });
+
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, " +
+                "creator, examLanguages, examOwners, examInspections");
+        options.setPathProperties("examInspections", "id, user");
+        options.setPathProperties("examInspections.user", "firstName, lastName");
+        options.setPathProperties("course", "code");
+        options.setPathProperties("examOwners", "firstName, lastName");
+        options.setPathProperties("creator", "firstName, lastName, organization");
+        options.setPathProperties("examLanguages", "code, name");
+        return Ebean.createJsonContext().toJsonString(exams, true, options);
+    }
+
 
 }
