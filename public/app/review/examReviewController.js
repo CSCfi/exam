@@ -193,44 +193,41 @@
                             function (globals) {
                                 $scope.globalInspections = globals;
 
-                                // get local inspections if more than one inspector ->
-                                if ($scope.globalInspections && $scope.globalInspections.length > 1) {
+                                // get student exam inspections ->
+                                ExamRes.inspections.get({id: $scope.examToBeReviewed.id},
+                                    function (locals) {
 
-                                    // get single exam inspections ->
-                                    ExamRes.inspections.get({id: $scope.examToBeReviewed.id},
-                                        function (locals) {
+                                        var isCurrentUserInspectionCreated = false;
+                                        $scope.localInspections = locals;
 
-                                            var isCurrentUserInspectionCreated = false;
-                                            $scope.localInspections = locals;
-
-                                            // created local inspections, if not created ->
-                                            if ($scope.localInspections && $scope.localInspections.length > 0) {
-                                                angular.forEach($scope.localInspections, function (localInspection) {
-                                                    if (localInspection.user.id === $scope.user.id) {
-                                                        isCurrentUserInspectionCreated = true;
-                                                        $scope.reviewReady = localInspection.ready;
-                                                    }
-                                                });
-                                            }
-
-                                            // if user doesn't already have an inspection, create, otherwise skip ->
-                                            if (isCurrentUserInspectionCreated === false) {
-                                                ExamRes.localInspection.insert({
-                                                    eid: $scope.examToBeReviewed.id,
-                                                    uid: $scope.user.id
-                                                }, function (newLocalInspection) {
-                                                    $scope.localInspections.push(newLocalInspection);
-                                                    $scope.reviewReady = false;
-                                                }, function (error) {
-
-                                                });
-                                            }
-                                        },
-                                        function (error) {
-                                            toastr.error(error.data);
+                                        // created local inspections, if not created ->
+                                        if ($scope.localInspections && $scope.localInspections.length > 0) {
+                                            angular.forEach($scope.localInspections, function (localInspection) {
+                                                if (localInspection.user.id === $scope.user.id) {
+                                                    isCurrentUserInspectionCreated = true;
+                                                    $scope.reviewReady = localInspection.ready;
+                                                }
+                                            });
                                         }
-                                    );
-                                }
+
+                                        // if user doesn't already have an inspection, create, otherwise skip ->
+                                        if (isCurrentUserInspectionCreated === false) {
+                                            ExamRes.localInspection.insert({
+                                                eid: $scope.examToBeReviewed.id,
+                                                uid: $scope.user.id
+                                            }, function (newLocalInspection) {
+                                                $scope.localInspections.push(newLocalInspection);
+                                                $scope.reviewReady = false;
+                                            }, function (error) {
+
+                                            });
+                                        }
+                                    },
+                                    function (error) {
+                                        toastr.error(error.data);
+                                    }
+                                );
+
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -264,7 +261,7 @@
                         );
                         ExamRes.examEnrolments.query({eid: $routeParams.id}, function (enrolments) {
                             if (enrolments.length > 0) {
-                                console.log("WARNING: found several enrolments for a student exam!")
+                                console.log("WARNING: found several enrolments for a student exam!");
                             }
                             $scope.enrolment = enrolments[0];
                         });

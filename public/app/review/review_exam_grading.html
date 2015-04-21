@@ -27,8 +27,7 @@
 <div class="detail-row" ng-show="isReadOnly">
     <div class="col-md-12" mathjax ng-bind-html="examToBeReviewed.examFeedback.comment"></div>
 </div>
-
-<div class="main-row" ng-show="globalInspections.length > 1 && !isReadOnly">
+<div class="main-row" ng-show="(globalInspections.length > 1 || localInspections.length > 1) && !isReadOnly">
     <div>
         <div class="col-md-6">
             <div class="row">
