@@ -57,7 +57,8 @@ public class AdminReservationController extends SitnetController {
         } else {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, name");
+            options.setRootPathProperties("id, name, examMachines");
+            options.setPathProperties("examMachines", "id");
 
             return ok(jsonContext.toJsonString(examRooms, true, options)).as("application/json");
         }

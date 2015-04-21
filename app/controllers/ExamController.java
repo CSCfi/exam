@@ -1421,10 +1421,43 @@ public class ExamController extends SitnetController {
             return notFound();
         }
 
+        List<User> userToMail = new ArrayList<>();
         try {
-            for (ExamInspection inspection : inspections) {
-                EmailComposer.composeInspectionMessage(inspection.getUser(), UserController.getLoggedUser(), exam, msg);
+            // add inspectors to list, except self
+            if(inspections != null && inspections.size() > 0) {
+                for (ExamInspection inspection : inspections) {
+                    if (inspection.getUser().getId() != UserController.getLoggedUser().getId()) {
+                        userToMail.add(inspection.getUser());
+                    }
+                }
             }
+            // add owners to list, except those how are already in the list and self
+            if(exam.getParent() != null && exam.getParent().getExamOwners().size() > 0) {
+                for (User owner : exam.getParent().getExamOwners()) {
+                    if(owner.getId() != UserController.getLoggedUser().getId()) {
+
+                        boolean isNotAdded = true;
+                        if(userToMail != null && userToMail.size() > 0) {
+                            for(User user : userToMail) {
+                                if(user.getId() == owner.getId()) {
+                                    isNotAdded = false;
+                                }
+                            }
+                        }
+                        if(isNotAdded) {
+                            userToMail.add(owner);
+                        }
+                    }
+                }
+            }
+            // send mail to users in the list
+            if(userToMail != null && userToMail.size() > 0) {
+                for(User user : userToMail) {
+                    EmailComposer.composeInspectionMessage(user, UserController.getLoggedUser(), exam, msg);
+                }
+            }
+
+
         } catch (IOException e) {
             Logger.error("Failure to access message template on disk", e);
             return internalServerError("sitnet_internal_error");

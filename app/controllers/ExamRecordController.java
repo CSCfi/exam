@@ -3,7 +3,6 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Exam;
 import models.ExamParticipation;
 import models.ExamRecord;
@@ -12,7 +11,6 @@ import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
-import play.libs.Json;
 import play.mvc.Result;
 import util.java.CsvBuilder;
 import util.java.EmailComposer;
@@ -95,11 +93,7 @@ public class ExamRecordController extends SitnetController {
         if (!file.delete()) {
             Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
         }
-
-        ObjectNode part = Json.newObject();
-        part.put("data", content);
-
-        return ok(Json.toJson(part));
+        return ok(content);
     }
 
     private static Result validateExamState(Exam exam) {

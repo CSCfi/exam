@@ -50,7 +50,7 @@
                     <td class="table-column-examcode">{{exam.course.code}}</td>
                     <td><a class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
                     <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
-                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | adjustdst | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | adjustdst | date:'dd.MM.yyyy'}}</span></td>
+                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span></td>
                     <td>
                         <span class="status_green">{{ 'sitnet_published' | translate }}</span>
                     </td>
@@ -61,7 +61,7 @@
                     <td class="table-column-examcode">{{exam.course.code}}</td>
                     <td><a class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
                     <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
-                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | adjustdst | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | adjustdst | date:'dd.MM.yyyy'}}</span></td>
+                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span></td>
                     <td>
                         <span class="status_orange">{{ 'sitnet_saved' | translate }}</span>
                     </td>
@@ -75,7 +75,7 @@
                     <td class="table-column-examcode">{{exam.course.code}}</td>
                     <td><a class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
                     <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
-                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | adjustdst | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | adjustdst | date:'dd.MM.yyyy'}}</span></td>
+                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span></td>
                     <td>
                         <span class="status_red">{{ 'sitnet_draft' | translate }}</span>
                     </td>

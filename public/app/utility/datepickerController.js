@@ -12,8 +12,26 @@
                     $scope.dateService.endDate = new Date();
                     $scope.dateService.exceptionEndDate = new Date();
                 };
-                $scope.today();
 
+                // may not work with multiple inputs on same page
+                $scope.modifyDay = function(type, days) {
+                    if(days !== 0) {
+                        var now = moment();
+                        if (days < 0) {
+                            now = now.subtract(days * (-1), 'days');
+                        } else {
+                            now = now.add(days, 'days');
+                        }
+
+                        if(type === 'start') {
+                            $scope.dateService.startDate = new Date(now);
+                        } else if(type === 'end') {
+                            $scope.dateService.endDate = new Date(now);
+                        }
+                    }
+                };
+
+                $scope.today();
                 $scope.showWeeks = true;
                 $scope.toggleWeeks = function () {
                     $scope.showWeeks = !$scope.showWeeks;
@@ -71,7 +89,6 @@
                     $scope.dateService.modEndDate = curr_date + "-" + curr_month + "-" + curr_year;
                     $scope.dateService.endTimestamp = d.getTime();
                 });
-
                 $scope.$watch('dateService.exceptionStartDate', function (v) {
                     var d = new Date(v);
                     var curr_date = d.getDate();

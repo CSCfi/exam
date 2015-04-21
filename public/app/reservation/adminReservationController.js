@@ -12,6 +12,19 @@
 
                 $scope.selection = {};
 
+                $scope.roomContains = function(examroom, machine) {
+
+                    var isRoomMachine = false;
+                    if(examroom && examroom.examMachines) {
+                        angular.forEach(examroom.examMachines, function(roommachine){
+                           if(machine.id === roommachine.id) {
+                               isRoomMachine = true;
+                           }
+                        });
+                    }
+                    return isRoomMachine;
+                };
+
                 AdminReservationResource.students.query(function (students) {
                         $scope.students = students;
                     },
@@ -31,7 +44,6 @@
                 AdminReservationResource.examrooms.query(
                     function (examrooms) {
                         $scope.examrooms = examrooms;
-
                     },
                     function (error) {
                         toastr.error(error.data);
@@ -84,7 +96,8 @@
                     }
                 );
 
-                $scope.query = function () {
+                function initQuery() {
+
                     if ($scope.dateService.startDate && $scope.dateService.endDate) {
                         var params = $scope.selection;
                         // have to clear empty strings completely
@@ -103,13 +116,19 @@
                                 toastr.error(error.data);
                             });
                     }
+                }
+
+                initQuery();
+
+                $scope.query = function() {
+                    initQuery();
                 };
 
                 $scope.removeReservation = function (enrolment) {
                     AdminReservationResource.reservationDeletion.remove({id: enrolment.reservation.id}, null,
                         function () {
                             $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1);
-                            $location.path("admin/reservations/")
+                            $location.path("admin/reservations/");
                         }, function (error) {
                             toastr.error(error.data);
                         });
