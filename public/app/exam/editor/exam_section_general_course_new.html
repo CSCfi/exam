@@ -1,6 +1,10 @@
 <div id="sitnet-header" class="header">
-    <div class="col-md-12 header-wrapper">
+    <div class="col-md-6 header-wrapper">
         <span class="header-text">{{'sitnet_exam' | translate}}</span>
+    </div>
+    <div class="col-md-6 header-wrapper" ng-show="newExam.state === 'DRAFT'">
+        <a ng-click="cancelNewExam(newExam)" class="pull-right btn btn-primary btn-lg active header-button">
+            {{'sitnet_button_cancel' | translate}} </a>
     </div>
 </div>
 <div class="col-md-12">

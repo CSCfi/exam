@@ -407,7 +407,7 @@
                         "examActiveStartDate": new Date($scope.newExam.examActiveStartDate).getTime(),
                         "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999),
                         "duration": $scope.newExam.duration,
-                        "grading": $scope.newExam.gradeScale.id,
+                        "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
                         "expanded": $scope.newExam.expanded
                     };
                     for (var k in overrides) {
