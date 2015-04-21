@@ -6,10 +6,8 @@ import play.libs.{Json => JavaJson}
 
 import scala.language.implicitConversions
 
-trait ScalaHacks {self: Controller =>
 
-  implicit def coursesList2Response[T <: Model](c: java.util.List[T]): Result = java2Response(c)
-  implicit def course2Response[T <: Model](c: T): Result = java2Response(c)
+trait ScalaHacks {self: Controller =>
 
   def wrapAsJson(res: Result) =
     res.withHeaders(CONTENT_TYPE -> "application/json")

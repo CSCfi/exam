@@ -5,12 +5,15 @@
             function ($http, $scope, limitToFilter, CourseRes, ExamRes, examService, $translate) {
 
             $scope.getCourses = function(filter, criteria) {
+                $scope.loadingCoursesByCode = true;
                 return CourseRes.courses.query({filter: filter, q: criteria}).$promise.then(
                     function (courses) {
+                        $scope.loadingCoursesByCode = false;
                         return limitToFilter(courses, 15);
                     },
                     function (error) {
-                        toastr.error(error.data);
+                        $scope.loadingCoursesByCode = false;
+                        toastr.error($translate(error.data));
                     }
                 );
             };

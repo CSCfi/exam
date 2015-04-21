@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
-import exceptions.NotFoundException;
 import models.*;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
@@ -21,7 +20,6 @@ import play.libs.ws.WSRequestHolder;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
-import util.SitnetUtil;
 
 import java.net.ConnectException;
 import java.net.MalformedURLException;
@@ -79,71 +77,32 @@ public class Interfaces extends SitnetController {
         return request.get().map(onSuccess).recover(onFailure);
     }
 
-    public static List<Course> getCourseInfo(String code) throws NotFoundException {
-        String url = ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url");
-        List<Course> courses = Ebean.find(Course.class).where().like("code", code + "%").orderBy("name desc").findList();
+    public static F.Promise<List<Course>> getCourseInfo(String code) throws MalformedURLException {
+        URL url = new URL(ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url"));
+        final List<Course> courses = Ebean.find(Course.class).where().like("code", code + "%").orderBy("name desc").findList();
         if (!courses.isEmpty() || !isCourseSearchActive()) {
             // we already have it or we don't want to fetch it
-            return courses;
+            return F.Promise.promise(new F.Function0<List<Course>>() {
+                @Override
+                public List<Course> apply() throws Throwable {
+                    return courses;
+                }
+            });
         }
-        WSRequestHolder requestHolder = WS.url(url).setTimeout(10 * 1000).setQueryParameter("courseUnitCode", code);
-        WSResponse response;
-        try {
-            response = requestHolder.get().get(10 * 1000);
-        } catch (RuntimeException e) {
-            throw new NotFoundException("Request timed out");
-        }
-        if (response.getStatus() != 200) {
-            throw new NotFoundException("Request not understood");
-        }
-        List<Course> results = new ArrayList<>();
-        for (JsonNode json : response.asJson()) {
-            // if not Course json, failed answer can contain other kind of text like "Opintokohde xxxxxxx ei löytynyt Oodista"
-            if (json.has("identifier")) {
-                Course course = new Course();
-                course.setId(0L); // FIXME: smells like a hack
-
-                if (json.has("courseUnitTitle")) {
-                    course.setName(json.get("courseUnitTitle").asText());
-                }
-                if (json.has("courseUnitCode")) {
-                    course.setCode(json.get("courseUnitCode").asText());
-                }
-                if (json.has("courseUnitType")) {
-                    course.setCourseUnitType(json.get("courseUnitType").asText());
-                }
-                if (json.has("startDate")) {
-                    course.setStartDate(json.get("startDate").asText());
-                }
-                if (json.has("credits")) {
-                    course.setCredits(json.get("credits").asDouble());
-                }
-                if (json.has("identifier")) {
-                    course.setIdentifier(json.get("identifier").asText());
-                }
-                if (json.has("institutionName")) {
-                    String name = json.get("institutionName").asText();
-                    Organisation organisation = Ebean.find(Organisation.class).where().ieq("name", name).findUnique();
-                    // TODO: organisations should preexist or not? As a safeguard, lets create these for now if not found.
-                    if (organisation == null) {
-                        organisation = new Organisation();
-                        organisation.setName(name);
-                        organisation.save();
-                    }
-                    course.setOrganisation(organisation);
-                }
-
-                // in array form
-                course.setCampus(getFirstChildNameValue(json, "campus"));
-                course.setDegreeProgramme(getFirstChildNameValue(json, "degreeProgramme"));
-                course.setDepartment(getFirstChildNameValue(json, "department"));
-                course.setLecturer(getFirstChildNameValue(json, "lecturer"));
-                course.setGradeScale(getGradeScale(getFirstChildNameValue(json, "gradeScale")));
-                course.setCreditsLanguage(getFirstChildNameValue(json, "creditsLanguage"));
-                results.add(course);
+        return WS.url(url.toString()).setQueryParameter("courseUnitCode", code).get().map(new F.Function<WSResponse, List<Course>>() {
+            @Override
+            public List<Course> apply(WSResponse wsResponse) throws Throwable {
+                return parseResponse(wsResponse.asJson());
             }
-        }
-        return results;
+        }).recover(new F.Function<Throwable, List<Course>>() {
+            @Override
+            public List<Course> apply(Throwable throwable) throws Throwable {
+                if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
+                    throw new TimeoutException("sitnet_request_timed_out");
+                }
+                throw throwable;
+            }
+        });
     }
 
     private static GradeScale getGradeScale(String value) {
@@ -200,6 +159,57 @@ public class Interfaces extends SitnetController {
         return examScores;
     }
 
+    private static List<Course> parseResponse(JsonNode response) {
+        List<Course> results = new ArrayList<>();
+        for (JsonNode node : response) {
+            // check that this is a course node, response can also contain error messages and so on
+            if (node.has("identifier")) {
+                Course course = new Course();
+                course.setId(0L); // FIXME: smells like a hack
+
+                if (node.has("courseUnitTitle")) {
+                    course.setName(node.get("courseUnitTitle").asText());
+                }
+                if (node.has("courseUnitCode")) {
+                    course.setCode(node.get("courseUnitCode").asText());
+                }
+                if (node.has("courseUnitType")) {
+                    course.setCourseUnitType(node.get("courseUnitType").asText());
+                }
+                if (node.has("startDate")) {
+                    course.setStartDate(node.get("startDate").asText());
+                }
+                if (node.has("credits")) {
+                    course.setCredits(node.get("credits").asDouble());
+                }
+                if (node.has("identifier")) {
+                    course.setIdentifier(node.get("identifier").asText());
+                }
+                if (node.has("institutionName")) {
+                    String name = node.get("institutionName").asText();
+                    Organisation organisation = Ebean.find(Organisation.class).where().ieq("name", name).findUnique();
+                    // TODO: organisations should preexist or not? As a safeguard, lets create these for now if not found.
+                    if (organisation == null) {
+                        organisation = new Organisation();
+                        organisation.setName(name);
+                        organisation.save();
+                    }
+                    course.setOrganisation(organisation);
+                }
+
+                // in array form
+                course.setCampus(getFirstChildNameValue(node, "campus"));
+                course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme"));
+                course.setDepartment(getFirstChildNameValue(node, "department"));
+                course.setLecturer(getFirstChildNameValue(node, "lecturer"));
+                course.setGradeScale(getGradeScale(getFirstChildNameValue(node, "gradeScale")));
+                course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage"));
+                results.add(course);
+            }
+        }
+        return results;
+    }
+
     private static String convertNode(JsonNode node) throws JsonProcessingException {
         Object obj = SORTED_MAPPER.treeToValue(node, Object.class);
         return SORTED_MAPPER.writeValueAsString(obj);
@@ -208,15 +218,6 @@ public class Interfaces extends SitnetController {
     private static boolean isCourseSearchActive() {
         try {
             return ConfigFactory.load().getBoolean("sitnet.integration.courseUnitInfo.active");
-        } catch (ConfigException e) {
-            Logger.error("Failed to load config", e);
-            return false;
-        }
-    }
-
-    private static boolean isPermissionCheckActive() {
-        try {
-            return SitnetUtil.isEnrolmentPermissionCheckActive();
         } catch (ConfigException e) {
             Logger.error("Failed to load config", e);
             return false;
