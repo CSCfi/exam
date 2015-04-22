@@ -851,91 +851,77 @@ courses:
     code: 810136P
     name: Johdatus alkeiden perusteisiin
     credits: 5
-    gradeScale: *zerotofive
-      
+
   - &tietokannat !!models.Course
     institutionName: "Testing Yliopisto"
     code: 811380A
     name: Tietokantojen perusteet 
     credits: 7
-    gradeScale: *zerotofive
 
   - &765104P !!models.Course
     institutionName: "Testing Yliopisto"
     code: 765104P
     name: Astronomian perusteet 
     credits: 8
-    gradeScale: *zerotofive
 
   - &811386A !!models.Course
     institutionName: "Testing Yliopisto"
     code: 811386A
     name: Algoritmit
     credits: 5
-    gradeScale: *zerotofive
 
   - &812346A !!models.Course
     institutionName: "Testing Yliopisto"
     code: 812346A
     name: Oliosuuntautunut analyysi ja suunnittelu
     credits: 5
-    gradeScale: *zerotofive
 
   - &ay905061Y !!models.Course
     institutionName: "Testing Yliopisto"
     code: ay905061Y
     name: Arabian peruskurssi II
-    credits: 5
-    gradeScale: *zerotofive
 
   - &ayA113801 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA113801
     name: Historia 25
     credits: 25
-    gradeScale: *zerotofive
 
   - &ayA113301 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA113301
     name: Elämänkatsomustieto 25
     credits: 25
-    gradeScale: *zerotofive
 
   - &A110102 !!models.Course
     institutionName: "Testing Yliopisto"
     code: A110102
     name: Englantilainen filologia aineopinnot
     credits: 35
-    gradeScale: *zerotofive
 
   - &ayA114001 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA114001
     name: Japani-opinnot perusopintoja
     credits: 27
-    gradeScale: *zerotofive
 
   - &ayA110401 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA110401
     name: Suomen kieli
     credits: 25
-    gradeScale: *zerotofive
 
   - &ayA111501 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA111501
     name: Valtio-oppi
     credits: 25
-    gradeScale: *zerotofive
 
   - &ayA250504 !!models.Course
     institutionName: "Testing Yliopisto"
     code: ayA250504
     name: Kasvatustiede
     credits: 25
-    gradeScale: *zerotofive
 
   - &ay900060A !!models.Course
     institutionName: "Testing Yliopisto"
@@ -956,35 +942,30 @@ courses:
     code: 5010107K
     name: Tilastollisten menetelmien työpaja jatko-opiskelijoille
     credits: 5
-    gradeScale: *zerotofive
 
   - &5119161 !!models.Course
     institutionName: "Testing Yliopisto"
     code: 5119161
     name: Sustainability and Natural Resources
     credits: 5
-    gradeScale: *zerotofive
 
   - !!models.Course
     institutionName: "Testing Yliopisto"
     code: EKTA170
     name: Hyvä elämä ja etiikka
     credits: 5
-    gradeScale: *zerotofive
 
   - !!models.Course
     institutionName: "Testing Yliopisto"
     code: ERIA279
     name: Kandidaatin kypsyysnäyte
     credits: 0
-    gradeScale: *zerotofive
 
   - !!models.Course
     institutionName: "Testing Yliopisto"
     code: ITKS452
     name: Requirements Engineering
     credits: 5
-    gradeScale: *zerotofive
 
 ################################################################
 

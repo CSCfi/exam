@@ -62,6 +62,7 @@ public class IntegrationTestCase {
         // Unfortunately we need to restart for each test because there is some weird issue with question id sequence.
         // Ebean allocates us duplicate PKs eventually unless server is recreated in between. This is either a bug with
         // Ebean (batching) or an issue with our question entity JPA mappings.
+        System.setProperty("config.file", "conf/integrationtest.conf");
         startApp();
         EbeanServer server = Ebean.getServer("default");
 

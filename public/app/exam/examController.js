@@ -83,7 +83,7 @@
                             if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
                                 $scope.newExam.gradeScale = exam.course.gradeScale;
                                 $scope.newExam.gradeScale.name = examService.getScaleDisplayName(
-                                    $scope.newExam.course.gradeScale.description);
+                                    $scope.newExam.course.gradeScale);
                             } else if (exam.gradeScale) {
                                 $scope.newExam.gradeScale.name = examService.getScaleDisplayName(exam.gradeScale);
                             }

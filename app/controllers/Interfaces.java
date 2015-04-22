@@ -105,17 +105,53 @@ public class Interfaces extends SitnetController {
         });
     }
 
-    private static GradeScale getGradeScale(String value) {
-        if (value == null) {
-            return null;
+    private static List<GradeScale> getGradeScales(JsonNode node) {
+        List<GradeScale> scales = new ArrayList<>();
+        if (node.has("gradeScale")) {
+            node = node.get("gradeScale");
+            for (JsonNode scale : node) {
+                String type = scale.get("type").asText();
+                GradeScale.Type scaleType = GradeScale.Type.get(type);
+                if (scaleType == null) {
+                    // not understood
+                    Logger.warn("Skipping over unknown grade scale type {}", type);
+                    continue;
+                }
+                if (scaleType.equals(GradeScale.Type.OTHER)) {
+                    // This needs custom handling
+                    if (!scale.has("code") || !scale.has("name")) {
+                        Logger.warn("Skipping over grade scale of type OTHER, requirednodes are missing: {}",
+                                scale.asText());
+                        continue;
+                    }
+                    Long externalRef = scale.get("code").asLong();
+                    GradeScale gs = Ebean.find(GradeScale.class).where().eq("externalRef", externalRef).findUnique();
+                    if (gs != null) {
+                        scales.add(gs);
+                        continue;
+                    }
+                    gs = new GradeScale();
+                    gs.setDescription(GradeScale.Type.OTHER.toString());
+                    gs.setExternalRef(externalRef);
+                    gs.setDisplayName(scale.get("name").asText());
+                    gs.save();
+                    for (JsonNode grade : scale.get("grades")) {
+                        if (!grade.has("description")) {
+                            Logger.warn("Skipping over grade, required nodes are missing: {}", grade.asText());
+                            continue;
+                        }
+                        Grade g = new Grade();
+                        g.setName(grade.get("description").asText());
+                        g.setGradeScale(gs);
+                        g.save();
+                    }
+                    scales.add(gs);
+                } else {
+                    scales.add(Ebean.find(GradeScale.class, scaleType.getValue()));
+                }
+            }
         }
-        try {
-            GradeScale.Type type = GradeScale.Type.valueOf(value);
-            return Ebean.find(GradeScale.class, type.getValue());
-        } catch (RuntimeException e) {
-            Logger.error("Unsupported grade scale received {}", value);
-            return null; // TODO: should we just throw an exception in order to cancel the whole import?
-        }
+        return scales;
     }
 
     public static Result getNewRecords(String startDate) {
@@ -196,13 +232,17 @@ public class Interfaces extends SitnetController {
                     }
                     course.setOrganisation(organisation);
                 }
+                List<GradeScale> scales = getGradeScales(node);
+                if (!scales.isEmpty()) {
+                    // For now support just a single scale per course
+                    course.setGradeScale(scales.get(0));
+                }
 
                 // in array form
                 course.setCampus(getFirstChildNameValue(node, "campus"));
                 course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme"));
                 course.setDepartment(getFirstChildNameValue(node, "department"));
                 course.setLecturer(getFirstChildNameValue(node, "lecturer"));
-                course.setGradeScale(getGradeScale(getFirstChildNameValue(node, "gradeScale")));
                 course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage"));
                 results.add(course);
             }

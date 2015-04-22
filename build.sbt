@@ -21,7 +21,9 @@ libraryDependencies ++= Seq(javaJdbc, javaEbean, cache , javaWs,
   "net.sf.opencsv" % "opencsv" % "2.3",
   "com.google.code.gson" % "gson" % "2.2.4" % "test",
   "com.jayway.jsonpath" % "json-path" % "1.2.0" % "test",
-  "com.icegreen" % "greenmail" % "1.4.0" % "test"
+  "com.icegreen" % "greenmail" % "1.4.0" % "test",
+  "org.eclipse.jetty" % "jetty-server" % "9.2.10.v20150310" % "test",
+  "org.eclipse.jetty" % "jetty-servlet" % "9.2.10.v20150310" % "test"
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
