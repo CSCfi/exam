@@ -55,8 +55,8 @@ public class StudentExamController extends SitnetController {
         F.Promise<Collection<String>> promise = Interfaces.getPermittedCourses(UserController.getLoggedUser());
         F.Promise<String> result = promise.map(new F.Function<Collection<String>, String>() {
             @Override
-            public String apply(Collection<String> strings) throws Throwable {
-                return listExamsAsJson(filter, strings);
+            public String apply(Collection<String> codes) throws Throwable {
+                return listExamsAsJson(filter, codes);
             }
         });
         return result.map(new F.Function<String, Result>() {
