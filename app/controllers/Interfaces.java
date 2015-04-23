@@ -31,6 +31,8 @@ import java.util.concurrent.TimeoutException;
 public class Interfaces extends SitnetController {
 
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
+    private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
+
     private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
 
     static {
@@ -49,10 +51,11 @@ public class Interfaces extends SitnetController {
             throw new RuntimeException("User has no employee number!");
         }
         String url = ConfigFactory.load().getString("sitnet.integration.enrolmentPermissionCheck.url");
-        if (url == null || !url.contains(USER_ID_PLACEHOLDER)) {
+        if (url == null || !url.contains(USER_ID_PLACEHOLDER) || !url.contains(USER_LANG_PLACEHOLDER)) {
             throw new RuntimeException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
         }
-        url = url.replace(USER_ID_PLACEHOLDER, user.getEmployeeNumber());
+        url = url.replace(USER_ID_PLACEHOLDER, user.getEmployeeNumber()).replace(USER_LANG_PLACEHOLDER,
+                user.getUserLanguage().getUILanguageCode());
         return new URL(url);
     }
 
