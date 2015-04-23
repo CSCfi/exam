@@ -3,6 +3,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import exceptions.NotFoundException;
 import models.Course;
 import play.libs.F;
 import play.libs.Json;

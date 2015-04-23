@@ -26,7 +26,7 @@
                     <td class="width15 wrap">{{printTeachers(enrolment.exam.examOwners)}}</td>
                     <td>{{enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}<br/>{{'sitnet_clock_short' | translate}} {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}}-{{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}</td>
                     <td>{{enrolment.reservation.machine.room.name}}<br/>{{enrolment.reservation.machine.name}}</td>
-                    <td>{{printExamState(enrolment)}}</td>
+                    <td>{{'sitnet_exam_status_' + printExamState(enrolment) | lowercase | translate}}</td>
 
                     <td>
                         <button ng-disabled="enrolment.exam.state !== 'PUBLISHED'" ng-click="removeReservation(enrolment)"

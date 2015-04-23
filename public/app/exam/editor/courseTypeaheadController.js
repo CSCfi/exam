@@ -13,11 +13,11 @@
                     },
                     function (error) {
                         $scope.loadingCoursesByCode = false;
-                        toastr.error($translate(error.data));
+                        toastr.error($translate('sitnet_course_not_found'));
+                        return "";
                     }
                 );
             };
-
             $scope.displayGradeScale = function (description) {
                 if (!description) {
                     return "";
@@ -26,12 +26,6 @@
             };
 
             $scope.onCourseSelect = function ($item, $model, $label, exam) {
-
-//                console.log($item);
-//                console.log($model);
-//                console.log($label);
-//                console.log(exam);
-
                 // save new course if not exits, interface set id to 0
                 if($item.id === 0) {
                     ExamRes.courses.insert({code: $item.code}, function (inserted_course) {
@@ -43,15 +37,11 @@
                             toastr.success($translate('sitnet_exam_associated_with_course'));
                             $scope.newExam = updated_exam;
                         }, function (error) {
-                            if(error.data.indexOf("sitnet_course_not_found") >= 0) {
-                                toastr.error($translate('sitnet_course_not_found'));
-                            } else {
-                                toastr.error(error.data);
-                            }
+                            toastr.error($translate('sitnet_course_not_found'));
                         });
 
                     }, function (error) {
-                        toastr.error(error.data);
+                        toastr.error($translate('sitnet_course_not_found'));
                     });
                 } else {
 
@@ -59,7 +49,7 @@
                         toastr.success($translate('sitnet_exam_associated_with_course'));
                         $scope.newExam = updated_exam;
                     }, function (error) {
-                        toastr.error(error.data);
+                        toastr.error($translate('sitnet_course_not_found'));
                     });
                 }
 

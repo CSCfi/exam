@@ -2,7 +2,7 @@
         date:'dd.MM.yyyy' }}</div>
     <div class="col-md-4 sitnet-info-text-compact">{{'sitnet_exam_state' | translate}}:&nbsp;&nbsp;&nbsp;
         <span ng-style="participation.exam.state === 'ABORTED' ? {'color':'red'} : {'color': 'green'}">
-            {{participation.exam.state}}
+            {{'sitnet_exam_status_' + participation.exam.state | lowercase | translate}}
         </span>
     </div>
     <div class="col-md-2 sitnet-info-text-compact">

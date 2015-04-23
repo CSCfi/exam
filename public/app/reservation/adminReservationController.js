@@ -90,6 +90,7 @@
                 AdminReservationResource.machines.query(
                     function (machines) {
                         $scope.machines = machines;
+
                     },
                     function (error) {
                         toastr.error(error.data);
