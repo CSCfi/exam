@@ -61,17 +61,17 @@
 
             </li>
         </ul>
-        <div class="create-new dropdown">
-            <a class="dropdown-toggle pointer">
+        <div class="create-new dropdown" dropdown>
+            <a class="dropdown-toggle pointer" data-toggle="dropdown" dropdown-toggle>
                 <i class="fa fa-2x fa-plus-circle"></i>
                 {{'sitnet_add_content'|translate}}
             </a>
-            <ul class="dropdown-menu">
-                <li>
-                    <a ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation">
+                    <a role="menuitem" ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
                 </li>
                 <li>
-                    <a ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_question_mc' | translate }}</a>
+                    <a role="menuitem" ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
                 </li>
             </ul>
         </div>
