@@ -62,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" ng-show="newExam.course.gradeScale">
             <div class="col-md-6">
                 <div class="col-md-12 row sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
                 <div class="col-md-12 row">{{displayGradeScale(newExam.course.gradeScale)}}</div>

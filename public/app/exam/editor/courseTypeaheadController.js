@@ -19,6 +19,9 @@
             };
 
             $scope.displayGradeScale = function (description) {
+                if (!description) {
+                    return "";
+                }
                 return examService.getScaleDisplayName(description);
             };
 

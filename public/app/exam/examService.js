@@ -102,7 +102,7 @@
                 var deferred = $q.defer();
                 ExamRes.gradeScales.query(function (scales) {
                     return deferred.resolve(scales.map(function (scale) {
-                        scale.name = getScaleDisplayName(scale.description);
+                        scale.name = getScaleDisplayName(scale);
                         return scale;
                     }));
                 });
