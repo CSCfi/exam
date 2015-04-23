@@ -5,17 +5,23 @@
             function ($http, $scope, limitToFilter, CourseRes, ExamRes, examService, $translate) {
 
             $scope.getCourses = function(filter, criteria) {
+                $scope.loadingCoursesByCode = true;
                 return CourseRes.courses.query({filter: filter, q: criteria}).$promise.then(
                     function (courses) {
+                        $scope.loadingCoursesByCode = false;
                         return limitToFilter(courses, 15);
                     },
                     function (error) {
+                        $scope.loadingCoursesByCode = false;
                         toastr.error($translate('sitnet_course_not_found'));
                         return "";
                     }
                 );
             };
             $scope.displayGradeScale = function (description) {
+                if (!description) {
+                    return "";
+                }
                 return examService.getScaleDisplayName(description);
             };
 

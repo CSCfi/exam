@@ -319,7 +319,7 @@ public class ExamController extends SitnetController {
         options.setPathProperties("parent.examOwners", "id, firstName, lastName");
         options.setPathProperties("course", "id, code, name, level, courseUnitType, credits, institutionName, department, organisation, gradeScale");
         options.setPathProperties("course.organisation", "id, name");
-        options.setPathProperties("course.gradeScale", "id, description");
+        options.setPathProperties("course.gradeScale", "id, description, displayName");
         options.setPathProperties("room", "id, name");
         options.setPathProperties("softwares", "id, name");
         options.setPathProperties("examLanguages", "code");

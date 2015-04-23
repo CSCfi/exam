@@ -53,6 +53,19 @@ exam-types:
 
 ################################################################
 
+languages:
+
+  - &fi !!models.Language
+    code: fi
+  - &sv !!models.Language
+    code: sv
+  - &en !!models.Language
+    code: en
+  - &de !!models.Language
+    code: de
+
+################################################################
+
 grade-scales:
 
   - &zerotofive !!models.GradeScale

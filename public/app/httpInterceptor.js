@@ -6,14 +6,14 @@
 
             }
         ]).config(['$httpProvider', function ($httpProvider) {
-            $httpProvider.interceptors.push(['$q', 'sessionService', '$rootScope' ,'$location', '$translate', 'wrongRoomService', 'waitingRoomService',
+            $httpProvider.interceptors.push(['$q', 'sessionService', '$rootScope', '$location', '$translate', 'wrongRoomService', 'waitingRoomService',
                 function ($q, sessionService, $rootScope, $location, $translate, wrongRoomService, waitingRoomService) {
 
 
                     return {
                         'response': function (response) {
 
-                            var b64_to_utf8 = function(data) {
+                            var b64_to_utf8 = function (data) {
                                 return decodeURIComponent(escape(atob(data)));
                             };
 
@@ -58,7 +58,7 @@
                                 $rootScope.$broadcast('upcomingExam');
                             }
 
-                            else if(!sessionService.getUser() && !sessionService.isLoggingIn()) {
+                            else if (!sessionService.getUser() && !sessionService.isLoggingIn()) {
                                 $location.path('/logout');
                             }
 
@@ -66,6 +66,9 @@
                         },
                         'responseError': function (response) {
                             if (typeof response.data === "string" || response.data instanceof String) {
+                                if (response.data.match(/^".*"$/g)) {
+                                    response.data = response.data.slice(1, response.data.length - 1)
+                                }
                                 var parts = response.data.split(" ");
                                 for (var i = 0; i < parts.length; i++) {
                                     if (parts[i].substring(0, 7) === "sitnet_") {

@@ -131,8 +131,12 @@ public class SitnetUtil {
                 Ebean.save(all.get("organisations"));
                 Ebean.save(all.get("attachments"));
                 Ebean.save(all.get("users"));
-                Ebean.save(all.get("grade-scales"));
-                Ebean.save(all.get("grades"));
+                if (Ebean.find(GradeScale.class).findRowCount() == 0) { // Might already be inserted by evolution
+                    Ebean.save(all.get("grade-scales"));
+                }
+                if (Ebean.find(Grade.class).findRowCount() == 0) { // Might already be inserted by evolution
+                    Ebean.save(all.get("grades"));
+                }
                 Ebean.save(all.get("question_essay"));
                 Ebean.save(all.get("question_multiple_choice"));
                 Ebean.save(all.get("softwares"));
@@ -169,10 +173,17 @@ public class SitnetUtil {
                 Ebean.save(all.get("user-roles"));
                 Ebean.save(all.get("user_languages"));
                 Ebean.save(all.get("users"));
+                if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
+                    Ebean.save(all.get("languages"));
+                }
                 Ebean.save(all.get("exam-types"));
                 Ebean.save(all.get("softwares"));
-                Ebean.save(all.get("grade-scales"));
-                Ebean.save(all.get("grades"));
+                if (Ebean.find(GradeScale.class).findRowCount() == 0) {
+                    Ebean.save(all.get("grade-scales"));
+                }
+                if (Ebean.find(Grade.class).findRowCount() == 0) {
+                    Ebean.save(all.get("grades"));
+                }
                 Ebean.save(all.get("general-settings"));
             }
         }

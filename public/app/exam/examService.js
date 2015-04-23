@@ -81,7 +81,8 @@
 
             var getScaleDisplayName = function(type) {
                 var name;
-                switch (type) {
+                var description = type.description || type;
+                switch (description) {
                     case 'ZERO_TO_FIVE':
                         name = '0-5';
                         break;
@@ -91,6 +92,8 @@
                     case 'APPROVED_REJECTED':
                         name = $translate('sitnet_evaluation_select');
                         break;
+                    case 'OTHER':
+                        name = type.displayName || type;
                 }
                 return name;
             };
@@ -99,7 +102,7 @@
                 var deferred = $q.defer();
                 ExamRes.gradeScales.query(function (scales) {
                     return deferred.resolve(scales.map(function (scale) {
-                        scale.name = getScaleDisplayName(scale.description);
+                        scale.name = getScaleDisplayName(scale);
                         return scale;
                     }));
                 });

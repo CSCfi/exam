@@ -37,8 +37,8 @@
                            typeahead-template-url="course_template.html"
                            typeahead-loading="loadingCoursesByCode">
                                <span class="input-group-addon">
-                                    <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_unique_code' | translate}}"></i>
-                                    <i ng-show="loadingCoursesByCode" class="fa fa-refresh"></i>
+                                    <i ng-hide="loadingCoursesByCode" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_unique_code' | translate}}"></i>
+                                    <i ng-show="loadingCoursesByCode" class="fa fa-spinner fa-spin"></i>
                                </span>
                 </div>
             </div>

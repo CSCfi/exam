@@ -13,8 +13,11 @@ import com.jayway.jsonpath.PathNotFoundException;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import play.api.db.evolutions.InconsistentDatabase;
+import play.api.db.evolutions.OfflineEvolutions;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.FakeApplication;
@@ -22,6 +25,7 @@ import play.test.FakeRequest;
 import play.test.Helpers;
 import util.SitnetUtil;
 
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -47,6 +51,18 @@ public class IntegrationTestCase {
 
     @Rule
     public TestName currentTest = new TestName();
+
+    @BeforeClass
+    public static void evolve() {
+        System.setProperty("config.file", "conf/integrationtest.conf");
+        // Apply evolutions manually to test database
+        try {
+            OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default", true);
+        } catch (InconsistentDatabase e) {
+            int revision = e.rev();
+            OfflineEvolutions.resolve(new File("."), IntegrationTestCase.class.getClassLoader(), "default", revision);
+        }
+    }
 
     protected void startApp() {
         app = fakeApplication(new FakeGlobal());

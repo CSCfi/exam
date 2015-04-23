@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamController', ['dialogs','$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
+        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
             function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
 
                 $scope.newExam = {};
@@ -13,7 +13,7 @@
                 $scope.selectCourseTemplate = SITNET_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general_course_select.html";
                 $scope.examsTemplate = "";
                 $scope.examTypes = [];
-                $scope.gradeScale = {};
+                $scope.gradeScaleSetting = {};
 
                 $scope.user = sessionService.getUser();
 
@@ -41,7 +41,7 @@
                 });
 
                 SettingsResource.gradeScale.get(function (data) {
-                    $scope.gradeScale = data;
+                    $scope.gradeScaleSetting = data;
                 });
 
                 LanguageRes.languages.query(function (languages) {
@@ -69,7 +69,7 @@
                     refreshGradeScales();
                 });
 
-                var initializeExam = function(){
+                var initializeExam = function () {
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
                             $scope.newExam = exam;
@@ -83,7 +83,7 @@
                             if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
                                 $scope.newExam.gradeScale = exam.course.gradeScale;
                                 $scope.newExam.gradeScale.name = examService.getScaleDisplayName(
-                                    $scope.newExam.course.gradeScale.description);
+                                    $scope.newExam.course.gradeScale);
                             } else if (exam.gradeScale) {
                                 $scope.newExam.gradeScale.name = examService.getScaleDisplayName(exam.gradeScale);
                             }
@@ -170,7 +170,7 @@
                     var templateType = "",
                         controllerType = "";
 
-                    if(modalType && modalType === 'owner') {
+                    if (modalType && modalType === 'owner') {
                         templateType = SITNET_CONF.TEMPLATES_PATH + 'exam/editor/exam_owner.html';
                         controllerType = "ExamOwnerController";
                     } else {
@@ -192,7 +192,7 @@
 
                     modalInstance.result.then(function (result) {
                         // OK button clicked
-                        if(modalType && modalType === 'owner') {
+                        if (modalType && modalType === 'owner') {
                             getExamOwners();
                         } else {
                             getInspectors();
@@ -301,11 +301,28 @@
                     return $scope.newExam.duration === duration ? "btn-primary" : "";
                 };
 
-                $scope.checkGrading = function (grading) {
+                $scope.checkGradeScale = function (scale) {
                     if (!$scope.newExam.gradeScale) {
                         return "";
                     }
-                    return $scope.newExam.gradeScale.id === grading.id ? "btn-primary" : "";
+                    return $scope.newExam.gradeScale.id === scale.id ? "btn-primary" : "";
+                };
+
+                $scope.getSelectableScales = function () {
+                    if (!$scope.examGradings || !$scope.newExam.course) {
+                        return [];
+                    }
+                    return $scope.examGradings.filter(function (scale) {
+                        return $scope.gradeScaleSetting.overridable || !$scope.newExam.course.gradeScale ||
+                            $scope.newExam.course.gradeScale.id === scale.id
+                    });
+                };
+
+                $scope.checkScaleDisabled = function (scale) {
+                    if (!scale || !$scope.newExam.course || !$scope.newExam.course.gradeScale) {
+                        return false;
+                    }
+                    return !$scope.gradeScaleSetting.overridable && $scope.newExam.course.gradeScale.id === scale.id;
                 };
 
                 $scope.checkType = function (type) {
@@ -313,7 +330,7 @@
                     return $scope.newExam.examType.type === type ? "btn-primary" : "";
                 };
 
-                $scope.setExamGrading = function (grading) {
+                $scope.setExamGradeScale = function (grading) {
                     $scope.newExam.gradeScale = grading;
                     $scope.updateExam();
                 };
@@ -330,7 +347,7 @@
 
                 $scope.removeSection = function (section) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_section'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         ExamRes.sections.remove({eid: $scope.newExam.id, sid: section.id}, function (id) {
                             toastr.info($translate("sitnet_section_removed"));
                             $scope.newExam.examSections.splice($scope.newExam.examSections.indexOf(section), 1);
@@ -363,7 +380,7 @@
 
                 $scope.clearAllQuestions = function (section) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_all_questions'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         ExamRes.clearsection.clear({sid: section.id}, function () {
                             section.sectionQuestions.splice(0, section.sectionQuestions.length);
                             toastr.info($translate("sitnet_all_questions_removed"));
@@ -375,7 +392,7 @@
 
                 $scope.removeQuestion = function (section, sectionQuestion) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_question'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         ExamRes.questions.remove({
                             eid: $scope.newExam.id,
                             sid: section.id,
@@ -621,7 +638,7 @@
 
                 $scope.deleteExam = function (exam) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_exam'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
                             toastr.success($translate('sitnet_exam_removed'));
                             $scope.exams.splice($scope.exams.indexOf(exam), 1);
@@ -629,21 +646,21 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                    },function(btn){
+                    }, function (btn) {
 
                     });
                 };
 
                 $scope.cancelNewExam = function (exam) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_exam'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
                             toastr.success($translate('sitnet_exam_removed'));
                             $location.path('/exams/');
                         }, function (error) {
                             toastr.error(error.data);
                         });
-                    },function(btn){
+                    }, function (btn) {
 
                     });
                 };
@@ -676,10 +693,12 @@
 
                 $scope.insertQuestion = function (section, object, to) {
 
-                    if(object instanceof Array) {
+                    if (object instanceof Array) {
                         var questions = angular.copy(object).reverse();
 
-                        var sectionQuestions = questions.map(function(question){ return question.id; }).join(",");
+                        var sectionQuestions = questions.map(function (question) {
+                            return question.id;
+                        }).join(",");
 
                         ExamRes.sectionquestionsmultiple.insert({
                                 eid: $scope.newExam.id,
@@ -690,7 +709,7 @@
                                 toastr.info($translate("sitnet_question_added"));
                                 var promises = [];
                                 promises.push(DragDropHandler.addObject(sectionQuestions, section.sectionQuestions, to));
-                                $q.all(promises).then(function(){
+                                $q.all(promises).then(function () {
                                     initializeExam();
                                 });
 
