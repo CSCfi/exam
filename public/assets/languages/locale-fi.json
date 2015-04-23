@@ -578,5 +578,14 @@
   "sitnet_student_enrolment_info_description": "Anna lisätietoa liittyen esimerkiksi aiempiin suorituksiin, erityissopimuksiin tai tentittäviin kirjoihin",
   "sitnet_searching": "Haetaan",
   "sitnet_request_timed_out": "Pyyntö aikakatkaistiin. Opintotietojärjestelmä ei vastaa",
-  "sitnet_search_restricted": "Listassa näkyvät tentit, joihin sinulla on oikeus ilmoittautua ja joihin olet ilmoittautunut perusjärjestelmässä. Mikäli listastasi puuttuu jokin tentti, tarkista, että opinto-oikeutesi ja ilmoittautuminen perusjärjestelmässä on kunnossa "
+  "sitnet_search_restricted": "Listassa näkyvät tentit, joihin sinulla on oikeus ilmoittautua ja joihin olet ilmoittautunut perusjärjestelmässä. Mikäli listastasi puuttuu jokin tentti, tarkista, että opinto-oikeutesi ja ilmoittautuminen perusjärjestelmässä on kunnossa ",
+  "sitnet_search_course_by_code": "Hae opintojakso kirjoittamalla opintojakson koodi",
+  "sitnet_exam_status_review": "Tarkasta",
+  "sitnet_exam_status_review_started": "Arviointi aloitettu",
+  "sitnet_exam_status_graded": "Arvioitu",
+  "sitnet_exam_status_graded_logged": "Arvioitu ja kirjattu",
+  "sitnet_exam_status_student_started": "Oppilas aloittanut",
+  "sitnet_exam_status_published": "Julkaistu",
+  "sitnet_exam_status_aborted": "Peruutettu",
+  "sitnet_exam_status_no_show": "Ei osallistunut"
 }

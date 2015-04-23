@@ -52,7 +52,7 @@
                     <div class="col-md-8">
                     <select class="form-control" ng-model="selection.state" ng-change="query()">
                         <option value="" selected> - - {{'sitnet_exam_state' | translate}} - - </option>
-                        <option ng-repeat="state in examStates" value="{{state}}">{{state}}</option>
+                        <option ng-repeat="state in examStates" value="{{state}}">{{'sitnet_exam_status_' + state | lowercase | translate}}</option>
                     </select>
                     </div>
                 </div>

@@ -21,13 +21,13 @@
                   class="pull-right sitnet-text-alarm small">{{'sitnet_aborted_exam' | translate}}
             </span>
             <span ng-if="examToBeReviewed.state ==='REVIEW' || examToBeReviewed.state === 'REVIEW_STARTED'  || examToBeReviewed.state === 'STUDENT_STARTED'"
-                  class="pull-right text-success small">{{'sitnet_exam_in_review' | translate}}
+                  class="pull-right text-success small">{{'sitnet_exam_status_' + examToBeReviewed.state | lowercase | translate}}
             </span>
             <span ng-if="examToBeReviewed.state === 'GRADED'" class="pull-right text-info small">
-                {{'sitnet_exam_reviewed' | translate}}
+                {{'sitnet_exam_status_' + examToBeReviewed.state | lowercase | translate}}
             </span>
             <span ng-if="examToBeReviewed.state === 'GRADED_LOGGED'" class="pull-right text-muted small">
-                {{'sitnet_exam_reviewed' | translate}}
+                {{'sitnet_exam_status_' + examToBeReviewed.state | lowercase | translate}}
             </span>
         </span>
     </div>

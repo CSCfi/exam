@@ -46,7 +46,7 @@ public class CourseInfoController extends SitnetController {
                 return notFound("sitnet_course_not_found");
             }
         } catch (NotFoundException e) {
-            return notFound();
+            return notFound("sitnet_course_not_found");
         }
 
         course.save();

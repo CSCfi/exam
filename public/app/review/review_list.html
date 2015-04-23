@@ -65,7 +65,7 @@
                         ({{review.started | diffInMinutesTo:review.ended }}min)
                     </td>
                     <td class="table-column-20" class="sitnet-text-aborted">
-                        {{review.exam.state}}
+                        {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
                     </td>
                 </tr>
                 <!--Fill if page not full-->
@@ -145,7 +145,7 @@
                         </td>
                         <td class="table-column-20"
                             ng-class="review.exam.state !== 'ABORTED' ? 'sitnet-text-ready' : 'sitnet-text-aborted'">
-                            {{review.exam.state}}
+                            {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
                         </td>
                     </tr>
                     <!--Fill if page not full-->
@@ -334,7 +334,8 @@
 
         <div class="main-row" ng-show="toggleLoggedReviews">
             <div class="col-md-12">
-                <a class="btn btn-primary" ng-click="printSelected()">{{'sitnet_print_selected_to_file' | translate}}</a>
+                <a class="btn btn-primary" ng-click="printSelected()">                    {{'sitnet_print_selected_to_file' | translate}}
+                </a>
             </div>
         </div>
     </div>

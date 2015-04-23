@@ -578,5 +578,14 @@
   "sitnet_student_enrolment_info_description": "Provide any additional information regarding for instance your study history, special agreements or exam material",
   "sitnet_searching": "Searching",
   "sitnet_request_timed_out": "Request timed out. Base system did not respond in timely manner.",
-  "sitnet_search_restricted": "Exams listed here are the ones you are entitled to enroll for according to data provided by the base system. In case you feel an exam is missing in the list, please check that the enrolment is valid within your base system"
+  "sitnet_search_restricted": "Exams listed here are the ones you are entitled to enroll for according to data provided by the base system. In case you feel an exam is missing in the list, please check that the enrolment is valid within your base system",
+  "sitnet_search_course_by_code": "Select course by writing a course code",
+  "sitnet_exam_status_review": "Review",
+  "sitnet_exam_status_review_started": "Review started",
+  "sitnet_exam_status_graded": "Graded",
+  "sitnet_exam_status_graded_logged": "Graded and logged",
+  "sitnet_exam_status_student_started": "Student started",
+  "sitnet_exam_status_published": "Published",
+  "sitnet_exam_status_aborted": "Aborted",
+  "sitnet_exam_status_no_show": "Not participated"
 }
