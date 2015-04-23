@@ -144,7 +144,7 @@ public class Interfaces extends SitnetController {
                 if (scaleType.equals(GradeScale.Type.OTHER)) {
                     // This needs custom handling
                     if (!scale.has("code") || !scale.has("name")) {
-                        Logger.warn("Skipping over grade scale of type OTHER, requirednodes are missing: {}",
+                        Logger.warn("Skipping over grade scale of type OTHER, required nodes are missing: {}",
                                 scale.asText());
                         continue;
                     }
