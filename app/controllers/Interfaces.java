@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import exceptions.NotFoundException;
 import models.*;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
@@ -21,6 +22,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
 
+import javax.servlet.http.HttpServletResponse;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -92,7 +94,12 @@ public class Interfaces extends SitnetController {
         return WS.url(url.toString()).setQueryParameter("courseUnitCode", code).get().map(new F.Function<WSResponse, List<Course>>() {
             @Override
             public List<Course> apply(WSResponse wsResponse) throws Throwable {
-                return parseResponse(wsResponse.asJson());
+                int status = wsResponse.getStatus();
+                if (status == HttpServletResponse.SC_OK) {
+                    return parseResponse(wsResponse.asJson());
+                }
+                Logger.info("Non-OK response received {}", status);
+                throw new NotFoundException(String.format("sitnet_remote_failure %d %s", status, wsResponse.getStatusText()));
             }
         }).recover(new F.Function<Throwable, List<Course>>() {
             @Override
