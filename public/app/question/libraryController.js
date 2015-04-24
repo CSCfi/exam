@@ -2,8 +2,8 @@
     'use strict';
     angular.module("sitnet.controllers")
         .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$location', '$translate', 'sessionService', 'QuestionRes',
-            'questionService', 'ExamRes', 'CourseRes', 'TagRes',
-            function (dialogs, $q, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes) {
+            'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
+            function (dialogs, $q, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
 
                 $scope.pageSize = 25;
                 $scope.courses = [];
@@ -16,10 +16,67 @@
                         $scope.filteredQuestions = $scope.questions.filter(function (question) {
                             var re = new RegExp($scope.selected, 'i');
                             return question.question && question.question.match(re);
-                        })
+                        });
                     } else {
                         $scope.filteredQuestions = $scope.questions;
                     }
+                };
+
+                $scope.selectAll = function (selectAllCssClass, checkboxesCssClass) {
+
+                    var isSelected = angular.element("." + selectAllCssClass).prop("checked");
+
+                    angular.forEach(angular.element("." + checkboxesCssClass), function (input) {
+                        angular.element(input).prop("checked", isSelected);
+                    });
+                };
+
+                $scope.newTeacher = "";
+
+                $scope.onCourseSelect = function ($item, $model, $label) {
+                    $scope.newTeacher = $item;
+                };
+
+                $scope.ownerProcess = false;
+                $scope.moveSelected = function() {
+                    $scope.ownerProcess = true;
+
+                    // check that atleast one has been selected
+                    var isEmpty = true,
+                        boxes = angular.element(".questionToMove"),
+                        ids = [];
+
+                    angular.forEach(boxes, function (input) {
+                        if (angular.element(input).prop("checked")) {
+                            isEmpty = false;
+                            ids.push(angular.element(input).val());
+                        }
+                    });
+
+                    if (isEmpty) {
+                        toastr.warning($translate('sitnet_choose_atleast_one'));
+                        $scope.ownerProcess = false;
+                        return;
+                    }
+                    if(! $scope.newTeacher){
+                        toastr.warning($translate('sitnet_select_teacher_to_move_the_questions_to'));
+                        $scope.ownerProcess = false;
+                        return;
+                    }
+
+                    // print to file
+                    var questionToMove = {
+                        "uid": $scope.newTeacher.id,
+                        "questionIds": ids.toString()
+                    };
+
+                    QuestionRes.questionOwner.update(questionToMove,
+                        function(result){
+                            toastr.info($translate('sitnet_question_owner_changed'));
+                        }, function(error){
+                            toastr.info($translate('sitnet_update_failed'));
+                    });
+                    $scope.ownerProcess = false;
                 };
 
                 $scope.getTags = function () {
@@ -34,6 +91,8 @@
                     });
                     return courses.concat(exams).concat(tags);
                 };
+
+                $scope.teachers = UserRes.usersByRole.query({role: "TEACHER"});
 
                 var getCourseIds = function () {
                     return $scope.courses.filter(function (course) {
@@ -149,7 +208,7 @@
                     if (getExamIds().length === 0) {
                         $scope.listExams().then(function () {
                             return doListTags(sections);
-                        })
+                        });
                     }
                     return doListTags(sections);
                 };

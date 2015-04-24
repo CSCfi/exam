@@ -141,6 +141,11 @@
             <table class="table table-striped questions-table">
                 <thead>
                 <tr>
+                    <th>
+                        <input type="checkbox" name="select_all" class="selectAllQuestions"
+                               ng-click="selectAll('selectAllQuestions', 'questionToMove')" popover-placement="top"
+                               popover-trigger="mouseenter" popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
+                    </th>
                     <th>{{ 'sitnet_question' | translate }}</th>
                     <th>{{ 'sitnet_question_type' | translate }}</th>
                     <th>{{ 'sitnet_status' | translate }}</th>
@@ -149,6 +154,9 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="question in filteredQuestions | offset: currentPage*pageSize | limitTo: pageSize">
+                    <td>
+                        <input type="checkbox" class="questionToMove" value="{{question.id}}"/>
+                    </td>
                     <td>
                         <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax
                            ng-bind-html="shortText(question.question)"></a>
@@ -182,6 +190,31 @@
     <div class="detail-row">
         <div col-md-12 ng-show="filteredQuestions.length > pageSize">
             <paginator items="filteredQuestions" page-size="pageSize" current-page="currentPage"/>
+        </div>
+    </div>
+
+    <div class="main-row">
+        <div class="col-md-4">
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid"
+                       ng-model="newTeacher"
+                       placeholder="{{'sitnet_select_teacher_to_move_the_questions_to' | translate}}"
+                       typeahead-on-select="onTeacherSelect($item, $model, $label, newExam)"
+                       typeahead="t as t.name for t in teachers | filter:$viewValue | limitTo:8"
+                       typeahead-wait-ms="100"
+                       typeahead-focus-first="false"
+                       typeahead-min-length="2"
+                       typeahead-loading="teachersLoad">
+                           <span class="input-group-addon">
+                                <i class="fa fa-question-circle fa-fw"
+                                   popover-placement="left"
+                                   popover-trigger="mouseenter"
+                                   popover="{{'sitnet_name' | translate}}"></i>
+                           </span>
+            </div>
+        </div>
+        <div class="col-md-2 bottom-padding-2">
+            <input type="button" class="btn btn-primary" ng-disabled="ownerProcess" ng-click="moveSelected()" value="{{'sitnet_change_owner' | translate}}"/>
         </div>
     </div>
 </div>

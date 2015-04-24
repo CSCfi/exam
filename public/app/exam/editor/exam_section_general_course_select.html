@@ -1,3 +1,15 @@
+<script type="text/ng-template" id="course_template.html">
+    <a style="cursor: pointer;">
+        <span style="cursor:pointer;font-weight: 500;" bind-html-unsafe="match.label"></span>
+        <span style="font-size:0.70em;color:#bbb;text-transform: uppercase;cursor:pointer;">{{match.model.name}}</span>
+    </a>
+</script>
+<script type="text/ng-template" id="course_name_template.html">
+    <a style="cursor: pointer;">
+        <span style="cursor:pointer;font-weight: 500;" bind-html-unsafe="match.label"></span>
+        <span style="font-size:0.70em;color:#bbb;cursor:pointer;">{{match.model.code}}</span>
+    </a>
+</script>
 <div class="col-md-12" ng-controller="CourseTypeaheadCtrl">
     <div class="sitnet-info-text col-md-12 row">{{'sitnet_course' | translate}}:</div>
     <div class="col-md-12 section-border">
@@ -13,6 +25,7 @@
                            typeahead-wait-ms="100"
                            typeahead-focus-first="false"
                            typeahead-min-length="2"
+                           typeahead-template-url="course_template.html"
                            typeahead-loading="loadingCoursesByCode">
                                <span class="input-group-addon">
                                     <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_unique_code' | translate}}"></i>
@@ -30,6 +43,7 @@
                            typeahead-wait-ms="100"
                            typeahead-focus-first="false"
                            typeahead-min-length="2"
+                           typeahead-template-url="course_name_template.html"
                            typeahead-loading="loadingCoursesByName">
                                <span class="input-group-addon">
                                     <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_name' | translate}}"></i>

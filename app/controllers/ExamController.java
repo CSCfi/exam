@@ -449,7 +449,7 @@ public class ExamController extends SitnetController {
         String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
             Grade examGrade = Ebean.find(Grade.class, grade);
-            if (exam.getGradeScale().getGrades().contains(examGrade)) {
+            if (exam.getGradeScale().getGrades().indexOf(examGrade) > -1) {
                 exam.setGrade(Ebean.find(Grade.class, grade));
             } else {
                 return badRequest("Invalid grade for this grade scale");
@@ -468,6 +468,7 @@ public class ExamController extends SitnetController {
         exam.setAdditionalInfo(additionalInfo);
         exam.setAnswerLanguage(df.get("answerLanguage"));
         exam.setState(df.get("state"));
+
         if (df.get("customCredit") != null) {
             exam.setCustomCredit(Double.parseDouble(df.get("customCredit")));
         } else {

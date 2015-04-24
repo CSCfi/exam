@@ -425,7 +425,7 @@
                     return {
                         "id": exam.id,
                         "state": state,
-                        "grade": exam.grade ? exam.grade.id : "",
+                        "grade": exam.grade.id,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": $scope.selectedType,
@@ -478,7 +478,6 @@
                             if (!withoutNotice) {
                                 toastr.info($translate("sitnet_comment_updated"));
                             }
-                            $scope.startReview();
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -560,7 +559,7 @@
                         var oldState = reviewed_exam.state;
                         var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
 
-                        if (newState !== 'GRADED' || oldState == 'GRADED') {
+                        if (newState !== 'GRADED' || oldState === 'GRADED') {
                             var review = getReviewUpdate(reviewed_exam, newState);
                             doUpdate(newState, review, messages, reviewed_exam);
                         } else {

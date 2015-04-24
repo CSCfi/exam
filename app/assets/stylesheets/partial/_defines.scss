@@ -362,3 +362,9 @@ $sitnet-icon-size: 32px;
 .wrap {
   white-space: pre-wrap;
 }
+.removeListLeftSpace {
+  ul {
+    padding-left:0;
+    margin-left:0;
+  }
+}
