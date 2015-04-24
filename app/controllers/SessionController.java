@@ -119,6 +119,7 @@ public class SessionController extends SitnetController {
         user.setLastName(toUtf8(request().getHeader("sn")));
         user.setFirstName(toUtf8(request().getHeader("displayName")));
         user.setEmployeeNumber(toUtf8(request().getHeader("employeeNumber")));
+        user.setLogoutUrl(toUtf8(request().getHeader("logouturl")));
     }
 
     private static User createNewUser(String eppn) throws NotFoundException, AddressException {
@@ -214,20 +215,27 @@ public class SessionController extends SitnetController {
     }
 
     public static Result logout() {
+        response().discardCookie("XSRF-TOKEN");
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
         String key = SITNET_CACHE_KEY + token;
-        String loginType = ConfigFactory.load().getString("sitnet.login");
-        if (loginType.equals("HAKA")) {
-            Session session = (Session) Cache.get(key);
-            if (session != null) {
+        Session session = (Session) Cache.get(key);
+        if (session != null) {
+            String loginType = ConfigFactory.load().getString("sitnet.login");
+            String logoutUrl = null;
+            User user = Ebean.find(User.class, session.getUserId());
+            if (loginType.equals("HAKA")) {
                 session.setValid(false);
                 Cache.set(key, session);
                 Logger.info("Set session as invalid {}", token);
+            } else {
+                Cache.remove(key);
             }
-        } else {
-            Cache.remove(key);
+            if (user.getLogoutUrl() != null) {
+                ObjectNode node = Json.newObject();
+                node.put("logoutUrl", user.getLogoutUrl());
+                return ok(Json.toJson(node));
+            }
         }
-        response().discardCookie("XSRF-TOKEN");
         return ok();
     }
 

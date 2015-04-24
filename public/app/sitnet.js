@@ -131,7 +131,7 @@
                                     });
                                     $modalInstance.dismiss();
                                     if ($location.url() === '/login' || $location.url() === '/logout') {
-                                        $location.path("/home");
+                                        $location.path("/");
                                     } else {
                                         $route.reload();
                                     }
@@ -143,7 +143,7 @@
                             }
                         });
                     } else if ($location.url() === '/login' || $location.url() === '/logout') {
-                        $location.path("/home");
+                        $location.path("/");
                     } else {
                         $route.reload();
                     }
@@ -152,7 +152,7 @@
                         toastr.error(message);
                         $location.path("/logout");
                     } else {
-                        $route.reload();
+                       $location.path("/login");
                     }
                 });
             };

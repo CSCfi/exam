@@ -40,8 +40,10 @@ public class User extends Model implements Subject {
 
     private String employeeNumber;
 
+    private String logoutUrl;
+
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examOwners")
-    @JoinTable(name="exam_owner", joinColumns = @JoinColumn(name="user_id"))
+    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "user_id"))
     @JsonBackReference
     private List<Exam> ownedExams;
 
@@ -53,20 +55,20 @@ public class User extends Model implements Subject {
 
     @OneToOne
     private Organisation organisation;
-    
+
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
     private List<ExamEnrolment> enrolments = new ArrayList<>();
-    
+
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
     private List<ExamParticipation> participations = new ArrayList<>();
-    
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
     private List<ExamInspection> inspections = new ArrayList<>();
 
-    @Column(columnDefinition="BOOLEAN DEFAULT FALSE")
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean hasAcceptedUserAgreament;
 
 
@@ -150,6 +152,14 @@ public class User extends Model implements Subject {
         this.password = password;
     }
 
+    public String getLogoutUrl() {
+        return logoutUrl;
+    }
+
+    public void setLogoutUrl(String logoutUrl) {
+        this.logoutUrl = logoutUrl;
+    }
+
     public void setRoles(List<SitnetRole> roles) {
         this.roles = roles;
     }
@@ -176,29 +186,29 @@ public class User extends Model implements Subject {
 
     public List<ExamEnrolment> getEnrolments() {
         return enrolments;
-	}
+    }
 
-	public void setEnrolments(List<ExamEnrolment> enrolments) {
-		this.enrolments = enrolments;
-	}
+    public void setEnrolments(List<ExamEnrolment> enrolments) {
+        this.enrolments = enrolments;
+    }
 
-	public List<ExamParticipation> getParticipations() {
+    public List<ExamParticipation> getParticipations() {
         return participations;
-	}
+    }
 
-	public void setParticipations(List<ExamParticipation> participations) {
-		this.participations = participations;
-	}
+    public void setParticipations(List<ExamParticipation> participations) {
+        this.participations = participations;
+    }
 
-	public List<ExamInspection> getInspections() {
+    public List<ExamInspection> getInspections() {
         return inspections;
-	}
+    }
 
-	public void setInspections(List<ExamInspection> inspections) {
-		this.inspections = inspections;
-	}
+    public void setInspections(List<ExamInspection> inspections) {
+        this.inspections = inspections;
+    }
 
-	@Override
+    @Override
     public String getIdentifier() {
         return email;
     }
@@ -214,7 +224,7 @@ public class User extends Model implements Subject {
     public boolean hasRole(String name) {
 
         for (SitnetRole role : roles) {
-            if(role.getName().equals(name))
+            if (role.getName().equals(name))
                 return true;
         }
         return false;
@@ -225,6 +235,7 @@ public class User extends Model implements Subject {
         return "User [id=" + id + ", email=" + email + ", name=" + lastName + " " +
                 firstName + ", password=" + password + "]";
     }
+
     @Override
     public boolean equals(Object other) {
         if (other == this) return true;

@@ -9,15 +9,22 @@
                 $scope.credentials = {};
 
                 $scope.logout = function () {
-                    sessionService.logout().then(function () {
+                    sessionService.logout().then(function (data) {
                         delete $scope.user;
                         $rootScope.$broadcast('userUpdated');
                         toastr.success($translate("sitnet_logout_success"));
+                        if (data && data.logoutUrl) {
+                            window.location.href = data.logoutUrl;
+                        }
                     });
                 };
 
-                if ($location.url() == "/logout" && sessionService.getUser()) {
-                    $scope.logout();
+                if ($location.url() == "/logout") {
+                    if (sessionService.getUser()) {
+                        $scope.logout();
+                    } else {
+                        $location.path('/login');
+                    }
                 }
 
                 $scope.switchLanguage = function (key) {
@@ -53,8 +60,8 @@
                                             toastr.error(error.data);
                                         });
                                         $modalInstance.dismiss();
-                                        if ($location.url() === '/login'|| $location.url() === '/logout') {
-                                            $location.path("/home");
+                                        if ($location.url() === '/login' || $location.url() === '/logout') {
+                                            $location.path("/");
                                         }
                                     };
                                     $scope.cancel = function () {
@@ -64,7 +71,7 @@
                                 }
                             });
                         } else if ($location.url() === '/login' || $location.url() === '/logout') {
-                            $location.path("/home");
+                            $location.path("/");
                         }
                     }, function (message) {
                         if ($location.url() === '/login' || $location.url() === '/logout') {

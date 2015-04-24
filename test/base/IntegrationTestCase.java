@@ -48,6 +48,7 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
         HAKA_HEADERS.put("employeeNumber", "12345");
+        HAKA_HEADERS.put("logouturl", "http://foo.bar.com");
     }
 
     @Rule

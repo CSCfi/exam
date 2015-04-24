@@ -30,7 +30,7 @@
 
                     return [
                         {
-                            href: "#/home",
+                            href: "#/",
                             visible: !hideDashboard,
                             class: "fa-home",
                             name: $translate("sitnet_dashboard")

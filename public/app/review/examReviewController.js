@@ -523,7 +523,7 @@
                         } else {
                             toastr.info($translate("sitnet_review_graded"));
                             if ($scope.user.isAdmin) {
-                                $location.path("/home");
+                                $location.path("/");
                             } else {
                                 $location.path("exams/reviews/" + exam.parent.id);
                             }
@@ -617,7 +617,7 @@
                             ExamRes.saveRecord.add(examToRecord, function (exam) {
                                 toastr.info($translate('sitnet_review_recorded'));
                                 if ($scope.user.isAdmin) {
-                                    $location.path("/home");
+                                    $location.path("/");
                                 } else {
                                     $location.path("exams/reviews/" + reviewed_exam.parent.id);
                                 }

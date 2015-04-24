@@ -181,7 +181,7 @@ public class EmailComposer {
         stringValues.put("machine_name", Messages.get(lang, "email.template.reservation.machine", machineName));
         stringValues.put("room_instructions", roomInstructions);
         stringValues.put("cancellation_info", Messages.get(lang, "email.template.reservation.cancel.info"));
-        stringValues.put("cancellation_link", String.format("%s/#/home/", HOSTNAME));
+        stringValues.put("cancellation_link", String.format("%s/#/", HOSTNAME));
         stringValues.put("cancellation_link_text", Messages.get(lang, "email.template.reservation.cancel.link.text"));
 
         String content = replaceAll(template, stringValues);
@@ -289,7 +289,7 @@ public class EmailComposer {
 
         for (Exam exam : exams) {
             Map<String, String> stringValues = new HashMap<>();
-            stringValues.put("exam_link", String.format("%s/#/home/exams/%d", HOSTNAME, exam.getId()));
+            stringValues.put("exam_link", String.format("%s/#/exams/%d", HOSTNAME, exam.getId()));
             stringValues.put("exam_name", exam.getName());
             stringValues.put("course_code", exam.getCourse().getCode());
             List<ExamEnrolment> enrolments = getEnrolments(exam);
