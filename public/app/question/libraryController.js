@@ -11,11 +11,15 @@
                 $scope.tags = [];
                 $scope.filteredQuestions = [];
 
+                var htmlDecode = function(text) {
+                    return $('<div/>').html(text).text();
+                };
+
                 $scope.applyFreeSearchFilter = function () {
                     if ($scope.selected) {
                         $scope.filteredQuestions = $scope.questions.filter(function (question) {
                             var re = new RegExp($scope.selected, 'i');
-                            return question.question && question.question.match(re);
+                            return question.question && htmlDecode(question.question).match(re);
                         });
                     } else {
                         $scope.filteredQuestions = $scope.questions;
