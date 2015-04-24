@@ -1,0 +1,70 @@
+{
+  "data": [
+    {
+      "code": "6000009",
+      "enddate": "13.04.2015",
+      "id": 102414285,
+      "name": "TVT-ajokortti, K\u00e4ytt\u00e4ytymistieteellisen tiedekunnan opiskelijoille (TVT7)",
+      "startdate": "13.04.2015",
+      "teachinglanguage": "sv",
+      "typecode": 19,
+      "typename": "Tentti",
+      "weboodiuri": "https://weboodi.helsinki.fi/hy/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102414285"
+    },
+    {
+      "code": "6000009",
+      "enddate": "13.04.2015",
+      "id": 102414285,
+      "name": "TVT-ajokortti, K\u00e4ytt\u00e4ytymistieteellisen tiedekunnan opiskelijoille (TVT7)",
+      "startdate": "13.04.2015",
+      "teachinglanguage": "en",
+      "typecode": 19,
+      "typename": "Tentti",
+      "weboodiuri": "https://weboodi.helsinki.fi/hy/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102414285"
+    },
+    {
+      "code": "6000009",
+      "enddate": "13.04.2015",
+      "id": 102414285,
+      "name": "TVT-ajokortti, K\u00e4ytt\u00e4ytymistieteellisen tiedekunnan opiskelijoille (TVT7)",
+      "startdate": "13.04.2015",
+      "teachinglanguage": "fi",
+      "typecode": 19,
+      "typename": "Tentti",
+      "weboodiuri": "https://weboodi.helsinki.fi/hy/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102414285"
+    },
+    {
+      "code": "61123",
+      "enddate": "10.02.2015",
+      "id": 102221635,
+      "name": "Oppilaantuntemus, ryhm\u00e4 A",
+      "startdate": "13.01.2015",
+      "teachinglanguage": "fi",
+      "typecode": 16,
+      "typename": "Kes\u00e4tentti",
+      "weboodiuri": "https://weboodi.helsinki.fi/hy/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102221635"
+    },
+    {
+      "code": "61123",
+      "enddate": "12.02.2015",
+      "id": 102221630,
+      "name": "Oppilaantuntemus",
+      "startdate": "27.10.2014",
+      "teachinglanguage": "fi",
+      "typecode": 17,
+      "typename": "Kurssi",
+      "weboodiuri": "https://weboodi.helsinki.fi/hy/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102221630"
+    },
+    {
+      "code": "810136P",
+      "enddate": "08.12.2014",
+      "id": 102045093,
+      "name": "Johdatus kasvatuspsykologiaan",
+      "startdate": "27.10.2014",
+      "teachinglanguage": "fi",
+      "typecode": 17,
+      "typename": "Kurssi",
+      "weboodiuri": "https://weboodi.helsinki.fi/hy/alkusivu.jsp?Kieli=1&avattavaSivu=opettaptied&OpetTap=102045093"
+    }
+  ]
+}

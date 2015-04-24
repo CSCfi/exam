@@ -47,6 +47,7 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("Shib-Session-ID", "_5d9a583a894275c15edef02c5602c4d7");
         HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
+        HAKA_HEADERS.put("employeeNumber", "12345");
     }
 
     @Rule

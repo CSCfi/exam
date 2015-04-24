@@ -125,6 +125,34 @@ public class ExamRecordController extends SitnetController {
         return record;
     }
 
+    //FIXME: exam's answerLanguage should be a FK to Language. In the mean time lets have this hack in place.
+    private static String getLanguageCode(String language) {
+        String code;
+        switch (language.toLowerCase()) {
+            case "fi":
+            case "suomi":
+            case "finska":
+            case "finnish":
+                code = "fi";
+                break;
+            case "en":
+            case "englanti":
+            case "engelska":
+            case "english":
+                code = "en";
+                break;
+            case "sv":
+            case "ruotsi":
+            case "svenska":
+            case "swedish":
+                 code = "sv";
+                break;
+            default:
+                code = "en";
+        }
+        return code;
+    }
+
     private static ExamScore createScore(ExamRecord record, Date examDate) {
         Exam exam = record.getExam();
         ExamScore score = new ExamScore();
@@ -141,7 +169,7 @@ public class ExamRecordController extends SitnetController {
         score.setLecturerId(record.getTeacher().getUserIdentifier());
         score.setLecturerEmployeeNumber(record.getTeacher().getEmployeeNumber());
 
-        SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         // Record transfer timestamp (date)
         score.setDate(sdf.format(new Date()));
         score.setExamDate(sdf.format(examDate));
@@ -150,10 +178,15 @@ public class ExamRecordController extends SitnetController {
         score.setCourseUnitCode(exam.getCourse().getCode());
         score.setCourseUnitLevel(exam.getCourse().getLevel());
         score.setCourseUnitType(exam.getCourse().getCourseUnitType());
-        score.setCreditLanguage(exam.getAnswerLanguage()); // -> FIXME: should be language code!
+        score.setCreditLanguage(getLanguageCode(exam.getAnswerLanguage()));
         score.setCreditType(exam.getCreditType().getType()); // FIXME: check Virta/etc
         score.setIdentifier(exam.getCourse().getIdentifier());
-        score.setGradeScale(exam.getGradeScale().getDescription()); // FIXME -> check Virta/etc
+
+        if (exam.getGradeScale().getExternalRef() != null)  {
+            score.setGradeScale(exam.getGradeScale().getExternalRef().toString());
+        } else {
+            score.setGradeScale(exam.getGradeScale().getDescription());
+        }
         score.setStudentGrade(exam.getGrade().getName());
         return score;
     }

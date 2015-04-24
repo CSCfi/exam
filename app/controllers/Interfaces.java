@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
-import exceptions.NotFoundException;
 import models.*;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
@@ -32,18 +31,31 @@ import java.util.concurrent.TimeoutException;
 public class Interfaces extends SitnetController {
 
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
+    private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
+
     private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
 
     static {
         SORTED_MAPPER.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
     }
 
+    public static class RemoteException extends Exception {
+
+        public RemoteException(String message) {
+            super(message);
+        }
+    }
+
     private static URL parseUrl(User user) throws MalformedURLException {
+        if (user.getEmployeeNumber() == null) {
+            throw new RuntimeException("User has no employee number!");
+        }
         String url = ConfigFactory.load().getString("sitnet.integration.enrolmentPermissionCheck.url");
-        if (url == null || !url.contains(USER_ID_PLACEHOLDER)) {
+        if (url == null || !url.contains(USER_ID_PLACEHOLDER) || !url.contains(USER_LANG_PLACEHOLDER)) {
             throw new RuntimeException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
         }
-        url = url.replace(USER_ID_PLACEHOLDER, user.getEmployeeNumber());
+        url = url.replace(USER_ID_PLACEHOLDER, user.getEmployeeNumber()).replace(USER_LANG_PLACEHOLDER,
+                user.getUserLanguage().getUILanguageCode());
         return new URL(url);
     }
 
@@ -56,15 +68,23 @@ public class Interfaces extends SitnetController {
         F.Function<WSResponse, Collection<String>> onSuccess = new F.Function<WSResponse, Collection<String>>() {
             @Override
             public Collection<String> apply(WSResponse response) throws Throwable {
-                Set<String> results = new HashSet<>();
-                for (JsonNode json : response.asJson()) {
-                    if (json.has("courseUnitCode")) {
-                        results.add(json.get("courseUnitCode").asText());
-                    } else {
-                        Logger.warn("Unexpected content {}", json.asText());
+                JsonNode root = response.asJson();
+                if (root.has("exception")) {
+                    throw new RemoteException(root.get("exception").asText());
+                } else if (root.has("data")) {
+                    Set<String> results = new HashSet<>();
+                    for (JsonNode course : root.get("data")) {
+                        if (course.has("code")) {
+                            results.add(course.get("code").asText());
+                        } else {
+                            Logger.warn("Unexpected content {}", course.asText());
+                        }
                     }
+                    return results;
+                } else {
+                    Logger.warn("Unexpected content {}", root.asText());
+                    throw new RemoteException("sitnet_internal_error");
                 }
-                return results;
             }
         };
         F.Function<Throwable, Collection<String>> onFailure = new F.Function<Throwable, Collection<String>>() {
@@ -99,7 +119,7 @@ public class Interfaces extends SitnetController {
                     return parseResponse(wsResponse.asJson());
                 }
                 Logger.info("Non-OK response received {}", status);
-                throw new NotFoundException(String.format("sitnet_remote_failure %d %s", status, wsResponse.getStatusText()));
+                throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, wsResponse.getStatusText()));
             }
         }).recover(new F.Function<Throwable, List<Course>>() {
             @Override
@@ -127,7 +147,7 @@ public class Interfaces extends SitnetController {
                 if (scaleType.equals(GradeScale.Type.OTHER)) {
                     // This needs custom handling
                     if (!scale.has("code") || !scale.has("name")) {
-                        Logger.warn("Skipping over grade scale of type OTHER, requirednodes are missing: {}",
+                        Logger.warn("Skipping over grade scale of type OTHER, required nodes are missing: {}",
                                 scale.asText());
                         continue;
                     }
