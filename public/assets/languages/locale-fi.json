@@ -588,5 +588,9 @@
   "sitnet_exam_status_student_started": "Oppilas aloittanut",
   "sitnet_exam_status_published": "Julkaistu",
   "sitnet_exam_status_aborted": "Peruutettu",
-  "sitnet_exam_status_no_show": "Ei osallistunut"
+  "sitnet_exam_status_no_show": "Ei osallistunut",
+  "sitnet_select_teacher_to_move_the_questions_to": "Valitse opettaja jolle kysymykset siirretään",
+  "sitnet_question_owner_changed": "Kysymyksen omistaja vaihdettu",
+  "sitnet_update_failed": "Päivitys epäonnistui",
+  "sitnet_change_owner": "Vaihda omistaja"
 }

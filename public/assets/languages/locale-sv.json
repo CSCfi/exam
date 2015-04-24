@@ -588,5 +588,9 @@
   "sitnet_exam_status_student_started": "Student started",
   "sitnet_exam_status_published": "Published",
   "sitnet_exam_status_aborted": "Aborted",
-  "sitnet_exam_status_no_show": "Not participated"
+  "sitnet_exam_status_no_show": "Not participated",
+  "sitnet_select_teacher_to_move_the_questions_to": "Select teacher to move the question to",
+  "sitnet_question_owner_changed": "Question owner changed",
+  "sitnet_update_failed": "Päivitys epäonnistui",
+  "sitnet_change_owner": "Vaihda omistaja"
 }

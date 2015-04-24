@@ -143,6 +143,41 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result updateQuestionOwner(Long uid) {
+
+        User teacher = Ebean.find(User.class, uid);
+
+        if(teacher == null) {
+            return notFound();
+        }
+
+        DynamicForm df = Form.form().bindFromRequest();
+        String questionIds = df.data().get("questionIds");
+
+        if(questionIds == null || questionIds.length() < 1) {
+            return notFound();
+        }
+
+        for (String s : questionIds.split(",")) {
+            AbstractQuestion question = Ebean.find(AbstractQuestion.class, Integer.parseInt(s));
+
+            if (question != null) {
+                question.setCreator(teacher);
+                question.update();
+
+                if (question.getChildren() != null && question.getChildren().size() > 0) {
+                    for (AbstractQuestion childQuestion : question.getChildren()) {
+                        childQuestion.setCreator(teacher);
+                        childQuestion.update();
+                    }
+                }
+            }
+        }
+
+        return ok();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateOption(Long oid) throws MalformedDataException {
 
         MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);

@@ -125,6 +125,7 @@ POST          /question/:id                                         controllers.
 POST          /questions/:qid/option                                controllers.QuestionController.addOption(qid: Long)
 DELETE        /questions/:id                                        controllers.QuestionController.deleteQuestion(id: Long)
 DELETE        /questions/option/:oid                                controllers.QuestionController.deleteOption(oid: Long)
+PUT           /questions/owner/:uid                                 controllers.QuestionController.updateQuestionOwner(uid: Long)
 
 
 GET           /options                                              controllers.QuestionController.createOption()

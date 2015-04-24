@@ -14,6 +14,14 @@
 
                 }),
 
+                questionOwner: $resource("/questions/owner/:uid",
+                    {
+                        uid: "@uid"
+                    },
+                    {
+                        "update": {method: "PUT", params: {uid: "@uid"}}
+                    }),
+
                 score: $resource("/questions/:id/score",
                 {
                     id: "@id"
