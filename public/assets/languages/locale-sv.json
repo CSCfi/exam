@@ -592,5 +592,7 @@
   "sitnet_select_teacher_to_move_the_questions_to": "Select teacher to move the question to",
   "sitnet_question_owner_changed": "Question owner changed",
   "sitnet_update_failed": "Päivitys epäonnistui",
-  "sitnet_change_owner": "Vaihda omistaja"
+  "sitnet_change_owner": "Vaihda omistaja",
+  "sitnet_show_first": "First", "sitnet_show_questions": "questions visible",
+  "sitnet_show_more": "Show more"
 }
