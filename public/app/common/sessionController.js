@@ -3,10 +3,17 @@
     // automatically by the run block in sitnet.js
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('SessionCtrl', ['$scope', '$rootScope', '$location', '$modal', '$translate', 'sessionService', 'UserRes', 'SITNET_CONF',
-            function ($scope, $rootScope, $location, $modal, $translate, sessionService, UserRes, SITNET_CONF) {
+        .controller('SessionCtrl', ['$scope', '$rootScope', '$location', '$modal', '$translate', 'sessionService', 'UserRes', 'SettingsResource', 'SITNET_CONF',
+            function ($scope, $rootScope, $location, $modal, $translate, sessionService, UserRes, SettingsResource, SITNET_CONF) {
 
                 $scope.credentials = {};
+
+
+                SettingsResource.environment.get(function(env) {
+                    if (!env.isProd) {
+                        $scope.loginTemplatePath = SITNET_CONF.TEMPLATES_PATH + "common/dev_login.html";
+                    }
+                });
 
                 $scope.logout = function () {
                     sessionService.logout().then(function (data) {

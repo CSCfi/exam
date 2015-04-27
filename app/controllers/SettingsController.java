@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.MalformedDataException;
 import models.GeneralSettings;
 import models.User;
+import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
@@ -80,6 +81,12 @@ public class SettingsController  extends SitnetController {
     public static Result isEnrolmentPermissionCheckActive() {
         ObjectNode node = Json.newObject();
         node.put("active", SitnetUtil.isEnrolmentPermissionCheckActive());
+        return ok(Json.toJson(node));
+    }
+
+    public static Result isProd() {
+        ObjectNode node = Json.newObject();
+        node.put("isProd", Play.isProd());
         return ok(Json.toJson(node));
     }
 
