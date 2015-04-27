@@ -5,7 +5,7 @@
             'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
             function (dialogs, $q, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
 
-                var step = 100;
+                var step = 5;
 
                 $scope.pageSize = 25;
                 $scope.courses = [];
