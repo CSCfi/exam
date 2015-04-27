@@ -240,10 +240,15 @@ public class QuestionController extends SitnetController {
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
                 "evaluatedScore, parent, evaluationCriterias, attachment, " +
-                "expanded, maxCharacters, evaluationType, options");
+                "expanded, maxCharacters, evaluationType, options, children");
         options.setPathProperties("creator", "id");
         options.setPathProperties("parent", "id");
         options.setPathProperties("attachment", "id, fileName");
+        options.setPathProperties("children", "examSectionQuestion");
+        options.setPathProperties("children.examSectionQuestion", "examSection");
+        options.setPathProperties("children.examSectionQuestion.examSection", "exam");
+        options.setPathProperties("children.examSectionQuestion.examSection.exam", "course");
+        options.setPathProperties("children.examSectionQuestion.examSection.exam.course", "code");
         options.setPathProperties("options", "id, option, correctOption, score");
 
         return options;

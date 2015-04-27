@@ -105,12 +105,16 @@
                     <select id="examGrade"
                             name="examGrade"
                             class="form-control"
-                            ng-model="selectedGrade.id"
+                            ng-model="selectedGrade"
                             ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()"
-                            ng-options="grade.id as grade.name for grade in examGrading"
-                            ng-selected="checkGrade(grade)"
-                            ng-change="setGrade(selectedGrade.id)" required>
-                        <option value="">{{'sitnet_choose' | translate}}</option>
+                            ng-change="setGrade(selectedGrade)"
+                            required>
+                        <option value=""
+                                ng-selected="examToBeReviewed.grade == undefined">{{'sitnet_choose' | translate}}</option>
+                        <option ng-repeat="grade in examGrading"
+                                value="{{grade.id}}"
+                                ng-selected="selectedGrade === grade.id">{{ grade.name }}
+                        </option>
                     </select>
                 </div>
 
@@ -175,7 +179,7 @@
         <span ng-show="!isReadOnly">
             <input type="button" class="btn btn-primary btn-sm"
                ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin() || !examForm.$valid"
-               ng-click="saveExamRecord(examToBeReviewed)"
+               ng-click="saveExamRecord()"
                value="{{'sitnet_send_result_to_registry' | translate}}"/>
         </span>
     </div>

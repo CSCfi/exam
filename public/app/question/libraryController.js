@@ -5,7 +5,7 @@
             'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
             function (dialogs, $q, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
 
-                var step = 5;
+                var step = 100;
 
                 $scope.pageSize = 25;
                 $scope.courses = [];
@@ -24,7 +24,23 @@
                     if ($scope.selected) {
                         $scope.filteredQuestions = $scope.questions.filter(function (question) {
                             var re = new RegExp($scope.selected, 'i');
-                            return question.question && htmlDecode(question.question).match(re);
+
+                            var isMatch = question.question && htmlDecode(question.question).match(re);
+                            if(isMatch) {
+                                return true;
+                            }
+                            angular.forEach(question.children, function(child){
+                                if(child &&
+                                    child.examSectionQuestion &&
+                                    child.examSectionQuestion.examSection &&
+                                    child.examSectionQuestion.examSection.exam &&
+                                    child.examSectionQuestion.examSection.exam.course &&
+                                    child.examSectionQuestion.examSection.exam.course.code &&
+                                    child.examSectionQuestion.examSection.exam.course.code.match(re)) {
+                                    isMatch = true;
+                                }
+                            });
+                            return isMatch;
                         });
                     } else {
                         $scope.filteredQuestions = $scope.questions;

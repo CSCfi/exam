@@ -159,7 +159,11 @@
                 ) {
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
-                    question.selectedAnsweredState = 'question-answered-header';
+                    if (question.expanded) {
+                        question.selectedAnsweredState = 'question-active-header';
+                    } else {
+                        question.selectedAnsweredState = 'question-answered-header';
+                    }
 
                 } else {
 

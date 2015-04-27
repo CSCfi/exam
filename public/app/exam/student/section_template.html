@@ -12,7 +12,7 @@
                        class="sitnet-text-medium fa fa-chevron-left fa-stack-1x">
                     </i>
                 </span>
-                <span class="fa-stack fa-lg pull-left col-md-1">
+                <span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded; chevronClicked(sectionQuestion.question);" class="fa-stack fa-lg pull-left col-md-1">
                   <i class="fa fa-stop fa-stack-2x question-icon-bg"></i>
                   <i class="fa fa-stack-1x question-icon" ng-class="sectionQuestion.question.type === 'MultipleChoiceQuestion' ? 'fa-list-ul' : 'fa-pencil-square-o'"></i>
                 </span>

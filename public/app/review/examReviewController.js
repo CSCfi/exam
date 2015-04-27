@@ -41,16 +41,11 @@
                 };
 
                 $scope.setGrade = function (grade_id) {
-                    $scope.examToBeReviewed.grade = $scope.selectedGrade = {id: grade_id};
+                    $scope.selectedGrade = $scope.examToBeReviewed.grade.id = grade_id;
                 };
-
 
                 $scope.checkCreditType = function (creditType) {
                     return creditType.type === $scope.selectedType;
-                };
-
-                $scope.checkGrade = function (grade) {
-                    return $scope.selectedGrade && grade && grade.id === $scope.selectedGrade.id;
                 };
 
                 var refreshExamTypes = function () {
@@ -122,8 +117,11 @@
                                 // default to examType
                                 $scope.selectedType = exam.examType.type.toUpperCase();
                             }
-                            if (exam.grade) {
-                                $scope.selectedGrade = exam.grade;
+
+                            if (exam.grade && exam.grade.id) {
+                                $scope.selectedGrade = exam.grade.id;
+                            } else {
+                                $scope.selectedGrade = '';
                             }
                         }
 
@@ -425,7 +423,7 @@
                     return {
                         "id": exam.id,
                         "state": state,
-                        "grade": exam.grade.id,
+                        "grade": $scope.selectedGrade,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": $scope.selectedType,
