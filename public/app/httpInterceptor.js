@@ -59,7 +59,7 @@
                             }
 
                             else if (!sessionService.getUser() && !sessionService.isLoggingIn()) {
-                                $location.path('/logout');
+                                $location.path('/login');
                             }
 
                             return response;

@@ -11,7 +11,7 @@
 
 
             /* main navigation */
-            $routeProvider.when('/home', { templateUrl: tmpl + 'common/home.html', controller: 'DashboardCtrl'});
+            $routeProvider.when('/', { templateUrl: tmpl + 'common/home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exam/exams.html', controller: 'ExamController'});
 
@@ -64,6 +64,6 @@
             $routeProvider.when('/admin/reservations/list/exam/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
             $routeProvider.when('/admin/reservations/list/student:sid/room:rid/exam:eid', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
 
-            $routeProvider.otherwise({redirectTo: '/home'});
+            $routeProvider.otherwise({redirectTo: '/'});
         }]);
 }());

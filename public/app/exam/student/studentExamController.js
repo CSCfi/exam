@@ -135,7 +135,7 @@
                             }
                         }).
                         error(function (data, status, headers, config) {
-                            $location.path("/home/");
+                            $location.path("//");
                         });
                 };
 

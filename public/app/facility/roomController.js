@@ -204,7 +204,7 @@
                     }
                 }
                 else {
-                    $location.path("/home");
+                    $location.path("/");
                 }
 
                 $scope.timerange = function () {

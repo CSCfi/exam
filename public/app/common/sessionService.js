@@ -41,11 +41,11 @@
 
                 var logout = function () {
                     var deferred = $q.defer();
-                    http().post('/logout').success(function () {
+                    http().post('/logout').success(function (data) {
                         delete $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY];
                         delete http().defaults.headers.common;
                         _user = undefined;
-                        deferred.resolve();
+                        deferred.resolve(data);
                     }).error(function (error) {
                         toastr(error.data);
                         deferred.reject();

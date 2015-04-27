@@ -20,7 +20,7 @@
 
                 //Go to feedback template to show teacher's comments
                 $scope.exitFeedback = function () {
-                    $location.path("/home");
+                    $location.path("/");
                 };
 
 
