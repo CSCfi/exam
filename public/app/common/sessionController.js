@@ -7,9 +7,10 @@
             function ($scope, $rootScope, $location, $modal, $translate, sessionService, UserRes, SettingsResource, SITNET_CONF) {
 
                 $scope.credentials = {};
-
+                $scope.env = {};
 
                 SettingsResource.environment.get(function(env) {
+                    $scope.env = env;
                     if (!env.isProd) {
                         $scope.loginTemplatePath = SITNET_CONF.TEMPLATES_PATH + "common/dev_login.html";
                     }
@@ -22,6 +23,10 @@
                         toastr.success($translate("sitnet_logout_success"));
                         if (data && data.logoutUrl) {
                             window.location.href = data.logoutUrl;
+                        } else if ($scope.env.isProd) {
+                            $scope.loginTemplatePath = SITNET_CONF.TEMPLATES_PATH + "common/logout.html";
+                        } else {
+                            $location.path("/login")
                         }
                     });
                 };
@@ -29,8 +34,6 @@
                 if ($location.url() == "/logout") {
                     if (sessionService.getUser()) {
                         $scope.logout();
-                    } else {
-                        $location.path('/login');
                     }
                 }
 
