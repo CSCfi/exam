@@ -17,7 +17,8 @@
                 hostname: $resource("/settings/hostname"),
                 examDurations: $resource("/settings/durations"),
                 gradeScale: $resource("/settings/gradescale"),
-                enrolmentPermissions: $resource("/settings/enrolmentPermissionCheck")
+                enrolmentPermissions: $resource("/settings/enrolmentPermissionCheck"),
+                environment: $resource("/settings/environment")
             }
         }]);
 }());

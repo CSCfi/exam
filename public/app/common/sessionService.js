@@ -5,7 +5,7 @@
             function ($q, $sessionStorage, $translate, $injector, tmhDynamicLocale, SITNET_CONF) {
 
                 var _user;
-                var _pending;
+
                 var getUser = function () {
                     return _user;
                 };
@@ -33,10 +33,6 @@
                     return user.roles.some(function (r) {
                         return (r.name === role)
                     });
-                };
-
-                var isLoggingIn = function () {
-                    return _pending === true;
                 };
 
                 var logout = function () {
@@ -84,14 +80,11 @@
                             };
 
                             $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY] = _user;
-                            _pending = false;
                             translate(_user.lang);
                             deferred.resolve();
                         }).error(function (error) {
-                            _pending = false;
                             deferred.reject(error);
                         });
-                    _pending = true;
                     return deferred.promise;
                 };
 
@@ -111,7 +104,6 @@
                 return {
                     login: login,
                     logout: logout,
-                    isLoggingIn: isLoggingIn,
                     getUser: getUser,
                     getUserName: getUserName,
                     setUser: setUser,

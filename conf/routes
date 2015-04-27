@@ -227,6 +227,7 @@ GET           /settings/hostname                                    controllers.
 GET           /settings/durations                                   controllers.SettingsController.getExamDurations()
 GET           /settings/gradescale                                  controllers.SettingsController.isExamGradeScaleOverridable()
 GET           /settings/enrolmentPermissionCheck                    controllers.SettingsController.isEnrolmentPermissionCheckActive()
+GET           /settings/environment                                 controllers.SettingsController.isProd()
 
 ################# Statistics interface ##################
 

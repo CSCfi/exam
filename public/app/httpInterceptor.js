@@ -58,10 +58,6 @@
                                 $rootScope.$broadcast('upcomingExam');
                             }
 
-                            else if (!sessionService.getUser() && !sessionService.isLoggingIn()) {
-                                $location.path('/login');
-                            }
-
                             return response;
                         },
                         'responseError': function (response) {
