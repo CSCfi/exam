@@ -5,11 +5,16 @@
             'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
             function (dialogs, $q, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
 
+                var step = 100;
+
                 $scope.pageSize = 25;
                 $scope.courses = [];
                 $scope.exams = [];
                 $scope.tags = [];
                 $scope.filteredQuestions = [];
+                $scope.visibleQuestions = [];
+                $scope.maxVisible = step;
+                $scope.moreQuestions = false;
 
                 $scope.applyFreeSearchFilter = function () {
                     if ($scope.selected) {
@@ -20,12 +25,29 @@
                     } else {
                         $scope.filteredQuestions = $scope.questions;
                     }
+                    limitQuestions();
+                };
+
+                $scope.showMore = function () {
+                    $scope.maxVisible = $scope.maxVisible + step;
+                    limitQuestions();
+                };
+
+                var limitQuestions = function () {
+                    if($scope.filteredQuestions && $scope.filteredQuestions.length > $scope.maxVisible) {
+                        $scope.moreQuestions = true;
+                        var i = 0;
+                        $scope.visibleQuestions = $scope.filteredQuestions.filter(function(question){
+                            return ++i <= $scope.maxVisible ? true : false;
+                        });
+                    } else {
+                        $scope.moreQuestions = false;
+                        $scope.visibleQuestions = $scope.filteredQuestions;
+                    }
                 };
 
                 $scope.selectAll = function (selectAllCssClass, checkboxesCssClass) {
-
                     var isSelected = angular.element("." + selectAllCssClass).prop("checked");
-
                     angular.forEach(angular.element("." + checkboxesCssClass), function (input) {
                         angular.element(input).prop("checked", isSelected);
                     });
@@ -145,6 +167,7 @@
                         });
                         $scope.questions = $scope.filteredQuestions = data;
                         $scope.currentPage = 0;
+                        limitQuestions();
                     });
                 };
 

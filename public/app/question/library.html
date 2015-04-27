@@ -133,12 +133,13 @@
                     </div>
                 </div>
                 <div style="max-width:100%;">
+                    <div ng-if="moreQuestions" class="top-margin-1 sitnet-text-theme" style="text-align: center;">{{'sitnet_show_first' | translate }} {{maxVisible}} {{'sitnet_show_questions' | translate }}</div>
                     <ul class="questions-wrapper"><!-- list-group results -->
-                        <li style="width:5%;" draggable="filteredQuestions" draggable-target=".sortable" class="drag-all-wrap">
+                        <li style="width:5%;" draggable="visibleQuestions" draggable-target=".sortable" class="drag-all-wrap">
                             <span class="vertical-text" ng-init="verticalText('vertical-text')">{{'sitnet_add_all' | translate}}</span>
                         </li>
                         <li class="question-list-wrapper">
-                            <div class="library-question-header-inactive" ng-repeat="question in filteredQuestions"
+                            <div class="library-question-header-inactive" ng-repeat="question in visibleQuestions"
                                 draggable="question" draggable-target=".sortable">
                                 <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
                                 </div>
@@ -148,6 +149,10 @@
                             </div>
                         </li>
                     </ul>
+                    <div ng-if="moreQuestions" style="text-align: center;">
+                        <hr style="border-top:1px solid rgba(0,0,0,0.05)"/>
+                        <a ng-click="showMore();" class="pointer sitnet-text-theme">{{'sitnet_show_more' | translate }}</a>
+                    </div>
                 </div>
             </div>
         </div>
