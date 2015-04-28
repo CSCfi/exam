@@ -6,7 +6,7 @@ import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -14,7 +14,7 @@ public class ExamMachine extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

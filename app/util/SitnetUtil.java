@@ -20,7 +20,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +74,7 @@ public class SitnetUtil {
         User user = UserController.getLoggedUser();
         if (object.getCreator() == null) {
             object.setCreator(user);
-            object.setCreated(new Date());
+            object.setCreated(DateTime.now().toDate());
         }
         return object;
     }
@@ -83,7 +82,7 @@ public class SitnetUtil {
     public static SitnetModel setModifier(SitnetModel object) {
         User user = UserController.getLoggedUser();
         object.setModifier(user);
-        object.setModified(new Date());
+        object.setModified(DateTime.now().toDate());
         return object;
     }
 
