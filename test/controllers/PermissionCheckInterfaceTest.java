@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletHandler;
 import org.joda.time.DateTime;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,6 +30,8 @@ import static play.test.Helpers.status;
 
 public class PermissionCheckInterfaceTest extends IntegrationTestCase {
 
+    private static Server server;
+
     public static class CourseInfoServlet extends HttpServlet {
 
         private File jsonFile = new File("test/resource/enrolments.json");
@@ -48,7 +51,7 @@ public class PermissionCheckInterfaceTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        Server server = new Server(31246);
+        server = new Server(31246);
         server.setStopAtShutdown(true);
         ServletHandler handler = new ServletHandler();
         handler.addServletWithMapping(CourseInfoServlet.class, "/enrolments");
@@ -68,6 +71,11 @@ public class PermissionCheckInterfaceTest extends IntegrationTestCase {
         exam.setExamActiveStartDate(DateTime.now().minusDays(1).toDate());
         exam.setExamActiveEndDate(DateTime.now().plusDays(1).toDate());
         exam.save();
+    }
+
+    @AfterClass
+    public static void shutdownServer() throws Exception {
+        server.stop();
     }
 
     @Test

@@ -222,10 +222,8 @@ public class StudentExamController extends SitnetController {
         }
     }
 
-    @Restrict({@Group("STUDENT")})
-    public static Result createExam(String hash, User user) throws SitnetException {
-
-        Exam prototype = Ebean.find(Exam.class)
+    private static Exam getProrotype(String hash) {
+        return Ebean.find(Exam.class)
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions")
                 .fetch("examSections.sectionQuestions.question")
@@ -234,8 +232,10 @@ public class StudentExamController extends SitnetController {
                 .eq("parent", null)
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
+    }
 
-        Exam possibleClone = Ebean.find(Exam.class)
+    private static Exam getPossibleClone(String hash) {
+        return Ebean.find(Exam.class)
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions")
                 .fetch("examSections.sectionQuestions.question")
@@ -244,90 +244,68 @@ public class StudentExamController extends SitnetController {
                 .ne("parent", null)
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
+    }
 
-        // no exam found for hash
-        if (prototype == null && possibleClone == null) {
-            return notFound();
+    private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
+        Exam studentExam = prototype.copy();
+        studentExam.setState(Exam.State.STUDENT_STARTED.toString());
+        studentExam.setCreator(user);
+        studentExam.setParent(prototype);
+        studentExam.generateHash();
+        studentExam.save();
+
+        enrolment.setExam(studentExam);
+        enrolment.save();
+
+        ExamParticipation examParticipation = new ExamParticipation();
+        examParticipation.setUser(user);
+        examParticipation.setExam(studentExam);
+        examParticipation.setStarted(DateTime.now().toDate());
+        examParticipation.save();
+        user.getParticipations().add(examParticipation);
+
+        studentExam.setCloned(true);
+        return studentExam;
+    }
+
+    private static ExamEnrolment getEnrolment(User user, Exam prototype) {
+        DateTime now = SitnetUtil.adjustDST(DateTime.now());
+        return Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
+                .where()
+                .eq("user.id", user.getId())
+                .eq("exam.id", prototype.getId())
+                .le("reservation.startAt", now.toDate())
+                .gt("reservation.endAt", now.toDate())
+                .findUnique();
+    }
+
+    private static Result checkEnrolmentOK(ExamEnrolment enrolment) {
+        // If this is null, it means someone is either trying to access an exam by wrong hash
+        // or the reservation is not in effect right now.
+        if (enrolment == null) {
+            return forbidden("sitnet_reservation_not_found");
         }
-
-        // exam has been started
-        if (possibleClone != null) {
-            String state = possibleClone.getState();
-            // sanity check
-            if (!state.equals(Exam.State.STUDENT_STARTED.toString())) {
-                return forbidden();
-            }
-        }
-
-        JsonContext jsonContext = Ebean.createJsonContext();
-        JsonWriteOptions options = new JsonWriteOptions();
-
-        // Create new exam for student
-        if (possibleClone == null) {
-            DateTime now = SitnetUtil.adjustDST(DateTime.now());
-            String clientIP = request().remoteAddress();
-
-            ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                    .fetch("reservation")
-                    .fetch("reservation.machine")
-                    .fetch("reservation.machine.room")
+        String clientIP = request().remoteAddress();
+        // Exam and enrolment found. Is student on the right machine?
+        if (enrolment.getReservation() == null) {
+            return forbidden("sitnet_reservation_not_found");
+        } else if (enrolment.getReservation().getMachine() == null) {
+            return forbidden("sitnet_reservation_machine_not_found");
+        } else if (!enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+            ExamRoom examRoom = Ebean.find(ExamRoom.class)
+                    .fetch("mailAddress")
                     .where()
-                    .eq("user.id", user.getId())
-                    .eq("exam.id", prototype.getId())
-                    .le("reservation.startAt", now.toDate())
-                    .gt("reservation.endAt", now.toDate())
+                    .eq("id", enrolment.getReservation().getMachine().getRoom().getId())
                     .findUnique();
-
-            // If this is null, it means someone is either trying to access an exam by wrong hash
-            // or the reservation is not in effect right now.
-            if (enrolment == null) {
-                return forbidden("sitnet_reservation_not_found");
-            }
-            // Exam and enrolment found. Is student on the right machine?
-            if (enrolment.getReservation() == null) {
-                return forbidden("sitnet_reservation_not_found");
-            } else if (enrolment.getReservation().getMachine() == null) {
-                return forbidden("sitnet_reservation_machine_not_found");
-            } else if (!enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
-                ExamRoom examRoom = Ebean.find(ExamRoom.class)
-                        .fetch("mailAddress")
-                        .where()
-                        .eq("id", enrolment.getReservation().getMachine().getRoom().getId())
-                        .findUnique();
-                String message = "sitnet_wrong_exam_machine " + examRoom.getName()
-                        + ", " + examRoom.getMailAddress().toString()
-                        + ", sitnet_exam_machine " + enrolment.getReservation().getMachine().getName();
-                return forbidden(message);
-            }
-
-            // We are good to go (reservation and enrolment OK)
-            Exam studentExam = prototype.copy();
-            studentExam.setState(Exam.State.STUDENT_STARTED.toString());
-            studentExam.setCreator(user);
-            studentExam.setParent(prototype);
-            studentExam.generateHash();
-            studentExam.save();
-
-            enrolment.setExam(studentExam);
-            enrolment.save();
-
-            ExamParticipation examParticipation = new ExamParticipation();
-            examParticipation.setUser(user);
-            examParticipation.setExam(studentExam);
-            examParticipation.setStarted(DateTime.now().toDate());
-            examParticipation.save();
-            user.getParticipations().add(examParticipation);
-
-            studentExam.setCloned(true);
-            setStudentExamContent(options);
-            return ok(jsonContext.toJsonString(studentExam, true, options)).as("application/json");
-
-        } else {
-            // Returning an already existing student exam
-            possibleClone.setCloned(false);
-            setStudentExamContent(options);
-            return ok(jsonContext.toJsonString(possibleClone, true, options)).as("application/json");
+            String message = "sitnet_wrong_exam_machine " + examRoom.getName()
+                    + ", " + examRoom.getMailAddress().toString()
+                    + ", sitnet_exam_machine " + enrolment.getReservation().getMachine().getName();
+            return forbidden(message);
         }
+        return null;
     }
 
     private static void setStudentExamContent(JsonWriteOptions options) {
@@ -357,8 +335,43 @@ public class StudentExamController extends SitnetController {
 
     @Restrict({@Group("STUDENT")})
     public static Result startExam(String hash) throws SitnetException {
-        User user = UserController.getLoggedUser();
-        return createExam(hash, user);
+        Exam prototype = getProrotype(hash);
+        Exam possibleClone = getPossibleClone(hash);
+        // no exam found for hash
+        if (prototype == null && possibleClone == null) {
+            return notFound();
+        }
+        // exam has been started
+        if (possibleClone != null) {
+            String state = possibleClone.getState();
+            // sanity check
+            if (!state.equals(Exam.State.STUDENT_STARTED.toString())) {
+                return forbidden();
+            }
+        }
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+
+        // Create new exam for student
+        if (possibleClone == null) {
+            User user = UserController.getLoggedUser();
+            ExamEnrolment enrolment = getEnrolment(user, prototype);
+            Result error = checkEnrolmentOK(enrolment);
+            if (error != null) {
+                return error;
+            }
+            // We are good to go (reservation and enrolment OK)
+            Exam studentExam = createNewExam(prototype, user, enrolment);
+            JsonWriteOptions options = new JsonWriteOptions();
+            setStudentExamContent(options);
+            return ok(jsonContext.toJsonString(studentExam, true, options)).as("application/json");
+        } else {
+            // Returning an already existing student exam
+            possibleClone.setCloned(false);
+            JsonWriteOptions options = new JsonWriteOptions();
+            setStudentExamContent(options);
+            return ok(jsonContext.toJsonString(possibleClone, true, options)).as("application/json");
+        }
     }
 
     @Restrict({@Group("STUDENT")})
@@ -570,6 +583,5 @@ public class StudentExamController extends SitnetController {
         options.setPathProperties("examLanguages", "code, name");
         return ok(Ebean.createJsonContext().toJsonString(exams, true, options)).as("application/json");
     }
-
 
 }

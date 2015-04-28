@@ -4,12 +4,24 @@ import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
 import models.*;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletHandler;
 import org.joda.time.DateTime;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import play.mvc.Result;
 import play.test.Helpers;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +37,40 @@ public class EnrollControllerTest extends IntegrationTestCase {
     private ExamEnrolment enrolment;
     private Reservation reservation;
     private ExamRoom room;
+
+    private static Server server;
+
+    public static class CourseInfoServlet extends HttpServlet {
+
+        private File jsonFile = new File("test/resource/enrolments.json");
+
+        @Override
+        protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+            response.setContentType("application/json");
+            response.setStatus(HttpServletResponse.SC_OK);
+            try (FileInputStream fis = new FileInputStream(jsonFile); ServletOutputStream sos = response.getOutputStream()) {
+                IOUtils.copy(fis, sos);
+                sos.flush();
+            } catch (IOException e) {
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            }
+        }
+    }
+
+    @BeforeClass
+    public static void startServer() throws Exception {
+        server = new Server(31246);
+        server.setStopAtShutdown(true);
+        ServletHandler handler = new ServletHandler();
+        handler.addServletWithMapping(CourseInfoServlet.class, "/enrolments");
+        server.setHandler(handler);
+        server.start();
+    }
+
+    @AfterClass
+    public static void shutdownServer() throws Exception {
+        server.stop();
+    }
 
     @Override
     @Before
