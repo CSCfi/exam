@@ -11,14 +11,19 @@ import models.ExamEnrolment;
 import models.Reservation;
 import models.User;
 import org.joda.time.DateTime;
-import play.mvc.Controller;
+import play.Logger;
+import play.libs.F;
 import play.mvc.Result;
 import util.SitnetUtil;
 
+import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-public class EnrollController extends Controller {
+public class EnrollController extends SitnetController {
+
+    private static final boolean PERM_CHECK_ACTIVE = SitnetUtil.isEnrolmentPermissionCheckActive();
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result enrollExamList(String code) {
@@ -120,9 +125,7 @@ public class EnrollController extends Controller {
         return ok();
     }
 
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public static Result createEnrolment(String code, Long id) {
-
+    private static Result doCreateEnrolmentResult(String code, Long id) {
         User user = UserController.getLoggedUser();
         Exam exam = Ebean.find(Exam.class)
                 .where()
@@ -139,7 +142,7 @@ public class EnrollController extends Controller {
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", user.getId())
-                // either exam ID matches OR (exam parent ID matches AND exam is started by student)
+                        // either exam ID matches OR (exam parent ID matches AND exam is started by student)
                 .disjunction()
                 .eq("exam.id", exam.getId())
                 .disjunction()
@@ -173,6 +176,40 @@ public class EnrollController extends Controller {
         }
         makeEnrolment(exam, user);
         return ok();
+    }
+
+    private static F.Promise<Result> doCreateEnrolment(final String code, final Long id) {
+        return  F.Promise.promise(new F.Function0<Result>() {
+            @Override
+            public Result apply() throws Throwable {
+                return doCreateEnrolmentResult(code, id);
+            }
+        });
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public static F.Promise<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
+        if (!PERM_CHECK_ACTIVE) {
+            return doCreateEnrolment(code, id);
+        }
+        F.Promise<Collection<String>> promise = Interfaces.getPermittedCourses(UserController.getLoggedUser());
+        return promise.map(new F.Function<Collection<String>, Result>() {
+            @Override
+            public Result apply(Collection<String> codes) throws Throwable {
+                if (codes.contains(code)) {
+                    return doCreateEnrolmentResult(code, id);
+                } else {
+                    Logger.warn("Attempt to enroll for a course without permission from {}", UserController.getLoggedUser().toString());
+                    return forbidden("sitnet_error_access_forbidden");
+                }
+            }
+        }).recover(new F.Function<Throwable, Result>() {
+            @Override
+            public Result apply(Throwable throwable) throws Throwable {
+                return internalServerError(throwable.getMessage());
+            }
+        });
+
     }
 
 }

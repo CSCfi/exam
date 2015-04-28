@@ -15,15 +15,6 @@ import java.util.List;
 
 public class CourseInfoController extends SitnetController {
 
-    private static F.Promise<Result> wrapAsPromise(final Result result) {
-        return F.Promise.promise(new F.Function0<Result>() {
-            @Override
-            public Result apply() throws Throwable {
-                return result;
-            }
-        });
-    }
-
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static F.Promise<Result> insertCourseFromInterface(String code) throws MalformedURLException {
         if (code.isEmpty()) {
