@@ -125,7 +125,7 @@ public class EnrollController extends SitnetController {
         return ok();
     }
 
-    private static Result doCreateEnrolmentResult(String code, Long id) {
+    private static Result doCreateEnrolment(String code, Long id) {
         User user = UserController.getLoggedUser();
         Exam exam = Ebean.find(Exam.class)
                 .where()
@@ -178,26 +178,17 @@ public class EnrollController extends SitnetController {
         return ok();
     }
 
-    private static F.Promise<Result> doCreateEnrolment(final String code, final Long id) {
-        return  F.Promise.promise(new F.Function0<Result>() {
-            @Override
-            public Result apply() throws Throwable {
-                return doCreateEnrolmentResult(code, id);
-            }
-        });
-    }
-
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static F.Promise<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
         if (!PERM_CHECK_ACTIVE) {
-            return doCreateEnrolment(code, id);
+            return wrapAsPromise(doCreateEnrolment(code, id));
         }
         F.Promise<Collection<String>> promise = Interfaces.getPermittedCourses(UserController.getLoggedUser());
         return promise.map(new F.Function<Collection<String>, Result>() {
             @Override
             public Result apply(Collection<String> codes) throws Throwable {
                 if (codes.contains(code)) {
-                    return doCreateEnrolmentResult(code, id);
+                    return doCreateEnrolment(code, id);
                 } else {
                     Logger.warn("Attempt to enroll for a course without permission from {}", UserController.getLoggedUser().toString());
                     return forbidden("sitnet_error_access_forbidden");
@@ -209,7 +200,6 @@ public class EnrollController extends SitnetController {
                 return internalServerError(throwable.getMessage());
             }
         });
-
     }
 
 }

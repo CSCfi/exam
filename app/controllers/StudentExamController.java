@@ -32,37 +32,17 @@ public class StudentExamController extends SitnetController {
 
     private static final boolean PERM_CHECK_ACTIVE = SitnetUtil.isEnrolmentPermissionCheckActive();
 
-    private static F.Promise<Result> listExams(final F.Option<String> filter, final Collection<String> courseCodes) {
-        F.Promise<String> result = F.Promise.promise(new F.Function0<String>() {
-            @Override
-            public String apply() throws Throwable {
-                return listExamsAsJson(filter, courseCodes);
-            }
-        });
-        return result.map(new F.Function<String, Result>() {
-            @Override
-            public Result apply(String s) throws Throwable {
-                return ok(s).as("application/json");
-            }
-        });
-    }
 
     @Restrict({@Group("STUDENT")})
     public static F.Promise<Result> listAvailableExams(final F.Option<String> filter) throws MalformedURLException {
         if (!PERM_CHECK_ACTIVE) {
-            return listExams(filter, Collections.<String>emptyList());
+            return wrapAsPromise(listExams(filter, Collections.<String>emptyList()));
         }
         F.Promise<Collection<String>> promise = Interfaces.getPermittedCourses(UserController.getLoggedUser());
-        F.Promise<String> result = promise.map(new F.Function<Collection<String>, String>() {
+        return promise.map(new F.Function<Collection<String>, Result>() {
             @Override
-            public String apply(Collection<String> codes) throws Throwable {
-                return listExamsAsJson(filter, codes);
-            }
-        });
-        return result.map(new F.Function<String, Result>() {
-            @Override
-            public Result apply(String s) throws Throwable {
-                return ok(s).as("application/json");
+            public Result apply(Collection<String> codes) throws Throwable {
+                return listExams(filter, codes);
             }
         }).recover(new F.Function<Throwable, Result>() {
             @Override
@@ -534,7 +514,7 @@ public class StudentExamController extends SitnetController {
         }
     }
 
-    private static String listExamsAsJson(F.Option<String> filter, Collection<String> courseCodes) {
+    private static Result listExams(F.Option<String> filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("examOwners")
@@ -588,7 +568,7 @@ public class StudentExamController extends SitnetController {
         options.setPathProperties("examOwners", "firstName, lastName");
         options.setPathProperties("creator", "firstName, lastName, organization");
         options.setPathProperties("examLanguages", "code, name");
-        return Ebean.createJsonContext().toJsonString(exams, true, options);
+        return ok(Ebean.createJsonContext().toJsonString(exams, true, options)).as("application/json");
     }
 
 
