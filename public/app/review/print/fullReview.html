@@ -9,11 +9,8 @@
     $('#vmenu').hide();
     $('#mainView').css("margin", "15px");
     $('#mainView').css("max-width", "1000px");
-    $(function(){
-       window.print();
-    });
 </script>
-<div id="exam-print">
+<div id="exam-print" ng-init="init();">
     <div class="main-header-row col-md-12">
         <span class="col-md-12">{{examToBeReviewed.course.code}} - {{examToBeReviewed.name}}, {{examToBeReviewed.course.credits}} op</span>
     </div>

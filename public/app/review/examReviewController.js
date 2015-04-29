@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamReviewController', ['dialogs', '$rootScope', '$scope', 'sessionService', 'examService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
-            function (dialogs, $rootScope, $scope, sessionService, examService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
+        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService', 'examService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
+            function (dialogs, $document, $rootScope, $scope, sessionService, examService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
 
                 $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
                 $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
@@ -14,6 +14,12 @@
 
                 $scope.printExam = function() {
                     window.open("/#/print/exam/" + $scope.examToBeReviewed.id, "_blank");
+                };
+
+                $scope.init = function() {
+                    $document.ready(function(){
+                        window.print();
+                    });
                 };
 
                 $scope.user = sessionService.getUser();
