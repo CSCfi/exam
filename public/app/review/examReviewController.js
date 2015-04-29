@@ -51,7 +51,13 @@
                 };
 
                 $scope.setGrade = function (grade_id) {
-                    $scope.selectedGrade = $scope.examToBeReviewed.grade.id = grade_id;
+                    if(grade_id) {
+                        $scope.examToBeReviewed.grade = {id: grade_id};
+                        $scope.selectedGrade = $scope.examToBeReviewed.grade.id;
+                    } else {
+                        $scope.selectedGrade = '';
+                        $scope.examToBeReviewed.grade = undefined;
+                    }
                 };
 
                 $scope.checkCreditType = function (creditType) {
@@ -499,7 +505,6 @@
                                 toastr.info($translate("sitnet_comment_added"));
                             }
                             $scope.examToBeReviewed.examFeedback = comment;
-                            $scope.startReview();
                         }, function (error) {
                             toastr.error(error.data);
                         });

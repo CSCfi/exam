@@ -541,14 +541,14 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
 
     @Transient
     public boolean isCreatedBy(User user) {
-        return creator != null && creator.getId().equals(user.getId());
+        return creator != null && creator.getId() == user.getId();
     }
 
     @Transient
     public boolean isInspectedBy(User user) {
         Exam examToCheck = parent == null ? this : parent;
         for (ExamInspection inspection : examToCheck.examInspections) {
-            if (inspection.getUser().equals(user)) {
+            if (inspection.getUser().getId() == user.getId()) {
                 return true;
             }
         }
@@ -559,7 +559,7 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
     public boolean isOwnedBy(User user) {
         Exam examToCheck = parent == null ? this : parent;
         for (User owner : examToCheck.examOwners) {
-            if (owner.equals(user)) {
+            if (owner.getId() == user.getId()) {
                 return true;
             }
         }

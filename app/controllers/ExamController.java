@@ -1006,7 +1006,20 @@ public class ExamController extends SitnetController {
             ExamSection section = Ebean.find(ExamSection.class, sid);
             exam.getExamSections().remove(section);
             exam.save();
+
+            // clear parent id from children
+            if(section.getSectionQuestions() != null && section.getSectionQuestions().size() > 0) {
+                for (ExamSectionQuestion examSectionQuestion : section.getSectionQuestions()) {
+                    if(examSectionQuestion.getQuestion().getChildren() != null && examSectionQuestion.getQuestion().getChildren().size() > 0) {
+                        for(AbstractQuestion abstractQuestion : examSectionQuestion.getQuestion().getChildren()) {
+                            abstractQuestion.setParent(null);
+                            abstractQuestion.update();
+                        }
+                    }
+                }
+            }
             section.delete();
+
             return ok();
         } else {
             return forbidden("sitnet_error_access_forbidden");

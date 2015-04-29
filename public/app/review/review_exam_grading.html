@@ -139,7 +139,7 @@
                             ng-change="setLanguage(selectedLanguage)" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
                         <option ng-repeat="lang in languages" value="{{lang.name}}"
-                                ng-selected="{{lang.name === selectedLanguage}}">{{lang.name}}
+                                ng-selected="lang.name === selectedLanguage">{{lang.name}}
                         </option>
                     </select>
                 </div>
