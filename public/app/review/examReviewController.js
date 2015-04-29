@@ -138,6 +138,7 @@
                                 $scope.selectedGrade = exam.grade.id;
                             } else {
                                 $scope.selectedGrade = '';
+                                $scope.examToBeReviewed.grade = {};
                             }
                         }
 
@@ -274,7 +275,7 @@
                             }
                         );
                         ExamRes.examEnrolments.query({eid: $routeParams.id}, function (enrolments) {
-                            if (enrolments.length > 0) {
+                            if (enrolments.length > 1) {
                                 console.log("WARNING: found several enrolments for a student exam!");
                             }
                             $scope.enrolment = enrolments[0];
