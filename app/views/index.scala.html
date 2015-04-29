@@ -27,15 +27,15 @@
         <meta name="msapplication-TileColor" content="#000000">
         <meta name="msapplication-TileImage" content="images//mstile-144x144.png">
 
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/vendor/bootstrap.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/vendor/font-awesome.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/vendor/toastr.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/vendor/fullcalendar.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/vendor/multiselect-style.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/vendor/select2/select2.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/vendor/dialogs.min.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/bootstrap.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/font-awesome.min.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/toastr.min.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/fullcalendar.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/multiselect-style.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/select2/select2.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/vendor/dialogs.min.css")">
         <!--  style -->
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="stylesheet" media="all" href="@routes.Assets.at("stylesheets/main.css")">
 
         <!-- vendor -->
         <script src="@routes.Assets.at("components/vendor/jquery.min.js")" type="text/javascript"></script>
@@ -232,7 +232,7 @@
                 </div>
             </div>
             @*App content*@
-            <div class="container-fluid" ng-class="examStarted ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
+            <div id="mainView" class="container-fluid" ng-class="examStarted ? '' : minimizeNavigation ? 'vmenu-off' : 'vmenu-on'">
                 <div ng-view />
             </div>
         </div>
