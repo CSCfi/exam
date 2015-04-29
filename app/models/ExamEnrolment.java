@@ -5,7 +5,6 @@ import play.db.ebean.Model;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Date;
 
 
@@ -14,7 +13,7 @@ public class ExamEnrolment extends Model implements Comparable<ExamEnrolment> {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

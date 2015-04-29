@@ -74,8 +74,8 @@ public class Interfaces extends SitnetController {
                 } else if (root.has("data")) {
                     Set<String> results = new HashSet<>();
                     for (JsonNode course : root.get("data")) {
-                        if (course.has("code")) {
-                            results.add(course.get("code").asText());
+                        if (course.has("course_code")) {
+                            results.add(course.get("course_code").asText());
                         } else {
                             Logger.warn("Unexpected content {}", course.asText());
                         }

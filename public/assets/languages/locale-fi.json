@@ -593,7 +593,9 @@
   "sitnet_question_owner_changed": "Kysymyksen omistaja vaihdettu",
   "sitnet_update_failed": "Päivitys epäonnistui",
   "sitnet_change_owner": "Vaihda omistaja",
-  "sitnet_show_first": "Näytetään ensimmäiset", "sitnet_show_questions": "kysymystä",
+  "sitnet_show_first": "Näytetään ensimmäiset",
+  "sitnet_show_questions": "kysymystä",
   "sitnet_show_more": "Näytä lisää",
+  "sitnet_exam_search_description": "Voit hakea tenttejä opintojakson nimen ja koodin tai tentaattorin nimen mukaan",
   "sitnet_print": "Tulosta"
 }

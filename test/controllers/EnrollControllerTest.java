@@ -3,13 +3,20 @@ package controllers;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
+import helpers.RemoteServerHelper;
 import models.*;
+import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import play.mvc.Result;
 import play.test.Helpers;
 
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +32,26 @@ public class EnrollControllerTest extends IntegrationTestCase {
     private ExamEnrolment enrolment;
     private Reservation reservation;
     private ExamRoom room;
+
+    private static Server server;
+
+    public static class CourseInfoServlet extends HttpServlet {
+
+        @Override
+        protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+            RemoteServerHelper.writeResponseFromFile(response, "test/resource/enrolments.json");
+        }
+    }
+
+    @BeforeClass
+    public static void startServer() throws Exception {
+        server = RemoteServerHelper.createAndStartServer(31246, CourseInfoServlet.class, "/enrolments");
+    }
+
+    @AfterClass
+    public static void shutdownServer() throws Exception {
+        RemoteServerHelper.shutdownServer(server);
+    }
 
     @Override
     @Before

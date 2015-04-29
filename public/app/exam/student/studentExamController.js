@@ -193,7 +193,9 @@
                 };
 
                 $scope.setActiveSection = function (sectionName) {
-
+                    if ($scope.activeSection && !$scope.guide) {
+                        saveAllEssaysOfSection($scope.activeSection);
+                    }
                     if (sectionName !== "guide" || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === "guide")) {
 
                         // next
@@ -217,8 +219,6 @@
                             $scope.previousButton = false;
                             $scope.previousButtonText = "";
                         }
-
-
                     } else {
                         $scope.guide = true;
                         $scope.nextButton = true;
@@ -268,21 +268,32 @@
                     }
                 };
 
+                var saveAllEssaysOfSection = function (section) {
+                    var promises = [];
+                    angular.forEach(section.sectionQuestions, function (sectionQuestion) {
+                        var question = sectionQuestion.question;
+                        if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
+                            var params = {
+                                hash: $scope.doexam.hash,
+                                qid: question.id
+                            };
+                            var msg = {};
+                            msg.answer = question.answer.answer;
+                            question.autosaved = new Date();
+                            promises.push(StudentExamRes.essayAnswer.saveEssay(params, msg));
+                        }
+                    });
+                    var deferred = $q.defer();
+                    $q.all(promises).then(function () {
+                        deferred.resolve();
+                    });
+                    return deferred.promise;
+                };
+
                 var saveAllEssays = function () {
                     var promises = [];
                     angular.forEach($scope.doexam.examSections, function (section) {
-                        angular.forEach(section.sectionQuestions, function (sectionQuestion) {
-                            var question = sectionQuestion.question;
-                            if (question.type === "EssayQuestion" && question.answer && question.answer.answer.length > 0) {
-                                var params = {
-                                    hash: $scope.doexam.hash,
-                                    qid: question.id
-                                };
-                                var msg = {};
-                                msg.answer = question.answer.answer;
-                                promises.push(StudentExamRes.essayAnswer.saveEssay(params, msg));
-                            }
-                        });
+                        promises.push(saveAllEssaysOfSection(section))
                     });
                     var deferred = $q.defer();
                     $q.all(promises).then(function () {

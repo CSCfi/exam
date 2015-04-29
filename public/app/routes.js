@@ -9,7 +9,6 @@
             $routeProvider.when('/enroll/:code', { templateUrl: tmpl + 'enrolment/enroll.html', controller: 'EnrollController'});
             $routeProvider.when('/enroll/:code/exam/:id', { templateUrl: tmpl + 'enrolment/enrollExam.html', controller: 'EnrollController'});
 
-
             /* main navigation */
             $routeProvider.when('/', { templateUrl: tmpl + 'common/home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});

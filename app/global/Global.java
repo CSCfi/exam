@@ -8,10 +8,7 @@ import com.typesafe.config.ConfigFactory;
 import exceptions.AuthenticateException;
 import exceptions.MalformedDataException;
 import models.*;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeConstants;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
+import org.joda.time.*;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Application;
 import play.GlobalSettings;
@@ -70,6 +67,7 @@ public class Global extends GlobalSettings {
 
         System.setProperty("user.timezone", "UTC");
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        DateTimeZone.setDefault(DateTimeZone.forID("UTC"));
         reviewRunner = Akka.system().scheduler().schedule(
                 Duration.create(SITNET_EXAM_REVIEWER_START_AFTER_MINUTES, TimeUnit.MINUTES),
                 Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.MINUTES),

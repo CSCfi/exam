@@ -4,7 +4,6 @@ import play.data.format.Formats.DateTime;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Date;
 
 @MappedSuperclass
@@ -16,7 +15,7 @@ public abstract class SitnetModel extends Model {
 	
 	@Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 	
     @Temporal(TemporalType.TIMESTAMP)
     @DateTime(pattern="yyyy/MM/dd")

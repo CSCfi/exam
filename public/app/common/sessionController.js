@@ -22,7 +22,8 @@
                         $rootScope.$broadcast('userUpdated');
                         toastr.success($translate("sitnet_logout_success"));
                         if (data && data.logoutUrl) {
-                            window.location.href = data.logoutUrl;
+                            var returnUrl = window.location.protocol + "//" + window.location.host + "/Shibboleth.sso/Logout";
+                            window.location.href = data.logoutUrl + "?return=" + returnUrl;
                         } else if ($scope.env.isProd) {
                             $scope.loginTemplatePath = SITNET_CONF.TEMPLATES_PATH + "common/logout.html";
                         } else {

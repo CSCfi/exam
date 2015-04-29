@@ -571,7 +571,7 @@
   "sitnet_at_room": "at room",
   "sitnet_at_machine": "at machine",
   "sitnet_you_have_ongoing_exam_at_location": "You have ongoing exam at location",
-  "sitnet_exam_search": "Sök på tenter",
+  "sitnet_exam_search": "Sök efter tenter",
   "sitnet_question_status_answered": "Answered",
   "sitnet_questions_total": "Questions total",
   "sitnet_student_enrolment_info": "Tilläggsinformation för lärarna",
@@ -593,7 +593,9 @@
   "sitnet_question_owner_changed": "Question owner changed",
   "sitnet_update_failed": "Päivitys epäonnistui",
   "sitnet_change_owner": "Vaihda omistaja",
-  "sitnet_show_first": "First", "sitnet_show_questions": "questions visible",
+  "sitnet_show_first": "First",
+  "sitnet_show_questions": "questions visible",
   "sitnet_show_more": "Show more",
+  "sitnet_exam_search_description": "Du kan sök efter tenter med kurskod, kursnamn eller lärarens namn",
   "sitnet_print": "Print"
 }

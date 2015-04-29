@@ -4,7 +4,7 @@ import be.objectify.deadbolt.core.models.Role;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 public class SitnetRole extends Model implements Role {
@@ -13,7 +13,7 @@ public class SitnetRole extends Model implements Role {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
