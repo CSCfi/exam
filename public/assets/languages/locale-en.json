@@ -596,5 +596,6 @@
   "sitnet_show_first": "First",
   "sitnet_show_questions": "questions visible",
   "sitnet_show_more": "Show more",
-  "sitnet_exam_search_description": "You can search for exams either by course name, course code or teacher name"
+  "sitnet_exam_search_description": "You can search for exams either by course name, course code or teacher name",
+  "sitnet_print": "Print"
 }

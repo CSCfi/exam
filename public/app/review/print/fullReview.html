@@ -1,0 +1,270 @@
+<!-- Refresh MathJax syntax some time after page was rendered -->
+<script type="text/javascript">
+    $(document).ready(function () {
+        setTimeout(function () {
+            MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+        }, 500);
+    });
+
+    $('#vmenu').hide();
+    $('#mainView').css("margin", "15px");
+    $('#mainView').css("max-width", "1000px");
+</script>
+<div id="exam-print" ng-init="init();">
+    <div class="main-header-row col-md-12">
+        <span class="col-md-12">{{examToBeReviewed.course.code}} - {{examToBeReviewed.name}}, {{examToBeReviewed.course.credits}} op</span>
+    </div>
+
+    <!-- General Information -->
+    <div class="col-md-12 top-margin-1">
+        <div class="sub-header-row col-md-12">
+            {{'sitnet_student_and_exam_info' | translate}}:
+        </div>
+
+        <div class="sub-content-row">
+            <div class="col-md-2">{{'sitnet_name' | translate}}:</div>
+            <div class="col-md-4">{{userInfo.user.firstName}} {{userInfo.user.lastName}}</div>
+            <div class="col-md-2">{{'sitnet_email' | translate}}:</div>
+            <div class="col-md-4">{{userInfo.user.email}}&nbsp;</div>
+        </div>
+        <div class="sub-content-row">
+            <div class="col-md-2">{{'sitnet_time_of_exam_participation' | translate}}:</div>
+            <div class="col-md-4">{{userInfo.started | date:'dd.MM.yyyy HH:mm'}} - {{userInfo.ended | date:'dd.MM.yyyy HH:mm'}}</div>
+            <div class="col-md-2">{{'sitnet_exam_duration' | translate}}:</div>
+            <div class="col-md-4">{{userInfo.duration}}&nbsp;</div>
+        </div>
+        <div class="sub-content-row" ng-show="enrolment && enrolment.information">
+            <div class="col-md-2">{{'sitnet_student_enrolment_info' | translate }}:</div>
+            <div class="col-md-10">{{enrolment.information}}&nbsp;</div>
+        </div>
+        <div class="sub-content-row">
+            <div class="col-md-2">{{'sitnet_examination_location' | translate}}:</div>
+            <div class="col-md-4" ng-if="reservation && reservation.room">{{reservation.room.name}} ({{reservation.room.roomCode}})</div>
+            <div class="col-md-4" ng-if="!reservation || !reservation.room">N/A</div>
+            <div class="col-md-2">{{'sitnet_exam_machine' | translate}}:</div>
+            <div class="col-md-4" ng-if="reservation">{{reservation.name}}</div>
+            <div class="col-md-4" ng-if="!reservation">N/A</div>
+        </div>
+
+        <div class="sub-header-row col-md-12">
+            {{'sitnet_previous_exam_participations' | translate}}:
+        </div>
+        <div class="sub-content-row">
+            <p ng-hide="previousParticipations" class="col-md-1 col-md-offset-1">N/A</p>
+            <div ng-repeat="participation in previousParticipations">
+                <div class="col-md-2">{{participation.started | date:'dd.MM.yyyy' }}</div>
+                <div class="col-md-4">{{'sitnet_exam_state' | translate}}:&nbsp;&nbsp;&nbsp;
+                        {{'sitnet_exam_status_' + participation.exam.state | lowercase | translate}}
+                </div>
+                <div class="col-md-6">
+                    {{'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;{{ translateGrade(participation.exam) }}
+                </div>
+            </div>
+        </div>
+        <div class="sub-header-row col-md-12">
+            {{'sitnet_exam_instruction' | translate}}:
+        </div>
+        <div class="sub-content-row">
+            <p class="col-md-12" ng-hide="examToBeReviewed.instruction">N/A</p>
+            <div class="col-md-12" ng-show="examToBeReviewed.instruction">
+                <div ng-hide="examToBeReviewed.instruction" mathjax ng-bind-html="examToBeReviewed.instruction"></div>&nbsp;
+            </div>
+        </div>
+        <div class="sub-header-row col-md-12">
+            {{'sitnet_exam_attacment' | translate}}:
+        </div>
+        <div class="detail-row">
+            <p class="col-md-12" ng-hide="examToBeReviewed.attachment">N/A</p>
+            <div class="col-md-12" ng-show="examToBeReviewed.attachment">
+                {{examToBeReviewed.attachment.fileName}}
+            </div>
+        </div>
+    </div>
+
+    <div class="sub-header-row col-md-12">
+         <span class="col-md-12">{{'sitnet_questions' | translate}}:</span>
+    </div>
+
+    <!-- Sections -->
+    <div class="top-margin-1 col-md-12" ng-repeat="section in examToBeReviewed.examSections">
+        <div class="sub-header-row col-md-12" style="border-left:5px solid #CCC;">{{$index + 1}}.&nbsp; &nbsp;{{section.name}}</div>
+        <div class="sub-content-row col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions">
+
+            <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'">
+                <div class="top-padding-2 lightBorderBox">
+                    <div class="sub-header-row col-md-3 newRow ">{{ 'sitnet_question' | translate }}:</div>
+                    <div class="sub-content-row col-md-9 "><span mathjax ng-bind-html="sectionQuestion.question.question"></span></div>
+                    <!-- question attachment -->
+                    <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
+                    <div class="sub-content-row col-md-9">
+                        <span ng-hide="sectionQuestion.question.attachment">N/A</span>
+                        <span ng-show="sectionQuestion.question.attachment">{{sectionQuestion.question.attachment.fileName}}</span>
+                    </div>
+                    <!-- answer -->
+                    <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+                    <div class="sub-content-row col-md-9">
+                        <div ng-repeat="option in sectionQuestion.question.options">
+                            <span class="fa fa-stack">
+                                <i class="fa fa-stop-o fa-stack-2x"></i>
+                                <i class="fa fa-stack-1x" ng-class="option.option === sectionQuestion.question.answer.option.option ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                            </span>
+                            <span ng-class="option.correctOption ? 'bold' : ''" class="review-question-option-name">
+                                {{option.option}}
+                            </span>
+                        </div>
+                        &nbsp;
+                    </div>
+
+                    <!-- grade -->
+                    <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_word_points' | translate }}:</div>
+                    <div class="sub-content-row col-md-2 ">{{scoreMultipleChoiceAnswer(sectionQuestion)}} / {{sectionQuestion.question.maxScore}}</div>
+                </div>
+            </div>
+
+            <div ng-if="sectionQuestion.question.type === 'EssayQuestion'">
+                <div class="top-padding-2 lightBorderBox">
+                    <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
+                    <div class="sub-content-row col-md-9">
+                        <span mathjax ng-bind-html="sectionQuestion.question.question"></span>
+                    </div>
+
+                    <!-- question attachment -->
+                    <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
+                    <div class="sub-content-row col-md-9">
+                        <span ng-hide="sectionQuestion.question.attachment">N/A</span>
+                        <span ng-show="sectionQuestion.question.attachment">{{sectionQuestion.question.attachment.fileName}}&nbsp;</span>
+                    </div>
+
+                    <!-- question evaluation criteria -->
+                    <div class="sub-header-row col-md-3 newRow" ng-show="sectionQuestion.question.evaluationCriterias">
+                        {{ 'sitnet_exam_evaluation_criteria' | translate}}:
+                    </div>
+
+                    <div class="sub-content-row col-md-9" ng-show="sectionQuestion.question.evaluationCriterias">
+                        <div ng-bind-html="sectionQuestion.question.evaluationCriterias"></div>&nbsp;
+                    </div>
+
+                    <!-- question instructions -->
+                    <div class="sub-header-row col-md-3 newRow" ng-show="sectionQuestion.question.instruction">
+                        {{ 'sitnet_instructions' | translate}}:
+                    </div>
+                    <div class="sub-content-row col-md-9" ng-show="sectionQuestion.question.instruction">
+                        <div ng-bind-html="sectionQuestion.question.instruction"></div>&nbsp;
+                    </div>
+
+                    <!-- answer -->
+                    <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+                    <div class="sub-content-row col-md-9">
+                        <span mathjax ng-bind-html="sectionQuestion.question.answer.answer"></span>&nbsp;
+                    </div>
+
+                    <!-- answer attachment -->
+                    <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_attachment' | translate }}:</div>
+                    <div class="sub-content-row col-md-9">
+                        <div ng-hide="sectionQuestion.question.answer.attachment">N/A</div>
+                        <div ng-show="sectionQuestion.question.answer.attachment">
+                            {{sectionQuestion.question.answer.attachment.fileName}}
+                        </div>
+                    </div>
+
+                    <!-- answer length & recommended length-->
+                    <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_length' | translate}}:</div>
+                    <div class="sub-content-row col-md-9">
+                        {{ sectionQuestion.question.answer.answer | striphtml | wordcount }} {{'sitnet_words' | translate }},
+                        {{ 'sitnet_approximately' | translate }}
+                        {{ sectionQuestion.question.answer.answer | striphtml | charcount }} {{'sitnet_characters' | translate
+                        }}
+                    </div>
+                    <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_essay_length_recommendation' | translate}}:</div>
+                    <div class="sub-content-row col-md-9">{{ sectionQuestion.question.maxCharacters }}&nbsp;</div>
+
+                    <!-- grade -->
+                    <div class="sub-header-row col-md-3 newRow">
+                        <span ng-show="sectionQuestion.question.evaluationType === 'Points'">{{'sitnet_word_points' | translate}}:</span>
+                        <span ng-hide="sectionQuestion.question.evaluationType === 'Points'">{{'sitnet_comments' | translate}}:</span>
+                    </div>
+                    <div class="sub-content-row col-md-9">
+                        <span ng-show="sectionQuestion.question.evaluationType === 'Points'">
+                            <div ng-repeat="i in range(0, sectionQuestion.question.maxScore, 1)" ng-if="sectionQuestion.question.evaluatedScore == i">{{ i }} / {{sectionQuestion.question.maxScore}}</div>
+                        </span>
+                        <span ng-show="sectionQuestion.question.evaluationType === 'Select'">
+                            <div ng-if="sectionQuestion.question.evaluatedScore == 1">{{ 'sitnet_approved' | translate }}</div>
+                            <div ng-if="sectionQuestion.question.evaluatedScore == 0">{{ 'sitnet_rejected' | translate }}</div>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grading -->
+    <div class="col-md-12 top-padding-2">
+        <div class="col-md-12 top-padding-2">
+            <div ng-show="getExamMaxPossibleScore(examToBeReviewed) > 0">
+                <!-- Total score -->
+                <div class="sub-header-row col-md-3 newRow">{{'sitnet_total_score' | translate}}: </div>
+                <div class="sub-content-row col-md-9">
+                    {{getExamTotalScore(examToBeReviewed)}} / {{getExamMaxPossibleScore(examToBeReviewed) }}
+                </div>
+            </div>
+
+            <div ng-if="hasEssayQuestions">
+                <div class="sub-content-row col-md-3 newRow">{{ 'sitnet_approved' | translate }}:</div>
+                <div class="sub-content-row col-md-9">{{ acceptedEssays }}</div>
+            </div>
+
+            <div ng-if="hasEssayQuestions">
+                <div class="sub-content-row col-md-3 newRow">{{ 'sitnet_rejected' | translate }}:</div>
+                <div class="sub-content-row col-md-9">{{ rejectedEssays }}</div>
+            </div>
+
+            <div class="sub-header-row col-md-3 newRow">{{'sitnet_teachers_comment' | translate}}:</div>
+            <div class="sub-content-row col-md-9">
+                <div mathjax ng-bind-html="examToBeReviewed.examFeedback.comment"></div>&nbsp;
+            </div>
+            <div ng-show="(globalInspections.length > 1 || localInspections.length > 1) && !isReadOnly">
+                <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_owners' | translate }}:</div>
+                <div class="sub-content-row col-md-9">
+                    <div ng-if="examToBeReviewed.parent.examOwners.length > 0"
+                         ng-repeat="teacher in examToBeReviewed.parent.examOwners">
+                        {{teacher.firstName}} {{teacher.lastName}}
+                    </div>
+                    &nbsp;
+                </div>
+
+                <div class="sub-header-row col-md-3 newRow">{{'sitnet_exam_instructor' | translate}} ({{'sitnet_inspection_status' | translate}}):</div>
+                <div class="sub-content-row col-md-9">
+                    <div ng-repeat="inspection in localInspections" class="col-md-12 row">
+                        <span>
+                            {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                        </span>
+                        <span>
+                            <span ng-show="isLocalReady(inspection.user.id) === true">({{'sitnet_ready' | translate}})</span>
+                            <span ng-show="isLocalReady(inspection.user.id) === false">({{'sitnet_in_progress' | translate}})</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sub-header-row col-md-12">{{'sitnet_grading_info' | translate}}:</div>
+            <div class="sub-content-row col-md-3 newRow">{{'sitnet_exam_grade' | translate}}:</div>
+            <div class="sub-content-row col-md-9"><div ng-repeat="grade in examGrading" ng-if="selectedGrade === grade.id">{{ grade.name }}</div></div>
+
+            <div class="sub-content-row col-md-3 newRow">{{'sitnet_exam_choose_credit_type' | translate}}:</div>
+            <div class="sub-content-row col-md-9">
+                <div ng-repeat="examType in examTypes" ng-if="checkCreditType(examType)">{{examType.name}}</div>&nbsp;
+            </div>
+
+            <div class="sub-content-row col-md-3 newRow">{{'sitnet_exam_record_language' | translate}}:</div>
+            <div class="sub-content-row col-md-9">
+                <div ng-repeat="lang in languages" ng-if="lang.name === selectedLanguage">{{lang.name}}</div>&nbsp;
+            </div>
+
+            <div class="sub-content-row col-md-3 newRow">{{'sitnet_exam_credit' | translate}} (op):</div>
+            <div class="sub-content-row col-md-9">
+                {{examToBeReviewed.customCredit}}&nbsp;
+            </div>
+        </div>
+    </div>
+    <div class="bottom-padding-2">&nbsp;</div>
+</div>
