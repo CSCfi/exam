@@ -9,7 +9,8 @@
         <div class="col-md-4" ng-show="permissionCheck.active===false">
             <div class="form-group input-group">
                 <input ng-change="search()" ng-model="filter" type="text" class="form-control"
-                       placeholder="{{'sitnet_search' | translate }}">
+                       placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
+                       popover-trigger="mouseenter" popover="{{ 'sitnet_exam_search_description' | translate }}">
                 <div class="input-group-addon">
                     <i class="fa fa-search fa-fw"></i>
                 </div>
