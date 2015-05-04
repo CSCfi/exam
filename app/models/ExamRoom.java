@@ -50,6 +50,9 @@ public class ExamRoom extends Model {
     @JsonManagedReference
     private List<ExceptionWorkingHours> calendarExceptionEvents;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
+    private List<ExamStartingHour> examStartingHours;
+
     // Tentin siirtymäaika, oletuksena 5min, joka on pois tentin suoritusajasta, esim. 60min tentissä tenttiaikaa on 55min.
     private String transitionTime;
 
@@ -139,6 +142,14 @@ public class ExamRoom extends Model {
 
     public void setCalendarExceptionEvents(List<ExceptionWorkingHours> calendarExceptionEvents) {
         this.calendarExceptionEvents = calendarExceptionEvents;
+    }
+
+    public List<ExamStartingHour> getExamStartingHours() {
+        return examStartingHours;
+    }
+
+    public void setExamStartingHours(List<ExamStartingHour> examStartingHours) {
+        this.examStartingHours = examStartingHours;
     }
 
     public List<Accessibility> getAccessibility() {
@@ -320,8 +331,10 @@ public class ExamRoom extends Model {
 
     @Transient
     private Interval getInterval(LocalDate date, ExceptionWorkingHours exception) {
-        LocalTime start = new LocalTime(exception.getStartTime().getTime()).withSecondOfMinute(0).withMillisOfSecond(0);
-        LocalTime end = new LocalTime(exception.getEndTime().getTime()).withSecondOfMinute(0).withMillisOfSecond(0);
+        LocalTime start = new LocalTime(exception.getStartTime().getTime()).withSecondOfMinute(0).withMillisOfSecond(0)
+                .plusMillis(exception.getStartTimeTimezoneOffset());
+        LocalTime end = new LocalTime(exception.getEndTime().getTime()).withSecondOfMinute(0).withMillisOfSecond(0)
+                .plusMillis(exception.getEndTimeTimezoneOffset());
         return new Interval(date.toDateTime(start), date.toDateTime(end));
     }
 
@@ -331,43 +344,56 @@ public class ExamRoom extends Model {
     }
 
     @Transient
-    private List<Interval> getDefaultWorkingHours(LocalDate date) {
+    public int getTimezoneOffset(LocalDate date) {
         String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
-        List<Interval> intervals = new ArrayList<>();
         for (DefaultWorkingHours defaultHour : defaultWorkingHours) {
             if (defaultHour.getDay().equalsIgnoreCase(day)) {
-                LocalTime start = new LocalTime(defaultHour.getStartTime().getTime());
-                LocalTime end = new LocalTime(defaultHour.getEndTime().getTime());
-                Interval interval = new Interval(date.toDateTime(start), date.toDateTime(end));
-                intervals.add(interval);
+                return defaultHour.getTimezoneOffset();
             }
         }
-        return intervals;
+        return 0;
     }
 
     @Transient
-    public List<Interval> getWorkingHoursForDate(LocalDate date) {
-        List<Interval> workingHours = getDefaultWorkingHours(date);
+    private List<OpeningHours> getDefaultWorkingHours(LocalDate date) {
+        String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
+        List<OpeningHours> hours = new ArrayList<>();
+        for (DefaultWorkingHours defaultHour : defaultWorkingHours) {
+            if (defaultHour.getDay().equalsIgnoreCase(day)) {
+                LocalTime start = new LocalTime(defaultHour.getStartTime().getTime()).plusMillis(defaultHour.getTimezoneOffset());
+                LocalTime end = new LocalTime(defaultHour.getEndTime().getTime()).plusMillis(defaultHour.getTimezoneOffset());
+                Interval interval = new Interval(date.toDateTime(start), date.toDateTime(end));
+                hours.add(new OpeningHours(interval, defaultHour.getTimezoneOffset()));
+            }
+        }
+        return hours;
+    }
+
+    @Transient
+    public List<OpeningHours> getWorkingHoursForDate(LocalDate date) {
+        List<OpeningHours> workingHours = getDefaultWorkingHours(date);
         Interval exceptionEvent = getExceptionEvent(date);
-        List<Interval> availableHours = new ArrayList<>();
+        List<OpeningHours> availableHours = new ArrayList<>();
         if (exceptionEvent != null) {
-            for (Interval slot : workingHours) {
+            for (OpeningHours hours : workingHours) {
+                Interval slot = hours.getHours();
                 if (slot.overlaps(exceptionEvent)) {
                     if (slot.contains(exceptionEvent)) {
                         Interval first = new Interval(slot.getStart(), exceptionEvent.getStart());
                         if (first.toDurationMillis() > 0) {
-                            availableHours.add(first);
+                            availableHours.add(new OpeningHours(first, hours.getTimezoneOffset()));
                         }
                         Interval second = new Interval(exceptionEvent.getEnd(), slot.getEnd());
                         if (second.toDurationMillis() > 0) {
-                            availableHours.add(second);
+                            availableHours.add(new OpeningHours(second, hours.getTimezoneOffset()));
                         }
                     }
                     else if (slot.isBefore(exceptionEvent)) {
-                        availableHours.add(new Interval(slot.getStart(), exceptionEvent.getStart()));
+                        availableHours.add(new OpeningHours(new Interval(slot.getStart(),
+                                exceptionEvent.getStart()), hours.getTimezoneOffset()));
                     }
                     else if (slot.isAfter(exceptionEvent)) {
-                        availableHours.add(new Interval(exceptionEvent.getEnd(), slot.getEnd()));
+                        availableHours.add(new OpeningHours(new Interval(exceptionEvent.getEnd(), slot.getEnd()), hours.getTimezoneOffset()));
                     }
                 }
             }
@@ -375,5 +401,23 @@ public class ExamRoom extends Model {
             availableHours = workingHours;
         }
         return availableHours;
+    }
+
+    public final class OpeningHours {
+        private final Interval hours;
+        private final int timezoneOffset;
+
+        public OpeningHours(Interval interval, int timezoneOffset) {
+            this.hours = interval;
+            this.timezoneOffset = timezoneOffset;
+        }
+
+        public int getTimezoneOffset() {
+            return timezoneOffset;
+        }
+
+        public Interval getHours() {
+            return hours;
+        }
     }
 }

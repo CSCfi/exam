@@ -601,5 +601,9 @@
   "sitnet_remove_room_accessibility_info": "Remove accessibility info",
   "sitnet_accessibility_added": "Accessibility added",
   "sitnet_accessibility_updated": "Accessibility updated",
-  "sitnet_accessibility_removed": "Accessibility removed"
+  "sitnet_accessibility_removed": "Accessibility removed",
+  "sitnet_exam_starting_hours_updated": "Tentstarttider uppdaterade",
+  "sitnet_exam_starting_hours": "Tentstarttider",
+  "sitnet_add_remove_all": "Lägg till/radera alla",
+  "sitnet_minutes_on_the_hour": "Minuter efter hela timmar"
 }

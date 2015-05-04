@@ -1,45 +1,29 @@
-package models.calendar;
+package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import models.ExamRoom;
+import org.joda.time.LocalTime;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class DefaultWorkingHours extends Model {
-
-    public enum Day {
-        MONDAY,
-        TUESDAY,
-        WEDNESDAY,
-        THURSDAY,
-        FRIDAY,
-        SATURDAY,
-        SUNDAY
-    }
+public class ExamStartingHour extends Model implements Comparable<ExamStartingHour> {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
     protected Date ebeanTimestamp;
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Temporal(TemporalType.TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
-    private Date startTime;
-
-    @Temporal(TemporalType.TIME)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
-    private Date endTime;
+    protected Date startingHour;
 
     private int timezoneOffset;
-
-    private String day;
 
     @ManyToOne
     @JsonBackReference
@@ -61,28 +45,12 @@ public class DefaultWorkingHours extends Model {
         this.room = room;
     }
 
-    public Date getStartTime() {
-        return startTime;
+    public Date getStartingHour() {
+        return startingHour;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
-    public String getDay() {
-        return day;
-    }
-
-    public void setDay(String day) {
-        this.day = day;
+    public void setStartingHour(Date startingHour) {
+        this.startingHour = startingHour;
     }
 
     public int getTimezoneOffset() {
@@ -91,5 +59,11 @@ public class DefaultWorkingHours extends Model {
 
     public void setTimezoneOffset(int timezoneOffset) {
         this.timezoneOffset = timezoneOffset;
+    }
+
+    @Override
+    public int compareTo(ExamStartingHour o) {
+        return new LocalTime(startingHour).plusMillis(timezoneOffset).compareTo(
+                new LocalTime(o.startingHour).plusMillis(timezoneOffset));
     }
 }

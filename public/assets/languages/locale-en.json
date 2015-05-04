@@ -601,5 +601,9 @@
   "sitnet_remove_room_accessibility_info": "Remove accessibility info",
   "sitnet_accessibility_added": "Accessibility added",
   "sitnet_accessibility_updated": "Accessibility updated",
-  "sitnet_accessibility_removed": "Accessibility removed"
+  "sitnet_accessibility_removed": "Accessibility removed",
+  "sitnet_exam_starting_hours_updated": "Exam starting hours updated",
+  "sitnet_exam_starting_hours": "Exam starting hours",
+  "sitnet_add_remove_all": "Add/Remove all",
+  "sitnet_minutes_on_the_hour": "Minutes on the hour"
 }
