@@ -148,7 +148,22 @@ public class EmailComposer {
         String subject = Messages.get(lang, "email.machine.reservation.subject");
 
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
-        String teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
+        String teacherName = "";
+
+        if(exam.getExamOwners() != null && exam.getExamOwners().size() > 0) {
+            StringBuilder sb = new StringBuilder();
+            int i = 1;
+            for(User teacher : exam.getExamOwners()) {
+                sb.append(teacher.getFirstName()).append(" ").append(teacher.getLastName());
+                if(i != exam.getExamOwners().size()) {
+                    sb.append(", ");
+                }
+                i++;
+            }
+            teacherName = sb.toString();
+        } else {
+            teacherName = String.format("%s %s", exam.getCreator().getFirstName(), exam.getCreator().getLastName());
+        }
 
         DateTime startDate = adjustDST(reservation.getStartAt(), TZ);
         DateTime endDate = adjustDST(reservation.getEndAt(), TZ);
