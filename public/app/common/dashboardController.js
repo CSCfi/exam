@@ -47,8 +47,7 @@
                             toastr.error(error.data);
                         });
 
-                    }
-                    else if ($scope.user.isTeacher) {
+                    } else if ($scope.user.isTeacher) {
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/teacher/dashboard.html";
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
@@ -86,16 +85,33 @@
                 }
 
                 function setExamOwners(exam) {
-                    exam.examTeachers = [];
                     exam.teachersStr = "";
-                    angular.forEach(exam.examOwners, function(owner){
-                        if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
-                            exam.examTeachers.push(owner.firstName + " " + owner.lastName);
+
+                    if(exam.examOwners) {
+                        angular.forEach(exam.examOwners, function (owner) {
+                            if(owner.lastName &&  owner.lastName.length > 0) {
+                                exam.teachersStr += ", <b>" + owner.firstName + " " + owner.lastName + "</b>";
+                            }
+                        });
+                    }
+                    ExamRes.inspections.get({id: exam.id}, function (inspections) {
+
+                        if(inspections) {
+
+                            angular.forEach(inspections, function (inspection) {
+                                if (exam.teachersStr.indexOf("<b>" +inspection.user.firstName + " " + inspection.user.lastName + "</b>") === -1) {
+                                    exam.teachersStr += ", <span>" + inspection.user.firstName + " " + inspection.user.lastName + "</span>";
+                                }
+                            });
+                            if(exam.teachersStr.indexOf(",") === 0) {
+                                exam.teachersStr = exam.teachersStr.substr(2);
+                            }
+                        } else {
+                            if(exam.teachersStr.indexOf(",") === 0) {
+                                exam.teachersStr = exam.teachersStr.substr(2);
+                            }
                         }
                     });
-                    exam.teachersStr = exam.examTeachers.map(function(teacher) {
-                        return teacher;
-                    }).join(", ");
                 }
 
                 $scope.printExamDuration = function(exam) {

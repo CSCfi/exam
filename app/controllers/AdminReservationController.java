@@ -185,8 +185,9 @@ public class AdminReservationController extends SitnetController {
             while (i.hasNext()) {
                 boolean remove = true;
                 ExamEnrolment e = (ExamEnrolment) i.next();
-                if (e.getExam() != null && e.getExam().getExamOwners() != null) {
-                    for (User u : e.getExam().getExamOwners()) {
+                Exam ex = e.getExam().getParent() != null ? e.getExam().getParent() : e.getExam();
+                if (ex != null && ex.getExamOwners() != null) {
+                    for (User u : ex.getExamOwners()) {
                         if (u.getId() == user.getId()) {
                             remove = false;
                         }
@@ -209,7 +210,6 @@ public class AdminReservationController extends SitnetController {
                 }
             }
         }
-
         // ok IF STATE == NO_SHOW, removes the rest
         if(state.isDefined() && state.get().equals("NO_SHOW")) {
 
@@ -225,7 +225,9 @@ public class AdminReservationController extends SitnetController {
                     i.remove();
                 }
             }
-        } else {
+        }
+
+        if(state.isDefined() && ! state.get().equals("NO_SHOW")) {
             Iterator i = enrolments.iterator();
             while (i.hasNext()) {
                 ExamEnrolment e = (ExamEnrolment) i.next();
@@ -245,8 +247,10 @@ public class AdminReservationController extends SitnetController {
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
         options.setPathProperties("user", "id, firstName, lastName, email");
-        options.setPathProperties("exam", "id, name, state, examOwners");
+        options.setPathProperties("exam", "id, name, state, examOwners, parent");
         options.setPathProperties("exam.examOwners", "id, firstName, lastName");
+        options.setPathProperties("parent", "id, examOwners");
+        options.setPathProperties("parent.examOwners", "id, firstName, lastName");
         options.setPathProperties("reservation", "id, startAt, endAt, machine");
         options.setPathProperties("reservation.machine", "id, name, ipAddress, room, otherIdentifier");
         options.setPathProperties("reservation.machine.room", "id, name, roomCode");

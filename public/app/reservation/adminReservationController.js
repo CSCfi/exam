@@ -59,13 +59,16 @@
                     }
                 );
 
-                $scope.printTeachers = function(examOwners) {
-                    if(examOwners && examOwners.length > 0) {
-                        return examOwners.map(function (teacher) {
+                $scope.printTeachers = function(exam) {
+
+                    var e = exam.parent && exam.parent.id > 0 ? exam.parent : exam;
+                    if(e.examOwners && e.examOwners.length > 0) {
+                        return e.examOwners.map(function (teacher) {
                             return teacher.firstName + " " + teacher.lastName;
                         }).join(", ");
+                    } else {
+                        return "";
                     }
-                    return "";
                 };
 
                 $scope.examStates = [
@@ -80,7 +83,10 @@
                     ];
 
                 $scope.printExamState = function(enrolment) {
-                    if(enrolment.reservation.machine.otherIdentifier === "NO_SHOW") {
+                    if(enrolment &&
+                        enrolment.reservation &&
+                        enrolment.reservation.machine &&
+                        enrolment.reservation.machine.otherIdentifier === "NO_SHOW") {
                         return "NO_SHOW";
                     } else {
                         return enrolment.exam.state;

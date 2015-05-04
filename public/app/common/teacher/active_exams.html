@@ -41,9 +41,7 @@
                         activeExam.examParticipationsAndReviews.length}}
                     </td>
                     <td class="table-column-enroll-participation">{{ activeExam.activeExamEnrolments.length }}</td>
-                    <td class="table-column-teachers">
-                        {{activeExam.teachersStr}}
-                    </td>
+                    <td class="table-column-teachers" ng-bind-html="activeExam.teachersStr"></td>
                 </tr>
                 </tbody>
             </table>
