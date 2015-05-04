@@ -28,6 +28,8 @@ public class Software extends Model {
 
     private String name;
 
+    private String status;
+
     public Long getId() {
         return id;
     }
@@ -42,6 +44,14 @@ public class Software extends Model {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override

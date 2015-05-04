@@ -150,6 +150,7 @@ POST          /room/:id/accessibility                               controllers.
 
 DELETE        /accessibility/:id                                    controllers.AccessibilityController.removeAccessibility(id: Long)
 POST          /accessibility                                        controllers.AccessibilityController.addAccessibility()
+PUT           /accessibility                                        controllers.AccessibilityController.updateAccessibility()
 GET           /accessibility                                        controllers.AccessibilityController.getAccessibilities()
 
 GET           /draft/rooms                                          controllers.RoomController.createExamRoomDraft()

@@ -597,7 +597,7 @@
                     var street = address.street ? address.street + ", " : "";
                     var city = (address.city || "").toUpperCase();
                     return street + address.zip + " " + city;
-                }
+                };
 
             }]);
 }());

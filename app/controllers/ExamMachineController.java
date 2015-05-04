@@ -1,17 +1,15 @@
 package controllers;
 
-import exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.Software;
+import exceptions.MalformedDataException;
+import models.*;
 import org.joda.time.DateTime;
+import play.Logger;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
@@ -185,9 +183,24 @@ public class ExamMachineController extends SitnetController {
 //        return ok();
     }
 
+    @Restrict(@Group("ADMIN"))
+    public static Result hasSoftwareExams(Long sid) {
+        List<Exam> exams = Ebean.find(Exam.class)
+                .where()
+                .in("softwares.id", sid)
+                .findList();
+        Logger.debug("size:" + exams.size());
+
+        return exams.size() > 0 ? ok() : notFound();
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSoftwares() {
-        List<Software> softwares = Ebean.find(Software.class).orderBy("name").findList();
+        List<Software> softwares = Ebean.find(Software.class)
+                .where()
+                .ne("status", "DISABLED")
+                .orderBy("name")
+                .findList();
 
         return ok(Json.toJson(softwares));
     }
@@ -220,7 +233,8 @@ public class ExamMachineController extends SitnetController {
     @Restrict(@Group({"ADMIN"}))
     public static Result removeSoftware(Long id) throws MalformedDataException {
         Software software = Ebean.find(Software.class, id);
-        software.delete();
+        software.setStatus("DISABLED");
+        software.update();
 
         return ok();
     }

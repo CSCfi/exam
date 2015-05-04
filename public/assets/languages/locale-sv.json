@@ -597,5 +597,9 @@
   "sitnet_show_questions": "questions visible",
   "sitnet_show_more": "Show more",
   "sitnet_exam_search_description": "Du kan sök efter tenter med kurskod, kursnamn eller lärarens namn",
-  "sitnet_print": "Print"
+  "sitnet_print": "Print",
+  "sitnet_remove_room_accessibility_info": "Remove accessibility info",
+  "sitnet_accessibility_added": "Accessibility added",
+  "sitnet_accessibility_updated": "Accessibility updated",
+  "sitnet_accessibility_removed": "Accessibility removed"
 }

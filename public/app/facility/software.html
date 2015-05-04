@@ -24,10 +24,10 @@
         </form>
     </div>
     <div class="col-md-6">
-            <div class="col-md-12 room-sub-header">
-                <span class="room-sub-name pull-left">{{ 'sitnet_softwares' | translate }}</span>
+            <div class="col-md-12">
+                <div class="col-md-12 pull-left"><h4 class="col-md-12">{{ 'sitnet_softwares' | translate }}</h4></span>
             </div>
-            <div class="room-machines col-md-12" >
+            <div class="col-md-12 row">
                 <table class="table table-bordered table-condensed room-machines-table">
                     <thead>
                     <tr>
@@ -37,7 +37,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr ng-repeat="software in softwares">
+                    <tr ng-repeat="software in softwares" ng-init="checkExams(software)">
                         <td>
                             <div ng-hide="showName">
                             <span class="editable" ng-click="showName = !showName">
