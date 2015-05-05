@@ -88,28 +88,38 @@
                     exam.teachersStr = "";
 
                     if(exam.examOwners) {
+                        var i = 0;
                         angular.forEach(exam.examOwners, function (owner) {
                             if(owner.lastName &&  owner.lastName.length > 0) {
-                                exam.teachersStr += ", <b>" + owner.firstName + " " + owner.lastName + "</b>";
+                                if(i !== 0) {
+                                    exam.teachersStr += ", ";
+                                }
+                                i++;
+                                if($scope.user.isStudent) {
+                                    exam.teachersStr += owner.firstName + " " + owner.lastName;
+                                } else {
+                                    exam.teachersStr += "<b>" + owner.firstName + " " + owner.lastName + "</b>";
+                                }
                             }
                         });
                     }
                     ExamRes.inspections.get({id: exam.id}, function (inspections) {
 
                         if(inspections) {
-
+                            var i = 0;
                             angular.forEach(inspections, function (inspection) {
                                 if (exam.teachersStr.indexOf("<b>" +inspection.user.firstName + " " + inspection.user.lastName + "</b>") === -1) {
-                                    exam.teachersStr += ", <span>" + inspection.user.firstName + " " + inspection.user.lastName + "</span>";
+                                    if(i !== 0 || (i === 0 && exam.teachersStr.length > 0)) {
+                                        exam.teachersStr += ", ";
+                                    }
+                                    i++;
+                                    if($scope.user.isStudent) {
+                                        exam.teachersStr += inspection.user.firstName + " " + inspection.user.lastName;
+                                    } else {
+                                        exam.teachersStr += "<span>" + inspection.user.firstName + " " + inspection.user.lastName + "</span>";
+                                    }
                                 }
                             });
-                            if(exam.teachersStr.indexOf(",") === 0) {
-                                exam.teachersStr = exam.teachersStr.substr(2);
-                            }
-                        } else {
-                            if(exam.teachersStr.indexOf(",") === 0) {
-                                exam.teachersStr = exam.teachersStr.substr(2);
-                            }
                         }
                     });
                 }

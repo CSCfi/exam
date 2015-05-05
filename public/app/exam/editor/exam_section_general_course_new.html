@@ -31,14 +31,14 @@
                            placeholder="{{'sitnet_search_course_by_code' | translate}}"
                            typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
                            typeahead="c as c.code for c in getCourses('code', $viewValue)"
-                           typeahead-wait-ms="100"
+                           typeahead-wait-ms="200"
                            typeahead-focus-first="false"
                            typeahead-min-length="2"
                            typeahead-template-url="course_template.html"
                            typeahead-loading="loadingCoursesByCode">
                                <span class="input-group-addon">
                                     <i ng-hide="loadingCoursesByCode" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_unique_code' | translate}}"></i>
-                                    <i ng-show="loadingCoursesByCode" class="fa fa-spinner fa-spin"></i>
+                                    <i ng-show="loadingCoursesByCode" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
                                </span>
                 </div>
             </div>
@@ -49,14 +49,14 @@
                            ng-model="newExam.course.name"
                            typeahead-on-select="onCourseSelect($item, $model, $label, newExam)"
                            typeahead="c as c.name for c in getCourses('name', $viewValue)"
-                           typeahead-wait-ms="100"
+                           typeahead-wait-ms="200"
                            typeahead-focus-first="false"
                            typeahead-min-length="2"
                            typeahead-template-url="course_name_template.html"
                            typeahead-loading="loadingCoursesByName">
                                <span class="input-group-addon">
-                                    <i class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_name' | translate}}"></i>
-                                    <i ng-show="loadingCoursesByName" class="fa fa-refresh"></i>
+                                   <i ng-hide="loadingCoursesByName" class="fa fa-question-circle fa-fw" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_course_name' | translate}}"></i>
+                                   <i ng-show="loadingCoursesByName" class="fa fa-spinner fa-spin horizontal-padding-05"></i>
                                </span>
                 </div>
             </div>

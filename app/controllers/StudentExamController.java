@@ -59,7 +59,7 @@ public class StudentExamController extends SitnetController {
         String oql = "find exam " +
                 "fetch examSections " +
                 "fetch course " +
-                "where (state=:graded_logged or state=:aborted) " +
+                "where (state=:graded_logged or state=:aborted or state=:review or state=:graded) " +
                 "and (creator.id=:userid)";
 
         Query<Exam> query = Ebean.createQuery(Exam.class, oql);

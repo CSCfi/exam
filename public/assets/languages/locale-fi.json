@@ -601,5 +601,6 @@
   "sitnet_remove_room_accessibility_info": "Poista esteettömyystieto",
   "sitnet_accessibility_added": "Esteettömyystieto lisätty",
   "sitnet_accessibility_updated": "Esteettömyystieto päivitetty",
-  "sitnet_accessibility_removed": "Esteettömyystieto poistettu"
+  "sitnet_accessibility_removed": "Esteettömyystieto poistettu",
+  "sitnet_exam_in_review_state": "Tentin arviointi kesken"
 }

@@ -793,6 +793,20 @@ public class ExamController extends SitnetController {
         }
     }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result removeCourse(Long eid, Long cid) {
+        Exam exam = Ebean.find(Exam.class, eid);
+        User user = UserController.getLoggedUser();
+
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+            exam.setCourse(null);
+            exam.save();
+            return ok(Json.toJson(exam));
+        } else {
+            return forbidden("sitnet_error_access_forbidden");
+        }
+    }
+
     private static AbstractQuestion clone(String type, Long id) {
         switch (type) {
             case "MultipleChoiceQuestion":

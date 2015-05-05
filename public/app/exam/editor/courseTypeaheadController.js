@@ -6,15 +6,30 @@
 
             $scope.getCourses = function(filter, criteria) {
                 $scope.loadingCoursesByCode = true;
+                var tmp = criteria;
+                if ($scope.newExam && $scope.newExam.course && $scope.newExam.course.id) {
+                    var course = $scope.newExam.course;
+                    $scope.newExam.course = undefined;
+                    $scope.newExam.course = {code: tmp};
+                    ExamRes.course.delete({eid: $scope.newExam.id, cid: course.id}, function (updated_exam) {
+                        $scope.newExam = updated_exam;
+                        $scope.newExam.course = {code: tmp};
+                    });
+                }
                 return CourseRes.courses.query({filter: filter, q: criteria}).$promise.then(
                     function (courses) {
                         $scope.loadingCoursesByCode = false;
-                        return limitToFilter(courses, 15);
+                        if(courses) {
+                            return limitToFilter(courses, 15);
+                        }
+                        toastr.error($translate('sitnet_course_not_found') + ' ( ' + tmp + ' )');
+                        return;
                     },
                     function (error) {
                         $scope.loadingCoursesByCode = false;
-                        toastr.error($translate('sitnet_course_not_found'));
-                        return "";
+                        toastr.error($translate('sitnet_course_not_found') + ' ( ' + tmp + ' )');
+
+                        return;
                     }
                 );
             };

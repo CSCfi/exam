@@ -74,7 +74,8 @@
                     eid: "@eid", sid: "@cid"
                 },
                 {
-                    "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}}
+                    "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}},
+                    "delete": {method: "DELETE", params: { eid: "@eid" , cid: "@cid"}}
                 }),
 
                 courses: $resource("/courses/insert/:code",
