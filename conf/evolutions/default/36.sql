@@ -1,3 +1,4 @@
+# --- !Ups
 CREATE TABLE exam_starting_hour (
   id BIGINT NOT NULL,
   starting_hour TIMETZ NOT NULL,

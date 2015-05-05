@@ -94,24 +94,26 @@
                             }
                         });
                     }
-                    ExamRes.inspections.get({id: exam.id}, function (inspections) {
+                    if (!$scope.user.isStudent) {
+                        ExamRes.inspections.get({id: exam.id}, function (inspections) {
 
-                        if(inspections) {
+                            if (inspections) {
 
-                            angular.forEach(inspections, function (inspection) {
-                                if (exam.teachersStr.indexOf("<b>" +inspection.user.firstName + " " + inspection.user.lastName + "</b>") === -1) {
-                                    exam.teachersStr += ", <span>" + inspection.user.firstName + " " + inspection.user.lastName + "</span>";
+                                angular.forEach(inspections, function (inspection) {
+                                    if (exam.teachersStr.indexOf("<b>" + inspection.user.firstName + " " + inspection.user.lastName + "</b>") === -1) {
+                                        exam.teachersStr += ", <span>" + inspection.user.firstName + " " + inspection.user.lastName + "</span>";
+                                    }
+                                });
+                                if (exam.teachersStr.indexOf(",") === 0) {
+                                    exam.teachersStr = exam.teachersStr.substr(2);
                                 }
-                            });
-                            if(exam.teachersStr.indexOf(",") === 0) {
-                                exam.teachersStr = exam.teachersStr.substr(2);
+                            } else {
+                                if (exam.teachersStr.indexOf(",") === 0) {
+                                    exam.teachersStr = exam.teachersStr.substr(2);
+                                }
                             }
-                        } else {
-                            if(exam.teachersStr.indexOf(",") === 0) {
-                                exam.teachersStr = exam.teachersStr.substr(2);
-                            }
-                        }
-                    });
+                        });
+                    }
                 }
 
                 $scope.printExamDuration = function(exam) {
