@@ -101,6 +101,10 @@
                     for (var i = 0; i < week[day].length; ++i) {
                         if (week[day][i].type) {
                             tmp.push(i);
+                            if (i === week[day].length - 1) {
+                                blocks.push(tmp);
+                                tmp = [];
+                            }
                         } else if (tmp.length > 0) {
                             blocks.push(tmp);
                             tmp = [];
@@ -159,7 +163,9 @@
 
                 var setSelected = function (day, slots) {
                     for (var i = 0; i < slots.length; ++i) {
-                        week[day][slots[i]].type = 'selected';
+                        if (week[day][slots[i]]) {
+                            week[day][slots[i]].type = 'selected';
+                        }
                     }
                 };
 

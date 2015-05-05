@@ -362,6 +362,10 @@ public class ExamRoom extends Model {
             if (defaultHour.getDay().equalsIgnoreCase(day)) {
                 LocalTime start = new LocalTime(defaultHour.getStartTime().getTime()).plusMillis(defaultHour.getTimezoneOffset());
                 LocalTime end = new LocalTime(defaultHour.getEndTime().getTime()).plusMillis(defaultHour.getTimezoneOffset());
+                if (start.equals(end)) {
+                    // Open all day
+                    end = end.minusMillis(1);
+                }
                 Interval interval = new Interval(date.toDateTime(start), date.toDateTime(end));
                 hours.add(new OpeningHours(interval, defaultHour.getTimezoneOffset()));
             }
