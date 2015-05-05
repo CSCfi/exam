@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('RoomCtrl', ['dialogs','$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService', '$translate', '$route',
+        .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService', '$translate', '$route',
             function (dialogs, $scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService, $translate, $route) {
 
                 $scope.dateService = dateService;
@@ -10,6 +10,9 @@
                 $scope.addressTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/address.html";
                 $scope.hoursTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/open_hours.html";
                 $scope.user = sessionService.getUser();
+                $scope.examStartingHours = Array.apply(null, new Array(24)).map(function (x, i) {
+                    return {startingHour: i + ":00", selected: true};
+                });
 
 
                 $http.get('accessibility').success(function (data) {
@@ -98,6 +101,10 @@
                     for (var i = 0; i < week[day].length; ++i) {
                         if (week[day][i].type) {
                             tmp.push(i);
+                            if (i === week[day].length - 1) {
+                                blocks.push(tmp);
+                                tmp = [];
+                            }
                         } else if (tmp.length > 0) {
                             blocks.push(tmp);
                             tmp = [];
@@ -132,7 +139,7 @@
                                 break;
                             }
                         }
-                        if (accepted) { // mark everything between accepted and this as selected
+                        if (accepted >= 0) { // mark everything between accepted and this as selected
                             if (accepted < time) {
                                 for (i = accepted; i <= time; ++i) {
                                     week[day][i].type = 'selected';
@@ -156,7 +163,9 @@
 
                 var setSelected = function (day, slots) {
                     for (var i = 0; i < slots.length; ++i) {
-                        week[day][slots[i]].type = 'selected';
+                        if (week[day][slots[i]]) {
+                            week[day][slots[i]].type = 'selected';
+                        }
                     }
                 };
 
@@ -164,7 +173,7 @@
                     var arr = [];
                     var startKey = moment(slot.startTime).format("H:mm");
                     var endKey = moment(slot.endTime).format("H:mm");
-                    var start = times.indexOf(startKey);
+                    var start = startKey === '0:00' ? 0 : times.indexOf(startKey);
                     for (var i = start; i < times.length; i++) {
                         if (times[i] === endKey) {
                             break;
@@ -179,8 +188,8 @@
                         RoomResource.rooms.query(function (rooms) {
                             $scope.rooms = rooms;
                             angular.forEach($scope.rooms, function (room) {
-                                room.examMachines = room.examMachines.filter(function(machine) {
-                                   return !machine.archived;
+                                room.examMachines = room.examMachines.filter(function (machine) {
+                                    return !machine.archived;
                                 });
                             });
                         });
@@ -194,8 +203,22 @@
                                     setSelected(daySlot.day, timeSlots);
                                 });
                                 $scope.roomInstance = room;
-                                if (!isAnyExamMachines())
+                                if (!isAnyExamMachines()) {
                                     toastr.warning($translate('sitnet_room_has_no_machines_yet'));
+                                }
+                                if ($scope.roomInstance.examStartingHours.length > 0) {
+                                    var startingHours = $scope.roomInstance.examStartingHours.map(function (hours) {
+                                        return moment(hours.startingHour);
+                                    });
+                                    $scope.roomInstance.examStartingHourOffset = startingHours[0].minute();
+                                    startingHours = startingHours.map(function(hours) {
+                                       return hours.format("H:mm");
+                                    });
+                                    $scope.setStartingHourOffset();
+                                    $scope.examStartingHours.forEach(function (hours) {
+                                        hours.selected = startingHours.indexOf(hours.startingHour) !== -1;
+                                    });
+                                }
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -259,6 +282,49 @@
                     RoomResource.rooms.update(room,
                         function () {
                             toastr.info($translate('sitnet_room_updated'));
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                $scope.toggleAllExamStartingHours = function () {
+                    var anySelected = $scope.examStartingHours.some(function (hours) {
+                        return hours.selected;
+                    });
+                    $scope.examStartingHours.forEach(function (hours) {
+                        hours.selected = !anySelected;
+                    });
+                };
+
+                function zeropad(n) {
+                    n += '';
+                    return n.length > 1 ? n : '0' + n;
+                }
+
+                $scope.setStartingHourOffset = function () {
+                    $scope.examStartingHours.forEach(function (hours) {
+                        hours.startingHour = hours.startingHour.split(':')[0] + ':' + zeropad($scope.roomInstance.examStartingHourOffset);
+                    });
+                };
+
+                $scope.anyStartingHoursSelected = function () {
+                    return $scope.examStartingHours.some(function (hours) {
+                        return hours.selected;
+                    });
+                };
+
+                $scope.updateStartingHours = function () {
+                    var selected = $scope.examStartingHours.filter(function (hours) {
+                        return hours.selected;
+                    }).map(function (hours) {
+                        return formatTime(hours.startingHour);
+                    });
+                    var data = {hours: selected, offset: $scope.roomInstance.examStartingHourOffset}
+                    RoomResource.examStartingHours.update({id: $scope.roomInstance.id}, data,
+                        function () {
+                            toastr.info($translate('sitnet_exam_starting_hours_updated'));
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -394,7 +460,7 @@
 
                 $scope.disableRoom = function (room) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_room_inactivation'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         RoomResource.rooms.inactivate({id: room.id},
                             function (data) {
                                 //room = data;
@@ -438,7 +504,7 @@
                             var weekdayBlocks = {'weekday': day, 'blocks': []};
                             for (var i = 0; i < blocks.length; ++i) {
                                 var block = blocks[i];
-                                var start = formatTime(times[block[0]]);
+                                var start = formatTime(times[block[0]] || "0:00");
                                 var end = formatTime(times[block[block.length - 1] + 1]);
                                 weekdayBlocks.blocks.push({'start': start, 'end': end});
                             }
@@ -591,11 +657,11 @@
                     return machine.isArchived() === false;
                 };
 
-                $scope.displayAddress = function(address) {
+                $scope.displayAddress = function (address) {
 
                     if (!address || (!address.street && !address.city && !address.zip)) return "N/A";
                     var street = address.street ? address.street + ", " : "";
-                    var city = (address.city || "").toUpperCase();
+                    var city = (address.city || "").toUpperCase();
                     return street + address.zip + " " + city;
                 };
 

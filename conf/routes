@@ -144,6 +144,7 @@ POST          /rooms/:id                                            controllers.
 PUT           /address/:id                                          controllers.RoomController.updateExamRoomAddress(id: Long)
 
 PUT           /workinghours/:id                                     controllers.RoomController.updateExamRoomWorkingHours(id: Long)
+PUT           /startinghours/:id                                    controllers.RoomController.updateExamStartingHours(id: Long)
 PUT           /exception/:id                                        controllers.RoomController.addRoomExceptionHour(id: Long)
 DELETE        /exception/:id                                        controllers.RoomController.removeRoomExceptionHour(id: Long)
 

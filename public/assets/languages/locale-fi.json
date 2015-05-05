@@ -602,5 +602,9 @@
   "sitnet_accessibility_added": "Esteettömyystieto lisätty",
   "sitnet_accessibility_updated": "Esteettömyystieto päivitetty",
   "sitnet_accessibility_removed": "Esteettömyystieto poistettu",
-  "sitnet_exam_in_review_state": "Tentin arviointi kesken"
+  "sitnet_exam_in_review_state": "Tentin arviointi kesken",
+  "sitnet_exam_starting_hours_updated": "Tenttien alkamisajankohdat päivitetty",
+  "sitnet_exam_starting_hours": "Tenttien alkamisajankohdat",
+  "sitnet_add_remove_all": "Poista/Lisää kaikki",
+  "sitnet_minutes_on_the_hour": "Minuuttia yli tasatunnin"
 }

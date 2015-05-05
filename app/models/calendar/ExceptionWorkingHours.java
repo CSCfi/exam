@@ -32,9 +32,13 @@ public class ExceptionWorkingHours extends Model {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
     private Date startTime;
 
+    private int startTimeTimezoneOffset;
+
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
     private Date endTime;
+
+    private int endTimeTimezoneOffset;
 
     @ManyToOne
     @JsonBackReference
@@ -88,4 +92,19 @@ public class ExceptionWorkingHours extends Model {
         this.startTime = startTime;
     }
 
+    public int getStartTimeTimezoneOffset() {
+        return startTimeTimezoneOffset;
+    }
+
+    public void setStartTimeTimezoneOffset(int startTimeTimezoneOffset) {
+        this.startTimeTimezoneOffset = startTimeTimezoneOffset;
+    }
+
+    public int getEndTimeTimezoneOffset() {
+        return endTimeTimezoneOffset;
+    }
+
+    public void setEndTimeTimezoneOffset(int endTimeTimezoneOffset) {
+        this.endTimeTimezoneOffset = endTimeTimezoneOffset;
+    }
 }

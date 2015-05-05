@@ -7,10 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Interval;
-import org.joda.time.LocalDate;
+import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
@@ -198,11 +195,16 @@ public class CalendarController extends SitnetController {
     private static List<FreeTimeSlot> getFreeTimes(
             ExamRoom room, Exam exam, LocalDate date, List<Reservation> reservations, List<ExamMachine> machines) {
 
-        // Resolve the opening hours for room and day
-        List<Interval> openingHours = room.getWorkingHoursForDate(date);
-        // Check machine availability for each slot
+        List<FreeTimeSlot> freeTimes = new ArrayList<>();
+
         List<Interval> eligibleSlots = new ArrayList<>();
-        for (Interval slot : allSlots(openingHours, room.getLocalTimezone())) {
+        // Resolve the opening hours for room and day
+        List<ExamRoom.OpeningHours> openingHours = room.getWorkingHoursForDate(date);
+        if (openingHours.isEmpty()) {
+            return freeTimes;
+        }
+        // Check machine availability for each slot
+        for (Interval slot : allSlots(openingHours, room, date)) {
             if (hasReservationsDuring(reservations, slot)) {
                 // User has reservations during this time
                 continue;
@@ -217,14 +219,13 @@ public class CalendarController extends SitnetController {
             }
         }
         // Get suitable slots based on exam duration
-        List<FreeTimeSlot> freeTimes = new ArrayList<>();
         Integer examDuration = exam.getDuration();
-        for (Interval slot : mergeSlots(eligibleSlots)) {
+        for (Interval slot : eligibleSlots) {
             DateTime beginning = slot.getStart();
-            while (!beginning.plusMinutes(examDuration).isAfter(slot.getEnd())) {
+            DateTime openUntil = getEndOfOpeningHours(beginning, openingHours, room.getTimezoneOffset(date));
+            if (!beginning.plusMinutes(examDuration).isAfter(openUntil)) {
                 DateTime end = beginning.plusMinutes(examDuration);
                 freeTimes.add(new FreeTimeSlot(new Interval(beginning, end)));
-                beginning = beginning.plusHours(1);
             }
         }
         return freeTimes;
@@ -282,50 +283,38 @@ public class CalendarController extends SitnetController {
     }
 
     /**
-     * @return all intervals of one hour that fall within provided working hours
+     * @return all intervals that fall within provided working hours
      */
-    private static List<Interval> allSlots(List<Interval> openingHours, String roomTz) {
+    private static List<Interval> allSlots(List<ExamRoom.OpeningHours> openingHours, ExamRoom room, LocalDate date) {
         List<Interval> intervals = new ArrayList<>();
-        DateTime nextFullHour = nextFullHour(DateTime.now(), roomTz);
-        for (Interval oh : openingHours) {
-            DateTime rounded = nextFullHour(oh.getStart(), null);
-            DateTime beginning = rounded.isBefore(nextFullHour) ? nextFullHour : rounded;
-            while (!beginning.plusHours(1).isAfter(oh.getEnd())) {
-                DateTime end = beginning.plusHours(1);
-                intervals.add(new Interval(beginning, end));
-                beginning = end;
-            }
-            if (beginning.isBefore(oh.getEnd())) {
-                // We have a slot of less than hour in the end, take it as well
-                intervals.add(new Interval(beginning, oh.getEnd()));
-            }
+        List<ExamStartingHour> startingHours = room.getExamStartingHours();
+        if (startingHours.isEmpty()) {
+            // Default to 1 hour slots that start at the hour
+            startingHours = createDefaultStartingHours(room.getLocalTimezone());
         }
-        return intervals;
-    }
-
-    /**
-     * Merge adjacent/overlapping intervals into one
-     */
-    private static List<Interval> mergeSlots(List<Interval> slots) {
-        if (slots.size() <= 1) {
-            return slots;
-        }
-        List<Interval> merged = new ArrayList<>();
-        for (int i = 0; i < slots.size(); ) {
-            Interval first = slots.get(i);
-            Interval adjacent = first;
-            for (int j = i + 1; j < slots.size(); ++j) {
-                Interval second = slots.get(j);
-                if (!second.getStart().isAfter(adjacent.getEnd())) {
-                    adjacent = second;
+        Collections.sort(startingHours);
+        DateTime now = DateTime.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()));
+        for (ExamRoom.OpeningHours oh : openingHours) {
+            int tzOffset = oh.getTimezoneOffset();
+            DateTime beginning = now.getDayOfYear() == date.getDayOfYear() ?
+                    nextStartingTime(now, startingHours, tzOffset) :
+                    nextStartingTime(oh.getHours().getStart(), startingHours, tzOffset);
+            DateTime slotEnd = oh.getHours().getEnd();
+            while (beginning != null) {
+                DateTime nextBeginning = nextStartingTime(beginning.plusMillis(1), startingHours, tzOffset);
+                if (nextBeginning != null && !nextBeginning.isAfter(slotEnd)) {
+                    intervals.add(new Interval(beginning.minusMillis(tzOffset), nextBeginning.minusMillis(tzOffset)));
+                    beginning = nextBeginning;
+                } else if (beginning.isBefore(slotEnd)) {
+                    // We have some spare time in the end, take it as well
+                    intervals.add(new Interval(beginning.minusMillis(tzOffset), slotEnd.minusMillis(tzOffset)));
+                    break;
                 } else {
                     break;
                 }
             }
-            i = slots.indexOf(adjacent) + 1;
-            merged.add(new Interval(first.getStart(), adjacent.getEnd()));
         }
-        return merged;
+        return intervals;
     }
 
     private static boolean isReservedDuring(ExamMachine machine, Interval interval) {
@@ -388,20 +377,42 @@ public class CalendarController extends SitnetController {
         return machine.getSoftwareInfo().containsAll(exam.getSoftwareInfo());
     }
 
-    private static DateTime nextFullHour(DateTime datetime, String roomTz) {
-        if (datetime.getMinuteOfHour() > 0 || datetime.getSecondOfMinute() > 0 || datetime.getMillisOfSecond() > 0) {
-            // If the room has DST in effect, we need to limit our offering: skip the ongoing non-DST hour
-            if (roomTz != null) {
-                DateTimeZone zone = DateTimeZone.forID(roomTz);
-                if (!zone.isStandardOffset(System.currentTimeMillis())) {
-                    datetime = datetime.plusHours(1);
-                }
+    private static DateTime nextStartingTime(DateTime instant, List<ExamStartingHour> startingHours, int offset) {
+        for (ExamStartingHour esh : startingHours) {
+            DateTime datetime = instant.withMillisOfDay(new LocalTime(esh.getStartingHour()).plusMillis(offset).getMillisOfDay());
+            if (!datetime.isBefore(instant)) {
+                return datetime;
             }
-            return datetime.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-        } else {
-            return datetime;
         }
+        return null;
     }
+
+    private static List<ExamStartingHour> createDefaultStartingHours(String roomTz) {
+        // Get offset from Jan 1st in order to no have DST in effect
+        DateTimeZone zone = DateTimeZone.forID(roomTz);
+        DateTime beginning = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay();
+        DateTime ending = beginning.plusHours(23);
+        List<ExamStartingHour> hours = new ArrayList<>();
+        while (!beginning.isAfter(ending)) {
+            ExamStartingHour esh = new ExamStartingHour();
+            esh.setStartingHour(beginning.toDate());
+            esh.setTimezoneOffset(zone.getOffset(beginning));
+            hours.add(esh);
+            beginning = beginning.plusHours(1);
+        }
+        return hours;
+    }
+
+    private static DateTime getEndOfOpeningHours(DateTime instant, List<ExamRoom.OpeningHours> openingHours, int offset) {
+        for (ExamRoom.OpeningHours oh : openingHours) {
+            if (oh.getHours().contains(instant.plusMillis(oh.getTimezoneOffset()))) {
+                return oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset());
+            }
+        }
+        // should not occur, indicates programming error
+        throw new RuntimeException("slot not contained within opening hours, recheck logic!");
+    }
+
 
     private static class FreeTimeSlot {
         private final String start;
