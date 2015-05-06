@@ -115,6 +115,7 @@
                     QuestionRes.questionOwner.update(questionToMove,
                         function(result){
                             toastr.info($translate('sitnet_question_owner_changed'));
+                            query();
                         }, function(error){
                             toastr.info($translate('sitnet_update_failed'));
                     });
