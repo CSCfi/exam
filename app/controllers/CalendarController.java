@@ -32,7 +32,7 @@ public class CalendarController extends SitnetController {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws NotFoundException {
         User user = UserController.getLoggedUser();
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
@@ -44,25 +44,28 @@ public class CalendarController extends SitnetController {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
         // Removal not permitted if reservation is in the past or ongoing
-        Reservation reservation = enrolment.getReservation();
+        final Reservation reservation = enrolment.getReservation();
         DateTime now = SitnetUtil.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
-
-        // if user who removes reservation is not Student himself, send email
-        if (!user.getId().equals(enrolment.getUser().getId())) {
-            try {
-                EmailComposer.composeReservationCancellationNotification(user, reservation, "");
-            } catch (IOException e) {
-                return internalServerError(e.getMessage());
-            }
-        }
-
         enrolment.setReservation(null);
         Ebean.save(enrolment);
         Ebean.delete(Reservation.class, id);
 
+        // send email asynchronously
+        final boolean isStudentUser = user.equals(enrolment.getUser());
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    EmailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
+                    Logger.info("Reservation confirmation email sent");
+                } catch (IOException e) {
+                    Logger.error("Failed to send reservation confirmation email", e);
+                }
+            }
+        }, Akka.system().dispatcher());
         return ok("removed");
     }
 
@@ -131,7 +134,7 @@ public class CalendarController extends SitnetController {
 
         // Send asynchronously
         Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
-           @Override
+            @Override
             public void run() {
                 try {
                     EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());

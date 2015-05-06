@@ -131,7 +131,7 @@ public class AdminReservationController extends SitnetController {
         // Lets not send emails about historical reservations
         if (reservation.getEndAt().after(new Date())) {
             User student = enrolment.getUser();
-            EmailComposer.composeReservationCancellationNotification(student, reservation, "");
+            EmailComposer.composeReservationCancellationNotification(student, reservation, "", false, enrolment);
         }
 
         enrolment.setReservation(null);

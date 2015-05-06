@@ -248,9 +248,17 @@ public class EmailComposer {
         EmailSender.send(toUser.getEmail(), fromUser.getEmail(), subject, template);
     }
 
-    public static void composeReservationCancellationNotification(User student, Reservation reservation, String message)
+    public static void composeReservationCancellationNotification(User student, Reservation reservation, String message, Boolean isStudentUser, ExamEnrolment enrolment)
             throws IOException {
-        String templatePath = TEMPLATES_ROOT + "reservationCanceled.html";
+
+        String templatePath;
+        if(isStudentUser) {
+            templatePath = TEMPLATES_ROOT + "reservationCanceledByStudent.html";
+        } else {
+            templatePath = TEMPLATES_ROOT + "reservationCanceled.html";
+        }
+
+
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
         String subject = Messages.get(lang, "email.reservation.cancellation.subject");
@@ -262,7 +270,13 @@ public class EmailComposer {
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("hello", Messages.get(lang, "email.template.hello"));
-        stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message", date, time, room));
+        if(isStudentUser) {
+            String link = String.format("%s/#/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
+            stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message.student", date, time, room));
+            stringValues.put("new_time", Messages.get(lang, "email.template.reservation.cancel.message.student.new.time", link));
+        } else {
+            stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message", date, time, room));
+        }
         stringValues.put("cancellation_information",
                 message == null ? "" : String.format("%s:<br />%s", info, message));
         stringValues.put("regards", Messages.get(lang, "email.template.regards"));
