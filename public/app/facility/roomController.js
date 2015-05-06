@@ -183,6 +183,16 @@
                     return arr;
                 };
 
+                var formatExceptionEvent = function(event) {
+                    var startDate = moment(event.startDate);
+                    var endDate = moment(event.endDate);
+                    var offset = moment().isDST() ? -1 : 0;
+                    startDate.add(offset, 'hour');
+                    endDate.add(offset, 'hour');
+                    event.startDate = startDate.format();
+                    event.endDate = endDate.format();
+                };
+
                 if ($scope.user.isAdmin) {
                     if (!$routeParams.id) {
                         RoomResource.rooms.query(function (rooms) {
@@ -219,6 +229,9 @@
                                         hours.selected = startingHours.indexOf(hours.startingHour) !== -1;
                                     });
                                 }
+                                $scope.roomInstance.calendarExceptionEvents.forEach(function (event) {
+                                    formatExceptionEvent(event);
+                                });
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -590,6 +603,7 @@
                         RoomResource.exception.update({id: $scope.roomInstance.id}, exception,
                             function (data) {
                                 toastr.info($translate('sitnet_exception_time_added'));
+                                formatExceptionEvent(data);
                                 $scope.roomInstance.calendarExceptionEvents.push(data);
                             },
                             function (error) {
