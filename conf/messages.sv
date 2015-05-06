@@ -35,3 +35,5 @@ email.template.weekly.report.enrolments=Tentboningar
 email.template.weekly.report.enrolments.info=Studerandena har bokat tider för dina tenter på följande sätt
 email.template.weekly.report.inspections=Utvärderingar
 email.template.weekly.report.inspections.info=Du har {0} outvärderade svar kpl i följande tenter
+email.template.reservation.cancel.message.student=Your have cancelled your booking for the exam {0} at {1} in {2}
+email.template.reservation.cancel.message.student.new.time=You can book a new time {0}

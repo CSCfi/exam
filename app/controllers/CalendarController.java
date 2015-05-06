@@ -50,11 +50,18 @@ public class CalendarController extends SitnetController {
         // if user who removes reservation is not Student himself, send email
         if (!user.getId().equals(enrolment.getUser().getId())) {
             try {
-                EmailComposer.composeReservationCancellationNotification(user, reservation, "");
+                EmailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", false, enrolment);
+            } catch (IOException e) {
+                return internalServerError(e.getMessage());
+            }
+        } else {
+            try {
+                EmailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", true, enrolment);
             } catch (IOException e) {
                 return internalServerError(e.getMessage());
             }
         }
+
 
         enrolment.setReservation(null);
         Ebean.save(enrolment);
