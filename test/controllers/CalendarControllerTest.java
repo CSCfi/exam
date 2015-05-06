@@ -82,6 +82,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
 
         // Check that correct mail was sent
+        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
@@ -121,6 +122,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
 
         // Check that correct mail was sent
+        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
@@ -167,6 +169,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
 
         // Check that correct mail was sent
+        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));

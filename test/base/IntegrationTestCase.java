@@ -47,6 +47,7 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
         HAKA_HEADERS.put("employeeNumber", "12345");
+        HAKA_HEADERS.put("schacPersonalUniqueCode", "12345");
         try {
             HAKA_HEADERS.put("logouturl", URLEncoder.encode("https://logout.foo.bar.com?returnUrl=" +
                     URLEncoder.encode("http://foo.bar.com", "UTF-8"), "UTF-8"));

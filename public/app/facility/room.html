@@ -110,34 +110,18 @@
     <div class="top-row">
         <h3 class="col-md-12 header-text">{{'sitnet_exception_datetimes' | translate}}</h3>
     </div>
-    <div class="detail-row">
-        <div class="col-md-12">
-            <table class="table table-bordered">
-                <thead>
-                <tr>
-                    <th>{{'sitnet_date' | translate}}</th>
-                    <th>{{'sitnet_exception_time' | translate}}</th>
-                    <th>{{'sitnet_remove' | translate}}</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr ng-repeat='exception in roomInstance.calendarExceptionEvents'>
-                    <td>{{formatDate(exception)}}</td>
-                    <td>{{formatTime(exception)}}</td>
-                    <td>
-                        <button ng-click="deleteException(exception)" class="btn btn-sm btn-danger">
-                            {{'sitnet_remove_exception_time' | translate}}
-                        </button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+    <div class="detail-row" ng-repeat="exception in roomInstance.calendarExceptionEvents">
+        <div class="col-md-3">
+            {{formatDate(exception)}}
+        </div>
+        <div class="col-md-9">
+            <a class="pointer" ng-click="deleteException(exception)">{{'sitnet_exam_remove' | translate}}</a>
         </div>
     </div>
-    <div class="bottom-row">
+    <div class="main-row">
         <div class="col-md-12">
             <button ng-click="addException()" class="btn btn-primary">
-                {{'sitnet_add_exception_time' | translate}}
+                {{'sitnet_add' | translate}}
             </button>
         </div>
     </div>

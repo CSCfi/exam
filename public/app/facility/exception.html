@@ -4,101 +4,32 @@
 
 <div class='modal-body'>
 
-    <p>{{'sitnet_exception_date' | translate}}</p>
-
-    <div class='row'>
-        <div class='col-md-12'>
-            <p>{{'sitnet_time_range' | translate}}
-                <input type='checkbox' ng-model="timeRange" ng-click="setRange(timeRange)"/>
-            </p>
+    <div id="datetimepicker">
+        <div class="row">
+            <div class="col-md-6">
+                <p>{{'sitnet_begin' | translate}}</p>
+            </div>
+            <div class="col-md-6">
+                <p>{{'sitnet_end' | translate}}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="startDate"
+                                show-meridian="false" starting-day="1"
+                                date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
+            </div>
+            <div class="col-md-6">
+                <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="endDate"
+                                show-meridian="false" starting-day="1"
+                                date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
+            </div>
         </div>
     </div>
-
-    <div class='row'>
-        <div class='col-md-4'>
-            <p class='input-group'>
-                <input type='text'
-                       class='form-control'
-                       datepicker-popup='{{format}}'
-                       ng-change="selectStartDate(startDate)"
-                       ng-model='startDate'
-                       is-open='startOpen'
-                       close-text="{{'sitnet_close' | translate}}"
-                       current-text="{{'sitnet_today' | translate}}"
-                       toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                       clear-text="{{'sitnet_clear' | translate}}"
-                       ng-required='true'
-                       close-text='Close'/>
-
-              <span class='input-group-btn'>
-                <button class='btn btn-default'>
-                    <i class='glyphicon glyphicon-calendar'></i>
-                </button>
-              </span>
-            </p>
-        </div>
-        <div ng-show='timeRange' class='col-md-1'>
-            -
-        </div>
-        <div ng-show='timeRange' class='col-md-4'>
-            <p class='input-group'>
-                <input type='text'
-                       class='form-control'
-                       ng-change="selectEndDate(endDate)"
-                       datepicker-popup='{{format}}'
-                       ng-model='endDate'
-                       is-open='endOpen'
-                       close-text="{{'sitnet_close' | translate}}"
-                       current-text="{{'sitnet_today' | translate}}"
-                       toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                       clear-text="{{'sitnet_clear' | translate}}"
-                       ng-required='true'
-                       close-text='Close'/>
-
-              <span class='input-group-btn'>
-                <button class='btn btn-default'>
-                    <i class='glyphicon glyphicon-calendar'></i>
-                </button>
-              </span>
-            </p>
-        </div>
-
-    </div>
-
-    <div class='row'>
-        <div class='col-md-12'>
-            <p>{{'sitnet_out_of_service' | translate}}
-                <input type='checkbox' ng-model='outOfService' ng-click="setOutOfService(outOfService)"/>
-            </p>
-        </div>
-    </div>
-
-    <div class='row' ng-hide='outOfService'>
-        <div class='col-md-12'>
-            <p>{{'sitnet_exception_time' | translate}}</p>
-        </div>
-
-        <div class='col-md-3'>
-            <timepicker ng-model='startTime'
-                        ng-change="selectStartTime(startTime)"
-                        hour-step='1'
-                        minute-step='15'
-                        show-meridian='ismeridian'></timepicker>
-        </div>
-
-        <div class='col-md-3'>
-            <timepicker ng-model='endTime'
-                        ng-change="selectEndTime(endTime)"
-                        hour-step='1'
-                        minute-step='15'
-                        show-meridian='ismeridian'></timepicker>
-        </div>
-    </div>
-
     <div class='row'>
         <div class="col-md-12">
             <button ng-click='ok()' class='btn btn-primary'>
-                {{'sitnet_add_exception_time' | translate}}
+                    {{'sitnet_add_exception_time' | translate}}
             </button>
 
             <button ng-click='cancel()' class='btn btn-primary'>

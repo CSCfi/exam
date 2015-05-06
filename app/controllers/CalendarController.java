@@ -11,13 +11,16 @@ import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
+import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import util.SitnetUtil;
 import util.java.EmailComposer;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 public class CalendarController extends SitnetController {
@@ -83,9 +86,9 @@ public class CalendarController extends SitnetController {
         }
 
         DateTime now = SitnetUtil.adjustDST(DateTime.now());
-        User user = UserController.getLoggedUser();
+        final User user = UserController.getLoggedUser();
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
@@ -112,7 +115,7 @@ public class CalendarController extends SitnetController {
             return forbidden("sitnet_no_machines_available");
         }
 
-        Reservation reservation = new Reservation();
+        final Reservation reservation = new Reservation();
         reservation.setEndAt(end.toDate());
         reservation.setStartAt(start.toDate());
         reservation.setMachine(machine);
@@ -126,11 +129,18 @@ public class CalendarController extends SitnetController {
             Ebean.delete(oldReservation);
         }
 
-        try {
-            EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
-        } catch (IOException e) {
-            Logger.error("Failed to send reservation confirmation email", e);
-        }
+        // Send asynchronously
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
+           @Override
+            public void run() {
+                try {
+                    EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
+                    Logger.info("Reservation confirmation email sent");
+                } catch (IOException e) {
+                    Logger.error("Failed to send reservation confirmation email", e);
+                }
+            }
+        }, Akka.system().dispatcher());
 
         return ok("ok");
     }
