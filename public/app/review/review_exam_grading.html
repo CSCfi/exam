@@ -179,7 +179,7 @@
         <span ng-show="!isReadOnly">
             <input type="button" class="btn btn-primary btn-sm"
                ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin() || !examForm.$valid"
-               ng-click="saveExamRecord()"
+               ng-click="saveExamRecord(examToBeReviewed)"
                value="{{'sitnet_send_result_to_registry' | translate}}"/>
         </span>
     </div>
