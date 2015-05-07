@@ -607,6 +607,7 @@
   "sitnet_exam_starting_hours": "Tenttien alkamisajankohdat",
   "sitnet_add_remove_all": "Poista/Lisää kaikki",
   "sitnet_minutes_on_the_hour": "Minuuttia yli tasatunnin",
+  "sitnet_email_empty": "Kirjoita sähköpostiviesti",
   "sitnet_begin": "Alkaa",
   "sitnet_end": "Päättyy",
   "sitnet_room_in_service": "Tila käytössä",

@@ -470,6 +470,57 @@
                     });
                 };
 
+                $scope.teachers = [];
+
+                var removeDuplicate = function(teachers) {
+                    var a = teachers;
+                    for(var i=0; i<a.length; ++i) {
+                        for(var j=i+1; j<a.length; ++j) {
+                            if(a[i] === a[j]) {
+                                a.splice(j--, 1);
+                            }
+                        }
+                    }
+                    return a;
+                };
+
+                $scope.countTeachers = function() {
+
+                    if(($scope.examToBeReviewed &&
+                        $scope.examToBeReviewed.parent &&
+                        $scope.examToBeReviewed.parent.examOwners) &&
+                        $scope.localInspections) {
+
+                        $scope.teachers = $scope.examToBeReviewed.parent.examOwners.map(function (owner) {
+                            return owner.firstName + " " + owner.lastName;
+                        }).concat($scope.localInspections.map(function (inspection) {
+                            return inspection.user.firstName + " " + inspection.user.lastName;
+                        }));
+
+                    } else if((!$scope.examToBeReviewed ||
+                        !$scope.examToBeReviewed.parent ||
+                        !$scope.examToBeReviewed.parent.examOwners) &&
+                        $scope.localInspections) {
+
+                        $scope.teachers = $scope.localInspections.map(function (inspection) {
+                            return inspection.user.firstName + " " + inspection.user.lastName;
+                        });
+
+                    } else if(($scope.examToBeReviewed ||
+                        $scope.examToBeReviewed.parent ||
+                        $scope.examToBeReviewed.parent.examOwners) &&
+                        !$scope.localInspections) {
+
+                        $scope.teachers = $scope.examToBeReviewed.parent.examOwners.map(function (owner) {
+                            return owner.firstName + " " + owner.lastName;
+                        });
+                    }
+
+                    $scope.teachers = removeDuplicate($scope.teachers);
+
+                    return $scope.teachers.length;
+                };
+
                 $scope.toggleFeedbackHiding = function (hidden) {
                     if (hidden) {
                         $scope.saveFeedback();
@@ -588,6 +639,10 @@
 
                 // called when send email button is clicked
                 $scope.sendEmailMessage = function () {
+                    if(!$scope.message || $scope.message.length === 0) {
+                        toastr.error($translate("sitnet_email_empty"));
+                        return;
+                    }
                     ExamRes.email.inspection({
                         eid: $scope.examToBeReviewed.id,
                         msg: $scope.message
