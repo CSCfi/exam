@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamSearchCtrl', ['$scope', '$timeout', '$translate', 'StudentExamRes', 'SettingsResource', 'examService', 'enrolmentService', 'SITNET_CONF',
-            function ($scope, $timeout, $translate, StudentExamRes, SettingsResource, examService, enrolmentService, SITNET_CONF) {
+        .controller('ExamSearchCtrl', ['$scope', '$timeout', '$translate', 'StudentExamRes', 'EnrollRes', 'SettingsResource', 'examService', 'enrolmentService', 'SITNET_CONF',
+            function ($scope, $timeout, $translate, StudentExamRes, EnrollRes, SettingsResource, examService, enrolmentService, SITNET_CONF) {
 
                 $scope.permissionCheck = {};
                 $scope.loader = {
@@ -22,9 +22,9 @@
                         });
                         $scope.exams = exams;
                         searching = false;
-                        $scope.loader.loading = false ;
+                        $scope.loader.loading = false;
                     }, function (err) {
-                        $scope.loader.loading = false ;
+                        $scope.loader.loading = false;
                         toastr.error($translate(err.data));
                     });
                 };
@@ -48,7 +48,13 @@
                 };
 
                 $scope.enrollExam = function (exam) {
-                    enrolmentService.enroll(exam);
+                    EnrollRes.check.get({id: exam.id}, function () {
+                            // already enrolled
+                            toastr.error($translate('sitnet_already_enrolled'));
+                        }, function () {
+                            enrolmentService.enroll(exam);
+                        }
+                    )
                 }
 
             }

@@ -611,5 +611,6 @@
   "sitnet_begin": "Begins at",
   "sitnet_end": "Ends at",
   "sitnet_room_in_service": "Room is in service",
-  "sitnet_canceled": "Canceled"
+  "sitnet_canceled": "Canceled",
+  "sitnet_already_enrolled": "You are already enrolled for this exam. You can modify enrolment details on your dashboard"
 }

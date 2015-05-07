@@ -113,6 +113,29 @@ public class EnrollController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public static Result checkIfEnrolled(Long id) {
+        DateTime now = SitnetUtil.adjustDST(new DateTime());
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .where()
+                .eq("user.id", UserController.getLoggedUser().getId())
+                .eq("exam.id", id)
+                .gt("exam.examActiveEndDate", now.toDate())
+                .disjunction()
+                .gt("reservation.endAt", now.toDate())
+                .isNull("reservation")
+                .endJunction()
+                .disjunction()
+                .eq("exam.state", "PUBLISHED")
+                .eq("exam.state", "STUDENT_STARTED")
+                .endJunction()
+                .findList();
+        if (enrolments.isEmpty()) {
+            return notFound();
+        }
+        return ok();
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result updateEnrolment(Long id) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
         if (enrolment == null) {

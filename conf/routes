@@ -98,6 +98,7 @@ GET           /enroll/:code                                         controllers.
 GET           /enroll/reservation/:id                               controllers.EnrollController.enrolmentsByReservation(id: Long)
 GET           /enroll/:code/exam/:id                                controllers.EnrollController.enrollExamInfo(code: String, id: Long)
 POST          /enroll/:code/exam/:id                                controllers.EnrollController.createEnrolment(code: String, id: Long)
+GET           /enroll/exam/:id                                      controllers.EnrollController.checkIfEnrolled(id: Long)
 
 ############### Section interface ###############
 
