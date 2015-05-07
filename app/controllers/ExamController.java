@@ -445,7 +445,7 @@ public class ExamController extends SitnetController {
     public static Result reviewExam(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
         Exam exam = Ebean.find(Exam.class, id);
-        Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
+        Integer grade = df.get("grade") == null || df.get("grade").equals("")  ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
             Grade examGrade = Ebean.find(Grade.class, grade);

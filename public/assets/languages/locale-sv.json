@@ -606,5 +606,6 @@
   "sitnet_exam_starting_hours_updated": "Tentstarttider uppdaterade",
   "sitnet_exam_starting_hours": "Tentstarttider",
   "sitnet_add_remove_all": "Lägg till/radera alla",
-  "sitnet_minutes_on_the_hour": "Minuter efter hela timmar"
+  "sitnet_minutes_on_the_hour": "Minuter efter hela timmar",
+  "sitnet_email_empty": "Write email message"
 }
