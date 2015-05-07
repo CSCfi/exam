@@ -188,6 +188,7 @@ public class ExamMachineController extends SitnetController {
     @Restrict(@Group({"ADMIN"}))
     public static Result addSoftware(String name) throws MalformedDataException {
         Software software = bindForm(Software.class);
+        software.setStatus("ACTIVE");
         software.setName(name);
         Ebean.save(software);
 
@@ -198,6 +199,7 @@ public class ExamMachineController extends SitnetController {
     public static Result updateSoftware(Long id, String name) throws MalformedDataException {
         Software software = Ebean.find(Software.class, id);
         software.setName(name);
+        software.setStatus("ACTIVE");
         software.update();
 
         return ok(Json.toJson(software));
