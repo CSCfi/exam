@@ -199,6 +199,7 @@ public class RoomController extends SitnetController {
         hours.setEndDate(endDate.toDate());
         hours.setEndDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endDate.withDayOfYear(1)));
         hours.setRoom(examRoom);
+        hours.setOutOfService(root.get("outOfService").asBoolean(true));
         hours.save();
 
         return ok(Json.toJson(hours));

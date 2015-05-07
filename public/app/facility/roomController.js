@@ -587,7 +587,8 @@
                                 } else {
                                     $modalInstance.close({
                                         "startDate": start,
-                                        "endDate": end
+                                        "endDate": end,
+                                        "outOfService": $scope.outOfService
                                     });
                                 }
                             };

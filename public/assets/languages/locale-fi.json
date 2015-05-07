@@ -608,5 +608,6 @@
   "sitnet_add_remove_all": "Poista/Lisää kaikki",
   "sitnet_minutes_on_the_hour": "Minuuttia yli tasatunnin",
   "sitnet_begin": "Alkaa",
-  "sitnet_end": "Päättyy"
+  "sitnet_end": "Päättyy",
+  "sitnet_room_in_service": "Tila käytössä"
 }

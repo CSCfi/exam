@@ -608,5 +608,6 @@
   "sitnet_add_remove_all": "Add/Remove all",
   "sitnet_minutes_on_the_hour": "Minutes on the hour",
   "sitnet_begin": "Begins at",
-  "sitnet_end": "Ends at"
+  "sitnet_end": "Ends at",
+  "sitnet_room_in_service": "Room is in service"
 }

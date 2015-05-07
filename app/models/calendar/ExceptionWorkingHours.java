@@ -32,6 +32,8 @@ public class ExceptionWorkingHours extends Model {
 
     private int endDateTimezoneOffset;
 
+    private boolean outOfService;
+
     @ManyToOne
     @JsonBackReference
     private ExamRoom room;
@@ -82,5 +84,13 @@ public class ExceptionWorkingHours extends Model {
 
     public void setEndDateTimezoneOffset(int endTimeTimezoneOffset) {
         this.endDateTimezoneOffset = endTimeTimezoneOffset;
+    }
+
+    public boolean isOutOfService() {
+        return outOfService;
+    }
+
+    public void setOutOfService(boolean outOfService) {
+        this.outOfService = outOfService;
     }
 }

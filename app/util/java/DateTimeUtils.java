@@ -57,7 +57,6 @@ public class DateTimeUtils {
         return gaps;
     }
 
-
     public static List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
         List<Interval> subExistingList = new ArrayList<>();
         for (Interval interval : reserved) {
@@ -71,23 +70,25 @@ public class DateTimeUtils {
     public static boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
         DateTime earliestStart = reserved.get(0).getStart();
         DateTime latestStop = reserved.get(reserved.size() - 1).getEnd();
-        return searchEnd.isBefore(earliestStart) || searchStart.isAfter(latestStop);
+        return !searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop);
     }
 
-    public static List<Interval> getExceptionEvents(List<ExceptionWorkingHours> hours, LocalDate date) {
+    public static List<Interval> getExceptionEvents(List<ExceptionWorkingHours> hours, LocalDate date, boolean isRestriction) {
         List<Interval> exceptions = new ArrayList<>();
         for (ExceptionWorkingHours ewh : hours) {
-            DateTime start = new DateTime(ewh.getStartDate()).plusMillis(ewh.getStartDateTimezoneOffset());
-            DateTime end = new DateTime(ewh.getEndDate()).plusMillis(ewh.getEndDateTimezoneOffset());
-            Interval exception = new Interval(start, end);
-            Interval wholeDay = date.toInterval();
-            if (exception.contains(wholeDay) || exception.equals(wholeDay)) {
-                exceptions.clear();
-                exceptions.add(wholeDay);
-                break;
-            }
-            if (exception.overlaps(wholeDay)) {
-                exceptions.add(new Interval(exception.getStart(), exception.getEnd()));
+            if (isRestriction == ewh.isOutOfService()) {
+                DateTime start = new DateTime(ewh.getStartDate()).plusMillis(ewh.getStartDateTimezoneOffset());
+                DateTime end = new DateTime(ewh.getEndDate()).plusMillis(ewh.getEndDateTimezoneOffset());
+                Interval exception = new Interval(start, end);
+                Interval wholeDay = date.toInterval();
+                if (exception.contains(wholeDay) || exception.equals(wholeDay)) {
+                    exceptions.clear();
+                    exceptions.add(wholeDay);
+                    break;
+                }
+                if (exception.overlaps(wholeDay)) {
+                    exceptions.add(new Interval(exception.getStart(), exception.getEnd()));
+                }
             }
         }
         return exceptions;

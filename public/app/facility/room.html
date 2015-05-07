@@ -114,7 +114,13 @@
         <div class="col-md-3">
             {{formatDate(exception)}}
         </div>
-        <div class="col-md-9">
+        <div class="col-md-3 text-danger" ng-show="exception.outOfService">
+            {{ 'sitnet_room_out_of_service' | translate }}
+        </div>
+        <div class="col-md-3 text-info" ng-hide="exception.outOfService">
+            {{ 'sitnet_room_in_service' | translate }}
+        </div>
+        <div class="col-md-6">
             <a class="pointer" ng-click="deleteException(exception)">{{'sitnet_exam_remove' | translate}}</a>
         </div>
     </div>

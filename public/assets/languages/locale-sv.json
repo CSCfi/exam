@@ -608,5 +608,6 @@
   "sitnet_add_remove_all": "Lägg till/radera alla",
   "sitnet_minutes_on_the_hour": "Minuter efter hela timmar",
   "sitnet_begin": "Börjar",
-  "sitnet_end": "Slutar"
+  "sitnet_end": "Slutar",
+  "sitnet_room_in_service": "Rummet är i bruk"
 }

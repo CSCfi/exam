@@ -3,9 +3,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
-import org.joda.time.Interval;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
+import org.joda.time.*;
 import play.db.ebean.Model;
 import util.SitnetUtil;
 import util.java.DateTimeUtils;
@@ -330,12 +328,31 @@ public class ExamRoom extends Model {
     @Transient
     public List<OpeningHours> getWorkingHoursForDate(LocalDate date) {
         List<OpeningHours> workingHours = getDefaultWorkingHours(date);
-        List<Interval> exceptionEvents = DateTimeUtils.mergeSlots(DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date));
+        List<Interval> extensionEvents = DateTimeUtils.mergeSlots(DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, false));
+        List<Interval> restrictionEvents = DateTimeUtils.mergeSlots(DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, true));
         List<OpeningHours> availableHours = new ArrayList<>();
-        if (!exceptionEvents.isEmpty()) {
+        if (!extensionEvents.isEmpty()) {
+            List<Interval> unifiedIntervals = new ArrayList<>();
+            for (OpeningHours oh : workingHours) {
+                unifiedIntervals.add(oh.getHours());
+            }
+            unifiedIntervals.addAll(extensionEvents);
+            unifiedIntervals = DateTimeUtils.mergeSlots(unifiedIntervals);
+            int tzOffset;
+            if (workingHours.isEmpty()) {
+                tzOffset = DateTimeZone.forID(localTimezone).getOffset(new DateTime(date));
+            } else {
+                tzOffset = workingHours.get(0).timezoneOffset;
+            }
+            workingHours.clear();
+            for (Interval interval : unifiedIntervals) {
+                workingHours.add(new OpeningHours(interval, tzOffset));
+            }
+        }
+        if (!restrictionEvents.isEmpty()) {
             for (OpeningHours hours : workingHours) {
                 Interval slot = hours.getHours();
-                for (Interval gap : DateTimeUtils.findGaps(exceptionEvents, slot)) {
+                for (Interval gap : DateTimeUtils.findGaps(restrictionEvents, slot)) {
                     availableHours.add(new OpeningHours(gap, hours.getTimezoneOffset()));
                 }
             }
