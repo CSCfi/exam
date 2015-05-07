@@ -27,7 +27,6 @@
 <div class="detail-row" ng-show="isReadOnly">
     <div class="col-md-12" mathjax ng-bind-html="examToBeReviewed.examFeedback.comment"></div>
 </div>
-{{countTeachers()}} / {{localInspections.length}} / {{globalInspections.length}}
 <div class="main-row" ng-show="countTeachers() > 1 && !isReadOnly">
     <div>
         <div class="col-md-6">
