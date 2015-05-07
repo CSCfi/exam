@@ -610,5 +610,6 @@
   "sitnet_begin": "Börjar",
   "sitnet_end": "Slutar",
   "sitnet_room_in_service": "Rummet är i bruk",
-  "sitnet_canceled": "Inhiberad"
+  "sitnet_canceled": "Inhiberad",
+  "sitnet_already_enrolled": "Du har redan anmält dig till tenten. Anmälan kan redigeras på ditt arbetsbord"
 }

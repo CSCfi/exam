@@ -610,5 +610,6 @@
   "sitnet_begin": "Alkaa",
   "sitnet_end": "Päättyy",
   "sitnet_room_in_service": "Tila käytössä",
-  "sitnet_canceled": "Peruttu"
+  "sitnet_canceled": "Peruttu",
+  "sitnet_already_enrolled": "Olet jo ilmoittautunut kyseiseen tenttiin. Voit muuttaa ilmoittautumista työpöydälläsi"
 }

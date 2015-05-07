@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('EnrollController', ['$scope', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'SITNET_CONF', '$location', 'enrolmentService',
-            function ($scope, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location, enrolmentService) {
+        .controller('EnrollController', ['$scope', '$translate', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'SITNET_CONF', '$location', 'enrolmentService',
+            function ($scope, $translate, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location, enrolmentService) {
 
                 $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
                 $scope.examPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/exam.html";
@@ -56,7 +56,13 @@
                 };
 
                 $scope.enrollExam = function (exam) {
-                    enrolmentService.enroll(exam);
+                    EnrollRes.check.get({id: exam.id}, function () {
+                            // already enrolled
+                            toastr.error($translate('sitnet_already_enrolled'));
+                        }, function () {
+                            enrolmentService.enroll(exam);
+                        }
+                    )
                 };
 
                 $scope.enrollList = function () {
