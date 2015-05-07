@@ -2,6 +2,7 @@ package controllers
 
 import be.objectify.deadbolt.java.actions.{Group, Restrict}
 import com.avaje.ebean.Ebean
+import controllers.Interfaces
 import models.{Course, User}
 import play.api.mvc.{Action, Controller}
 import util.scala.Binders.IdList
@@ -21,24 +22,14 @@ object CourseController extends Controller with ScalaHacks {
   val CriteriaLengthLimiter = 2
 
   @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))
-  def getCourses(filterType: Option[String], criteria: Option[String]) = Action.async {
+  def getCourses(filterType: Option[String], criteria: Option[String]) =
+    Action.async {
     (filterType, criteria) match {
-      case (Some("code"), Some(x)) =>
-        Interfaces.getCourseInfo(x).wrapped.map(i => java2Response(i))
-      case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
-        val courses = scala.concurrent.Future {
-          Ebean.find(classOf[Course]).where
-            .ilike("name", s"$x%")
-            .orderBy("name desc")
-            .findList
-        }
-        courses.map(i => java2Response(i))
-      case (Some("name"), Some(x)) =>
-        throw new IllegalArgumentException("Too short criteria")
+      case (Some("code"), Some(x)) => Interfaces.getCourseInfoByCode(x).wrapped.map(i => java2Response(i))
+      case (Some("name"), Some(x)) => Interfaces.getCourseInfoByName(x).wrapped.map(i => java2Response(i))
+      case (Some("name"), Some(x)) => throw new IllegalArgumentException("Too short criteria")
       case _ =>
-        val results = scala.concurrent.Future {
-          Ebean.find(classOf[Course]).findList
-        }
+        val results = scala.concurrent.Future { Ebean.find(classOf[Course]).findList }
         results.map(i => java2Response(i))
     }
   }

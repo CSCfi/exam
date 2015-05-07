@@ -31,7 +31,7 @@ public class CourseInfoController extends SitnetController {
         }
 
         // get it through remote interface
-        return Interfaces.getCourseInfo(code).map(new F.Function<List<Course>, Course>() {
+        return Interfaces.getCourseInfoByCode(code).map(new F.Function<List<Course>, Course>() {
             @Override
             public Course apply(List<Course> courses) throws Throwable {
                 Course first = courses.get(0);

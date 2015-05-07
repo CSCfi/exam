@@ -126,7 +126,32 @@ $sitnet-background: #ffffff;
 .sitnet-text-aborted { color: $sitnet-aborted; }
 .sitnet-text { color: $sitnet-text; }
 
-
+.sitnet-dark-green {color: $sitnet-dark-green;}
+.sitnet-green {color: $sitnet-green;}
+.sitnet-dark-blue {color: $sitnet-dark-blue;}
+.sitnet-blue {color: $sitnet-blue;}
+.sitnet-grey {color: $sitnet-grey;}
+.sitnet-light-grey {color: $sitnet-light-grey;}
+.sitnet-dark-grey {color: $sitnet-dark-grey;}
+.sitnet-dark {color: $sitnet-dark;}
+.sitnet-beige {color: $sitnet-beige;}
+.sitnet-white {color: $sitnet-white;}
+.sitnet-black {color: $sitnet-black;}
+.sitnet-student-lightgreen {color: $sitnet-student-lightgreen;}
+.sitnet-student-darkgreen {color: $sitnet-student-darkgreen;}
+.sitnet-student-inactive-green {color: $sitnet-student-inactive-green;}
+.sitnet-student-turquoise {color: $sitnet-student-turquoise;}
+.sitnet-student-inactive-turquoise {color: $sitnet-student-inactive-turquoise;}
+.sitnet-student-orange {color: $sitnet-student-orange;}
+.sitnet-student-inactive-gray {color: $sitnet-student-inactive-gray;}
+.sitnet-red {color: $sitnet-red;}
+.sitnet-teacher-turquoise-dark-active {color: $sitnet-teacher-turquoise-dark-active;}
+.sitnet-teacher-turquoise-dark-inactive {color: $sitnet-teacher-turquoise-dark-inactive;}
+.sitnet-teacher-turquoise-light-active {color: $sitnet-teacher-turquoise-light-active;}
+.sitnet-teacher-turquoise-light-inactive {color: $sitnet-teacher-turquoise-light-inactive;}
+.sitnet-teacher-blue-light {color: $sitnet-teacher-blue-light;}
+.sitnet-teacher-green-dark {color: $sitnet-teacher-green-dark;}
+.sitnet-teacher-green-light {color: $sitnet-teacher-green-light;}
 
 // #### muuta defined ##############################################
 .greenHover:hover {
@@ -367,4 +392,37 @@ $sitnet-icon-size: 32px;
     padding-left:0;
     margin-left:0;
   }
+}
+.inline {
+  display: inline;
+}
+
+.editable {
+  cursor: pointer;
+}
+
+.editable:hover {
+  color: green;
+}
+
+.sitnet-info-text {
+  color: grey;
+  font-style: normal;
+  margin-top: 1em;
+}
+
+.sitnet-info-text-compact {
+  color: grey;
+  font-style: normal;
+}
+
+.sitnet-info-text-bold {
+  color: grey;
+  font-style: normal;
+  margin-top: 1em;
+  font-weight: bold;
+}
+
+.pointer {
+  cursor: pointer;
 }

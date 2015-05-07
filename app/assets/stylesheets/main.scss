@@ -33,10 +33,6 @@ body {
   font-family: $font;
 }
 
-.pointer {
-  cursor: pointer;
-}
-
 .vmenu-on {
   width: calc(100% - 230px);
   margin-left: 229px;
@@ -47,146 +43,9 @@ body {
   margin-left: 49px;
 }
 
-.inline {
-  display: inline;
-}
-
-.editable {
-  cursor: pointer;
-}
-
-.editable:hover {
-  color: green;
-}
-
-.sitnet-info-text {
-  color: grey;
-  font-style: normal;
-  margin-top: 1em;
-}
-
-.sitnet-info-text-compact {
-  color: grey;
-  font-style: normal;
-}
-
-.sitnet-info-text-bold {
-  color: grey;
-  font-style: normal;
-  margin-top: 1em;
-  font-weight: bold;
-}
-
-.sitnet-dark-green {
-  color: $sitnet-dark-green;
-}
-
-.sitnet-green {
-  color: $sitnet-green;
-}
-
-.sitnet-dark-blue {
-  color: $sitnet-dark-blue;
-}
-
-.sitnet-blue {
-  color: $sitnet-blue;
-}
-
-.sitnet-grey {
-  color: $sitnet-grey;
-}
-
-.sitnet-light-grey {
-  color: $sitnet-light-grey;
-}
-
-.sitnet-dark-grey {
-  color: $sitnet-dark-grey;
-}
-
-.sitnet-dark {
-  color: $sitnet-dark;
-}
-
-.sitnet-beige {
-  color: $sitnet-beige;
-}
-
-.sitnet-white {
-  color: $sitnet-white;
-}
-
-.sitnet-black {
-  color: $sitnet-black;
-}
-
-.sitnet-student-lightgreen {
-  color: $sitnet-student-lightgreen;
-}
-
-.sitnet-student-darkgreen {
-  color: $sitnet-student-darkgreen;
-}
-
-.sitnet-student-inactive-green {
-  color: $sitnet-student-inactive-green;
-}
-
-.sitnet-student-turquoise {
-  color: $sitnet-student-turquoise;
-}
-
-.sitnet-student-inactive-turquoise {
-  color: $sitnet-student-inactive-turquoise;
-}
-
-.sitnet-student-orange {
-  color: $sitnet-student-orange;
-}
-
-.sitnet-student-inactive-gray {
-  color: $sitnet-student-inactive-gray;
-}
-
-.sitnet-red {
-  color: $sitnet-red;
-}
-
-.sitnet-teacher-turquoise-dark-active {
-  color: $sitnet-teacher-turquoise-dark-active;
-}
-
-.sitnet-teacher-turquoise-dark-inactive {
-  color: $sitnet-teacher-turquoise-dark-inactive;
-}
-
-.sitnet-teacher-turquoise-light-active {
-  color: $sitnet-teacher-turquoise-light-active;
-}
-
-.sitnet-teacher-turquoise-light-inactive {
-  color: $sitnet-teacher-turquoise-light-inactive;
-}
-
-.sitnet-teacher-blue-light {
-  color: $sitnet-teacher-blue-light;
-}
-
-.sitnet-teacher-green-dark {
-  color: $sitnet-teacher-green-dark;
-}
-
-.sitnet-teacher-green-light {
-  color: $sitnet-teacher-green-light;
-}
 .generic-header {
   padding-left: 30px;
   border-bottom: solid 1px $sitnet-common-light;
-}
-
-.top-margin {
-  margin-top: 1em;
 }
 
 .locale-bar {

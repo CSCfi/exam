@@ -5,20 +5,21 @@
             function ($http, $scope, limitToFilter, CourseRes, ExamRes, examService, $translate) {
 
             $scope.getCourses = function(filter, criteria) {
-                $scope.loadingCoursesByCode = true;
+                toggleLoadingIcon(filter, true);
                 var tmp = criteria;
                 if ($scope.newExam && $scope.newExam.course && $scope.newExam.course.id) {
                     var course = $scope.newExam.course;
                     $scope.newExam.course = undefined;
-                    $scope.newExam.course = {code: tmp};
+                    setInputValue(filter, tmp);
+
                     ExamRes.course.delete({eid: $scope.newExam.id, cid: course.id}, function (updated_exam) {
                         $scope.newExam = updated_exam;
-                        $scope.newExam.course = {code: tmp};
+                        setInputValue(filter, tmp);
                     });
                 }
                 return CourseRes.courses.query({filter: filter, q: criteria}).$promise.then(
                     function (courses) {
-                        $scope.loadingCoursesByCode = false;
+                        toggleLoadingIcon(filter, false);
                         if(courses) {
                             return limitToFilter(courses, 15);
                         }
@@ -26,13 +27,30 @@
                         return;
                     },
                     function (error) {
-                        $scope.loadingCoursesByCode = false;
+                        toggleLoadingIcon(filter, false);
                         toastr.error($translate('sitnet_course_not_found') + ' ( ' + tmp + ' )');
 
                         return;
                     }
                 );
             };
+
+            function toggleLoadingIcon(filter, isOn) {
+                if(filter && filter === 'code') {
+                    $scope.loadingCoursesByCode = isOn;
+                } else if(filter && filter === 'name') {
+                    $scope.loadingCoursesByName = isOn;
+                }
+            }
+
+            function setInputValue(filter, tmp) {
+                if(filter && filter === 'code') {
+                    $scope.newExam.course = {code: tmp};
+                } else if(filter && filter === 'name') {
+                    $scope.newExam.course = {name: tmp};
+                }
+            }
+
             $scope.displayGradeScale = function (description) {
                 if (!description) {
                     return "";
