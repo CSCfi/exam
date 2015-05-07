@@ -23,7 +23,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.status;
 
-public class PermissionCheckInterfaceTest extends IntegrationTestCase {
+public class EnrolmentInterfaceTest extends IntegrationTestCase {
 
     private static Server server;
 

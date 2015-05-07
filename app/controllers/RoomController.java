@@ -19,7 +19,9 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by avainik on 4/9/14.
@@ -179,43 +181,26 @@ public class RoomController extends SitnetController {
 
         final JsonNode root = request().body().asJson();
 
-        DateTime startDate = root.has("startDate") ? ISODateTimeFormat.dateTime().parseDateTime(root.get("startDate").asText()) : null;
-        DateTime startTime = root.has("startTime") ? ISODateTimeFormat.dateTime().parseDateTime(root.get("startTime").asText()) : null;
-        DateTime endDate = root.has("endDate") ? ISODateTimeFormat.dateTime().parseDateTime(root.get("endDate").asText()) : null;
-        DateTime endTime = root.has("endTime") ? ISODateTimeFormat.dateTime().parseDateTime(root.get("endTime").asText()) : null;
+        if (!root.has("startDate") || !root.has("endDate")) {
+            return badRequest("either start or end date missing");
+        }
+        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("startDate").asText());
+        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("endDate").asText());
 
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
         if (examRoom == null) {
             return notFound();
         }
 
+
         final ExceptionWorkingHours hours = new ExceptionWorkingHours();
-        if (startDate != null) {
-            hours.setStartDate(startDate.toDate());
-        }
-
-        if (startTime != null) {
-            DateTime dt = startTime.withDayOfYear(1);
-            hours.setStartTime(dt.toDate());
-            hours.setStartTimeTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(dt));
-        }
-
-        if (endDate != null) {
-            hours.setEndDate(endDate.toDate());
-        }
-
-        if (endTime != null) {
-            DateTime dt = endTime.withDayOfYear(1);
-            hours.setEndTime(endTime.withDayOfYear(1).toDate());
-            hours.setEndTimeTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(dt));
-        }
-
-        hours.save();
-
+        hours.setStartDate(startDate.toDate());
+        hours.setStartDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(startDate.withDayOfYear(1)));
+        hours.setEndDate(endDate.toDate());
+        hours.setEndDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endDate.withDayOfYear(1)));
         hours.setRoom(examRoom);
-        examRoom.getCalendarExceptionEvents().add(hours);
-
-        examRoom.save();
+        hours.setOutOfService(root.get("outOfService").asBoolean(true));
+        hours.save();
 
         return ok(Json.toJson(hours));
     }

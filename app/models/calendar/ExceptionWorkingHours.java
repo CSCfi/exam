@@ -28,17 +28,11 @@ public class ExceptionWorkingHours extends Model {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
     private Date endDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
-    private Date startTime;
+    private int startDateTimezoneOffset;
 
-    private int startTimeTimezoneOffset;
+    private int endDateTimezoneOffset;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
-    private Date endTime;
-
-    private int endTimeTimezoneOffset;
+    private boolean outOfService;
 
     @ManyToOne
     @JsonBackReference
@@ -60,14 +54,6 @@ public class ExceptionWorkingHours extends Model {
         this.endDate = endDate;
     }
 
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
     public ExamRoom getRoom() {
         return room;
     }
@@ -84,27 +70,27 @@ public class ExceptionWorkingHours extends Model {
         this.startDate = startDate;
     }
 
-    public Date getStartTime() {
-        return startTime;
+    public int getStartDateTimezoneOffset() {
+        return startDateTimezoneOffset;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
+    public void setStartDateTimezoneOffset(int startDateTimezoneOffset) {
+        this.startDateTimezoneOffset = startDateTimezoneOffset;
     }
 
-    public int getStartTimeTimezoneOffset() {
-        return startTimeTimezoneOffset;
+    public int getEndDateTimezoneOffset() {
+        return endDateTimezoneOffset;
     }
 
-    public void setStartTimeTimezoneOffset(int startTimeTimezoneOffset) {
-        this.startTimeTimezoneOffset = startTimeTimezoneOffset;
+    public void setEndDateTimezoneOffset(int endTimeTimezoneOffset) {
+        this.endDateTimezoneOffset = endTimeTimezoneOffset;
     }
 
-    public int getEndTimeTimezoneOffset() {
-        return endTimeTimezoneOffset;
+    public boolean isOutOfService() {
+        return outOfService;
     }
 
-    public void setEndTimeTimezoneOffset(int endTimeTimezoneOffset) {
-        this.endTimeTimezoneOffset = endTimeTimezoneOffset;
+    public void setOutOfService(boolean outOfService) {
+        this.outOfService = outOfService;
     }
 }

@@ -11,13 +11,16 @@ import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
+import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import util.SitnetUtil;
 import util.java.EmailComposer;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 public class CalendarController extends SitnetController {
@@ -29,7 +32,7 @@ public class CalendarController extends SitnetController {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws NotFoundException {
         User user = UserController.getLoggedUser();
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
@@ -41,32 +44,29 @@ public class CalendarController extends SitnetController {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
         // Removal not permitted if reservation is in the past or ongoing
-        Reservation reservation = enrolment.getReservation();
+        final Reservation reservation = enrolment.getReservation();
         DateTime now = SitnetUtil.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
-
-        // if user who removes reservation is not Student himself, send email
-        if (!user.getId().equals(enrolment.getUser().getId())) {
-            try {
-                EmailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", false, enrolment);
-            } catch (IOException e) {
-                return internalServerError(e.getMessage());
-            }
-        } else {
-            try {
-                EmailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", true, enrolment);
-            } catch (IOException e) {
-                return internalServerError(e.getMessage());
-            }
-        }
-
-
         enrolment.setReservation(null);
+        enrolment.setReservationCanceled(true);
         Ebean.save(enrolment);
         Ebean.delete(Reservation.class, id);
 
+        // send email asynchronously
+        final boolean isStudentUser = user.equals(enrolment.getUser());
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    EmailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
+                    Logger.info("Reservation cancellation confirmation email sent");
+                } catch (IOException e) {
+                    Logger.error("Failed to send reservation confirmation email", e);
+                }
+            }
+        }, Akka.system().dispatcher());
         return ok("removed");
     }
 
@@ -89,10 +89,10 @@ public class CalendarController extends SitnetController {
             return badRequest("invalid dates");
         }
 
-        DateTime now = SitnetUtil.adjustDST(DateTime.now());
-        User user = UserController.getLoggedUser();
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        DateTime now = SitnetUtil.adjustDST(DateTime.now(), room);
+        final User user = UserController.getLoggedUser();
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
@@ -119,7 +119,7 @@ public class CalendarController extends SitnetController {
             return forbidden("sitnet_no_machines_available");
         }
 
-        Reservation reservation = new Reservation();
+        final Reservation reservation = new Reservation();
         reservation.setEndAt(end.toDate());
         reservation.setStartAt(start.toDate());
         reservation.setMachine(machine);
@@ -127,17 +127,25 @@ public class CalendarController extends SitnetController {
 
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
+        enrolment.setReservationCanceled(false);
         Ebean.save(enrolment);
 
         if (oldReservation != null) {
             Ebean.delete(oldReservation);
         }
 
-        try {
-            EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
-        } catch (IOException e) {
-            Logger.error("Failed to send reservation confirmation email", e);
-        }
+        // Send asynchronously
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
+                    Logger.info("Reservation confirmation email sent");
+                } catch (IOException e) {
+                    Logger.error("Failed to send reservation confirmation email", e);
+                }
+            }
+        }, Akka.system().dispatcher());
 
         return ok("ok");
     }
@@ -247,10 +255,11 @@ public class CalendarController extends SitnetController {
     private static LocalDate parseSearchDate(String day, Exam exam) throws NotFoundException {
         LocalDate examEndDate = new LocalDate(exam.getExamActiveEndDate());
         LocalDate examStartDate = new LocalDate(exam.getExamActiveStartDate());
-        LocalDate searchDate = day.equals("") ? LocalDate.now() : LocalDate.parse(day, dateFormat);
+        LocalDate now = LocalDate.now();
+        LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, dateFormat);
         searchDate = searchDate.withDayOfMonth(1);
-        if (searchDate.isBefore(LocalDate.now())) {
-            searchDate = LocalDate.now();
+        if (searchDate.isBefore(now)) {
+            searchDate = now;
         }
         // if searching for month(s) after exam's end month -> no can do
         if (searchDate.isAfter(examEndDate)) {
@@ -303,10 +312,9 @@ public class CalendarController extends SitnetController {
         DateTime now = DateTime.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()));
         for (ExamRoom.OpeningHours oh : openingHours) {
             int tzOffset = oh.getTimezoneOffset();
-            DateTime beginning = now.getDayOfYear() == date.getDayOfYear() ?
-                    nextStartingTime(now, startingHours, tzOffset) :
-                    nextStartingTime(oh.getHours().getStart(), startingHours, tzOffset);
+            DateTime instant = now.getDayOfYear() == date.getDayOfYear() ? now : oh.getHours().getStart();
             DateTime slotEnd = oh.getHours().getEnd();
+            DateTime beginning = nextStartingTime(instant, startingHours, tzOffset);
             while (beginning != null) {
                 DateTime nextBeginning = nextStartingTime(beginning.plusMillis(1), startingHours, tzOffset);
                 if (nextBeginning != null && !nextBeginning.isAfter(slotEnd)) {
@@ -386,7 +394,8 @@ public class CalendarController extends SitnetController {
 
     private static DateTime nextStartingTime(DateTime instant, List<ExamStartingHour> startingHours, int offset) {
         for (ExamStartingHour esh : startingHours) {
-            DateTime datetime = instant.withMillisOfDay(new LocalTime(esh.getStartingHour()).plusMillis(offset).getMillisOfDay());
+            int timeMs = new LocalTime(esh.getStartingHour()).plusMillis(offset).getMillisOfDay();
+            DateTime datetime = instant.withMillisOfDay(timeMs);
             if (!datetime.isBefore(instant)) {
                 return datetime;
             }

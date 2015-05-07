@@ -47,14 +47,14 @@ public class Interfaces extends SitnetController {
     }
 
     private static URL parseUrl(User user) throws MalformedURLException {
-        if (user.getEmployeeNumber() == null) {
-            throw new RuntimeException("User has no employee number!");
+        if (user.getUserIdentifier() == null) {
+            throw new RuntimeException("User has no identier number!");
         }
         String url = ConfigFactory.load().getString("sitnet.integration.enrolmentPermissionCheck.url");
         if (url == null || !url.contains(USER_ID_PLACEHOLDER) || !url.contains(USER_LANG_PLACEHOLDER)) {
             throw new RuntimeException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
         }
-        url = url.replace(USER_ID_PLACEHOLDER, user.getEmployeeNumber()).replace(USER_LANG_PLACEHOLDER,
+        url = url.replace(USER_ID_PLACEHOLDER, user.getUserIdentifier()).replace(USER_LANG_PLACEHOLDER,
                 user.getUserLanguage().getUILanguageCode());
         return new URL(url);
     }

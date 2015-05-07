@@ -133,6 +133,7 @@
                     dialog.result.then(function(btn){
                         $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
                             delete enrolment.reservation;
+                            enrolment.reservationCanceled = true;
                             toastr.success("ok");
                         }).error(function(msg) {
                             toastr.error(msg);

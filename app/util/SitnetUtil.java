@@ -54,15 +54,23 @@ public class SitnetUtil {
     public static DateTime adjustDST(DateTime dateTime) {
         // FIXME: this method should be made unnecessary, DST adjustments should always be done based on reservation data.
         // Until we get some of the queries rephrased, we have to live with this quick-fix
-        return adjustDST(dateTime, null);
+        return doAdjustDST(dateTime, null);
      }
 
     public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
+        return doAdjustDST(dateTime, reservation.getMachine().getRoom());
+    }
+
+    public static DateTime adjustDST(DateTime dateTime, ExamRoom room) {
+        return doAdjustDST(dateTime, room);
+    }
+
+    private static DateTime doAdjustDST(DateTime dateTime, ExamRoom room) {
         DateTimeZone dtz;
-        if (reservation == null) {
+        if (room == null) {
             dtz = SitnetUtil.getDefaultTimeZone();
         } else {
-            dtz = DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
+            dtz = DateTimeZone.forID(room.getLocalTimezone());
         }
         if (!dtz.isStandardOffset(System.currentTimeMillis())) {
             dateTime = dateTime.plusHours(1);

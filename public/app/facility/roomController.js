@@ -183,6 +183,16 @@
                     return arr;
                 };
 
+                var formatExceptionEvent = function(event) {
+                    var startDate = moment(event.startDate);
+                    var endDate = moment(event.endDate);
+                    var offset = moment().isDST() ? -1 : 0;
+                    startDate.add(offset, 'hour');
+                    endDate.add(offset, 'hour');
+                    event.startDate = startDate.format();
+                    event.endDate = endDate.format();
+                };
+
                 if ($scope.user.isAdmin) {
                     if (!$routeParams.id) {
                         RoomResource.rooms.query(function (rooms) {
@@ -219,6 +229,9 @@
                                         hours.selected = startingHours.indexOf(hours.startingHour) !== -1;
                                     });
                                 }
+                                $scope.roomInstance.calendarExceptionEvents.forEach(function (event) {
+                                    formatExceptionEvent(event);
+                                });
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -304,6 +317,7 @@
                 }
 
                 $scope.setStartingHourOffset = function () {
+                    $scope.roomInstance.examStartingHourOffset = $scope.roomInstance.examStartingHourOffset || 0;
                     $scope.examStartingHours.forEach(function (hours) {
                         hours.startingHour = hours.startingHour.split(':')[0] + ':' + zeropad($scope.roomInstance.examStartingHourOffset);
                     });
@@ -542,25 +556,11 @@
                 };
 
                 $scope.formatDate = function (exception) {
-                    var fmt = 'DD.MM.YYYY';
-                    var formatted = moment(exception.startDate).format(fmt);
-                    if (exception.endDate) {
-                        formatted += ' - ';
-                        formatted += moment(exception.endDate).format(fmt);
-                    }
-                    return formatted;
+                    var fmt = 'DD.MM.YYYY HH:mm';
+                    var start = moment(exception.startDate);
+                    var end = moment(exception.endDate);
+                    return start.format(fmt) + ' - ' + end.format(fmt);
                 };
-
-                $scope.formatTime = function (exception) {
-                    var fmt = 'HH:mm';
-                    if (!exception.startTime) {
-                        return $translate('sitnet_out_of_service');
-                    }
-                    var start = moment(exception.startTime);
-                    var end = moment(exception.endTime);
-                    return start.format(fmt) + " - " + end.format(fmt);
-                };
-
 
                 $scope.addException = function () {
 
@@ -570,67 +570,27 @@
                         backdrop: 'static',
                         keyboard: true,
                         controller: function ($scope, $modalInstance) {
-
-
-                            $scope.selectStartDate = function (date) {
-                                $scope.startDate = date;
-                            };
-
-                            $scope.selectEndDate = function (date) {
-                                $scope.endDate = date;
-                            };
-
-                            $scope.selectStartTime = function (time) {
-                                $scope.startTime = time;
-                            };
-
-                            $scope.selectEndTime = function (time) {
-                                $scope.endTime = time;
-                            };
-
-
-                            $scope.format = 'dd.MM.yyyy';
-
-                            $scope.endOpen = false;
-
-                            $scope.timeRange = false;
-                            $scope.outOfService = false;
-
-                            $scope.startDate = new Date();
-                            $scope.endDate = new Date();
-
-                            $scope.startTime = new Date();
-                            $scope.startTime.setHours(0);
-                            $scope.startTime.setMinutes(0);
-
-                            $scope.endTime = new Date();
-                            $scope.endTime.setHours(23);
-                            $scope.endTime.setMinutes(59);
-
-
-                            $scope.setOutOfService = function (oos) {
-                                $scope.outOfService = !oos;
-                            };
-
-                            $scope.setRange = function (range) {
-                                $scope.timeRange = !range;
-                            };
+                            var now = new Date();
+                            now.setMinutes(0);
+                            now.setSeconds(0);
+                            now.setMilliseconds(0);
+                            $scope.startDate = now;
+                            $scope.endDate = angular.copy(now);
 
                             $scope.ok = function () {
 
                                 var hourOffset = moment().isDST() ? 1 : 0;
-                                var startTime = moment($scope.startTime).add(hourOffset, 'hour');
-                                var endTime = moment($scope.endTime).add(hourOffset, 'hour');
-
-                                var range = $scope.timeRange;
-                                var oos = $scope.outOfService;
-
-                                $modalInstance.close({
-                                    "startDate": $scope.startDate,
-                                    "endDate": range ? $scope.endDate : undefined,
-                                    "startTime": oos ? undefined : startTime,
-                                    "endTime": oos ? undefined : endTime
-                                });
+                                var start = moment($scope.startDate).add(hourOffset, 'hour');
+                                var end = moment($scope.endDate).add(hourOffset, 'hour');
+                                if (end <= start) {
+                                    toastr.error($translate('sitnet_endtime_before_starttime'))
+                                } else {
+                                    $modalInstance.close({
+                                        "startDate": start,
+                                        "endDate": end,
+                                        "outOfService": $scope.outOfService
+                                    });
+                                }
                             };
 
                             $scope.cancel = function () {
@@ -642,9 +602,10 @@
                     modalInstance.result.then(function (exception) {
 
                         RoomResource.exception.update({id: $scope.roomInstance.id}, exception,
-                            function (saveException) {
+                            function (data) {
                                 toastr.info($translate('sitnet_exception_time_added'));
-                                $scope.roomInstance.calendarExceptionEvents.push(saveException);
+                                formatExceptionEvent(data);
+                                $scope.roomInstance.calendarExceptionEvents.push(data);
                             },
                             function (error) {
                                 toastr.error(error.data);
