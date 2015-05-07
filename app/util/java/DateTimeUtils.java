@@ -22,9 +22,9 @@ public class DateTimeUtils {
         }
         // create a sub-list that excludes interval which does not overlap with
         // searchInterval
-        List<Interval> subExistingList = removeNoneOverlappingIntervals(reserved, searchInterval);
-        DateTime subEarliestStart = subExistingList.get(0).getStart();
-        DateTime subLatestStop = subExistingList.get(subExistingList.size() - 1).getEnd();
+        List<Interval> subReservedList = removeNonOverlappingIntervals(reserved, searchInterval);
+        DateTime subEarliestStart = subReservedList.get(0).getStart();
+        DateTime subLatestEnd = subReservedList.get(subReservedList.size() - 1).getEnd();
 
         // in case the searchInterval is wider than the union of the existing
         // include searchInterval.start => earliestExisting.start
@@ -33,33 +33,34 @@ public class DateTimeUtils {
         }
 
         // get all the gaps in the existing list
-        gaps.addAll(getExistingIntervalGaps(subExistingList));
+        gaps.addAll(getExistingIntervalGaps(subReservedList));
 
-        // include latestExisting.stop => searchInterval.stop
-        if (searchEnd.isAfter(subLatestStop)) {
-            gaps.add(new Interval(subLatestStop, searchEnd));
+        // include latestExisting.end => searchInterval.end
+        if (searchEnd.isAfter(subLatestEnd)) {
+            gaps.add(new Interval(subLatestEnd, searchEnd));
         }
         return gaps;
 
     }
 
-    public static List<Interval> getExistingIntervalGaps(List<Interval> existingList) {
+    public static List<Interval> getExistingIntervalGaps(List<Interval> reserved) {
         List<Interval> gaps = new ArrayList<>();
-        Interval current = existingList.get(0);
-        for (int i = 1; i < existingList.size(); i++) {
-            Interval next = existingList.get(i);
+        Interval current = reserved.get(0);
+        for (int i = 1; i < reserved.size(); i++) {
+            Interval next = reserved.get(i);
             Interval gap = current.gap(next);
-            if (gap != null)
+            if (gap != null) {
                 gaps.add(gap);
+            }
             current = next;
         }
         return gaps;
     }
 
 
-    public static List<Interval> removeNoneOverlappingIntervals(List<Interval> existingIntervals, Interval searchInterval) {
+    public static List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
         List<Interval> subExistingList = new ArrayList<>();
-        for (Interval interval : existingIntervals) {
+        for (Interval interval : reserved) {
             if (interval.overlaps(searchInterval)) {
                 subExistingList.add(interval);
             }
@@ -70,8 +71,6 @@ public class DateTimeUtils {
     public static boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
         DateTime earliestStart = reserved.get(0).getStart();
         DateTime latestStop = reserved.get(reserved.size() - 1).getEnd();
-        // return the entire search interval if it does not overlap with
-        // existing at all
         return searchEnd.isBefore(earliestStart) || searchStart.isAfter(latestStop);
     }
 
@@ -112,7 +111,8 @@ public class DateTimeUtils {
             Interval second = slots.get(i);
             if (!second.getStart().isAfter(first.getEnd())) {
                 merged.remove(i - 1);
-                merged.add(new Interval(first.getStart(), first.getEnd().isAfter(second.getEnd()) ? first.getEnd() : second.getEnd()));
+                DateTime laterEnding = first.getEnd().isAfter(second.getEnd()) ? first.getEnd() : second.getEnd();
+                merged.add(new Interval(first.getStart(), laterEnding));
                 isMerged = true;
             } else {
                 merged.add(second);
@@ -121,6 +121,7 @@ public class DateTimeUtils {
         if (isMerged) {
             merged = mergeSlots(merged);
         }
+        // Nothing to merge anymore
         return merged;
     }
 

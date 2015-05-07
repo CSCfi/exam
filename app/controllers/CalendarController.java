@@ -60,7 +60,7 @@ public class CalendarController extends SitnetController {
             public void run() {
                 try {
                     EmailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-                    Logger.info("Reservation confirmation email sent");
+                    Logger.info("Reservation cancellation confirmation email sent");
                 } catch (IOException e) {
                     Logger.error("Failed to send reservation confirmation email", e);
                 }
@@ -88,9 +88,9 @@ public class CalendarController extends SitnetController {
             return badRequest("invalid dates");
         }
 
-        DateTime now = SitnetUtil.adjustDST(DateTime.now());
-        final User user = UserController.getLoggedUser();
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
+        DateTime now = SitnetUtil.adjustDST(DateTime.now(), room);
+        final User user = UserController.getLoggedUser();
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .where()
@@ -253,10 +253,11 @@ public class CalendarController extends SitnetController {
     private static LocalDate parseSearchDate(String day, Exam exam) throws NotFoundException {
         LocalDate examEndDate = new LocalDate(exam.getExamActiveEndDate());
         LocalDate examStartDate = new LocalDate(exam.getExamActiveStartDate());
-        LocalDate searchDate = day.equals("") ? LocalDate.now() : LocalDate.parse(day, dateFormat);
+        LocalDate now = LocalDate.now();
+        LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, dateFormat);
         searchDate = searchDate.withDayOfMonth(1);
-        if (searchDate.isBefore(LocalDate.now())) {
-            searchDate = LocalDate.now();
+        if (searchDate.isBefore(now)) {
+            searchDate = now;
         }
         // if searching for month(s) after exam's end month -> no can do
         if (searchDate.isAfter(examEndDate)) {
@@ -309,10 +310,9 @@ public class CalendarController extends SitnetController {
         DateTime now = DateTime.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()));
         for (ExamRoom.OpeningHours oh : openingHours) {
             int tzOffset = oh.getTimezoneOffset();
-            DateTime beginning = now.getDayOfYear() == date.getDayOfYear() ?
-                    nextStartingTime(now, startingHours, tzOffset) :
-                    nextStartingTime(oh.getHours().getStart(), startingHours, tzOffset);
+            DateTime instant = now.getDayOfYear() == date.getDayOfYear() ? now : oh.getHours().getStart();
             DateTime slotEnd = oh.getHours().getEnd();
+            DateTime beginning = nextStartingTime(instant, startingHours, tzOffset);
             while (beginning != null) {
                 DateTime nextBeginning = nextStartingTime(beginning.plusMillis(1), startingHours, tzOffset);
                 if (nextBeginning != null && !nextBeginning.isAfter(slotEnd)) {
@@ -392,7 +392,8 @@ public class CalendarController extends SitnetController {
 
     private static DateTime nextStartingTime(DateTime instant, List<ExamStartingHour> startingHours, int offset) {
         for (ExamStartingHour esh : startingHours) {
-            DateTime datetime = instant.withMillisOfDay(new LocalTime(esh.getStartingHour()).plusMillis(offset).getMillisOfDay());
+            int timeMs = new LocalTime(esh.getStartingHour()).plusMillis(offset).getMillisOfDay();
+            DateTime datetime = instant.withMillisOfDay(timeMs);
             if (!datetime.isBefore(instant)) {
                 return datetime;
             }
