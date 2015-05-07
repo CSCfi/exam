@@ -609,5 +609,6 @@
   "sitnet_minutes_on_the_hour": "Minuuttia yli tasatunnin",
   "sitnet_begin": "Alkaa",
   "sitnet_end": "Päättyy",
-  "sitnet_room_in_service": "Tila käytössä"
+  "sitnet_room_in_service": "Tila käytössä",
+  "sitnet_canceled": "Peruttu"
 }

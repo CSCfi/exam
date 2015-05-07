@@ -50,6 +50,7 @@ public class CalendarController extends SitnetController {
             return forbidden("sitnet_reservation_in_effect");
         }
         enrolment.setReservation(null);
+        enrolment.setReservationCanceled(true);
         Ebean.save(enrolment);
         Ebean.delete(Reservation.class, id);
 
@@ -126,6 +127,7 @@ public class CalendarController extends SitnetController {
 
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
+        enrolment.setReservationCanceled(false);
         Ebean.save(enrolment);
 
         if (oldReservation != null) {

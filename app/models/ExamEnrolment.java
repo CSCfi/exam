@@ -35,6 +35,8 @@ public class ExamEnrolment extends Model implements Comparable<ExamEnrolment> {
 
     private String information;
 
+    private boolean reservationCanceled;
+
     public Long getId() {
         return id;
     }
@@ -81,6 +83,14 @@ public class ExamEnrolment extends Model implements Comparable<ExamEnrolment> {
 
     public void setInformation(String information) {
         this.information = information;
+    }
+
+    public boolean isReservationCanceled() {
+        return reservationCanceled;
+    }
+
+    public void setReservationCanceled(boolean reservationCanceled) {
+        this.reservationCanceled = reservationCanceled;
     }
 
     @Override

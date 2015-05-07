@@ -59,6 +59,9 @@
                     <div class="col-md-9" ng-if="enrolment.reservation">
                         {{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}} - {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}
                     </div>
+                    <div class="col-md-9 text-warning" ng-if="enrolment.reservationCanceled">
+                        {{ 'sitnet_canceled' | translate }}
+                    </div>
                 </div>
                 <div class="detail-row info-row info-column">
                     <div class="col-md-3 header">
