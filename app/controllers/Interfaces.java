@@ -132,39 +132,6 @@ public class Interfaces extends SitnetController {
         });
     }
 
-    public static F.Promise<List<Course>> getCourseInfoByName(String name) throws MalformedURLException {
-        URL url = new URL(ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url"));
-        final List<Course> courses = Ebean.find(Course.class).where().ilike("name", name + "%").orderBy("name desc").findList();
-        if (!courses.isEmpty() || !isCourseSearchActive()) {
-            // we already have it or we don't want to fetch it
-            return F.Promise.promise(new F.Function0<List<Course>>() {
-                @Override
-                public List<Course> apply() throws Throwable {
-                    return courses;
-                }
-            });
-        }
-        return WS.url(url.toString()).setQueryParameter("courseUnitName", name).get().map(new F.Function<WSResponse, List<Course>>() {
-            @Override
-            public List<Course> apply(WSResponse wsResponse) throws Throwable {
-                int status = wsResponse.getStatus();
-                if (status == HttpServletResponse.SC_OK) {
-                    return parseResponse(wsResponse.asJson());
-                }
-                Logger.info("Non-OK response received {}", status);
-                throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, wsResponse.getStatusText()));
-            }
-        }).recover(new F.Function<Throwable, List<Course>>() {
-            @Override
-            public List<Course> apply(Throwable throwable) throws Throwable {
-                if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
-                    throw new TimeoutException("sitnet_request_timed_out");
-                }
-                throw throwable;
-            }
-        });
-    }
-
     private static List<GradeScale> getGradeScales(JsonNode node) {
         List<GradeScale> scales = new ArrayList<>();
         if (node.has("gradeScale")) {
