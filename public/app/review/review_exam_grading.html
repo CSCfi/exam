@@ -27,7 +27,7 @@
 <div class="detail-row" ng-show="isReadOnly">
     <div class="col-md-12" mathjax ng-bind-html="examToBeReviewed.examFeedback.comment"></div>
 </div>
-<div class="main-row" ng-show="countTeachers() > 1 && !isReadOnly">
+<div class="main-row" ng-show="countTeachers() > 1">
     <div>
         <div class="col-md-6">
             <div class="row">
@@ -164,7 +164,7 @@
     <div class="col-md-1">
             <span ng-show="!isReadOnly">
                 <!-- do not enable this if already graded and form has errors! -->
-                <button ng-disabled="!isCreatorOrOwnerOrAdmin()"
+                <button ng-disabled="!examForm.$valid || (isGraded && !isCreatorOrOwnerOrAdmin()) || isReadOnly"
                         ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
                     {{'sitnet_save' | translate}}
                 </button>
