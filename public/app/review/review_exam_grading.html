@@ -44,7 +44,7 @@
             <div class="row">
                 <div class="col-md-4">
                     <div ng-if="examToBeReviewed.parent.examOwners.length > 0" class="pull-left col-md-12 row" ng-repeat="teacher in examToBeReviewed.parent.examOwners">
-                        {{teacher.firstName}} {{teacher.lastName}}
+                        <b>{{teacher.firstName}} {{teacher.lastName}}</b>
                     </div>
                 </div>
                 <div class="col-md-8">

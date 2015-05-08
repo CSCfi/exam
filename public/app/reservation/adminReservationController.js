@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('AdminReservationController', ['$scope', '$location', '$http', 'SITNET_CONF', 'AdminReservationResource', 'dateService',
-            function ($scope, $location, $http, SITNET_CONF, AdminReservationResource, dateService) {
+        .controller('AdminReservationController', ['ExamRes', '$scope', '$location', '$http', 'SITNET_CONF', 'AdminReservationResource', 'dateService',
+            function (ExamRes, $scope, $location, $http, SITNET_CONF, AdminReservationResource, dateService) {
 
                 $scope.dateService = dateService;
 
@@ -59,17 +59,43 @@
                     }
                 );
 
-                $scope.printTeachers = function(exam) {
+                function setExamOwners(exam) {
+                    exam.teachersStr = "";
 
-                    var e = exam.parent && exam.parent.id > 0 ? exam.parent : exam;
-                    if(e.examOwners && e.examOwners.length > 0) {
-                        return e.examOwners.map(function (teacher) {
-                            return teacher.firstName + " " + teacher.lastName;
-                        }).join(", ");
-                    } else {
-                        return "";
+                    if(exam.examOwners) {
+                        var i = 0;
+                        angular.forEach(exam.examOwners, function (owner) {
+                            if(owner.lastName &&  owner.lastName.length > 0) {
+                                if(i !== 0) {
+                                    exam.teachersStr += ", ";
+                                }
+                                i++;
+                                if($scope.user.isStudent) {
+                                    exam.teachersStr += owner.firstName + " " + owner.lastName;
+                                } else {
+                                    exam.teachersStr += "<b>" + owner.firstName + " " + owner.lastName + "</b>";
+                                }
+                            }
+                        });
                     }
-                };
+
+                    if(exam.inspections) {
+                        var i = 0;
+                        angular.forEach(exam.inspections, function (inspection) {
+                            if (exam.teachersStr.indexOf("<b>" +inspection.user.firstName + " " + inspection.user.lastName + "</b>") === -1) {
+                                if(i !== 0 || (i === 0 && exam.teachersStr.length > 0)) {
+                                    exam.teachersStr += ", ";
+                                }
+                                i++;
+                                if($scope.user.isStudent) {
+                                    exam.teachersStr += inspection.user.firstName + " " + inspection.user.lastName;
+                                } else {
+                                    exam.teachersStr += "<span>" + inspection.user.firstName + " " + inspection.user.lastName + "</span>";
+                                }
+                            }
+                        });
+                    }
+                }
 
                 $scope.examStates = [
                         'REVIEW',
@@ -119,6 +145,14 @@
                         AdminReservationResource.reservations.query(params,
                             function (enrolments) {
                                 $scope.enrolments = enrolments;
+                                if(enrolments) {
+                                    angular.forEach(enrolments, function(enrolment){
+                                        ExamRes.inspections.get({id: enrolment.exam.id}, function (inspections) {
+                                            enrolment.exam.inspections = inspections;
+                                            setExamOwners(enrolment.exam);
+                                        });
+                                    });
+                                }
                             }, function (error) {
                                 toastr.error(error.data);
                             });

@@ -195,6 +195,30 @@
                     }
                 );
 
+                $scope.isOwner = function(user, owners) {
+                    var b = false;
+                    if(owners) {
+                        angular.forEach(owners, function(owner){
+                            if((owner.firstName + " " + owner.lastName) === (user.firstName + " " + user.lastName)) {
+                                b = true;
+                            }
+                        });
+                    }
+                    return b;
+                };
+
+                $scope.isInspector = function(user, inspections) {
+                    var b = false;
+                    if(inspections) {
+                        angular.forEach(inspections, function(inspection){
+                            if((inspection.user.firstName + " " + inspection.user.lastName) === (user.firstName + " " + user.lastName)) {
+                                b = true;
+                            }
+                        });
+                    }
+                    return b;
+                };
+
                 // Graded exams
                 ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['GRADED']},
                     function (examReviews) {
