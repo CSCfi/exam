@@ -34,7 +34,7 @@
         <div class="detail-row" ng-hide="sectionQuestion.question.reviewExpanded">
             <span class="col-md-12 review-question-value">
                 <span mathjax ng-bind-html="sectionQuestion.question.answer.option.option"></span>
-                <span ng-class="option.correctOption ? 'text-success' : 'text-danger'">&nbsp;&nbsp;
+                <span ng-class="sectionQuestion.question.answer.option.correctOption ? 'text-success' : 'text-danger'">&nbsp;&nbsp;
                     <span ng-if="sectionQuestion.question.answer.option.correctOption === true">
                         ({{'sitnet_multiplechoice_question_correct' | translate}})
                     </span>
