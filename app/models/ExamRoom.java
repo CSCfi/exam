@@ -314,7 +314,7 @@ public class ExamRoom extends Model {
                 DateTime midnight = date.toDateTimeAtStartOfDay();
                 DateTime start = midnight.withMillisOfDay((int) defaultHour.getStartTime().getTime());
                 DateTime end = midnight.withMillisOfDay((int) defaultHour.getEndTime().getTime());
-                Interval interval = new Interval(start.plusMillis(defaultHour.getTimezoneOffset()), end.plusMillis(defaultHour.getTimezoneOffset());
+                Interval interval = new Interval(start.plusMillis(defaultHour.getTimezoneOffset()), end.plusMillis(defaultHour.getTimezoneOffset()));
                 hours.add(new OpeningHours(interval, defaultHour.getTimezoneOffset()));
             }
         }
