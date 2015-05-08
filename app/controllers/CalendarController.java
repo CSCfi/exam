@@ -317,6 +317,10 @@ public class CalendarController extends SitnetController {
             DateTime beginning = nextStartingTime(instant, startingHours, tzOffset);
             while (beginning != null) {
                 DateTime nextBeginning = nextStartingTime(beginning.plusMillis(1), startingHours, tzOffset);
+                if (beginning.isBefore(oh.getHours().getStart())) {
+                    beginning = nextBeginning;
+                    continue;
+                }
                 if (nextBeginning != null && !nextBeginning.isAfter(slotEnd)) {
                     intervals.add(new Interval(beginning.minusMillis(tzOffset), nextBeginning.minusMillis(tzOffset)));
                     beginning = nextBeginning;
