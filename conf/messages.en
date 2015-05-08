@@ -35,5 +35,5 @@ email.template.weekly.report.enrolments=Bookings
 email.template.weekly.report.enrolments.info=Students have booked times for your exams as follows
 email.template.weekly.report.inspections=Assessments
 email.template.weekly.report.inspections.info=You have {0} unassessed submissions in these exams
-email.template.reservation.cancel.message.student=Your have cancelled your booking for the exam {0} at {1} in {2}
+email.template.reservation.cancel.message.student=Your have cancelled your booking for the exam
 email.template.reservation.cancel.message.student.new.time=You can book a new time {0}

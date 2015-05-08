@@ -258,7 +258,6 @@ public class EmailComposer {
             templatePath = TEMPLATES_ROOT + "reservationCanceled.html";
         }
 
-
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
         String subject = Messages.get(lang, "email.reservation.cancellation.subject");
@@ -272,7 +271,26 @@ public class EmailComposer {
         stringValues.put("hello", Messages.get(lang, "email.template.hello"));
         if(isStudentUser) {
             String link = String.format("%s/#/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
-            stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message.student", date, time, room));
+            time = TF.print(adjustDST(reservation.getStartAt(), TZ)) + " - " + TF.print(adjustDST(reservation.getEndAt(), TZ));
+
+            String teacher = "";
+            if(enrolment.getExam().getExamOwners() != null) {
+                StringBuilder sb = new StringBuilder();
+                int i = 1;
+                for(User owner : enrolment.getExam().getExamOwners()) {
+                    sb.append(owner.getFirstName() + " " + owner.getLastName());
+                    if(i != enrolment.getExam().getExamOwners().size()) {
+                        sb.append(", ");
+                    }
+                    i++;
+                }
+                teacher = sb.toString();
+            }
+            stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message.student"));
+            stringValues.put("exam", Messages.get(lang, "email.template.reservation.exam", enrolment.getExam().getName() + " (" + enrolment.getExam().getCourse().getCode() + ")"));
+            stringValues.put("teacher", Messages.get(lang, "email.template.reservation.teacher", teacher));
+            stringValues.put("time", Messages.get(lang, "email.template.reservation.teacher", time));
+            stringValues.put("place", Messages.get(lang, "email.template.reservation.room", room));
             stringValues.put("new_time", Messages.get(lang, "email.template.reservation.cancel.message.student.new.time", link));
         } else {
             stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message", date, time, room));
