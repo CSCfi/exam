@@ -107,7 +107,7 @@
                             class="form-control"
                             ng-model="selectedGrade"
                             ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()"
-                            ng-change="setGrade(selectedGrade)"
+                            ng-change="setGrade(selectedGrade, examToBeReviewed)"
                             required>
                         <option value=""
                                 ng-selected="examToBeReviewed.grade == undefined">{{'sitnet_choose' | translate}}</option>

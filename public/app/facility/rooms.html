@@ -180,7 +180,7 @@
                         <td>{{ machine.accessibilityInfo }}</td>
                         <td>
                             <ul>
-                                <li ng-repeat="software in machine.softwareInfo" class="pull-left">{{ software.name
+                                <li ng-repeat="software in machine.softwareInfo" ng-if="software.status == 'ACTIVE'" class="pull-left">{{ software.name
                                     }}{{$last ? '' : ',&nbsp;'}}
                                 </li>
                             </ul>
