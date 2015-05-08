@@ -311,13 +311,10 @@ public class ExamRoom extends Model {
         List<OpeningHours> hours = new ArrayList<>();
         for (DefaultWorkingHours defaultHour : defaultWorkingHours) {
             if (defaultHour.getDay().equalsIgnoreCase(day)) {
-                LocalTime start = new LocalTime(defaultHour.getStartTime().getTime()).plusMillis(defaultHour.getTimezoneOffset());
-                LocalTime end = new LocalTime(defaultHour.getEndTime().getTime()).plusMillis(defaultHour.getTimezoneOffset());
-                if (start.equals(end)) {
-                    // Open all day
-                    end = end.minusMillis(1);
-                }
-                Interval interval = new Interval(date.toDateTime(start), date.toDateTime(end));
+                DateTime midnight = date.toDateTimeAtStartOfDay();
+                DateTime start = midnight.withMillisOfDay((int) defaultHour.getStartTime().getTime());
+                DateTime end = midnight.withMillisOfDay((int) defaultHour.getEndTime().getTime());
+                Interval interval = new Interval(start.plusMillis(defaultHour.getTimezoneOffset()), end.plusMillis(defaultHour.getTimezoneOffset());
                 hours.add(new OpeningHours(interval, defaultHour.getTimezoneOffset()));
             }
         }
