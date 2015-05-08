@@ -50,7 +50,7 @@
                     $scope.examToBeReviewed.creditType = {type: creditType};
                 };
 
-                $scope.setGrade = function (grade_id) {
+                $scope.setGrade = function (grade_id, exam) {
                     if(grade_id) {
                         $scope.examToBeReviewed.grade = {id: grade_id};
                         $scope.selectedGrade = $scope.examToBeReviewed.grade.id;
@@ -440,7 +440,7 @@
                     return {
                         "id": exam.id,
                         "state": state,
-                        "grade": $scope.selectedGrade,
+                        "grade": exam.grade.id,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": $scope.selectedType,
@@ -662,7 +662,12 @@
 
                     var messages = [];
                     if (!reviewed_exam.grade) {
-                        messages.push('sitnet_participation_unreviewed');
+                        if ($scope.selectedGrade) {
+                            reviewed_exam.grade = {id: $scope.selectedGrade};
+                        }
+                        if (!reviewed_exam.grade) {
+                            messages.push('sitnet_participation_unreviewed');
+                        }
                     }
                     if (!reviewed_exam.creditType) {
                         messages.push('sitnet_exam_choose_credit_type');
@@ -682,16 +687,23 @@
                             var examToRecord = getReviewUpdate(reviewed_exam, 'GRADED_LOGGED');
                             examToRecord.additionalInfo = $scope.additionalInfo;
 
-                            ExamRes.saveRecord.add(examToRecord, function (exam) {
-                                toastr.info($translate('sitnet_review_recorded'));
-                                if ($scope.user.isAdmin) {
-                                    $location.path("/");
-                                } else {
-                                    $location.path("exams/reviews/" + reviewed_exam.parent.id);
-                                }
+                            ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {
+                                toastr.info($translate("sitnet_review_graded"));
+                                ExamRes.saveRecord.add(examToRecord, function (exam) {
+                                    toastr.info($translate('sitnet_review_recorded'));
+                                    if ($scope.user.isAdmin) {
+                                        $location.path("/");
+                                    } else {
+                                        $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                                    }
+                                }, function (error) {
+                                    toastr.error(error.data);
+                                });
                             }, function (error) {
                                 toastr.error(error.data);
                             });
+
+
                         });
                     }
                 };

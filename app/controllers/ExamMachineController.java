@@ -171,7 +171,7 @@ public class ExamMachineController extends SitnetController {
     public static Result getSoftwares() {
         List<Software> softwares = Ebean.find(Software.class)
                 .where()
-                .ne("status", "DISABLED")
+                .eq("status", "ACTIVE")
                 .orderBy("name")
                 .findList();
 
