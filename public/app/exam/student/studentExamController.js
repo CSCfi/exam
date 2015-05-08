@@ -210,7 +210,7 @@
                         // previous
                         if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
                             $scope.previousButton = true;
-                            if ($scope.pages.indexOf(sectionName) - 1 !== 0) {
+                            if($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
                                 $scope.previousButtonText = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
                             } else {
                                 $scope.previousButtonText = $translate("sitnet_exam_quide");
@@ -258,8 +258,8 @@
                             }
                             question.template = template;
 
-                            if (question.expanded == null) {
-                                question.expanded = true;
+                            if (!question.expanded) {
+                                question.expanded = false;
                             }
                             examService.setQuestionColors(question);
                         });

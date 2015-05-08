@@ -10,6 +10,12 @@
 
                 $scope.pages = ["guide"];
 
+                $scope.guide = false;
+                $scope.previousButton = false;
+                $scope.previousButtonText = "";
+                $scope.nextButton = false;
+                $scope.nextButtonText = "";
+
                 //$scope.exams = StudentExamRes.exams.query();
                 $scope.tempQuestion = null;
                 $scope.previewSwitch = true;
@@ -106,11 +112,6 @@
 
                 $scope.previewExam();
 
-                $scope.guide = false;
-                $scope.previousButton = false;
-                $scope.previousButtonText = "";
-                $scope.nextButton = false;
-                $scope.nextButtonText = "";
 
                 $scope.setNextSection = function () {
                     if ($scope.guide) {
@@ -142,7 +143,8 @@
                         // previous
                         if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
                             $scope.previousButton = true;
-                            if($scope.pages.indexOf(sectionName) - 1 !== 0) {
+
+                            if($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
                                 $scope.previousButtonText = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
                             } else {
                                 $scope.previousButtonText = $translate("sitnet_exam_quide");
@@ -193,8 +195,8 @@
                             }
                             question.template = template;
 
-                            if (question.expanded == null) {
-                                question.expanded = true;
+                            if (!question.expanded) {
+                                question.expanded = false;
                             }
                             examService.setQuestionColors(question);
                         });
@@ -209,6 +211,12 @@
                 // Called when a radiobutton is selected
                 $scope.radioChecked = function (doexam, question, option) {
                     question.answered = true;
+                    question.answer = {
+                        option: {
+                            option: option.option
+                        }
+                    };
+
                     question.questionStatus = $translate("sitnet_question_answered");
                     examService.setQuestionColors(question);
                 };
@@ -224,9 +232,9 @@
 
                 $scope.isAnswer = function (question, option) {
 
-                    if (question.answer === null)
+                    if (!question.answer)
                         return false;
-                    else if (question.answer.option === null)
+                    else if (!question.answer.option)
                         return false;
                     else if (option.option === question.answer.option.option)
                         return true;
