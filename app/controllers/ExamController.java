@@ -1394,14 +1394,32 @@ public class ExamController extends SitnetController {
         }
 
         // add to childs
-        if(source.getChildren() != null && !source.getChildren().isEmpty()) {
+        if(source.getChildren() != null) {
+
             for(Exam child : source.getChildren()) {
-                if(!child.getState().equalsIgnoreCase("GRADED") && !child.getState().equalsIgnoreCase("GRADED_LOGGED")) {
-                    ExamInspection i = new ExamInspection();
-                    i.setExam(child);
-                    i.setUser(recipient);
-                    i.setAssignedBy(UserController.getLoggedUser());
-                    i.save();
+
+                boolean add = true;
+                List<ExamInspection> localInspections = Ebean.find(ExamInspection.class)
+                        .where()
+                        .eq("exam", child.getId())
+                        .findList();
+
+                if(localInspections != null) {
+                    for(ExamInspection local : localInspections) {
+                        if(local.getUser().getId() == recipient.getId()) {
+                            add = false;
+                        }
+                    }
+                }
+
+                if(add) {
+                    if(!child.getState().equalsIgnoreCase("GRADED") && !child.getState().equalsIgnoreCase("GRADED_LOGGED")) {
+                        ExamInspection i = new ExamInspection();
+                        i.setExam(child);
+                        i.setUser(recipient);
+                        i.setAssignedBy(UserController.getLoggedUser());
+                        i.save();
+                    }
                 }
             }
         }
