@@ -288,10 +288,11 @@ public class EmailComposer {
             time = datetime.toString();
 
             String teacher = "";
-            if(enrolment.getExam().getExamOwners() != null) {
+            Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
+
+            if(source.getExamOwners() != null) {
                 StringBuilder sb = new StringBuilder();
                 int i = 1;
-                Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
                 for(User owner : source.getExamOwners()) {
                     sb.append(owner.getFirstName() + " " + owner.getLastName());
                     if(i != source.getExamOwners().size()) {
