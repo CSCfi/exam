@@ -20,17 +20,16 @@
                 return CourseRes.courses.query({filter: filter, q: criteria}).$promise.then(
                     function (courses) {
                         toggleLoadingIcon(filter, false);
-                        if(courses) {
-                            return limitToFilter(courses, 15);
+
+                        if(!courses || !courses.hasOwnProperty("length") || courses.length === 0) {
+                            toastr.error($translate('sitnet_course_not_found') + ' ( ' + tmp + ' )');
                         }
-                        toastr.error($translate('sitnet_course_not_found') + ' ( ' + tmp + ' )');
-                        return;
+                        return limitToFilter(courses, 15);
                     },
                     function (error) {
                         toggleLoadingIcon(filter, false);
                         toastr.error($translate('sitnet_course_not_found') + ' ( ' + tmp + ' )');
-
-                        return;
+                        return [];
                     }
                 );
             };
