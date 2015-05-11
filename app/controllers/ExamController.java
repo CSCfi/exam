@@ -1401,7 +1401,7 @@ public class ExamController extends SitnetController {
                 boolean add = true;
                 List<ExamInspection> localInspections = Ebean.find(ExamInspection.class)
                         .where()
-                        .eq("exam", child.getId())
+                        .eq("exam.id", child.getId())
                         .findList();
 
                 if(localInspections != null) {
