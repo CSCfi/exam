@@ -11,9 +11,9 @@
 
 <!-- General info section container -->
 <div ng-show="newExam.expanded">
-    <form role="form" novalidate>
+    <form role="form" ng-controller="DatepickerCtrl">
         <!-- Start & End time datepickers -->
-        <div class="row" ng-controller="DatepickerCtrl">
+        <div class="row">
             <div class="col-md-6">
                 <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}</div>
                 <div class="input-group">
@@ -24,7 +24,8 @@
                            close-text="{{'sitnet_close' | translate}}"
                            current-text="{{'sitnet_today' | translate}}"
                            toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                           clear-text="{{'sitnet_clear' | translate}}" required ui-change="updateExam()">
+                           clear-text="{{'sitnet_clear' | translate}}" date-validator
+                           required ui-change="updateExam()">
 
                     <span class="input-group-btn">
                         <button class="btn btn-default" ng-click="openStartDate($event)">
@@ -43,7 +44,8 @@
                            datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
                            current-text="{{'sitnet_today' | translate}}"
                            toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                           clear-text="{{'sitnet_clear' | translate}}" required ui-change="updateExam()">
+                           clear-text="{{'sitnet_clear' | translate}}" required date-validator
+                           ui-change="updateExam()">
                     <span class="input-group-btn">
                         <button class="btn btn-default" ng-click="openEndDate($event)">
                             <i class="fa fa-calendar"></i>

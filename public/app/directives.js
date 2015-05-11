@@ -2,6 +2,36 @@
     'use strict';
     angular.module('sitnet.directives')
 
+        .directive('dateValidator', function() {
+            return {
+                require: 'ngModel',
+                link: function (scope, elem, attr, ngModel) {
+                    function validate(value) {
+                        if (value !== undefined && value != null) {
+                            ngModel.$setValidity('badDate', true);
+                            ngModel.$setValidity('date', true);
+                            ngModel.$setValidity('required', true);
+                            if (value instanceof Date) {
+                                var d = Date.parse(value);
+                                // it is a date
+                                if (isNaN(d)) {
+                                    ngModel.$setValidity('badDate', false);
+                                }
+                            } else {
+                                if (value !='' && !moment(value).isValid()) {
+                                    ngModel.$setValidity('badDate', false);
+                                }
+                            }
+                        }
+                    }
+
+                    scope.$watch(function () {
+                        return ngModel.$viewValue;
+                    }, validate);
+                }
+            }
+        })
+
         .directive('datepickerPopup', function () {
             return {
                 restrict: 'EAC',
