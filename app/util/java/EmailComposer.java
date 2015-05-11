@@ -294,7 +294,7 @@ public class EmailComposer {
                 Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
                 for(User owner : source.getExamOwners()) {
                     sb.append(owner.getFirstName() + " " + owner.getLastName());
-                    if(i != enrolment.getExam().getExamOwners().size()) {
+                    if(i != source.getExamOwners().size()) {
                         sb.append(", ");
                     }
                     i++;
