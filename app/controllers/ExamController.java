@@ -13,7 +13,6 @@ import models.*;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
-import org.springframework.util.CollectionUtils;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -43,7 +42,7 @@ public class ExamController extends SitnetController {
     }
 
     private static ExpressionList<Exam> applyOptionalFilters(ExpressionList<Exam> query, F.Option<List<Long>> courseIds,
-                                             F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
+                                                             F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
         if (courseIds.isDefined() && !courseIds.get().isEmpty()) {
             query = query.in("course.id", courseIds.get());
         }
@@ -56,7 +55,7 @@ public class ExamController extends SitnetController {
         return query;
     }
 
-    private static List<Exam> getAllExams( F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
+    private static List<Exam> getAllExams(F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
         ExpressionList<Exam> query = Ebean.find(Exam.class)
                 .fetch("course")
                 .where()
@@ -445,7 +444,7 @@ public class ExamController extends SitnetController {
     public static Result reviewExam(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
         Exam exam = Ebean.find(Exam.class, id);
-        Integer grade = df.get("grade") == null || df.get("grade").equals("")  ? null : Integer.parseInt(df.get("grade"));
+        Integer grade = df.get("grade") == null || df.get("grade").equals("") ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
             Grade examGrade = Ebean.find(Grade.class, grade);
@@ -1022,10 +1021,10 @@ public class ExamController extends SitnetController {
             exam.save();
 
             // clear parent id from children
-            if(section.getSectionQuestions() != null && section.getSectionQuestions().size() > 0) {
+            if (section.getSectionQuestions() != null && section.getSectionQuestions().size() > 0) {
                 for (ExamSectionQuestion examSectionQuestion : section.getSectionQuestions()) {
-                    if(examSectionQuestion.getQuestion().getChildren() != null && examSectionQuestion.getQuestion().getChildren().size() > 0) {
-                        for(AbstractQuestion abstractQuestion : examSectionQuestion.getQuestion().getChildren()) {
+                    if (examSectionQuestion.getQuestion().getChildren() != null && examSectionQuestion.getQuestion().getChildren().size() > 0) {
+                        for (AbstractQuestion abstractQuestion : examSectionQuestion.getQuestion().getChildren()) {
                             abstractQuestion.setParent(null);
                             abstractQuestion.update();
                         }
@@ -1248,6 +1247,7 @@ public class ExamController extends SitnetController {
 
     /**
      * returns exam owners. if exam is a child, return parent exam owners
+     *
      * @param id parent exam id
      * @return list of users
      */
@@ -1257,9 +1257,9 @@ public class ExamController extends SitnetController {
         List<User> owners;
 
         Exam exam = Ebean.find(Exam.class)
-        .where()
-        .eq("id", id)
-        .findUnique();
+                .where()
+                .eq("id", id)
+                .findUnique();
 
         if (exam != null && exam.getParent() != null) {
             owners = exam.getParent().getExamOwners();
@@ -1278,12 +1278,17 @@ public class ExamController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamInspections(Long id) {
+        Exam exam = Ebean.find(Exam.class, id);
+        if (exam == null) {
+            return notFound();
+        }
+        Long examId = exam.getParent() == null ? id : exam.getParent().getId();
 
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("user")
                 .fetch("exam")
                 .where()
-                .eq("exam.id", id)
+                .eq("exam.id", examId)
                 .findList();
 
         if (inspections == null) {
@@ -1324,7 +1329,7 @@ public class ExamController extends SitnetController {
         final User owner = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
 
-        if(owner != null && exam != null) {
+        if (owner != null && exam != null) {
             try {
                 exam.getExamOwners().add(owner);
                 exam.update();
@@ -1342,9 +1347,9 @@ public class ExamController extends SitnetController {
         final User owner = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
 
-        if(owner != null && exam != null) {
+        if (owner != null && exam != null) {
             try {
-                if(exam.getExamOwners() != null && exam.getExamOwners().size() > 1) {
+                if (exam.getExamOwners() != null && exam.getExamOwners().size() > 1) {
                     exam.getExamOwners().remove(owner);
                     exam.update();
                 }
@@ -1371,7 +1376,7 @@ public class ExamController extends SitnetController {
         inspection.setUser(recipient);
         inspection.setAssignedBy(UserController.getLoggedUser());
 
-        if(inspection != null && inspection.getComment() != null) {
+        if (inspection != null && inspection.getComment() != null) {
             inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
             inspection.getComment().save();
         }
@@ -1379,7 +1384,7 @@ public class ExamController extends SitnetController {
 
         Exam source = exam.getParent() == null ? exam : exam.getParent();
 
-        if(inspection != null &&
+        if (inspection != null &&
                 inspection.getComment() != null &&
                 inspection.getComment().getComment() != null &&
                 inspection.getComment().getComment().length() > 0) {
@@ -1394,9 +1399,9 @@ public class ExamController extends SitnetController {
         }
 
         // add to childs
-        if(source.getChildren() != null && !source.getChildren().isEmpty()) {
-            for(Exam child : source.getChildren()) {
-                if(!child.getState().equalsIgnoreCase("GRADED") && !child.getState().equalsIgnoreCase("GRADED_LOGGED")) {
+        if (source.getChildren() != null && !source.getChildren().isEmpty()) {
+            for (Exam child : source.getChildren()) {
+                if (!child.getState().equalsIgnoreCase("GRADED") && !child.getState().equalsIgnoreCase("GRADED_LOGGED")) {
                     ExamInspection i = new ExamInspection();
                     i.setExam(child);
                     i.setUser(recipient);
@@ -1438,54 +1443,36 @@ public class ExamController extends SitnetController {
         if (exam == null) {
             return notFound();
         }
+        User loggedUser = UserController.getLoggedUser();
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("user")
                 .fetch("exam")
                 .where()
                 .eq("exam.id", exam.getParent().getId())
+                .ne("user.id", loggedUser.getId())
                 .findList();
 
-        if (CollectionUtils.isEmpty(inspections)) {
+        if (inspections.isEmpty()) {
             return notFound();
         }
+        Set<User> recipients = new HashSet<>();
+        for (ExamInspection inspection : inspections) {
+            recipients.add(inspection.getUser());
+        }
 
-        List<User> userToMail = new ArrayList<>();
+        // add owners to list, except those how are already in the list and self
+        if (exam.getParent() != null) {
+            for (User owner : exam.getParent().getExamOwners()) {
+                if (owner.equals(loggedUser)) {
+                    continue;
+                }
+                recipients.add(owner);
+            }
+        }
         try {
-            // add inspectors to list, except self
-            if(inspections != null && inspections.size() > 0) {
-                for (ExamInspection inspection : inspections) {
-                    if (inspection.getUser().getId() != UserController.getLoggedUser().getId()) {
-                        userToMail.add(inspection.getUser());
-                    }
-                }
+            for (User user : recipients) {
+                EmailComposer.composeInspectionMessage(user, loggedUser, exam, msg);
             }
-            // add owners to list, except those how are already in the list and self
-            if(exam.getParent() != null && exam.getParent().getExamOwners().size() > 0) {
-                for (User owner : exam.getParent().getExamOwners()) {
-                    if(owner.getId() != UserController.getLoggedUser().getId()) {
-
-                        boolean isNotAdded = true;
-                        if(userToMail != null && userToMail.size() > 0) {
-                            for(User user : userToMail) {
-                                if(user.getId() == owner.getId()) {
-                                    isNotAdded = false;
-                                }
-                            }
-                        }
-                        if(isNotAdded) {
-                            userToMail.add(owner);
-                        }
-                    }
-                }
-            }
-            // send mail to users in the list
-            if(userToMail != null && userToMail.size() > 0) {
-                for(User user : userToMail) {
-                    EmailComposer.composeInspectionMessage(user, UserController.getLoggedUser(), exam, msg);
-                }
-            }
-
-
         } catch (IOException e) {
             Logger.error("Failure to access message template on disk", e);
             return internalServerError("sitnet_internal_error");
@@ -1508,8 +1495,13 @@ public class ExamController extends SitnetController {
         inspection.setAssignedBy(UserController.getLoggedUser());
 
         inspection.save();
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, user, exam");
+        options.setPathProperties("user", "id");
+        options.setPathProperties("exam", "id");
 
-        return ok(Json.toJson(inspection));
+        return ok(jsonContext.toJsonString(inspection, true, options)).as("application/json");
     }
 
 }

@@ -490,7 +490,7 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
     public Exam copy() {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "examEnrolments", "examParticipations",
-                "examInspections", "creator", "created, examOwners"});
+                "examInspections", "creator", "created", "examOwners"});
         clone.setParent(this);
         SitnetUtil.setCreator(clone);
         SitnetUtil.setModifier(clone);

@@ -27,7 +27,7 @@
 <div class="detail-row" ng-show="isReadOnly">
     <div class="col-md-12" mathjax ng-bind-html="examToBeReviewed.examFeedback.comment"></div>
 </div>
-<div class="main-row" ng-show="countTeachers() > 1">
+<div class="main-row" ng-show="getTeacherCount() > 1">
     <div>
         <div class="col-md-6">
             <div class="row">
@@ -48,7 +48,7 @@
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div class="row" ng-repeat="inspection in localInspections">
+                    <div class="row" ng-repeat="inspection in inspections">
                         <div class="col-md-6">
                             {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                         </div>
@@ -59,7 +59,7 @@
                                       ng-show="isLocalReady(inspection.user.id) === false">{{'sitnet_in_progress' | translate}}</span>
                             </span>
                             <span class="input-group-sm" ng-hide="inspection.user.id !== user.id">
-                                <select ng-model="reviewReady" class="form-control" ng-disabled="isGraded || isReadOnly"
+                                <select ng-model="inspection.ready" class="form-control" ng-disabled="isGraded || isReadOnly"
                                         ng-options="s.key as s.value for s in reviewStatus"
                                         ng-change="toggleReady()" ng-show="inspection.user.id === user.id">
                                 </select>

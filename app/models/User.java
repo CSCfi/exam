@@ -5,6 +5,7 @@ import be.objectify.deadbolt.core.models.Subject;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
@@ -242,5 +243,10 @@ public class User extends Model implements Subject {
         if (!(other instanceof User)) return false;
         User otherUser = (User) other;
         return new EqualsBuilder().append(id, otherUser.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
     }
 }

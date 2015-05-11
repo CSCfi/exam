@@ -12,13 +12,15 @@
                 $scope.previousParticipationPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
                 $scope.gradingPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
 
-                $scope.printExam = function() {
+                $scope.printExam = function () {
                     window.open("/#/print/exam/" + $scope.examToBeReviewed.id, "_blank");
                 };
 
-                $scope.init = function() {
-                    $document.ready(function(){
-                        setTimeout(function(){window.print();}, 1500);
+                $scope.init = function () {
+                    $document.ready(function () {
+                        setTimeout(function () {
+                            window.print();
+                        }, 1500);
                     });
                 };
 
@@ -28,8 +30,7 @@
                     $location.path("/unauthorized");
                 }
 
-                $scope.globalInspections = [];
-                $scope.localInspections = [];
+                $scope.inspections = [];
                 $scope.examGrading = [];
                 $scope.examTypes = [];
 
@@ -51,7 +52,7 @@
                 };
 
                 $scope.setGrade = function (grade_id, exam) {
-                    if(grade_id) {
+                    if (grade_id) {
                         $scope.examToBeReviewed.grade = {id: grade_id};
                         $scope.selectedGrade = $scope.examToBeReviewed.grade.id;
                     } else {
@@ -142,13 +143,13 @@
                             }
                         }
 
-                        var isOwner = function() {
+                        var isOwner = function () {
                             return $scope.examToBeReviewed.parent.examOwners.map(function (owner) {
                                     return owner.id;
                                 }).indexOf($scope.user.id) !== -1;
                         };
 
-                        var isCreator = function() {
+                        var isCreator = function () {
                             return $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
                         };
 
@@ -173,28 +174,24 @@
                         ];
 
                         $scope.isLocalReady = function (userId) {
-                            var ready = false;
-                            if ($scope.localInspections && $scope.localInspections.length > 0) {
-                                angular.forEach($scope.localInspections, function (localInspection) {
-                                    if (localInspection.user && localInspection.user.id && localInspection.user.id === userId) {
-                                        ready = localInspection.ready;
-                                    }
-                                });
-                            }
-                            return ready;
+                            angular.forEach($scope.inspections, function (inspection) {
+                                if (inspection.user.id === userId) {
+                                    return inspection.ready;
+                                }
+                            });
+                            return false;
                         };
 
                         $scope.toggleReady = function () {
-                            angular.forEach($scope.localInspections, function (localInspection) {
-                                if (localInspection && localInspection.user.id === $scope.user.id) {
+                            angular.forEach($scope.inspections, function (inspection) {
+                                if (inspection && inspection.user.id === $scope.user.id) {
                                     // toggle ready ->
-                                    var ready = !$scope.reviewReady;
                                     ExamRes.inspectionReady.update({
-                                        id: localInspection.id,
-                                        ready: ready
+                                        id: inspection.id,
+                                        ready: inspection.ready
                                     }, function (result) {
                                         toastr.info($translate('sitnet_exam_updated'));
-                                        $scope.reviewReady = ready;
+                                        inspection.ready = result;
                                         $scope.startReview();
                                     }, function (error) {
                                         toastr.error(error.data);
@@ -203,46 +200,10 @@
                             });
                         };
 
-                        // get global exam inspections ->
-                        ExamRes.inspections.get({id: $scope.examToBeReviewed.parent.id},
-                            function (globals) {
-                                $scope.globalInspections = globals;
-
-                                // get student exam inspections ->
-                                ExamRes.inspections.get({id: $scope.examToBeReviewed.id},
-                                    function (locals) {
-
-                                        var isCurrentUserInspectionCreated = false;
-                                        $scope.localInspections = locals;
-
-                                        // created local inspections, if not created ->
-                                        if ($scope.localInspections && $scope.localInspections.length > 0) {
-                                            angular.forEach($scope.localInspections, function (localInspection) {
-                                                if (localInspection.user.id === $scope.user.id) {
-                                                    isCurrentUserInspectionCreated = true;
-                                                    $scope.reviewReady = localInspection.ready;
-                                                }
-                                            });
-                                        }
-
-                                        // if user doesn't already have an inspection, create, otherwise skip ->
-                                        if (isCurrentUserInspectionCreated === false) {
-                                            ExamRes.localInspection.insert({
-                                                eid: $scope.examToBeReviewed.id,
-                                                uid: $scope.user.id
-                                            }, function (newLocalInspection) {
-                                                $scope.localInspections.push(newLocalInspection);
-                                                $scope.reviewReady = false;
-                                            }, function (error) {
-
-                                            });
-                                        }
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    }
-                                );
-
+                        // get exam inspections ->
+                        ExamRes.inspections.get({id: $scope.examToBeReviewed.id},
+                            function (inspections) {
+                                $scope.inspections = inspections;
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -470,55 +431,21 @@
                     });
                 };
 
-                $scope.teachers = [];
-
-                var removeDuplicate = function(teachers) {
-                    var a = teachers;
-                    for(var i=0; i<a.length; ++i) {
-                        for(var j=i+1; j<a.length; ++j) {
-                            if(a[i] === a[j]) {
-                                a.splice(j--, 1);
-                            }
-                        }
-                    }
-                    return a;
-                };
-
-                $scope.countTeachers = function() {
-
-                    if(($scope.examToBeReviewed &&
+                $scope.getTeacherCount = function () {
+                    var count = $scope.inspections.length;
+                    if ($scope.examToBeReviewed &&
                         $scope.examToBeReviewed.parent &&
-                        $scope.examToBeReviewed.parent.examOwners) &&
-                        $scope.localInspections) {
-
-                        $scope.teachers = $scope.examToBeReviewed.parent.examOwners.map(function (owner) {
-                            return owner.firstName + " " + owner.lastName;
-                        }).concat($scope.localInspections.map(function (inspection) {
-                            return inspection.user.firstName + " " + inspection.user.lastName;
-                        }));
-
-                    } else if((!$scope.examToBeReviewed ||
-                        !$scope.examToBeReviewed.parent ||
-                        !$scope.examToBeReviewed.parent.examOwners) &&
-                        $scope.localInspections) {
-
-                        $scope.teachers = $scope.localInspections.map(function (inspection) {
-                            return inspection.user.firstName + " " + inspection.user.lastName;
+                        $scope.examToBeReviewed.parent.examOwners) {
+                        // Do not add up if user exists in both groups
+                        var uniques = $scope.examToBeReviewed.parent.examOwners.filter(function(owner)
+                        {
+                           return $scope.inspections.map(function(inspection) {
+                               return inspection.user.id;
+                           }).indexOf(owner.id) === -1;
                         });
-
-                    } else if(($scope.examToBeReviewed ||
-                        $scope.examToBeReviewed.parent ||
-                        $scope.examToBeReviewed.parent.examOwners) &&
-                        !$scope.localInspections) {
-
-                        $scope.teachers = $scope.examToBeReviewed.parent.examOwners.map(function (owner) {
-                            return owner.firstName + " " + owner.lastName;
-                        });
+                        count += uniques.length;
                     }
-
-                    $scope.teachers = removeDuplicate($scope.teachers);
-
-                    return $scope.teachers.length;
+                    return count;
                 };
 
                 $scope.toggleFeedbackHiding = function (hidden) {
@@ -639,7 +566,7 @@
 
                 // called when send email button is clicked
                 $scope.sendEmailMessage = function () {
-                    if(!$scope.message || $scope.message.length === 0) {
+                    if (!$scope.message || $scope.message.length === 0) {
                         toastr.error($translate("sitnet_email_empty"));
                         return;
                     }
