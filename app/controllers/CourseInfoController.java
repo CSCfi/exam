@@ -34,6 +34,9 @@ public class CourseInfoController extends SitnetController {
         return Interfaces.getCourseInfoByCode(code).map(new F.Function<List<Course>, Course>() {
             @Override
             public Course apply(List<Course> courses) throws Throwable {
+                if (courses.isEmpty()) {
+                    return null;
+                }
                 Course first = courses.get(0);
                 first.save();
                 return first;
@@ -41,7 +44,7 @@ public class CourseInfoController extends SitnetController {
         }).map(new F.Function<Course, Result>() {
             @Override
             public Result apply(Course course) throws Throwable {
-                return ok(Json.toJson(course));
+                return course == null ? notFound() : ok(Json.toJson(course));
             }
         }).recover(new F.Function<Throwable, Result>() {
             @Override

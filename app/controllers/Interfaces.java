@@ -224,54 +224,56 @@ public class Interfaces extends SitnetController {
 
     private static List<Course> parseResponse(JsonNode response) {
         List<Course> results = new ArrayList<>();
-        for (JsonNode node : response) {
-            // check that this is a course node, response can also contain error messages and so on
-            if (node.has("identifier")) {
-                Course course = new Course();
-                course.setId(0L); // FIXME: smells like a hack
-
-                if (node.has("courseUnitTitle")) {
-                    course.setName(node.get("courseUnitTitle").asText());
-                }
-                if (node.has("courseUnitCode")) {
-                    course.setCode(node.get("courseUnitCode").asText());
-                }
-                if (node.has("courseUnitType")) {
-                    course.setCourseUnitType(node.get("courseUnitType").asText());
-                }
-                if (node.has("startDate")) {
-                    course.setStartDate(node.get("startDate").asText());
-                }
-                if (node.has("credits")) {
-                    course.setCredits(node.get("credits").asDouble());
-                }
+        if (response.get("status").asText().equals("OK")) {
+            for (JsonNode node : response) {
+                // check that this is a course node, response can also contain error messages and so on
                 if (node.has("identifier")) {
-                    course.setIdentifier(node.get("identifier").asText());
-                }
-                if (node.has("institutionName")) {
-                    String name = node.get("institutionName").asText();
-                    Organisation organisation = Ebean.find(Organisation.class).where().ieq("name", name).findUnique();
-                    // TODO: organisations should preexist or not? As a safeguard, lets create these for now if not found.
-                    if (organisation == null) {
-                        organisation = new Organisation();
-                        organisation.setName(name);
-                        organisation.save();
-                    }
-                    course.setOrganisation(organisation);
-                }
-                List<GradeScale> scales = getGradeScales(node);
-                if (!scales.isEmpty()) {
-                    // For now support just a single scale per course
-                    course.setGradeScale(scales.get(0));
-                }
+                    Course course = new Course();
+                    course.setId(0L); // FIXME: smells like a hack
 
-                // in array form
-                course.setCampus(getFirstChildNameValue(node, "campus"));
-                course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme"));
-                course.setDepartment(getFirstChildNameValue(node, "department"));
-                course.setLecturer(getFirstChildNameValue(node, "lecturer"));
-                course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage"));
-                results.add(course);
+                    if (node.has("courseUnitTitle")) {
+                        course.setName(node.get("courseUnitTitle").asText());
+                    }
+                    if (node.has("courseUnitCode")) {
+                        course.setCode(node.get("courseUnitCode").asText());
+                    }
+                    if (node.has("courseUnitType")) {
+                        course.setCourseUnitType(node.get("courseUnitType").asText());
+                    }
+                    if (node.has("startDate")) {
+                        course.setStartDate(node.get("startDate").asText());
+                    }
+                    if (node.has("credits")) {
+                        course.setCredits(node.get("credits").asDouble());
+                    }
+                    if (node.has("identifier")) {
+                        course.setIdentifier(node.get("identifier").asText());
+                    }
+                    if (node.has("institutionName")) {
+                        String name = node.get("institutionName").asText();
+                        Organisation organisation = Ebean.find(Organisation.class).where().ieq("name", name).findUnique();
+                        // TODO: organisations should preexist or not? As a safeguard, lets create these for now if not found.
+                        if (organisation == null) {
+                            organisation = new Organisation();
+                            organisation.setName(name);
+                            organisation.save();
+                        }
+                        course.setOrganisation(organisation);
+                    }
+                    List<GradeScale> scales = getGradeScales(node);
+                    if (!scales.isEmpty()) {
+                        // For now support just a single scale per course
+                        course.setGradeScale(scales.get(0));
+                    }
+
+                    // in array form
+                    course.setCampus(getFirstChildNameValue(node, "campus"));
+                    course.setDegreeProgramme(getFirstChildNameValue(node, "degreeProgramme"));
+                    course.setDepartment(getFirstChildNameValue(node, "department"));
+                    course.setLecturer(getFirstChildNameValue(node, "lecturer"));
+                    course.setCreditsLanguage(getFirstChildNameValue(node, "creditsLanguage"));
+                    results.add(course);
+                }
             }
         }
         return results;
