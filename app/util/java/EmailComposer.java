@@ -291,7 +291,8 @@ public class EmailComposer {
             stringValues.put("teacher", Messages.get(lang, "email.template.reservation.teacher", teacher));
             stringValues.put("time", Messages.get(lang, "email.template.reservation.teacher", time));
             stringValues.put("place", Messages.get(lang, "email.template.reservation.room", room));
-            stringValues.put("new_time", Messages.get(lang, "email.template.reservation.cancel.message.student.new.time", link));
+            stringValues.put("new_time", Messages.get(lang, "email.template.reservation.cancel.message.student.new.time"));
+            stringValues.put("link", Messages.get(lang, "email.template.reservation.room", link));
         } else {
             stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message", date, time, room));
         }

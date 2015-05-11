@@ -36,4 +36,4 @@ email.template.weekly.report.enrolments.info=Studerandena har bokat tider för d
 email.template.weekly.report.inspections=Utvärderingar
 email.template.weekly.report.inspections.info=Du har {0} outvärderade svar i följande tenter
 email.template.reservation.cancel.message.student=Du har inhiberat din tid till följande tent:
-email.template.reservation.cancel.message.student.new.time=Du kan boka en ny tid till tent {0}
+email.template.reservation.cancel.message.student.new.time=Du kan boka en ny tid till tent

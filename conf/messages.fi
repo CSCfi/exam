@@ -36,4 +36,4 @@ email.template.weekly.report.enrolments.info=Opiskelijat ovat varanneet tenttiai
 email.template.weekly.report.inspections=Arvioinnit
 email.template.weekly.report.inspections.info=Sinulla on {0} arvioimatonta vastausta näissä tenteissä
 email.template.reservation.cancel.message.student=Olet perunut varaamasi ajan seuraavaan tenttiin:
-email.template.reservation.cancel.message.student.new.time=Voit varata uuden ajan tenttiin {0}
+email.template.reservation.cancel.message.student.new.time=Voit varata uuden ajan tenttiin
