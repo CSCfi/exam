@@ -28,6 +28,7 @@
                     },
                     function (error) {
                         toggleLoadingIcon(filter, false);
+                        $scope.newExam.course = undefined;
                         toastr.error($translate('sitnet_course_not_found') + ' ( ' + tmp + ' )');
                         return [];
                     }
