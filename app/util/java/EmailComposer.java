@@ -271,15 +271,28 @@ public class EmailComposer {
         stringValues.put("hello", Messages.get(lang, "email.template.hello"));
         if(isStudentUser) {
             String link = String.format("%s/#/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
-            time = DF.print(adjustDST(reservation.getStartAt(), TZ)) + " " + TF.print(adjustDST(reservation.getStartAt(), TZ)) + " " + TZ +
-                    " - " +
-                    DF.print(adjustDST(reservation.getEndAt(), TZ)) + " " + TF.print(adjustDST(reservation.getEndAt(), TZ)) + " " + TZ;
+
+            StringBuilder datetime = new StringBuilder();
+            datetime.append(DF.print(adjustDST(reservation.getStartAt(), TZ)))
+                    .append(" ")
+                    .append(TF.print(adjustDST(reservation.getStartAt(), TZ)))
+                    .append(" ")
+                    .append(TZ)
+                    .append(" - ")
+                    .append(DF.print(adjustDST(reservation.getEndAt(), TZ)))
+                    .append(" ")
+                    .append(TF.print(adjustDST(reservation.getEndAt(), TZ)))
+                    .append(" ")
+                    .append(TZ);
+
+            time = datetime.toString();
 
             String teacher = "";
             if(enrolment.getExam().getExamOwners() != null) {
                 StringBuilder sb = new StringBuilder();
                 int i = 1;
-                for(User owner : enrolment.getExam().getExamOwners()) {
+                Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
+                for(User owner : source.getExamOwners()) {
                     sb.append(owner.getFirstName() + " " + owner.getLastName());
                     if(i != enrolment.getExam().getExamOwners().size()) {
                         sb.append(", ");
