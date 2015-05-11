@@ -164,7 +164,7 @@
     <div class="col-md-1">
             <span ng-show="!isReadOnly">
                 <!-- do not enable this if already graded and form has errors! -->
-                <button ng-disabled="!examForm.$valid || (isGraded && !isCreatorOrOwnerOrAdmin()) || isReadOnly"
+                <button ng-disabled="isReadOnly"
                         ng-click="updateExam(examToBeReviewed)" class="btn btn-primary">
                     {{'sitnet_save' | translate}}
                 </button>

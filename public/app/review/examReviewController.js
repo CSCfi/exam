@@ -440,7 +440,7 @@
                     return {
                         "id": exam.id,
                         "state": state,
-                        "grade": exam.grade.id,
+                        "grade": exam.grade && exam.grade.id ? exam.grade.id : "",
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": $scope.selectedType,
