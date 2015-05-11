@@ -271,7 +271,9 @@ public class EmailComposer {
         stringValues.put("hello", Messages.get(lang, "email.template.hello"));
         if(isStudentUser) {
             String link = String.format("%s/#/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
-            time = TF.print(adjustDST(reservation.getStartAt(), TZ)) + " " + TZ + " - " + TF.print(adjustDST(reservation.getEndAt(), TZ)) + " " + TZ;
+            time = DF.print(adjustDST(reservation.getStartAt(), TZ)) + " " + TF.print(adjustDST(reservation.getStartAt(), TZ)) + " " + TZ +
+                    " - " +
+                    DF.print(adjustDST(reservation.getEndAt(), TZ)) + " " + TF.print(adjustDST(reservation.getEndAt(), TZ)) + " " + TZ;
 
             String teacher = "";
             if(enrolment.getExam().getExamOwners() != null) {
