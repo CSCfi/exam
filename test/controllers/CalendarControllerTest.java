@@ -87,7 +87,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
         String body = GreenMailUtil.getBody(mails[0]);
-        assertThat(body).contains("You have booked an exam time. Here is your booking information");
+        assertThat(body).contains("You have booked an exam time");
         assertThat(body).contains("information in English here");
         assertThat(body).contains(room.getName());
     }
@@ -127,7 +127,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
         String body = GreenMailUtil.getBody(mails[0]);
-        assertThat(body).contains("You have booked an exam time. Here is your booking information");
+        assertThat(body).contains("You have booked an exam time");
         assertThat(body).contains("information in English here");
         assertThat(body).contains(room.getName());
     }
@@ -174,7 +174,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(mails).hasSize(1);
         assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
         String body = GreenMailUtil.getBody(mails[0]);
-        assertThat(body).contains("You have booked an exam time. Here is your booking information");
+        assertThat(body).contains("You have booked an exam time");
         assertThat(body).contains("information in English here");
         assertThat(body).contains(room.getName());
     }
