@@ -222,7 +222,7 @@
             <div class="sub-content-row col-md-9">
                 <div mathjax ng-bind-html="examToBeReviewed.examFeedback.comment"></div>&nbsp;
             </div>
-            <div ng-show="(globalInspections.length > 1 || localInspections.length > 1) && !isReadOnly">
+            <div ng-show="getTeacherCount() > 1 && !isReadOnly">
                 <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_owners' | translate }}:</div>
                 <div class="sub-content-row col-md-9">
                     <div ng-if="examToBeReviewed.parent.examOwners.length > 0"
@@ -234,7 +234,7 @@
 
                 <div class="sub-header-row col-md-3 newRow">{{'sitnet_exam_instructor' | translate}} ({{'sitnet_inspection_status' | translate}}):</div>
                 <div class="sub-content-row col-md-9">
-                    <div ng-repeat="inspection in localInspections" class="col-md-12 row">
+                    <div ng-repeat="inspection in inspections" class="col-md-12 row">
                         <span>
                             {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                         </span>

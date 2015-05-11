@@ -69,10 +69,10 @@ public class EmailComposer {
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(inspector);
 
-        String subject = Messages.get(lang, "email.inspection.new.subject");
+        String subject = Messages.get(lang, "email.inspection.comment.subject");
         String teacherName = String.format("%s %s <%s>", sender.getFirstName(), sender.getLastName(), sender.getEmail());
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getName());
-        String linkToInspection = String.format("%s/#exams/review/%s", HOSTNAME, exam.getName());
+        String linkToInspection = String.format("%s/#exams/review/%d", HOSTNAME, exam.getId());
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("teacher_review_done", Messages.get(lang, "email.template.inspection.done", teacherName));
@@ -203,10 +203,10 @@ public class EmailComposer {
         EmailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
-    public static void composeExamReviewedRequest(User toUser, User fromUser, Exam exam, String message)
+    public static void composeExamReviewRequest(User toUser, User fromUser, Exam exam, String message)
             throws IOException {
 
-        String templatePath = TEMPLATES_ROOT + "inspectorChanged.html";
+        String templatePath = TEMPLATES_ROOT + "reviewRequest.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(toUser);
         String subject = Messages.get(lang, "email.review.request.subject");
@@ -271,15 +271,31 @@ public class EmailComposer {
         stringValues.put("hello", Messages.get(lang, "email.template.hello"));
         if(isStudentUser) {
             String link = String.format("%s/#/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
-            time = TF.print(adjustDST(reservation.getStartAt(), TZ)) + " " + TZ + " - " + TF.print(adjustDST(reservation.getEndAt(), TZ)) + " " + TZ;
+
+            StringBuilder datetime = new StringBuilder();
+            datetime.append(DF.print(adjustDST(reservation.getStartAt(), TZ)))
+                    .append(" ")
+                    .append(TF.print(adjustDST(reservation.getStartAt(), TZ)))
+                    .append(" ")
+                    .append(TZ)
+                    .append(" - ")
+                    .append(DF.print(adjustDST(reservation.getEndAt(), TZ)))
+                    .append(" ")
+                    .append(TF.print(adjustDST(reservation.getEndAt(), TZ)))
+                    .append(" ")
+                    .append(TZ);
+
+            time = datetime.toString();
 
             String teacher = "";
-            if(enrolment.getExam().getExamOwners() != null) {
+            Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
+
+            if(source.getExamOwners() != null) {
                 StringBuilder sb = new StringBuilder();
                 int i = 1;
-                for(User owner : enrolment.getExam().getExamOwners()) {
+                for(User owner : source.getExamOwners()) {
                     sb.append(owner.getFirstName() + " " + owner.getLastName());
-                    if(i != enrolment.getExam().getExamOwners().size()) {
+                    if(i != source.getExamOwners().size()) {
                         sb.append(", ");
                     }
                     i++;

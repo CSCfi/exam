@@ -1,5 +1,5 @@
 email.inspection.ready.subject=Your exam submission has been assessed
-email.inspection.new.subject=You have been appointed as an examinator
+email.inspection.comment.subject=A comment was added regarding exam assessment
 email.enrolment.no.reservation=NOTE: You have not yet booked an exam time
 email.enrolment.no.enrolments=No exam bookings
 email.weekly.report.subject=Weekly exam summary

@@ -184,7 +184,7 @@
 
                         $scope.toggleReady = function () {
                             angular.forEach($scope.inspections, function (inspection) {
-                                if (inspection && inspection.user.id === $scope.user.id) {
+                                if (inspection.user.id === $scope.user.id) {
                                     // toggle ready ->
                                     ExamRes.inspectionReady.update({
                                         id: inspection.id,
@@ -401,7 +401,7 @@
                     return {
                         "id": exam.id,
                         "state": state,
-                        "grade": exam.grade.id,
+                        "grade": exam.grade && exam.grade.id ? exam.grade.id : "",
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": $scope.selectedType,
@@ -437,11 +437,10 @@
                         $scope.examToBeReviewed.parent &&
                         $scope.examToBeReviewed.parent.examOwners) {
                         // Do not add up if user exists in both groups
-                        var uniques = $scope.examToBeReviewed.parent.examOwners.filter(function(owner)
-                        {
-                           return $scope.inspections.map(function(inspection) {
-                               return inspection.user.id;
-                           }).indexOf(owner.id) === -1;
+                        var uniques = $scope.examToBeReviewed.parent.examOwners.filter(function (owner) {
+                            return $scope.inspections.map(function (inspection) {
+                                    return inspection.user.id;
+                                }).indexOf(owner.id) === -1;
                         });
                         count += uniques.length;
                     }

@@ -1,5 +1,5 @@
 email.inspection.ready.subject=Ditt tentsvar är utvärderat
-email.inspection.new.subject=Du har fått tentator-rättigheter
+email.inspection.comment.subject=Ny kommentar på utvärdering
 email.enrolment.no.reservation=OBS! Du har inte ännu bokat tid för tenten!
 email.enrolment.no.enrolments=Inga tentbokningar
 email.weekly.report.subject=Veckosammanfattning för dina tenter

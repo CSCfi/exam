@@ -383,7 +383,7 @@ public class ExamController extends SitnetController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = UserController.getLoggedUser();
-        if (!exam.isInspectedOrCreatedOrOwnedBy(user) && !user.hasRole("ADMIN")) {
+        if (!exam.isInspectedOrCreatedOrOwnedBy(user, true) && !user.hasRole("ADMIN")) {
             return forbidden("sitnet_error_access_forbidden");
         }
         JsonContext jsonContext = Ebean.createJsonContext();
@@ -1278,17 +1278,12 @@ public class ExamController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamInspections(Long id) {
-        Exam exam = Ebean.find(Exam.class, id);
-        if (exam == null) {
-            return notFound();
-        }
-        Long examId = exam.getParent() == null ? id : exam.getParent().getId();
 
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("user")
                 .fetch("exam")
                 .where()
-                .eq("exam.id", examId)
+                .eq("exam.id", id)
                 .findList();
 
         if (inspections == null) {
@@ -1376,21 +1371,17 @@ public class ExamController extends SitnetController {
         inspection.setUser(recipient);
         inspection.setAssignedBy(UserController.getLoggedUser());
 
-        if (inspection != null && inspection.getComment() != null) {
+        if (inspection.getComment() != null) {
             inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
             inspection.getComment().save();
         }
         inspection.save();
 
-        Exam source = exam.getParent() == null ? exam : exam.getParent();
-
-        if (inspection != null &&
-                inspection.getComment() != null &&
+        if (inspection.getComment() != null &&
                 inspection.getComment().getComment() != null &&
-                inspection.getComment().getComment().length() > 0) {
-            // SITNET-295
+                !inspection.getComment().getComment().isEmpty()) {
             try {
-                EmailComposer.composeExamReviewedRequest(recipient, UserController.getLoggedUser(), source,
+                EmailComposer.composeExamReviewRequest(recipient, UserController.getLoggedUser(), exam,
                         inspection.getComment().getComment());
             } catch (IOException e) {
                 Logger.error("Failure to access message template on disk", e);
@@ -1398,17 +1389,23 @@ public class ExamController extends SitnetController {
             }
         }
 
-        // add to childs
-        if (source.getChildren() != null && !source.getChildren().isEmpty()) {
-            for (Exam child : source.getChildren()) {
-                if (!child.getState().equalsIgnoreCase("GRADED") && !child.getState().equalsIgnoreCase("GRADED_LOGGED")) {
-                    ExamInspection i = new ExamInspection();
-                    i.setExam(child);
-                    i.setUser(recipient);
-                    i.setAssignedBy(UserController.getLoggedUser());
-                    i.save();
+        // add to child exams
+        for (Exam child : exam.getChildren()) {
+            if (child.getState().equals(Exam.State.GRADED.toString()) || child.getState().equals(
+                    Exam.State.GRADED_LOGGED.toString())) {
+                continue;
+            }
+            for (ExamInspection ei : child.getExamInspections()) {
+                if (ei.getUser().equals(recipient)) {
+                    break;
                 }
             }
+
+            ExamInspection i = new ExamInspection();
+            i.setExam(child);
+            i.setUser(recipient);
+            i.setAssignedBy(UserController.getLoggedUser());
+            i.save();
         }
 
         return ok(Json.toJson(inspection));
@@ -1417,8 +1414,22 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteInspection(Long id) {
 
-        Ebean.delete(ExamInspection.class, id);
-
+        ExamInspection inspection = Ebean.find(ExamInspection.class).fetch("exam").fetch("exam.examInspections").where().eq("id", id).findUnique();
+        User inspector = inspection.getUser();
+        Exam exam = inspection.getExam();
+        for (Exam child : exam.getChildren()) {
+            if (child.getState().equals(Exam.State.GRADED.toString()) || child.getState().equals(
+                    Exam.State.GRADED_LOGGED.toString())) {
+                continue;
+            }
+            for (ExamInspection ei : child.getExamInspections()) {
+                if (ei.getUser().equals(inspector)) {
+                    ei.delete();
+                    break;
+                }
+            }
+        }
+        inspection.delete();
         return ok();
     }
 

@@ -494,9 +494,15 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
         clone.setParent(this);
         SitnetUtil.setCreator(clone);
         SitnetUtil.setModifier(clone);
-        clone.save();
         clone.generateHash();
+        clone.save();
 
+        for (ExamInspection ei : examInspections) {
+            ExamInspection inspection = new ExamInspection();
+            BeanUtils.copyProperties(ei, inspection, new String[] {"id", "exam"});
+            inspection.setExam(clone);
+            inspection.save();
+        }
         for (ExamSection es : examSections) {
             ExamSection esCopy = es.copy(clone, true);
             esCopy.save();
@@ -545,8 +551,8 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
     }
 
     @Transient
-    public boolean isInspectedBy(User user) {
-        Exam examToCheck = parent == null ? this : parent;
+    public boolean isInspectedBy(User user, boolean applyToChildOnly) {
+        Exam examToCheck = parent == null || applyToChildOnly ? this : parent;
         for (ExamInspection inspection : examToCheck.examInspections) {
             if (inspection.getUser().equals(user)) {
                 return true;
@@ -573,9 +579,13 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
 
     @Transient
     public boolean isInspectedOrCreatedOrOwnedBy(User user) {
-        return isInspectedBy(user) || isOwnedBy(user) || isCreatedBy(user);
+        return isInspectedBy(user, false) || isOwnedBy(user) || isCreatedBy(user);
     }
 
+    @Transient
+    public boolean isInspectedOrCreatedOrOwnedBy(User user, boolean applyToChildOnly) {
+        return isInspectedBy(user, applyToChildOnly) || isOwnedBy(user) || isCreatedBy(user);
+    }
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
