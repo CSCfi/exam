@@ -41,134 +41,115 @@ user_languages:
       UILanguageCode: sv
       UILanguageName: ruotsi
 
-################################################################
-users:
-
-    - !!models.User
-      email:      sitnetad@funet.fi
-      eppn:       sitnetad@funet.fi
-      firstName:  Exam
-      lastName:   Admnistrator
-      password:   c74626d3eca0613f356cd34ecd1301c5  #sitnetad, works only in DEBUG mode, not used in HAKA login
-      roles:
-            - *role-admin
-      userLanguage: *suomi
-
 ######################################################################
 
 exam-types:
 
   - &partial !!models.ExamType
-    type: Osasuoritus
+    type: PARTIAL
 
   - &final !!models.ExamType
-    type: Loppusuoritus
+    type: FINAL
 
 ################################################################
 
+languages:
+
+  - &fi !!models.Language
+    code: fi
+  - &sv !!models.Language
+    code: sv
+  - &en !!models.Language
+    code: en
+  - &de !!models.Language
+    code: de
+
+################################################################
+
+grade-scales:
+
+  - &zerotofive !!models.GradeScale
+    id: 1
+    description: ZERO_TO_FIVE
+
+  - &latin !!models.GradeScale
+    id: 2
+    description: LATIN
+
+  - &approvedrejected !!models.GradeScale
+    id: 3
+    description: APPROVED_REJECTED
+
+
 grades:
 
-    # viisiportainen
   - !!models.Grade
-    scale: Viisiportainen
-    grade: HYV
-    description: hyväksytty
+    name: 0
+    gradeScale: *zerotofive
 
   - !!models.Grade
-    scale: Viisiportainen
-    grade: 1
-    description:
+    name: 1
+    gradeScale: *zerotofive
 
   - !!models.Grade
-    scale: Viisiportainen
-    grade: 2
-    description:
+    name: 2
+    gradeScale: *zerotofive
 
   - !!models.Grade
-    scale: Viisiportainen
-    grade: 3
-    description:
+    name: 3
+    gradeScale: *zerotofive
 
   - !!models.Grade
-    scale: Viisiportainen
-    grade: 4
-    description:
+    name: 4
+    gradeScale: *zerotofive
 
   - !!models.Grade
-    scale: Viisiportainen
-    grade: 5
-    description:
-
-    # hyväksytty
-  - !!models.Grade
-    scale: Hyväksytty
-    grade: HYV
-    description: hyväksytty
-
-    # toinen kotimainen
-  - !!models.Grade
-    scale: Toinen kotimainen
-    grade: TT
-    description: tyydyttävät tiedot
+    name: 5
+    gradeScale: *zerotofive
 
   - !!models.Grade
-    scale: Toinen kotimainen
-    grade: HT
-    description: hyvät tiedot
-
-    #näytetyö
-  - !!models.Grade
-    scale: Näytetyö
-    grade: HYV
-    description: hyväksytty
+    name: I
+    gradeScale: *latin
 
   - !!models.Grade
-    scale: Näytetyö
-    grade: KH
-    description: kiittäen hyväksytty
-
-    #tutkielma
-  - !!models.Grade
-    scale: Tutkielma
-    grade: A
-    description: approbatur
+      name: I
+      gradeScale: *latin
 
   - !!models.Grade
-    scale: Tutkielma
-    grade: B
-    description: lubenter approbatur
+      name: A
+      gradeScale: *latin
 
   - !!models.Grade
-    scale: Tutkielma
-    grade: N
-    description: non sine laude approbatur
+      name: B
+      gradeScale: *latin
 
   - !!models.Grade
-    scale: Tutkielma
-    grade: C
-    description: cum laude approbatur
+      name: N
+      gradeScale: *latin
 
   - !!models.Grade
-    scale: Tutkielma
-    grade: M
-    description: magna cum laude approbatur
+      name: C
+      gradeScale: *latin
 
   - !!models.Grade
-    scale: Tutkielma
-    grade: E
-    description: eximia cum laude approbatur
+      name: M
+      gradeScale: *latin
 
   - !!models.Grade
-    scale: Tutkielma
-    grade: L
-    description: laudatur
+      name: E
+      gradeScale: *latin
 
-    #ei käytössä - asteikko
   - !!models.Grade
-    scale: EiKaytossa
-    grade: Arvosana ei kaytossa
-    description: Arvosana ei käytössä
+      name: L
+      gradeScale: *latin
 
+  - !!models.Grade
+    name: APPROVED
+    gradeScale: *approvedrejected
+
+  - !!models.Grade
+    name: REJECTED
+    gradeScale: *approvedrejected
 
 ################################################################
 

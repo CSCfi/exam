@@ -7,8 +7,12 @@
                 var user = sessionService.getUser();
 
                 var calculateOffset = function() {
-                    var startsAt = $scope.enrolment.reservation.startAt;
-                    return Date.parse(startsAt) - new Date().getTime(); // CHECK FF!
+                    var startsAt = moment($scope.enrolment.reservation.startAt);
+                    var now = moment();
+                    if (now.isDST()) {
+                        startsAt.add(-1, 'hour');
+                    }
+                    return Date.parse(startsAt.format()) - new Date().getTime();
                 };
 
                 var await = function() {
@@ -17,16 +21,9 @@
                         StudentExamRes.enrolment.get({eid: eid},
                             function(enrolment) {
                                 $scope.enrolment = enrolment;
-                                StudentExamRes.teachers.get({id: enrolment.exam.id},
-                                    function(teachers) {
-                                        enrolment.teachers = teachers.map(function(teacher) {
-                                            return teacher.user.firstName + " " + teacher.user.lastName;
-                                        }).join(", ");
-                                    },
-                                    function(error) {
-                                        toastr.error(error.data);
-                                    }
-                                );
+
+                                setExamTeachers(enrolment.exam);
+
                                 if (!$scope.timeout) {
                                     var offset = calculateOffset();
                                     $scope.timeout = $timeout(function() {
@@ -43,6 +40,32 @@
                         );
                     }
                 };
+
+                function setExamTeachers(exam) {
+                    exam.examTeachers = [];
+                    exam.teachersStr = "";
+
+                    StudentExamRes.teachers.get({id: exam.id}, function(inspections) {
+
+                            angular.forEach(inspections, function (inspection) {
+                                if(exam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
+                                    exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
+                                }
+                            });
+                            angular.forEach(exam.examOwners, function(owner){
+                                if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
+                                    exam.examTeachers.push(owner.firstName + " " + owner.lastName);
+                                }
+                            });
+                            exam.teachersStr = exam.examTeachers.map(function(teacher) {
+                                return teacher;
+                            }).join(", ");
+                        },
+                        function(error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                }
 
                 $scope.$on('upcomingExam', function() {
                     if (waitingRoomService.getEnrolmentId() && !$scope.enrolment) {

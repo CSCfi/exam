@@ -30,7 +30,7 @@
 
                     return [
                         {
-                            href: "#/home",
+                            href: "#/",
                             visible: !hideDashboard,
                             class: "fa-home",
                             name: $translate("sitnet_dashboard")
@@ -64,10 +64,17 @@
                             sub: []
                         },
                         {
-                            href: "#/admin/reservations",
+                            href: "#/settings",
                             visible: (admin),
-                            class: "fa-clock-o",
-                            name: $translate("sitnet_reservations"),
+                            class: "fa-wrench",
+                            name: $translate("sitnet_settings"),
+                            sub: []
+                        },
+                        {
+                            href: "#/student/exams",
+                            visible: (student),
+                            class: "fa-search",
+                            name: $translate("sitnet_exam_search"),
                             sub: []
                         },
                         {

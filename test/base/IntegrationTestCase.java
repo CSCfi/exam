@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.junit.*;
 import org.junit.rules.TestName;
 import play.api.db.evolutions.InconsistentDatabase;
@@ -24,7 +22,9 @@ import play.test.Helpers;
 import util.SitnetUtil;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.URLEncoder;
 import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -37,6 +37,7 @@ public class IntegrationTestCase {
     protected Long userId;
 
     private static final Map<String, String> HAKA_HEADERS = new HashMap<String, String>();
+
     static {
         HAKA_HEADERS.put("displayName", "George");
         HAKA_HEADERS.put("eppn", "george.lazenby@funet.fi");
@@ -45,30 +46,33 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("Shib-Session-ID", "_5d9a583a894275c15edef02c5602c4d7");
         HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");
+        HAKA_HEADERS.put("employeeNumber", "12345");
+        HAKA_HEADERS.put("schacPersonalUniqueCode", "12345");
+        try {
+            HAKA_HEADERS.put("logouturl", URLEncoder.encode("https://logout.foo.bar.com?returnUrl=" +
+                    URLEncoder.encode("http://foo.bar.com", "UTF-8"), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
-
 
     @Rule
     public TestName currentTest = new TestName();
 
     @BeforeClass
     public static void evolve() {
+        System.setProperty("config.file", "conf/integrationtest.conf");
         // Apply evolutions manually to test database
         try {
-            OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default");
+            OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default", true);
         } catch (InconsistentDatabase e) {
             int revision = e.rev();
             OfflineEvolutions.resolve(new File("."), IntegrationTestCase.class.getClassLoader(), "default", revision);
         }
     }
 
-    protected String getConfigFile() {
-        return "conf/integrationtest.conf";
-    }
-
     protected void startApp() {
-        Config config = ConfigFactory.parseFile(new File(getConfigFile()));
-        app = fakeApplication(new play.Configuration(config).asMap());
+        app = fakeApplication(new FakeGlobal());
         start(app);
     }
 
@@ -145,7 +149,9 @@ public class IntegrationTestCase {
         login("maikaope@funet.fi");
     }
 
-    protected void loginAsAdmin() { login("sitnetad@funet.fi"); }
+    protected void loginAsAdmin() {
+        login("sitnetad@funet.fi");
+    }
 
     protected void login(String eppn) {
         HAKA_HEADERS.put("eppn", eppn);
@@ -197,7 +203,7 @@ public class IntegrationTestCase {
         return results.toArray(new String[results.size()]);
     }
 
-    private void assertPaths(JsonNode node, boolean shouldExist, String ... paths) {
+    private void assertPaths(JsonNode node, boolean shouldExist, String... paths) {
         Object document = Configuration.defaultConfiguration().jsonProvider().parse(node.toString());
         for (String path : paths) {
             try {
@@ -205,8 +211,7 @@ public class IntegrationTestCase {
                 if (isIndefinite(path)) {
                     Collection c = (Collection) object;
                     assertThat(c.isEmpty()).isNotEqualTo(shouldExist);
-                }
-                else if (!shouldExist) {
+                } else if (!shouldExist) {
                     Assert.fail("Expected path not to be found: " + path);
                 }
             } catch (PathNotFoundException e) {

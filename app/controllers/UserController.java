@@ -1,6 +1,5 @@
 package controllers;
 
-import exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -10,25 +9,14 @@ import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.ExamInspection;
-import models.Session;
-import models.User;
-import play.Logger;
+import models.*;
 import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Result;
 
 import java.util.List;
 
-//todo authorization!
 public class UserController extends SitnetController {
-
-    @Restrict({@Group("ADMIN")})
-    public static Result getUsers() {
-        List<User> users = Ebean.find(User.class).findList();
-        return ok(Json.toJson(users));
-
-    }
 
     @Restrict({@Group("ADMIN")})
     public static Result getUser(Long id) {
@@ -50,33 +38,15 @@ public class UserController extends SitnetController {
     public static Result getUsersByRole(String role) {
 
         List<User> users = Ebean.find(User.class)
-                .fetch("attributes")
                 .where()
                 .eq("roles.name", role)
+                .orderBy("lastName")
                 .findList();
 
-        List<User> filteredUsers =
-                Ebean.filter(User.class)
-                        .sort("lastName asc")
-                        .filter(users);
-
         ArrayNode array = JsonNodeFactory.instance.arrayNode();
-        for (User u : filteredUsers) {
+        for (User u : users) {
             ObjectNode part = Json.newObject();
             part.put("id", u.getId());
-//        	part.put("firstName", u.getFirstName());
-//        	part.put("schacPersonalUniqueCode", u.getAttributes().get("schacPersonalUniqueCode"));
-
-//            List<HakaAttribute> attr = Ebean.find(HakaAttribute.class)
-//                    .where()
-//                    .eq("user_id", u.getId())
-//                    .like("key", "schacPersonalUniqueCode")
-//                    .findList();
-//
-//            for (HakaAttribute a : attr) {
-//                part.put(a.getKey(), a.getValue());
-//            }
-
             part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
             array.add(part);
         }
@@ -110,6 +80,47 @@ public class UserController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result getExamOwnersByRoleFilter(String role, Long eid, String criteria) {
+
+        List<User> users = Ebean.find(User.class)
+                .where()
+                .and(
+                        Expr.eq("roles.name", role),
+                        Expr.or(
+                                Expr.icontains("lastName", criteria),
+                                Expr.icontains("firstName", criteria)
+                        )
+                )
+                .findList();
+
+        Exam exam = Ebean.find(Exam.class).where().eq("id", eid).findUnique();
+
+        if (exam == null) {
+            return notFound();
+        }
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+        List<User> owners = exam.getExamOwners();
+        // removes all user who are already inspectors
+        for (User u : users) {
+            boolean b = true;
+            for (User owner : owners) {
+                if (u.getId().equals(owner.getId())) {
+                    b = false;
+                    break;
+                }
+            }
+            if (b) {
+                ObjectNode part = Json.newObject();
+                part.put("id", u.getId());
+                part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
+                array.add(part);
+            }
+        }
+
+        return ok(Json.toJson(array));
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
 
         List<User> users = Ebean.find(User.class)
@@ -133,6 +144,7 @@ public class UserController extends SitnetController {
             for (ExamInspection i : inspections) {
                 if (u.getId().equals(i.getUser().getId())) {
                     b = false;
+                    break;
                 }
             }
             if (b) {
@@ -144,28 +156,6 @@ public class UserController extends SitnetController {
         }
 
         return ok(Json.toJson(array));
-    }
-
-    @Restrict({@Group("ADMIN")})
-    public static Result addUser() throws MalformedDataException {
-        User user = bindForm(User.class);
-        Ebean.save(user);
-        return ok(Json.toJson(user.getId()));
-    }
-
-    @Restrict({@Group("ADMIN")})
-    public static Result updateUser(long id) throws MalformedDataException {
-        User user = bindForm(User.class);
-        user.setId(id);
-        Ebean.update(user);
-        return ok(Json.toJson(user.getId()));
-    }
-
-    @Restrict({@Group("ADMIN")})
-    public static Result deleteUser(Long id) {
-        Logger.debug("Delete user with id {}.", id);
-        Ebean.delete(User.class, id);
-        return ok("success");
     }
 
     public static User getLoggedUser() {
@@ -194,5 +184,18 @@ public class UserController extends SitnetController {
             result = ok(jsonContext.toJsonString(user, true, options)).as("application/json");
         }
         return result;
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    public static Result updateLanguage() {
+        User user = getLoggedUser();
+        String lang = request().body().asJson().get("lang").asText();
+        UserLanguage language = Ebean.find(UserLanguage.class).where().eq("UILanguageCode", lang).findUnique();
+        if (language == null) {
+            return badRequest("Unsupported language code");
+        }
+        user.setUserLanguage(language);
+        user.update();
+        return ok();
     }
 }

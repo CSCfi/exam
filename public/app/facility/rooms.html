@@ -127,14 +127,14 @@
         <div class="detail-row" ng-show="room.state !== 'INACTIVE'">
             <h4 class="col-md-12">
                 <span>
-                    <a ng-click="room.showMachines = !room.showMachines" class="fa-stack fa-lg">
+                    <a ng-click="room.showMachines = !room.showMachines" ng-init="room.showMachines = true" class="fa-stack fa-lg">
                         <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                         <i ng-show="room.showMachines" class="fa fa-chevron-down fa-stack-1x"></i>
                         <i ng-show="!room.showMachines" class="fa fa-chevron-right fa-stack-1x"></i>
                     </a>
                     {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
                     <span popover-placement="top" popover-popup-delay="500"
-                          popover-trigger="mouseenter" popover="{{ 'sitnet_ok' | translate }}">
+                          popover-trigger="mouseenter" popover="{{ 'sitnet_status_machine_available' | translate }}">
                         <button class="btn btn-success btn-xs">
                             {{ room.examMachines.length - countMachineAlerts(room) - countMachineNotices(room) }}
                         </button>
@@ -180,7 +180,7 @@
                         <td>{{ machine.accessibilityInfo }}</td>
                         <td>
                             <ul>
-                                <li ng-repeat="software in machine.softwareInfo" class="pull-left">{{ software.name
+                                <li ng-repeat="software in machine.softwareInfo" ng-if="software.status == 'ACTIVE'" class="pull-left">{{ software.name
                                     }}{{$last ? '' : ',&nbsp;'}}
                                 </li>
                             </ul>

@@ -6,6 +6,7 @@
         'ngStorage',
         'http-auth-interceptor',
         'ui.bootstrap',
+        'dialogs.main',
         'sitnet.services',
         'sitnet.controllers',
         'sitnet.resources',
@@ -33,17 +34,16 @@
         };
     }()));
     sitnet.config(['$translateProvider', 'SITNET_CONF', function ($translateProvider, SITNET_CONF) {
-
         var path = SITNET_CONF.LANGUAGES_PATH;
         $translateProvider.useStaticFilesLoader({
             prefix: path + 'locale-',
             suffix: '.json'
         });
-        $translateProvider.preferredLanguage('fi');
+        $translateProvider.preferredLanguage('en');
     }]);
     // Executed each time the site is loaded
-    sitnet.run(['$http', '$route', '$interval', '$modal', '$sessionStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
-        function ($http, $route, $interval, $modal, $sessionStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
+    sitnet.run(['$http', '$route', '$interval', '$timeout', '$modal', '$sessionStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
+        function ($http, $route, $interval, $timeout, $modal, $sessionStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
 
             var user = $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY];
             if (user) {
@@ -51,6 +51,10 @@
                 header[SITNET_CONF.AUTH_HEADER] = user.token;
                 $http.defaults.headers.common = header;
                 sessionService.setUser(user);
+                // Introduce a short timeout for this to give the translateProvider some time to settle
+                $timeout(function () {
+                    sessionService.translate(user.lang);
+                }, 100);
             }
             var scheduler;
             var PING_INTERVAL = 60 * 1000;
@@ -67,10 +71,16 @@
                             "hideDuration": "0",
                             "timeOut": "30000",
                             "extendedTimeOut": "1000",
-                            "tapToDismiss": false
-                        },
-                            toastr.options.preventDuplicates = true,
-                            toastr.warning($translate("sitnet_session_will_expire_soon") + "  " + "<button onclick=\"javascript:$http.get('/extendSession')\">" + $translate("sitnet_continue_session") + "</button>");
+                            "tapToDismiss": false,
+                            "preventDuplicates": true
+                        };
+                        toastr.warning($translate("sitnet_session_will_expire_soon") +
+                        "&nbsp;<button onclick=\"" +
+                        "var request = new XMLHttpRequest();" +
+                        "request.open('PUT', '/extendSession', true); " +
+                        "request.setRequestHeader('" + SITNET_CONF.AUTH_HEADER + "', '" + user.token + "'); " +
+                        "request.send();\">" +
+                        $translate("sitnet_continue_session") + "</button>");
                     } else if (data === "no_session") {
                         if (scheduler) {
                             $interval.cancel(scheduler);
@@ -80,7 +90,7 @@
                 });
             };
 
-            var restartSessionCheck = function() {
+            var restartSessionCheck = function () {
                 if (scheduler) {
                     $interval.cancel(scheduler);
                 }
@@ -113,14 +123,15 @@
                                 $scope.ok = function () {
                                     console.log("ok");
                                     // OK button
-                                    UserRes.updateAgreementAccepted.update({id: user.id}, function (user) {
+                                    UserRes.updateAgreementAccepted.update({id: user.id}, function () {
+                                        user.hasAcceptedUserAgreament = true;
                                         sessionService.setUser(user);
                                     }, function (error) {
                                         toastr.error(error.data);
                                     });
                                     $modalInstance.dismiss();
                                     if ($location.url() === '/login' || $location.url() === '/logout') {
-                                        $location.path("/home");
+                                        $location.path("/");
                                     } else {
                                         $route.reload();
                                     }
@@ -132,7 +143,7 @@
                             }
                         });
                     } else if ($location.url() === '/login' || $location.url() === '/logout') {
-                        $location.path("/home");
+                        $location.path("/");
                     } else {
                         $route.reload();
                     }
@@ -141,7 +152,7 @@
                         toastr.error(message);
                         $location.path("/logout");
                     } else {
-                        $route.reload();
+                       $location.path("/login");
                     }
                 });
             };

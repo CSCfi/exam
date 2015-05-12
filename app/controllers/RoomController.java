@@ -10,6 +10,7 @@ import models.*;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -30,8 +31,7 @@ public class RoomController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getExamRooms() {
         ExpressionList<ExamRoom> query = Ebean.find(ExamRoom.class).fetch("examMachines").where();
-        if (!UserController.getLoggedUser().hasRole("ADMIN"))
-        {
+        if (!UserController.getLoggedUser().hasRole("ADMIN")) {
             query = query.ne("state", ExamRoom.State.INACTIVE.toString());
         }
         List<ExamRoom> rooms = query.findList();
@@ -132,16 +132,18 @@ public class RoomController extends SitnetController {
         Ebean.delete(previous);
 
         JsonNode node = request().body().asJson();
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("DD.MM.YYYY HH:mmZZ");
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
         for (JsonNode weekday : node) {
             for (JsonNode block : weekday.get("blocks")) {
                 DefaultWorkingHours dwh = new DefaultWorkingHours();
                 dwh.setRoom(examRoom);
                 dwh.setDay(weekday.get("weekday").asText());
-                String startTime = block.get("start").asText();
-                String endTime = block.get("end").asText();
-                dwh.setStartTime(DateTime.parse(startTime, formatter).toDate());
-                dwh.setEndTime(DateTime.parse(endTime, formatter).toDate());
+                // Deliberately use first of Jan to have no DST in effect
+                DateTime startTime = DateTime.parse(block.get("start").asText(), formatter).withDayOfYear(1);
+                DateTime endTime = DateTime.parse(block.get("end").asText(), formatter).withDayOfYear(1);
+                dwh.setStartTime(startTime.toDate());
+                dwh.setEndTime(endTime.toDate());
+                dwh.setTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endTime));
                 dwh.save();
             }
         }
@@ -149,12 +151,29 @@ public class RoomController extends SitnetController {
         return ok();
     }
 
-    private static DateTime fromJS(JsonNode root, String field) {
-        try {
-            return ISODateTimeFormat.dateTime().parseDateTime(root.get(field).asText());
-        } catch (Exception e) {
-            return null;
+    @Restrict(@Group({"ADMIN"}))
+    public static Result updateExamStartingHours(Long id) {
+        ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
+        if (examRoom == null) {
+            return notFound();
         }
+        List<ExamStartingHour> previous = Ebean.find(ExamStartingHour.class)
+                .where().eq("room.id", id).findList();
+        Ebean.delete(previous);
+
+        JsonNode node = request().body().asJson();
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
+        for (JsonNode hours : node.get("hours")) {
+            ExamStartingHour esh = new ExamStartingHour();
+            esh.setRoom(examRoom);
+            // Deliberately use first/second of Jan to have no DST in effect
+            DateTime startTime = DateTime.parse(hours.asText(), formatter).withDayOfYear(1);
+            esh.setStartingHour(startTime.toDate());
+            esh.setTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(startTime));
+
+            esh.save();
+        }
+        return ok();
     }
 
     @Restrict(@Group({"ADMIN"}))
@@ -162,36 +181,26 @@ public class RoomController extends SitnetController {
 
         final JsonNode root = request().body().asJson();
 
-        DateTime startDate = fromJS(root, "startDate");
-        DateTime startTime = fromJS(root, "startTime");
-        DateTime endDate = fromJS(root, "endDate");
-        DateTime endTime = fromJS(root, "endTime");
+        if (!root.has("startDate") || !root.has("endDate")) {
+            return badRequest("either start or end date missing");
+        }
+        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("startDate").asText());
+        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(root.get("endDate").asText());
+
+        ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
+        if (examRoom == null) {
+            return notFound();
+        }
+
 
         final ExceptionWorkingHours hours = new ExceptionWorkingHours();
-
-        if (startDate != null) {
-            hours.setStartDate(startDate.toDate());
-        }
-
-        if (startTime != null) {
-            hours.setStartTime(startTime.toDate());
-        }
-
-        if (endDate != null) {
-            hours.setEndDate(endDate.toDate());
-        }
-
-        if (endTime != null) {
-            hours.setEndTime(endTime.toDate());
-        }
-
-
-        hours.save();
-        ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
+        hours.setStartDate(startDate.toDate());
+        hours.setStartDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(startDate.withDayOfYear(1)));
+        hours.setEndDate(endDate.toDate());
+        hours.setEndDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endDate.withDayOfYear(1)));
         hours.setRoom(examRoom);
-        examRoom.getCalendarExceptionEvents().add(hours);
-
-        examRoom.save();
+        hours.setOutOfService(root.get("outOfService").asBoolean(true));
+        hours.save();
 
         return ok(Json.toJson(hours));
     }

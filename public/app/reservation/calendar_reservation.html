@@ -1,21 +1,21 @@
 <div id="sitnet-dialog">
     <div class="terms-dialog-header">
-        <h4><i class="sitnet-white">Koepaikan varaus</i></h4>
+        <h4><i class="sitnet-white">{{'sitnet_do_reservation' | translate}}</i></h4>
     </div>
     <div class="modal-body">
         <div class="row">
             <div class="col-md-12">
                 <div class="sitnet-info-text">
-                    Aika
+                    {{'sitnet_exam_time' | translate}}
                 </div>
-                {{date}} klo <select ng-change="changeTime()"  ng-model="time" ng-options="optionValue(t) for t in times">
+                {{date}} {{'sitnet_clock_short' | translate}} <select ng-change="changeTime()"  ng-model="time" ng-options="optionValue(t) for t in times">
                 </select>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="sitnet-info-text">
-                    Paikka
+                    {{'sitnet_exam_room' | translate}}
                 </div>
                 <div class="input-group">
                     {{room.name}}
@@ -29,7 +29,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="sitnet-info-text">
-                    Koe
+                    {{'sitnet_exam' | translate}}
                 </div>
                 <div class="input-group">
                     {{ exam.course.code }} - {{exam.name}}
@@ -43,7 +43,7 @@
         </div>
         <div class="col-md-3 col-md-offset-5">
             <!--{{'sitnet_create_new' | translate}}-->
-            <button ng-click="save()" class="btn btn-primary">Tee varaus</button>
+            <button ng-click="save()" class="btn btn-primary">{{'sitnet_do_reservation' | translate}}</button>
         </div>
     </div>
 </div>

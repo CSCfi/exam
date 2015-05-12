@@ -8,9 +8,10 @@
                     {"remove": {method: "DELETE", params: {id: "id"}}}
                 ),
                 students: $resource("/admin/students"),
+                teachers: $resource("/admin/teachers"),
                 exams: $resource("/admin/exams"),
                 examrooms: $resource("/admin/examrooms"),
                 machines: $resource("/machines")
-            }
+            };
         }]);
 }());

@@ -3,14 +3,20 @@ package controllers;
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.avaje.ebean.Ebean;
+import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.util.GreenMailUtil;
+import com.icegreen.greenmail.util.ServerSetup;
+import com.typesafe.config.ConfigFactory;
 import models.*;
 import org.joda.time.DateTime;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
+import javax.mail.internet.MimeMessage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,6 +34,9 @@ public class CalendarControllerTest extends IntegrationTestCase {
     private ExamRoom room;
     private Reservation reservation;
 
+    @Rule
+    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+
     @Override
     @Before
     public void setUp() throws Exception {
@@ -35,7 +44,11 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED.toString()).findList().get(0);
         user = Ebean.find(User.class, userId);
+        user.setUserLanguage(Ebean.find(UserLanguage.class).where().eq("UILanguageCode", "en").findUnique());
+        user.update();
         room = Ebean.find(ExamRoom.class, 1L);
+        room.setRoomInstructionEN("information in English here");
+        room.update();
         enrolment = new ExamEnrolment();
         enrolment.setExam(exam);
         enrolment.setUser(user);
@@ -67,6 +80,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getEndAt()).isEqualTo(end);
         assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
+
+        // Check that correct mail was sent
+        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        MimeMessage[] mails = greenMail.getReceivedMessages();
+        assertThat(mails).hasSize(1);
+        assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        String body = GreenMailUtil.getBody(mails[0]);
+        assertThat(body).contains("You have booked an exam time");
+        assertThat(body).contains("information in English here");
+        assertThat(body).contains(room.getName());
     }
 
     @Test
@@ -76,8 +99,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Date start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1).toDate();
         Date end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2).toDate();
 
-        reservation.setStartAt(DateTime.now().plusMinutes(10).toDate());
-        reservation.setEndAt(DateTime.now().plusMinutes(20).toDate());
+        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
+        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
@@ -97,6 +120,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getEndAt()).isEqualTo(end);
         assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
+
+        // Check that correct mail was sent
+        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        MimeMessage[] mails = greenMail.getReceivedMessages();
+        assertThat(mails).hasSize(1);
+        assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        String body = GreenMailUtil.getBody(mails[0]);
+        assertThat(body).contains("You have booked an exam time");
+        assertThat(body).contains("information in English here");
+        assertThat(body).contains(room.getName());
     }
 
     @Test
@@ -134,6 +167,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(ee.getReservation().getEndAt()).isEqualTo(end);
         assertThat(ee.getExam().getId()).isEqualTo(exam.getId());
         assertThat(ee.getReservation().getMachine()).isIn(room.getExamMachines());
+
+        // Check that correct mail was sent
+        assertThat(greenMail.waitForIncomingEmail(1)).isTrue();
+        MimeMessage[] mails = greenMail.getReceivedMessages();
+        assertThat(mails).hasSize(1);
+        assertThat(mails[0].getFrom()[0].toString()).contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        String body = GreenMailUtil.getBody(mails[0]);
+        assertThat(body).contains("You have booked an exam time");
+        assertThat(body).contains("information in English here");
+        assertThat(body).contains(room.getName());
     }
 
 
@@ -209,8 +252,9 @@ public class CalendarControllerTest extends IntegrationTestCase {
     public void testRemoveReservation() throws Exception {
 
         // Setup
-        reservation.setStartAt(DateTime.now().plusHours(1).toDate());
-        reservation.setEndAt(DateTime.now().plusHours(2).toDate());
+        reservation.setMachine(room.getExamMachines().get(0));
+        reservation.setStartAt(DateTime.now().plusHours(2).toDate());
+        reservation.setEndAt(DateTime.now().plusHours(3).toDate());
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
@@ -230,6 +274,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
     public void testRemoveReservationInPast() throws Exception {
 
         // Setup
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().minusHours(2).toDate());
         reservation.setEndAt(DateTime.now().minusHours(1).toDate());
         reservation.save();
@@ -250,6 +295,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
     public void testRemoveReservationInProgress() throws Exception {
 
         // Setup
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.setStartAt(DateTime.now().minusHours(1).toDate());
         reservation.setEndAt(DateTime.now().plusHours(1).toDate());
         reservation.save();

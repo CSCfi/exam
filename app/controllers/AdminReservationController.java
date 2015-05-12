@@ -9,17 +9,17 @@ import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import exceptions.MalformedDataException;
 import exceptions.NotFoundException;
 import models.*;
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 import util.java.EmailComposer;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -57,7 +57,8 @@ public class AdminReservationController extends SitnetController {
         } else {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, name");
+            options.setRootPathProperties("id, name, examMachines");
+            options.setPathProperties("examMachines", "id");
 
             return ok(jsonContext.toJsonString(examRooms, true, options)).as("application/json");
         }
@@ -85,7 +86,28 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result removeReservation(long id) throws MalformedDataException, NotFoundException {
+    public static Result getTeachers() {
+
+        List<User> students = Ebean.find(User.class)
+                .where()
+                .eq("roles.name", "TEACHER")
+                .findList();
+
+        ArrayNode array = JsonNodeFactory.instance.arrayNode();
+        for (User u : students) {
+            ObjectNode part = Json.newObject();
+            part.put("id", u.getId());
+            part.put("firstName", u.getFirstName());
+            part.put("lastName", u.getLastName());
+            part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
+            array.add(part);
+        }
+
+        return ok(Json.toJson(array));
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public static Result removeReservation(long id) throws IOException, NotFoundException {
 
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .where()
@@ -109,7 +131,7 @@ public class AdminReservationController extends SitnetController {
         // Lets not send emails about historical reservations
         if (reservation.getEndAt().after(new Date())) {
             User student = enrolment.getUser();
-            EmailComposer.composeReservationCancelationNotification(student, reservation, "");
+            EmailComposer.composeReservationCancellationNotification(student, reservation, "", false, enrolment);
         }
 
         enrolment.setReservation(null);
@@ -120,14 +142,24 @@ public class AdminReservationController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservations(F.Option<Long> studentId, F.Option<Long> roomId, F.Option<Long> machineId,
+    public static Result getReservations(F.Option<String> state, F.Option<Long> ownerId, F.Option<Long> studentId, F.Option<Long> roomId, F.Option<Long> machineId,
                                          F.Option<Long> examId, Long start, Long end) {
 
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class).where();
-        DateMidnight startDate = new DateMidnight(start);
+        DateTime startDate = new DateTime(start).withTimeAtStartOfDay();
         query = query.ge("reservation.startAt", startDate.toDate());
-        DateTime endDate = new DateMidnight(end).plusDays(1).toDateTime();
+        DateTime endDate = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
         query = query.lt("reservation.endAt", endDate.toDate());
+
+        if (state.isDefined() && ! state.get().equals("NO_SHOW")) {
+            query = query.eq("exam.state", state.get());
+        }
+
+        User user = null;
+        if (ownerId.isDefined()) {
+            user = Ebean.find(User.class, ownerId.get());
+        }
+
         if (studentId.isDefined()) {
             query = query.eq("user.id", studentId.get());
         }
@@ -142,21 +174,88 @@ public class AdminReservationController extends SitnetController {
         }
 
         List<ExamEnrolment> enrolments = query.orderBy("reservation.startAt").findList();
+
         if (enrolments == null) {
             return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
-            options.setPathProperties("user", "id, firstName, lastName");
-            options.setPathProperties("exam", "id, name, state");
-            options.setPathProperties("reservation", "id, startAt, endAt, machine");
-            options.setPathProperties("reservation.machine", "id, name, ipAddress, room");
-            options.setPathProperties("reservation.machine.room", "id, name, roomCode");
-
-            return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
         }
+
+        // TODO: shitty workaround for removing exam owners
+        if(user != null && user.getId() > 0) {
+            Iterator i = enrolments.iterator();
+            while (i.hasNext()) {
+                boolean remove = true;
+                ExamEnrolment e = (ExamEnrolment) i.next();
+                Exam ex = e.getExam().getParent() != null ? e.getExam().getParent() : e.getExam();
+                if (ex != null && ex.getExamOwners() != null) {
+                    for (User u : ex.getExamOwners()) {
+                        if (u.getId() == user.getId()) {
+                            remove = false;
+                        }
+                    }
+                }
+                if(remove) {
+                    i.remove();
+                }
+            }
+        }
+
+        // NO_SHOW adds
+        for(ExamEnrolment enrolment : enrolments) {
+            boolean isParentExam = enrolment.getExam().getParent() == null ? true : false;
+            // if parent exam, student has not start the test yet.
+            if(isParentExam) {
+                // if reservation end time is in the past
+                if (enrolment.getReservation().getEndAt().getTime() < new Date().getTime()) {
+                    enrolment.getReservation().getMachine().setOtherIdentifier("NO_SHOW");
+                }
+            }
+        }
+        // ok IF STATE == NO_SHOW, removes the rest
+        if(state.isDefined() && state.get().equals("NO_SHOW")) {
+
+            Iterator i = enrolments.iterator();
+            while (i.hasNext()) {
+                ExamEnrolment e = (ExamEnrolment) i.next();
+                boolean isNoShow = e.getReservation() != null &&
+                        e.getReservation().getMachine() != null &&
+                        e.getReservation().getMachine().getOtherIdentifier() != null &&
+                        e.getReservation().getMachine().getOtherIdentifier().equals("NO_SHOW");
+
+                if(! isNoShow) {
+                    i.remove();
+                }
+            }
+        }
+
+        if(state.isDefined() && ! state.get().equals("NO_SHOW")) {
+            Iterator i = enrolments.iterator();
+            while (i.hasNext()) {
+                ExamEnrolment e = (ExamEnrolment) i.next();
+
+                boolean isNoShow = e.getReservation() != null &&
+                        e.getReservation().getMachine() != null &&
+                        e.getReservation().getMachine().getOtherIdentifier() != null &&
+                        e.getReservation().getMachine().getOtherIdentifier().equals("NO_SHOW");
+
+                if(isNoShow) {
+                    i.remove();
+                }
+            }
+        }
+
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
+        options.setPathProperties("user", "id, firstName, lastName, email");
+        options.setPathProperties("exam", "id, name, state, examOwners, parent");
+        options.setPathProperties("exam.examOwners", "id, firstName, lastName");
+        options.setPathProperties("parent", "id, examOwners");
+        options.setPathProperties("parent.examOwners", "id, firstName, lastName");
+        options.setPathProperties("reservation", "id, startAt, endAt, machine");
+        options.setPathProperties("reservation.machine", "id, name, ipAddress, room, otherIdentifier");
+        options.setPathProperties("reservation.machine.room", "id, name, roomCode");
+
+        return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
+
     }
-
-
 }

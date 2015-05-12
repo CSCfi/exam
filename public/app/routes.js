@@ -9,9 +9,8 @@
             $routeProvider.when('/enroll/:code', { templateUrl: tmpl + 'enrolment/enroll.html', controller: 'EnrollController'});
             $routeProvider.when('/enroll/:code/exam/:id', { templateUrl: tmpl + 'enrolment/enrollExam.html', controller: 'EnrollController'});
 
-
             /* main navigation */
-            $routeProvider.when('/home', { templateUrl: tmpl + 'common/home.html', controller: 'DashboardCtrl'});
+            $routeProvider.when('/', { templateUrl: tmpl + 'common/home.html', controller: 'DashboardCtrl'});
             $routeProvider.when('/questions', { templateUrl: tmpl + 'question/questions.html', controller: 'LibraryCtrl'});
             $routeProvider.when('/exams', { templateUrl: tmpl + 'exam/exams.html', controller: 'ExamController'});
 
@@ -46,6 +45,7 @@
             $routeProvider.when('/feedback/exams/:id', { templateUrl: tmpl + 'enrolment/exam_feedback.html', controller: 'ExamFeedbackController'});
             $routeProvider.when('/student/waitingroom', { templateUrl: tmpl + 'enrolment/waitingroom.html', controller: 'WaitingRoomCtrl'});
             $routeProvider.when('/student/wrongmachine', { templateUrl: tmpl + 'enrolment/wrong_machine.html', controller: 'WrongMachineCtrl'});
+            $routeProvider.when('/student/exams', { templateUrl: tmpl + 'exam/student/exam_search.html', controller: 'ExamSearchCtrl'});
 
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'review/review.html', controller: 'ExamReviewController'});
@@ -57,11 +57,15 @@
             $routeProvider.when('/rooms/:id', { templateUrl: tmpl + 'facility/room.html', controller: 'RoomCtrl'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'administrative/reports/reports.html', controller: 'ReportController'});
             $routeProvider.when('/admin/reservations/', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
+            $routeProvider.when('/settings', { templateUrl: tmpl + 'common/admin/settings.html'});
             $routeProvider.when('/admin/reservations/list/student/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
             $routeProvider.when('/admin/reservations/list/room/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
             $routeProvider.when('/admin/reservations/list/exam/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
             $routeProvider.when('/admin/reservations/list/student:sid/room:rid/exam:eid', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
 
-            $routeProvider.otherwise({redirectTo: '/home'});
+            /* Print */
+            $routeProvider.when('/print/exam/:id', { templateUrl: tmpl + 'review/print/fullReview.html', controller: 'ExamReviewController'});
+
+            $routeProvider.otherwise({redirectTo: '/'});
         }]);
 }());

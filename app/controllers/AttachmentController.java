@@ -159,6 +159,7 @@ public class AttachmentController extends SitnetController {
         question.save();
 
         aa.delete();
+        SitnetUtil.removeAttachmentFile(aa.getFilePath());
 
         return redirect("/#/questions/" + String.valueOf(id));
     }
@@ -173,6 +174,7 @@ public class AttachmentController extends SitnetController {
         answer.setAttachment(null);
         answer.save();
         aa.delete();
+        SitnetUtil.removeAttachmentFile(aa.getFilePath());
 
         return redirect("/#/student/doexam/" + hash);
     }
@@ -186,6 +188,7 @@ public class AttachmentController extends SitnetController {
             exam.setAttachment(null);
             exam.save();
             aa.delete();
+            SitnetUtil.removeAttachmentFile(aa.getFilePath());
         }
         return redirect("/#/exams/" + String.valueOf(id));
 

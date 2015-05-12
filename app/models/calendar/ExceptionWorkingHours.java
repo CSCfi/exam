@@ -1,11 +1,11 @@
 package models.calendar;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import models.ExamRoom;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.Date;
 
 @Entity
@@ -14,23 +14,25 @@ public class ExceptionWorkingHours extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
     private Date startDate;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
     private Date endDate;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date startTime;
+    private int startDateTimezoneOffset;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date endTime;
+    private int endDateTimezoneOffset;
+
+    private boolean outOfService;
 
     @ManyToOne
     @JsonBackReference
@@ -52,14 +54,6 @@ public class ExceptionWorkingHours extends Model {
         this.endDate = endDate;
     }
 
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
     public ExamRoom getRoom() {
         return room;
     }
@@ -76,12 +70,27 @@ public class ExceptionWorkingHours extends Model {
         this.startDate = startDate;
     }
 
-    public Date getStartTime() {
-        return startTime;
+    public int getStartDateTimezoneOffset() {
+        return startDateTimezoneOffset;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
+    public void setStartDateTimezoneOffset(int startDateTimezoneOffset) {
+        this.startDateTimezoneOffset = startDateTimezoneOffset;
     }
 
+    public int getEndDateTimezoneOffset() {
+        return endDateTimezoneOffset;
+    }
+
+    public void setEndDateTimezoneOffset(int endTimeTimezoneOffset) {
+        this.endDateTimezoneOffset = endTimeTimezoneOffset;
+    }
+
+    public boolean isOutOfService() {
+        return outOfService;
+    }
+
+    public void setOutOfService(boolean outOfService) {
+        this.outOfService = outOfService;
+    }
 }

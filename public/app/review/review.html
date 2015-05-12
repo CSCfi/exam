@@ -9,22 +9,33 @@
 </script>
 
 <div id="sitnet-header" class="header">
-    <div class="col-md-8 header-wrapper">
+    <div class="col-sm-8 header-wrapper">
         <span class="header-text">{{'sitnet_exam_review' | translate}}</span>
+        <span class="header-text">
+
+            <a ng-click="printExam()" class="btn btn-primary btn-xs" aria-label="Left Align">
+                {{'sitnet_print' | translate}}&nbsp;&nbsp;
+                <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+            </a>
+
+        </span>
     </div>
-    <div class="col-md-4 header-wrapper">
-        <span class="pull-right horizontal-padding-1 sitnet-text-medium col-md-12">
+    <div class="col-sm-4 header-wrapper">
+        <span class="pull-right horizontal-padding-1 sitnet-text-medium col-sm-12">
             <span class="pull-right">{{'sitnet_inspection_status' | translate}}:</span>
         </span>
-        <span class="pull-right horizontal-padding-1 col-md-12">
-            <span ng-if="examToBeReviewed.state ==='REVIEW' || examToBeReviewed.state === 'REVIEW_STARTED'  || examToBeReviewed.state === 'ABORTED'  || examToBeReviewed.state === 'STUDENT_STARTED'"
-                  class="pull-right text-success small">{{'sitnet_exam_in_review' | translate}}
+        <span class="pull-right horizontal-padding-1 col-sm-12">
+            <span ng-if="examToBeReviewed.state === 'ABORTED'"
+                  class="pull-right sitnet-text-alarm small">{{'sitnet_aborted_exam' | translate}}
+            </span>
+            <span ng-if="examToBeReviewed.state ==='REVIEW' || examToBeReviewed.state === 'REVIEW_STARTED'  || examToBeReviewed.state === 'STUDENT_STARTED'"
+                  class="pull-right text-success small">{{'sitnet_exam_status_' + examToBeReviewed.state | lowercase | translate}}
             </span>
             <span ng-if="examToBeReviewed.state === 'GRADED'" class="pull-right text-info small">
-                {{'sitnet_exam_reviewed' | translate}}
+                {{'sitnet_exam_status_' + examToBeReviewed.state | lowercase | translate}}
             </span>
             <span ng-if="examToBeReviewed.state === 'GRADED_LOGGED'" class="pull-right text-muted small">
-                {{'sitnet_exam_reviewed' | translate}}
+                {{'sitnet_exam_status_' + examToBeReviewed.state | lowercase | translate}}
             </span>
         </span>
     </div>
@@ -32,7 +43,7 @@
 
 <div id="dashboard">
     <div class="main-row">
-        <div class="col-md-12">
+        <div class="col-sm-12">
             <h4>
                 {{examToBeReviewed.course.code}} - {{examToBeReviewed.name}}, {{examToBeReviewed.course.credits}} op
             </h4>
@@ -43,7 +54,7 @@
     <div ng-include="generalInfoPath"></div>
 
     <div class="main-row">
-        <strong class="col-md-12">{{'sitnet_questions' | translate}}:</strong>
+        <strong class="col-sm-12">{{'sitnet_questions' | translate}}:</strong>
     </div>
 
     <!-- Sections -->
@@ -53,17 +64,17 @@
     <div ng-include="gradingPath"></div>
 
     <!-- Floating feedback window -->
-    <div id="exam" class="col-md-11" ng-hide="(isGraded && !isCreator()) || isReadOnly">
-        <div ng-init="hideEditor = false" class="col-md-5 col-md-offset-4 review-feedback" bs-affix data-offset-top="150">
+    <div id="exam" class="col-sm-11" ng-hide="(isGraded && !isCreatorOrOwnerOrAdmin()) || isReadOnly">
+        <div ng-init="hideEditor = true" class="col-sm-5 col-sm-offset-4 review-feedback" bs-affix data-offset-top="150">
             <div class="review-feedback" ng-click="hideEditor = toggleFeedbackHiding(hideEditor)">
                         <span>
                             <i class="fa fa-2x" ng-class="!hideEditor ? 'fa-chevron-circle-right sitnet-green' :
                                'fa-chevron-circle-down sitnet-red'">
                             </i>
                         </span>
-                        <span class="col-md-offset-2 review-feedback-text" ng-show="!hideEditor">
+                        <span class="col-sm-offset-2 review-feedback-text" ng-show="!hideEditor">
                             {{'sitnet_give_feedback' | translate}}</span>
-                        <span class="col-md-offset-2 review-feedback-text" ng-show="hideEditor">
+                        <span class="col-sm-offset-2 review-feedback-text" ng-show="hideEditor">
                             {{'sitnet_hide_feedback' | translate}}
                         </span>
             </div>

@@ -2,14 +2,20 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.answers.MultipleChoiseAnswer;
+import models.questions.AbstractQuestion;
+import models.questions.EssayQuestion;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 import util.SitnetUtil;
 
+import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class Exam extends SitnetModel {
+public class Exam extends SitnetModel implements Comparable<Exam> {
 
     public enum State {
         DRAFT,
@@ -30,8 +36,12 @@ public class Exam extends SitnetModel {
     @ManyToOne
     private Course course;
 
-    @OneToOne
+    @ManyToOne
     private ExamType examType;
+
+    @ManyToMany
+    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> examOwners = new ArrayList<>();
 
     // Instruction written by teacher, shown during exam
     @Column(columnDefinition = "TEXT")
@@ -41,7 +51,6 @@ public class Exam extends SitnetModel {
     @Column(columnDefinition = "TEXT")
     private String enrollInstruction;
 
-
     private boolean shared;
 
     // An ExamSection may be used only in one Exam
@@ -49,9 +58,27 @@ public class Exam extends SitnetModel {
     @JsonManagedReference
     private List<ExamSection> examSections = new ArrayList<>();
 
-    @OneToOne
-    private Exam parent;
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    protected Exam parent;
 
+    @OneToMany(mappedBy = "parent")
+    @JsonBackReference
+    protected List<Exam> children = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
+    @JsonManagedReference
+    private List<ExamEnrolment> examEnrolments = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
+    @JsonManagedReference
+    private List<ExamParticipation> examParticipations = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
+    @JsonManagedReference
+    private List<ExamInspection> examInspections = new ArrayList<>();
+
+    @OneToOne(mappedBy = "exam")
+    private ExamRecord examRecord;
 
     @Column(length = 32, unique = true)
     private String hash;
@@ -67,14 +94,18 @@ public class Exam extends SitnetModel {
     // Exam duration (minutes)
     private Integer duration;
 
-    // Exam grading, e.g. 0-5
-    private String grading;
+    @ManyToOne
+    private GradeScale gradeScale;
 
     // Custom course credit - if teachers changes course credit
     private Double customCredit;
 
-    // Exam total score - calculated from all section scores
+    // Aggregate properties, required as fields by Ebean
     private Double totalScore;
+    private Double maxScore;
+    private int rejectedAnswerCount;
+    private int approvedAnswerCount;
+
 
     // Cloned - needed as field for serialization :(
     private Boolean cloned;
@@ -88,7 +119,8 @@ public class Exam extends SitnetModel {
 
     private String state;
 
-    private String grade;
+    @ManyToOne
+    private Grade grade; // TODO: make this a Grade instead of String
 
     // Ohjelmistot
     @ManyToMany(cascade = CascadeType.ALL)
@@ -99,7 +131,7 @@ public class Exam extends SitnetModel {
      * in WebOodi, or other system
      */
     @JsonBackReference
-    @OneToOne
+    @ManyToOne
     private User gradedByUser;
 
     @Temporal(TemporalType.TIMESTAMP)
@@ -108,10 +140,10 @@ public class Exam extends SitnetModel {
     @OneToOne
     private Comment examFeedback;
 
-    @OneToOne
-    private Grade examGrade;
+    private String additionalInfo;
 
-    private String creditType;
+    @ManyToOne
+    private ExamType creditType;
 
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
@@ -131,15 +163,115 @@ public class Exam extends SitnetModel {
     @Transient
     public Double getTotalScore() {
         double total = 0;
-        if (examSections != null) {
-            for (ExamSection section : examSections) {
-                for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                    Double score = esq.getQuestion().getEvaluatedScore();
-                    total += score == null ? 0 : score;
+        for (ExamSection section : examSections) {
+            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                AbstractQuestion question = esq.getQuestion();
+                Double evaluatedScore = null;
+                if (question instanceof EssayQuestion) {
+                    EssayQuestion essayQuestion = (EssayQuestion) question;
+                    if (essayQuestion.getEvaluationType() != null && essayQuestion.getEvaluationType().equals("Points")) {
+                        evaluatedScore = essayQuestion.getEvaluatedScore();
+                    }
+                } else if (question.getAnswer() != null) {
+                    MultipleChoiseAnswer answer = (MultipleChoiseAnswer) question.getAnswer();
+                    evaluatedScore = answer.getOption().isCorrectOption() ? question.getMaxScore() : 0;
+                }
+                if (evaluatedScore != null) {
+                    total += evaluatedScore;
                 }
             }
         }
         return total;
+    }
+
+    public List<User> getExamOwners() {
+        return examOwners;
+    }
+
+    public void setExamOwners(List<User> examOwners) {
+        this.examOwners = examOwners;
+    }
+
+    @Transient
+    public Double getMaxScore() {
+        double total = 0;
+        for (ExamSection section : examSections) {
+            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                AbstractQuestion question = esq.getQuestion();
+                double maxScore = 0;
+                if (question instanceof EssayQuestion) {
+                    EssayQuestion essayQuestion = (EssayQuestion) question;
+                    if (essayQuestion.getEvaluationType() != null && essayQuestion.getEvaluationType().equals("Points")) {
+                        maxScore = essayQuestion.getMaxScore();
+                    }
+                } else {
+                    maxScore = question.getMaxScore();
+                }
+                total += maxScore;
+            }
+        }
+        return total;
+    }
+
+    @Transient
+    public int getApprovedAnswerCount() {
+        int total = 0;
+        for (ExamSection section : examSections) {
+            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                AbstractQuestion question = esq.getQuestion();
+                if (question instanceof EssayQuestion) {
+                    EssayQuestion essayQuestion = (EssayQuestion) question;
+                    if (essayQuestion.getEvaluationType() != null &&
+                            essayQuestion.getEvaluationType().equals("Select")
+                            && essayQuestion.getEvaluatedScore() != null
+                            && essayQuestion.getEvaluatedScore() == 1) {
+                        total++;
+                    }
+                }
+            }
+        }
+        return total;
+    }
+
+    @Transient
+    public int getRejectedAnswerCount() {
+        int total = 0;
+        for (ExamSection section : examSections) {
+            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
+                AbstractQuestion question = esq.getQuestion();
+                if (question instanceof EssayQuestion) {
+                    EssayQuestion essayQuestion = (EssayQuestion) question;
+                    if (essayQuestion.getEvaluationType() != null &&
+                            essayQuestion.getEvaluationType().equals("Select") &&
+                            essayQuestion.getEvaluatedScore() != null
+                            && essayQuestion.getEvaluatedScore() == 0) {
+                        total++;
+                    }
+                }
+            }
+        }
+        return total;
+    }
+
+
+    // This is dumb, required to be explicitly set by EBean
+    public void setTotalScore() {
+        totalScore = getTotalScore();
+    }
+
+    // This is dumb, required to be explicitly set by EBean
+    public void setMaxScore() {
+        maxScore = getMaxScore();
+    }
+
+    // This is dumb, required to be explicitly set by EBean
+    public void setRejectedAnswerCount() {
+        rejectedAnswerCount = getRejectedAnswerCount();
+    }
+
+    // This is dumb, required to be explicitly set by EBean
+    public void setApprovedAnswerCount() {
+        approvedAnswerCount = getApprovedAnswerCount();
     }
 
     @Transient
@@ -149,14 +281,6 @@ public class Exam extends SitnetModel {
 
     public void setCloned(Boolean cloned) {
         this.cloned = cloned;
-    }
-
-    public Grade getExamGrade() {
-        return examGrade;
-    }
-
-    public void setExamGrade(Grade examGrade) {
-        this.examGrade = examGrade;
     }
 
     public Date getGradedTime() {
@@ -235,12 +359,12 @@ public class Exam extends SitnetModel {
         this.duration = duration;
     }
 
-    public String getGrading() {
-        return grading;
+    public GradeScale getGradeScale() {
+        return gradeScale;
     }
 
-    public void setGrading(String grading) {
-        this.grading = grading;
+    public void setGradeScale(GradeScale gradeScale) {
+        this.gradeScale = gradeScale;
     }
 
     public Double getCustomCredit() {
@@ -249,10 +373,6 @@ public class Exam extends SitnetModel {
 
     public void setCustomCredit(Double customCredit) {
         this.customCredit = customCredit;
-    }
-
-    public void setTotalScore(Double totalScore) {
-        this.totalScore = totalScore;
     }
 
     public List<Language> getExamLanguages() {
@@ -293,11 +413,11 @@ public class Exam extends SitnetModel {
         this.parent = parent;
     }
 
-    public String getGrade() {
+    public Grade getGrade() {
         return grade;
     }
 
-    public void setGrade(String grade) {
+    public void setGrade(Grade grade) {
         this.grade = grade;
     }
 
@@ -317,11 +437,19 @@ public class Exam extends SitnetModel {
         this.examFeedback = examFeedback;
     }
 
-    public String getCreditType() {
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
+
+    public ExamType getCreditType() {
         return creditType;
     }
 
-    public void setCreditType(String creditType) {
+    public void setCreditType(ExamType creditType) {
         this.creditType = creditType;
     }
 
@@ -333,15 +461,54 @@ public class Exam extends SitnetModel {
         softwares = softwareInfo;
     }
 
+    public List<ExamEnrolment> getExamEnrolments() {
+        return examEnrolments;
+    }
+
+    public void setExamEnrolments(List<ExamEnrolment> examEnrolments) {
+        this.examEnrolments = examEnrolments;
+    }
+
+    public List<ExamParticipation> getExamParticipations() {
+        return examParticipations;
+    }
+
+    public void setExamParticipations(List<ExamParticipation> examParticipations) {
+        this.examParticipations = examParticipations;
+    }
+
+    public List<Exam> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Exam> children) {
+        this.children = children;
+    }
+
+    public List<ExamInspection> getExamInspections() {
+        return examInspections;
+    }
+
+    public void setExamInspections(List<ExamInspection> examInspections) {
+        this.examInspections = examInspections;
+    }
+
     public Exam copy() {
         Exam clone = new Exam();
-        BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "creator", "created"});
+        BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "examEnrolments", "examParticipations",
+                "examInspections", "creator", "created", "examOwners"});
         clone.setParent(this);
         SitnetUtil.setCreator(clone);
         SitnetUtil.setModifier(clone);
-        clone.save();
         clone.generateHash();
+        clone.save();
 
+        for (ExamInspection ei : examInspections) {
+            ExamInspection inspection = new ExamInspection();
+            BeanUtils.copyProperties(ei, inspection, new String[]{"id", "exam"});
+            inspection.setExam(clone);
+            inspection.save();
+        }
         for (ExamSection es : examSections) {
             ExamSection esCopy = es.copy(clone, true);
             esCopy.save();
@@ -384,6 +551,63 @@ public class Exam extends SitnetModel {
         return attachment;
     }
 
+    @Transient
+    public boolean isCreatedBy(User user) {
+        return creator != null && creator.equals(user);
+    }
+
+    @Transient
+    public boolean isInspectedBy(User user, boolean applyToChildOnly) {
+        Exam examToCheck = parent == null || applyToChildOnly ? this : parent;
+        for (ExamInspection inspection : examToCheck.examInspections) {
+            if (inspection.getUser().equals(user)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transient
+    public boolean isOwnedBy(User user) {
+        Exam examToCheck = parent == null ? this : parent;
+        for (User owner : examToCheck.examOwners) {
+            if (owner.equals(user)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transient
+    public boolean isOwnedOrCreatedBy(User user) {
+        return isCreatedBy(user) || isOwnedBy(user);
+    }
+
+    @Transient
+    public boolean isInspectedOrCreatedOrOwnedBy(User user) {
+        return isInspectedBy(user, false) || isOwnedBy(user) || isCreatedBy(user);
+    }
+
+    @Transient
+    public boolean isInspectedOrCreatedOrOwnedBy(User user, boolean applyToChildOnly) {
+        return isInspectedBy(user, applyToChildOnly) || isOwnedBy(user) || isCreatedBy(user);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof Exam)) {
+            return false;
+        }
+        Exam otherExam = (Exam) other;
+        return new EqualsBuilder().append(id, otherExam.id).build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
+    }
+
     @Override
     public String toString() {
         return "Exam{" +
@@ -397,5 +621,10 @@ public class Exam extends SitnetModel {
                 ", hash='" + hash + '\'' +
                 ", state='" + state + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(@Nonnull Exam other) {
+        return created.compareTo(other.created);
     }
 }

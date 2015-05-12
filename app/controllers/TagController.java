@@ -6,6 +6,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import exceptions.MalformedDataException;
 import models.Tag;
+import models.User;
 import models.questions.AbstractQuestion;
 import play.libs.F;
 import play.libs.Json;
@@ -17,12 +18,24 @@ import java.util.List;
 public class TagController extends SitnetController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public static Result listTags(F.Option<String> filter) {
-        ExpressionList<Tag> query = Ebean.find(Tag.class).where()
-                .eq("creator.id", UserController.getLoggedUser().getId());
+    public static Result listTags(F.Option<String> filter, F.Option<List<Long>> examIds, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds) {
+        User user = UserController.getLoggedUser();
+        ExpressionList<Tag> query = Ebean.find(Tag.class).where();
+        if (!user.hasRole("ADMIN")) {
+            query = query.where().eq("creator.id", user.getId());
+        }
         if (filter.isDefined()) {
             String condition = String.format("%%%s%%", filter.get());
             query = query.ilike("name", condition);
+        }
+        if (examIds.isDefined() && !examIds.get().isEmpty()) {
+            query = query.in("questions.children.examSectionQuestion.examSection.exam.id", examIds.get());
+        }
+        if (courseIds.isDefined() && !courseIds.get().isEmpty()) {
+            query = query.in("questions.children.examSectionQuestion.examSection.exam.course.id", courseIds.get());
+        }
+        if (sectionIds.isDefined() && !sectionIds.get().isEmpty()) {
+            query = query.in("questions.children.examSectionQuestion.examSection.id", sectionIds.get());
         }
         List<Tag> tags = query.orderBy("name").findList();
         return ok(Json.toJson(tags));

@@ -41,7 +41,7 @@
                     </div>
                 </h4>
             </div>
-            <div class="library" ng-controller="LibraryCtrl" ng-hide="session.minimizeLibrary">
+            <div class="library" ng-controller="LibraryCtrl" style="display: inline-block;" ng-hide="session.minimizeLibrary">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="library-name">
@@ -52,9 +52,9 @@
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <span class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
-                                    data-toggle="dropdown" aria-expanded="true">
+                        <span class="dropdown" dropdown>
+                            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                                    data-toggle="dropdown" aria-expanded="true" ng-click="listCourses()">
                                 {{'sitnet_course' | translate}}&nbsp;<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
@@ -66,14 +66,14 @@
                                     </div>
                                 </li>
                                 <li ng-repeat="course in courses | filter:limitCourses" role="presentation"
-                                    ng-class="course.filtered ? 'active': ''" ng-click="setCourseFilter(course)">
-                                    <a role="menuitem">{{course.name | truncate:30}}</a>
+                                    ng-class="course.filtered ? 'active': ''" ng-click="applyFilter(course)">
+                                    <a role="menuitem" title="{{course.name}}">{{course.name | truncate:30}}</a>
                                 </li>
                             </ul>
                         </span>
-                        <span class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
-                                    data-toggle="dropdown" aria-expanded="true">
+                        <span class="dropdown" dropdown>
+                            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                                    data-toggle="dropdown" aria-expanded="true" ng-click="listExams()">
                                 {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
@@ -85,15 +85,15 @@
                                     </div>
                                 </li>
                                 <li ng-repeat="exam in exams | filter:limitExams" role="presentation"
-                                    ng-class="exam.filtered ? 'active': ''" ng-click="setExamFilter(exam)">
-                                    <a role="menuitem">{{exam.name | truncate:30}}</a>
+                                    ng-class="exam.filtered ? 'active': ''" ng-click="applyFilter(exam)">
+                                    <a role="menuitem" title="{{exam.name}}">{{exam.name | truncate:30}}</a>
                                 </li>
                             </ul>
                         </span>
 
-                        <span class="dropdown">
-                            <button class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
-                                    data-toggle="dropdown" aria-expanded="true">
+                        <span class="dropdown" dropdown>
+                            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
+                                    data-toggle="dropdown" aria-expanded="true" ng-click="listTags()">
                                 {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
@@ -105,8 +105,8 @@
                                     </div>
                                 </li>
                                 <li ng-repeat="tag in tags | filter:limitTags" role="presentation"
-                                    ng-class="tag.filtered ? 'active': ''" ng-click="setTagFilter(tag)">
-                                    <a role="menuitem">{{tag.name | truncate:30}}</a>
+                                    ng-class="tag.filtered ? 'active': ''" ng-click="applyFilter(tag)">
+                                    <a role="menuitem" title="{{tag.name}}">{{tag.name | truncate:30}}</a>
                                 </li>
                             </ul>
                         </span>
@@ -116,8 +116,8 @@
                     <div class="col-md-12">
                         <ul class="inline-list">
                             <li>
-                                <button ng-repeat='tag in getTags()' type='button'
-                                        ng-click="removeTag(tag)" class="btn btn-primary btn-xs" style="margin: 0.2em">
+                                <button ng-repeat="tag in getTags()" type='button'
+                                        ng-click="applyFilter(tag)" class="btn btn-primary btn-xs" style="margin: 0.2em">
                                     {{tag.name}}
                                 </button>
                             </li>
@@ -125,25 +125,36 @@
                     </div>
                 </div>
                 <div class="input-group">
-                    <input ng-model="selected" type="text" class="form-control"
+                    <input ng-change="applyFreeSearchFilter()" ng-model="selected" type="text" class="form-control"
                            placeholder="{{'sitnet_search' | translate }}">
 
                     <div class="input-group-addon">
                         <i class="fa fa-search fa-fw"></i>
                     </div>
                 </div>
-                <ul class="list-group results">
-                    <li class="library-question-header-inactive" ng-repeat="question in questions | filter:selected"
-                        draggable="question" draggable-target=".sortable">
-                        <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
-                        </div>
-                        <div class="library-row-text-wrap">
-                            <div class="library-row-text" mathjax ng-bind-html="shortText(question.question,55)"></div>
-                        </div>
-                    </li>
-                </ul>
+                <div style="max-width:100%;">
+                    <div ng-if="moreQuestions" class="top-margin-1 sitnet-text-theme text-center">{{'sitnet_show_first' | translate }} {{maxVisible}} {{'sitnet_show_questions' | translate }}</div>
+                    <ul class="questions-wrapper"><!-- list-group results -->
+                        <li style="width:5%;" draggable="visibleQuestions" draggable-target=".sortable" class="drag-all-wrap">
+                            <span class="vertical-text" ng-init="verticalText('vertical-text')">{{'sitnet_add_all' | translate}}</span>
+                        </li>
+                        <li class="question-list-wrapper">
+                            <div class="library-question-header-inactive" ng-repeat="question in visibleQuestions"
+                                draggable="question" draggable-target=".sortable">
+                                <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
+                                </div>
+                                <div class="library-row-text-wrap">
+                                    <div class="library-row-text" mathjax ng-bind-html="shortText(question.question,55)" title="{{longTextIfNotMath(question.question)}}"></div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <div ng-if="moreQuestions" class="text-center">
+                        <hr style="border-top:1px solid rgba(0,0,0,0.05)"/>
+                        <a ng-click="showMore();" class="pointer sitnet-text-theme">{{'sitnet_show_more' | translate }}</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
-

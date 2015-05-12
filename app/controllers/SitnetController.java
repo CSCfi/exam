@@ -2,7 +2,9 @@ package controllers;
 
 import exceptions.MalformedDataException;
 import play.data.Form;
+import play.libs.F;
 import play.mvc.Controller;
+import play.mvc.Result;
 
 public class SitnetController extends Controller {
 
@@ -16,5 +18,14 @@ public class SitnetController extends Controller {
             throw new MalformedDataException(form.errorsAsJson().asText());
         }
         return form.bindFromRequest().get();
+    }
+
+    protected  static F.Promise<Result> wrapAsPromise(final Result result) {
+        return F.Promise.promise(new F.Function0<Result>() {
+            @Override
+            public Result apply() throws Throwable {
+                return result;
+            }
+        });
     }
 }

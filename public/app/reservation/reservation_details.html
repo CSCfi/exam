@@ -3,24 +3,31 @@
             <table class="table table-bordered">
                 <thead>
                 <tr>
-                    <th>{{'sitnet_student' | translate}}</th>
-                    <th>{{'sitnet_room' | translate}}</th>
-                    <th>{{'sitnet_exam_machine' | translate}}</th>
-                    <th>{{'sitnet_exam' | translate}}</th>
-                    <th>{{'sitnet_date_time' | translate}}
-                        <a ng-click="toggleSort('reservation.startAt')">
-                            <i class="pointer"
-                               ng-class="(sort.order == true ? 'fa fa-chevron-up' : 'fa fa-chevron-down')"></i></a></th>
+                    <th class="pointer" ng-click="predicate = 'user.lastName'; reverse=!reverse">
+                        {{'sitnet_student' | translate}}
+                    </th>
+                    <th class="pointer" ng-click="predicate = 'exam.name'; reverse=!reverse">{{'sitnet_exam' | translate}}</th>
+                    <th>{{'sitnet_teachers' | translate}}</th>
+                    <th class="pointer" ng-click="predicate = 'reservation.startAt'; reverse=!reverse">{{'sitnet_date_time' | translate}}</th>
+                    <th class="pointer" ng-click="predicate = 'reservation.machine.room.name'; reverse=!reverse">
+                        {{'sitnet_room' | translate}}<br/>{{'sitnet_exam_machine' | translate}}
+                    </th>
+                    <th>{{'sitnet_exam_state' | translate}}</th>
                     <th>{{'sitnet_remove_reservation' | translate}}</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="enrolment in enrolments | orderBy : sort.column : sort.order">
-                    <td>{{enrolment.user.firstName}} {{enrolment.user.lastName}}</td>
-                    <td>{{enrolment.reservation.machine.room.name}}</td>
-                    <td>{{enrolment.reservation.machine.name}}</td>
-                    <td>{{enrolment.exam.name}}</td>
-                    <td>{{enrolment.reservation.startAt | date:'dd.MM.yyyy HH:mm'}}</td>
+                <tr ng-repeat="enrolment in enrolments | orderBy:predicate:reverse">
+                    <td>
+                        {{enrolment.user.firstName}} {{enrolment.user.lastName}}<br/>
+                        <a href="mailto:{{enrolment.user.email}}">{{enrolment.user.email}}</a>
+                    </td>
+                    <td><a href="#/exams/review/{{enrolment.exam.id}}">{{enrolment.exam.name}}</a></td>
+                    <td class="width15 wrap" ng-bind-html="enrolment.exam.teachersStr"></td>
+                    <td>{{enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}<br/>{{'sitnet_clock_short' | translate}} {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}}-{{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}</td>
+                    <td>{{enrolment.reservation.machine.room.name}}<br/>{{enrolment.reservation.machine.name}}</td>
+                    <td>{{'sitnet_exam_status_' + printExamState(enrolment) | lowercase | translate}}</td>
+
                     <td>
                         <button ng-disabled="enrolment.exam.state !== 'PUBLISHED'" ng-click="removeReservation(enrolment)"
                                 class="btn btn-primary pull-left">

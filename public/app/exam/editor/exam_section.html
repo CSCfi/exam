@@ -6,8 +6,8 @@
             <i ng-class="section.expanded ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
         </a>
     </div>
-    <div class="col-md-10">
-        <div class="sitnet-info-text" style="margin-left: 4em;">{{'sitnet_section_name' | translate}}:</div>
+    <div class="col-md-11">
+        <div class="sitnet-info-text" style="margin-left: 5em;">{{'sitnet_section_name' | translate}}:</div>
         <div class="col-md-1 fa-stack fa-lg">
             <i class="fa icon-theme fa-stop fa-stack-2x"></i>
             <span class="fa sitnet-white fa-stack-1x">{{$index+1}}.</span>
@@ -17,8 +17,8 @@
                    ng-model="section.name"
                    ui-change="renameSection(section)" style="font-size: 1.3em"/>
         </div>
-        <div class="col-md-1 dropdown pull-right" ng-click="editSection(section)">
-            <a class="dropdown-toggle sub-header-icon pull-right fa-stack fa-lg">
+        <div class="col-md-1 dropdown pull-right" dropdown>
+            <a class="dropdown-toggle sub-header-icon pull-right fa-stack fa-lg" dropdown-toggle>
                 <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
                 <i class="fa fa-wrench fa-stack-1x"></i>
             </a>
@@ -61,17 +61,17 @@
 
             </li>
         </ul>
-        <div class="create-new dropdown">
-            <a class="dropdown-toggle pointer">
+        <div class="create-new dropdown" dropdown>
+            <a class="dropdown-toggle pointer" data-toggle="dropdown" dropdown-toggle>
                 <i class="fa fa-2x fa-plus-circle"></i>
                 {{'sitnet_add_content'|translate}}
             </a>
-            <ul class="dropdown-menu">
-                <li>
-                    <a ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation">
+                    <a role="menuitem" ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
                 </li>
                 <li>
-                    <a ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_question_mc' | translate }}</a>
+                    <a role="menuitem" ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
                 </li>
             </ul>
         </div>

@@ -5,17 +5,25 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.JsonNode;
 import models.Exam;
 import models.ExamEnrolment;
 import models.Reservation;
 import models.User;
-import play.mvc.Controller;
+import org.joda.time.DateTime;
+import play.Logger;
+import play.libs.F;
 import play.mvc.Result;
+import util.SitnetUtil;
 
+import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-public class EnrollController extends Controller {
+public class EnrollController extends SitnetController {
+
+    private static final boolean PERM_CHECK_ACTIVE = SitnetUtil.isEnrolmentPermissionCheckActive();
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result enrollExamList(String code) {
@@ -29,8 +37,11 @@ public class EnrollController extends Controller {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, enrollInstruction, " +
-                "creator, examLanguages");
+                "creator, examLanguages, examOwners, examInspections");
+        options.setPathProperties("examInspections", "id, user");
+        options.setPathProperties("examInspections.user", "firstName, lastName");
         options.setPathProperties("course", "code");
+        options.setPathProperties("examOwners", "firstName, lastName");
         options.setPathProperties("creator", "firstName, lastName, organization");
         options.setPathProperties("examLanguages", "code, name");
 
@@ -51,8 +62,9 @@ public class EnrollController extends Controller {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, exam, user, reservation");
-        options.setPathProperties("exam", "id, name, course, examActiveStartDate, examActiveEndDate");
+        options.setPathProperties("exam", "id, name, course, examActiveStartDate, examActiveEndDate, examOwners");
         options.setPathProperties("exam.course", "code, name");
+        options.setPathProperties("exam.examOwners", "firstName, lastName");
         options.setPathProperties("user", "firstName, lastName, email");
         options.setPathProperties("reservation", "id, startAt, endAt");
 
@@ -76,10 +88,16 @@ public class EnrollController extends Controller {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, name, examActiveStartDate, examActiveEndDate, duration, "
-                + "grading, course, creator, expanded, examType, enrollInstruction, examLanguages, " +
-                "answerLanguage");
+                + "gradeScale, course, creator, expanded, examType, enrollInstruction, examLanguages, " +
+                "answerLanguage, examOwners, examInspections");
+        options.setPathProperties("examInspections", "id, user");
+        options.setPathProperties("examInspections.user", "firstName, lastName");
         options.setPathProperties("examType", "type");
-        options.setPathProperties("course", "code, name, level, type, credits");
+        options.setPathProperties("examOwners", "firstName, lastName");
+        options.setPathProperties("examLanguages", "code");
+        options.setPathProperties("gradeScale", "id, description");
+        options.setPathProperties("course", "code, name, level, type, credits, organisation");
+        options.setPathProperties("course.organisation", "name");
         options.setPathProperties("creator", "firstName, lastName, email");
         options.setPathProperties("examLanguages", "code, name");
 
@@ -95,8 +113,42 @@ public class EnrollController extends Controller {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public static Result createEnrolment(String code, Long id) {
+    public static Result checkIfEnrolled(Long id) {
+        DateTime now = SitnetUtil.adjustDST(new DateTime());
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .where()
+                .eq("user.id", UserController.getLoggedUser().getId())
+                .eq("exam.id", id)
+                .gt("exam.examActiveEndDate", now.toDate())
+                .disjunction()
+                .gt("reservation.endAt", now.toDate())
+                .isNull("reservation")
+                .endJunction()
+                .disjunction()
+                .eq("exam.state", "PUBLISHED")
+                .eq("exam.state", "STUDENT_STARTED")
+                .endJunction()
+                .findList();
+        if (enrolments.isEmpty()) {
+            return notFound();
+        }
+        return ok();
+    }
 
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public static Result updateEnrolment(Long id) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
+        if (enrolment == null) {
+            return notFound("enrolment not found");
+        }
+        JsonNode json = request().body().asJson();
+        String info = json.get("information").asText();
+        enrolment.setInformation(info);
+        enrolment.update();
+        return ok();
+    }
+
+    private static Result doCreateEnrolment(String code, Long id) {
         User user = UserController.getLoggedUser();
         Exam exam = Ebean.find(Exam.class)
                 .where()
@@ -107,10 +159,13 @@ public class EnrollController extends Controller {
             return notFound("sitnet_error_exam_not_found");
         }
 
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).fetch("reservation")
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", user.getId())
-                // either exam ID matches OR (exam parent ID matches AND exam is started by student)
+                        // either exam ID matches OR (exam parent ID matches AND exam is started by student)
                 .disjunction()
                 .eq("exam.id", exam.getId())
                 .disjunction()
@@ -127,7 +182,7 @@ public class EnrollController extends Controller {
             if (reservation == null) {
                 // enrolment without reservation already exists, no need to create a new one
                 return forbidden("sitnet_error_enrolment_exists");
-            } else if (reservation.toInterval().containsNow()) {
+            } else if (reservation.toInterval().contains(SitnetUtil.adjustDST(DateTime.now(), reservation))) {
                 // reservation in effect
                 if (exam.getState().equals(Exam.State.STUDENT_STARTED.toString())) {
                     // exam for reservation is ongoing
@@ -144,6 +199,30 @@ public class EnrollController extends Controller {
         }
         makeEnrolment(exam, user);
         return ok();
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public static F.Promise<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
+        if (!PERM_CHECK_ACTIVE) {
+            return wrapAsPromise(doCreateEnrolment(code, id));
+        }
+        F.Promise<Collection<String>> promise = Interfaces.getPermittedCourses(UserController.getLoggedUser());
+        return promise.map(new F.Function<Collection<String>, Result>() {
+            @Override
+            public Result apply(Collection<String> codes) throws Throwable {
+                if (codes.contains(code)) {
+                    return doCreateEnrolment(code, id);
+                } else {
+                    Logger.warn("Attempt to enroll for a course without permission from {}", UserController.getLoggedUser().toString());
+                    return forbidden("sitnet_error_access_forbidden");
+                }
+            }
+        }).recover(new F.Function<Throwable, Result>() {
+            @Override
+            public Result apply(Throwable throwable) throws Throwable {
+                return internalServerError(throwable.getMessage());
+            }
+        });
     }
 
 }

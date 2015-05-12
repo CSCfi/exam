@@ -34,7 +34,8 @@
                     eid: "@eid"
                 },
                 {
-                    "get": {method: "GET", params: { eid: "@eid" }}
+                    "get": {method: "GET", params: { eid: "@eid" }},
+                    "update": {method: "PUT", params: { eid: "@eid" }}
                 }),
 
                 exam: $resource("/student/exam/abort/:id",

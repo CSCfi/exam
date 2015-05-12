@@ -2,12 +2,15 @@ package models;
 
 import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Subject;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -16,7 +19,7 @@ public class User extends Model implements Subject {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -38,34 +41,35 @@ public class User extends Model implements Subject {
 
     private String employeeNumber;
 
+    private String logoutUrl;
+
+    @ManyToMany(cascade = CascadeType.ALL, mappedBy = "examOwners")
+    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "user_id"))
+    @JsonBackReference
+    private List<Exam> ownedExams;
+
     @ManyToMany(cascade = CascadeType.ALL)
     private List<SitnetRole> roles = new ArrayList<>();
 
     @OneToOne
     private UserLanguage userLanguage;
 
-    // Shibboleth attributes
-    //Map<String, String[]> attributes;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    @JsonManagedReference
-    private List<HakaAttribute> attributes;
-
     @OneToOne
     private Organisation organisation;
-    
+
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
     private List<ExamEnrolment> enrolments = new ArrayList<>();
-    
+
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
     private List<ExamParticipation> participations = new ArrayList<>();
-    
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
     private List<ExamInspection> inspections = new ArrayList<>();
 
-    @Column(columnDefinition="BOOLEAN DEFAULT FALSE")
+    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean hasAcceptedUserAgreament;
 
 
@@ -149,6 +153,14 @@ public class User extends Model implements Subject {
         this.password = password;
     }
 
+    public String getLogoutUrl() {
+        return logoutUrl;
+    }
+
+    public void setLogoutUrl(String logoutUrl) {
+        this.logoutUrl = logoutUrl;
+    }
+
     public void setRoles(List<SitnetRole> roles) {
         this.roles = roles;
     }
@@ -175,37 +187,45 @@ public class User extends Model implements Subject {
 
     public List<ExamEnrolment> getEnrolments() {
         return enrolments;
-	}
+    }
 
-	public void setEnrolments(List<ExamEnrolment> enrolments) {
-		this.enrolments = enrolments;
-	}
+    public void setEnrolments(List<ExamEnrolment> enrolments) {
+        this.enrolments = enrolments;
+    }
 
-	public List<ExamParticipation> getParticipations() {
+    public List<ExamParticipation> getParticipations() {
         return participations;
-	}
+    }
 
-	public void setParticipations(List<ExamParticipation> participations) {
-		this.participations = participations;
-	}
+    public void setParticipations(List<ExamParticipation> participations) {
+        this.participations = participations;
+    }
 
-	public List<ExamInspection> getInspections() {
+    public List<ExamInspection> getInspections() {
         return inspections;
-	}
+    }
 
-	public void setInspections(List<ExamInspection> inspections) {
-		this.inspections = inspections;
-	}
+    public void setInspections(List<ExamInspection> inspections) {
+        this.inspections = inspections;
+    }
 
-	@Override
+    @Override
     public String getIdentifier() {
         return email;
+    }
+
+    public List<Exam> getOwnedExams() {
+        return ownedExams;
+    }
+
+    public void setOwnedExams(List<Exam> ownedExams) {
+        this.ownedExams = ownedExams;
     }
 
     public boolean hasRole(String name) {
 
         for (SitnetRole role : roles) {
-            if(role.getName().equals(name))
+            if (role.getName().equals(name))
                 return true;
         }
         return false;
@@ -217,11 +237,16 @@ public class User extends Model implements Subject {
                 firstName + ", password=" + password + "]";
     }
 
-    public List<HakaAttribute> getAttributes() {
-        return attributes;
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) return true;
+        if (!(other instanceof User)) return false;
+        User otherUser = (User) other;
+        return new EqualsBuilder().append(id, otherUser.id).build();
     }
 
-    public void setAttributes(List<HakaAttribute> attributes) {
-        this.attributes = attributes;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(id).build();
     }
 }

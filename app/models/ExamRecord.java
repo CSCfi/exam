@@ -1,12 +1,9 @@
 package models;
 
-import models.dto.CourseUnitInfo;
 import models.dto.ExamScore;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-
 import java.util.Date;
 
 /**
@@ -17,7 +14,7 @@ public class ExamRecord extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -29,10 +26,6 @@ public class ExamRecord extends Model {
     private User student;
     @OneToOne
     private Exam exam;
-
-    // This one might be redundant, at the moment we get all course data from Course.java
-    @OneToOne
-    private CourseUnitInfo courseUnitInfo;
 
     @OneToOne
     private ExamScore examScore;
@@ -91,14 +84,6 @@ public class ExamRecord extends Model {
 
     public void setTimeStamp(Date timeStamp) {
         this.timeStamp = timeStamp;
-    }
-
-    public CourseUnitInfo getCourseUnitInfo() {
-        return courseUnitInfo;
-    }
-
-    public void setCourseUnitInfo(CourseUnitInfo courseUnitInfo) {
-        this.courseUnitInfo = courseUnitInfo;
     }
 
     public Long getId() {

@@ -54,7 +54,7 @@
                     if (exam) {
                         fileService.download('/statistics/examenrollments/' + exam, 'exam_enrolments.xlsx');
                     } else {
-                        toastr.error("Valitse tentti");
+                        toastr.error($translate('sitnet_choose_exam'));
                     }
                 };
 
@@ -62,7 +62,7 @@
                     if (student) {
                         var f = $filter("date")(from, "dd.MM.yyyy") ;
                         var t = $filter("date")(to, "dd.MM.yyyy");
-                        fileService.download('/statistics/student/' + student + '/' + f + '/' + t, 'student_activity.xslx');
+                        fileService.download('/statistics/student/' + student + '/' + f + '/' + t, 'student_activity.xlsx');
                     } else {
                         toastr.error($translate('sitnet_choose_student'));
                     }

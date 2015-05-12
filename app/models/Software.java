@@ -3,7 +3,7 @@ package models;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,7 +14,7 @@ public class Software extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,6 +27,8 @@ public class Software extends Model {
     private List<Exam> exams;
 
     private String name;
+
+    private String status;
 
     public Long getId() {
         return id;
@@ -42,6 +44,14 @@ public class Software extends Model {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override

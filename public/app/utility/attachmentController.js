@@ -1,12 +1,13 @@
 (function() {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('AttachmentController', ['$scope', '$translate', 'fileService', 'AttachmentRes',
-            function($scope, $translate, fileService, AttachmentRes) {
+        .controller('AttachmentController', ['dialogs', '$scope', '$translate', 'fileService', 'AttachmentRes',
+            function(dialogs, $scope, $translate, fileService, AttachmentRes) {
 
             $scope.removeQuestionAttachment = function(question) {
 
-                if (confirm($translate("sitnet_are_you_sure"))) {
+                var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate("sitnet_are_you_sure"));
+                dialog.result.then(function (btn) {
                     AttachmentRes.questionAttachment.remove({id: question.id},
 
                         function() {
@@ -15,12 +16,13 @@
                         }, function(error) {
                             toastr.error(error.data);
                         });
-                }
+                });
             };
 
             $scope.removeQuestionAnswerAttachment = function(question, hash) {
 
-                if (confirm($translate("sitnet_are_you_sure"))) {
+                var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate("sitnet_are_you_sure"));
+                dialog.result.then(function (btn) {
                     AttachmentRes.questionAnswerAttachment.remove({qid: question.id, hash: hash},
 
                         function() {
@@ -30,12 +32,13 @@
                         }, function(error) {
                             toastr.error(error.data);
                         });
-                }
+                });
             };
 
             $scope.removeExamAttachment = function(exam) {
 
-                if (confirm($translate("sitnet_are_you_sure"))) {
+                var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate("sitnet_are_you_sure"));
+                dialog.result.then(function (btn) {
                     AttachmentRes.examAttachment.remove({id: exam.id},
 
                         function() {
@@ -44,7 +47,7 @@
                         }, function(error) {
                             toastr.error(error.data);
                         });
-                }
+                });
             };
 
             $scope.downloadQuestionAttachment = function(question) {

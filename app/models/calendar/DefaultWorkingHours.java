@@ -1,12 +1,11 @@
 package models.calendar;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import models.ExamRoom;
 import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.sql.Timestamp;
-
 import java.util.Date;
 
 @Entity
@@ -24,17 +23,21 @@ public class DefaultWorkingHours extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
     @Temporal(TemporalType.TIME)
-    protected Date startTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
+    private Date startTime;
 
     @Temporal(TemporalType.TIME)
-    protected Date endTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
+    private Date endTime;
+
+    private int timezoneOffset;
 
     private String day;
 
@@ -80,5 +83,13 @@ public class DefaultWorkingHours extends Model {
 
     public void setDay(String day) {
         this.day = day;
+    }
+
+    public int getTimezoneOffset() {
+        return timezoneOffset;
+    }
+
+    public void setTimezoneOffset(int timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
     }
 }

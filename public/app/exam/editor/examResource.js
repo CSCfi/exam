@@ -11,18 +11,14 @@
                     "update": {method: "PUT"},
                     "remove": {method: "DELETE"}
                 }),
-
-                examcourse: $resource("/exams/removecourse/:id",
+                examsearch: $resource("/examsearch"),
+                examowner: $resource("/exam/:eid/owner/:uid",
                 {
-                    id: "@id"
+                    eid: "@eid", uid: "@uid"
                 },
                 {
-                    "remove": {method: "PUT"}
-                }),
-
-                createupdatecourse: $resource("/createupdatecourse/:cid/exam/:eid ",
-                {
-                    cid: "@cid", eid: "@eid"
+                    "insert": {method: "PUT"},
+                    "remove": {method: "DELETE"}
                 }),
 
                 questions: $resource("/exams/:eid/section/:sid/question/:qid",
@@ -30,12 +26,8 @@
                 	eid: "@eid", sid: "@sid", qid: "@qid"
                 },
                 {
-                    "query":  {method: "GET"},
-                    "get":    {method: "GET", params: {eid: "@eid"}},
-                    "update": {method: "PUT"},
                     "remove": {method: "DELETE", params: { eid: "@eid" , sid: "@sid", qid: "@qid"}}
                 }),
-
                 sections: $resource("/exams/:eid/section/:sid",
                 {
                     eid: "@eid", sid: "@sid"
@@ -46,13 +38,20 @@
                     "update": {method: "PUT", params: { eid: "@eid" , sid: "@sid"}}
 
                 }),
-
                 sectionquestions: $resource("/exams/:eid/section/:sid/:seq/question/:qid",
                 {
                     eid: "@eid", sid: "@sid", seq: "@seq", qid: "@qid"
                 },
                 {
                     "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", seq: "@seq", qid: "@qid"}}
+
+                }),
+                sectionquestionsmultiple: $resource("/exams/:eid/section/:sid/:seq/questions",
+                {
+                    eid: "@eid", sid: "@sid", seq: "@seq", questions: "@questions"
+                },
+                {
+                    "insert": {method: "POST", params: { eid: "@eid" , sid: "@sid", seq: "@seq", questions: "@questions"}}
 
                 }),
                 reordersection: $resource("/exams/:eid/section/:sid/:from/:to",
@@ -75,7 +74,8 @@
                     eid: "@eid", sid: "@cid"
                 },
                 {
-                    "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}}
+                    "update": {method: "PUT", params: { eid: "@eid" , cid: "@cid"}},
+                    "delete": {method: "DELETE", params: { eid: "@eid" , cid: "@cid"}}
                 }),
 
                 courses: $resource("/courses/insert/:code",
@@ -85,58 +85,14 @@
                 {
                     "insert": {method: "POST", params: { code: "@code"}}
                 }),
-
-                section: $resource("/section/:sectionId",
-                {
-                    sectionId: "@sectionId"
-                },
-                {
-                    "deleteSection": {method: "DELETE", params: { sectionId: "@sectionId"}}
+                reviewerExams: $resource("/reviewerexams"),
+                reviewerExam: $resource("/reviewerexams/:eid", {eid: "@eid"}),
+                finishedExams: $resource("/finishedexams"),
+                draft: $resource("/draft"),
+                review: $resource("/review/:id", {id: "@id"}, {"update": {method: "PUT"}}),
+                examReviews: $resource("/reviews/:eid",{eid: "@eid", statuses: "@statuses"},
+                    {"get": {method: "GET", params: { eid: "@eid", statuses: "@statuses" }}
                 }),
-
-                examsByState: $resource("/exams/state/:state",
-                {
-                    state: "@state"
-                }),
-
-                activeExams: $resource("/activeexams", null,
-                {
-                }),
-
-                reviewerExams: $resource("/reviewerexams", null,
-                {
-                }),
-
-                reviewerExam: $resource("/reviewerexams/:eid",
-                {
-                    eid: "@eid"
-
-                }),
-                finishedExams: $resource("/finishedexams", null,
-                {
-                }),
-
-                draft: $resource("/draft", null,
-        		{
-        		}),
-
-                review: $resource("/review/:id",
-                {
-                    id: "@id"
-                },
-                {
-                    "update": {method: "PUT"}
-                }),
-
-                examReviews: $resource("/reviews/:eid",
-                {
-                    eid: "@eid",
-                    statuses: "@statuses"
-                },
-                {
-                    "get": {method: "GET", params: { eid: "@eid", statuses: "@statuses" }}
-                }),
-
                 comment: $resource("/review/:eid/comment/:cid",
                 {
                     id: "@eid", cid: "@cid"
@@ -144,9 +100,7 @@
                 {
                     "insert": {method: "POST", params: { eid: "@eid" }},
                     "update": {method: "PUT", params: { eid: "@eid" , sid: "@cid"}}
-                
                 }),
-
                 inspections: $resource("/exam/:id/inspections",
                 {
                     id: "@id"
@@ -155,14 +109,20 @@
                     "get": {method: "GET", isArray: true, params: { id: "@id" }}
                 }),
 
+                owners: $resource("/exam/:id/owners",
+                    {
+                        id: "@id"
+                    },
+                    {
+                        "get": {method: "GET", isArray: true, params: { id: "@id" }}
+                    }),
+
                 inspection: $resource("/exams/:eid/inspector/:uid",
                 {
                     eid: "@eid", uid: "@uid"
                 },
                 {
-                    "insert": {method: "POST", params: { eid: "@eid" , uid: "@uid"}},
-                    "remove": {method: "DELETE", params: { eid: "@eid" , uid: "@uid"}},
-                    "update": {method: "PUT", params: { eid: "@eid" , uid: "@uid"}}
+                    "insert": {method: "POST", params: { eid: "@eid" , uid: "@uid"}}
                 }),
 
                 inspectionReady: $resource("/exams/inspection/:id/:ready",
@@ -198,14 +158,6 @@
                     "get": {method: "GET", params: { eid: "@eid" }}
                 }),
 
-                examEnrolmentsWithReservations: $resource("/examenrolmentswithreservations/:eid",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "get": {method: "GET", params: { eid: "@eid" }}
-                }),
-
                 examParticipations: $resource("/examparticipations/:eid",
                 {
                     eid: "@eid"
@@ -221,14 +173,6 @@
                 {
                    "get": {method: "GET", params: { eid: "@eid", uid: "@uid"}}
                 }),
-                examParticipationsAndReviews: $resource("/examparticipationsandreviews/:eid",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "get": {method: "GET", params: { eid: "@eid" }}
-                }),
-
                 studentInfo: $resource("/review/info/:id",
                 {
                     id: "@id"
@@ -246,6 +190,13 @@
                 {
                     "add": {method: "POST"}
                 }),
+                record: $resource("/exam/record/export/:id",
+                    {
+                        id: "@id"
+                    },
+                    {
+                        "export": {method: "GET", params: { id: "@id"}}
+                    }),
                 language: $resource("/exam/:eid/language/:code",
                 {
                     eid: "@eid",
@@ -254,13 +205,15 @@
                 {
                     "add": {method: "PUT"}
                 }),
-                languages: $resource("exam/:eid/languages",
+                languages: $resource("/exam/:eid/languages",
                 {
                     eid: "@eid"
                 },
                 {
                     "reset": {method: "DELETE"}
                 }),
+                examTypes: $resource("/examtypes"),
+                gradeScales: $resource("/gradescales"),
                 software: $resource("/exam/:eid/software/:sid",
                 {
                     eid: "@eid",

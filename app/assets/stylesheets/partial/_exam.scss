@@ -24,7 +24,6 @@
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     color: $sitnet-teacher-turquoise-dark-active;
-    border-bottom: 1px solid $sitnet-grey;
     height: 4em;
   }
   .exam-general-information-header span {
@@ -166,7 +165,7 @@
   }
 
   ul {
-    padding: 0 0 0 0.6em;
+    padding: 0;
     width:97.5%;
   }
 

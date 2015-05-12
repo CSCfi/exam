@@ -15,6 +15,8 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.SitnetUtil;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.DateFormat;
@@ -41,18 +43,21 @@ public class SessionController extends SitnetController {
 
     private static Result hakaLogin() {
         String eppn = toUtf8(request().getHeader("eppn"));
+        if (eppn == null) {
+            return badRequest("No credentials!");
+        }
         User user = Ebean.find(User.class)
                 .where()
                 .eq("eppn", eppn)
                 .findUnique();
-        if (user == null) {
-            try {
+        try {
+            if (user == null) {
                 user = createNewUser(eppn);
-            } catch (NotFoundException e) {
-                return badRequest(e.getMessage());
+            } else {
+                updateUser(user);
             }
-        } else {
-            updateUser(user);
+        } catch (NotFoundException | AddressException e) {
+            return badRequest(e.getMessage());
         }
         user.save();
         return createSession(toUtf8(request().getHeader("Shib-Session-ID")), user);
@@ -103,18 +108,24 @@ public class SessionController extends SitnetController {
         return role;
     }
 
-    private static void updateUser(User user) {
+    private static String validateEmail(String email) throws AddressException {
+        new InternetAddress(email).validate();
+        return email;
+    }
+
+    private static void updateUser(User user) throws AddressException {
         user.setUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode")));
-        user.setEmail(toUtf8(request().getHeader("mail")));
+        user.setEmail(validateEmail(toUtf8(request().getHeader("mail"))));
         user.setLastName(toUtf8(request().getHeader("sn")));
         user.setFirstName(toUtf8(request().getHeader("displayName")));
         user.setEmployeeNumber(toUtf8(request().getHeader("employeeNumber")));
-        user.setUserLanguage(getLanguage(toUtf8(request().getHeader("preferredLanguage"))));
+        user.setLogoutUrl(toUtf8(request().getHeader("logouturl")));
     }
 
-    private static User createNewUser(String eppn) throws NotFoundException {
+    private static User createNewUser(String eppn) throws NotFoundException, AddressException {
         User user = new User();
         user.getRoles().add(getRole(toUtf8(request().getHeader("unscoped-affiliation"))));
+        user.setUserLanguage(getLanguage(toUtf8(request().getHeader("preferredLanguage"))));
         user.setEppn(eppn);
         updateUser(user);
         return user;
@@ -134,6 +145,7 @@ public class SessionController extends SitnetController {
         result.put("token", token);
         result.put("firstname", user.getFirstName());
         result.put("lastname", user.getLastName());
+        result.put("lang", user.getUserLanguage().getUILanguageCode());
         result.put("roles", Json.toJson(user.getRoles()));
         result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
 
@@ -203,20 +215,27 @@ public class SessionController extends SitnetController {
     }
 
     public static Result logout() {
+        response().discardCookie("XSRF-TOKEN");
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
         String key = SITNET_CACHE_KEY + token;
-        String loginType = ConfigFactory.load().getString("sitnet.login");
-        if (loginType.equals("HAKA")) {
-            Session session = (Session) Cache.get(key);
-            if (session != null) {
+        Session session = (Session) Cache.get(key);
+        if (session != null) {
+            String loginType = ConfigFactory.load().getString("sitnet.login");
+            String logoutUrl = null;
+            User user = Ebean.find(User.class, session.getUserId());
+            if (loginType.equals("HAKA")) {
                 session.setValid(false);
                 Cache.set(key, session);
                 Logger.info("Set session as invalid {}", token);
+            } else {
+                Cache.remove(key);
             }
-        } else {
-            Cache.remove(key);
+            if (user.getLogoutUrl() != null) {
+                ObjectNode node = Json.newObject();
+                node.put("logoutUrl", user.getLogoutUrl());
+                return ok(Json.toJson(node));
+            }
         }
-        response().discardCookie("XSRF-TOKEN");
         return ok();
     }
 
@@ -227,7 +246,7 @@ public class SessionController extends SitnetController {
         final String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
 
-        if(session == null) {
+        if (session == null) {
             return unauthorized();
         }
 
@@ -244,7 +263,7 @@ public class SessionController extends SitnetController {
         final String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
 
-        if(session == null || session.getSince() == null) {
+        if (session == null || session.getSince() == null) {
             Logger.info("Session not found");
             return ok("no_session");
         }
@@ -255,19 +274,19 @@ public class SessionController extends SitnetController {
         final long now = DateTime.now().getMillis();
         final long alarmTime = end - (2 * 60 * 1000); // now - 2 minutes
 
-        if(Logger.isDebugEnabled()) {
+        if (Logger.isDebugEnabled()) {
             DateFormat df = new SimpleDateFormat("HH:mm:ss");
             Logger.debug(" - current time: " + df.format(now));
             Logger.debug(" - session ends: " + df.format(end));
         }
 
         // session has 2 minutes left
-        if(now > alarmTime && now < end) {
+        if (now > alarmTime && now < end) {
             return ok("alarm");
         }
 
         // session ended check
-        if(now > end) {
+        if (now > end) {
             Logger.info("Session has expired");
             return ok("no_session");
         }
@@ -276,7 +295,9 @@ public class SessionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result ping() {return ok("pong");}
+    public static Result ping() {
+        return ok("pong");
+    }
 
     private static String toUtf8(String src) {
         if (src == null) {

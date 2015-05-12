@@ -1,60 +1,73 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('EnrollController', ['$scope', 'EnrollRes', '$routeParams', 'SITNET_CONF', '$location',
-                                 function ($scope, EnrollRes, $routeParams, SITNET_CONF, $location) {
-        	
-            $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
-            $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/review_exam_section_general.html";
+        .controller('EnrollController', ['$scope', '$translate', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'SITNET_CONF', '$location', 'enrolmentService',
+            function ($scope, $translate, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location, enrolmentService) {
 
+                $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
+                $scope.examPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/exam.html";
+                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/review_exam_section_general.html";
 
-        	if($routeParams.code === undefined) {
-            	console.log($routeParams.code);
-            
-            }
-            else if($routeParams.code && $routeParams.id) {
-            	
-            	EnrollRes.enroll.get({code: $routeParams.code, id: $routeParams.id}, 
+                if ($routeParams.code === undefined) {
+                    console.log($routeParams.code);
+
+                }
+                else if ($routeParams.code && $routeParams.id) {
+
+                    EnrollRes.enroll.get({code: $routeParams.code, id: $routeParams.id},
                         function (exam) {
-                            exam.languages = exam.examLanguages.map(function(lang) {
+                            exam.languages = exam.examLanguages.map(function (lang) {
                                 return getLanguageNativeName(lang.code);
                             });
                             $scope.exam = exam;
+                            examService.setExamOwners(exam);
                         },
                         function (error) {
                             toastr.error(error.data);
                         });
-            }
-            else if($routeParams.code) {
-            	EnrollRes.list.get({code: $routeParams.code}, 
-                function (exams) {
-                    $scope.exams = exams.map(function(exam) {
-                        exam.languages = exam.examLanguages.map(function(lang) {
-                            return getLanguageNativeName(lang.code);
-                        });
-                        return exam;
-                    });
-                }, 
-                function (error) {
-                    toastr.error(error.data);
-                });
-            }
-            
-            $scope.enrollExam = function (exam) {
-            	EnrollRes.enroll.create({code: exam.course.code, id: exam.id}, 
-                        function (exam) {
-            		
-                    		toastr.success("Olet ilmoittautunut tenttiin<br>Muista varata tenttikone");
-                    		$location.path('/calendar/'+ exam.id);
-                        }, 
+                }
+                else if ($routeParams.code) {
+                    EnrollRes.list.get({code: $routeParams.code},
+                        function (exams) {
+                            $scope.exams = exams.map(function (exam) {
+                                exam.languages = exam.examLanguages.map(function (lang) {
+                                    return getLanguageNativeName(lang.code);
+                                });
+                                examService.setExamOwners(exam);
+
+                                return exam;
+                            });
+                        },
                         function (error) {
                             toastr.error(error.data);
                         });
-            };
+                }
 
-            $scope.enrollList = function() {
-                $location.path('enroll/' + $routeParams.code);
-            }
-            
-        }]);
+                $scope.translateExamType = function (type) {
+                    return examService.getExamTypeDisplayName(type);
+                };
+
+                $scope.translateGradeScale = function (scale) {
+                    return examService.getScaleDisplayName(scale);
+                };
+
+                $scope.printExamDuration = function(exam) {
+                    return dateService.printExamDuration(exam);
+                };
+
+                $scope.enrollExam = function (exam) {
+                    EnrollRes.check.get({id: exam.id}, function () {
+                            // already enrolled
+                            toastr.error($translate('sitnet_already_enrolled'));
+                        }, function () {
+                            enrolmentService.enroll(exam);
+                        }
+                    )
+                };
+
+                $scope.enrollList = function () {
+                    $location.path('enroll/' + $routeParams.code);
+                };
+
+            }]);
 }());

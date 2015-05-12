@@ -1,10 +1,9 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('ExamInspectionController', ['$scope', '$modalInstance', 'exam', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF','ExamRes', 'UserRes', 'dateService', 'limitToFilter',
-            function ($scope, $modalInstance, exam, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, UserRes, dateService, limitToFilter) {
+        .controller('ExamInspectionController', ['$scope', '$modalInstance', 'exam', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF','ExamRes', 'UserRes', 'limitToFilter',
+            function ($scope, $modalInstance, exam, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, UserRes, limitToFilter) {
 
-                $scope.dateService = dateService; // TODO: needed?
                 $scope.user = sessionService.getUser();
                 $scope.exam = exam;
 

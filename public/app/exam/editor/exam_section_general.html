@@ -1,4 +1,4 @@
-<div class="exam-general-information-header">
+<div class="row exam-general-information-header">
     <div class="col-md-1">
         <a class="pointer pull-left fa-stack fa-lg" popover-placement="left" popover-popup-delay="1000"
            popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
@@ -6,64 +6,55 @@
             <i ng-class="newExam.expanded ? 'fa fa-chevron-down fa-stack-1x' : 'fa fa-chevron-right fa-stack-1x'"></i>
         </a>
     </div>
-    <div class="col-md-11 exams-generic-info-title">{{'sitnet_exam_basic_information' |
-        translate}}
-    </div>
+    <div class="col-md-11 exams-generic-info-title">{{'sitnet_exam_basic_information' | translate}}</div>
 </div>
 
 <!-- General info section container -->
 <div ng-show="newExam.expanded">
-
-    <!-- Start & End time datepickers -->
-    <div class="row" ng-controller="DatepickerCtrl">
-        <div class="col-md-6">
-            <h4>{{'sitnet_start_time' | translate}}</h4>
-
-            <p class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}"
-                       date-fix="{{format}}" ng-model="newExam.examActiveStartDate"
-                       is-open="startDateOpened" min="minDate"
-                       datepicker-options="dateOptions"
-                       close-text="{{'sitnet_close' | translate}}"
-                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                       clear-text="{{'sitnet_clear' | translate}}" ng-required="true" ui-change="updateExam()">
+    <form role="form" ng-controller="DatepickerCtrl">
+        <!-- Start & End time datepickers -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}</div>
+                <div class="input-group">
+                    <input type="text" class="form-control" datepicker-popup="{{format}}"
+                           date-fix="{{format}}" ng-model="newExam.examActiveStartDate"
+                           is-open="startDateOpened" min="minDate"
+                           datepicker-options="dateOptions"
+                           close-text="{{'sitnet_close' | translate}}"
+                           current-text="{{'sitnet_today' | translate}}"
+                           toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                           clear-text="{{'sitnet_clear' | translate}}" date-validator
+                           required ui-change="updateExam()">
 
                     <span class="input-group-btn">
                         <button class="btn btn-default" ng-click="openStartDate($event)">
                             <i class="fa fa-calendar"></i>
                         </button>
                     </span>
-            </p>
-        </div>
+                </div>
+            </div>
 
-        <div class="col-md-6">
-            <h4>{{'sitnet_end_time' | translate}}</h4>
-
-            <p class="input-group">
-                <input type="text" class="form-control" datepicker-popup="{{format}}"
-                       date-fix="{{format}}" ng-model="newExam.examActiveEndDate"
-                       is-open="endDateOpened" min="newExam.examActiveStartDate"
-                       datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
-                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                       clear-text="{{'sitnet_clear' | translate}}" ng-required="true">
+            <div class="col-md-6">
+                <div class="sitnet-info-text">{{'sitnet_end_time' | translate}}</div>
+                <div class="input-group">
+                    <input type="text" class="form-control" datepicker-popup="{{format}}"
+                           date-fix="{{format}}" ng-model="newExam.examActiveEndDate"
+                           is-open="endDateOpened" min="newExam.examActiveStartDate"
+                           datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
+                           current-text="{{'sitnet_today' | translate}}"
+                           toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                           clear-text="{{'sitnet_clear' | translate}}" required date-validator
+                           ui-change="updateExam()">
                     <span class="input-group-btn">
                         <button class="btn btn-default" ng-click="openEndDate($event)">
                             <i class="fa fa-calendar"></i>
                         </button>
                     </span>
-            </p>
-        </div>
-    </div>
-
-    <!-- Summary of start and end times -->
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div>{{'sitnet_active_period' | translate}}:
-                <em>{{ newExam.examActiveStartDate | date:'dd.MM.yyyy' }} - {{ newExam.examActiveEndDate |
-                    date:'dd.MM.yyyy' }}</em>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
 
     <!-- Course -->
     <div class="row">
@@ -73,20 +64,53 @@
     <!-- Exam inspector and exam maxScore scale input elements -->
     <div class="row">
         <div class="col-md-12">
-            <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_owners' | translate}}:</div>
             <div class="col-md-12 row">
                 <div class="pull-left col-md-2 row">
-                    <button class="btn btn-default" ng-click="openInspectorModal()">{{'sitnet_add' | translate}}
+                    <button class="btn btn-default" ng-click="openExamUserModal('owner')">{{'sitnet_add_exam_owner' |
+                        translate}}
                     </button>
                 </div>
                 <div class="pull-left col-md-9">
                     <ul>
-                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="inspection in inspectors"><h6>{{
-                            inspection.user.firstName }} {{ inspection.user.lastName }} <a
-                                    ng-show="inspection.user.id != newExam.creator.id"
-                                    ng-click="removeInspector(inspection.id)"><i class="fa fa-times pointer"
-                                                                                 title="{{'sitnet_remove' | translate}}"></i></a>
-                        </h6></li>
+                        <li class="pull-left horizontal-padding-05" ng-repeat="user in examOwners">
+                            <h5><span ng-if="examOwners.length > 1"
+                                      title="{{'sitnet_remove' | translate}}"
+                                      ng-click="removeOwner(user.id)"
+                                      class="sitnet-badge pointer">
+                                    {{user.firstName }} {{ user.lastName }}
+                                </span>
+                                <span ng-if="examOwners.length === 1" class="sitnet-badge">
+                                    {{user.firstName }} {{ user.lastName }}
+                                </span>
+                            </h5>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
+            <div class="col-md-12 row">
+                <div class="pull-left col-md-2 row">
+                    <button class="btn btn-default" ng-click="openExamUserModal('inspector')">
+                        {{'sitnet_add_exam_examiner' | translate}}
+                    </button>
+                </div>
+                <div class="pull-left col-md-9">
+                    <ul>
+                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="inspection in inspectors">
+                            <h5>
+                                <span title="{{'sitnet_remove' | translate}}"
+                                      ng-click="removeInspector(inspection.id)"
+                                      class="sitnet-badge pointer">
+                                    {{inspection.user.firstName }} {{ inspection.user.lastName }}
+                                </span>
+                            </h5>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -101,7 +125,8 @@
             </div>
             <div class="input-group">
                 <button ng-repeat="duration in examDurations" class="btn btn-default exam-duration-btn"
-                        ng-class="checkDuration(duration)" ng-click="setExamDuration(duration)">{{duration}}</button>
+                        ng-class="checkDuration(duration)" ng-click="setExamDuration(duration)">{{duration}}
+                </button>
             </div>
         </div>
 
@@ -119,41 +144,24 @@
     </div>
 
 
-    <!-- Exam maxScore scale and exam type input elements -->
+    <!-- Exam grade scale and exam type input elements -->
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
-            <div class="input-group">
-                <div class="input-group col-md-12">
-                    <button class="btn btn-default" ng-class="checkGrading('0-5')" ng-click="setExamGrading('0-5')">
-                        0-5
-                    </button>
-                    &nbsp;
-                    <button class="btn btn-default" ng-class="checkGrading('Improbatur-Laudatur')"
-                            ng-click="setExamGrading('Improbatur-Laudatur')">Improbatur-Laudatur
-                    </button>
-                    &nbsp;
-                    <button class="btn btn-default" ng-class="checkGrading('Hyväksytty-Hylätty')"
-                            ng-click="setExamGrading('Hyväksytty-Hylätty')">Hyväksytty-Hylätty
-                    </button>
-                </div>
-            </div>
+            <span ng-repeat="gradeScale in getSelectableScales()">
+                <button class="btn btn-default" ng-class="checkGradeScale(gradeScale)"
+                        ng-click="setExamGradeScale(gradeScale)"
+                        ng-disabled="checkScaleDisabled(gradeScale)">{{gradeScale.name}}
+                </button>&nbsp;</span>
         </div>
-
-        <div class="col-md-6">
-            <div class="sitnet-info-text">Suoritustyyppi:</div>
-            <div class="input-group">
-                <div class="input-group col-md-12">
-                    <button class="btn btn-default" ng-class="checkType('Osasuoritus')"
-                            ng-click="setExamType('Osasuoritus')">Osasuoritus
-                    </button>
-                    &nbsp;
-                    <button class="btn btn-default" ng-class="checkType('Loppusuoritus')"
-                            ng-click="setExamType('Loppusuoritus')">Loppusuoritus
-                    </button>
-                    &nbsp;
-                </div>
-            </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="sitnet-info-text">{{'sitnet_exam_credit_type' | translate}}:</div>
+            <span ng-repeat="examType in examTypes">
+                <button class="btn btn-default" ng-class="checkType(examType.type)"
+                        ng-click="setExamType(examType.type)">{{examType.name}}
+                </button>&nbsp;</span>
         </div>
     </div>
 
@@ -188,12 +196,12 @@
     </div>
 
     <!-- Exam instruction -->
-
-    <div class="row">
-        <div class="exam-general-information col-md-12">
-            <div class="exam-general-information-header">
+    <div class="row top-margin-1">
+        <div class="col-md-12">
+            <h4>
                 {{'sitnet_instruction' | translate}}
-            </div>
+            </h4>
+
             <div class="sitnet-info-text">
                 {{'sitnet_exam_instruction' | translate}}
             </div>

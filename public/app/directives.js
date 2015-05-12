@@ -1,6 +1,182 @@
 (function () {
     'use strict';
     angular.module('sitnet.directives')
+
+        .directive('dateValidator', function() {
+            return {
+                require: 'ngModel',
+                link: function (scope, elem, attr, ngModel) {
+                    function validate(value) {
+                        if (value !== undefined && value != null) {
+                            ngModel.$setValidity('badDate', true);
+                            ngModel.$setValidity('date', true);
+                            ngModel.$setValidity('required', true);
+                            if (value instanceof Date) {
+                                var d = Date.parse(value);
+                                // it is a date
+                                if (isNaN(d)) {
+                                    ngModel.$setValidity('badDate', false);
+                                }
+                            } else {
+                                if (value !='' && !moment(value).isValid()) {
+                                    ngModel.$setValidity('badDate', false);
+                                }
+                            }
+                        }
+                    }
+
+                    scope.$watch(function () {
+                        return ngModel.$viewValue;
+                    }, validate);
+                }
+            }
+        })
+
+        .directive('datepickerPopup', function () {
+            return {
+                restrict: 'EAC',
+                require: 'ngModel',
+                link: function (scope, element, attr, controller) {
+                    //remove the default formatter from the input directive to prevent conflict
+                    controller.$formatters.shift();
+                }
+            }
+        })
+        .directive('datetimepicker', [
+            function () {
+                if (angular.version.full < '1.1.4') {
+                    return {
+                        restrict: 'EA',
+                        template: "<div class=\"alert alert-danger\">Angular 1.1.4 or above is required for datetimepicker to work correctly</div>"
+                    };
+                }
+                return {
+                    restrict: 'EA',
+                    require: 'ngModel',
+                    scope: {
+                        ngModel: '=',
+                        dayFormat: "=",
+                        monthFormat: "=",
+                        yearFormat: "=",
+                        dayHeaderFormat: "=",
+                        dayTitleFormat: "=",
+                        monthTitleFormat: "=",
+                        showWeeks: "=",
+                        startingDay: "=",
+                        yearRange: "=",
+                        dateFormat: "=",
+                        minDate: "=",
+                        maxDate: "=",
+                        dateOptions: "=",
+                        dateDisabled: "&",
+                        hourStep: "=",
+                        minuteStep: "=",
+                        showMeridian: "=",
+                        meredians: "=",
+                        mousewheel: "=",
+                        placeholder: "=",
+                        readonlyTime: "@"
+                    },
+                    template: function (elem, attrs) {
+                        function dashCase(name, separator) {
+                            return name.replace(/[A-Z]/g, function (letter, pos) {
+                                return (pos ? '-' : '') + letter.toLowerCase();
+                            });
+                        }
+
+                        function createAttr(innerAttr, dateTimeAttrOpt) {
+                            var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
+                            if (attrs[dateTimeAttr]) {
+                                return dashCase(innerAttr) + "=\"" + dateTimeAttr + "\" ";
+                            } else {
+                                return '';
+                            }
+                        }
+
+                        function createFuncAttr(innerAttr, funcArgs, dateTimeAttrOpt) {
+                            var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
+                            if (attrs[dateTimeAttr]) {
+                                return dashCase(innerAttr) + "=\"" + dateTimeAttr + "({" + funcArgs + "})\" ";
+                            } else {
+                                return '';
+                            }
+                        }
+
+                        function createEvalAttr(innerAttr, dateTimeAttrOpt) {
+                            var dateTimeAttr = angular.isDefined(dateTimeAttrOpt) ? dateTimeAttrOpt : innerAttr;
+                            if (attrs[dateTimeAttr]) {
+                                return dashCase(innerAttr) + "=\"" + attrs[dateTimeAttr] + "\" ";
+                            } else {
+                                return dashCase(innerAttr);
+                            }
+                        }
+
+                        function createAttrConcat(previousAttrs, attr) {
+                            return previousAttrs + createAttr.apply(null, attr)
+                        }
+
+                        var tmpl = "<div id=\"datetimepicker\" class=\"datetimepicker-wrapper\">" +
+                            "<input class=\"form-control\" type=\"text\" ng-click=\"open($event)\" is-open=\"opened\" ng-model=\"ngModel\" " + [
+                                ["minDate"],
+                                ["maxDate"],
+                                ["dayFormat"],
+                                ["monthFormat"],
+                                ["yearFormat"],
+                                ["dayHeaderFormat"],
+                                ["dayTitleFormat"],
+                                ["monthTitleFormat"],
+                                ["startingDay"],
+                                ["yearRange"],
+                                ["datepickerOptions", "dateOptions"]
+                            ].reduce(createAttrConcat, '') +
+                            createFuncAttr("dateDisabled", "date: date, mode: mode") +
+                            createEvalAttr("datepickerPopup", "dateFormat") +
+                            createEvalAttr("placeholder", "placeholder") +
+                            "/>\n" +
+                            "</div>\n" +
+                            "<div id=\"datetimepicker\" class=\"datetimepicker-wrapper\" ng-model=\"time\" ng-change=\"time_change()\" style=\"display:inline-block\">\n" +
+                            "<timepicker " + [
+                                ["hourStep"],
+                                ["minuteStep"],
+                                ["showMeridian"],
+                                ["meredians"],
+                                ["mousewheel"]
+                            ].reduce(createAttrConcat, '') +
+                            createEvalAttr("readonlyInput", "readonlyTime") +
+                            "></timepicker>\n" +
+                            "</div>";
+                        return tmpl;
+                    },
+                    controller: ['$scope',
+                        function ($scope) {
+                            $scope.time_change = function () {
+                                if ($scope.ngModel && $scope.time) {
+                                    // convert from ISO format to Date
+                                    if (typeof $scope.ngModel == "string") $scope.ngModel = new Date($scope.ngModel);
+                                    $scope.ngModel.setHours($scope.time.getHours(), $scope.time.getMinutes());
+                                }
+                            }
+                            $scope.open = function ($event) {
+                                $event.preventDefault();
+                                $event.stopPropagation();
+                                $scope.opened = true;
+                            };
+                        }
+                    ],
+                    link: function (scope, element) {
+                        scope.$watch(function () {
+                            return scope.ngModel;
+                        }, function (ngModel) {
+                            // if a time element is focused, updating its model will cause hours/minutes to be formatted by padding with leading zeros
+                            if (!element[0].contains(document.activeElement)) {
+                                scope.time = new Date(ngModel);
+                            }
+                        }, true);
+                    }
+                }
+            }])
+
+
         .directive('ckEditor', function () {
             return {
                 require: '?ngModel',
@@ -234,13 +410,13 @@
                 }
             };
         }])
-        .directive('sitnetHeader', ['$translate', function ($translate) {
+        .directive('sitnetHeader', [function () {
             return {
                 restrict: 'E',
-                require: 'ngModel',
+                replace: true,
                 template: '<div id="sitnet-header" class="header">' +
                 '<div class="col-md-12 header-wrapper">' +
-                '<span class="header-text">' + $translate("sitnet_welcome") + ', {{getUsername()}}</span>' +
+                '<span class="header-text">{{ "sitnet_welcome" | translate }}, {{getUsername()}}</span>' +
                 '</div>' +
                 '</div>'
             };
@@ -266,6 +442,8 @@
                         if (items) {
                             pageCount = Math.ceil(items.length / scope.pageSize) - 1;
                         }
+                        // Go to first page always when the underlying collection gets modified
+                        scope.currentPage = 0;
                     });
 
                     scope.printRange = function (n) {

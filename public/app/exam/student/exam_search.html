@@ -1,0 +1,37 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_exam_search' | translate}}</span>
+    </div>
+</div>
+<!-- Enrolled exams list -->
+<div id="dashboard">
+    <div class="main-row">
+        <div class="col-md-4" ng-show="permissionCheck.active===false">
+            <div class="form-group input-group">
+                <input ng-change="search()" ng-model="filter" type="text" class="form-control"
+                       placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
+                       popover-trigger="mouseenter" popover="{{ 'sitnet_exam_search_description' | translate }}">
+                <div class="input-group-addon">
+                    <i class="fa fa-search fa-fw"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12" ng-show="permissionCheck.active===true">
+            <p class="text-info">{{ 'sitnet_search_restricted' | translate }}</p>
+        </div>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12">
+            <button ng-show="loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}...
+                <i class="fa fa-spinner fa-spin"></i>
+            </button>
+        </div>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12">
+            <div class="exams-list">
+                <div ng-repeat="exam in exams" ng-include="examPath" />
+            </div>
+        </div>
+    </div>
+</div>

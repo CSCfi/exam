@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("sitnet.controllers")
-        .controller('DashboardCtrl', ['$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'StudentExamRes', 'dateService',
-            function ($scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, StudentExamRes, dateService) {
+        .controller('DashboardCtrl', ['dialogs','$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService',
+            function (dialogs, $scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, examService, questionService, StudentExamRes, dateService) {
 
                 $scope.dashboardToolbarPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html";
                 $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html";
@@ -25,10 +25,7 @@
 
                                         StudentExamRes.teachers.get({id: enrolment.exam.id},
                                             function (teachers) {
-
-                                                enrolment.teachers = teachers.map(function (teacher) {
-                                                    return teacher.user.firstName + " " + teacher.user.lastName;
-                                                }).join(", ");
+                                                setExamOwners(enrolment.exam);
                                             },
                                             function (error) {
                                                 toastr.error(error.data);
@@ -50,59 +47,81 @@
                             toastr.error(error.data);
                         });
 
-                    }
-                    else if ($scope.user.isTeacher) {
+                    } else if ($scope.user.isTeacher) {
                         $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/teacher/dashboard.html";
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
                             $scope.activeExams = reviewerExams.filter(function(review) {
-                                return $scope.beforeDate(review.exam.examActiveEndDate);
+                                return $scope.beforeDate(review.examActiveEndDate);
                             });
                             $scope.finishedExams = reviewerExams.filter(function(review) {
-                                return $scope.afterDate(review.exam.examActiveEndDate);
+                                return $scope.afterDate(review.examActiveEndDate);
                             });
                             var allExams = $scope.activeExams.concat($scope.finishedExams);
 
-                            angular.forEach(allExams, function (review, index) {
-                                ExamRes.examEnrolmentsWithReservations.query({eid: review.exam.id},
-                                    function (activeExamEnrolments) {
-                                        review.activeExamEnrolments = activeExamEnrolments;
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    });
-
-                                ExamRes.examParticipations.query({eid: review.exam.id},
+                            angular.forEach(allExams, function (exam) {
+                                exam.activeExamEnrolments = exam.examEnrolments.filter(function(enrolment) {
+                                   return enrolment.reservation != undefined
+                                });
+                                ExamRes.examParticipations.query({eid: exam.id},
                                     function (examParticipations) {
-                                        review.examParticipations = examParticipations;
+                                        exam.examParticipations = examParticipations;
+                                        exam.examParticipationsAndReviews = examParticipations.filter(function(participation) {
+                                            var state = participation.exam.state;
+                                            return state === 'GRADED' || state === 'GRADED_LOGGED';
+                                        });
                                     },
                                     function (error) {
                                         toastr.error(error.data);
                                     });
 
-                                ExamRes.examParticipationsAndReviews.query({eid: review.exam.id},
-                                    function (examParticipationsAndReviews) {
-                                        review.examParticipationsAndReviews = examParticipationsAndReviews;
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    });
-
-                                ExamRes.inspections.get({id: review.exam.id},
-                                    function (inspections) {
-                                        review.examInspections = inspections.map(function (inspection) {
-                                            return inspection.user.firstName + " " + inspection.user.lastName;
-                                        }).join(", ");
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    });
+                                    setExamOwners(exam);
                             });
                         });
                     }
                     else if ($scope.user.isAdmin) {
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/admin/dashboard.html";
+                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "reservation/reservations.html";
                     }
+                }
+
+                function setExamOwners(exam) {
+                    exam.teachersStr = "";
+
+                    if(exam.examOwners) {
+                        var i = 0;
+                        angular.forEach(exam.examOwners, function (owner) {
+                            if(owner.lastName &&  owner.lastName.length > 0) {
+                                if(i !== 0) {
+                                    exam.teachersStr += ", ";
+                                }
+                                i++;
+                                if($scope.user.isStudent) {
+                                    exam.teachersStr += owner.firstName + " " + owner.lastName;
+                                } else {
+                                    exam.teachersStr += "<b>" + owner.firstName + " " + owner.lastName + "</b>";
+                                }
+                            }
+                        });
+                    }
+                    ExamRes.inspections.get({id: exam.id}, function (inspections) {
+
+                        if(inspections) {
+                            var i = 0;
+                            angular.forEach(inspections, function (inspection) {
+                                if (exam.teachersStr.indexOf("<b>" +inspection.user.firstName + " " + inspection.user.lastName + "</b>") === -1) {
+                                    if(i !== 0 || (i === 0 && exam.teachersStr.length > 0)) {
+                                        exam.teachersStr += ", ";
+                                    }
+                                    i++;
+                                    if($scope.user.isStudent) {
+                                        exam.teachersStr += inspection.user.firstName + " " + inspection.user.lastName;
+                                    } else {
+                                        exam.teachersStr += "<span>" + inspection.user.firstName + " " + inspection.user.lastName + "</span>";
+                                    }
+                                }
+                            });
+                        }
+                    });
                 }
 
                 $scope.printExamDuration = function(exam) {
@@ -110,15 +129,16 @@
                 };
 
                 $scope.removeReservation = function(enrolment){
-                    if (confirm($translate('sitnet_are_you_sure'))) {
-
+                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_are_you_sure'));
+                    dialog.result.then(function(btn){
                         $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
                             delete enrolment.reservation;
+                            enrolment.reservationCanceled = true;
                             toastr.success("ok");
                         }).error(function(msg) {
                             toastr.error(msg);
                         });
-                    }
+                    });
                 };
 
                 $scope.showInstructions = function(enrolment) {
@@ -137,6 +157,39 @@
                         resolve: {
                             instructions: function () {
                                 return enrolment.exam.enrollInstruction;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function() {
+                        console.log("closed");
+                    });
+                };
+
+                $scope.addEnrolmentInformation = function(enrolment) {
+                    var modalController = function($scope, $modalInstance) {
+                        $scope.enrolment = angular.copy(enrolment);
+                        $scope.ok = function () {
+                            $modalInstance.close("Accepted");
+                            enrolment.information = $scope.enrolment.information;
+                            StudentExamRes.enrolment.update({eid: enrolment.id, information: $scope.enrolment.information}, function() {
+                                toastr.success($translate('sitnet_saved'));
+                            })
+                        };
+
+                        $scope.cancel = function() {
+                            $modalInstance.close("Canceled");
+                        }
+                    };
+
+                    var modalInstance = $modal.open({
+                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'enrolment/add_enrolment_information.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController,
+                        resolve: {
+                            enrolment: function () {
+                                return $scope.enrolment;
                             }
                         }
                     });
@@ -167,5 +220,14 @@
                     var end = moment(enrolment.exam.examActiveEndDate).utc();
                     return end.isBefore(moment());
                 };
-        }]);
+
+                $scope.createExam = function () {
+                    examService.createExam();
+                };
+
+                $scope.createQuestion = function (type) {
+                    questionService.createQuestion(type);
+                };
+
+            }]);
 }());

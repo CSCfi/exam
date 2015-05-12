@@ -13,12 +13,10 @@ public class ExamBuilder {
     private Exam exam = new Exam();
 
     private ExamBuilder() {
-        exam.setCreditType("final");
         exam.setDuration(45);
         exam.setEnrollInstruction("enroll like this");
         exam.setExamActiveEndDate(DateTime.now().plusWeeks(1).toDate());
         exam.setExamActiveStartDate(new Date());
-        exam.setGrading("1-5");
         exam.setInstruction("do like this");
         exam.setName("Exam");
         exam.setState("SAVED");
@@ -42,11 +40,6 @@ public class ExamBuilder {
         return this;
     }
 
-    public ExamBuilder withCreditType(String type) {
-        exam.setCreditType(type);
-        return this;
-    }
-
     public ExamBuilder withDuration(Integer duration) {
         exam.setDuration(duration);
         return this;
@@ -64,11 +57,6 @@ public class ExamBuilder {
 
     public ExamBuilder withActiveEndDate(Date date) {
         exam.setExamActiveEndDate(date);
-        return this;
-    }
-
-    public ExamBuilder withGrading(String grading) {
-        exam.setGrading(grading);
         return this;
     }
 

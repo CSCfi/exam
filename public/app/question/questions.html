@@ -18,21 +18,23 @@
     <!-- toolbar -->
     <div class="main-row">
         <div class="col-md-12">
-            <a class="header-top-link dropdown-toggle" data-toggle="dropdown">
-                 <span class="pull-left fa-stack fa-lg header-top-icon">
-                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                    <i class="fa sitnet-white fa-list-ol fa-stack-1x"></i>
-                </span>
-                {{'sitnet_toolbar_new_question' | translate}}
-            </a>
-            <ul class="dropdown-menu" role="menu">
-                <li>
-                    <a ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question'
-                        | translate}}</a>
-                    <a ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' |
-                        translate}}</a>
-                </li>
-            </ul>
+        <span class="pull-left fa-stack fa-lg header-top-icon">
+            <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+            <i class="fa sitnet-white fa-list-ol fa-stack-1x"></i>
+        </span>
+            <div class="dropdown" dropdown>
+                <a dropdown-toggle class="header-top-link dropdown-toggle" data-toggle="dropdown">
+                    {{'sitnet_toolbar_new_question' | translate}}
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question'
+                            | translate}}</a>
+                        <a role="menuitem" ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' |
+                            translate}}</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -42,9 +44,9 @@
             <label for="filters">{{'sitnet_search' | translate}}</label>
 
             <div id="filters" class="form-group">
-                <span class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
-                            data-toggle="dropdown" aria-expanded="true">
+                <span class="dropdown" dropdown>
+                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                            data-toggle="dropdown" aria-expanded="true" ng-click="listCourses()">
                         {{'sitnet_course' | translate}}&nbsp;<span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
@@ -58,14 +60,14 @@
                             </div>
                         </li>
                         <li ng-repeat="course in courses | filter:limitCourses" ng-hide='course.filtered' role="presentation"
-                            ng-click="setCourseFilter(course)">
+                            ng-click="applyFilter(course)">
                             <a role="menuitem">{{course.name | truncate:30}}</a>
                         </li>
                     </ul>
                 </span>
-                <span class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
-                            data-toggle="dropdown" aria-expanded="true">
+                <span class="dropdown" dropdown>
+                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                            data-toggle="dropdown" aria-expanded="true" ng-click="listExams()">
                         {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
@@ -79,15 +81,15 @@
                             </div>
                         </li>
                         <li ng-repeat="exam in exams | filter:limitExams" ng-hide='exam.filtered' role="presentation"
-                            ng-click="setExamFilter(exam)">
+                            ng-click="applyFilter(exam)">
                             <a role="menuitem">{{exam.name | truncate:30}}</a>
                         </li>
                     </ul>
                 </span>
 
-                <span class="dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
-                            data-toggle="dropdown" aria-expanded="true">
+                <span class="dropdown" dropdown>
+                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
+                            data-toggle="dropdown" aria-expanded="true" ng-click="listTags()">
                         {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
@@ -101,7 +103,7 @@
                             </div>
                         </li>
                         <li ng-repeat="tag in tags | filter:limitTags" ng-hide='tag.filtered' role="presentation"
-                            ng-click="setTagFilter(tag)">
+                            ng-click="applyFilter(tag)">
                             <a role="menuitem">{{tag.name | truncate:30}}</a>
                         </li>
                     </ul>
@@ -111,7 +113,7 @@
         <div class="col-md-4">
             <label for="freesearch">&nbsp;</label>
             <div id="freesearch" class="form-group input-group">
-                <input ng-model="selected" type="text" class="form-control"
+                <input ng-change="applyFreeSearchFilter()" ng-model="selected" type="text" class="form-control"
                        placeholder="{{'sitnet_search' | translate }}">
 
                 <div class="input-group-addon">
@@ -122,11 +124,11 @@
         <div class="col-md-4" />
     </div>
     <div class="detail-row content-group">
-        <div class="col-md-12">
+        <div class="col-md-12 row">
             <ul class="inline-list">
                 <li>
                     <button ng-repeat='tag in getTags()' type='button'
-                            ng-click="removeTag(tag)" class="btn btn-primary btn-xs" style="margin: 0.2em">
+                            ng-click="applyFilter(tag)" class="btn btn-primary btn-xs" style="margin: 0.2em">
                         {{tag.name}}
                     </button>
                 </li>
@@ -139,6 +141,11 @@
             <table class="table table-striped questions-table">
                 <thead>
                 <tr>
+                    <th>
+                        <input type="checkbox" name="select_all" class="selectAllQuestions"
+                               ng-click="selectAll('selectAllQuestions', 'questionToMove')" popover-placement="top"
+                               popover-trigger="mouseenter" popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
+                    </th>
                     <th>{{ 'sitnet_question' | translate }}</th>
                     <th>{{ 'sitnet_question_type' | translate }}</th>
                     <th>{{ 'sitnet_status' | translate }}</th>
@@ -146,7 +153,10 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="question in questions | offset: currentPage*pageSize | limitTo: pageSize">
+                <tr ng-repeat="question in filteredQuestions | offset: currentPage*pageSize | limitTo: pageSize">
+                    <td>
+                        <input type="checkbox" class="questionToMove" value="{{question.id}}"/>
+                    </td>
                     <td>
                         <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax
                            ng-bind-html="shortText(question.question)"></a>
@@ -167,7 +177,7 @@
                     </td>
                 </tr>
                 <!--Fill if page not full-->
-                <tr ng-repeat="r in [] | pagefill: questions.length:currentPage:pageSize">
+                <tr ng-repeat="r in [] | pagefill: filteredQuestions.length:currentPage:pageSize">
                     <td>&nbsp;</td>
                     <td></td>
                     <td></td>
@@ -178,8 +188,33 @@
         </div>
     </div>
     <div class="detail-row">
-        <div col-md-12 ng-show="questions.length > pageSize">
-            <paginator items="questions" page-size="pageSize" current-page="currentPage"/>
+        <div col-md-12 ng-show="filteredQuestions.length > pageSize">
+            <paginator items="filteredQuestions" page-size="pageSize" current-page="currentPage"/>
+        </div>
+    </div>
+
+    <div class="main-row">
+        <div class="col-md-4">
+            <div class="input-group">
+                <input type="text" class="form-control ng-pristine ng-valid"
+                       ng-model="newTeacher"
+                       placeholder="{{'sitnet_select_teacher_to_move_the_questions_to' | translate}}"
+                       typeahead-on-select="onTeacherSelect($item, $model, $label, newExam)"
+                       typeahead="t as t.name for t in teachers | filter:$viewValue | limitTo:8"
+                       typeahead-wait-ms="100"
+                       typeahead-focus-first="false"
+                       typeahead-min-length="2"
+                       typeahead-loading="teachersLoad">
+                           <span class="input-group-addon">
+                                <i class="fa fa-question-circle fa-fw"
+                                   popover-placement="left"
+                                   popover-trigger="mouseenter"
+                                   popover="{{'sitnet_name' | translate}}"></i>
+                           </span>
+            </div>
+        </div>
+        <div class="col-md-2 bottom-padding-2">
+            <input type="button" class="btn btn-primary" ng-disabled="ownerProcess" ng-click="moveSelected()" value="{{'sitnet_change_owner' | translate}}"/>
         </div>
     </div>
 </div>

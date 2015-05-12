@@ -1,17 +1,15 @@
 package controllers;
 
-import exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.ExamMachine;
-import models.ExamRoom;
-import models.Reservation;
-import models.Software;
+import exceptions.MalformedDataException;
+import models.*;
 import org.joda.time.DateTime;
+import play.Logger;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
@@ -154,40 +152,28 @@ public class ExamMachineController extends SitnetController {
 
     @Restrict(@Group({"ADMIN"}))
     public static Result removeExamMachine(Long id) throws MalformedDataException {
-
         // SIT-690
         return forbidden("Tenttikoneen poistaminen estetty väliaikaisesti");
+    }
 
-//        ExamMachine machine = Ebean.find(ExamMachine.class, id);
-//
-//        List<Reservation> reservations = Ebean.find(Reservation.class).where().eq("machine.id", id).gt("endAt", DateTime.now()).findList();
-//
-//        if(!CollectionUtils.isEmpty(reservations)) {
-//            Iterator i = reservations.iterator();
-//            while(i.hasNext()) {
-//                Reservation reservation = (Reservation) i.next();
-//
-//                List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).where().eq("reservation.id", reservation.getId()).findList();
-//
-//                if(!CollectionUtils.isEmpty(enrolments)) {
-//                       for(ExamEnrolment enrollment : enrolments) {
-//                           enrollment.setReservation(null);
-//                           enrollment.update();
-//                       }
-//                }
-//                reservation.delete();
-//            }
-//        }
-//
-//        machine.setArchived(true);
-//        machine.update();
-//
-//        return ok();
+    @Restrict(@Group("ADMIN"))
+    public static Result hasSoftwareExams(Long sid) {
+        List<Exam> exams = Ebean.find(Exam.class)
+                .where()
+                .in("softwares.id", sid)
+                .findList();
+        Logger.debug("size:" + exams.size());
+
+        return exams.size() > 0 ? ok() : notFound();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result getSoftwares() {
-        List<Software> softwares = Ebean.find(Software.class).orderBy("name").findList();
+        List<Software> softwares = Ebean.find(Software.class)
+                .where()
+                .eq("status", "ACTIVE")
+                .orderBy("name")
+                .findList();
 
         return ok(Json.toJson(softwares));
     }
@@ -202,6 +188,7 @@ public class ExamMachineController extends SitnetController {
     @Restrict(@Group({"ADMIN"}))
     public static Result addSoftware(String name) throws MalformedDataException {
         Software software = bindForm(Software.class);
+        software.setStatus("ACTIVE");
         software.setName(name);
         Ebean.save(software);
 
@@ -212,6 +199,7 @@ public class ExamMachineController extends SitnetController {
     public static Result updateSoftware(Long id, String name) throws MalformedDataException {
         Software software = Ebean.find(Software.class, id);
         software.setName(name);
+        software.setStatus("ACTIVE");
         software.update();
 
         return ok(Json.toJson(software));
@@ -220,7 +208,8 @@ public class ExamMachineController extends SitnetController {
     @Restrict(@Group({"ADMIN"}))
     public static Result removeSoftware(Long id) throws MalformedDataException {
         Software software = Ebean.find(Software.class, id);
-        software.delete();
+        software.setStatus("DISABLED");
+        software.update();
 
         return ok();
     }

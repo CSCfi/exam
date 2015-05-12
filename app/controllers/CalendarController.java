@@ -4,18 +4,23 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
-import org.joda.time.DateTime;
-import org.joda.time.Interval;
-import org.joda.time.LocalDate;
+import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import play.Logger;
+import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
+import util.SitnetUtil;
 import util.java.EmailComposer;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 public class CalendarController extends SitnetController {
@@ -27,8 +32,10 @@ public class CalendarController extends SitnetController {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result removeReservation(long id) throws NotFoundException {
         User user = UserController.getLoggedUser();
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
+                .fetch("reservation.machine")
+                .fetch("reservation.machine.room")
                 .where()
                 .eq("user.id", user.getId())
                 .eq("reservation.id", id)
@@ -37,20 +44,29 @@ public class CalendarController extends SitnetController {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
         // Removal not permitted if reservation is in the past or ongoing
-        Reservation reservation = enrolment.getReservation();
-        if (reservation.toInterval().isBeforeNow() || reservation.toInterval().containsNow()) {
+        final Reservation reservation = enrolment.getReservation();
+        DateTime now = SitnetUtil.adjustDST(DateTime.now(), reservation);
+        if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
-
-        // if user who removes reservation is not Student himself, send email
-        if (!user.getId().equals(enrolment.getUser().getId())) {
-            EmailComposer.composeReservationCancelationNotification(user, reservation, "");
-        }
-
         enrolment.setReservation(null);
+        enrolment.setReservationCanceled(true);
         Ebean.save(enrolment);
         Ebean.delete(Reservation.class, id);
 
+        // send email asynchronously
+        final boolean isStudentUser = user.equals(enrolment.getUser());
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    EmailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
+                    Logger.info("Reservation cancellation confirmation email sent");
+                } catch (IOException e) {
+                    Logger.error("Failed to send reservation confirmation email", e);
+                }
+            }
+        }, Akka.system().dispatcher());
         return ok("removed");
     }
 
@@ -73,9 +89,10 @@ public class CalendarController extends SitnetController {
             return badRequest("invalid dates");
         }
 
-        User user = UserController.getLoggedUser();
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        DateTime now = SitnetUtil.adjustDST(DateTime.now(), room);
+        final User user = UserController.getLoggedUser();
+        final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .where()
                 .eq("user.id", user.getId())
@@ -83,7 +100,7 @@ public class CalendarController extends SitnetController {
                 .eq("exam.state", Exam.State.PUBLISHED.toString())
                 .disjunction()
                 .isNull("reservation")
-                .gt("reservation.startAt", new Date())
+                .gt("reservation.startAt", now.toDate())
                 .endJunction()
                 .findUnique();
         if (enrolment == null) {
@@ -102,7 +119,7 @@ public class CalendarController extends SitnetController {
             return forbidden("sitnet_no_machines_available");
         }
 
-        Reservation reservation = new Reservation();
+        final Reservation reservation = new Reservation();
         reservation.setEndAt(end.toDate());
         reservation.setStartAt(start.toDate());
         reservation.setMachine(machine);
@@ -110,13 +127,25 @@ public class CalendarController extends SitnetController {
 
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
+        enrolment.setReservationCanceled(false);
         Ebean.save(enrolment);
 
         if (oldReservation != null) {
             Ebean.delete(oldReservation);
         }
 
-        EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
+        // Send asynchronously
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
+                    Logger.info("Reservation confirmation email sent");
+                } catch (IOException e) {
+                    Logger.error("Failed to send reservation confirmation email", e);
+                }
+            }
+        }, Akka.system().dispatcher());
 
         return ok("ok");
     }
@@ -134,7 +163,7 @@ public class CalendarController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) throws NotFoundException {
+    public static Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) {
         Exam exam = getEnrolledExam(examId);
         if (exam == null) {
             return notFound("sitnet_error_enrolment_not_found");
@@ -146,7 +175,14 @@ public class CalendarController extends SitnetController {
         Map<String, List<FreeTimeSlot>> slots = new HashMap<>();
         if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString()) &&
                 isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {
-            LocalDate searchDate = parseSearchDate(day, exam);
+            LocalDate searchDate;
+            try {
+                searchDate = parseSearchDate(day, exam);
+            } catch (NotFoundException e) {
+                ObjectNode node = Json.newObject();
+                node.put("cause", "EXAM_NOT_ACTIVE_TODAY");
+                return notFound(Json.toJson(node));
+            }
             // users reservations starting from now
             List<Reservation> reservations = Ebean.find(Reservation.class)
                     .where()
@@ -171,14 +207,19 @@ public class CalendarController extends SitnetController {
     /**
      * Queries for available slots for given room and day
      */
-    private static List<FreeTimeSlot> getFreeTimes(ExamRoom room, Exam exam, LocalDate date,
-                                                   List<Reservation> reservations, List<ExamMachine> machines) {
+    private static List<FreeTimeSlot> getFreeTimes(
+            ExamRoom room, Exam exam, LocalDate date, List<Reservation> reservations, List<ExamMachine> machines) {
 
-        // Resolve the opening hours for room and day
-        List<Interval> openingHours = room.getWorkingHoursForDate(date);
-        // Check machine availability for each slot
+        List<FreeTimeSlot> freeTimes = new ArrayList<>();
+
         List<Interval> eligibleSlots = new ArrayList<>();
-        for (Interval slot : allSlots(openingHours)) {
+        // Resolve the opening hours for room and day
+        List<ExamRoom.OpeningHours> openingHours = room.getWorkingHoursForDate(date);
+        if (openingHours.isEmpty()) {
+            return freeTimes;
+        }
+        // Check machine availability for each slot
+        for (Interval slot : allSlots(openingHours, room, date)) {
             if (hasReservationsDuring(reservations, slot)) {
                 // User has reservations during this time
                 continue;
@@ -193,14 +234,13 @@ public class CalendarController extends SitnetController {
             }
         }
         // Get suitable slots based on exam duration
-        List<FreeTimeSlot> freeTimes = new ArrayList<>();
         Integer examDuration = exam.getDuration();
-        for (Interval slot : mergeSlots(eligibleSlots)) {
+        for (Interval slot : eligibleSlots) {
             DateTime beginning = slot.getStart();
-            while (!beginning.plusMinutes(examDuration).isAfter(slot.getEnd())) {
+            DateTime openUntil = getEndOfOpeningHours(beginning, openingHours, room.getTimezoneOffset(date));
+            if (!beginning.plusMinutes(examDuration).isAfter(openUntil)) {
                 DateTime end = beginning.plusMinutes(examDuration);
                 freeTimes.add(new FreeTimeSlot(new Interval(beginning, end)));
-                beginning = beginning.plusHours(1);
             }
         }
         return freeTimes;
@@ -215,15 +255,15 @@ public class CalendarController extends SitnetController {
     private static LocalDate parseSearchDate(String day, Exam exam) throws NotFoundException {
         LocalDate examEndDate = new LocalDate(exam.getExamActiveEndDate());
         LocalDate examStartDate = new LocalDate(exam.getExamActiveStartDate());
-        LocalDate searchDate = day.equals("") ? LocalDate.now() : LocalDate.parse(day, dateFormat);
+        LocalDate now = LocalDate.now();
+        LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, dateFormat);
         searchDate = searchDate.withDayOfMonth(1);
-        if (searchDate.isBefore(LocalDate.now())) {
-            searchDate = LocalDate.now();
+        if (searchDate.isBefore(now)) {
+            searchDate = now;
         }
         // if searching for month(s) after exam's end month -> no can do
         if (searchDate.isAfter(examEndDate)) {
-            throw new NotFoundException(String.format("Given date (%s) is after active exam(%s) ending month (%s)",
-                    searchDate, exam.getId(), examEndDate));
+            throw new NotFoundException();
         }
         // Do not execute search before exam starts
         if (searchDate.isBefore(examStartDate)) {
@@ -243,6 +283,7 @@ public class CalendarController extends SitnetController {
 
     private static Exam getEnrolledExam(Long examId) {
         User user = UserController.getLoggedUser();
+        DateTime now = SitnetUtil.adjustDST(DateTime.now());
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where()
@@ -251,57 +292,48 @@ public class CalendarController extends SitnetController {
                 .eq("exam.state", Exam.State.PUBLISHED.toString())
                 .disjunction()
                 .isNull("reservation")
-                .gt("reservation.startAt", new Date())
+                .gt("reservation.startAt", now.toDate())
                 .endJunction()
                 .findUnique();
         return enrolment == null ? null : enrolment.getExam();
     }
 
     /**
-     * @return all intervals of one hour that fall within provided working hours
+     * @return all intervals that fall within provided working hours
      */
-    private static List<Interval> allSlots(List<Interval> openingHours) {
+    private static List<Interval> allSlots(List<ExamRoom.OpeningHours> openingHours, ExamRoom room, LocalDate date) {
         List<Interval> intervals = new ArrayList<>();
-        DateTime nextFullHour = nextFullHour(DateTime.now());
-        for (Interval oh : openingHours) {
-            DateTime rounded = nextFullHour(oh.getStart());
-            DateTime beginning = rounded.isBefore(nextFullHour) ? nextFullHour : rounded;
-            while (!beginning.plusHours(1).isAfter(oh.getEnd())) {
-                DateTime end = beginning.plusHours(1);
-                intervals.add(new Interval(beginning, end));
-                beginning = end;
-            }
-            if (beginning.isBefore(oh.getEnd())) {
-                // We have a slot of less than hour in the end, take it as well
-                intervals.add(new Interval(beginning, oh.getEnd()));
-            }
+        List<ExamStartingHour> startingHours = room.getExamStartingHours();
+        if (startingHours.isEmpty()) {
+            // Default to 1 hour slots that start at the hour
+            startingHours = createDefaultStartingHours(room.getLocalTimezone());
         }
-        return intervals;
-    }
-
-    /**
-     * Merge adjacent/overlapping intervals into one
-     */
-    private static List<Interval> mergeSlots(List<Interval> slots) {
-        if (slots.size() <= 1) {
-            return slots;
-        }
-        List<Interval> merged = new ArrayList<>();
-        for (int i = 0; i < slots.size(); ) {
-            Interval first = slots.get(i);
-            Interval adjacent = first;
-            for (int j = i + 1; j < slots.size(); ++j) {
-                Interval second = slots.get(j);
-                if (!second.getStart().isAfter(adjacent.getEnd())) {
-                    adjacent = second;
+        Collections.sort(startingHours);
+        DateTime now = DateTime.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()));
+        for (ExamRoom.OpeningHours oh : openingHours) {
+            int tzOffset = oh.getTimezoneOffset();
+            DateTime instant = now.getDayOfYear() == date.getDayOfYear() ? now : oh.getHours().getStart();
+            DateTime slotEnd = oh.getHours().getEnd();
+            DateTime beginning = nextStartingTime(instant, startingHours, tzOffset);
+            while (beginning != null) {
+                DateTime nextBeginning = nextStartingTime(beginning.plusMillis(1), startingHours, tzOffset);
+                if (beginning.isBefore(oh.getHours().getStart())) {
+                    beginning = nextBeginning;
+                    continue;
+                }
+                if (nextBeginning != null && !nextBeginning.isAfter(slotEnd)) {
+                    intervals.add(new Interval(beginning.minusMillis(tzOffset), nextBeginning.minusMillis(tzOffset)));
+                    beginning = nextBeginning;
+                } else if (beginning.isBefore(slotEnd)) {
+                    // We have some spare time in the end, take it as well
+                    intervals.add(new Interval(beginning.minusMillis(tzOffset), slotEnd.minusMillis(tzOffset)));
+                    break;
                 } else {
                     break;
                 }
             }
-            i = slots.indexOf(adjacent) + 1;
-            merged.add(new Interval(first.getStart(), adjacent.getEnd()));
         }
-        return merged;
+        return intervals;
     }
 
     private static boolean isReservedDuring(ExamMachine machine, Interval interval) {
@@ -364,13 +396,43 @@ public class CalendarController extends SitnetController {
         return machine.getSoftwareInfo().containsAll(exam.getSoftwareInfo());
     }
 
-    private static DateTime nextFullHour(DateTime datetime) {
-        if (datetime.getMinuteOfHour() > 0 || datetime.getSecondOfMinute() > 0 || datetime.getMillisOfSecond() > 0) {
-            return datetime.plusHours(1).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-        } else {
-            return datetime;
+    private static DateTime nextStartingTime(DateTime instant, List<ExamStartingHour> startingHours, int offset) {
+        for (ExamStartingHour esh : startingHours) {
+            int timeMs = new LocalTime(esh.getStartingHour()).plusMillis(offset).getMillisOfDay();
+            DateTime datetime = instant.withMillisOfDay(timeMs);
+            if (!datetime.isBefore(instant)) {
+                return datetime;
+            }
         }
+        return null;
     }
+
+    private static List<ExamStartingHour> createDefaultStartingHours(String roomTz) {
+        // Get offset from Jan 1st in order to no have DST in effect
+        DateTimeZone zone = DateTimeZone.forID(roomTz);
+        DateTime beginning = DateTime.now().withDayOfYear(1).withTimeAtStartOfDay();
+        DateTime ending = beginning.plusHours(23);
+        List<ExamStartingHour> hours = new ArrayList<>();
+        while (!beginning.isAfter(ending)) {
+            ExamStartingHour esh = new ExamStartingHour();
+            esh.setStartingHour(beginning.toDate());
+            esh.setTimezoneOffset(zone.getOffset(beginning));
+            hours.add(esh);
+            beginning = beginning.plusHours(1);
+        }
+        return hours;
+    }
+
+    private static DateTime getEndOfOpeningHours(DateTime instant, List<ExamRoom.OpeningHours> openingHours, int offset) {
+        for (ExamRoom.OpeningHours oh : openingHours) {
+            if (oh.getHours().contains(instant.plusMillis(oh.getTimezoneOffset()))) {
+                return oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset());
+            }
+        }
+        // should not occur, indicates programming error
+        throw new RuntimeException("slot not contained within opening hours, recheck logic!");
+    }
+
 
     private static class FreeTimeSlot {
         private final String start;

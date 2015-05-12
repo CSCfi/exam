@@ -1,16 +1,11 @@
 (function () {
     'use strict';
     angular.module('sitnet.services')
-        .factory('wrongRoomService', ['$timeout', function ($timeout) {
+        .factory('wrongRoomService', ['$timeout', '$translate', function ($timeout, $translate) {
 
             var time = 1000 * 10;
 
             var show = false;
-
-            var zeropad = function(n) {
-                n += '';
-                return n.length > 1 ? n : '0' + n;
-            };
 
             var display = function (data) {
                 if (show) {
@@ -31,18 +26,18 @@
                     "extendedTimeOut": "0"
                 };
 
-                var startsAt = data[4];
-                var offset = 1000 * 60 * new Date().getTimezoneOffset();
-                if (startsAt > new Date().getTime()) {
-                    var date = moment.utc(startsAt - offset);
-                    var hours = zeropad(date.hours());
-                    var mins = zeropad(date.minutes());
-                    toastr.warning('Sinulla on koe alkamassa klo ' + hours + ':' + mins +
-                        ' sijainnissa: ' + data[0] + ', ' + data[1] + ' huoneessa ' + data[2] +
-                        ' koneella ' + data[3]);
+                var startsAt = moment(data[4]);
+                var now = moment();
+                if (now.isDST()) {
+                    startsAt.add(-1, 'hour');
+                }
+                if (startsAt.isAfter(now)) {
+                    toastr.warning($translate('sitnet_your_exam_will_start_at') + ' ' + startsAt.format('HH:mm') +
+                        ' ' + $translate('sitnet_at_location') + ': ' + data[0] + ', ' + data[1] + ' ' + $translate('sitnet_at_room') + ' ' + data[2] +
+                        ' ' + $translate('sitnet_at_machine') + ' ' + data[3]);
                 } else {
-                    var message = 'Sinulla on koe menossa sijainnissa: ' + data[0] + ', ' + data[1] + ' huoneessa ' +
-                        data[2] + ' koneella ' + data[3];
+                    var message = $translate('sitnet_you_have_ongoing_exam_at_location') + ': ' + data[0] + ', ' + data[1] + ' ' + $translate('sitnet_at_room') + ' ' +
+                        data[2] + ' ' + $translate('sitnet_at_machine') + ' ' + data[3];
                     toastr.error(message);
                 }
                 toastr.options = opts;

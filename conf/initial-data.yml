@@ -171,7 +171,90 @@ users:
       userLanguage: *suomi
       organisation: *OulunYliopisto
 
-######################################################################
+################################################################
+grade-scales:
+
+  - &zerotofive !!models.GradeScale
+    description: ZERO_TO_FIVE
+
+  - &latin !!models.GradeScale
+    description: LATIN
+
+  - &approvedrejected !!models.GradeScale
+    description: APPROVED_REJECTED
+
+
+grades:
+
+  - !!models.Grade
+    name: 0
+    gradeScale: *zerotofive
+
+  - !!models.Grade
+    name: 1
+    gradeScale: *zerotofive
+
+  - !!models.Grade
+    name: 2
+    gradeScale: *zerotofive
+
+  - !!models.Grade
+    name: 3
+    gradeScale: *zerotofive
+
+  - !!models.Grade
+    name: 4
+    gradeScale: *zerotofive
+
+  - !!models.Grade
+    name: 5
+    gradeScale: *zerotofive
+
+  - !!models.Grade
+    name: I
+    gradeScale: *latin
+
+  - !!models.Grade
+      name: I
+      gradeScale: *latin
+
+  - !!models.Grade
+      name: A
+      gradeScale: *latin
+
+  - !!models.Grade
+      name: B
+      gradeScale: *latin
+
+  - !!models.Grade
+      name: N
+      gradeScale: *latin
+
+  - !!models.Grade
+      name: C
+      gradeScale: *latin
+
+  - !!models.Grade
+      name: M
+      gradeScale: *latin
+
+  - !!models.Grade
+      name: E
+      gradeScale: *latin
+
+  - !!models.Grade
+      name: L
+      gradeScale: *latin
+
+  - !!models.Grade
+    name: APPROVED
+    gradeScale: *approvedrejected
+
+  - !!models.Grade
+    name: REJECTED
+    gradeScale: *approvedrejected
+
+################################################################
 
 attachments:
 
@@ -768,7 +851,7 @@ courses:
     code: 810136P
     name: Johdatus alkeiden perusteisiin
     credits: 5
-      
+
   - &tietokannat !!models.Course
     institutionName: "Testing Yliopisto"
     code: 811380A
@@ -786,7 +869,7 @@ courses:
     code: 811386A
     name: Algoritmit
     credits: 5
-    
+
   - &812346A !!models.Course
     institutionName: "Testing Yliopisto"
     code: 812346A
@@ -797,7 +880,6 @@ courses:
     institutionName: "Testing Yliopisto"
     code: ay905061Y
     name: Arabian peruskurssi II
-    credits: 5
 
   - &ayA113801 !!models.Course
     institutionName: "Testing Yliopisto"
@@ -846,12 +928,14 @@ courses:
     code: ay900060A
     name: Tekniikan viestintä
     credits: 2
+    gradeScale: *zerotofive
 
   - &ay464085A !!models.Course
     institutionName: "Testing Yliopisto"
     code: ay464085A
     name: Tuotesuojaus
     credits: 3.5
+    gradeScale: *zerotofive
 
   - &5010107K !!models.Course
     institutionName: "Testing Yliopisto"
@@ -896,10 +980,10 @@ comments:
 exam-types:
 
   - &partial !!models.ExamType
-    type: Osasuoritus
+    type: PARTIAL
 
   - &final !!models.ExamType
-    type: Loppusuoritus
+    type: FINAL
 
 
 ################################################################
@@ -948,11 +1032,11 @@ exams:
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
-    grading: 0-5
+    gradeScale: *zerotofive
     examSections:
     state: PUBLISHED
     examFeedback: *comment_sauli
-    grade: 5
+    grade:
     duration: 90
     gradedTime: 2014-08-29 16:00:00.123
     examLanguages:
@@ -974,10 +1058,10 @@ exams:
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-08-01 16:00:00.123
-    grading: 0-5
+    gradeScale: *zerotofive
     examSections:
     state: REVIEW
-    grade: 5
+    grade:
     duration: 90
     examLanguages:
       - *fi
@@ -994,7 +1078,7 @@ exams:
     shared: false
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
-    grading: 0-5
+    gradeScale: *zerotofive
     examSections:
     state: PUBLISHED
     duration: 90
@@ -1012,7 +1096,7 @@ exams:
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
-    grading: 0-5
+    gradeScale: *zerotofive
     examSections:
     state: PUBLISHED
     duration: 90
@@ -1029,7 +1113,7 @@ exams:
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
-    grading: Improbatur-Laudatur
+    gradeScale: *latin
     examSections:
     state: PUBLISHED
     duration: 90
@@ -1046,7 +1130,7 @@ exams:
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
-    grading: Hyväksytty-Hylätty
+    gradeScale: *approvedrejected
     examSections:
     state: SAVED
     duration: 90
@@ -1063,7 +1147,7 @@ exams:
     shared: true
     examActiveStartDate: 2014-05-01 08:00:00.123
     examActiveEndDate: 2014-12-29 16:00:00.123
-    grading: 0-5
+    gradeScale: *zerotofive
     examSections:
     state: SAVED
     examLanguages:
@@ -1587,110 +1671,5 @@ user-agreament:
     id: 1
     eula: "Lorem ipsum dolor sit amet, an duo iisque tritani gloriatur, meis theophrastus no vim. No per conceptam signiferumque, nam ut aeque exerci explicari. Hinc brute justo ad mel, quod eripuit dolores ut mei. Fugit praesent iudicabit ex has, te albucius pertinacia neglegentur eos, ex iisque omittam efficiendi cum. Ad qui equidem ullamcorper, ei velit habemus vis. Clita suavitate referrentur sed ut, errem liberavisse ut vix. Cu delenit commune efficiendi sea, ex pri quot admodum electram, vis omnis viris ne."
     reviewDeadline: 14
-
-################################################################
-
-grades:
-
-    # viisiportainen
-  - !!models.Grade
-    scale: Viisiportainen
-    grade: HYV
-    description: hyväksytty
-
-  - !!models.Grade
-    scale: Viisiportainen
-    grade: 1
-    description:
-
-  - !!models.Grade
-    scale: Viisiportainen
-    grade: 2
-    description:
-
-  - !!models.Grade
-    scale: Viisiportainen
-    grade: 3
-    description:
-
-  - !!models.Grade
-    scale: Viisiportainen
-    grade: 4
-    description:
-
-  - !!models.Grade
-    scale: Viisiportainen
-    grade: 5
-    description:
-
-    # hyväksytty
-  - !!models.Grade
-    scale: Hyväksytty
-    grade: HYV
-    description: hyväksytty
-
-    # toinen kotimainen
-  - !!models.Grade
-    scale: Toinen kotimainen
-    grade: TT
-    description: tyydyttävät tiedot
-
-  - !!models.Grade
-    scale: Toinen kotimainen
-    grade: HT
-    description: hyvät tiedot
-
-    #näytetyö
-  - !!models.Grade
-    scale: Näytetyö
-    grade: HYV
-    description: hyväksytty
-
-  - !!models.Grade
-    scale: Näytetyö
-    grade: KH
-    description: kiittäen hyväksytty
-
-    #tutkielma
-  - !!models.Grade
-    scale: Tutkielma
-    grade: A
-    description: approbatur
-
-  - !!models.Grade
-    scale: Tutkielma
-    grade: B
-    description: lubenter approbatur
-
-  - !!models.Grade
-    scale: Tutkielma
-    grade: N
-    description: non sine laude approbatur
-
-  - !!models.Grade
-    scale: Tutkielma
-    grade: C
-    description: cum laude approbatur
-
-  - !!models.Grade
-    scale: Tutkielma
-    grade: M
-    description: magna cum laude approbatur
-
-  - !!models.Grade
-    scale: Tutkielma
-    grade: E
-    description: eximia cum laude approbatur
-
-  - !!models.Grade
-    scale: Tutkielma
-    grade: L
-    description: laudatur
-
-    #ei käytössä - asteikko
-  - !!models.Grade
-    scale: EiKaytossa
-    grade: Arvosana ei kaytossa
-    description: Arvosana ei käytössä
 
 ################################################################

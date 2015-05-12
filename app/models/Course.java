@@ -21,7 +21,7 @@ public class Course extends Model {
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)
-    protected Timestamp ebeanTimestamp;
+    protected Date ebeanTimestamp;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -46,7 +46,8 @@ public class Course extends Model {
 
     private String creditsLanguage;
 
-    private String gradeScale;
+    @ManyToOne
+    private GradeScale gradeScale;
 
     private String lecturer;
 
@@ -122,11 +123,11 @@ public class Course extends Model {
         this.creditsLanguage = creditsLanguage;
     }
 
-    public String getGradeScale() {
+    public GradeScale getGradeScale() {
         return gradeScale;
     }
 
-    public void setGradeScale(String gradeScale) {
+    public void setGradeScale(GradeScale gradeScale) {
         this.gradeScale = gradeScale;
     }
 

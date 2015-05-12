@@ -7,7 +7,6 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import models.Exam;
-import models.ExamInspection;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import play.libs.Json;
@@ -27,7 +26,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testGetActiveExamsUnauthorized() {
-        Result result = get("/activeexams");
+        Result result = get("/reviewerexams");
         assertThat(status(result)).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
@@ -48,7 +47,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         String[] expectedPaths = {"id", "name", "course.code", "examActiveStartDate", "examActiveEndDate"};
 
         // Execute
-        Result result = get("/activeexams");
+        Result result = get("/reviewerexams");
 
         // Verify
         assertThat(status(result)).isEqualTo(200);
@@ -99,8 +98,6 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");
         assertThat(draft.getExamType().getId()).isEqualTo(2);
         assertThat(draft.getExpanded()).isTrue();
-        ExamInspection draftInspection = Ebean.find(ExamInspection.class).where().eq("exam.id", id).findUnique();
-        assertThat(draftInspection.getUser().getId()).isEqualTo(userId);
         int rowCount = Ebean.find(Exam.class).findRowCount();
         assertThat(rowCount).isEqualTo(originalRowCount + 1);
     }
@@ -159,9 +156,9 @@ public class ExamControllerTest extends IntegrationTestCase {
         return new String[]{"id", "name", "course.id", "course.code", "course.name", "course.level",
                 "course.courseUnitType", "course.credits", "course.institutionName", "course.department", "parent",
                 "examType", "instruction", "enrollInstruction", "shared", "examActiveStartDate",
-                "examActiveEndDate", "duration", "grading", "grade", "customCredit", "totalScore",
-                "answerLanguage", "state", "examFeedback", "creditType", "expanded", "attachment", "creator.id",
-                "creator.firstName", "creator.lastName"};
+                "examActiveEndDate", "duration", "gradeScale", "gradeScale.description", "grade",
+                "customCredit", "answerLanguage", "state", "examFeedback", "creditType", "expanded",
+                "attachment", "creator.id", "creator.firstName", "creator.lastName"};
     }
 
     private String[] getExamSectionFieldsOfExam(String index) {

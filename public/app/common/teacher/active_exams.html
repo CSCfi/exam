@@ -1,48 +1,50 @@
 <!-- Active exams indications bar -->
-<div class="main-row">
-    <span class="col-md-12" ng-init="toggleActiveExams = 'true'">
-        <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon fa-stack fa-lg">
-            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i ng-show="!toggleActiveExams" class="fa fa-chevron-right fa-stack-1x"></i>
-            <i ng-show="toggleActiveExams" class="fa fa-chevron-down fa-stack-1x"></i>
-        </a>
-        <span ng-click="toggleActiveExams = !toggleActiveExams" class="exams-list-title-text pointer">{{ 'sitnet_active_exams' | translate }}</span>
-    </span>
-</div>
+<div ng-init="toggleActiveExams = 'true'">
+    <div class="main-row">
+        <span class="col-md-12">
+            <a ng-click="toggleActiveExams = !toggleActiveExams" class="header-icon fa-stack fa-lg">
+                <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+                <i ng-show="!toggleActiveExams" class="fa fa-chevron-right fa-stack-1x"></i>
+                <i ng-show="toggleActiveExams" class="fa fa-chevron-down fa-stack-1x"></i>
+            </a>
+            <span ng-click="toggleActiveExams = !toggleActiveExams" class="exams-list-title-text pointer">{{ 'sitnet_active_exams' | translate }}</span>
+        </span>
+    </div>
 
-<div class="detail-row" ng-show="toggleActiveExams">
-    <div class="col-md-12">
-        <table class="table table-bordered table-striped exams-table">
-            <thead>
-            <tr>
-                <th><i class="fa fa-flag"></i></th>
-                <th><i class="fa fa-exclamation-triangle"></i></th>
-                <th>{{ 'sitnet_examcode' | translate }}</th>
-                <th>{{ 'sitnet_exam_name' | translate }}</th>
-                <th>{{'sitnet_exam_open_until' | translate}}</th>
-                <th>{{ 'sitnet_participation_unreviewed' | translate }}</th>
-                <th>{{ 'sitnet_participation_enrolled' | translate }}</th>
-                <th>{{'sitnet_teachers' | translate}}</th>
-            </tr>
-            </thead>
+    <div class="detail-row" ng-show="toggleActiveExams">
+        <div class="col-md-12">
+            <table class="table table-bordered table-striped exams-table">
+                <thead>
+                <tr>
+                    <th><i class="fa fa-flag"></i></th>
+                    <th><i class="fa fa-exclamation-triangle"></i></th>
+                    <th>{{ 'sitnet_examcode' | translate }}</th>
+                    <th>{{ 'sitnet_exam_name' | translate }}</th>
+                    <th>{{ 'sitnet_exam_validity' | translate }}</th>
+                    <th>{{ 'sitnet_participation_unreviewed' | translate }}</th>
+                    <th>{{ 'sitnet_participation_enrolled' | translate }}</th>
+                    <th>{{'sitnet_teachers' | translate}}</th>
+                </tr>
+                </thead>
 
-            <tbody>
-            <tr ng-repeat="activeExam in activeExams">
-                <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
-                <td class="table-column-examcode">{{ activeExam.exam.course.code }}</td>
-                <td class="table-column-examname"><a href="#/exams/reviews/{{activeExam.exam.id}}">{{
-                    activeExam.exam.name }}</a></td>
-                <td class="table-column-open-until">{{ activeExam.exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
-                    {{ activeExam.exam.examActiveEndDate | date:'dd.MM.yyyy' }}
-                </td>
-                <td class="table-column-enroll-participation">{{activeExam.examParticipations.length -
-                    activeExam.examParticipationsAndReviews.length}}
-                </td>
-                <td class="table-column-enroll-participation">{{ activeExam.activeExamEnrolments.length }}</td>
-                <td class="table-column-teachers">{{ activeExam.examInspections }}</td>
-            </tr>
-            </tbody>
-        </table>
+                <tbody>
+                <tr ng-repeat="activeExam in activeExams">
+                    <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
+                    <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
+                    <td class="table-column-examcode">{{ activeExam.course.code }}</td>
+                    <td class="table-column-examname"><a href="#/exams/reviews/{{activeExam.id}}">{{
+                        activeExam.name }}</a></td>
+                    <td class="table-column-open-until">{{ activeExam.examActiveStartDate | date:'dd.MM.yyyy' }} -
+                        {{ activeExam.examActiveEndDate | date:'dd.MM.yyyy' }}
+                    </td>
+                    <td class="table-column-enroll-participation">{{activeExam.examParticipations.length -
+                        activeExam.examParticipationsAndReviews.length}}
+                    </td>
+                    <td class="table-column-enroll-participation">{{ activeExam.activeExamEnrolments.length }}</td>
+                    <td class="table-column-teachers" ng-bind-html="activeExam.teachersStr"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

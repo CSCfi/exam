@@ -12,11 +12,11 @@
                 <span class="exams-list-title-text pull-left">{{'sitnet_exam_is_about_to_begin' | translate}}</span>
             </div>
             <div ng-hide="enrolment">
-                <span class="exams-list-title-text pull-left">Sinulla ei ole tenttejä tälle päivälle</span>
+                <span class="exams-list-title-text pull-left">{{'sitnet_you_dont_have_exams_today' | translate}}</span>
             </div>
         </div>
     </div>
-    <div class="main-row" ng-controller="WaitingRoomCtrl">
+    <div class="main-row">
         <div ng-hide="!enrolment" class="bottom-padding-2 light-table">
             <div class="col-md-4">
                 <div class="info-row col-md-12 pull-left">
@@ -41,7 +41,7 @@
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-3">{{ 'sitnet_exam_time' | translate }}:</span>
                     <span class="text col-md-9 sitnet-text-alarm">
-                        <span ng-show="enrolment.reservation.startAt">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.startAt | date:'HH:mm'}} - {{enrolment.reservation.endAt | date:'HH:mm'}}</span>
+                        <span ng-show="enrolment.reservation.startAt">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}} - {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}</span>
                     </span>
                 </div>
                 <div class="info-row col-md-12 info-column">
@@ -58,7 +58,7 @@
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{ 'sitnet_teachers' | translate }}:</span>
                     <span class="text col-md-8">
-                        {{ enrolment.teachers }}
+                        {{ enrolment.exam.teachersStr }}
                     </span>
                 </div>
                 <div class="info-row col-md-12 info-column">

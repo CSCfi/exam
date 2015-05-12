@@ -14,10 +14,10 @@
         </form>
     </div>
     <div class="col-md-6">
-            <div class="col-md-12 room-sub-header">
-                <span class="room-sub-name pull-left">{{ 'sitnet_room_accessibility_info' | translate }}</span>
+            <div class="row col-md-12">
+                <div class="col-md-12 pull-left"><h4 class="col-md-12">{{ 'sitnet_room_accessibility_info' | translate }}</h4></div>
             </div>
-            <div class="room-machines col-md-12" >
+            <div class="row col-md-12">
                 <table class="table table-bordered table-condensed room-machines-table">
                     <thead>
                     <tr>
@@ -39,10 +39,10 @@
                                 <form class="form-inline" role="form">
                                     <div class="form-group">
                                         <label>
-                                            <input type="text" class="form-control input-sm" ng-model="software.name" autofocus>
+                                            <input type="text" class="form-control input-sm" ng-model="accessibility.name" autofocus>
                                         </label>
                                     </div>
-                                    <button class="btn btn-primary btn-sm" ng-click="showName = !showName; updateSoftware(software);">
+                                    <button class="btn btn-primary btn-sm" ng-click="showName = !showName; update(accessibility);">
                                         <i class="fa fa-check"></i>
                                     </button>
                                 </form>
@@ -56,7 +56,7 @@
                         </td>
                         <td class="col-md-1 text-center">
                             <a class="fa-stack fa-lg" ng-click="remove(accessibility)"
-                               popover-placement="top" popover-trigger="mouseenter" popover="Poista ohjelmisto">
+                               popover-placement="top" popover-trigger="mouseenter" popover="{{'sitnet_remove_room_accessibility_info' | translate}}">
                                 <i class="sitnet-red fa fa-times fa-stack-1x"></i>
                             </a>
                         </td>
