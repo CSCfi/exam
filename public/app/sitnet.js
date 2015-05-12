@@ -36,7 +36,7 @@
     sitnet.config(['$translateProvider', 'SITNET_CONF', function ($translateProvider, SITNET_CONF) {
         var path = SITNET_CONF.LANGUAGES_PATH;
         $translateProvider.useStaticFilesLoader({
-            prefix: path + '/locale-',
+            prefix: path + 'locale-',
             suffix: '.json'
         });
         $translateProvider.preferredLanguage('en');
