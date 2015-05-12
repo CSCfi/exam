@@ -191,7 +191,7 @@
                                         ready: inspection.ready
                                     }, function (result) {
                                         toastr.info($translate('sitnet_exam_updated'));
-                                        inspection.ready = result;
+                                        inspection.ready = result.ready;
                                         $scope.startReview();
                                     }, function (error) {
                                         toastr.error(error.data);
