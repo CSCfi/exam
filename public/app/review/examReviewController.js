@@ -173,15 +173,6 @@
                             }
                         ];
 
-                        $scope.isLocalReady = function (userId) {
-                            angular.forEach($scope.inspections, function (inspection) {
-                                if (inspection.user.id === userId) {
-                                    return inspection.ready;
-                                }
-                            });
-                            return false;
-                        };
-
                         $scope.toggleReady = function () {
                             angular.forEach($scope.inspections, function (inspection) {
                                 if (inspection.user.id === $scope.user.id) {

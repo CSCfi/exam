@@ -55,9 +55,9 @@
                         </div>
                         <div class="col-md-4">
                             <span ng-show="inspection.user.id !== user.id">
-                                <span class="sitnet-text-ready" ng-show="isLocalReady(inspection.user.id) === true">{{'sitnet_ready' | translate}}</span>
+                                <span class="sitnet-text-ready" ng-show="inspection.ready">{{'sitnet_ready' | translate}}</span>
                                 <span class="sitnet-text-alarm"
-                                      ng-show="isLocalReady(inspection.user.id) === false">{{'sitnet_in_progress' | translate}}</span>
+                                      ng-hide="inspection.ready">{{'sitnet_in_progress' | translate}}</span>
                             </span>
                             <span class="input-group-sm" ng-hide="inspection.user.id !== user.id">
                                 <select ng-model="inspection.ready" class="form-control"
