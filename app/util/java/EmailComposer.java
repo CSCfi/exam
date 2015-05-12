@@ -148,17 +148,17 @@ public class EmailComposer {
         String subject = Messages.get(lang, "email.machine.reservation.subject");
 
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
-        String teacherName = "";
+        String teacherName;
 
-        if(exam.getExamOwners() != null && exam.getExamOwners().size() > 0) {
+        if (!exam.getExamOwners().isEmpty()) {
+            Iterator<User> it = exam.getExamOwners().listIterator();
             StringBuilder sb = new StringBuilder();
-            int i = 1;
-            for(User teacher : exam.getExamOwners()) {
+            while (it.hasNext()) {
+                User teacher = it.next();
                 sb.append(teacher.getFirstName()).append(" ").append(teacher.getLastName());
-                if(i != exam.getExamOwners().size()) {
+                if (it.hasNext()) {
                     sb.append(", ");
                 }
-                i++;
             }
             teacherName = sb.toString();
         } else {
@@ -252,7 +252,7 @@ public class EmailComposer {
             throws IOException {
 
         String templatePath;
-        if(isStudentUser) {
+        if (isStudentUser) {
             templatePath = TEMPLATES_ROOT + "reservationCanceledByStudent.html";
         } else {
             templatePath = TEMPLATES_ROOT + "reservationCanceled.html";
@@ -263,53 +263,35 @@ public class EmailComposer {
         String subject = Messages.get(lang, "email.reservation.cancellation.subject");
 
         String date = DF.print(adjustDST(reservation.getStartAt(), TZ));
-        String time = TF.print(adjustDST(reservation.getStartAt(), TZ));
         String room = reservation.getMachine().getRoom().getName();
         String info = Messages.get(lang, "email.reservation.cancellation.info");
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("hello", Messages.get(lang, "email.template.hello"));
-        if(isStudentUser) {
+        if (isStudentUser) {
             String link = String.format("%s/#/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
-
-            StringBuilder datetime = new StringBuilder();
-            datetime.append(DF.print(adjustDST(reservation.getStartAt(), TZ)))
-                    .append(" ")
-                    .append(TF.print(adjustDST(reservation.getStartAt(), TZ)))
-                    .append(" ")
-                    .append(TZ)
-                    .append(" - ")
-                    .append(DF.print(adjustDST(reservation.getEndAt(), TZ)))
-                    .append(" ")
-                    .append(TF.print(adjustDST(reservation.getEndAt(), TZ)))
-                    .append(" ")
-                    .append(TZ);
-
-            time = datetime.toString();
-
-            String teacher = "";
+            String time = String.format("%s - %s", DTF.print(adjustDST(reservation.getStartAt(), TZ)),
+                    DTF.print(adjustDST(reservation.getEndAt(), TZ)));
             Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
-
-            if(source.getExamOwners() != null) {
-                StringBuilder sb = new StringBuilder();
-                int i = 1;
-                for(User owner : source.getExamOwners()) {
-                    sb.append(owner.getFirstName() + " " + owner.getLastName());
-                    if(i != source.getExamOwners().size()) {
-                        sb.append(", ");
-                    }
-                    i++;
+            StringBuilder teachers = new StringBuilder();
+            Iterator<User> it = source.getExamOwners().listIterator();
+            while (it.hasNext()) {
+                User owner = it.next();
+                teachers.append(owner.getFirstName()).append(" ").append(owner.getLastName());
+                if (it.hasNext()) {
+                    teachers.append(", ");
                 }
-                teacher = sb.toString();
             }
             stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message.student"));
-            stringValues.put("exam", Messages.get(lang, "email.template.reservation.exam", enrolment.getExam().getName() + " (" + enrolment.getExam().getCourse().getCode() + ")"));
-            stringValues.put("teacher", Messages.get(lang, "email.template.reservation.teacher", teacher));
+            stringValues.put("exam", Messages.get(lang, "email.template.reservation.exam",
+                    enrolment.getExam().getName() + " (" + enrolment.getExam().getCourse().getCode() + ")"));
+            stringValues.put("teacher", Messages.get(lang, "email.template.reservation.teacher", teachers.toString()));
             stringValues.put("time", Messages.get(lang, "email.template.reservation.date", time));
             stringValues.put("place", Messages.get(lang, "email.template.reservation.room", room));
             stringValues.put("new_time", Messages.get(lang, "email.template.reservation.cancel.message.student.new.time"));
             stringValues.put("link", link);
         } else {
+            String time = TF.print(adjustDST(reservation.getStartAt(), TZ));
             stringValues.put("message", Messages.get(lang, "email.template.reservation.cancel.message", date, time, room));
         }
         stringValues.put("cancellation_information",
