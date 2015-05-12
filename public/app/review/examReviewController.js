@@ -601,7 +601,7 @@
                         var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_record_review'));
                         dialog.result.then(function () {
                             $scope.saveFeedback(true);
-                            var examToRecord = getReviewUpdate(reviewedExam);
+                            var examToRecord = getReviewUpdate(reviewedExam, 'GRADED');
                             examToRecord.additionalInfo = $scope.additionalInfo;
 
                             ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {

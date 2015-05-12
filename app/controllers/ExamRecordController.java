@@ -11,7 +11,9 @@ import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.Akka;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import util.java.CsvBuilder;
 import util.java.EmailComposer;
 
@@ -21,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static util.java.AttachmentUtils.setData;
 
@@ -31,7 +34,7 @@ public class ExamRecordController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result addExamRecord() throws IOException {
         DynamicForm df = Form.form().bindFromRequest();
-        Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator")
+        final Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator")
                 .where().eq("id", Long.parseLong(df.get("id"))).findUnique();
         Result failure = validateExamState(exam);
         if (failure != null) {
@@ -51,7 +54,17 @@ public class ExamRecordController extends SitnetController {
         score.save();
         record.setExamScore(score);
         record.save();
-        EmailComposer.composeInspectionReady(exam.getCreator(), UserController.getLoggedUser(), exam);
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    EmailComposer.composeInspectionReady(exam.getCreator(), UserController.getLoggedUser(), exam);
+                    Logger.info("Inspection ready notification email sent");
+                } catch (IOException e) {
+                    Logger.error("Failed to send inspection ready notification email", e);
+                }
+            }
+        }, Akka.system().dispatcher());
         return ok();
     }
 
