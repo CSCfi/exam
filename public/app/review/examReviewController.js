@@ -605,7 +605,9 @@
                             examToRecord.additionalInfo = $scope.additionalInfo;
 
                             ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {
-                                toastr.info($translate("sitnet_review_graded"));
+                                if (reviewedExam.state !== 'GRADED') {
+                                    toastr.info($translate("sitnet_review_graded"));
+                                }
                                 examToRecord.state = 'GRADED_AND_LOGGED';
                                 ExamRes.saveRecord.add(examToRecord, function (exam) {
                                     toastr.info($translate('sitnet_review_recorded'));
