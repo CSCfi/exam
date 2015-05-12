@@ -391,7 +391,7 @@
                 var getReviewUpdate = function (exam, state) {
                     return {
                         "id": exam.id,
-                        "state": state,
+                        "state": state || exam.state,
                         "grade": exam.grade && exam.grade.id ? exam.grade.id : "",
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
@@ -571,22 +571,22 @@
                     });
                 };
 
-                $scope.saveExamRecord = function (reviewed_exam) {
+                $scope.saveExamRecord = function (reviewedExam) {
 
                     if (!checkCredit()) {
                         return;
                     }
 
                     var messages = [];
-                    if (!reviewed_exam.grade) {
+                    if (!reviewedExam.grade) {
                         if ($scope.selectedGrade) {
-                            reviewed_exam.grade = {id: $scope.selectedGrade};
+                            reviewedExam.grade = {id: $scope.selectedGrade};
                         }
-                        if (!reviewed_exam.grade) {
+                        if (!reviewedExam.grade) {
                             messages.push('sitnet_participation_unreviewed');
                         }
                     }
-                    if (!reviewed_exam.creditType) {
+                    if (!reviewedExam.creditType) {
                         messages.push('sitnet_exam_choose_credit_type');
                     }
                     if (!$scope.selectedLanguage) {
@@ -599,19 +599,20 @@
                     }
                     else {
                         var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_record_review'));
-                        dialog.result.then(function (btn) {
+                        dialog.result.then(function () {
                             $scope.saveFeedback(true);
-                            var examToRecord = getReviewUpdate(reviewed_exam, 'GRADED_LOGGED');
+                            var examToRecord = getReviewUpdate(reviewedExam);
                             examToRecord.additionalInfo = $scope.additionalInfo;
 
                             ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {
                                 toastr.info($translate("sitnet_review_graded"));
+                                examToRecord.state = 'GRADED_AND_LOGGED';
                                 ExamRes.saveRecord.add(examToRecord, function (exam) {
                                     toastr.info($translate('sitnet_review_recorded'));
                                     if ($scope.user.isAdmin) {
                                         $location.path("/");
                                     } else {
-                                        $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                                        $location.path("exams/reviews/" + reviewedExam.parent.id);
                                     }
                                 }, function (error) {
                                     toastr.error(error.data);
@@ -619,8 +620,6 @@
                             }, function (error) {
                                 toastr.error(error.data);
                             });
-
-
                         });
                     }
                 };
