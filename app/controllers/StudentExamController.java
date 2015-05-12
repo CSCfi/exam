@@ -97,7 +97,11 @@ public class StudentExamController extends SitnetController {
                 .fetch("examSections.sectionQuestions.question")
                 .where()
                 .eq("id", id)
+                .eq("state", Exam.State.GRADED_LOGGED.toString())
                 .findUnique();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         exam.setMaxScore();
         exam.setApprovedAnswerCount();
         exam.setRejectedAnswerCount();

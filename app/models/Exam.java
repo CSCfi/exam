@@ -40,7 +40,7 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
     private ExamType examType;
 
     @ManyToMany
-    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name="exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> examOwners = new ArrayList<>();
 
     // Instruction written by teacher, shown during exam
@@ -223,6 +223,7 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
                     EssayQuestion essayQuestion = (EssayQuestion) question;
                     if (essayQuestion.getEvaluationType() != null &&
                             essayQuestion.getEvaluationType().equals("Select")
+                            && essayQuestion.getEvaluatedScore() != null
                             && essayQuestion.getEvaluatedScore() == 1) {
                         total++;
                     }
@@ -242,7 +243,8 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
                     EssayQuestion essayQuestion = (EssayQuestion) question;
                     if (essayQuestion.getEvaluationType() != null &&
                             essayQuestion.getEvaluationType().equals("Select") &&
-                            essayQuestion.getEvaluatedScore() == 0) {
+                            essayQuestion.getEvaluatedScore() != null
+                            && essayQuestion.getEvaluatedScore() == 0) {
                         total++;
                     }
                 }
@@ -435,9 +437,13 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
         this.examFeedback = examFeedback;
     }
 
-    public String getAdditionalInfo() { return additionalInfo; }
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
 
-    public void setAdditionalInfo(String additionalInfo) { this.additionalInfo = additionalInfo; }
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
+    }
 
     public ExamType getCreditType() {
         return creditType;
@@ -499,7 +505,7 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
 
         for (ExamInspection ei : examInspections) {
             ExamInspection inspection = new ExamInspection();
-            BeanUtils.copyProperties(ei, inspection, new String[] {"id", "exam"});
+            BeanUtils.copyProperties(ei, inspection, new String[]{"id", "exam"});
             inspection.setExam(clone);
             inspection.save();
         }
@@ -586,13 +592,14 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
     public boolean isInspectedOrCreatedOrOwnedBy(User user, boolean applyToChildOnly) {
         return isInspectedBy(user, applyToChildOnly) || isOwnedBy(user) || isCreatedBy(user);
     }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
         if (!(other instanceof Exam)) {
             return false;
         }
-        Exam otherExam = (Exam)other;
+        Exam otherExam = (Exam) other;
         return new EqualsBuilder().append(id, otherExam.id).build();
     }
 

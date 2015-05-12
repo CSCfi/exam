@@ -1,5 +1,5 @@
 email.inspection.ready.subject=Tenttivastauksesi on arvioitu
-email.inspection.comment.subject=Tenttisuorituksen arviontiin on lisätty kommentti
+email.inspection.comment.subject=Tenttisuorituksen arviointiin on lisätty kommentti
 email.enrolment.no.reservation=HUOM! Et ole vielä varannut tenttiaikaa tenttitilasta
 email.enrolment.no.enrolments=Ei tenttiaikojen varauksia
 email.weekly.report.subject=Tenttijärjestelmän viikkokooste

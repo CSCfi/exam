@@ -1279,12 +1279,12 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result getExamInspections(Long id) {
 
-        List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
+        Set<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("user")
                 .fetch("exam")
                 .where()
                 .eq("exam.id", id)
-                .findList();
+                .findSet();
 
         if (inspections == null) {
             return notFound();
