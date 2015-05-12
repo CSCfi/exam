@@ -1452,20 +1452,17 @@ public class ExamController extends SitnetController {
 
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
-            return notFound();
+            return notFound("sitnet_error_exam_not_found");
         }
         User loggedUser = UserController.getLoggedUser();
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("user")
                 .fetch("exam")
                 .where()
-                .eq("exam.id", exam.getParent().getId())
+                .eq("exam.id", exam.getId())
                 .ne("user.id", loggedUser.getId())
                 .findList();
 
-        if (inspections.isEmpty()) {
-            return notFound();
-        }
         Set<User> recipients = new HashSet<>();
         for (ExamInspection inspection : inspections) {
             recipients.add(inspection.getUser());
