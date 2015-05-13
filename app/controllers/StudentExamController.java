@@ -299,7 +299,7 @@ public class StudentExamController extends SitnetController {
             return forbidden("sitnet_reservation_not_found");
         } else if (enrolment.getReservation().getMachine() == null) {
             return forbidden("sitnet_reservation_machine_not_found");
-        } else if (Play.isProd() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+        } else if (!Play.isDev() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)
                     .fetch("mailAddress")
                     .where()

@@ -330,7 +330,7 @@ public class Global extends GlobalSettings {
 
     private Action handleOngoingEnrolment(ExamEnrolment enrolment, Request request, Method method) {
         Map<String, String> headers = new HashMap<>();
-        if (Play.isProd() && !machineOk(enrolment, request, headers)) {
+        if (!Play.isDev() && !machineOk(enrolment, request, headers)) {
             return new AddHeader(super.onRequest(request, method), headers);
         }
         String hash = enrolment.getExam().getHash();
