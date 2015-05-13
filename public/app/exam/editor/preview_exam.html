@@ -1,0 +1,157 @@
+<div id="sitnet-header" class="col-md-12 header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_preview' | translate}}</span>
+    </div>
+</div>
+<div id="studentexam">
+    <div class="col-md-4 pull-right floating-section" bs-affix data-offset-top="0" style="position: fixed !important;">
+        <div class="floating-clock">
+            <div class="header-wrapper">
+                <span class="exam-clock-text"><span class="sitnet-text-dark">{{'sitnet_exam_time_left' | translate}}</span></span>
+                <span class="exam-clock">
+                    <span>{{formatRemainingTime(doexam.duration)}}</span>
+                </span>
+            </div>
+        </div>
+        <!-- SECTIONS AREA -->
+        <div class="top-padding-2">
+            <div class="col-md-12">
+                <div class="info-column">
+                    <span class="header col-md-6"><span class="sitnet-text-dark">{{ 'sitnet_course_name' | translate }}:</span></span>
+                    <span class="text col-md-6">{{ doexam.course.name }}&nbsp;</span>
+                </div>
+                <div class="info-column">
+                    <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_course_code' | translate }}:</span></span>
+                    <span class="text col-md-6">{{ doexam.course.code }}&nbsp;</span>
+                </div>
+                <div class="info-column">
+                    <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_exam_name' | translate }}:</span></span>
+                    <span class="text col-md-6">{{ doexam.name }}&nbsp;</span>
+                </div>
+                <div class="info-column">
+                    <span class="header col-md-6 sitnet-text-dark"><span class="sitnet-text-dark">{{ 'sitnet_exam_time' | translate }}:</span></span>
+                    <span class="text col-md-6">{{ printExamDuration(doexam) }}&nbsp;</span>
+                </div>
+            </div>
+
+            <div class="col-md-12 top-padding-2 bottom-padding-2">
+                <ul>
+                    <li ng-if="doexam.instruction.length > 0" class="info-row col-md-12" ng-click="setActiveSection(pages[0])">
+                        <a class="row fa-stack">
+                            <i ng-class="guide ? 'sitnet-text-notice' : 'sitnet-text-medium'" class="fa fa-stop fa-stack-2x"></i>
+                            <i ng-class="guide ? 'sitnet-text' : 'sitnet-white'" class="fa fa-info-circle fa-stack-1x"></i>
+                        </a>
+                        <span ng-class="guide ? 'sitnet-text' : 'sitnet-text-dark'" class="icon_fix">{{'sitnet_exam_quide' | translate}}</span>
+
+                    </li>
+                    <li ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section.name)"
+                        popover-placement="left"
+                        popover-popup-delay="1000"
+                        popover-trigger="mouseenter"
+                        popover="{{section.name}}: {{'sitnet_question_status_answered' | translate}} {{getQuestionAmount(section,'answered')}}, {{'sitnet_questions_total' | translate}} {{ getQuestionAmount(section,'total') }}">
+                        <span class="fa-stack">
+                            <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text-notice' : 'sitnet-text-medium'" class="fa fa-stop fa-stack-2x"></i>
+                            <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-white' " class="fa-stack-1x">{{section.index}}.</i>
+                        </span>
+                        <span ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-dark'">{{section.name}}</span>
+                        <div class="col-md-6 pull-right">
+                            <span class="pull-left sitnet-text-ready bold">{{ getQuestionAmount(section,'answered') }}</span>
+                            <span class="pull-left horizontal-padding-05"> / </span>
+                            <span class="pull-left bold">{{ getQuestionAmount(section,'total') }}</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- ATTACHMENT -->
+            <div class="info-row col-md-12 top-padding-2" ng-show="doexam.attachment !== null" ng-controller="AttachmentController">
+                <div class="info-column pointer" ng-click="downloadExamAttachment(doexam)">
+                    <div class="col-md-2">
+                        <a class="fa-stack">
+                            <i class="fa fa-stop fa-stack-2x" />
+                            <i class="fa fa-file sitnet-white fa-stack-1x" />
+                        </a>
+                    </div>
+                    <div class="col-md-10 sitnet-text-dark sidebutton-text">
+                        {{'sitnet_exam_attacment' | translate}}:&nbsp;({{doexam.attachment.fileName}})
+                    </div>
+                </div>
+            </div>
+
+            <!-- INSTRUCTIONS -->
+            <div class="info-row col-md-12">
+                <div class="info-column pointer" popover-placement="left" popover-trigger="click" popover="{{ currentLanguageText }}">
+                    <div class="col-md-2">
+                        <a class="fa-stack">
+                            <i class="fa fa-stop fa-stack-2x"></i>
+                            <i class="fa fa-info-circle sitnet-white fa-stack-1x" />
+                        </a>
+                    </div>
+                    <div class="col-md-10 sitnet-text-dark sidebutton-text">
+                        {{'sitnet_room_guidance' | translate}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXIT PREVIEW -->
+            <div class="info-row col-md-12">
+                <a class="col-md-12 top-padding-2 top-margin-1 pointer sidebutton" ng-click="exitPreview(doexam)">
+                    <i class="fa fa-sign-out"><span class="italic">{{'sitnet_exit_preview' | translate}}</span></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="header col-md-8">
+        <!--<div id="studentexam" class="container-fluid">-->
+        <!--  EXAM AREA -->
+        <div class="col-md-12 bottom-padding-2">
+            <div class="row" ng-show="!guide">
+                <div class="col-md-12 studentexam-header">
+                    <span class="fa-stack fa-lg">
+                      <i class="fa fa-stop fa-stack-2x sitnet-text-notice"></i>
+                      <span class="fa-stack-1x sitnet-text">{{activeSection.index}}.</span>
+                    </span>
+                    <span class="sitnet-text">{{activeSection.name}}</span>
+                    <span ng-show="previewSwitch && activeSection.lotteryOn" class="sitnet-text-medium">
+                        <small>({{ 'sitnet_lottery_questions' | translate }})</small>
+                    </span>
+                </div>
+            </div>
+            <div class="row" ng-show="guide">
+                <div class="col-md-12 studentexam-header">
+                    <span class="fa-stack fa-lg">
+                      <i class="fa fa-stop fa-stack-2x sitnet-text-notice"></i>
+                      <span class="fa fa-info-circle fa-stack-1x sitnet-text"></span>
+                    </span>
+                    <span class="sitnet-text">{{'sitnet_exam_quide' | translate}}</span>
+                </div>
+            </div>
+
+            <div class="row bottom-padding-2">
+                <div class="col-md-12">
+                    <div class="section-container">
+                        <div class="list-group" ng-include="sectionTemplate">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION NAVIGATION ARROWS AND LABELS -->
+            <div class="row exam-navigation">
+                <div class="col-sm-6 col-md-5 col-md-offset-1">
+                    <!-- PREVIOUS SECTION BUTTON -->
+                    <a class="blue_button_left" ng-show="previousButton.valid && !guide" ng-click="setPreviousSection()">
+                        <i class="fa fa-arrow-left sitnet-text-theme"></i><span>{{ previousButton.text }}</span>
+                    </a>
+                </div>
+                <div class="col-sm-6 col-md-5 col-md-offset-1">
+                    <!-- NEXT SECTION BUTTON -->
+                    <a class="blue_button_right" ng-show="nextButton.valid" ng-click="setNextSection()">
+                        <span>{{ nextButton.text }} </span><i class="fa fa-arrow-right sitnet-text-theme icon_to_right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -11,22 +11,11 @@
 
                 // section back / forward buttons
                 $scope.pages = ["guide"];
+                $scope.guide = true;
                 $scope.previousButton = {};
                 $scope.nextButton = {};
 
-                var isPreview = function () {
-                    return $location.path().match(/preview/) && $routeParams.id;
-                };
-                if (isPreview()) {
-                    $scope.headerText = $translate('sitnet_exam_preview');
-                } else {
-                    $scope.guide = true;
-                    $scope.hash = $routeParams.hash;
-                }
-
-                $scope.isPreview = function() {
-                    return isPreview();
-                };
+                $scope.hash = $routeParams.hash;
 
                 function cancelAutosavers() {
                     if ($scope.doexam) {
@@ -85,10 +74,9 @@
                     }
                 };
 
-                $scope.doExam = function () {
-                    var url = isPreview() ? '/exampreview/' + $routeParams.id : '/student/doexam/' + $routeParams.hash;
-                    $http.get(url)
-                        .success(function (data) {
+                $scope.doExam = function (hash) {
+                    $http.get('/student/doexam/' + $routeParams.hash)
+                        .success(function (data, status, headers, config) {
                             $scope.doexam = data;
                             if (data.cloned) {
                                 // we came here with a reference to the parent exam so do not render page just yet,
@@ -127,15 +115,15 @@
                                 examService.setQuestionColors(question);
                             });
 
-                            if (!isPreview()) {
                             $http.get('/examenrolmentroom/' + $scope.doexam.id)
-                                .success(function (data) {
+                                .success(function (data, status, headers, config) {
                                     $scope.info = data;
                                     $scope.currentLanguageText = currentLanguage();
                                 });
-                                startClock();
-                                $scope.activeSection.autosaver = getAutosaver();
-                            }
+
+                            count();
+                            $scope.activeSection.autosaver = getAutosaver();
+
                             if ($scope.doexam.instruction && $scope.doexam.instruction.length > 0) {
                                 $scope.setActiveSection("guide");
                             } else {
@@ -144,19 +132,13 @@
                                 $scope.activeSection.autosaver = getAutosaver();
                             }
                         }).
-                        error(function () {
-                            $location.path("/");
+                        error(function (data, status, headers, config) {
+                            $location.path("//");
                         });
                 };
 
                 $rootScope.$on('$translateChangeSuccess', function () {
                     $scope.currentLanguageText = currentLanguage();
-                });
-
-                $scope.$on('$localeChangeSuccess', function () {
-                    if ($scope.previousButton.isGuide) {
-                        $scope.previousButton.text = $translate("sitnet_exam_quide");
-                    }
                 });
 
                 function currentLanguage() {
@@ -190,8 +172,7 @@
                 }
 
 
-                // if id -> preview
-                if ($routeParams.hash || isPreview()) {
+                if ($routeParams.hash) {
                     $scope.doExam();
                 }
 
@@ -209,11 +190,18 @@
                     }
                 };
 
+                $scope.$on('$localeChangeSuccess', function () {
+                    if ($scope.previousButton.isGuide) {
+                        $scope.previousButton.text = $translate("sitnet_exam_quide");
+                    }
+                });
+
                 $scope.setActiveSection = function (sectionName) {
-                    if (!isPreview() && $scope.activeSection && !$scope.guide) {
+                    if ($scope.activeSection && !$scope.guide) {
                         saveAllEssaysOfSection($scope.activeSection);
                     }
                     if (sectionName !== "guide" || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === "guide")) {
+
                         // next
                         if ($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
                             $scope.nextButton = {
@@ -223,10 +211,12 @@
                         } else {
                             $scope.nextButton = {valid: false};
                         }
+
                         // previous
                         if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
-                            $scope.previousButton = {valid: true};
-                            if ($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
+                            $scope.previousButton = { valid: true };
+
+                            if($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
                                 var name = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
                                 if (name === 'guide') {
                                     $scope.previousButton.isGuide = true;
@@ -238,15 +228,15 @@
                                 $scope.previousButton.text = $translate("sitnet_exam_quide");
                             }
                         } else {
-                            $scope.previousButton = {valid: false};
+                            $scope.previousButton = { valid: false };
                         }
                     } else {
                         $scope.guide = true;
-                        $scope.nextButton = {valid: true, text: $scope.pages[1]};
-                        $scope.previousButton = {valid: false};
+                        $scope.nextButton = { valid: true, text: $scope.pages[1] };
+                        $scope.previousButton = { valid: false };
                     }
 
-                    delete $scope.activeSection;
+                    $scope.activeSection = undefined;
                     if (sectionName === "guide") {
                         $scope.guide = true;
                     } else {
@@ -259,7 +249,7 @@
                         });
                     }
 
-                    if ($scope.activeSection) {
+                    if ($scope.activeSection !== undefined) {
                         // Loop through all questions in the active section
                         angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
@@ -276,13 +266,14 @@
                                     break;
                             }
                             question.template = template;
-                            question.expanded = false;
+
+                            if (!question.expanded) {
+                                question.expanded = false;
+                            }
                             examService.setQuestionColors(question);
                         });
                         cancelAutosavers();
-                        if (!isPreview()) {
-                            $scope.activeSection.autosaver = getAutosaver();
-                        }
+                        $scope.activeSection.autosaver = getAutosaver();
                     }
                 };
 
@@ -320,23 +311,18 @@
                     return deferred.promise;
                 };
 
-                // Called when the exit button is clicked
-                $scope.exitPreview = function () {
-                    $location.path("/exams/" + $routeParams.id);
-                };
-
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
                     var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_turn_exam'));
-                    dialog.result.then(function () {
+                    dialog.result.then(function (btn) {
                         saveAllEssays().then(function () {
                             StudentExamRes.exams.update({id: doexam.id}, function () {
                                 toastr.info($translate('sitnet_exam_returned'));
                                 $timeout.cancel($scope.remainingTimePoller);
                                 $location.path("/logout");
                                 $rootScope.$broadcast('examEnded');
-                            }, function (error) {
-                                toastr.error($translate(error));
+                            }, function () {
+
                             });
                         });
                     });
@@ -362,54 +348,43 @@
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_question_answered");
 
-                    if (!isPreview()) {
-                        StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({
-                                hash: doexam.hash,
-                                qid: question.id,
-                                oid: option.id
-                            },
-                            function (updated_answer) {
-                                question.answer = updated_answer;
-                                toastr.info($translate('sitnet_answer_saved'));
-                                examService.setQuestionColors(question);
-                            }, function (error) {
+                    StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({
+                            hash: doexam.hash,
+                            qid: question.id,
+                            oid: option.id
+                        },
+                        function (updated_answer) {
+                            question.answer = updated_answer;
+                            toastr.info($translate('sitnet_answer_saved'));
+                            examService.setQuestionColors(question);
+                        }, function (error) {
 
-                            });
-                    } else {
-                        question.answer = {
-                            option: {
-                                option: option.option
-                            }
-                        };
-                        examService.setQuestionColors(question);
-                    }
+                        });
                 };
 
                 $scope.saveEssay = function (question, answer) {
                     question.answered = true;
                     question.questionStatus = $translate("sitnet_answer_saved");
 
-                    if (isPreview()) {
+                    var params = {
+                        hash: $scope.doexam.hash,
+                        qid: question.id
+                    };
+                    var msg = {};
+                    msg.answer = answer;
+                    StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
+                        toastr.info($translate("sitnet_answer_saved"));
                         examService.setQuestionColors(question);
-                    } else {
-                        var params = {
-                            hash: $scope.doexam.hash,
-                            qid: question.id
-                        };
-                        var msg = {answer: answer};
-                        StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
-                            toastr.info($translate("sitnet_answer_saved"));
-                            examService.setQuestionColors(question);
-                        }, function () {
+                    }, function () {
 
-                        });
-                    }
+                    });
                 };
 
                 function zeropad(n) {
                     n += '';
                     return n.length > 1 ? n : '0' + n;
                 }
+
 
                 $scope.formatRemainingTime = function (time) {
                     if (time <= 0) {
@@ -468,11 +443,11 @@
                 $scope.remainingTime = "";
                 var updateCheck = 15;
                 var updateInterval = 0;
-                var startClock = function () {
+                var count = function () {
                     if ($scope.doexam) {
                         updateInterval++;
 
-                        $scope.remainingTimePoller = $timeout(startClock, 1000);
+                        $scope.remainingTimePoller = $timeout(count, 1000);
 
                         if (updateInterval >= updateCheck) {
                             updateInterval = 0;
@@ -480,16 +455,16 @@
                         } else {
                             $scope.remainingTime--;
                         }
+
+                        // console.log("frontend count: " + $scope.remainingTime);
+
                         if ($scope.timeChecked === true && $scope.remainingTime < 0) {
                             onTimeout();
                         }
                     }
                 };
 
-                if (!isPreview()) {
-                    // start the clock
-                    startClock();
-                }
+                count(); // start the clock
 
                 $scope.isAnswer = function (question, option) {
 
@@ -505,9 +480,6 @@
                 };
 
                 $scope.selectFile = function (question) {
-                    if (isPreview()) {
-                        return;
-                    }
 
                     $scope.questionTemp = question;
 
@@ -589,7 +561,7 @@
                         }
                     });
 
-                    modalInstance.result.then(function () {
+                    modalInstance.result.then(function (resp) {
                         // OK button
                         $location.path('/student/doexam/' + $routeParams.hash);
                     }, function () {
