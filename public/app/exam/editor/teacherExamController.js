@@ -11,26 +11,23 @@
                 $scope.pages = ["guide"];
 
                 $scope.guide = false;
-                $scope.previousButton = false;
-                $scope.previousButtonText = "";
-                $scope.nextButton = false;
-                $scope.nextButtonText = "";
+                $scope.previousButton = {};
+                $scope.nextButton = {};
 
-                //$scope.exams = StudentExamRes.exams.query();
                 $scope.tempQuestion = null;
                 $scope.previewSwitch = true;
 
                 $scope.getQuestionAmount = function (section, type) {
-                    if(type === 'total') {
+                    if (type === 'total') {
                         return section.sectionQuestions.length;
-                    } else if(type === 'answered') {
+                    } else if (type === 'answered') {
                         return section.sectionQuestions.filter(function (sectionQuestion) {
                             return sectionQuestion.question.answered;
                         }).length;
-                    } else if(type === 'unanswered') {
+                    } else if (type === 'unanswered') {
                         return section.sectionQuestions.length - section.sectionQuestions.filter(function (sectionQuestion) {
-                            return sectionQuestion.question.answered;
-                        }).length;
+                                return sectionQuestion.question.answered;
+                            }).length;
                     }
                 };
 
@@ -90,7 +87,7 @@
                 };
 
                 $scope.saveEssay = function (question, answer) {
-                    if(answer) {
+                    if (answer) {
                         question.answered = true;
                         question.questionStatus = $translate("sitnet_answer_saved");
                         examService.setQuestionColors(question);
@@ -127,44 +124,52 @@
                     }
                 };
 
+                $scope.$on('$localeChangeSuccess', function () {
+                    if ($scope.previousButton.isGuide) {
+                        $scope.previousButton.text = $translate("sitnet_exam_quide");
+                    }
+                });
+
                 $scope.setActiveSection = function (sectionName) {
 
                     if (sectionName !== "guide" || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === "guide")) {
 
                         // next
                         if ($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
-                            $scope.nextButton = true;
-                            $scope.nextButtonText = $scope.pages[$scope.pages.indexOf(sectionName) + 1];
+                            $scope.nextButton = {
+                                valid: true,
+                                text: $scope.pages[$scope.pages.indexOf(sectionName) + 1]
+                            };
                         } else {
-                            $scope.nextButton = false;
-                            $scope.nextButtonText = "";
+                            $scope.nextButton = {valid: false};
                         }
 
                         // previous
                         if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
-                            $scope.previousButton = true;
+                            $scope.previousButton = { valid: true };
 
-                            if($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
-                                $scope.previousButtonText = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
+                            if ($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
+                                var name = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
+                                if (name === 'guide') {
+                                    $scope.previousButton.isGuide = true;
+                                    name = $translate("sitnet_exam_quide");
+                                }
+                                $scope.previousButton.text = name;
                             } else {
-                                $scope.previousButtonText = $translate("sitnet_exam_quide");
+                                $scope.previousButton.isGuide = true;
+                                $scope.previousButton.text = $translate("sitnet_exam_quide");
                             }
 
                         } else {
-                            $scope.previousButton = false;
-                            $scope.previousButtonText = "";
+                            $scope.previousButton = { valid: false };
                         }
-
-
                     } else {
                         $scope.guide = true;
-                        $scope.nextButton = true;
-                        $scope.nextButtonText = $scope.pages[1];
-                        $scope.previousButton = false;
-                        $scope.previousButtonText = "";
+                        $scope.nextButton = { valid: true, text: $scope.pages[1] };
+                        $scope.previousButton = { valid: false };
                     }
 
-                    $scope.activeSection = undefined;
+                    delete $scope.activeSection;
                     if (sectionName === "guide") {
                         $scope.guide = true;
                     } else {
@@ -177,7 +182,7 @@
                         });
                     }
 
-                    if ($scope.activeSection !== undefined) {
+                    if ($scope.activeSection) {
                         // Loop through all questions in the active section
                         angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
@@ -194,10 +199,7 @@
                                     break;
                             }
                             question.template = template;
-
-                            if (!question.expanded) {
-                                question.expanded = false;
-                            }
+                            question.expanded = false;
                             examService.setQuestionColors(question);
                         });
                     }
@@ -240,5 +242,7 @@
                         return true;
                 };
 
-            }]);
+            }
+        ])
+    ;
 }());

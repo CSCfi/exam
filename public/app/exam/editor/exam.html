@@ -3,7 +3,7 @@
         <div class="col-md-6 header-wrapper">
             <span class="header-text">{{'sitnet_exam' | translate}}</span>
         </div>
-        <div class="col-md-6 header-wrapper" ng-show="newExam.state !== 'PUBLISHED'">
+        <div class="col-md-6 header-wrapper" ng-show="newExam.state === 'DRAFT'">
             <a ng-click="cancelNewExam(newExam)" class="pull-right btn btn-primary btn-lg active header-button">
                 {{'sitnet_button_cancel' | translate}} </a>
         </div>
@@ -51,7 +51,7 @@
                 <div class="row col-md-12 bottom-padding-2">
                     <span>
                         <button ng-click="saveExam()" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
-                        <button ng-hide="newExam.state === 'PUBLISHED'" ng-click="cancelNewExam(newExam)"
+                        <button ng-show="newExam.state === 'DRAFT'" ng-click="cancelNewExam(newExam)"
                                 class="btn btn-warning">{{'sitnet_button_cancel' | translate}}
                         </button>
                     </span>

@@ -12,10 +12,8 @@
                 // section back / forward buttons
                 $scope.pages = ["guide"];
                 $scope.guide = true;
-                $scope.previousButton = false;
-                $scope.previousButtonText = "";
-                $scope.nextButton = false;
-                $scope.nextButtonText = "";
+                $scope.previousButton = {};
+                $scope.nextButton = {};
 
                 $scope.hash = $routeParams.hash;
 
@@ -192,6 +190,12 @@
                     }
                 };
 
+                $scope.$on('$localeChangeSuccess', function () {
+                    if ($scope.previousButton.isGuide) {
+                        $scope.previousButton.text = $translate("sitnet_exam_quide");
+                    }
+                });
+
                 $scope.setActiveSection = function (sectionName) {
                     if ($scope.activeSection && !$scope.guide) {
                         saveAllEssaysOfSection($scope.activeSection);
@@ -200,31 +204,36 @@
 
                         // next
                         if ($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
-                            $scope.nextButton = true;
-                            $scope.nextButtonText = $scope.pages[$scope.pages.indexOf(sectionName) + 1];
+                            $scope.nextButton = {
+                                valid: true,
+                                text: $scope.pages[$scope.pages.indexOf(sectionName) + 1]
+                            };
                         } else {
-                            $scope.nextButton = false;
-                            $scope.nextButtonText = "";
+                            $scope.nextButton = {valid: false};
                         }
 
                         // previous
                         if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
-                            $scope.previousButton = true;
+                            $scope.previousButton = { valid: true };
+
                             if($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
-                                $scope.previousButtonText = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
+                                var name = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
+                                if (name === 'guide') {
+                                    $scope.previousButton.isGuide = true;
+                                    name = $translate("sitnet_exam_quide");
+                                }
+                                $scope.previousButton.text = name;
                             } else {
-                                $scope.previousButtonText = $translate("sitnet_exam_quide");
+                                $scope.previousButton.isGuide = true;
+                                $scope.previousButton.text = $translate("sitnet_exam_quide");
                             }
                         } else {
-                            $scope.previousButton = false;
-                            $scope.previousButtonText = "";
+                            $scope.previousButton = { valid: false };
                         }
                     } else {
                         $scope.guide = true;
-                        $scope.nextButton = true;
-                        $scope.nextButtonText = $scope.pages[1];
-                        $scope.previousButton = false;
-                        $scope.previousButtonText = "";
+                        $scope.nextButton = { valid: true, text: $scope.pages[1] };
+                        $scope.previousButton = { valid: false };
                     }
 
                     $scope.activeSection = undefined;
