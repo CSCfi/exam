@@ -13,6 +13,6 @@
 </div>
 
 <div class="row">
-    <button ng-click="saveEssay(sectionQuestion.question, sectionQuestion.question.answer.answer)"
+    <button ng-disabled="isPreview()" ng-click="saveEssay(sectionQuestion.question, sectionQuestion.question.answer.answer)"
             class="btn btn-primary pull-right">{{'sitnet_save' | translate }}</button>
 </div>

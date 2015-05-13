@@ -36,7 +36,7 @@
 
                 <div class="exam-question-instruction row bottom-padding-2" ng-controller="AttachmentController" ng-show="sectionQuestion.question.type === 'EssayQuestion'">
                     <div>
-                        {{'sitnet_answer_attachment' | translate}}:&nbsp;<a class="pointer bold" ng-click="selectFile(sectionQuestion.question)" class="btn btn-primary pull-left">{{'sitnet_attach_file' | translate}}</a>
+                        {{'sitnet_answer_attachment' | translate}}:&nbsp;<button class="btn btn-link" ng-disabled="isPreview()" ng-click="selectFile(sectionQuestion.question)">{{'sitnet_attach_file' | translate}}</button>
                     </div>
                     <div ng-show="sectionQuestion.question.answer && sectionQuestion.question.answer.attachment && sectionQuestion.question.answer.attachment.fileName">
                         <a class="pointer" ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, hash)">{{sectionQuestion.question.answer.attachment.fileName}}</a>

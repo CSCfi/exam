@@ -18,6 +18,7 @@ import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.F;
@@ -298,7 +299,7 @@ public class StudentExamController extends SitnetController {
             return forbidden("sitnet_reservation_not_found");
         } else if (enrolment.getReservation().getMachine() == null) {
             return forbidden("sitnet_reservation_machine_not_found");
-        } else if (!enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+        } else if (Play.isProd() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)
                     .fetch("mailAddress")
                     .where()
