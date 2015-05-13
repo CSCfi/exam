@@ -54,11 +54,12 @@ public class ExamRecordController extends SitnetController {
         score.save();
         record.setExamScore(score);
         record.save();
+        final User user = UserController.getLoggedUser();
         Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
             @Override
             public void run() {
                 try {
-                    EmailComposer.composeInspectionReady(exam.getCreator(), UserController.getLoggedUser(), exam);
+                    EmailComposer.composeInspectionReady(exam.getCreator(), user, exam);
                     Logger.info("Inspection ready notification email sent");
                 } catch (IOException e) {
                     Logger.error("Failed to send inspection ready notification email", e);
