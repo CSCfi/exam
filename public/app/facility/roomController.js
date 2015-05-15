@@ -1,14 +1,14 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'SITNET_CONF', 'dateService', '$translate', '$route',
-            function (dialogs, $scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, SITNET_CONF, dateService, $translate, $route) {
+    angular.module("exam.controllers")
+        .controller('RoomCtrl', ['dialogs', '$scope', '$routeParams', 'sessionService', '$location', '$modal', '$http', 'SoftwareResource', 'RoomResource', 'ExamMachineResource', 'EXAM_CONF', 'dateService', '$translate', '$route',
+            function (dialogs, $scope, $routeParams, sessionService, $location, $modal, $http, SoftwareResource, RoomResource, ExamMachineResource, EXAM_CONF, dateService, $translate, $route) {
 
                 $scope.dateService = dateService;
 
-                $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/machine.html";
-                $scope.addressTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/address.html";
-                $scope.hoursTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/open_hours.html";
+                $scope.machineTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/machine.html";
+                $scope.addressTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/address.html";
+                $scope.hoursTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/open_hours.html";
                 $scope.user = sessionService.getUser();
                 $scope.examStartingHours = Array.apply(null, new Array(24)).map(function (x, i) {
                     return {startingHour: i + ":00", selected: true};
@@ -566,7 +566,7 @@
 
 
                     var modalInstance = $modal.open({
-                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'facility/exception.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'facility/exception.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: function ($scope, $modalInstance) {

@@ -3,7 +3,7 @@
  */
 (function () {
     'use strict';
-    angular.module('sitnet.services')
+    angular.module('exam.services')
         .factory('questionService', ['$translate', '$location', 'QuestionRes', function ($translate, $location, QuestionRes) {
 
             var createQuestion = function(type) {

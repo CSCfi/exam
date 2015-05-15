@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('AccessibilityCtrl', ['$scope', '$translate', '$http', function ($scope, $translate, $http) {
             $scope.accessibilities = [];
 

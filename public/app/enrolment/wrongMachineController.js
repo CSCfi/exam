@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('WrongMachineCtrl', ['$scope', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
             function($scope, $translate, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
 

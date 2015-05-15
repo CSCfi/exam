@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('sitnet.services')
+    angular.module('exam.services')
         .factory('enrolmentService', ['$translate', '$q', '$location', 'EnrollRes', function ($translate, $q, $location, EnrollRes) {
 
             var enroll = function(exam) {

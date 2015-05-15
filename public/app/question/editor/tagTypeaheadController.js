@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('TagTypeaheadCtrl', ['$scope', 'limitToFilter', 'TagRes', '$translate',
             function ($scope, limitToFilter, TagRes, $translate) {
 

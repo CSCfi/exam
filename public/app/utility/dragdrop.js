@@ -2,7 +2,7 @@
 
     "use strict";
 
-    angular.module('sitnet.services')
+    angular.module('exam.services')
 
         .factory('DragDropHandler', [function() {
             return {

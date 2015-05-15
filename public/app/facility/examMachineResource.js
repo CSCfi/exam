@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.resources")
+    angular.module("exam.resources")
         .factory("ExamMachineResource", ['$resource', function ($resource) {
             return $resource(
                 "/machines/:id",

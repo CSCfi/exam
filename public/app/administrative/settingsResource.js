@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.resources")
+    angular.module("exam.resources")
         .factory("SettingsResource", ['$resource', function ($resource) {
             return {
                 agreement: $resource(

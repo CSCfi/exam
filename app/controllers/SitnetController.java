@@ -8,7 +8,7 @@ import play.mvc.Result;
 
 public class SitnetController extends Controller {
 
-    public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
+    public static final String SITNET_TOKEN_HEADER_KEY = "x-exam-authentication";
     public static final String SITNET_CACHE_KEY = "user.session.";
     public static final int SITNET_TIMEOUT_MINUTES = 30;
 

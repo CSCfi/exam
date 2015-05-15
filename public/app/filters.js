@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('sitnet.filters')
+    angular.module('exam.filters')
         .filter('newlines', function (text) {
             return text.replace(/\n/g, '');
         })

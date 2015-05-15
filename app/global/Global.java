@@ -5,6 +5,7 @@ import akka.actor.Scheduler;
 import com.avaje.ebean.Ebean;
 import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
+import controllers.SitnetController;
 import exceptions.AuthenticateException;
 import exceptions.MalformedDataException;
 import models.*;
@@ -41,8 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 public class Global extends GlobalSettings {
 
-    public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
-    public static final String SITNET_FAILURE_HEADER_KEY = "x-sitnet-token-failure";
+    public static final String SITNET_FAILURE_HEADER_KEY = "x-exam-token-failure";
     public static final String SITNET_CACHE_KEY = "user.session.";
     public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 1;
     public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 1;
@@ -192,7 +192,8 @@ public class Global extends GlobalSettings {
             Logger.debug("Failed to load configuration", e);
             return super.onRouteRequest(request);
         }
-        String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" :
+                SitnetController.SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
 
         if (session != null && !request.path().contains("checkSession")) {
@@ -207,7 +208,8 @@ public class Global extends GlobalSettings {
     public Action onRequest(final Request request, Method actionMethod) {
 
         String loginType = ConfigFactory.load().getString("sitnet.login");
-        String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        String token = request.getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" :
+                SitnetController.SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
         AuditLogger.log(request, session);
 
@@ -272,7 +274,7 @@ public class Global extends GlobalSettings {
             } else if (isOnExamMachine(request)) {
                 // User is logged on an exam machine but has no exams for today
                 Map<String, String> headers = new HashMap<>();
-                headers.put("x-sitnet-upcoming-exam", "none");
+                headers.put("x-exam-upcoming-exam", "none");
                 return new AddHeader(super.onRequest(request, actionMethod), headers);
             } else {
                 return super.onRequest(request, actionMethod);
@@ -304,7 +306,7 @@ public class Global extends GlobalSettings {
             ExamMachine lookedUp = Ebean.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findUnique();
             if (lookedUp == null) {
                 // IP not known
-                header = "x-sitnet-unknown-machine";
+                header = "x-exam-unknown-machine";
                 message = room.getCampus() + ":::" +
                         room.getBuildingName() + ":::" +
                         room.getRoomCode() + ":::" +
@@ -312,11 +314,11 @@ public class Global extends GlobalSettings {
                         ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
             } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                 // Right room, wrong machine
-                header = "x-sitnet-wrong-machine";
+                header = "x-exam-wrong-machine";
                 message = enrolment.getId() + ":::" + lookedUp.getName();
             } else {
                 // Wrong room
-                header = "x-sitnet-wrong-room";
+                header = "x-exam-wrong-room";
                 message = enrolment.getId() + ":::" + lookedUp.getRoom() + ":::" +
                         lookedUp.getRoom().getRoomCode() + ":::" + lookedUp.getName();
             }
@@ -334,7 +336,7 @@ public class Global extends GlobalSettings {
             return new AddHeader(super.onRequest(request, method), headers);
         }
         String hash = enrolment.getExam().getHash();
-        headers.put("x-sitnet-start-exam", hash);
+        headers.put("x-exam-start-exam", hash);
         return new AddHeader(super.onRequest(request, method), headers);
     }
 
@@ -345,8 +347,8 @@ public class Global extends GlobalSettings {
             return new AddHeader(super.onRequest(request, method), headers);
         }
         String hash = enrolment.getExam().getHash();
-        headers.put("x-sitnet-start-exam", hash);
-        headers.put("x-sitnet-upcoming-exam", enrolment.getId().toString());
+        headers.put("x-exam-start-exam", hash);
+        headers.put("x-exam-upcoming-exam", enrolment.getId().toString());
         return new AddHeader(super.onRequest(request, method), headers);
     }
 

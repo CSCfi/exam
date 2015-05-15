@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('sitnet.directives')
+    angular.module('exam.directives')
 
         .directive('dateValidator', function() {
             return {
@@ -410,7 +410,7 @@
                 }
             };
         }])
-        .directive('sitnetHeader', [function () {
+        .directive('exam.eader', [function () {
             return {
                 restrict: 'E',
                 replace: true,

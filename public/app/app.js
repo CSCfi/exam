@@ -1,18 +1,19 @@
-(function () {
-    'use strict';
-    var sitnet = angular.module('sitnet', [
+'use strict';
+
+angular
+    .module('exam', [
         'ngRoute',
         'ngResource',
         'ngStorage',
         'http-auth-interceptor',
         'ui.bootstrap',
         'dialogs.main',
-        'sitnet.services',
-        'sitnet.controllers',
-        'sitnet.resources',
-        'sitnet.directives',
-        'sitnet.filters',
-        'sitnet.utils',
+        'exam.services',
+        'exam.controllers',
+        'exam.resources',
+        'exam.directives',
+        'exam.filters',
+        'exam.utils',
         'pascalprecht.translate',
         'ngSanitize',
         'mgcrea.ngStrap.helpers.dimensions',
@@ -21,34 +22,31 @@
         'ui.calendar',
         'ui.multiselect',
         'ui.select2',
-        'tmh.dynamicLocale'
-    ]);
-    sitnet.constant('SITNET_CONF', (function () {
-        var context_path = '/';
-        return {
-            AUTH_STORAGE_KEY: 'SITNET_USER',
-            AUTH_HEADER: 'x-sitnet-authentication',
-            CONTEXT_PATH: context_path,
-            LANGUAGES_PATH: context_path + 'assets/assets/languages/',
-            TEMPLATES_PATH: context_path + 'assets/app/'
-        };
-    }()));
-    sitnet.config(['$translateProvider', 'SITNET_CONF', function ($translateProvider, SITNET_CONF) {
-        var path = SITNET_CONF.LANGUAGES_PATH;
+        'tmh.dynamicLocale'])
+    .constant('EXAM_CONF', {
+        AUTH_STORAGE_KEY: 'EXAM_USER',
+        AUTH_HEADER: 'x-exam-authentication',
+        CONTEXT_PATH: '/',
+        LANGUAGES_PATH: '/assets/assets/languages/',
+        TEMPLATES_PATH: '/assets/app/'
+    })
+    .config(['$translateProvider', 'EXAM_CONF', function ($translateProvider, EXAM_CONF) {
+        var path = EXAM_CONF.LANGUAGES_PATH;
         $translateProvider.useStaticFilesLoader({
             prefix: path + 'locale-',
             suffix: '.json'
         });
         $translateProvider.preferredLanguage('en');
-    }]);
-    // Executed each time the site is loaded
-    sitnet.run(['$http', '$route', '$interval', '$timeout', '$modal', '$sessionStorage', 'sessionService', 'SITNET_CONF', 'authService', '$rootScope', '$translate', '$location', 'UserRes',
-        function ($http, $route, $interval, $timeout, $modal, $sessionStorage, sessionService, SITNET_CONF, authService, $rootScope, $translate, $location, UserRes) {
+    }])
+    .run(['$http', '$route', '$interval', '$timeout', '$modal', '$sessionStorage', 'sessionService', 'EXAM_CONF',
+        'authService', '$rootScope', '$translate', '$location', 'UserRes',
+        function ($http, $route, $interval, $timeout, $modal, $sessionStorage, sessionService, EXAM_CONF,
+                  authService, $rootScope, $translate, $location, UserRes) {
 
-            var user = $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+            var user = $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
             if (user) {
                 var header = {};
-                header[SITNET_CONF.AUTH_HEADER] = user.token;
+                header[EXAM_CONF.AUTH_HEADER] = user.token;
                 $http.defaults.headers.common = header;
                 sessionService.setUser(user);
                 // Introduce a short timeout for this to give the translateProvider some time to settle
@@ -78,7 +76,7 @@
                         "&nbsp;<button onclick=\"" +
                         "var request = new XMLHttpRequest();" +
                         "request.open('PUT', '/extendSession', true); " +
-                        "request.setRequestHeader('" + SITNET_CONF.AUTH_HEADER + "', '" + user.token + "'); " +
+                        "request.setRequestHeader('" + EXAM_CONF.AUTH_HEADER + "', '" + user.token + "'); " +
                         "request.send();\">" +
                         $translate("sitnet_continue_session") + "</button>");
                     } else if (data === "no_session") {
@@ -115,7 +113,7 @@
                     if (user.isStudent && !user.hasAcceptedUserAgreament) {
 
                         $modal.open({
-                            templateUrl: SITNET_CONF.TEMPLATES_PATH + 'common/show_eula.html',
+                            templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/show_eula.html',
                             backdrop: 'static',
                             keyboard: false,
                             controller: function ($scope, $modalInstance, sessionService) {
@@ -152,7 +150,7 @@
                         toastr.error(message);
                         $location.path("/logout");
                     } else {
-                       $location.path("/login");
+                        $location.path("/login");
                     }
                 });
             };
@@ -164,4 +162,3 @@
             }
 
         }]);
-}());

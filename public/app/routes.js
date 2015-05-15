@@ -1,9 +1,9 @@
 (function () {
     'use strict';
-    angular.module('sitnet')
-        .config(['$routeProvider', 'SITNET_CONF', function ($routeProvider, SITNET_CONF) {
+    angular.module('exam')
+        .config(['$routeProvider', 'EXAM_CONF', function ($routeProvider, EXAM_CONF) {
 
-            var tmpl = SITNET_CONF.TEMPLATES_PATH;
+            var tmpl = EXAM_CONF.TEMPLATES_PATH;
 
             /* Enrollment */
             $routeProvider.when('/enroll/:code', { templateUrl: tmpl + 'enrolment/enroll.html', controller: 'EnrollController'});

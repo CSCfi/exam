@@ -1,15 +1,15 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('ExamSearchCtrl', ['$scope', '$timeout', '$translate', 'StudentExamRes', 'EnrollRes', 'SettingsResource', 'examService', 'enrolmentService', 'SITNET_CONF',
-            function ($scope, $timeout, $translate, StudentExamRes, EnrollRes, SettingsResource, examService, enrolmentService, SITNET_CONF) {
+    angular.module("exam.controllers")
+        .controller('ExamSearchCtrl', ['$scope', '$timeout', '$translate', 'StudentExamRes', 'EnrollRes', 'SettingsResource', 'examService', 'enrolmentService', 'EXAM_CONF',
+            function ($scope, $timeout, $translate, StudentExamRes, EnrollRes, SettingsResource, examService, enrolmentService, EXAM_CONF) {
 
                 $scope.permissionCheck = {};
                 $scope.loader = {
                     loading: false
                 };
 
-                $scope.examPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/exam.html";
+                $scope.examPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam.html";
                 var searching;
 
                 var doSearch = function () {

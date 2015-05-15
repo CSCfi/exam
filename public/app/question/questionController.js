@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .factory('focus', function ($rootScope, $timeout) {
             return function (name) {
                 $timeout(function () {
@@ -9,13 +9,13 @@
             };
         })
 
-        .controller('QuestionCtrl', ['dialogs', '$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams', '$location', '$translate', 'focus', 'QuestionRes', 'ExamRes', 'TagRes', 'SITNET_CONF',
-            function (dialogs, $rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus, QuestionRes, ExamRes, TagRes, SITNET_CONF) {
+        .controller('QuestionCtrl', ['dialogs', '$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams', '$location', '$translate', 'focus', 'QuestionRes', 'ExamRes', 'TagRes', 'EXAM_CONF',
+            function (dialogs, $rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus, QuestionRes, ExamRes, TagRes, EXAM_CONF) {
 
-                $scope.newOptionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_option.html";
+                $scope.newOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_option.html";
 
-                var essayQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/editor/essay_question.html";
-                var multiChoiceQuestionTemplate = SITNET_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_question.html";
+                var essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/essay_question.html";
+                var multiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_question.html";
 
                 $scope.questionTemplate = null;
                 $scope.returnURL = null;
@@ -375,7 +375,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'question/editor/dialog_question_attachment_selection.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/editor/dialog_question_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: ctrl

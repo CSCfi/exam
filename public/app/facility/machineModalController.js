@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('MachineModalController', ['$scope', '$translate', '$filter', 'sessionService', '$modalInstance', 'params','EnrollRes',
             function ($scope, $translate, $filter, sessionService, $modalInstance, params, EnrollRes) {
 

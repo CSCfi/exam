@@ -1,16 +1,16 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService', 'examService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'SITNET_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
-            function (dialogs, $document, $rootScope, $scope, sessionService, examService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, SITNET_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
+    angular.module("exam.controllers")
+        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService', 'examService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
+            function (dialogs, $document, $rootScope, $scope, sessionService, examService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
 
-                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
-                $scope.reviewSectionPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
-                $scope.multiplechoiceQuestionPath = SITNET_CONF.TEMPLATES_PATH + "review/review_multiplechoice_question.html";
-                $scope.essayQuestionPath = SITNET_CONF.TEMPLATES_PATH + "review/review_essay_question.html";
-                $scope.studentInfoTemplate = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_student_info.html";
-                $scope.previousParticipationPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
-                $scope.gradingPath = SITNET_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
+                $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
+                $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
+                $scope.multiplechoiceQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_multiplechoice_question.html";
+                $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_essay_question.html";
+                $scope.studentInfoTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_student_info.html";
+                $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
+                $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
 
                 $scope.printExam = function () {
                     window.open("/#/print/exam/" + $scope.examToBeReviewed.id, "_blank");
@@ -530,13 +530,13 @@
                         }
                         var messages = [];
                         if (!$scope.selectedGrade) {
-                            messages.push('sitnet_participation_unreviewed');
+                            messages.push('exam.participation_unreviewed');
                         }
                         if (!$scope.selectedType) {
-                            messages.push('sitnet_exam_choose_credit_type');
+                            messages.push('exam.exam_choose_credit_type');
                         }
                         if (!$scope.selectedLanguage) {
-                            messages.push('sitnet_exam_choose_response_language');
+                            messages.push('exam.exam_choose_response_language');
                         }
                         var oldState = reviewed_exam.state;
                         var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
@@ -583,14 +583,14 @@
                             reviewedExam.grade = {id: $scope.selectedGrade};
                         }
                         if (!reviewedExam.grade) {
-                            messages.push('sitnet_participation_unreviewed');
+                            messages.push('exam.participation_unreviewed');
                         }
                     }
                     if (!reviewedExam.creditType) {
-                        messages.push('sitnet_exam_choose_credit_type');
+                        messages.push('exam.exam_choose_credit_type');
                     }
                     if (!$scope.selectedLanguage) {
-                        messages.push('sitnet_exam_choose_response_language');
+                        messages.push('exam.exam_choose_response_language');
                     }
                     if (messages.length > 0) {
                         messages.forEach(function (msg) {

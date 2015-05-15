@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService',
             '$locale', 'StudentExamRes', 'dateService',
             function ($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes,

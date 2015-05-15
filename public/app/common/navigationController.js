@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('NavigationCtrl', ['$scope', '$rootScope', '$modal', '$translate', '$location', 'sessionService', 'waitingRoomService',
             function ($scope, $rootScope, $modal, $translate, $location, sessionService, waitingRoomService) {
 

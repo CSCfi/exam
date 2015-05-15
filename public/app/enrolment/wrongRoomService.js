@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('sitnet.services')
+    angular.module('exam.services')
         .factory('wrongRoomService', ['$timeout', '$translate', function ($timeout, $translate) {
 
             var time = 1000 * 10;

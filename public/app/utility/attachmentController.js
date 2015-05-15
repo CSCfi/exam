@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('AttachmentController', ['dialogs', '$scope', '$translate', 'fileService', 'AttachmentRes',
             function(dialogs, $scope, $translate, fileService, AttachmentRes) {
 

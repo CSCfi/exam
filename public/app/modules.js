@@ -1,9 +1,9 @@
 (function () {
     'use strict';
-    angular.module('sitnet.resources', []);
-    angular.module('sitnet.controllers', []);
-    angular.module('sitnet.services', []);
-    angular.module('sitnet.directives', []);
-    angular.module('sitnet.filters', []);
-    angular.module('sitnet.utils', []);
+    angular.module('exam.resources', []);
+    angular.module('exam.controllers', []);
+    angular.module('exam.services', []);
+    angular.module('exam.directives', []);
+    angular.module('exam.filters', []);
+    angular.module('exam.utils', []);
 }());

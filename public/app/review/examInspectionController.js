@@ -1,8 +1,8 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('ExamInspectionController', ['$scope', '$modalInstance', 'exam', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF','ExamRes', 'UserRes', 'limitToFilter',
-            function ($scope, $modalInstance, exam, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, UserRes, limitToFilter) {
+    angular.module("exam.controllers")
+        .controller('ExamInspectionController', ['$scope', '$modalInstance', 'exam', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF','ExamRes', 'UserRes', 'limitToFilter',
+            function ($scope, $modalInstance, exam, sessionService, $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, UserRes, limitToFilter) {
 
                 $scope.user = sessionService.getUser();
                 $scope.exam = exam;

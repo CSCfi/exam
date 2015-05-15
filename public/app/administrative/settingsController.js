@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('SettingsController', ['$scope', '$translate', '$location', '$http', 'SettingsResource',
             function ($scope, $translate, $location, $http, SettingsResource) {
 

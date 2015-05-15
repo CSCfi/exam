@@ -1,11 +1,11 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('MachineCtrl', ['dialogs', '$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'SITNET_CONF', 'dateService', '$translate',
-            function (dialogs, $scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, SITNET_CONF, dateService, $translate) {
+    angular.module("exam.controllers")
+        .controller('MachineCtrl', ['dialogs', '$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'EXAM_CONF', 'dateService', '$translate',
+            function (dialogs, $scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, EXAM_CONF, dateService, $translate) {
 
                 $scope.dateService = dateService;
-                $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/machine.html";
+                $scope.machineTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/machine.html";
 
                 ExamMachineResource.get({id: $routeParams.id},
                     function (machine) {
@@ -140,7 +140,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'facility/remove_machine_modal.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'facility/remove_machine_modal.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: "MachineModalController",
