@@ -136,7 +136,7 @@ public class IntegrationTestCase {
             request = request.withJsonBody(body, method);
         }
         if (sessionToken != null) {
-            request = request.withHeader("x-sitnet-authentication", sessionToken);
+            request = request.withHeader("x-exam-authentication", sessionToken);
         }
         return Helpers.route(request);
     }
