@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
-public final class ExamSection extends SitnetModel {
+public final class ExamSection extends BasicModel {
 
     private String name;
 

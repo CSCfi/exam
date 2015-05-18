@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
 @Entity
-public class Comment extends SitnetModel {
+public class Comment extends BasicModel {
 
     @Column(columnDefinition = "TEXT")
 	private String comment;

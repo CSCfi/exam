@@ -1,15 +1,15 @@
 package models;
 
-import be.objectify.deadbolt.core.models.Role;
+
 import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class SitnetRole extends Model implements Role {
+public class Role extends Model implements be.objectify.deadbolt.core.models.Role {
 
-    public static final Finder<Long, SitnetRole> find = new Finder<Long, SitnetRole>(Long.class, SitnetRole.class);
+    public static final Finder<Long, Role> find = new Finder<>(Long.class, Role.class);
 
     @Version
     @Temporal(TemporalType.TIMESTAMP)

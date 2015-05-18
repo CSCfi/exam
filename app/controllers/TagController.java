@@ -11,7 +11,7 @@ import models.questions.AbstractQuestion;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.util.List;
 
@@ -44,8 +44,8 @@ public class TagController extends SitnetController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public static Result createTag() throws MalformedDataException {
         Tag tag = bindForm(Tag.class);
-        SitnetUtil.setCreator(tag);
-        SitnetUtil.setModifier(tag);
+        AppUtil.setCreator(tag);
+        AppUtil.setModifier(tag);
         // Save only if not already exists
         Tag existing = Ebean.find(Tag.class).where().eq("name", tag.getName())
                 .eq("creator.id", tag.getCreator().getId()).findUnique();

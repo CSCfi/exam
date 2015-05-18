@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class SitnetUtil {
+public class AppUtil {
 
     public static String getHostName() {
         return ConfigFactory.load().getString("sitnet.application.hostname");
@@ -68,7 +68,7 @@ public class SitnetUtil {
     private static DateTime doAdjustDST(DateTime dateTime, ExamRoom room) {
         DateTimeZone dtz;
         if (room == null) {
-            dtz = SitnetUtil.getDefaultTimeZone();
+            dtz = getDefaultTimeZone();
         } else {
             dtz = DateTimeZone.forID(room.getLocalTimezone());
         }
@@ -78,7 +78,7 @@ public class SitnetUtil {
         return dateTime;
     }
 
-    public static SitnetModel setCreator(SitnetModel object) {
+    public static BasicModel setCreator(BasicModel object) {
         User user = UserController.getLoggedUser();
         if (object.getCreator() == null) {
             object.setCreator(user);
@@ -87,7 +87,7 @@ public class SitnetUtil {
         return object;
     }
 
-    public static SitnetModel setModifier(SitnetModel object) {
+    public static BasicModel setModifier(BasicModel object) {
         User user = UserController.getLoggedUser();
         object.setModifier(user);
         object.setModified(DateTime.now().toDate());

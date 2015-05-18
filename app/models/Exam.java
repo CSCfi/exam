@@ -8,14 +8,14 @@ import models.questions.EssayQuestion;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class Exam extends SitnetModel implements Comparable<Exam> {
+public class Exam extends BasicModel implements Comparable<Exam> {
 
     public enum State {
         DRAFT,
@@ -393,7 +393,7 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
 
     public String generateHash() {
         String attributes = name + state + new Random().nextDouble();
-        hash = SitnetUtil.encodeMD5(attributes);
+        hash = AppUtil.encodeMD5(attributes);
         return hash;
     }
 
@@ -498,8 +498,8 @@ public class Exam extends SitnetModel implements Comparable<Exam> {
         BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "examEnrolments", "examParticipations",
                 "examInspections", "creator", "created", "examOwners"});
         clone.setParent(this);
-        SitnetUtil.setCreator(clone);
-        SitnetUtil.setModifier(clone);
+        AppUtil.setCreator(clone);
+        AppUtil.setModifier(clone);
         clone.generateHash();
         clone.save();
 

@@ -7,7 +7,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @MappedSuperclass
-public abstract class SitnetModel extends Model {
+public abstract class BasicModel extends Model {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -30,7 +30,7 @@ public abstract class SitnetModel extends Model {
 	@OneToOne
     protected User modifier;
 	
-	public SitnetModel() {
+	public BasicModel() {
 	}
 	
 	public Long getId() {

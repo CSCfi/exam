@@ -28,7 +28,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
-import util.SitnetUtil;
+import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.xml.bind.DatatypeConverter;
@@ -78,7 +78,7 @@ public class Global extends GlobalSettings {
         reportSender = Akka.system().scheduler();
         scheduleWeeklyReport();
 
-        SitnetUtil.initializeDataModel();
+        AppUtil.initializeDataModel();
 
         super.onStart(app);
     }
@@ -103,7 +103,7 @@ public class Global extends GlobalSettings {
                 .plusWeeks(now.getDayOfWeek() == DateTimeConstants.MONDAY ? 0 : 1)
                 .withDayOfWeek(DateTimeConstants.MONDAY);
         // Check if default TZ has daylight saving in effect, need to adjust the hour offset in that case
-        if (!SitnetUtil.getDefaultTimeZone().isStandardOffset(System.currentTimeMillis())) {
+        if (!AppUtil.getDefaultTimeZone().isStandardOffset(System.currentTimeMillis())) {
             nextRun = nextRun.minusHours(1);
         }
         if (nextRun.isBefore(now)) {
@@ -353,7 +353,7 @@ public class Global extends GlobalSettings {
     }
 
     private ExamEnrolment getNextEnrolment(Long userId, int minutesToFuture) {
-        DateTime now = SitnetUtil.adjustDST(new DateTime());
+        DateTime now = AppUtil.adjustDST(new DateTime());
         DateTime future = now.plusMinutes(minutesToFuture);
         List<ExamEnrolment> results = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")

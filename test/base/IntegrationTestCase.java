@@ -19,7 +19,7 @@ import play.mvc.Result;
 import play.test.FakeApplication;
 import play.test.FakeRequest;
 import play.test.Helpers;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -95,7 +95,7 @@ public class IntegrationTestCase {
         // Create
         generator.runScript(false, generator.generateCreateDdl());
         // Initialize
-        SitnetUtil.initializeDataModel();
+        AppUtil.initializeDataModel();
 
         Method testMethod = getClass().getDeclaredMethod(currentTest.getMethodName());
         if (testMethod.isAnnotationPresent(RunAsStudent.class)) {

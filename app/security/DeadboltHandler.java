@@ -7,7 +7,7 @@ import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 
-public class SitnetDeadboltHandler extends AbstractDeadboltHandler {
+public class DeadboltHandler extends AbstractDeadboltHandler {
 
     @Override
     public F.Promise<Result> beforeAuthCheck(Http.Context context) {

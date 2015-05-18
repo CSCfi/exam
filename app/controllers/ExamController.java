@@ -19,7 +19,7 @@ import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 import util.java.EmailComposer;
 import util.java.ValidationUtil;
 
@@ -245,7 +245,7 @@ public class ExamController extends SitnetController {
 
             if (count > 0) {
                 exam.setState(Exam.State.ARCHIVED.name());
-                exam = (Exam) SitnetUtil.setModifier(exam);
+                exam = (Exam) AppUtil.setModifier(exam);
                 exam.save();
                 return ok("Exam archived");
             } else {
@@ -562,7 +562,7 @@ public class ExamController extends SitnetController {
             return notFound();
         }
 
-        SitnetUtil.setCreator(comment);
+        AppUtil.setCreator(comment);
         if (bindComment.getComment() != null) {
             comment.setComment(bindComment.getComment());
         } else {
@@ -677,7 +677,7 @@ public class ExamController extends SitnetController {
 
     private static void updateGrading(Exam exam, int grading) {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
-        boolean canOverrideGrading = SitnetUtil.isCourseGradeScaleOverridable();
+        boolean canOverrideGrading = AppUtil.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
             exam.setGradeScale(Ebean.find(GradeScale.class, grading));
         }
@@ -731,12 +731,12 @@ public class ExamController extends SitnetController {
         Exam exam = new Exam();
         exam.setName("Kirjoita tentin nimi tähän");
         exam.setState(Exam.State.DRAFT.toString());
-        SitnetUtil.setCreator(exam);
+        AppUtil.setCreator(exam);
         exam.save();
 
         ExamSection examSection = new ExamSection();
         examSection.setName("Aihealue");
-        SitnetUtil.setCreator(examSection);
+        AppUtil.setCreator(examSection);
 
         examSection.setExam(exam);
         examSection.setExpanded(true);
@@ -770,7 +770,7 @@ public class ExamController extends SitnetController {
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             ExamSection section = bindForm(ExamSection.class);
             section.setExam(Ebean.find(Exam.class, id));
-            SitnetUtil.setCreator(section);
+            AppUtil.setCreator(section);
             section.save();
             return ok(Json.toJson(section));
         } else {
@@ -812,13 +812,13 @@ public class ExamController extends SitnetController {
                 MultipleChoiceQuestion choice = Ebean.find(MultipleChoiceQuestion.class, id).copy();
                 choice.setCreator(UserController.getLoggedUser());
                 choice.setCreated(new Date());
-                SitnetUtil.setModifier(choice);
+                AppUtil.setModifier(choice);
                 choice.save();
                 Ebean.save(choice.getOptions());
                 return choice;
             case "EssayQuestion":
                 EssayQuestion essay = Ebean.find(EssayQuestion.class, id).copy();
-                SitnetUtil.setModifier(essay);
+                AppUtil.setModifier(essay);
                 essay.save();
                 return essay;
             default:
@@ -896,7 +896,7 @@ public class ExamController extends SitnetController {
             sectionQuestion.setQuestion(clone);
             sectionQuestion.setSequenceNumber(seq);
             section.getSectionQuestions().add(sectionQuestion);
-            SitnetUtil.setModifier(section);
+            AppUtil.setModifier(section);
             section.save();
             return ok(Json.toJson(section));
         }
@@ -942,7 +942,7 @@ public class ExamController extends SitnetController {
                 sectionQuestion.setQuestion(clone);
                 sectionQuestion.setSequenceNumber(seq);
                 section.getSectionQuestions().add(sectionQuestion);
-                SitnetUtil.setModifier(section);
+                AppUtil.setModifier(section);
                 section.save();
             }
             section = Ebean.find(ExamSection.class, sid);
@@ -1372,7 +1372,7 @@ public class ExamController extends SitnetController {
         inspection.setAssignedBy(UserController.getLoggedUser());
 
         if (inspection.getComment() != null) {
-            inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
+            inspection.setComment((Comment) AppUtil.setCreator(inspection.getComment()));
             inspection.getComment().save();
         }
         inspection.save();

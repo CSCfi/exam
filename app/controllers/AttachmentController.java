@@ -18,7 +18,7 @@ import play.Play;
 import play.mvc.Http.MultipartFormData;
 import play.mvc.Http.MultipartFormData.FilePart;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +81,7 @@ public class AttachmentController extends SitnetController {
         String rndFileName = UUID.randomUUID().toString();
         String newFile = basePath + "/" + rndFileName;
         try {
-            SitnetUtil.copyFile(file, new File(newFile));
+            AppUtil.copyFile(file, new File(newFile));
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_attachment");
         }
@@ -129,7 +129,7 @@ public class AttachmentController extends SitnetController {
         String newFile = basePath + "/" + rndFileName;
 
         try {
-            SitnetUtil.copyFile(file, new File(newFile));
+            AppUtil.copyFile(file, new File(newFile));
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_attachment");
         }
@@ -159,7 +159,7 @@ public class AttachmentController extends SitnetController {
         question.save();
 
         aa.delete();
-        SitnetUtil.removeAttachmentFile(aa.getFilePath());
+        AppUtil.removeAttachmentFile(aa.getFilePath());
 
         return redirect("/#/questions/" + String.valueOf(id));
     }
@@ -174,7 +174,7 @@ public class AttachmentController extends SitnetController {
         answer.setAttachment(null);
         answer.save();
         aa.delete();
-        SitnetUtil.removeAttachmentFile(aa.getFilePath());
+        AppUtil.removeAttachmentFile(aa.getFilePath());
 
         return redirect("/#/student/doexam/" + hash);
     }
@@ -188,7 +188,7 @@ public class AttachmentController extends SitnetController {
             exam.setAttachment(null);
             exam.save();
             aa.delete();
-            SitnetUtil.removeAttachmentFile(aa.getFilePath());
+            AppUtil.removeAttachmentFile(aa.getFilePath());
         }
         return redirect("/#/exams/" + String.valueOf(id));
 
@@ -220,7 +220,7 @@ public class AttachmentController extends SitnetController {
         String rndFileName = UUID.randomUUID().toString();
         String newFile = basePath + "/" + rndFileName;
         try {
-            SitnetUtil.copyFile(file, new File(newFile));
+            AppUtil.copyFile(file, new File(newFile));
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_attachment");
         }

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(uniqueConstraints=@UniqueConstraint(columnNames = {"name", "creator_id"}))
-public class Tag extends SitnetModel {
+public class Tag extends BasicModel {
 
     @Column(nullable = false, length = 32)
 	private String name;

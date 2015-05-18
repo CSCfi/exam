@@ -18,7 +18,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.util.List;
 import java.util.Set;
@@ -69,7 +69,7 @@ public class QuestionController extends SitnetController {
     public static Result copyQuestion(Long id) throws SitnetException {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id).copy();
-        SitnetUtil.setCreator(question);
+        AppUtil.setCreator(question);
         question.save();
         if (question instanceof MultipleChoiceQuestion) {
             Ebean.save(((MultipleChoiceQuestion) question).getOptions());
@@ -92,7 +92,7 @@ public class QuestionController extends SitnetController {
                 throw new IllegalArgumentException("question type not supported");
         }
         AbstractQuestion question = bindForm(clazz);
-        SitnetUtil.setCreator(question);
+        AppUtil.setCreator(question);
         question.setState(QuestionState.NEW.toString());
         Ebean.save(question);
         return ok(Json.toJson(question));

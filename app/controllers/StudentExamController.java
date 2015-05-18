@@ -24,14 +24,14 @@ import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.net.MalformedURLException;
 import java.util.*;
 
 public class StudentExamController extends SitnetController {
 
-    private static final boolean PERM_CHECK_ACTIVE = SitnetUtil.isEnrolmentPermissionCheckActive();
+    private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
 
 
     @Restrict({@Group("STUDENT")})
@@ -155,7 +155,7 @@ public class StudentExamController extends SitnetController {
 
     @Restrict({@Group("STUDENT")})
     public static Result getEnrolmentsForUser(Long uid) {
-        DateTime now = SitnetUtil.adjustDST(new DateTime());
+        DateTime now = AppUtil.adjustDST(new DateTime());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .fetch("reservation")
@@ -274,7 +274,7 @@ public class StudentExamController extends SitnetController {
     }
 
     private static ExamEnrolment getEnrolment(User user, Exam prototype) {
-        DateTime now = SitnetUtil.adjustDST(DateTime.now());
+        DateTime now = AppUtil.adjustDST(DateTime.now());
         return Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
@@ -419,7 +419,7 @@ public class StudentExamController extends SitnetController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(SitnetUtil.adjustDST(DateTime.now()).toDate());
+            p.setEnded(AppUtil.adjustDST(DateTime.now()).toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);

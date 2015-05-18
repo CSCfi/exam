@@ -1,7 +1,7 @@
 package models.answers;
 
 import models.Attachment;
-import models.SitnetModel;
+import models.BasicModel;
 
 import javax.persistence.*;
 
@@ -10,7 +10,7 @@ import javax.persistence.*;
 @DiscriminatorColumn(discriminatorType=DiscriminatorType.STRING, name="answer_type")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @Table(name="answer")
-public abstract class AbstractAnswer extends SitnetModel implements AnswerInterface {
+public abstract class AbstractAnswer extends BasicModel implements AnswerInterface {
 
     protected String type;
 

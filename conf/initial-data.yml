@@ -24,13 +24,13 @@
 
 # Users
 user-roles:
-    - &role-admin !!models.SitnetRole
+    - &role-admin !!models.Role
       name: ADMIN
 
-    - &role-student !!models.SitnetRole
+    - &role-student !!models.Role
       name: STUDENT
 
-    - &role-teacher !!models.SitnetRole
+    - &role-teacher !!models.Role
       name: TEACHER
 
 ######################################################################

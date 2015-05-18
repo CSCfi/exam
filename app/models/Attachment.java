@@ -3,7 +3,7 @@ package models;
 import javax.persistence.Entity;
 
 @Entity
-public class Attachment extends SitnetModel {
+public class Attachment extends BasicModel {
 
     private String fileName;
     private String filePath;

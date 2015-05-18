@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "sitnet_users")
+@Table(name = "app_user")
 public class User extends Model implements Subject {
 
     @Version
@@ -49,7 +49,7 @@ public class User extends Model implements Subject {
     private List<Exam> ownedExams;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<SitnetRole> roles = new ArrayList<>();
+    private List<Role> roles = new ArrayList<>();
 
     @OneToOne
     private UserLanguage userLanguage;
@@ -161,12 +161,12 @@ public class User extends Model implements Subject {
         this.logoutUrl = logoutUrl;
     }
 
-    public void setRoles(List<SitnetRole> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 
     @Override
-    public List<SitnetRole> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
@@ -180,8 +180,6 @@ public class User extends Model implements Subject {
 
     @Override
     public List<? extends Permission> getPermissions() {
-
-        // TODO: return null
         return null;
     }
 
@@ -224,7 +222,7 @@ public class User extends Model implements Subject {
 
     public boolean hasRole(String name) {
 
-        for (SitnetRole role : roles) {
+        for (Role role : roles) {
             if (role.getName().equals(name))
                 return true;
         }

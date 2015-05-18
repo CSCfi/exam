@@ -1,7 +1,7 @@
 package models;
 
 import org.joda.time.DateTime;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.util.UUID;
 
@@ -36,7 +36,7 @@ public class Session {
     }
 
     public void setXsrfToken() {
-        xsrfToken = SitnetUtil.encodeMD5(UUID.randomUUID().toString());
+        xsrfToken = AppUtil.encodeMD5(UUID.randomUUID().toString());
     }
 
     public String getXsrfToken() {

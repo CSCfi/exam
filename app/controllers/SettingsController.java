@@ -14,7 +14,7 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.util.List;
 
@@ -56,7 +56,7 @@ public class SettingsController  extends SitnetController {
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     public static Result getHostname() {
         ObjectNode node = Json.newObject();
-        node.put("hostname", SitnetUtil.getHostName());
+        node.put("hostname", AppUtil.getHostName());
         return ok(Json.toJson(node));
     }
 
@@ -64,7 +64,7 @@ public class SettingsController  extends SitnetController {
     public static Result getExamDurations() {
         ObjectNode node = Json.newObject();
         ArrayNode durations = node.putArray("examDurations");
-        for (Integer duration : SitnetUtil.getExamDurations()) {
+        for (Integer duration : AppUtil.getExamDurations()) {
             durations.add(duration);
         }
         return ok(Json.toJson(node));
@@ -73,14 +73,14 @@ public class SettingsController  extends SitnetController {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public static Result isExamGradeScaleOverridable() {
         ObjectNode node = Json.newObject();
-        node.put("overridable", SitnetUtil.isCourseGradeScaleOverridable());
+        node.put("overridable", AppUtil.isCourseGradeScaleOverridable());
         return ok(Json.toJson(node));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
     public static Result isEnrolmentPermissionCheckActive() {
         ObjectNode node = Json.newObject();
-        node.put("active", SitnetUtil.isEnrolmentPermissionCheckActive());
+        node.put("active", AppUtil.isEnrolmentPermissionCheckActive());
         return ok(Json.toJson(node));
     }
 
