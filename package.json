@@ -1,4 +1,10 @@
 {
-  "name": "application-name",
-  "version": "0.0.1"
+  "name": "exam",
+  "version": "2.0.0",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-concat": "^0.5.1",
+    "grunt-contrib-uglify": "^0.9.1",
+    "grunt-ng-annotate": "^0.10.0"
+  }
 }

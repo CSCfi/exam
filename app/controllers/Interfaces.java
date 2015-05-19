@@ -116,7 +116,7 @@ public class Interfaces extends SitnetController {
             public List<Course> apply(WSResponse wsResponse) throws Throwable {
                 int status = wsResponse.getStatus();
                 if (status == HttpServletResponse.SC_OK) {
-                    return parseResponse(wsResponse.asJson());
+                    return parseCourse(wsResponse.asJson());
                 }
                 Logger.info("Non-OK response received {}", status);
                 throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, wsResponse.getStatusText()));
@@ -222,7 +222,7 @@ public class Interfaces extends SitnetController {
         return examScores;
     }
 
-    private static List<Course> parseResponse(JsonNode response) {
+    private static List<Course> parseCourse(JsonNode response) {
         List<Course> results = new ArrayList<>();
         if (response.get("status").asText().equals("OK")) {
             for (JsonNode node : response) {

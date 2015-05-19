@@ -261,7 +261,7 @@ attachments:
   - &att1 !!models.Attachment
     fileName: pika.ohje
     filePath: /weepee/csc/sitnet/data/attachments/question/20/pika.ohje
-    mimeType: shit/turd
+    mimeType: application/octet-stream
 
 ######################################################################
 
