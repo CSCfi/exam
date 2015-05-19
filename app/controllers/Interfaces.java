@@ -233,6 +233,9 @@ public class Interfaces extends SitnetController {
                     course.setIdentifier(node.get("identifier").asText());
                     course.setName(node.get("courseUnitTitle").asText());
                     course.setCode(node.get("courseUnitCode").asText());
+                    if (node.has("courseUnitLevel")) {
+                        course.setLevel(node.get("courseUnitLevel").asText());
+                    }
                     if (node.has("courseUnitType")) {
                         course.setCourseUnitType(node.get("courseUnitType").asText());
                     }
