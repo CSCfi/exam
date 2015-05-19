@@ -1,6 +1,12 @@
 {
   "name": "exam",
   "version": "2.0.0",
+  "description": "EXAM – electronic exam software for higher education",
+  "repository" :
+  {
+    "type" : "git",
+    "url" : "https://source.csc.fi/scm/git/Sitnet/sitnet"
+  },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-concat": "^0.5.1",
