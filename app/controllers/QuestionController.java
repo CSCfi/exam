@@ -48,11 +48,11 @@ public class QuestionController extends SitnetController {
         if (!courseIds.isEmpty()) {
             query = query.in("children.examSectionQuestion.examSection.exam.course.id", courseIds);
         }
-        for (Long tagId : tagIds) {
-            query = query.eq("tags.id", tagId);
+        if (!tagIds.isEmpty()) {
+            query = query.in("tags.id", tagIds);
         }
-        for (Long sectionId : sectionIds) {
-            query = query.eq("children.examSectionQuestion.examSection.id", sectionId);
+        if (!sectionIds.isEmpty()) {
+            query = query.in("children.examSectionQuestion.examSection.id", sectionIds);
         }
         Set<AbstractQuestion> questions = query.orderBy("created desc").findSet();
         JsonContext jsonContext = Ebean.createJsonContext();

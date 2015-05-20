@@ -36,7 +36,9 @@
             LANGUAGES_PATH: '/assets/assets/languages/',
             TEMPLATES_PATH: '/assets/app/'
         })
-        .config(['$translateProvider', 'EXAM_CONF', function ($translateProvider, EXAM_CONF) {
+        .config(['$translateProvider', '$httpProvider', '$compileProvider', 'EXAM_CONF', function ($translateProvider, $httpProvider, $compileProvider, EXAM_CONF) {
+            $compileProvider.debugInfoEnabled(false);
+            $httpProvider.useApplyAsync(true);
             var path = EXAM_CONF.LANGUAGES_PATH;
             $translateProvider.useStaticFilesLoader({
                 prefix: path + 'locale-',
