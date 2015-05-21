@@ -165,11 +165,11 @@
                         $scope.reviewStatus = [
                             {
                                 "key": true,
-                                "value": $translate('sitnet_ready')
+                                "value": $translate.instant('sitnet_ready')
                             },
                             {
                                 "key": false,
-                                "value": $translate('sitnet_in_progress')
+                                "value": $translate.instant('sitnet_in_progress')
                             }
                         ];
 
@@ -181,7 +181,7 @@
                                         id: inspection.id,
                                         ready: inspection.ready
                                     }, function (result) {
-                                        toastr.info($translate('sitnet_exam_updated'));
+                                        toastr.info($translate.instant('sitnet_exam_updated'));
                                         inspection.ready = result.ready;
                                         $scope.startReview();
                                     }, function (error) {
@@ -323,7 +323,7 @@
                                 break;
 
                             default:
-                                toastr.error($translate('sitnet_unknown_question_type') + ": " + question.type);
+                                toastr.error($translate.instant('sitnet_unknown_question_type') + ": " + question.type);
                                 break;
                         }
                     });
@@ -412,7 +412,7 @@
                 $scope.insertEssayScore = function (sectionQuestion) {
                     var question = sectionQuestion.question;
                     QuestionRes.score.update({id: question.id}, {"evaluatedScore": question.evaluatedScore}, function (q) {
-                        toastr.info($translate("sitnet_graded"));
+                        toastr.info($translate.instant("sitnet_graded"));
                         if (q.evaluationType === "Select") {
                             refreshRejectedAcceptedCounts();
                         }
@@ -459,7 +459,7 @@
                             cid: $scope.examToBeReviewed.examFeedback.id
                         }, examFeedback, function (exam) {
                             if (!withoutNotice) {
-                                toastr.info($translate("sitnet_comment_updated"));
+                                toastr.info($translate.instant("sitnet_comment_updated"));
                             }
                         }, function (error) {
                             toastr.error(error.data);
@@ -471,7 +471,7 @@
                             cid: 0
                         }, examFeedback, function (comment) {
                             if (!withoutNotice) {
-                                toastr.info($translate("sitnet_comment_added"));
+                                toastr.info($translate.instant("sitnet_comment_added"));
                             }
                             $scope.examToBeReviewed.examFeedback = comment;
                         }, function (error) {
@@ -484,7 +484,7 @@
                     var credit = $scope.examToBeReviewed.customCredit;
                     var valid = !isNaN(credit) && credit >= 0;
                     if (!valid) {
-                        toastr.error($translate('sitnet_not_a_valid_custom_credit'));
+                        toastr.error($translate.instant('sitnet_not_a_valid_custom_credit'));
                         // Reset to default
                         $scope.examToBeReviewed.customCredit = $scope.examToBeReviewed.course.credits;
                     }
@@ -496,13 +496,13 @@
                         $scope.saveFeedback(true);
                         if (newState === 'REVIEW_STARTED') {
                             messages.forEach(function (msg) {
-                                toastr.warning($translate(msg));
+                                toastr.warning($translate.instant(msg));
                             });
                             $timeout(function () {
-                                toastr.info($translate('sitnet_review_saved'));
+                                toastr.info($translate.instant('sitnet_review_saved'));
                             }, 1000);
                         } else {
-                            toastr.info($translate("sitnet_review_graded"));
+                            toastr.info($translate.instant("sitnet_review_graded"));
                             if ($scope.user.isAdmin) {
                                 $location.path("/");
                             } else {
@@ -520,7 +520,7 @@
                         if (reviewed_exam.state !== 'GRADED') {
                             // Just save feedback and leave
                             $scope.saveFeedback(true);
-                            toastr.info($translate('sitnet_saved'));
+                            toastr.info($translate.instant('sitnet_saved'));
                             $location.path("exams/reviews/" + reviewed_exam.parent.id);
                         }
                     }
@@ -545,7 +545,7 @@
                             var review = getReviewUpdate(reviewed_exam, newState);
                             doUpdate(newState, review, messages, reviewed_exam);
                         } else {
-                            var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_grade_review'));
+                            var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
                             dialog.result.then(function (btn) {
                                 var review = getReviewUpdate(reviewed_exam, newState);
                                 doUpdate(newState, review, messages, reviewed_exam);
@@ -557,14 +557,14 @@
                 // called when send email button is clicked
                 $scope.sendEmailMessage = function () {
                     if (!$scope.message || $scope.message.length === 0) {
-                        toastr.error($translate("sitnet_email_empty"));
+                        toastr.error($translate.instant("sitnet_email_empty"));
                         return;
                     }
                     ExamRes.email.inspection({
                         eid: $scope.examToBeReviewed.id,
                         msg: $scope.message
                     }, function (response) {
-                        toastr.info($translate("sitnet_email_sent"));
+                        toastr.info($translate.instant("sitnet_email_sent"));
                         $scope.message = "";
                     }, function (error) {
                         toastr.error(error.data);
@@ -594,11 +594,11 @@
                     }
                     if (messages.length > 0) {
                         messages.forEach(function (msg) {
-                            toastr.error($translate(msg));
+                            toastr.error($translate.instant(msg));
                         });
                     }
                     else {
-                        var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_record_review'));
+                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
                         dialog.result.then(function () {
                             $scope.saveFeedback(true);
                             var examToRecord = getReviewUpdate(reviewedExam, 'GRADED');
@@ -606,11 +606,11 @@
 
                             ExamRes.review.update({id: examToRecord.id}, examToRecord, function () {
                                 if (reviewedExam.state !== 'GRADED') {
-                                    toastr.info($translate("sitnet_review_graded"));
+                                    toastr.info($translate.instant("sitnet_review_graded"));
                                 }
                                 examToRecord.state = 'GRADED_AND_LOGGED';
                                 ExamRes.saveRecord.add(examToRecord, function (exam) {
-                                    toastr.info($translate('sitnet_review_recorded'));
+                                    toastr.info($translate.instant('sitnet_review_recorded'));
                                     if ($scope.user.isAdmin) {
                                         $location.path("/");
                                     } else {

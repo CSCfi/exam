@@ -32,12 +32,12 @@
                     startsAt.add(-1, 'hour');
                 }
                 if (startsAt.isAfter(now)) {
-                    toastr.warning($translate('sitnet_your_exam_will_start_at') + ' ' + startsAt.format('HH:mm') +
-                        ' ' + $translate('sitnet_at_location') + ': ' + data[0] + ', ' + data[1] + ' ' + $translate('sitnet_at_room') + ' ' + data[2] +
-                        ' ' + $translate('sitnet_at_machine') + ' ' + data[3]);
+                    toastr.warning($translate.instant('sitnet_your_exam_will_start_at') + ' ' + startsAt.format('HH:mm') +
+                        ' ' + $translate.instant('sitnet_at_location') + ': ' + data[0] + ', ' + data[1] + ' ' + $translate.instant('sitnet_at_room') + ' ' + data[2] +
+                        ' ' + $translate.instant('sitnet_at_machine') + ' ' + data[3]);
                 } else {
-                    var message = $translate('sitnet_you_have_ongoing_exam_at_location') + ': ' + data[0] + ', ' + data[1] + ' ' + $translate('sitnet_at_room') + ' ' +
-                        data[2] + ' ' + $translate('sitnet_at_machine') + ' ' + data[3];
+                    var message = $translate.instant('sitnet_you_have_ongoing_exam_at_location') + ': ' + data[0] + ', ' + data[1] + ' ' + $translate.instant('sitnet_at_room') + ' ' +
+                        data[2] + ' ' + $translate.instant('sitnet_at_machine') + ' ' + data[3];
                     toastr.error(message);
                 }
                 toastr.options = opts;

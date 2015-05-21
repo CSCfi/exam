@@ -48,9 +48,9 @@
                                 $scope.daySlots = reply.data;
                             }, function (error) {
                                 if (error.data && error.data.cause === 'EXAM_NOT_ACTIVE_TODAY') {
-                                    toastr.error($translate('sitnet_exam_not_active_now'));
+                                    toastr.error($translate.instant('sitnet_exam_not_active_now'));
                                 } else {
-                                    toastr.error($translate('sitnet_no_suitable_enrolment_found'));
+                                    toastr.error($translate.instant('sitnet_no_suitable_enrolment_found'));
                                 }
                                 $scope.daySlots = [];
                             });
@@ -128,10 +128,10 @@
                     $scope.selectedRoom = room;
 
                     if (room.outOfService) {
-                        $scope.selectedRoomsString = $translate("sitnet_room_out_of_service") + ": " + room.statusComment;
+                        $scope.selectedRoomsString = $translate.instant("sitnet_room_out_of_service") + ": " + room.statusComment;
                     }
                     else {
-                        $scope.selectedRoomsString = $translate("sitnet_display_free_time_slots") + ": " + room.name;
+                        $scope.selectedRoomsString = $translate.instant("sitnet_display_free_time_slots") + ": " + room.name;
                     }
                     refresh();
                 }

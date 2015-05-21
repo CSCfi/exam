@@ -129,7 +129,7 @@
                 };
 
                 $scope.removeReservation = function(enrolment){
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_are_you_sure'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                     dialog.result.then(function(btn){
                         $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
                             delete enrolment.reservation;
@@ -173,7 +173,7 @@
                             $modalInstance.close("Accepted");
                             enrolment.information = $scope.enrolment.information;
                             StudentExamRes.enrolment.update({eid: enrolment.id, information: $scope.enrolment.information}, function() {
-                                toastr.success($translate('sitnet_saved'));
+                                toastr.success($translate.instant('sitnet_saved'));
                             })
                         };
 

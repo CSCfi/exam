@@ -150,7 +150,7 @@
                     var deferred = $q.defer();
                     QuestionRes.questions.update({id: $scope.newQuestion.id}, questionToUpdate,
                         function () {
-                            toastr.info($translate("sitnet_question_saved"));
+                            toastr.info($translate.instant("sitnet_question_saved"));
                             deferred.resolve();
                         }, function (error) {
                             toastr.error(error.data);
@@ -161,10 +161,10 @@
                 };
 
                 $scope.deleteQuestion = function () {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_question_from_library_only'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question_from_library_only'));
                     dialog.result.then(function(btn){
                         QuestionRes.questions.delete({'id': $scope.newQuestion.id}, function () {
-                            toastr.info($translate('sitnet_question_removed'));
+                            toastr.info($translate.instant('sitnet_question_removed'));
                             if ($routeParams.examId === undefined) {
                                 $location.path("/questions/");
                             } else {
@@ -201,7 +201,7 @@
                                 seq: $routeParams.seqId
                             };
                             ExamRes.sectionquestions.insert(params, function () {
-                                toastr.info($translate("sitnet_question_added_to_section"));
+                                toastr.info($translate.instant("sitnet_question_added_to_section"));
                                 $location.search(query);
                                 $location.path(returnUrl);
                             }, function (error) {
@@ -233,7 +233,7 @@
 
                 $scope.removeTag = function (tag) {
                     TagRes.question.remove({tid: tag.id, qid: $scope.newQuestion.id}, function () {
-                        toastr.info($translate('sitnet_question_disassociated_with_tag'));
+                        toastr.info($translate.instant('sitnet_question_disassociated_with_tag'));
                         $scope.newQuestion.tags.splice($scope.newQuestion.tags.indexOf(tag), 1);
                     }, function (err) {
                         toastr.error(err);
@@ -247,7 +247,7 @@
 
                 $scope.addNewOption = function (newQuestion) {
 
-                    var option_description = $translate('sitnet_default_option_description');
+                    var option_description = $translate.instant('sitnet_default_option_description');
 
                     var option = {
                         "option": option_description,
@@ -258,7 +258,7 @@
                     QuestionRes.options.create({qid: newQuestion.id}, option,
                         function (response) {
                             newQuestion.options.push(response);
-                            toastr.info($translate('sitnet_option_added'));
+                            toastr.info($translate.instant('sitnet_option_added'));
                             focus('opt' + response.id);
                             //focus("opt" + response.id);
                         }, function (error) {
@@ -282,7 +282,7 @@
                     QuestionRes.options.delete({qid: null, oid: option.id},
                         function () {
                             $scope.newQuestion.options.splice($scope.newQuestion.options.indexOf(option), 1);
-                            toastr.info($translate('sitnet_option_removed'));
+                            toastr.info($translate.instant('sitnet_option_removed'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -291,7 +291,7 @@
                 };
 
                 $scope.selectIfDefault = function(value, $event) {
-                    if(value === $translate('sitnet_default_option_description')) {
+                    if(value === $translate.instant('sitnet_default_option_description')) {
                         $event.target.select();
                     }
                 };
@@ -299,7 +299,7 @@
                 $scope.updateOption = function (option) {
                     QuestionRes.options.update({oid: option.id}, option,
                         function () {
-                            toastr.info($translate('sitnet_option_updated'));
+                            toastr.info($translate.instant('sitnet_option_updated'));
                         }, function (error) {
                             toastr.error(error.data);
                         }
@@ -317,7 +317,7 @@
 
                                 QuestionRes.options.update({oid: optionId}, option,
                                     function () {
-                                        toastr.info($translate('sitnet_correct_option_updated'));
+                                        toastr.info($translate.instant('sitnet_correct_option_updated'));
                                     }, function (error) {
                                         toastr.error(error.data);
                                     }

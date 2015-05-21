@@ -29,9 +29,9 @@
                                     $scope.timeout = $timeout(function() {
                                         $location.path('/student/doexam/' + $scope.enrolment.exam.hash);
                                     }, offset);
-                                    toastr.info($translate('sitnet_redirect_to_exam_offset') + " " +
-                                        Math.round(offset / 1000 / 60) + " " + $translate('sitnet_minutes') + ". " +
-                                        $translate('sitnet_redirect_to_exam_notice') + ".");
+                                    toastr.info($translate.instant('sitnet_redirect_to_exam_offset') + " " +
+                                        Math.round(offset / 1000 / 60) + " " + $translate.instant('sitnet_minutes') + ". " +
+                                        $translate.instant('sitnet_redirect_to_exam_notice') + ".");
                                 }
                             },
                             function(error) {

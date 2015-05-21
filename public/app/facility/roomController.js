@@ -214,7 +214,7 @@
                                 });
                                 $scope.roomInstance = room;
                                 if (!isAnyExamMachines()) {
-                                    toastr.warning($translate('sitnet_room_has_no_machines_yet'));
+                                    toastr.warning($translate.instant('sitnet_room_has_no_machines_yet'));
                                 }
                                 if ($scope.roomInstance.examStartingHours.length > 0) {
                                     var startingHours = $scope.roomInstance.examStartingHours.map(function (hours) {
@@ -275,7 +275,7 @@
                 $scope.createExamRoom = function () {
                     RoomResource.draft.get(
                         function (room) {
-                            toastr.info($translate("sitnet_room_draft_created"));
+                            toastr.info($translate.instant("sitnet_room_draft_created"));
                             $location.path("/rooms/" + room.id);
                         }, function (error) {
                             toastr.error(error.data);
@@ -294,7 +294,7 @@
                 $scope.updateRoom = function (room) {
                     RoomResource.rooms.update(room,
                         function () {
-                            toastr.info($translate('sitnet_room_updated'));
+                            toastr.info($translate.instant('sitnet_room_updated'));
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -338,7 +338,7 @@
                     var data = {hours: selected, offset: $scope.roomInstance.examStartingHourOffset}
                     RoomResource.examStartingHours.update({id: $scope.roomInstance.id}, data,
                         function () {
-                            toastr.info($translate('sitnet_exam_starting_hours_updated'));
+                            toastr.info($translate.instant('sitnet_exam_starting_hours_updated'));
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -349,16 +349,16 @@
                 $scope.saveRoom = function (room) {
 
                     if (!isSomethingSelected()) {
-                        toastr.error($translate('sitnet_room_must_have_default_opening_hours'));
+                        toastr.error($translate.instant('sitnet_room_must_have_default_opening_hours'));
                         return;
                     }
 
                     if (!isAnyExamMachines())
-                        toastr.error($translate("sitnet_dont_forget_to_add_machines") + " " + $scope.roomInstance.name);
+                        toastr.error($translate.instant("sitnet_dont_forget_to_add_machines") + " " + $scope.roomInstance.name);
 
                     RoomResource.rooms.update(room,
                         function (updated_room) {
-                            toastr.info($translate("sitnet_room_saved"));
+                            toastr.info($translate.instant("sitnet_room_saved"));
                             $location.path("/rooms/");
                         },
                         function (error) {
@@ -371,7 +371,7 @@
 //                    RoomResource.addresses.update({id: address}, address,
                     RoomResource.addresses.update(address,
                         function (updated_address) {
-                            toastr.info($translate("sitnet_room_address_updated"));
+                            toastr.info($translate.instant("sitnet_room_address_updated"));
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -411,7 +411,7 @@
 
                     $http.post('room/' + room.id + '/accessibility', {ids: ids})
                         .success(function () {
-                            toastr.info($translate("sitnet_room_updated"));
+                            toastr.info($translate.instant("sitnet_room_updated"));
                         });
                 };
 
@@ -419,11 +419,11 @@
 
                 $scope.addNewMachine = function (room) {
                     var newMachine = {
-                        "name": $translate("sitnet_write_computer_name")
+                        "name": $translate.instant("sitnet_write_computer_name")
                     };
 
                     ExamMachineResource.insert({id: room.id}, newMachine, function (machine) {
-                        toastr.info($translate("sitnet_machine_added"));
+                        toastr.info($translate.instant("sitnet_machine_added"));
                         room.examMachines.push(machine);
                     }, function (error) {
                         toastr.error(error.data);
@@ -439,7 +439,7 @@
                     SoftwareResource.update.update({id: software.id}, software,
                         function (updated_software) {
                             software = updated_software;
-                            toastr.info($translate('sitnet_software_updated'));
+                            toastr.info($translate.instant('sitnet_software_updated'));
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -449,7 +449,7 @@
 
                 $scope.addSoftware = function (name) {
                     SoftwareResource.add.insert({name: name}, function (software) {
-                            toastr.info($translate('sitnet_software_added'));
+                            toastr.info($translate.instant('sitnet_software_added'));
                             $scope.softwares.push(software);
                         },
                         function (error) {
@@ -461,7 +461,7 @@
                 $scope.removeSoftware = function (software) {
                     SoftwareResource.software.remove({id: software.id},
                         function () {
-                            toastr.info($translate('sitnet_software_removed'));
+                            toastr.info($translate.instant('sitnet_software_removed'));
                             if ($scope.softwares.indexOf(software) > -1) {
                                 $scope.softwares.splice($scope.softwares.indexOf(software), 1);
                             }
@@ -473,12 +473,12 @@
                 };
 
                 $scope.disableRoom = function (room) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_room_inactivation'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_room_inactivation'));
                     dialog.result.then(function (btn) {
                         RoomResource.rooms.inactivate({id: room.id},
                             function (data) {
                                 //room = data;
-                                toastr.info($translate('sitnet_room_inactivated'));
+                                toastr.info($translate.instant('sitnet_room_inactivated'));
                                 $route.reload();
                             },
                             function (error) {
@@ -492,7 +492,7 @@
                     RoomResource.rooms.activate({id: room.id},
                         function (data) {
                             //room = data;
-                            toastr.info($translate('sitnet_room_activated'));
+                            toastr.info($translate.instant('sitnet_room_activated'));
                             $route.reload();
                         },
                         function (error) {
@@ -528,7 +528,7 @@
 
                     RoomResource.workinghours.update({id: $scope.roomInstance.id}, workingHours,
                         function () {
-                            toastr.info($translate('sitnet_default_opening_hours_updated'));
+                            toastr.info($translate.instant('sitnet_default_opening_hours_updated'));
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -546,7 +546,7 @@
                 $scope.deleteException = function (exception) {
                     RoomResource.exception.remove({id: exception.id},
                         function (saveException) {
-                            toastr.info($translate('sitnet_exception_time_removed'));
+                            toastr.info($translate.instant('sitnet_exception_time_removed'));
                             remove($scope.roomInstance.calendarExceptionEvents, exception);
                         },
                         function (error) {
@@ -583,7 +583,7 @@
                                 var start = moment($scope.startDate).add(hourOffset, 'hour');
                                 var end = moment($scope.endDate).add(hourOffset, 'hour');
                                 if (end <= start) {
-                                    toastr.error($translate('sitnet_endtime_before_starttime'))
+                                    toastr.error($translate.instant('sitnet_endtime_before_starttime'))
                                 } else {
                                     $modalInstance.close({
                                         "startDate": start,
@@ -603,7 +603,7 @@
 
                         RoomResource.exception.update({id: $scope.roomInstance.id}, exception,
                             function (data) {
-                                toastr.info($translate('sitnet_exception_time_added'));
+                                toastr.info($translate.instant('sitnet_exception_time_added'));
                                 formatExceptionEvent(data);
                                 $scope.roomInstance.calendarExceptionEvents.push(data);
                             },

@@ -231,9 +231,9 @@
                 link: function (scope, elem, attrs, ngModel) {
 
                     if (scope.option.correctOption === true) {
-                        scope.answerState = $translate("sitnet_multiplechoice_question_correct");
+                        scope.answerState = $translate.instant("sitnet_multiplechoice_question_correct");
                     } else {
-                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");
+                        scope.answerState = $translate.instant("sitnet_multiplechoice_question_incorrect");
                     }
 
                     elem.bind('change', function () {
@@ -250,7 +250,7 @@
 //                    if (scope.option.correctOption == true) {
 //                        scope.maxScore = scope.question.maxScore;
 //                    } else {
-//                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");;
+//                        scope.answerState = $translate.instant("sitnet_multiplechoice_question_incorrect");;
 //                    }
 //
 //                    elem.bind('blur', function () {

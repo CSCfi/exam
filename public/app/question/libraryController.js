@@ -96,12 +96,12 @@
                     });
 
                     if (isEmpty) {
-                        toastr.warning($translate('sitnet_choose_atleast_one'));
+                        toastr.warning($translate.instant('sitnet_choose_atleast_one'));
                         $scope.ownerProcess = false;
                         return;
                     }
                     if(! $scope.newTeacher){
-                        toastr.warning($translate('sitnet_select_teacher_to_move_the_questions_to'));
+                        toastr.warning($translate.instant('sitnet_select_teacher_to_move_the_questions_to'));
                         $scope.ownerProcess = false;
                         return;
                     }
@@ -114,10 +114,10 @@
 
                     QuestionRes.questionOwner.update(questionToMove,
                         function(result){
-                            toastr.info($translate('sitnet_question_owner_changed'));
+                            toastr.info($translate.instant('sitnet_question_owner_changed'));
                             query();
                         }, function(error){
-                            toastr.info($translate('sitnet_update_failed'));
+                            toastr.info($translate.instant('sitnet_update_failed'));
                     });
                     $scope.ownerProcess = false;
                 };
@@ -322,12 +322,12 @@
                 };
 
                 $scope.deleteQuestion = function (question) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_question_from_library_only'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question_from_library_only'));
                     dialog.result.then(function (btn) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
                         QuestionRes.questions.delete({'id': question.id}, function () {
-                            toastr.info($translate('sitnet_question_removed'));
+                            toastr.info($translate.instant('sitnet_question_removed'));
                         });
                     });
                 };

@@ -45,14 +45,14 @@
                 $scope.addExamOwner = function () {
                     if($scope.newOwner.user.id && $scope.newOwner.user.id > 0 && $scope.newOwner.exam.id && $scope.newOwner.exam.id > 0) {
                         ExamRes.examowner.insert({eid: $scope.newOwner.exam.id, uid: $scope.newOwner.user.id}, $scope.newOwner, function (owner) {
-                            toastr.info($translate("sitnet_exam_saved"));
+                            toastr.info($translate.instant("sitnet_exam_saved"));
                             $scope.ok(owner);
                         }, function (error) {
                             toastr.error(error.data);
                             $scope.cancel();
                         });
                     } else {
-                        toastr.error($translate('sitnet_teacher_not_found'));
+                        toastr.error($translate.instant('sitnet_teacher_not_found'));
                         $scope.cancel();
                     }
                 };

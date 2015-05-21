@@ -68,7 +68,7 @@
                     });
 
                     if (isEmpty) {
-                        toastr.warning($translate('sitnet_choose_atleast_one'));
+                        toastr.warning($translate.instant('sitnet_choose_atleast_one'));
                         return;
                     }
                     // print to file
@@ -78,7 +78,7 @@
                     };
 
                     fileService.download('/exam/record/export/' + examsToPrint.id,
-                        $translate("sitnet_grading_info") + '_' + $filter('date')(Date.now(), "dd-MM-yyyy") + '.csv',
+                        $translate.instant("sitnet_grading_info") + '_' + $filter('date')(Date.now(), "dd-MM-yyyy") + '.csv',
                         {'childIds': ids});
                 };
 
@@ -94,11 +94,11 @@
                     });
 
                     if (isEmpty) {
-                        toastr.warning($translate('sitnet_choose_atleast_one'));
+                        toastr.warning($translate.instant('sitnet_choose_atleast_one'));
                         return;
                     }
 
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_record_review'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
                     dialog.result.then(function (btn) {
 
                         var promises = [];
@@ -139,7 +139,7 @@
                             }
                         });
 
-                        toastr.info($translate('sitnet_results_send_ok'));
+                        toastr.info($translate.instant('sitnet_results_send_ok'));
 
                     });
                 };

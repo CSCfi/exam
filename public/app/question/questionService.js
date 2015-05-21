@@ -10,12 +10,12 @@
                 var newQuestion;
                 newQuestion = {
                     type: type,
-                    question: $translate('sitnet_new_question_draft')
+                    question: $translate.instant('sitnet_new_question_draft')
                 };
 
                 QuestionRes.questions.create(newQuestion,
                     function(response) {
-                        toastr.info($translate('sitnet_question_added'));
+                        toastr.info($translate.instant('sitnet_question_added'));
                         $location.path("/questions/" + response.id);
                     }
                 );

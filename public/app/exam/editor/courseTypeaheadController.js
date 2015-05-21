@@ -22,14 +22,14 @@
                         toggleLoadingIcon(filter, false);
 
                         if(!courses || !courses.hasOwnProperty("length") || courses.length === 0) {
-                            toastr.error($translate('sitnet_course_not_found') + ' ( ' + tmp + ' )');
+                            toastr.error($translate.instant('sitnet_course_not_found') + ' ( ' + tmp + ' )');
                         }
                         return limitToFilter(courses, 15);
                     },
                     function (error) {
                         toggleLoadingIcon(filter, false);
                         $scope.newExam.course = undefined;
-                        toastr.error($translate('sitnet_course_not_found') + ' ( ' + tmp + ' )');
+                        toastr.error($translate.instant('sitnet_course_not_found') + ' ( ' + tmp + ' )');
                         return [];
                     }
                 );
@@ -64,25 +64,25 @@
                     ExamRes.courses.insert({code: $item.code}, function (inserted_course) {
 
                         $item = inserted_course;
-                        toastr.success($translate('sitnet_course_added'));
+                        toastr.success($translate.instant('sitnet_course_added'));
 
                         ExamRes.course.update({eid: exam.id, cid: $item.id}, function (updated_exam) {
-                            toastr.success($translate('sitnet_exam_associated_with_course'));
+                            toastr.success($translate.instant('sitnet_exam_associated_with_course'));
                             $scope.newExam = updated_exam;
                         }, function (error) {
-                            toastr.error($translate('sitnet_course_not_found'));
+                            toastr.error($translate.instant('sitnet_course_not_found'));
                         });
 
                     }, function (error) {
-                        toastr.error($translate('sitnet_course_not_found'));
+                        toastr.error($translate.instant('sitnet_course_not_found'));
                     });
                 } else {
 
                     ExamRes.course.update({eid: exam.id, cid: $item.id}, function (updated_exam) {
-                        toastr.success($translate('sitnet_exam_associated_with_course'));
+                        toastr.success($translate.instant('sitnet_exam_associated_with_course'));
                         $scope.newExam = updated_exam;
                     }, function (error) {
-                        toastr.error($translate('sitnet_course_not_found'));
+                        toastr.error($translate.instant('sitnet_course_not_found'));
                     });
                 }
 

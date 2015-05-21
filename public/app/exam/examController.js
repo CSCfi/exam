@@ -129,7 +129,7 @@
                                 promises.push(ExamRes.software.add({eid: $scope.newExam.id, sid: software.id}));
                             });
                             $q.all(promises).then(function () {
-                                toastr.info($translate('sitnet_exam_software_updated'));
+                                toastr.info($translate.instant('sitnet_exam_software_updated'));
                                 $scope.selectedSoftwares($scope.newExam);
 
                                 $scope.softwaresUpdate = $scope.newExam.softwares.length;
@@ -148,7 +148,7 @@
                                 promises.push(ExamRes.language.add({eid: $scope.newExam.id, code: language.code}));
                             });
                             $q.all(promises).then(function () {
-                                toastr.info($translate('sitnet_exam_language_updated'));
+                                toastr.info($translate.instant('sitnet_exam_language_updated'));
                                 $scope.selectedLanguages($scope.newExam);
                                 $scope.languagesUpdate = $scope.newExam.examLanguages.length;
                             });
@@ -214,7 +214,7 @@
 
                 $scope.newSection = {
                     expanded: true,
-                    name: $translate("sitnet_exam_section_default_name"),
+                    name: $translate.instant("sitnet_exam_section_default_name"),
                     questions: []
                 };
 
@@ -270,10 +270,10 @@
                 $scope.addNewSection = function () {
 
                     var index = $scope.newExam.examSections.length + 1;
-                    $scope.newSection.name = $translate("sitnet_exam_section_default_name") + " " + index;
+                    $scope.newSection.name = $translate.instant("sitnet_exam_section_default_name") + " " + index;
 
                     ExamRes.sections.insert({eid: $scope.newExam.id}, $scope.newSection, function (section) {
-                        toastr.success($translate('sitnet_section_added'));
+                        toastr.success($translate.instant('sitnet_section_added'));
                         $scope.newExam.examSections.push(section);
                         $scope.reindexNumbering();
                     }, function (error) {
@@ -346,10 +346,10 @@
                 };
 
                 $scope.removeSection = function (section) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_section'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_section'));
                     dialog.result.then(function (btn) {
                         ExamRes.sections.remove({eid: $scope.newExam.id, sid: section.id}, function (id) {
-                            toastr.info($translate("sitnet_section_removed"));
+                            toastr.info($translate.instant("sitnet_section_removed"));
                             $scope.newExam.examSections.splice($scope.newExam.examSections.indexOf(section), 1);
                             $scope.reindexNumbering();
 
@@ -363,7 +363,7 @@
 
                     ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
                         section = sec;
-                        toastr.info($translate("sitnet_section_updated"));
+                        toastr.info($translate.instant("sitnet_section_updated"));
                     }, function (error) {
                         toastr.error(error.data);
                     });
@@ -379,11 +379,11 @@
                 };
 
                 $scope.clearAllQuestions = function (section) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_all_questions'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_all_questions'));
                     dialog.result.then(function (btn) {
                         ExamRes.clearsection.clear({sid: section.id}, function () {
                             section.sectionQuestions.splice(0, section.sectionQuestions.length);
-                            toastr.info($translate("sitnet_all_questions_removed"));
+                            toastr.info($translate.instant("sitnet_all_questions_removed"));
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -391,7 +391,7 @@
                 };
 
                 $scope.removeQuestion = function (section, sectionQuestion) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_question'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question'));
                     dialog.result.then(function (btn) {
                         ExamRes.questions.remove({
                             eid: $scope.newExam.id,
@@ -399,7 +399,7 @@
                             qid: sectionQuestion.question.id
                         }, function () {
                             section.sectionQuestions.splice(section.sectionQuestions.indexOf(sectionQuestion), 1);
-                            toastr.info($translate("sitnet_question_removed"));
+                            toastr.info($translate.instant("sitnet_question_removed"));
                             if (section.sectionQuestions.length < 2 && section.lotteryOn) {
                                 // turn off lottery
                                 section.lotteryOn = false;
@@ -449,7 +449,7 @@
                             });
                         }, function (error) {
                             if (error.data && error.data.indexOf("exam.error_") > 0) {
-                                toastr.error($translate(error.data));
+                                toastr.error($translate.instant(error.data));
                             } else if (error.data) {
                                 toastr.error(error.data);
                             }
@@ -465,7 +465,7 @@
 
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function (exam) {
-                            toastr.info($translate("sitnet_exam_saved"));
+                            toastr.info($translate.instant("sitnet_exam_saved"));
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -477,11 +477,11 @@
                 // Called when Save button is clicked
                 $scope.saveExam = function () {
                     if ($scope.newExam.course == undefined) { // use == not ===
-                        toastr.error($translate('sitnet_course_missing'));
+                        toastr.error($translate.instant('sitnet_course_missing'));
                         return;
                     }
                     if ($scope.newExam.examLanguages === undefined || $scope.newExam.examLanguages.length === 0) {
-                        toastr.error($translate('sitnet_error_exam_empty_exam_language'));
+                        toastr.error($translate.instant('sitnet_error_exam_empty_exam_language'));
                         return;
                     }
                     var newState = $scope.newExam.state === 'PUBLISHED' ? 'PUBLISHED' : 'SAVED';
@@ -500,7 +500,7 @@
                 $scope.unpublishExam = function () {
                     ExamRes.examEnrolments.query({eid: $scope.newExam.id}, function (enrolments) {
                         if (enrolments && enrolments.length > 0) {
-                            toastr.warning($translate('sitnet_unpublish_not_possible'));
+                            toastr.warning($translate.instant('sitnet_unpublish_not_possible'));
                         } else {
                             var modalInstance = $modal.open({
                                 templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_unpublish_dialog.html',
@@ -513,7 +513,7 @@
                                 var examToSave = getUpdate({"state": 'SAVED'});
                                 ExamRes.exams.update({id: examToSave.id}, examToSave,
                                     function () {
-                                        toastr.success($translate("sitnet_exam_unpublished"));
+                                        toastr.success($translate.instant("sitnet_exam_unpublished"));
                                         $scope.newExam.state = 'SAVED';
                                     }, function (error) {
                                         toastr.error(error.data);
@@ -569,7 +569,7 @@
 
                         ExamRes.exams.update({id: examToSave.id}, examToSave,
                             function (exam) {
-                                toastr.success($translate("sitnet_exam_saved_and_published"));
+                                toastr.success($translate.instant("sitnet_exam_saved_and_published"));
                                 $location.url($location.path());
                                 $location.path("/exams");
                             }, function (error) {
@@ -596,39 +596,39 @@
                     var errors = {};
 
                     if (exam.course == undefined) { // use == not ===
-                        errors.course = $translate("sitnet_course_missing");
+                        errors.course = $translate.instant("sitnet_course_missing");
                     }
 
                     if (exam.name === undefined || exam.name.length < 2) {
-                        errors.name = $translate('sitnet_exam_name_missing_or_too_short');
+                        errors.name = $translate.instant('sitnet_exam_name_missing_or_too_short');
                     }
 
                     if (!$scope.newExam.examLanguages || $scope.newExam.examLanguages.length === 0) {
-                        errors.name = $translate('sitnet_error_exam_empty_exam_language');
+                        errors.name = $translate.instant('sitnet_error_exam_empty_exam_language');
                     }
 
                     if (!$scope.newExam.examActiveStartDate) {
-                        errors.examActiveStartDate = $translate('sitnet_exam_start_date_missing');
+                        errors.examActiveStartDate = $translate.instant('sitnet_exam_start_date_missing');
                     }
 
                     if (!$scope.newExam.examActiveEndDate) {
-                        errors.examActiveEndDate = $translate('sitnet_exam_end_date_missing');
+                        errors.examActiveEndDate = $translate.instant('sitnet_exam_end_date_missing');
                     }
 
                     if (!$scope.countQuestions || $scope.countQuestions < 1) {
-                        errors.questions = $translate('sitnet_exam_has_no_questions');
+                        errors.questions = $translate.instant('sitnet_exam_has_no_questions');
                     }
 
                     if (exam.duration === undefined || exam.duration < 1) {
-                        errors.duration = $translate('sitnet_exam_duration_missing');
+                        errors.duration = $translate.instant('sitnet_exam_duration_missing');
                     }
 
                     if ($scope.newExam.gradeScale === undefined) {
-                        errors.grading = $translate('sitnet_exam_grade_scale_missing');
+                        errors.grading = $translate.instant('sitnet_exam_grade_scale_missing');
                     }
 
                     if (exam.examType === undefined) {
-                        errors.examType = $translate('sitnet_exam_credit_type_missing');
+                        errors.examType = $translate.instant('sitnet_exam_credit_type_missing');
                     }
 
                     return errors;
@@ -637,10 +637,10 @@
                 // TODO: this controller should be split on a per-view basis to avoid having this kind of duplication
 
                 $scope.deleteExam = function (exam) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_exam'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
-                            toastr.success($translate('sitnet_exam_removed'));
+                            toastr.success($translate.instant('sitnet_exam_removed'));
                             $scope.exams.splice($scope.exams.indexOf(exam), 1);
 
                         }, function (error) {
@@ -652,10 +652,10 @@
                 };
 
                 $scope.cancelNewExam = function (exam) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_exam'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
                         ExamRes.exams.remove({id: exam.id}, function (ex) {
-                            toastr.success($translate('sitnet_exam_removed'));
+                            toastr.success($translate.instant('sitnet_exam_removed'));
                             $location.path('/exams/');
                         }, function (error) {
                             toastr.error(error.data);
@@ -673,7 +673,7 @@
                         from: from,
                         to: to
                     }, function () {
-                        toastr.info($translate("sitnet_questions_reordered"));
+                        toastr.info($translate.instant("sitnet_questions_reordered"));
                     });
                 };
 
@@ -706,7 +706,7 @@
                                 seq: to,
                                 questions: sectionQuestions
                             }, function (sec) {
-                                toastr.info($translate("sitnet_question_added"));
+                                toastr.info($translate.instant("sitnet_question_added"));
                                 var promises = [];
                                 promises.push(DragDropHandler.addObject(sectionQuestions, section.sectionQuestions, to));
                                 $q.all(promises).then(function () {
@@ -728,7 +728,7 @@
                                 qid: question.id
                             }, function (sec) {
                                 DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to);
-                                toastr.info($translate("sitnet_question_added"));
+                                toastr.info($translate.instant("sitnet_question_added"));
                                 updateSection(sec); // needs manual update as the scope is somehow not automatically refreshed
                             }, function (error) {
                                 toastr.error(error.data);
@@ -786,7 +786,7 @@
                 $scope.updateLotteryCount = function (section) {
 
                     if (!section.lotteryItemCount) {
-                        toastr.warning($translate("sitnet_warn_lottery_count"));
+                        toastr.warning($translate.instant("sitnet_warn_lottery_count"));
                         section.lotteryItemCount = section.lotteryItemCount === undefined || section.lotteryItemCount == 0 ? 1 : section.sectionQuestions.length;
                     }
                     else {
@@ -810,7 +810,7 @@
 
                             var file = $scope.attachmentFile;
                             if (file === undefined) {
-                                toastr.error($translate("sitnet_attachment_not_chosen"));
+                                toastr.error($translate.instant("sitnet_attachment_not_chosen"));
                                 return;
                             }
                             var url = "attachment/exam";

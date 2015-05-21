@@ -83,13 +83,13 @@
                                 "tapToDismiss": false,
                                 "preventDuplicates": true
                             };
-                            toastr.warning($translate("sitnet_session_will_expire_soon") +
+                            toastr.warning($translate.instant("sitnet_session_will_expire_soon") +
                             "&nbsp;<button onclick=\"" +
                             "var request = new XMLHttpRequest();" +
                             "request.open('PUT', '/extendSession', true); " +
                             "request.setRequestHeader('" + EXAM_CONF.AUTH_HEADER + "', '" + user.token + "'); " +
                             "request.send();\">" +
-                            $translate("sitnet_continue_session") + "</button>");
+                            $translate.instant("sitnet_continue_session") + "</button>");
                         } else if (data === "no_session") {
                             if (scheduler) {
                                 $interval.cancel(scheduler);

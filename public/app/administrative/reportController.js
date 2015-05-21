@@ -18,7 +18,7 @@
                 $scope.examRecordsCsv = EXAM_CONF.TEMPLATES_PATH + "administrative/reports/exam-records-csv.html";
 
                 $scope.selectedRoom = {
-                    name: $translate("sitnet_choose")
+                    name: $translate.instant("sitnet_choose")
                 };
                 $scope.setExam = function (exam) {
                     $scope.selectedExam = exam;
@@ -29,7 +29,7 @@
                 };
 
                 $scope.selectedTeacher = {
-                    name: $translate("sitnet_choose")
+                    name: $translate.instant("sitnet_choose")
                 };
 
                 $scope.setTeacher = function (teacher) {
@@ -37,7 +37,7 @@
                 };
 
                 $scope.selectedStudent = {
-                    name: $translate("sitnet_choose")
+                    name: $translate.instant("sitnet_choose")
                 };
 
                 $scope.setStudent = function (student) {
@@ -54,7 +54,7 @@
                     if (exam) {
                         fileService.download('/statistics/examenrollments/' + exam, 'exam_enrolments.xlsx');
                     } else {
-                        toastr.error($translate('sitnet_choose_exam'));
+                        toastr.error($translate.instant('sitnet_choose_exam'));
                     }
                 };
 
@@ -64,7 +64,7 @@
                         var t = $filter("date")(to, "dd.MM.yyyy");
                         fileService.download('/statistics/student/' + student + '/' + f + '/' + t, 'student_activity.xlsx');
                     } else {
-                        toastr.error($translate('sitnet_choose_student'));
+                        toastr.error($translate.instant('sitnet_choose_student'));
                     }
                 };
 
@@ -78,7 +78,7 @@
                     if (exam) {
                         fileService.download('/statistics/examnames/' + exam + '/xlsx', 'exams.xlsx');
                     } else {
-                        toastr.error($translate('sitnet_choose_exam'));
+                        toastr.error($translate.instant('sitnet_choose_exam'));
                     }
                 };
 
@@ -86,7 +86,7 @@
                     if (exam) {
                         fileService.download('/statistics/examnames/' + exam + '/json', 'exams.json');
                     } else {
-                        toastr.error($translate('sitnet_choose_exam'));
+                        toastr.error($translate.instant('sitnet_choose_exam'));
                     }
                 };
 
@@ -103,7 +103,7 @@
                         fileService.download('/statistics/teacherexamsbydate/' + uid + '/' + f + '/' + t,
                             'teacherexams_' + f + '_' + t + '.xlsx');
                     } else {
-                        toastr.error($translate('sitnet_choose_teacher'));
+                        toastr.error($translate.instant('sitnet_choose_teacher'));
                     }
                 };
 
@@ -113,7 +113,7 @@
                     if (rid > 0) {
                         fileService.download('/statistics/resbydate/' + rid + '/' + f + '/' + t, 'reservations_' + f + '_' + t + '.xlsx');
                     } else {
-                        toastr.error($translate('sitnet_choose_room'));
+                        toastr.error($translate.instant('sitnet_choose_room'));
                     }
                 };
 
