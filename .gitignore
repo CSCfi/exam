@@ -23,4 +23,4 @@ dist
 /projectFilesBackup
 *.class
 /node_modules
-/public/app/exam.min.js
+/public/app/exam.*

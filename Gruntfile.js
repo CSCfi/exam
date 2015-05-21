@@ -12,19 +12,20 @@ module.exports = function (grunt) {
                     'public/app/common/**/*.js', 'public/app/enrolment/**/*.js', 'public/app/exam/**/*.js',
                     'public/app/facility/**/*.js', 'public/app/question/**/*.js', 'public/app/reservation/**/*.js',
                     'public/app/review/**/*.js', 'public/app/utility/**/*.js'],
-                dest: 'dist/<%= pkg.name %>.js'
+                dest: 'public/app/<%= pkg.name %>.js'
             }
         },
         ngAnnotate: {
             dist: {
                 files: {
-                    'dist/exam.js': ['dist/exam.js']
+                    '<%= concat.dist.dest %>': ['<%= concat.dist.dest %>']
                 }
             }
         },
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %>  v<%= pkg.version %> <%= grunt.template.today("dd-mm-yyyy") %> */\n'
+                banner: '/*! <%= pkg.name %>  v<%= pkg.version %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
+                sourceMap: true
             },
             dist: {
                 files: {
