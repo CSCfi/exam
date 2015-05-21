@@ -18,7 +18,7 @@
                     return $location.path().match(/preview/) && $routeParams.id;
                 };
                 if (isPreview()) {
-                    $scope.headerText = $translate('sitnet_exam_preview');
+                    $scope.headerText = 'sitnet_exam_preview';
                 } else {
                     $scope.guide = true;
                     $scope.hash = $routeParams.hash;
@@ -149,11 +149,8 @@
 
                 $rootScope.$on('$translateChangeSuccess', function () {
                     $scope.currentLanguageText = currentLanguage();
-                });
-
-                $scope.$on('$localeChangeSuccess', function () {
                     if ($scope.previousButton.isGuide) {
-                        $scope.previousButton.text = $translate("sitnet_exam_quide");
+                        $scope.previousButton.text = $translate.instant('sitnet_exam_quide');
                     }
                 });
 
@@ -165,7 +162,7 @@
                         $scope.info.reservation.machine &&
                         $scope.info.reservation.machine.room) {
 
-                        switch ($translate.uses()) {
+                        switch ($translate.use()) {
                             case "fi":
                                 if ($scope.info.reservation.machine.room.roomInstruction) {
                                     tmp = $scope.info.reservation.machine.room.roomInstruction;
@@ -228,12 +225,12 @@
                                 var name = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
                                 if (name === 'guide') {
                                     $scope.previousButton.isGuide = true;
-                                    name = $translate("sitnet_exam_quide");
+                                    name = $translate.instant("sitnet_exam_quide");
                                 }
                                 $scope.previousButton.text = name;
                             } else {
                                 $scope.previousButton.isGuide = true;
-                                $scope.previousButton.text = $translate("sitnet_exam_quide");
+                                $scope.previousButton.text = $translate.instant("sitnet_exam_quide");
                             }
                         } else {
                             $scope.previousButton = {valid: false};
@@ -325,16 +322,16 @@
 
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_turn_exam'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
                     dialog.result.then(function () {
                         saveAllEssays().then(function () {
                             StudentExamRes.exams.update({id: doexam.id}, function () {
-                                toastr.info($translate('sitnet_exam_returned'));
+                                toastr.info($translate.instant('sitnet_exam_returned'));
                                 $timeout.cancel($scope.remainingTimePoller);
                                 $location.path("/logout");
                                 $rootScope.$broadcast('examEnded');
                             }, function (error) {
-                                toastr.error($translate(error));
+                                toastr.error($translate.instant(error));
                             });
                         });
                     });
@@ -342,10 +339,10 @@
 
                 // Called when the abort button is clicked
                 $scope.abortExam = function (doexam) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_confirm_abort_exam'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
                     dialog.result.then(function (btn) {
                         StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
-                            toastr.info($translate('sitnet_exam_aborted'));
+                            toastr.info($translate.instant('sitnet_exam_aborted'));
                             $timeout.cancel($scope.remainingTimePoller);
                             $location.path("/logout");
                             $rootScope.$broadcast('examEnded');
@@ -358,7 +355,7 @@
                 // Called when a radiobutton is selected
                 $scope.radioChecked = function (doexam, question, option) {
                     question.answered = true;
-                    question.questionStatus = $translate("sitnet_question_answered");
+                    question.questionStatus = $translate.instant("sitnet_question_answered");
 
                     if (!isPreview()) {
                         StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({
@@ -368,7 +365,7 @@
                             },
                             function (updated_answer) {
                                 question.answer = updated_answer;
-                                toastr.info($translate('sitnet_answer_saved'));
+                                toastr.info($translate.instant('sitnet_answer_saved'));
                                 examService.setQuestionColors(question);
                             }, function (error) {
 
@@ -385,7 +382,7 @@
 
                 $scope.saveEssay = function (question, answer) {
                     question.answered = true;
-                    question.questionStatus = $translate("sitnet_answer_saved");
+                    question.questionStatus = $translate.instant("sitnet_answer_saved");
 
                     if (isPreview()) {
                         examService.setQuestionColors(question);
@@ -396,7 +393,7 @@
                         };
                         var msg = {answer: answer};
                         StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
-                            toastr.info($translate("sitnet_answer_saved"));
+                            toastr.info($translate.instant("sitnet_answer_saved"));
                             examService.setQuestionColors(question);
                         }, function () {
 
@@ -453,7 +450,7 @@
                         // Finally save the exam and logout
                         $q.all(promises).then(function () {
                             StudentExamRes.exams.update({id: $scope.doexam.id}, function () {
-                                toastr.info($translate("sitnet_exam_time_is_up"));
+                                toastr.info($translate.instant("sitnet_exam_time_is_up"));
                                 $location.path("/logout");
                                 $rootScope.$broadcast('examEnded');
                             }, function () {

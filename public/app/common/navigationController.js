@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('NavigationCtrl', ['$scope', '$rootScope', '$modal', '$translate', '$location', 'sessionService', 'waitingRoomService',
-            function ($scope, $rootScope, $modal, $translate, $location, sessionService, waitingRoomService) {
+        .controller('NavigationCtrl', ['$scope', '$rootScope', '$modal', '$location', 'sessionService', 'waitingRoomService',
+            function ($scope, $rootScope, $modal, $location, sessionService, waitingRoomService) {
 
                 $scope.isActive = function (link) {
                     return link.href === "#" + $location.path();
@@ -33,68 +33,59 @@
                             href: "#/",
                             visible: !hideDashboard,
                             class: "fa-home",
-                            name: $translate("sitnet_dashboard")
+                            name: "sitnet_dashboard"
                         },
                         {
                             href: "#/questions",
                             visible: (admin || teacher),
                             class: "fa-list-ol",
-                            name: $translate("sitnet_library"),
-                            sub: []
+                            name: "sitnet_library"
                         },
                         {
                             href: "#/exams",
                             visible: (admin || teacher),
                             class: "fa-paste",
-                            name: $translate("sitnet_exams"),
-                            sub: []
+                            name: "sitnet_exams"
                         },
                         {
                             href: "#/rooms",
                             visible: (admin),
                             class: "fa-building-o",
-                            name: $translate("sitnet_exam_rooms"),
-                            sub: []
+                            name: "sitnet_exam_rooms"
                         },
                         {
                             href: "#/reports",
                             visible: (admin),
                             class: "fa-file-word-o",
-                            name: $translate("sitnet_reports"),
-                            sub: []
+                            name: "sitnet_reports"
                         },
                         {
                             href: "#/settings",
                             visible: (admin),
                             class: "fa-wrench",
-                            name: $translate("sitnet_settings"),
-                            sub: []
+                            name: "sitnet_settings"
                         },
                         {
                             href: "#/student/exams",
                             visible: (student),
                             class: "fa-search",
-                            name: $translate("sitnet_exam_search"),
+                            name: "sitnet_exam_search",
                             sub: []
                         },
                         {
                             href: "#/logout",
                             visible: (student || admin || teacher),
                             class: "fa-sign-out",
-                            name: $translate("sitnet_logout")
+                            name: "sitnet_logout"
                         },
                         {
                             href: "#/login",
-                            visible: (sessionService.getUser() == undefined),
+                            visible: (!sessionService.getUser()),
                             class: "fa-sign-in",
-                            name: $translate("sitnet_login")
+                            name: "sitnet_login"
                         }
                     ];
                 };
-
-                $scope.$on('$translateChangeSuccess', function () {
-                    $scope.links = links();
-                });
 
                 $rootScope.$on('userUpdated', function () {
                     $scope.links = links();
@@ -125,6 +116,8 @@
                 $scope.$on('wrongMachine', function () {
                     $scope.links = links();
                 });
+
+                $scope.links = links();
 
             }]);
 }());

@@ -441,7 +441,7 @@
 
                     ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                         function (exam) {
-                            toastr.info($translate("sitnet_exam_saved"));
+                            toastr.info($translate.instant("sitnet_exam_saved"));
                             $scope.newExam = exam;
                             $scope.newExam.examLanguages.forEach(function (language) {
                                 // Use front-end language names always to allow for i18n etc
@@ -490,7 +490,7 @@
 
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function (exam) {
-                            toastr.info($translate("sitnet_exam_saved"));
+                            toastr.info($translate.instant("sitnet_exam_saved"));
                             $scope.newExam.state = newState;
                         }, function (error) {
                             toastr.error(error.data);

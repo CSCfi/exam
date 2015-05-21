@@ -44,6 +44,7 @@
                 prefix: path + 'locale-',
                 suffix: '.json'
             });
+            $translateProvider.useSanitizeValueStrategy(null);
             $translateProvider.preferredLanguage('en');
         }])
         .run(['$http', '$route', '$interval', '$timeout', '$modal', '$sessionStorage', 'sessionService', 'EXAM_CONF',
@@ -61,6 +62,8 @@
                     $timeout(function () {
                         sessionService.translate(user.lang);
                     }, 100);
+                } else {
+                    sessionService.switchLanguage('en');
                 }
                 var scheduler;
                 var PING_INTERVAL = 60 * 1000;
@@ -114,7 +117,7 @@
                         var user = sessionService.getUser();
                         $rootScope.$broadcast('userUpdated');
                         var welcome = function () {
-                            toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
+                            toastr.success($translate.instant("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
                         };
                         setTimeout(welcome, 2000);
                         restartSessionCheck();

@@ -61,19 +61,24 @@
                             return response;
                         },
                         'responseError': function (response) {
+                            var deferred = $q.defer();
                             if (typeof response.data === "string" || response.data instanceof String) {
                                 if (response.data.match(/^".*"$/g)) {
                                     response.data = response.data.slice(1, response.data.length - 1)
                                 }
                                 var parts = response.data.split(" ");
-                                for (var i = 0; i < parts.length; i++) {
-                                    if (parts[i].substring(0, 7) === "sitnet_") {
-                                        parts[i] = $translate(parts[i]);
+                                $translate(parts).then(function () {
+                                    for (var i = 0; i < parts.length; i++) {
+                                        if (parts[i].substring(0, 7) === "sitnet_") {
+                                            parts[i] = $translate.instant(parts[i]);
+                                        }
                                     }
-                                }
-                                response.data = parts.join(" ");
+                                    response.data = parts.join(" ");
+                                    return deferred.reject(response);
+                                });
+                                return deferred.promise;
                             }
-                            return $q.reject(response);
+                            return deferred.reject(response);
                         }
                     }
                 }

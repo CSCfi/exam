@@ -20,7 +20,7 @@
                     sessionService.logout().then(function (data) {
                         delete $scope.user;
                         $rootScope.$broadcast('userUpdated');
-                        toastr.success($translate("sitnet_logout_success"));
+                        toastr.success($translate.instant("sitnet_logout_success"));
                         if (data && data.logoutUrl) {
                             var returnUrl = window.location.protocol + "//" + window.location.host + "/Shibboleth.sso/Logout";
                             window.location.href = data.logoutUrl + "?return=" + returnUrl;
@@ -49,7 +49,7 @@
                         $rootScope.$broadcast('userUpdated');
 
                         var welcome = function () {
-                            toastr.success($translate("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
+                            toastr.success($translate.instant("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
                         };
                         setTimeout(welcome, 2000);
 

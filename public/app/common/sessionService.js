@@ -50,7 +50,7 @@
                 };
 
                 var translate = function (lang) {
-                    $translate.uses(lang);
+                    $translate.use(lang);
                     tmhDynamicLocale.set(lang);
                 };
 

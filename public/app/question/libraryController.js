@@ -336,7 +336,7 @@
                     var text = "Add all";
                     $scope.$watch(
                         function () {
-                            text = $translate('sitnet_add_all');
+                            text = $translate.instant('sitnet_add_all');
                             return text;
                         },
                         function (data) {
