@@ -9,7 +9,7 @@
         <h4>{{'sitnet_select_room' | translate}}</h4>
         <div class="btn-group" dropdown >
             <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
-                {{selectedRoom.name}}
+                {{selectedFields.room.name}}
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
@@ -51,7 +51,7 @@
 
     <div class="col-md-2 load-link">
         <h2>
-            <a ng-click="getRoomReservationsByDate(selectedRoom.id, dateService.startDate, dateService.endDate)"
+            <a ng-click="getRoomReservationsByDate(selectedFields.room.id, dateService.startDate, dateService.endDate)"
                class="fa-stack fa-lg" download popover-trigger="mouseenter"  popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                 <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>

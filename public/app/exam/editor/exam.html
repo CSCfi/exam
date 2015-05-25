@@ -30,10 +30,10 @@
                 <div id="exam">
                     <div class="row top-margin-1">
                         <!-- General Information -->
-                        <div class="bottom-padding-2" ng-include="generalInfoPath"></div>
+                        <div class="bottom-padding-2" ng-include="templates.generalInfo"></div>
 
                         <div class="col-md-12">
-                            <div class="section-border" ng-include="sectionPath" ng-model="newExam.examSections"
+                            <div class="section-border" ng-include="templates.section" ng-model="newExam.examSections"
                                  ng-repeat="section in newExam.examSections">
                             </div>
                             <div class="row col-md-12 create-new-section">
@@ -67,7 +67,7 @@
                     </span>
                 </div>
             </div>
-            <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
+            <div ng-include="templates.library" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
         </div>
     </div>
 </div>

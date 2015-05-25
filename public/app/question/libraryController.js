@@ -14,6 +14,8 @@
                 $scope.filteredQuestions = [];
                 $scope.visibleQuestions = [];
                 $scope.maxVisible = step;
+                $scope.limitations = {};
+                $scope.filter = {};
                 $scope.moreQuestions = false;
 
                 var htmlDecode = function(text) {
@@ -21,9 +23,9 @@
                 };
 
                 $scope.applyFreeSearchFilter = function () {
-                    if ($scope.selected) {
+                    if ($scope.filter.text) {
                         $scope.filteredQuestions = $scope.questions.filter(function (question) {
-                            var re = new RegExp($scope.selected, 'i');
+                            var re = new RegExp($scope.filter.text, 'i');
 
                             var isMatch = question.question && htmlDecode(question.question).match(re);
                             if(isMatch) {
@@ -58,7 +60,7 @@
                         $scope.moreQuestions = true;
                         var i = 0;
                         $scope.visibleQuestions = $scope.filteredQuestions.filter(function(question){
-                            return ++i <= $scope.maxVisible ? true : false;
+                            return ++i <= $scope.maxVisible;
                         });
                     } else {
                         $scope.moreQuestions = false;
@@ -73,9 +75,9 @@
                     });
                 };
 
-                $scope.newTeacher = "";
+                //$scope.newTeacher = {};
 
-                $scope.onCourseSelect = function ($item, $model, $label) {
+                $scope.onTeacherSelect = function ($item, $model, $label) {
                     $scope.newTeacher = $item;
                 };
 
@@ -100,7 +102,7 @@
                         $scope.ownerProcess = false;
                         return;
                     }
-                    if(! $scope.newTeacher){
+                    if(!$scope.newTeacher){
                         toastr.warning($translate.instant('sitnet_select_teacher_to_move_the_questions_to'));
                         $scope.ownerProcess = false;
                         return;

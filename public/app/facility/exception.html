@@ -5,9 +5,10 @@
 <div class='modal-body'>
 
     <div class="row">
-        <span class="col-md-12" ng-init="outOfService=true">
+        <span class="col-md-12">
             <p>{{'sitnet_room_out_of_service' | translate}}:&nbsp;
-            <input type='checkbox' ng-model="outOfService" ng-click="outOfService=!outOfService"/></p>
+            <input type='checkbox' ng-model="exception.outOfService"
+                   ng-click="exception.outOfService=!exception.outOfService"/></p>
         </span>
     </div>
     <div id="datetimepicker">
@@ -21,12 +22,12 @@
         </div>
         <div class="row">
             <div class="col-md-6">
-                <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="startDate"
+                <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="exception.startDate"
                                 show-meridian="false" starting-day="1"
                                 date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
             </div>
             <div class="col-md-6">
-                <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="endDate"
+                <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="exception.endDate"
                                 show-meridian="false" starting-day="1"
                                 date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
             </div>

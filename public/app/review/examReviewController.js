@@ -33,6 +33,7 @@
                 $scope.inspections = [];
                 $scope.examGrading = [];
                 $scope.examTypes = [];
+                $scope.selections = {};
 
                 LanguageRes.languages.query(function (languages) {
                     $scope.languages = languages.map(function (language) {
@@ -42,27 +43,27 @@
                 });
 
                 $scope.setLanguage = function (lang) {
-                    $scope.selectedLanguage = lang;
+                    $scope.selections.language = lang;
                     $scope.examToBeReviewed.answerLanguage = lang ? lang.name : lang;
                 };
 
                 $scope.setCreditType = function (creditType) {
-                    $scope.selectedType = creditType;
+                    $scope.selections.type = creditType;
                     $scope.examToBeReviewed.creditType = {type: creditType};
                 };
 
                 $scope.setGrade = function (grade_id, exam) {
                     if (grade_id) {
                         $scope.examToBeReviewed.grade = {id: grade_id};
-                        $scope.selectedGrade = $scope.examToBeReviewed.grade.id;
+                        $scope.selections.grade = $scope.examToBeReviewed.grade.id;
                     } else {
-                        $scope.selectedGrade = '';
+                        $scope.selections.grade = '';
                         $scope.examToBeReviewed.grade = undefined;
                     }
                 };
 
                 $scope.checkCreditType = function (creditType) {
-                    return creditType.type === $scope.selectedType;
+                    return creditType.type === $scope.selections.type;
                 };
 
                 var refreshExamTypes = function () {
@@ -123,22 +124,22 @@
                                 });
                             });
                             if (exam.answerLanguage) {
-                                $scope.selectedLanguage = exam.answerLanguage;
+                                $scope.selections.language = exam.answerLanguage;
                             } else if (exam.examLanguages.length === 1) {
                                 // Use parent's language as default answer language if there is a single one to choose from
-                                $scope.selectedLanguage = getLanguageNativeName(exam.examLanguages[0].code);
+                                $scope.selections.language = getLanguageNativeName(exam.examLanguages[0].code);
                             }
                             if (exam.creditType) {
-                                $scope.selectedType = exam.creditType.type.toUpperCase();
+                                $scope.selections.type = exam.creditType.type.toUpperCase();
                             } else {
                                 // default to examType
-                                $scope.selectedType = exam.examType.type.toUpperCase();
+                                $scope.selections.type = exam.examType.type.toUpperCase();
                             }
 
                             if (exam.grade && exam.grade.id) {
-                                $scope.selectedGrade = exam.grade.id;
+                                $scope.selections.grade = exam.grade.id;
                             } else {
-                                $scope.selectedGrade = '';
+                                $scope.selections.grade = '';
                                 $scope.examToBeReviewed.grade = {};
                             }
                         }
@@ -395,8 +396,8 @@
                         "grade": exam.grade && exam.grade.id ? exam.grade.id : "",
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
-                        "creditType": $scope.selectedType,
-                        "answerLanguage": $scope.selectedLanguage,
+                        "creditType": $scope.selections.type,
+                        "answerLanguage": $scope.selections.language,
                         "additionalInfo": exam.additionalInfo
                     };
                 };
@@ -529,14 +530,14 @@
                             return;
                         }
                         var messages = [];
-                        if (!$scope.selectedGrade) {
-                            messages.push('exam.participation_unreviewed');
+                        if (!$scope.selections.grade) {
+                            messages.push('sitnet_participation_unreviewed');
                         }
-                        if (!$scope.selectedType) {
-                            messages.push('exam.exam_choose_credit_type');
+                        if (!$scope.selections.type) {
+                            messages.push('sitnet_exam_choose_credit_type');
                         }
-                        if (!$scope.selectedLanguage) {
-                            messages.push('exam.exam_choose_response_language');
+                        if (!$scope.selections.language) {
+                            messages.push('sitnet_exam_choose_response_language');
                         }
                         var oldState = reviewed_exam.state;
                         var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
@@ -579,18 +580,18 @@
 
                     var messages = [];
                     if (!reviewedExam.grade) {
-                        if ($scope.selectedGrade) {
-                            reviewedExam.grade = {id: $scope.selectedGrade};
+                        if ($scope.selections.grade) {
+                            reviewedExam.grade = {id: $scope.selections.grade};
                         }
                         if (!reviewedExam.grade) {
-                            messages.push('exam.participation_unreviewed');
+                            messages.push('sitnet_participation_unreviewed');
                         }
                     }
                     if (!reviewedExam.creditType) {
-                        messages.push('exam.exam_choose_credit_type');
+                        messages.push('sitnet_exam_choose_credit_type');
                     }
-                    if (!$scope.selectedLanguage) {
-                        messages.push('exam.exam_choose_response_language');
+                    if (!$scope.selections.language) {
+                        messages.push('sitnet_exam_choose_response_language');
                     }
                     if (messages.length > 0) {
                         messages.forEach(function (msg) {

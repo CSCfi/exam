@@ -574,21 +574,20 @@
                             now.setMinutes(0);
                             now.setSeconds(0);
                             now.setMilliseconds(0);
-                            $scope.startDate = now;
-                            $scope.endDate = angular.copy(now);
+                            $scope.exception = { startDate: now, endDate: angular.copy(now), outOfService: true };
 
                             $scope.ok = function () {
 
                                 var hourOffset = moment().isDST() ? 1 : 0;
-                                var start = moment($scope.startDate).add(hourOffset, 'hour');
-                                var end = moment($scope.endDate).add(hourOffset, 'hour');
+                                var start = moment($scope.exception.startDate).add(hourOffset, 'hour');
+                                var end = moment($scope.exception.endDate).add(hourOffset, 'hour');
                                 if (end <= start) {
                                     toastr.error($translate.instant('sitnet_endtime_before_starttime'))
                                 } else {
                                     $modalInstance.close({
                                         "startDate": start,
                                         "endDate": end,
-                                        "outOfService": $scope.outOfService
+                                        "outOfService": $scope.exception.outOfService
                                     });
                                 }
                             };

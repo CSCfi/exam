@@ -4,16 +4,18 @@
         .controller('DashboardCtrl', ['dialogs','$scope', '$http', '$translate', '$location', '$modal', 'EXAM_CONF', 'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService',
             function (dialogs, $scope, $http, $translate, $location, $modal, EXAM_CONF, sessionService, ExamRes, examService, questionService, StudentExamRes, dateService) {
 
-                $scope.dashboardToolbarPath = EXAM_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html";
-                $scope.dashboardActiveExamsPath = EXAM_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html";
-                $scope.dashboardFinishedExamsPath = EXAM_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html";
+                $scope.templates = {
+                    dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html",
+                    dashboardActiveExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html",
+                    dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html"
+                };
 
                 $scope.user = sessionService.getUser();
 
                 if ($scope.user) {
                     if ($scope.user.isStudent) {
 
-                        $scope.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/student/dashboard.html";
+                        $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/student/dashboard.html";
 
                         StudentExamRes.enrolments.query({uid: $scope.user.id},
                             function (enrolments) {
@@ -48,7 +50,7 @@
                         });
 
                     } else if ($scope.user.isTeacher) {
-                        $scope.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/teacher/dashboard.html";
+                        $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/teacher/dashboard.html";
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
                             $scope.activeExams = reviewerExams.filter(function(review) {
@@ -80,7 +82,7 @@
                         });
                     }
                     else if ($scope.user.isAdmin) {
-                        $scope.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "reservation/reservations.html";
+                        $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "reservation/reservations.html";
                     }
                 }
 

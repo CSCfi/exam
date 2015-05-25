@@ -5,17 +5,21 @@
             function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService, $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
 
                 $scope.newExam = {};
+                $scope.templates = {
+                    section: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section.html",
+                    question: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_question.html",
+                    generalInfo: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general.html",
+                    library: EXAM_CONF.TEMPLATES_PATH + "question/library.html",
+                    selectCourse: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general_course_select.html",
+                };
 
-                $scope.sectionPath = EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section.html";
-                $scope.questionPath = EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_question.html";
-                $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general.html";
-                $scope.libraryTemplate = EXAM_CONF.TEMPLATES_PATH + "question/library.html";
-                $scope.selectCourseTemplate = EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general_course_select.html";
-                $scope.examsTemplate = "";
                 $scope.examTypes = [];
                 $scope.gradeScaleSetting = {};
 
                 $scope.user = sessionService.getUser();
+                if ($scope.user.isStudent) {
+                    $location.path("/");
+                }
 
                 $rootScope.$on('$routeChangeSuccess', function (newRoute, oldRoute) {
                     $timeout(function () {
@@ -28,13 +32,6 @@
                         }
                     }, 1000);
                 });
-
-                if ($scope.user.isStudent) {
-                    $scope.examsTemplate = EXAM_CONF.TEMPLATES_PATH + "exam/student/exams.html";
-                }
-                else {
-                    $scope.examsTemplate = EXAM_CONF.TEMPLATES_PATH + "exam/editor/exams.html";
-                }
 
                 SettingsResource.examDurations.get(function (data) {
                     $scope.examDurations = data.examDurations;

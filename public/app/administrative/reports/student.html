@@ -7,7 +7,7 @@
 
     <div class="col-md-2">
         <h4>{{'sitnet_student' | translate}}</h4>
-        <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedStudent" ng-change="setStudent(selectedStudent)" data-placeholder="{{'sitnet_student' | translate}}" style="min-width:50%;">
+        <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selectedFields.student" ng-change="setStudent(selectedFields.student)" data-placeholder="{{'sitnet_student' | translate}}" style="min-width:50%;">
             <option value=""></option>
             <option ng-repeat="student in students" value="{{student.id}}">{{student.name}}</option>
         </select>
@@ -46,7 +46,7 @@
 
     <div class="col-md-2 load-link">
         <h2>
-            <a ng-click="getStudentReport(selectedStudent, dateService.startDate, dateService.endDate)"
+            <a ng-click="getStudentReport(selectedFields.student, dateService.startDate, dateService.endDate)"
                class="fa-stack fa-lg pointer" download popover-trigger="mouseenter"  popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                 <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
