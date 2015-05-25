@@ -182,6 +182,7 @@ public class ExamController extends SitnetController {
 
         // Get list of exams that user is assigned to inspect or is creator of
         Set<Exam> exams = Ebean.find(Exam.class)
+                .fetch("children")
                 .where()
                 .eq("state", Exam.State.PUBLISHED.toString())
                 .disjunction()
@@ -195,6 +196,7 @@ public class ExamController extends SitnetController {
         // Because of https://github.com/ebean-orm/avaje-ebeanorm/issues/37 a disjunction does not work here
         // TODO: check if doable after having upgraded to Play 2.4
         Set<Exam> exams2 = Ebean.find(Exam.class)
+                .fetch("children")
                 .where()
                 .eq("state", Exam.State.PUBLISHED.toString())
                 .eq("examOwners", user)
@@ -205,13 +207,13 @@ public class ExamController extends SitnetController {
         Collections.sort(examsList);
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, examEnrolments, examInspections, examOwners");
+        options.setRootPathProperties("id, name, course, examActiveStartDate, examActiveEndDate, examEnrolments, examInspections, examOwners, children");
         options.setPathProperties("examOwners", "id, firstName, lastName");
         options.setPathProperties("examInspections", "id, user, assignedBy, ready");
         options.setPathProperties("examInspections.user", "id, firstName, lastName");
         options.setPathProperties("examInspections.assignedBy", "id");
         options.setPathProperties("course", "id, name, code");
-
+        options.setPathProperties("children", "id, state");
         options.setPathProperties("examEnrolments", "id, enrolledOn, user, exam, reservation");
         options.setPathProperties("examEnrolments.user", "id");
         options.setPathProperties("examEnrolments.reservation", "id");
