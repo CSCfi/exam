@@ -62,21 +62,13 @@
                             var allExams = $scope.activeExams.concat($scope.finishedExams);
 
                             angular.forEach(allExams, function (exam) {
-                                exam.activeExamEnrolments = exam.examEnrolments.filter(function(enrolment) {
-                                   return enrolment.reservation != undefined
-                                });
                                 ExamRes.examParticipations.query({eid: exam.id},
-                                    function (examParticipations) {
-                                        exam.examParticipations = examParticipations;
-                                        exam.examParticipationsAndReviews = examParticipations.filter(function(participation) {
-                                            var state = participation.exam.state;
-                                            return state === 'GRADED' || state === 'GRADED_LOGGED';
-                                        });
+                                    function (data) {
+                                        exam.examParticipations = data;
                                     },
                                     function (error) {
                                         toastr.error(error.data);
                                     });
-
                                     setExamOwners(exam);
                             });
                         });
@@ -229,6 +221,18 @@
 
                 $scope.createQuestion = function (type) {
                     questionService.createQuestion(type);
+                };
+
+                $scope.getReviewablesCount = function(exam) {
+                    return exam.examParticipations.filter(function(participation) {
+                        return participation.exam.state === 'REVIEW' || participation.exam.state === 'REVIEW_STARTED'
+                    }).length;
+                };
+
+                $scope.getReservationCount = function(exam) {
+                    return exam.examEnrolments.filter(function(enrolment) {
+                        return enrolment.reservation;
+                    }).length;
                 };
 
             }]);
