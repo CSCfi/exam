@@ -542,8 +542,7 @@ public class StudentExamController extends SitnetController {
                 .fetch("examOwners")
                 .where()
                 .eq("state", Exam.State.PUBLISHED.toString())
-                .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
-                .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate());
+                .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate());
         if (!courseCodes.isEmpty()) {
             query.in("course.code", courseCodes);
         }
