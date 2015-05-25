@@ -43,7 +43,11 @@ public class StudentExamController extends SitnetController {
         return promise.map(new F.Function<Collection<String>, Result>() {
             @Override
             public Result apply(Collection<String> codes) throws Throwable {
-                return listExams(filter, codes);
+                if (codes.isEmpty()) {
+                    return ok(Json.toJson(Collections.<Exam> emptyList())).as("application/json");
+                } else {
+                    return listExams(filter, codes);
+                }
             }
         }).recover(new F.Function<Throwable, Result>() {
             @Override

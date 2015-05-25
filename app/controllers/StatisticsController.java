@@ -70,8 +70,8 @@ public class StatisticsController extends SitnetController {
         values.put("Created", ISODateTimeFormat.date().print(new DateTime(exam.getCreated())));
         values.put("Begins", ISODateTimeFormat.date().print(new DateTime(exam.getExamActiveStartDate())));
         values.put("Ends", ISODateTimeFormat.date().print(new DateTime(exam.getExamActiveEndDate())));
-        values.put("Duration", exam.getDuration().toString());
-        values.put("Grade scale", exam.getGradeScale().getDescription());
+        values.put("Duration", exam.getDuration() == null ? "N/A" : exam.getDuration().toString());
+        values.put("Grade scale", exam.getGradeScale() == null ? "N/A" : exam.getGradeScale().getDescription());
         values.put("State", exam.getState());
         values.put("Attachment", exam.getAttachment() == null ? "" : exam.getAttachment().getFilePath() + exam.getAttachment().getFileName());
         values.put("Instructions", forceNotNull(exam.getInstruction()));
