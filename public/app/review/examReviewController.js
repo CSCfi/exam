@@ -582,13 +582,16 @@
                     if (!reviewedExam.grade) {
                         if ($scope.selections.grade) {
                             reviewedExam.grade = {id: $scope.selections.grade};
-                        }
-                        if (!reviewedExam.grade) {
+                        } else {
                             messages.push('sitnet_participation_unreviewed');
                         }
                     }
                     if (!reviewedExam.creditType) {
-                        messages.push('sitnet_exam_choose_credit_type');
+                        if ($scope.selections.type) {
+                            reviewedExam.creditType = $scope.selections.type;
+                        } else {
+                            messages.push('sitnet_exam_choose_credit_type');
+                        }
                     }
                     if (!$scope.selections.language) {
                         messages.push('sitnet_exam_choose_response_language');

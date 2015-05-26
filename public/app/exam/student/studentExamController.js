@@ -75,7 +75,7 @@
                                         msg.answer = question.answer.answer;
                                         StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
                                             question.autosaved = new Date();
-                                            $scope.setQuestionColors(question);
+                                            examService.setQuestionColors(question);
                                         }, function () {
                                         });
                                     }
@@ -106,7 +106,6 @@
 
                             // Loop through all questions in the active section
                             angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
-                                examService.setQuestionColors(sectionQuestion);
                                 var question = sectionQuestion.question;
                                 var template = "";
                                 switch (question.type) {
