@@ -58,10 +58,7 @@
                     header[EXAM_CONF.AUTH_HEADER] = user.token;
                     $http.defaults.headers.common = header;
                     sessionService.setUser(user);
-                    // Introduce a short timeout for this to give the translateProvider some time to settle
-                    $timeout(function () {
-                        sessionService.translate(user.lang);
-                    }, 100);
+                    sessionService.translate(user.lang);
                 } else {
                     sessionService.switchLanguage('en');
                 }

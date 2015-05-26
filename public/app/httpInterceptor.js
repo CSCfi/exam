@@ -67,10 +67,10 @@
                                     response.data = response.data.slice(1, response.data.length - 1)
                                 }
                                 var parts = response.data.split(" ");
-                                $translate(parts).then(function () {
+                                $translate(parts).then(function (t) {
                                     for (var i = 0; i < parts.length; i++) {
                                         if (parts[i].substring(0, 7) === "sitnet_") {
-                                            parts[i] = $translate.instant(parts[i]);
+                                            parts[i] = t[parts[i]];
                                         }
                                     }
                                     response.data = parts.join(" ");

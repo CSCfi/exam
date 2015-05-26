@@ -14,22 +14,13 @@
 
                 if ($scope.user) {
                     if ($scope.user.isStudent) {
-
                         $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/student/dashboard.html";
-
                         StudentExamRes.enrolments.query({uid: $scope.user.id},
                             function (enrolments) {
                                 $scope.userEnrolments = enrolments;
                                 if (enrolments && enrolments.length > 0) {
                                     angular.forEach(enrolments, function (enrolment) {
-                                        StudentExamRes.teachers.get({id: enrolment.exam.id},
-                                            function (teachers) {
-                                                setExamOwners(enrolment.exam);
-                                            },
-                                            function (error) {
-                                                toastr.error(error.data);
-                                            }
-                                        );
+                                        setExamOwners(enrolment.exam);
                                     });
                                 }
                             },
@@ -37,7 +28,6 @@
                                 toastr.error(error.data);
                             }
                         );
-
                         StudentExamRes.finishedExams.query({uid: $scope.user.id},
                             function (finishedExams) {
                                 $scope.studentFinishedExams = finishedExams;

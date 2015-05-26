@@ -4,7 +4,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -44,7 +43,7 @@ public class StudentExamController extends SitnetController {
             @Override
             public Result apply(Collection<String> codes) throws Throwable {
                 if (codes.isEmpty()) {
-                    return ok(Json.toJson(Collections.<Exam> emptyList())).as("application/json");
+                    return ok(Json.toJson(Collections.<Exam>emptyList())).as("application/json");
                 } else {
                     return listExams(filter, codes);
                 }
@@ -59,34 +58,19 @@ public class StudentExamController extends SitnetController {
 
     @Restrict({@Group("STUDENT")})
     public static Result getFinishedExams(Long uid) {
-        Logger.debug("getFinishedExams()");
         User user = UserController.getLoggedUser();
-        String oql = "find exam " +
-                "fetch examSections " +
-                "fetch course " +
-                "where (state=:graded_logged or state=:aborted or state=:review or state=:graded) " +
-                "and (creator.id=:userid)";
+        List<Exam> exams = Ebean.find(Exam.class).where()
+                .ne("state", Exam.State.STUDENT_STARTED.toString())
+                .ne("state", Exam.State.ABORTED.toString())
+                .eq("creator", user)
+                .findList();
 
-        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
-        query.setParameter("review", "REVIEW");
-        query.setParameter("graded", "GRADED");
-        query.setParameter("graded_logged", "GRADED_LOGGED");
-        query.setParameter("aborted", "ABORTED");
-        query.setParameter("userid", user.getId());
-
-        List<Exam> finishedExams = query.findList();
-
-        if (finishedExams == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, creator, name, course, state");
-            options.setPathProperties("creator", "id");
-            options.setPathProperties("course", "code");
-
-            return ok(jsonContext.toJsonString(finishedExams, true, options)).as("application/json");
-        }
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, creator, name, course, state");
+        options.setPathProperties("creator", "id");
+        options.setPathProperties("course", "code");
+        return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
     }
 
     @Restrict({@Group("STUDENT")})
