@@ -549,7 +549,6 @@ public class StudentExamController extends SitnetController {
                     .where()
                     .eq("state", Exam.State.PUBLISHED.toString())
                     .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
-                    .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate())
                     .disjunction()
                     .ilike("examOwners.firstName", String.format("%%%s%%", filter.get()))
                     .ilike("examOwners.lastName", String.format("%%%s%%", filter.get()))
