@@ -206,11 +206,10 @@
     <!-- Service status -->
     <div class="top-row">
         <div class="col-md-12">
-            <label class="checkbox">
-                <input type="checkbox" ng-model="roomInstance.outOfService" ng-change="updateRoom(roomInstance)">
-                {{'sitnet_out_of_service' | translate}}
-            </label>
+            <input type="checkbox" ng-model="roomInstance.outOfService" ng-change="updateRoom(roomInstance)">
+            <strong>{{'sitnet_out_of_service' | translate}}</strong>
         </div>
+
     </div>
     <div class="detail-row">
         <div class="col-md-12 sitnet-info-text">{{'sitnet_reason' | translate}}</div>
