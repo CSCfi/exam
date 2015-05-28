@@ -765,7 +765,6 @@
 
                 $scope.toggleLottery = function (section) {
                     if (section.sectionQuestions && section.sectionQuestions.length > 1) {
-                        section.lotteryOn = !section.lotteryOn;
                         ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
                             function (sec) {
                                 section = sec;
