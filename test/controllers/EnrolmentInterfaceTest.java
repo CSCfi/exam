@@ -26,12 +26,17 @@ import static play.test.Helpers.status;
 public class EnrolmentInterfaceTest extends IntegrationTestCase {
 
     private static Server server;
+    static boolean emptyResponse;
 
     public static class CourseInfoServlet extends HttpServlet {
 
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-            RemoteServerHelper.writeResponseFromFile(response, "test/resource/enrolments.json");
+            if (emptyResponse) {
+                RemoteServerHelper.writeEmptyJsonResponse(response);
+            } else {
+                RemoteServerHelper.writeResponseFromFile(response, "test/resource/enrolments.json");
+            }
         }
     }
 
@@ -69,5 +74,15 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
         Exam exam = deserialize(Exam.class, node.get(0));
         assertThat(exam.getCourse().getCode()).isEqualTo("810136P");
     }
+
+    @Test
+    @RunAsStudent
+    public void testListExamsNoRemoteEnrolments() throws Exception {
+        EnrolmentInterfaceTest.emptyResponse = true;
+        Result result = get("/student/exams");
+        assertThat(status(result)).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        assertThat(node).isEmpty();
+   }
 
 }

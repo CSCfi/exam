@@ -42,7 +42,11 @@ public class StudentExamController extends SitnetController {
         return promise.map(new F.Function<Collection<String>, Result>() {
             @Override
             public Result apply(Collection<String> codes) throws Throwable {
-                return listExams(filter, codes);
+                if (codes.isEmpty()) {
+                    return ok(Json.toJson(Collections.<Exam> emptyList())).as("application/json");
+                } else {
+                    return listExams(filter, codes);
+                }
             }
         }).recover(new F.Function<Throwable, Result>() {
             @Override
@@ -537,8 +541,7 @@ public class StudentExamController extends SitnetController {
                 .fetch("examOwners")
                 .where()
                 .eq("state", Exam.State.PUBLISHED.toString())
-                .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
-                .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate());
+                .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate());
         if (!courseCodes.isEmpty()) {
             query.in("course.code", courseCodes);
         }
@@ -561,7 +564,6 @@ public class StudentExamController extends SitnetController {
                     .where()
                     .eq("state", Exam.State.PUBLISHED.toString())
                     .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate())
-                    .lt("examActiveStartDate", DateTime.now().withTimeAtStartOfDay().toDate())
                     .disjunction()
                     .ilike("examOwners.firstName", String.format("%%%s%%", filter.get()))
                     .ilike("examOwners.lastName", String.format("%%%s%%", filter.get()))

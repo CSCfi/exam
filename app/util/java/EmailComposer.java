@@ -267,7 +267,6 @@ public class EmailComposer {
         String info = Messages.get(lang, "email.reservation.cancellation.info");
 
         Map<String, String> stringValues = new HashMap<>();
-        stringValues.put("hello", Messages.get(lang, "email.template.hello"));
         if (isStudentUser) {
             String link = String.format("%s/#/enroll/%s", HOSTNAME, enrolment.getExam().getCourse().getCode());
             String time = String.format("%s - %s", DTF.print(adjustDST(reservation.getStartAt(), TZ)),

@@ -145,19 +145,16 @@ public class AdminReservationController extends SitnetController {
     public static Result getReservations(F.Option<String> state, F.Option<Long> ownerId, F.Option<Long> studentId, F.Option<Long> roomId, F.Option<Long> machineId,
                                          F.Option<Long> examId, Long start, Long end) {
 
-        ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class).where();
+        ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
+                .fetch("exam.examInspections")
+                .where();
         DateTime startDate = new DateTime(start).withTimeAtStartOfDay();
         query = query.ge("reservation.startAt", startDate.toDate());
         DateTime endDate = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
         query = query.lt("reservation.endAt", endDate.toDate());
 
-        if (state.isDefined() && ! state.get().equals("NO_SHOW")) {
+        if (state.isDefined() && !state.get().equals("NO_SHOW")) {
             query = query.eq("exam.state", state.get());
-        }
-
-        User user = null;
-        if (ownerId.isDefined()) {
-            user = Ebean.find(User.class, ownerId.get());
         }
 
         if (studentId.isDefined()) {
@@ -179,66 +176,27 @@ public class AdminReservationController extends SitnetController {
             return notFound();
         }
 
-        // TODO: shitty workaround for removing exam owners
-        if(user != null && user.getId() > 0) {
-            Iterator i = enrolments.iterator();
-            while (i.hasNext()) {
-                boolean remove = true;
-                ExamEnrolment e = (ExamEnrolment) i.next();
-                Exam ex = e.getExam().getParent() != null ? e.getExam().getParent() : e.getExam();
-                if (ex != null && ex.getExamOwners() != null) {
-                    for (User u : ex.getExamOwners()) {
-                        if (u.getId() == user.getId()) {
-                            remove = false;
-                        }
-                    }
-                }
-                if(remove) {
-                    i.remove();
+        if (ownerId.isDefined()) {
+            User user = Ebean.find(User.class, ownerId.get());
+            Iterator<ExamEnrolment> it = enrolments.listIterator();
+            while (it.hasNext()) {
+                ExamEnrolment ee = it.next();
+                Exam exam = ee.getExam().getParent() == null ? ee.getExam() : ee.getExam().getParent();
+                if (!exam.getExamOwners().contains(user)) {
+                    it.remove();
                 }
             }
         }
 
-        // NO_SHOW adds
-        for(ExamEnrolment enrolment : enrolments) {
-            boolean isParentExam = enrolment.getExam().getParent() == null ? true : false;
-            // if parent exam, student has not start the test yet.
-            if(isParentExam) {
-                // if reservation end time is in the past
-                if (enrolment.getReservation().getEndAt().getTime() < new Date().getTime()) {
-                    enrolment.getReservation().getMachine().setOtherIdentifier("NO_SHOW");
-                }
-            }
-        }
-        // ok IF STATE == NO_SHOW, removes the rest
-        if(state.isDefined() && state.get().equals("NO_SHOW")) {
-
-            Iterator i = enrolments.iterator();
-            while (i.hasNext()) {
-                ExamEnrolment e = (ExamEnrolment) i.next();
-                boolean isNoShow = e.getReservation() != null &&
-                        e.getReservation().getMachine() != null &&
-                        e.getReservation().getMachine().getOtherIdentifier() != null &&
-                        e.getReservation().getMachine().getOtherIdentifier().equals("NO_SHOW");
-
-                if(! isNoShow) {
-                    i.remove();
-                }
-            }
-        }
-
-        if(state.isDefined() && ! state.get().equals("NO_SHOW")) {
-            Iterator i = enrolments.iterator();
-            while (i.hasNext()) {
-                ExamEnrolment e = (ExamEnrolment) i.next();
-
-                boolean isNoShow = e.getReservation() != null &&
-                        e.getReservation().getMachine() != null &&
-                        e.getReservation().getMachine().getOtherIdentifier() != null &&
-                        e.getReservation().getMachine().getOtherIdentifier().equals("NO_SHOW");
-
-                if(isNoShow) {
-                    i.remove();
+        // Need to manually include/exclude the no-shows
+        if (state.isDefined()) {
+            Iterator<ExamEnrolment> it = enrolments.listIterator();
+            while (it.hasNext()) {
+                ExamEnrolment ee = it.next();
+                boolean isNoShow = ee.getExam().getParent() == null &&
+                        ee.getReservation().getEndAt().before(DateTime.now().toDate());
+                if (isNoShow != state.get().equals("NO_SHOW")) {
+                    it.remove();
                 }
             }
         }
@@ -247,8 +205,10 @@ public class AdminReservationController extends SitnetController {
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
         options.setPathProperties("user", "id, firstName, lastName, email");
-        options.setPathProperties("exam", "id, name, state, examOwners, parent");
+        options.setPathProperties("exam", "id, name, state, examOwners, parent, examInspections");
         options.setPathProperties("exam.examOwners", "id, firstName, lastName");
+        options.setPathProperties("exam.examInspections", "id, user");
+        options.setPathProperties("exam.examInspections.user", "id, firstName, lastName");
         options.setPathProperties("parent", "id, examOwners");
         options.setPathProperties("parent.examOwners", "id, firstName, lastName");
         options.setPathProperties("reservation", "id, startAt, endAt, machine");
@@ -256,6 +216,5 @@ public class AdminReservationController extends SitnetController {
         options.setPathProperties("reservation.machine.room", "id, name, roomCode");
 
         return ok(jsonContext.toJsonString(enrolments, true, options)).as("application/json");
-
     }
 }

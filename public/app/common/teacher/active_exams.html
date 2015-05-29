@@ -37,10 +37,9 @@
                     <td class="table-column-open-until">{{ activeExam.examActiveStartDate | date:'dd.MM.yyyy' }} -
                         {{ activeExam.examActiveEndDate | date:'dd.MM.yyyy' }}
                     </td>
-                    <td class="table-column-enroll-participation">{{activeExam.examParticipations.length -
-                        activeExam.examParticipationsAndReviews.length}}
+                    <td class="table-column-enroll-participation">{{getReviewablesCount(activeExam)}}
                     </td>
-                    <td class="table-column-enroll-participation">{{ activeExam.activeExamEnrolments.length }}</td>
+                    <td class="table-column-enroll-participation">{{ getReservationCount(activeExam) }}</td>
                     <td class="table-column-teachers" ng-bind-html="activeExam.teachersStr"></td>
                 </tr>
                 </tbody>

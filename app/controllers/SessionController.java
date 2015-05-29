@@ -25,10 +25,11 @@ import java.util.*;
 
 public class SessionController extends SitnetController {
 
+    private static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
+
     public static Result login() throws MalformedDataException {
-        String loginType = ConfigFactory.load().getString("sitnet.login");
         Result result;
-        switch (loginType) {
+        switch (LOGIN_TYPE) {
             case "HAKA":
                 result = hakaLogin();
                 break;
@@ -109,6 +110,9 @@ public class SessionController extends SitnetController {
     }
 
     private static String validateEmail(String email) throws AddressException {
+        if (email == null) {
+            throw new AddressException("no email address for user");
+        }
         new InternetAddress(email).validate();
         return email;
     }
@@ -220,10 +224,8 @@ public class SessionController extends SitnetController {
         String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
         if (session != null) {
-            String loginType = ConfigFactory.load().getString("sitnet.login");
-            String logoutUrl = null;
             User user = Ebean.find(User.class, session.getUserId());
-            if (loginType.equals("HAKA")) {
+            if (LOGIN_TYPE.equals("HAKA")) {
                 session.setValid(false);
                 Cache.set(key, session);
                 Logger.info("Set session as invalid {}", token);
@@ -241,8 +243,7 @@ public class SessionController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public static Result extendSession() {
-        String loginType = ConfigFactory.load().getString("sitnet.login");
-        String token = request().getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        String token = request().getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         final String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
 
@@ -257,9 +258,7 @@ public class SessionController extends SitnetController {
     }
 
     public static Result checkSession() {
-
-        String loginType = ConfigFactory.load().getString("sitnet.login");
-        String token = request().getHeader(loginType.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
+        String token = request().getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         final String key = SITNET_CACHE_KEY + token;
         Session session = (Session) Cache.get(key);
 

@@ -79,7 +79,7 @@
 
                 var refreshGradeNames = function () {
                     if (!$scope.examToBeReviewed) return;
-                    var scale = $scope.examToBeReviewed.gradeScale || $scope.examToBeReviewed.parent.gradeScale;
+                    var scale = $scope.examToBeReviewed.gradeScale || $scope.examToBeReviewed.parent.gradeScale || $scope.examToBeReviewed.course.gradeScale;
                     $scope.examGrading = scale.grades.map(function (grade) {
                         grade.name = examService.getExamGradeDisplayName(grade.name);
                         return grade;
@@ -581,13 +581,16 @@
                     if (!reviewedExam.grade) {
                         if ($scope.selectedGrade) {
                             reviewedExam.grade = {id: $scope.selectedGrade};
-                        }
-                        if (!reviewedExam.grade) {
+                        } else {
                             messages.push('sitnet_participation_unreviewed');
                         }
                     }
                     if (!reviewedExam.creditType) {
-                        messages.push('sitnet_exam_choose_credit_type');
+                        if ($scope.selectedType) {
+                            reviewedExam.creditType = $scope.selectedType;
+                        } else {
+                            messages.push('sitnet_exam_choose_credit_type');
+                        }
                     }
                     if (!$scope.selectedLanguage) {
                         messages.push('sitnet_exam_choose_response_language');

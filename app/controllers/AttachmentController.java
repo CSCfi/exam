@@ -181,17 +181,17 @@ public class AttachmentController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteExamAttachment(Long id) {
-
         Exam exam = Ebean.find(Exam.class, id);
-        Attachment aa = Ebean.find(Attachment.class, exam.getAttachment().getId());
-        if (aa != null) {
-            exam.setAttachment(null);
-            exam.save();
-            aa.delete();
-            SitnetUtil.removeAttachmentFile(aa.getFilePath());
+        if (exam.getAttachment() != null) {
+            Attachment aa = Ebean.find(Attachment.class, exam.getAttachment().getId());
+            if (aa != null) {
+                exam.setAttachment(null);
+                exam.save();
+                aa.delete();
+                SitnetUtil.removeAttachmentFile(aa.getFilePath());
+            }
         }
         return redirect("/#/exams/" + String.valueOf(id));
-
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
