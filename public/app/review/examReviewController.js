@@ -80,7 +80,7 @@
 
                 var refreshGradeNames = function () {
                     if (!$scope.examToBeReviewed) return;
-                    var scale = $scope.examToBeReviewed.gradeScale || $scope.examToBeReviewed.parent.gradeScale;
+                    var scale = $scope.examToBeReviewed.gradeScale || $scope.examToBeReviewed.parent.gradeScale || $scope.examToBeReviewed.course.gradeScale;
                     $scope.examGrading = scale.grades.map(function (grade) {
                         grade.name = examService.getExamGradeDisplayName(grade.name);
                         return grade;
