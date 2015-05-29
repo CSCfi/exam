@@ -541,6 +541,7 @@ public class ExamController extends SitnetController {
     public static Result insertComment(Long eid, Long cid) throws MalformedDataException {
 
         Comment comment = bindForm(Comment.class);
+        AppUtil.setCreator(comment);
         comment.save();
 
         Exam exam = Ebean.find(Exam.class, eid);
@@ -558,26 +559,19 @@ public class ExamController extends SitnetController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateComment(Long eid, Long cid) throws MalformedDataException {
 
-        Comment bindComment = bindForm(Comment.class);
-
+        Comment form = bindForm(Comment.class);
         Comment comment = Ebean.find(Comment.class, cid);
         if (comment == null) {
             return notFound();
         }
-
-        AppUtil.setCreator(comment);
-        if (bindComment.getComment() != null) {
-            comment.setComment(bindComment.getComment());
-        } else {
-            comment.setComment("");
+        if (form.getComment() != null) {
+            AppUtil.setModifier(comment);
+            comment.setComment(form.getComment());
+            comment.save();
+            Exam exam = Ebean.find(Exam.class, eid);
+            exam.setExamFeedback(comment);
+            exam.save();
         }
-        comment.save();
-
-        Exam exam = Ebean.find(Exam.class, eid);
-
-        exam.setExamFeedback(comment);
-        exam.save();
-
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, comment, creator");
