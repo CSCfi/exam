@@ -12,14 +12,14 @@
 
                 $scope.selection = {};
 
-                $scope.roomContains = function(examroom, machine) {
+                $scope.roomContains = function (examroom, machine) {
 
                     var isRoomMachine = false;
-                    if(examroom && examroom.examMachines) {
-                        angular.forEach(examroom.examMachines, function(roommachine){
-                           if(machine.id === roommachine.id) {
-                               isRoomMachine = true;
-                           }
+                    if (examroom && examroom.examMachines) {
+                        angular.forEach(examroom.examMachines, function (roommachine) {
+                            if (machine.id === roommachine.id) {
+                                isRoomMachine = true;
+                            }
                         });
                     }
                     return isRoomMachine;
@@ -61,58 +61,49 @@
 
                 function setExamOwners(exam) {
                     exam.teachersStr = "";
-
-                    if(exam.examOwners) {
-                        var i = 0;
-                        angular.forEach(exam.examOwners, function (owner) {
-                            if(owner.lastName &&  owner.lastName.length > 0) {
-                                if(i !== 0) {
-                                    exam.teachersStr += ", ";
-                                }
-                                i++;
-                                if($scope.user.isStudent) {
-                                    exam.teachersStr += owner.firstName + " " + owner.lastName;
-                                } else {
-                                    exam.teachersStr += "<b>" + owner.firstName + " " + owner.lastName + "</b>";
-                                }
+                    var i = 0;
+                    angular.forEach(exam.examOwners, function (owner) {
+                        if (owner.lastName && owner.lastName.length > 0) {
+                            if (i !== 0) {
+                                exam.teachersStr += ", ";
                             }
-                        });
-                    }
-
-                    if(exam.inspections) {
-                        var i = 0;
-                        angular.forEach(exam.inspections, function (inspection) {
-                            if (exam.teachersStr.indexOf("<b>" +inspection.user.firstName + " " + inspection.user.lastName + "</b>") === -1) {
-                                if(i !== 0 || (i === 0 && exam.teachersStr.length > 0)) {
-                                    exam.teachersStr += ", ";
-                                }
-                                i++;
-                                if($scope.user.isStudent) {
-                                    exam.teachersStr += inspection.user.firstName + " " + inspection.user.lastName;
-                                } else {
-                                    exam.teachersStr += "<span>" + inspection.user.firstName + " " + inspection.user.lastName + "</span>";
-                                }
+                            i++;
+                            if ($scope.user.isStudent) {
+                                exam.teachersStr += owner.firstName + " " + owner.lastName;
+                            } else {
+                                exam.teachersStr += "<b>" + owner.firstName + " " + owner.lastName + "</b>";
                             }
-                        });
-                    }
+                        }
+                    });
+                    i = 0;
+                    angular.forEach(exam.examInspections, function (inspection) {
+                        if (exam.teachersStr.indexOf("<b>" + inspection.user.firstName + " " + inspection.user.lastName + "</b>") === -1) {
+                            if (i !== 0 || (i === 0 && exam.teachersStr.length > 0)) {
+                                exam.teachersStr += ", ";
+                            }
+                            i++;
+                            if ($scope.user.isStudent) {
+                                exam.teachersStr += inspection.user.firstName + " " + inspection.user.lastName;
+                            } else {
+                                exam.teachersStr += "<span>" + inspection.user.firstName + " " + inspection.user.lastName + "</span>";
+                            }
+                        }
+                    });
                 }
 
                 $scope.examStates = [
-                        'REVIEW',
-                        'REVIEW_STARTED',
-                        'GRADED',
-                        'GRADED_LOGGED',
-                        'STUDENT_STARTED',
-                        'PUBLISHED',
-                        'ABORTED',
-                        'NO_SHOW'
-                    ];
+                    'REVIEW',
+                    'REVIEW_STARTED',
+                    'GRADED',
+                    'GRADED_LOGGED',
+                    'STUDENT_STARTED',
+                    'PUBLISHED',
+                    'ABORTED',
+                    'NO_SHOW'
+                ];
 
-                $scope.printExamState = function(enrolment) {
-                    if(enrolment &&
-                        enrolment.reservation &&
-                        enrolment.reservation.machine &&
-                        enrolment.reservation.machine.otherIdentifier === "NO_SHOW") {
+                $scope.printExamState = function (enrolment) {
+                    if (moment(enrolment.reservation.endAt).isBefore(moment()) && !enrolment.exam.parent) {
                         return "NO_SHOW";
                     } else {
                         return enrolment.exam.state;
@@ -145,14 +136,9 @@
                         AdminReservationResource.reservations.query(params,
                             function (enrolments) {
                                 $scope.enrolments = enrolments;
-                                if(enrolments) {
-                                    angular.forEach(enrolments, function(enrolment){
-                                        ExamRes.inspections.get({id: enrolment.exam.id}, function (inspections) {
-                                            enrolment.exam.inspections = inspections;
-                                            setExamOwners(enrolment.exam);
-                                        });
-                                    });
-                                }
+                                angular.forEach(enrolments, function (enrolment) {
+                                    setExamOwners(enrolment.exam);
+                                });
                             }, function (error) {
                                 toastr.error(error.data);
                             });
@@ -161,7 +147,7 @@
 
                 initQuery();
 
-                $scope.query = function() {
+                $scope.query = function () {
                     initQuery();
                 };
 
