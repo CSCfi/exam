@@ -1,23 +1,15 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import play.db.ebean.Model;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Entity
-public class ExamInspection extends Model {
+public class ExamInspection extends GeneratedIdentityModel {
 
-	@Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @ManyToOne
+	@ManyToOne
     @JsonBackReference
 	private Exam exam;
 
@@ -47,10 +39,6 @@ public class ExamInspection extends Model {
 		return exam;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
 	public User getUser() {
 		return user;
 	}
@@ -61,10 +49,6 @@ public class ExamInspection extends Model {
 		this.exam = exam;
 	}
 	
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public void setUser(User user) {
 		this.user = user;
 	}

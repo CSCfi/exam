@@ -1,22 +1,12 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import play.db.ebean.Model;
 
 import javax.persistence.*;
-import java.util.Date;
 import java.util.List;
 
 @Entity
-public class Accessibility extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Accessibility extends GeneratedIdentityModel {
 
     private String name;
 
@@ -27,15 +17,6 @@ public class Accessibility extends Model {
     @ManyToMany(cascade = CascadeType.ALL)
     @JsonBackReference
     private List<ExamMachine> examMachine;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
 
     public String getName() {
         return name;

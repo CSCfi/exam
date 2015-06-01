@@ -2,21 +2,12 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.joda.time.Interval;
-import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class Reservation extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Reservation extends GeneratedIdentityModel {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date startAt;
@@ -31,14 +22,6 @@ public class Reservation extends Model {
     @OneToOne
     @JsonBackReference
     User user;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Date getStartAt() {
         return startAt;

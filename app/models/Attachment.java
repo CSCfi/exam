@@ -3,7 +3,7 @@ package models;
 import javax.persistence.Entity;
 
 @Entity
-public class Attachment extends BasicModel {
+public class Attachment extends OwnedModel {
 
     private String fileName;
     private String filePath;

@@ -1,23 +1,14 @@
 package models;
 
 import play.data.format.Formats.DateTime;
-import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @MappedSuperclass
-public abstract class BasicModel extends Model {
+public abstract class OwnedModel extends GeneratedIdentityModel {
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-    protected Long id;
-	
-	@Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-	
-    @Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.TIMESTAMP)
     @DateTime(pattern="yyyy/MM/dd")
     protected Date created;
 	
@@ -30,18 +21,7 @@ public abstract class BasicModel extends Model {
 	@OneToOne
     protected User modifier;
 	
-	public BasicModel() {
-	}
-	
-	public Long getId() {
-		return id;
-	}
-
-    public void setId(Long id) {
-		this.id = id;
-	}
-
-    public Date getCreated() {
+	public Date getCreated() {
 		return created;
 	}
 

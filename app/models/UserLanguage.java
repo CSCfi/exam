@@ -1,23 +1,12 @@
 package models;
 
 
-import play.db.ebean.Model;
-
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
 
 @Entity
-public class UserLanguage extends Model {
+public class UserLanguage extends GeneratedIdentityModel {
 
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-	private String nativeLanguageCode;
+    private String nativeLanguageCode;
 
 	private String nativeLanguageName;
 
@@ -58,11 +47,4 @@ public class UserLanguage extends Model {
 		UILanguageName = uILanguageName;
 	}
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

@@ -1,22 +1,11 @@
 package models;
 
-import play.db.ebean.Model;
-
 import javax.persistence.*;
-import java.util.Date;
 import java.util.List;
 
 @Entity
-public class Organisation extends Model {
+public class Organisation extends GeneratedIdentityModel {
 
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-	@Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
-	
     private String code;
 	
 	private String name;
@@ -44,12 +33,11 @@ public class Organisation extends Model {
         return courseUnitInfoUrl;
     }
 
-    public Long getId() {
-		return id;
-	}
-
     public String getName() {
 		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getNameAbbreviation() {
@@ -76,13 +64,6 @@ public class Organisation extends Model {
         this.courseUnitInfoUrl = courseUnitInfoUrl;
     }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
 
 	public void setNameAbbreviation(String nameAbbreviation) {
 		this.nameAbbreviation = nameAbbreviation;

@@ -6,24 +6,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "app_user")
-public class User extends Model implements Subject {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class User extends GeneratedIdentityModel implements Subject {
 
     private String email;
 
@@ -111,14 +101,6 @@ public class User extends Model implements Subject {
 
     public void setOrganisation(Organisation organisation) {
         this.organisation = organisation;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getEmail() {
@@ -231,7 +213,7 @@ public class User extends Model implements Subject {
 
     @Override
     public String toString() {
-        return "User [id=" + id + ", email=" + email + ", name=" + lastName + " " +
+        return "User [id=" + getId() + ", email=" + email + ", name=" + lastName + " " +
                 firstName + ", password=" + password + "]";
     }
 
@@ -240,11 +222,11 @@ public class User extends Model implements Subject {
         if (other == this) return true;
         if (!(other instanceof User)) return false;
         User otherUser = (User) other;
-        return new EqualsBuilder().append(id, otherUser.id).build();
+        return new EqualsBuilder().append(getId(), otherUser.getId()).build();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(id).build();
+        return new HashCodeBuilder().append(getId()).build();
     }
 }

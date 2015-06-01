@@ -78,7 +78,7 @@ public class AppUtil {
         return dateTime;
     }
 
-    public static BasicModel setCreator(BasicModel object) {
+    public static OwnedModel setCreator(OwnedModel object) {
         User user = UserController.getLoggedUser();
         if (object.getCreator() == null) {
             object.setCreator(user);
@@ -87,7 +87,7 @@ public class AppUtil {
         return object;
     }
 
-    public static BasicModel setModifier(BasicModel object) {
+    public static OwnedModel setModifier(OwnedModel object) {
         User user = UserController.getLoggedUser();
         object.setModifier(user);
         object.setModified(DateTime.now().toDate());

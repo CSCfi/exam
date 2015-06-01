@@ -1,21 +1,12 @@
 package models.dto;
 
-import play.db.ebean.Model;
+import models.GeneratedIdentityModel;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
 
 
 @Entity
-public class ExamScore extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class ExamScore extends GeneratedIdentityModel {
 
     private String studentId;
     private String student;
@@ -173,14 +164,6 @@ public class ExamScore extends Model {
         this.studentId = studentId;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getAdditionalInfo() {
         return additionalInfo;
     }
@@ -199,7 +182,7 @@ public class ExamScore extends Model {
     }
 
     public String[] asArray() {
-        return new String[]{Long.toString(id), studentId, student, identifier, courseUnitCode, examDate, credits,
+        return new String[]{Long.toString(getId()), studentId, student, identifier, courseUnitCode, examDate, credits,
                 creditLanguage, studentGrade, gradeScale, courseUnitLevel, courseUnitType, creditType, lecturer,
                 lecturerId, date, courseImplementation, additionalInfo, lecturerEmployeeNumber};
     }

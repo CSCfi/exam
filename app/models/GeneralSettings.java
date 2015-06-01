@@ -1,20 +1,10 @@
 package models;
 
-import play.db.ebean.Model;
-
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
 
 @Entity
-public class GeneralSettings extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-	@GeneratedValue(strategy= GenerationType.AUTO)
-    protected Long id;
+public class GeneralSettings extends GeneratedIdentityModel {
 
     @Column(columnDefinition = "TEXT")
     private String eula;
@@ -28,14 +18,6 @@ public class GeneralSettings extends Model {
 
     public void setReviewDeadline(long reviewDeadline) {
         this.reviewDeadline = reviewDeadline;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getEula() {

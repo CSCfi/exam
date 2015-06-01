@@ -15,7 +15,7 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class Exam extends BasicModel implements Comparable<Exam> {
+public class Exam extends OwnedModel implements Comparable<Exam> {
 
     public enum State {
         DRAFT,
@@ -495,8 +495,8 @@ public class Exam extends BasicModel implements Comparable<Exam> {
 
     public Exam copy() {
         Exam clone = new Exam();
-        BeanUtils.copyProperties(this, clone, new String[]{"id", "examSections", "examEnrolments", "examParticipations",
-                "examInspections", "creator", "created", "examOwners"});
+        BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
+                "examInspections", "creator", "created", "examOwners");
         clone.setParent(this);
         AppUtil.setCreator(clone);
         AppUtil.setModifier(clone);
@@ -505,7 +505,7 @@ public class Exam extends BasicModel implements Comparable<Exam> {
 
         for (ExamInspection ei : examInspections) {
             ExamInspection inspection = new ExamInspection();
-            BeanUtils.copyProperties(ei, inspection, new String[]{"id", "exam"});
+            BeanUtils.copyProperties(ei, inspection, "id", "exam");
             inspection.setExam(clone);
             inspection.save();
         }
