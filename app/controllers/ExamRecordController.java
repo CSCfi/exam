@@ -3,10 +3,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.Exam;
-import models.ExamParticipation;
-import models.ExamRecord;
-import models.User;
+import models.*;
 import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
@@ -90,8 +87,8 @@ public class ExamRecordController extends SitnetController {
 
         String[] ids = request().queryString().get("childIds");
         List<Long> childIds = new ArrayList<>();
-        if(ids != null) {
-            for(String s : ids) {
+        if (ids != null) {
+            for (String s : ids) {
                 childIds.add(Long.parseLong(s));
             }
         }
@@ -159,7 +156,7 @@ public class ExamRecordController extends SitnetController {
             case "ruotsi":
             case "svenska":
             case "swedish":
-                 code = "sv";
+                code = "sv";
                 break;
             default:
                 code = "en";
@@ -195,11 +192,11 @@ public class ExamRecordController extends SitnetController {
         score.setCreditLanguage(getLanguageCode(exam.getAnswerLanguage()));
         score.setCreditType(exam.getCreditType().getType()); // FIXME: check Virta/etc
         score.setIdentifier(exam.getCourse().getIdentifier());
-
-        if (exam.getGradeScale().getExternalRef() != null)  {
-            score.setGradeScale(exam.getGradeScale().getExternalRef().toString());
+        GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
+        if (scale.getExternalRef() != null) {
+            score.setGradeScale(scale.getExternalRef().toString());
         } else {
-            score.setGradeScale(exam.getGradeScale().getDescription());
+            score.setGradeScale(scale.getDescription());
         }
         score.setStudentGrade(exam.getGrade().getName());
         return score;
