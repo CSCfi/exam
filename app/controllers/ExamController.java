@@ -451,7 +451,8 @@ public class ExamController extends SitnetController {
         String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
             Grade examGrade = Ebean.find(Grade.class, grade);
-            if (exam.getGradeScale().getGrades().contains(examGrade)) {
+            GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
+            if (scale.getGrades().contains(examGrade)) {
                 exam.setGrade(examGrade);
             } else {
                 return badRequest("Invalid grade for this grade scale");
