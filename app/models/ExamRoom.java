@@ -14,6 +14,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Entity
 public class ExamRoom extends GeneratedIdentityModel {
@@ -84,7 +85,7 @@ public class ExamRoom extends GeneratedIdentityModel {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "room")
     @JsonManagedReference
-    private List<ExamMachine> examMachines = new ArrayList<>();
+    private List<ExamMachine> examMachines;
 
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
@@ -125,9 +126,6 @@ public class ExamRoom extends GeneratedIdentityModel {
     }
 
     public List<ExceptionWorkingHours> getCalendarExceptionEvents() {
-        if (calendarExceptionEvents == null) {
-            calendarExceptionEvents = new ArrayList<ExceptionWorkingHours>();
-        }
         return calendarExceptionEvents;
     }
 
@@ -294,15 +292,12 @@ public class ExamRoom extends GeneratedIdentityModel {
     private List<OpeningHours> getDefaultWorkingHours(LocalDate date) {
         String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
         List<OpeningHours> hours = new ArrayList<>();
-        for (DefaultWorkingHours defaultHour : defaultWorkingHours) {
-            if (defaultHour.getDay().equalsIgnoreCase(day)) {
-                DateTime midnight = date.toDateTimeAtStartOfDay();
-                DateTime start = midnight.withMillisOfDay((int) defaultHour.getStartTime().getTime());
-                DateTime end = midnight.withMillisOfDay((int) defaultHour.getEndTime().getTime());
-                Interval interval = new Interval(start.plusMillis(defaultHour.getTimezoneOffset()), end.plusMillis(defaultHour.getTimezoneOffset()));
-                hours.add(new OpeningHours(interval, defaultHour.getTimezoneOffset()));
-            }
-        }
+        defaultWorkingHours.stream().filter(dwh -> dwh.getDay().equalsIgnoreCase(day)).collect(Collectors.toList()).forEach(dwh -> {
+            DateTime midnight = date.toDateTimeAtStartOfDay();
+            DateTime start = midnight.withMillisOfDay((int) dwh.getStartTime().getTime());
+            DateTime end = midnight.withMillisOfDay((int) dwh.getEndTime().getTime());
+            Interval interval = new Interval(start.plusMillis(dwh.getTimezoneOffset()), end.plusMillis(dwh.getTimezoneOffset()));
+            hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));});
         return hours;
     }
 
@@ -361,4 +356,8 @@ public class ExamRoom extends GeneratedIdentityModel {
             return hours;
         }
     }
+
+    public static final Find<Long, ExamRoom> find = new Find<Long, ExamRoom>() {
+    };
+
 }

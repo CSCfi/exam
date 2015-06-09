@@ -10,10 +10,10 @@ import play.mvc.Result;
 import java.util.List;
 
 
-public class LanguageController extends SitnetController {
+public class LanguageController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getSupportedLanguages() {
+    public Result getSupportedLanguages() {
         List<Language> languages = Ebean.find(Language.class).findList();
         return ok(Json.toJson(languages));
     }

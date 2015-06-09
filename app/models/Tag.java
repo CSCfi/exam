@@ -1,10 +1,9 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import models.questions.AbstractQuestion;
+import models.questions.Question;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,7 +15,7 @@ public class Tag extends OwnedModel {
 
     @ManyToMany(mappedBy = "tags", cascade = CascadeType.ALL)
     @JsonBackReference
-    private List<AbstractQuestion> questions = new ArrayList<>();
+    private List<Question> questions;
 
     public String getName() {
         return name;
@@ -26,11 +25,11 @@ public class Tag extends OwnedModel {
         this.name = name;
     }
 
-    public List<AbstractQuestion> getQuestions() {
+    public List<Question> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<AbstractQuestion> questions) {
+    public void setQuestions(List<Question> questions) {
         this.questions = questions;
     }
 

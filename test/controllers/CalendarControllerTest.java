@@ -22,8 +22,6 @@ import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.status;
-
 
 public class CalendarControllerTest extends IntegrationTestCase {
 
@@ -71,7 +69,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("examId", exam.getId())
                         .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
                         .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
@@ -111,7 +109,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("examId", exam.getId())
                         .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
                         .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
@@ -158,7 +156,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("examId", exam.getId())
                         .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
                         .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, newEnrolment.getId());
@@ -193,7 +191,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("examId", exam.getId())
                         .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
                         .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
-        assertThat(status(result)).isEqualTo(400);
+        assertThat(result.status()).isEqualTo(400);
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
@@ -213,7 +211,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("examId", exam.getId())
                         .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
                         .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
-        assertThat(status(result)).isEqualTo(400);
+        assertThat(result.status()).isEqualTo(400);
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
@@ -239,7 +237,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("examId", exam.getId())
                         .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
                         .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
-        assertThat(status(result)).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
 
         // Verify
@@ -261,7 +259,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
@@ -283,7 +281,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
-        assertThat(status(result)).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(403);
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
@@ -304,7 +302,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.DELETE, "/calendar/reservation/" + reservation.getId(), null);
-        assertThat(status(result)).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(403);
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());

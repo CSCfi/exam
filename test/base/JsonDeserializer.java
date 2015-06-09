@@ -1,13 +1,10 @@
 package base;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.*;
-import models.answers.AbstractAnswer;
-import models.answers.EssayAnswer;
-import models.answers.MultipleChoiseAnswer;
-import models.questions.AbstractQuestion;
-import models.questions.EssayQuestion;
-import models.questions.MultipleChoiceQuestion;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
 import play.Logger;
 
 import java.lang.reflect.Type;
@@ -20,8 +17,6 @@ public final class JsonDeserializer {
     private static GsonBuilder gsonBuilder = new GsonBuilder();
     static {
         gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
-        gsonBuilder.registerTypeAdapter(AbstractQuestion.class, new QuestionDeserializer());
-        gsonBuilder.registerTypeAdapter(AbstractAnswer.class, new AnswerDeserializer());
     }
     private static Gson gson = gsonBuilder.create();
 
@@ -37,38 +32,6 @@ public final class JsonDeserializer {
                 } catch (RuntimeException e2) {
                     Logger.warn("Failed to parse date " + json.getAsString());
                 }
-            }
-            return null;
-        }
-    }
-
-    private static class QuestionDeserializer implements com.google.gson.JsonDeserializer<AbstractQuestion> {
-
-        @Override
-        public AbstractQuestion deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-            JsonObject object = json.getAsJsonObject();
-            String type = object.get("type").getAsString();
-            if (type.equals("EssayQuestion")) {
-                return context.deserialize(json, EssayQuestion.class);
-            }
-            if (type.equals("MultipleChoiceQuestion")) {
-                return context.deserialize(json, MultipleChoiceQuestion.class);
-            }
-            return null;
-        }
-    }
-
-    private static class AnswerDeserializer implements com.google.gson.JsonDeserializer<AbstractAnswer> {
-
-        @Override
-        public AbstractAnswer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
-            JsonObject object = json.getAsJsonObject();
-            String type = object.get("type").getAsString();
-            if (type.equals("EssayAnswer")) {
-                return context.deserialize(json, EssayAnswer.class);
-            }
-            if (type.equals("MultipleChoiseAnswer")) {
-                return context.deserialize(json, MultipleChoiseAnswer.class);
             }
             return null;
         }

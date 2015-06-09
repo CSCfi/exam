@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject.Inject
+
 import be.objectify.deadbolt.java.actions.{Group, Restrict}
 import com.avaje.ebean.Ebean
 import models.{Course, User}
@@ -10,7 +12,7 @@ import util.scala.ScalaHacks
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object CourseController extends Controller with ScalaHacks {
+class CourseController @Inject()(externalApi : ExternalAPI) extends Controller with ScalaHacks {
 
   sealed trait FilterType
 
@@ -24,7 +26,7 @@ object CourseController extends Controller with ScalaHacks {
   def getCourses(filterType: Option[String], criteria: Option[String]) = Action.async {
     (filterType, criteria) match {
       case (Some("code"), Some(x)) =>
-        Interfaces.getCourseInfoByCode(x).wrapped.map(i => java2Response(i))
+        externalApi.getCourseInfoByCode(x).wrapped.map(i => java2Response(i))
       case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
         val courses = scala.concurrent.Future {
           Ebean.find(classOf[Course]).where
@@ -53,13 +55,13 @@ object CourseController extends Controller with ScalaHacks {
     val user = Ebean.find(classOf[User], userId)
     var query = Ebean.find(classOf[Course]).where
     if (!user.hasRole("ADMIN")) query = query.eq("exams.creator.id", userId)
-    if (examIds.isDefined && examIds.get.size > 0) {
+    if (examIds.isDefined && examIds.get.nonEmpty) {
       query = query.in("exams.id", examIds.get.asJava)
     }
-    if (sectionIds.isDefined && sectionIds.get.size > 0) {
+    if (sectionIds.isDefined && sectionIds.get.nonEmpty) {
       query = query.in("exams.examSections.id", sectionIds.get.asJava)
     }
-    if (tagIds.isDefined && tagIds.get.size > 0) {
+    if (tagIds.isDefined && tagIds.get.nonEmpty) {
       query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
     }
     query.orderBy("name desc").findList

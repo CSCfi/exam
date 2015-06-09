@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -51,7 +50,7 @@ public class Course extends GeneratedIdentityModel {
 
     @OneToMany(mappedBy = "course")
     @JsonBackReference
-    private List<Exam> exams = new ArrayList<>();
+    private List<Exam> exams;
 
     @ManyToOne
     private Organisation organisation;

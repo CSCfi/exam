@@ -4,7 +4,6 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.TxType;
 import com.avaje.ebean.annotation.Transactional;
 import com.typesafe.config.ConfigFactory;
-import controllers.UserController;
 import models.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
@@ -78,8 +77,7 @@ public class AppUtil {
         return dateTime;
     }
 
-    public static OwnedModel setCreator(OwnedModel object) {
-        User user = UserController.getLoggedUser();
+    public static OwnedModel setCreator(OwnedModel object, User user) {
         if (object.getCreator() == null) {
             object.setCreator(user);
             object.setCreated(DateTime.now().toDate());
@@ -87,8 +85,7 @@ public class AppUtil {
         return object;
     }
 
-    public static OwnedModel setModifier(OwnedModel object) {
-        User user = UserController.getLoggedUser();
+    public static OwnedModel setModifier(OwnedModel object, User user) {
         object.setModifier(user);
         object.setModified(DateTime.now().toDate());
         return object;

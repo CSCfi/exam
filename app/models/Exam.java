@@ -2,9 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import models.answers.MultipleChoiseAnswer;
-import models.questions.AbstractQuestion;
-import models.questions.EssayQuestion;
+import models.questions.Answer;
+import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
@@ -41,7 +40,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     @ManyToMany
     @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> examOwners = new ArrayList<>();
+    private List<User> examOwners;
 
     // Instruction written by teacher, shown during exam
     @Column(columnDefinition = "TEXT")
@@ -56,26 +55,26 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     // An ExamSection may be used only in one Exam
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
-    private List<ExamSection> examSections = new ArrayList<>();
+    private List<ExamSection> examSections;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     protected Exam parent;
 
     @OneToMany(mappedBy = "parent")
     @JsonBackReference
-    protected List<Exam> children = new ArrayList<>();
+    protected List<Exam> children;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
-    private List<ExamEnrolment> examEnrolments = new ArrayList<>();
+    private List<ExamEnrolment> examEnrolments;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
-    private List<ExamParticipation> examParticipations = new ArrayList<>();
+    private List<ExamParticipation> examParticipations;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "exam")
     @JsonManagedReference
-    private List<ExamInspection> examInspections = new ArrayList<>();
+    private List<ExamInspection> examInspections;
 
     @OneToOne(mappedBy = "exam")
     private ExamRecord examRecord;
@@ -112,7 +111,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     // Exam language
     @ManyToMany
-    private List<Language> examLanguages = new ArrayList<>();
+    private List<Language> examLanguages;
 
     // Exam answer language
     private String answerLanguage;
@@ -165,15 +164,14 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         double total = 0;
         for (ExamSection section : examSections) {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                AbstractQuestion question = esq.getQuestion();
+                Question question = esq.getQuestion();
                 Double evaluatedScore = null;
-                if (question instanceof EssayQuestion) {
-                    EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType() != null && essayQuestion.getEvaluationType().equals("Points")) {
-                        evaluatedScore = essayQuestion.getEvaluatedScore();
+                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                    if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
+                        evaluatedScore = question.getEvaluatedScore();
                     }
                 } else if (question.getAnswer() != null) {
-                    MultipleChoiseAnswer answer = (MultipleChoiseAnswer) question.getAnswer();
+                    Answer answer = question.getAnswer();
                     evaluatedScore = answer.getOption().isCorrectOption() ? question.getMaxScore() : 0;
                 }
                 if (evaluatedScore != null) {
@@ -197,12 +195,11 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         double total = 0;
         for (ExamSection section : examSections) {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                AbstractQuestion question = esq.getQuestion();
+                Question question = esq.getQuestion();
                 double maxScore = 0;
-                if (question instanceof EssayQuestion) {
-                    EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType() != null && essayQuestion.getEvaluationType().equals("Points")) {
-                        maxScore = essayQuestion.getMaxScore();
+                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                    if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
+                        maxScore = question.getMaxScore();
                     }
                 } else {
                     maxScore = question.getMaxScore();
@@ -218,13 +215,12 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         int total = 0;
         for (ExamSection section : examSections) {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                AbstractQuestion question = esq.getQuestion();
-                if (question instanceof EssayQuestion) {
-                    EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType() != null &&
-                            essayQuestion.getEvaluationType().equals("Select")
-                            && essayQuestion.getEvaluatedScore() != null
-                            && essayQuestion.getEvaluatedScore() == 1) {
+                Question question = esq.getQuestion();
+                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                    if (question.getEvaluationType() != null &&
+                            question.getEvaluationType().equals("Select")
+                            && question.getEvaluatedScore() != null
+                            && question.getEvaluatedScore() == 1) {
                         total++;
                     }
                 }
@@ -238,13 +234,12 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         int total = 0;
         for (ExamSection section : examSections) {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                AbstractQuestion question = esq.getQuestion();
-                if (question instanceof EssayQuestion) {
-                    EssayQuestion essayQuestion = (EssayQuestion) question;
-                    if (essayQuestion.getEvaluationType() != null &&
-                            essayQuestion.getEvaluationType().equals("Select") &&
-                            essayQuestion.getEvaluatedScore() != null
-                            && essayQuestion.getEvaluatedScore() == 0) {
+                Question question = esq.getQuestion();
+                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                    if (question.getEvaluationType() != null &&
+                            question.getEvaluationType().equals("Select") &&
+                            question.getEvaluatedScore() != null
+                            && question.getEvaluatedScore() == 0) {
                         total++;
                     }
                 }
@@ -493,13 +488,13 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         this.examInspections = examInspections;
     }
 
-    public Exam copy() {
+    public Exam copy(User user) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
                 "examInspections", "creator", "created", "examOwners");
         clone.setParent(this);
-        AppUtil.setCreator(clone);
-        AppUtil.setModifier(clone);
+        AppUtil.setCreator(clone, user);
+        AppUtil.setModifier(clone, user);
         clone.generateHash();
         clone.save();
 
@@ -559,23 +554,13 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     @Transient
     public boolean isInspectedBy(User user, boolean applyToChildOnly) {
         Exam examToCheck = parent == null || applyToChildOnly ? this : parent;
-        for (ExamInspection inspection : examToCheck.examInspections) {
-            if (inspection.getUser().equals(user)) {
-                return true;
-            }
-        }
-        return false;
+        return examToCheck.examInspections.stream().anyMatch(ei -> ei.getUser().equals(user));
     }
 
     @Transient
     public boolean isOwnedBy(User user) {
         Exam examToCheck = parent == null ? this : parent;
-        for (User owner : examToCheck.examOwners) {
-            if (owner.equals(user)) {
-                return true;
-            }
-        }
-        return false;
+        return examToCheck.examOwners.stream().anyMatch(owner -> owner.equals(user));
     }
 
     @Transient

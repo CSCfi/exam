@@ -4,38 +4,32 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
-import com.avaje.ebean.text.json.JsonContext;
-import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.*;
-import play.cache.Cache;
+import models.Exam;
+import models.ExamInspection;
+import models.User;
+import models.UserLanguage;
 import play.libs.Json;
 import play.mvc.Result;
 
 import java.util.List;
 
-public class UserController extends SitnetController {
+public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
-    public static Result getUser(Long id) {
-        User user = Ebean.find(User.class, id);
+    public Result getUser(Long id) {
+        User user = Ebean.find(User.class).fetch("roles", "name").fetch("userLanguage").where().idEq(id).findUnique();
 
         if (user == null) {
             return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, email, firstName, lastName, roles, userLanguage");
-            options.setPathProperties("roles", "name");
-
-            return ok(jsonContext.toJsonString(user, true, options)).as("application/json");
         }
+        return ok(user);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getUsersByRole(String role) {
+    public Result getUsersByRole(String role) {
 
         List<User> users = Ebean.find(User.class)
                 .where()
@@ -55,7 +49,7 @@ public class UserController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getUsersByRoleFilter(String role, String criteria) {
+    public Result getUsersByRoleFilter(String role, String criteria) {
 
         List<User> users = Ebean.find(User.class)
                 .where()
@@ -80,7 +74,7 @@ public class UserController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getExamOwnersByRoleFilter(String role, Long eid, String criteria) {
+    public Result getExamOwnersByRoleFilter(String role, Long eid, String criteria) {
 
         List<User> users = Ebean.find(User.class)
                 .where()
@@ -121,7 +115,7 @@ public class UserController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
+    public Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
 
         List<User> users = Ebean.find(User.class)
                 .where()
@@ -158,36 +152,24 @@ public class UserController extends SitnetController {
         return ok(Json.toJson(array));
     }
 
-    public static User getLoggedUser() {
-        String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
-        Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
-        return Ebean.find(User.class, session.getUserId());
-    }
-
     @Restrict({@Group("STUDENT")})
-    public static Result updateUserAgreementAccepted(Long id) {
+    public Result updateUserAgreementAccepted(Long id) {
 
         Result result;
-        User user = Ebean.find(User.class, id);
+        User user = Ebean.find(User.class).fetch("roles", "name").fetch("userLanguage").where().idEq(id).findUnique();
         if (user == null) {
             result = notFound();
         } else {
             user.setHasAcceptedUserAgreament(true);
             user.save();
             Ebean.update(user);
-
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, email, firstName, lastName, roles, userLanguage, hasAcceptedUserAgreament");
-            options.setPathProperties("roles", "name");
-
-            result = ok(jsonContext.toJsonString(user, true, options)).as("application/json");
+            result = ok(user);
         }
         return result;
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
-    public static Result updateLanguage() {
+    public Result updateLanguage() {
         User user = getLoggedUser();
         String lang = request().body().asJson().get("lang").asText();
         UserLanguage language = Ebean.find(UserLanguage.class).where().eq("UILanguageCode", lang).findUnique();

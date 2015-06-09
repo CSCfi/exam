@@ -18,16 +18,16 @@ import util.AppUtil;
 
 import java.util.List;
 
-public class SettingsController  extends SitnetController {
+public class SettingsController  extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getUserAgreement() {
+    public Result getUserAgreement() {
         List<GeneralSettings> gs = Ebean.find(GeneralSettings.class).setMaxRows(1).findList();
         return ok(Json.toJson(gs.get(0)));
     }
 
     @Restrict({ @Group("ADMIN")})
-    public static Result updateUserAgreement() throws MalformedDataException {
+    public Result updateUserAgreement() throws MalformedDataException {
         DynamicForm df = Form.form().bindFromRequest();
         String eula = df.get("eula");
         GeneralSettings gs = Ebean.find(GeneralSettings.class).setMaxRows(1).findList().get(0);
@@ -44,7 +44,7 @@ public class SettingsController  extends SitnetController {
     }
 
     @Restrict({ @Group("ADMIN")})
-    public static Result updateSettings() throws MalformedDataException {
+    public Result updateSettings() throws MalformedDataException {
         DynamicForm df = Form.form().bindFromRequest();
         long deadline = Long.valueOf(df.get("reviewDeadline"));
         GeneralSettings gs = Ebean.find(GeneralSettings.class).setMaxRows(1).findList().get(0);
@@ -54,37 +54,35 @@ public class SettingsController  extends SitnetController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
-    public static Result getHostname() {
+    public Result getHostname() {
         ObjectNode node = Json.newObject();
         node.put("hostname", AppUtil.getHostName());
         return ok(Json.toJson(node));
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER")})
-    public static Result getExamDurations() {
+    public Result getExamDurations() {
         ObjectNode node = Json.newObject();
         ArrayNode durations = node.putArray("examDurations");
-        for (Integer duration : AppUtil.getExamDurations()) {
-            durations.add(duration);
-        }
+        AppUtil.getExamDurations().forEach(durations::add);
         return ok(Json.toJson(node));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public static Result isExamGradeScaleOverridable() {
+    public Result isExamGradeScaleOverridable() {
         ObjectNode node = Json.newObject();
         node.put("overridable", AppUtil.isCourseGradeScaleOverridable());
         return ok(Json.toJson(node));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
-    public static Result isEnrolmentPermissionCheckActive() {
+    public Result isEnrolmentPermissionCheckActive() {
         ObjectNode node = Json.newObject();
         node.put("active", AppUtil.isEnrolmentPermissionCheckActive());
         return ok(Json.toJson(node));
     }
 
-    public static Result isProd() {
+    public Result isProd() {
         ObjectNode node = Json.newObject();
         node.put("isProd", Play.isProd());
         return ok(Json.toJson(node));

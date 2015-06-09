@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.status;
 
 public class EnrolmentInterfaceTest extends IntegrationTestCase {
 
@@ -68,7 +67,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
     @RunAsStudent
     public void testListExams() throws Exception {
         Result result = get("/student/exams");
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
         Exam exam = deserialize(Exam.class, node.get(0));
@@ -80,9 +79,15 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
     public void testListExamsNoRemoteEnrolments() throws Exception {
         EnrolmentInterfaceTest.emptyResponse = true;
         Result result = get("/student/exams");
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).isEmpty();
    }
+
+    @Test
+    public void testX() {
+        Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(1L).findUnique();
+        System.out.println(exam);
+    }
 
 }

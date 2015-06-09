@@ -4,16 +4,13 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.text.json.JsonContext;
-import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.avaje.ebean.Query;
 import exceptions.MalformedDataException;
 import exceptions.SitnetException;
 import models.Tag;
 import models.User;
-import models.questions.AbstractQuestion;
-import models.questions.EssayQuestion;
-import models.questions.MultipleChoiceQuestion;
 import models.questions.MultipleChoiseOption;
+import models.questions.Question;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
@@ -23,16 +20,16 @@ import util.AppUtil;
 import java.util.List;
 import java.util.Set;
 
-public class QuestionController extends SitnetController {
+public class QuestionController extends BaseController {
 
     enum QuestionState {
         NEW, SAVED, DELETED
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
-        User user = UserController.getLoggedUser();
-        ExpressionList<AbstractQuestion> query = Ebean.find(AbstractQuestion.class)
+    public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
+        User user = getLoggedUser();
+        ExpressionList<Question> query = createQuery()
                 .where()
                 .isNull("parent")
                 .ne("state", QuestionState.DELETED.toString());
@@ -54,63 +51,47 @@ public class QuestionController extends SitnetController {
         if (!sectionIds.isEmpty()) {
             query = query.in("children.examSectionQuestion.examSection.id", sectionIds);
         }
-        Set<AbstractQuestion> questions = query.orderBy("created desc").findSet();
-        JsonContext jsonContext = Ebean.createJsonContext();
-        return ok(jsonContext.toJsonString(questions, true, getOptions())).as("application/json");
+        Set<Question> questions = query.orderBy("created desc").findSet();
+        return ok(questions);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getQuestion(Long id) {
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+    public Result getQuestion(Long id) {
+        Question question = Ebean.find(Question.class, id);
         return ok(Json.toJson(question));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result copyQuestion(Long id) throws SitnetException {
-
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id).copy();
-        AppUtil.setCreator(question);
+    public Result copyQuestion(Long id) throws SitnetException {
+        Question question = Ebean.find(Question.class, id).copy();
+        AppUtil.setCreator(question, getLoggedUser());
         question.save();
-        if (question instanceof MultipleChoiceQuestion) {
-            Ebean.save(((MultipleChoiceQuestion) question).getOptions());
-        }
+        Ebean.save(question.getOptions());
         return ok(Json.toJson(question));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result addQuestion() throws SitnetException {
-        DynamicForm df = Form.form().bindFromRequest();
-        Class<? extends AbstractQuestion> clazz;
-        switch (df.get("type")) {
-            case "MultipleChoiceQuestion":
-                clazz = MultipleChoiceQuestion.class;
-                break;
-            case "EssayQuestion":
-                clazz = EssayQuestion.class;
-                break;
-            default:
-                throw new IllegalArgumentException("question type not supported");
-        }
-        AbstractQuestion question = bindForm(clazz);
-        AppUtil.setCreator(question);
+    public Result addQuestion() throws SitnetException {
+        Question question = bindForm(Question.class);
+        AppUtil.setCreator(question, getLoggedUser());
         question.setState(QuestionState.NEW.toString());
         Ebean.save(question);
         return ok(Json.toJson(question));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result scoreQuestion(Long id) {
+    public Result scoreQuestion(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
-        EssayQuestion essayQuestion = Ebean.find(EssayQuestion.class, id);
+        Question essayQuestion = Ebean.find(Question.class, id);
         essayQuestion.setEvaluatedScore(Double.parseDouble(df.get("evaluatedScore")));
         essayQuestion.update();
         return ok(Json.toJson(essayQuestion));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateQuestion(Long id) {
+    public Result updateQuestion(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        Question question = Ebean.find(Question.class, id);
         if (question == null) {
             return notFound("question not found");
         }
@@ -127,7 +108,7 @@ public class QuestionController extends SitnetController {
         question.update();
         switch (df.get("type")) {
             case "EssayQuestion":
-                EssayQuestion essay = Ebean.find(EssayQuestion.class, id);
+                Question essay = Ebean.find(Question.class, id);
                 if (df.get("maxCharacters") != null) {
                     essay.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
                 }
@@ -144,7 +125,7 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateQuestionOwner(Long uid) {
+    public Result updateQuestionOwner(Long uid) {
 
         final User teacher = Ebean.find(User.class, uid);
 
@@ -166,7 +147,7 @@ public class QuestionController extends SitnetController {
                 .findList();
 
         for (String s : questionIds.split(",")) {
-            final AbstractQuestion question = Ebean.find(AbstractQuestion.class, Integer.parseInt(s));
+            final Question question = Ebean.find(Question.class, Integer.parseInt(s));
 
             if (question != null) {
 
@@ -175,7 +156,7 @@ public class QuestionController extends SitnetController {
                 question.update();
 
                 if (question.getChildren() != null && question.getChildren().size() > 0) {
-                    for (AbstractQuestion childQuestion : question.getChildren()) {
+                    for (Question childQuestion : question.getChildren()) {
                         handleTags(childQuestion, teacherTags, teacher); // handle question tags
                         childQuestion.setCreator(teacher);
                         childQuestion.update();
@@ -188,7 +169,7 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateOption(Long oid) throws MalformedDataException {
+    public Result updateOption(Long oid) throws MalformedDataException {
 
         MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
         option.update();
@@ -198,9 +179,9 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result deleteQuestion(Long id) {
+    public Result deleteQuestion(Long id) {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        Question question = Ebean.find(Question.class, id);
 
         question.setState(QuestionState.DELETED.toString());
         question.save();
@@ -209,7 +190,7 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result deleteOption(Long oid) {
+    public Result deleteOption(Long oid) {
 
         Ebean.delete(MultipleChoiseOption.class, oid);
 
@@ -217,9 +198,9 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result addOption(Long qid) throws MalformedDataException {
+    public Result addOption(Long qid) throws MalformedDataException {
 
-        MultipleChoiceQuestion question = Ebean.find(MultipleChoiceQuestion.class, qid);
+        Question question = Ebean.find(Question.class, qid);
         MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
         question.getOptions().add(option);
         question.save();
@@ -230,7 +211,7 @@ public class QuestionController extends SitnetController {
 
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result createOption() {
+    public Result createOption() {
 
         MultipleChoiseOption option = new MultipleChoiseOption();
         option.setCorrectOption(false);
@@ -240,32 +221,23 @@ public class QuestionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getOption(Long id) {
+    public Result getOption(Long id) {
 
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
         return ok(Json.toJson(option));
     }
 
-    private static JsonWriteOptions getOptions() {
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, creator, type, question, shared, instruction, state, maxScore, " +
-                "evaluatedScore, parent, evaluationCriterias, attachment, " +
-                "expanded, maxCharacters, evaluationType, options, children");
-        options.setPathProperties("creator", "id");
-        options.setPathProperties("parent", "id");
-        options.setPathProperties("attachment", "id, fileName");
-        options.setPathProperties("children", "examSectionQuestion");
-        options.setPathProperties("children.examSectionQuestion", "examSection");
-        options.setPathProperties("children.examSectionQuestion.examSection", "exam");
-        options.setPathProperties("children.examSectionQuestion.examSection.exam", "course");
-        options.setPathProperties("children.examSectionQuestion.examSection.exam.course", "code");
-        options.setPathProperties("options", "id, option, correctOption, score");
-
-        return options;
+    private static Query<Question> createQuery() {
+        return Ebean.find(Question.class)
+                .fetch("creator", "id")
+                .fetch("parent", "id")
+                .fetch("attachment")
+                .fetch("options")
+                .fetch("children.examSectionQuestion.examSection.exam.course", "code");
     }
 
 
-    private static void handleTags(AbstractQuestion question, List<Tag> teacherTags, User teacher) {
+    private static void handleTags(Question question, List<Tag> teacherTags, User teacher) {
         if(question != null && question.getTags() != null) {
             List<Tag> tags = question.getTags();
             for(Tag tag : tags) {
@@ -304,7 +276,7 @@ public class QuestionController extends SitnetController {
         }
     }
 
-    private static void addNewTag(Tag tag, AbstractQuestion question, User teacher) {
+    private static void addNewTag(Tag tag, Question question, User teacher) {
         Tag newTag = new Tag();
         newTag.setName(tag.getName());
         newTag.setCreator(teacher);
@@ -312,7 +284,7 @@ public class QuestionController extends SitnetController {
         newTag.save();
     }
 
-    private static void removeOldTag(Tag tag, AbstractQuestion question) {
+    private static void removeOldTag(Tag tag, Question question) {
         tag.getQuestions().remove(question);
         tag.update();
 

@@ -60,7 +60,7 @@
         <script src="@routes.Assets.at("components/vendor/dialogs.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("components/vendor/MathJax-2.3-latest/MathJax.js?config=TeX-AMS_HTML")" type="text/javascript"></script>
         <script>
-            if(CKEDITOR) {
+            if (window.CKEDITOR) {
                 CKEDITOR.env.isCompatible = true;
                 CKEDITOR.cacheForceReload = Date.now();
             }

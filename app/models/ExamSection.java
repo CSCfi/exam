@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public final class ExamSection extends OwnedModel {
@@ -16,7 +14,7 @@ public final class ExamSection extends OwnedModel {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "examSection")
     @JsonManagedReference
-    private List<ExamSectionQuestion> sectionQuestions = new ArrayList<>();
+    private Set<ExamSectionQuestion> sectionQuestions;
 
     @ManyToOne
     @JsonBackReference
@@ -34,11 +32,11 @@ public final class ExamSection extends OwnedModel {
 
     private int lotteryItemCount;
 
-    public List<ExamSectionQuestion> getSectionQuestions() {
+    public Set<ExamSectionQuestion> getSectionQuestions() {
         return sectionQuestions;
     }
 
-    public void setSectionQuestions(List<ExamSectionQuestion> sectionQuestions) {
+    public void setSectionQuestions(Set<ExamSectionQuestion> sectionQuestions) {
         this.sectionQuestions = sectionQuestions;
     }
 
@@ -91,8 +89,9 @@ public final class ExamSection extends OwnedModel {
     }
 
     public void shuffleQuestions() {
-        Collections.shuffle(sectionQuestions);
-        sectionQuestions = sectionQuestions.subList(0, lotteryItemCount);
+        List<ExamSectionQuestion> questions = new ArrayList<>(sectionQuestions);
+        Collections.shuffle(questions);
+        sectionQuestions = new HashSet<>(questions.subList(0, lotteryItemCount));
     }
 
     public ExamSection copy(Exam exam, boolean shuffleQuestions)

@@ -10,7 +10,6 @@ import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
-import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
@@ -23,11 +22,11 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class SessionController extends SitnetController {
+public class SessionController extends BaseController {
 
     private static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
 
-    public static Result login() throws MalformedDataException {
+    public Result login() throws MalformedDataException {
         Result result;
         switch (LOGIN_TYPE) {
             case "HAKA":
@@ -42,7 +41,7 @@ public class SessionController extends SitnetController {
         return result;
     }
 
-    private static Result hakaLogin() {
+    private Result hakaLogin() {
         String eppn = toUtf8(request().getHeader("eppn"));
         if (eppn == null) {
             return badRequest("No credentials!");
@@ -64,9 +63,9 @@ public class SessionController extends SitnetController {
         return createSession(toUtf8(request().getHeader("Shib-Session-ID")), user);
     }
 
-    private static Result devLogin() throws MalformedDataException {
+    private Result devLogin() throws MalformedDataException {
         Credentials credentials = bindForm(Credentials.class);
-        Logger.debug("User login with username: {} and password: ***", credentials.getUsername() + "@funet.fi");
+        Logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
             return unauthorized("sitnet_error_unauthenticated");
         }
@@ -135,14 +134,14 @@ public class SessionController extends SitnetController {
         return user;
     }
 
-    private static Result createSession(String token, User user) {
+    private Result createSession(String token, User user) {
         Session session = new Session();
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
         session.setValid(true);
         session.setXsrfToken();
 
-        Cache.set(SITNET_CACHE_KEY + token, session);
+        cache.set(SITNET_CACHE_KEY + token, session);
 
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
@@ -150,7 +149,7 @@ public class SessionController extends SitnetController {
         result.put("firstname", user.getFirstName());
         result.put("lastname", user.getLastName());
         result.put("lang", user.getUserLanguage().getUILanguageCode());
-        result.put("roles", Json.toJson(user.getRoles()));
+        result.set("roles", Json.toJson(user.getRoles()));
         result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
 
         response().setCookie("XSRF-TOKEN", session.getXsrfToken());
@@ -159,8 +158,7 @@ public class SessionController extends SitnetController {
     }
 
     // prints HAKA attributes, used for debugging
-    @Restrict({@Group("ADMIN")})
-    public static Result getAttributes() {
+    public Result getAttributes() {
 
         Map<String, String[]> attributes = request().headers();
         ObjectNode node = Json.newObject();
@@ -172,7 +170,7 @@ public class SessionController extends SitnetController {
         return ok(node);
     }
 
-    static private Role findRole(String affiliation) {
+    private static Role findRole(String affiliation) {
         List<String> affiliations = Arrays.asList(affiliation.split(";"));
 
         Map<String, List<String>> roles = getRoles();
@@ -218,19 +216,19 @@ public class SessionController extends SitnetController {
         return roles;
     }
 
-    public static Result logout() {
+    public Result logout() {
         response().discardCookie("XSRF-TOKEN");
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
         String key = SITNET_CACHE_KEY + token;
-        Session session = (Session) Cache.get(key);
+        Session session = cache.get(key);
         if (session != null) {
             User user = Ebean.find(User.class, session.getUserId());
             if (LOGIN_TYPE.equals("HAKA")) {
                 session.setValid(false);
-                Cache.set(key, session);
+                cache.set(key, session);
                 Logger.info("Set session as invalid {}", token);
             } else {
-                Cache.remove(key);
+                cache.remove(key);
             }
             if (user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
@@ -242,25 +240,25 @@ public class SessionController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result extendSession() {
+    public Result extendSession() {
         String token = request().getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         final String key = SITNET_CACHE_KEY + token;
-        Session session = (Session) Cache.get(key);
+        Session session = cache.get(key);
 
         if (session == null) {
             return unauthorized();
         }
 
         session.setSince(DateTime.now());
-        Cache.set(SITNET_CACHE_KEY + token, session);
+        cache.set(SITNET_CACHE_KEY + token, session);
 
         return ok();
     }
 
-    public static Result checkSession() {
+    public Result checkSession() {
         String token = request().getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         final String key = SITNET_CACHE_KEY + token;
-        Session session = (Session) Cache.get(key);
+        Session session = cache.get(key);
 
         if (session == null || session.getSince() == null) {
             Logger.info("Session not found");
@@ -291,11 +289,6 @@ public class SessionController extends SitnetController {
         }
 
         return ok();
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result ping() {
-        return ok("pong");
     }
 
     private static String toUtf8(String src) {

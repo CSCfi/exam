@@ -18,20 +18,24 @@ import scala.concurrent.duration.Duration;
 import util.AppUtil;
 import util.java.EmailComposer;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
-public class CalendarController extends SitnetController {
+public class CalendarController extends BaseController {
 
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyyZZ");
     private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
 
+    @Inject
+    protected EmailComposer emailComposer;
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
-    public static Result removeReservation(long id) throws NotFoundException {
-        User user = UserController.getLoggedUser();
+    public Result removeReservation(long id) throws NotFoundException {
+        User user = getLoggedUser();
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
@@ -56,22 +60,19 @@ public class CalendarController extends SitnetController {
 
         // send email asynchronously
         final boolean isStudentUser = user.equals(enrolment.getUser());
-        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    EmailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-                    Logger.info("Reservation cancellation confirmation email sent");
-                } catch (IOException e) {
-                    Logger.error("Failed to send reservation confirmation email", e);
-                }
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            try {
+                emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
+                Logger.info("Reservation cancellation confirmation email sent");
+            } catch (IOException e) {
+                Logger.error("Failed to send reservation confirmation email", e);
             }
         }, Akka.system().dispatcher());
         return ok("removed");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result createReservation() {
+    public Result createReservation() {
         // Parse request body
         JsonNode json = request().body().asJson();
         Long roomId = json.get("roomId").asLong();
@@ -91,7 +92,7 @@ public class CalendarController extends SitnetController {
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
         DateTime now = AppUtil.adjustDST(DateTime.now(), room);
-        final User user = UserController.getLoggedUser();
+        final User user = getLoggedUser();
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .where()
@@ -135,15 +136,12 @@ public class CalendarController extends SitnetController {
         }
 
         // Send asynchronously
-        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    EmailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
-                    Logger.info("Reservation confirmation email sent");
-                } catch (IOException e) {
-                    Logger.error("Failed to send reservation confirmation email", e);
-                }
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            try {
+                emailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
+                Logger.info("Reservation confirmation email sent");
+            } catch (IOException e) {
+                Logger.error("Failed to send reservation confirmation email", e);
             }
         }, Akka.system().dispatcher());
 
@@ -163,7 +161,7 @@ public class CalendarController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) {
+    public Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) {
         Exam exam = getEnrolledExam(examId);
         if (exam == null) {
             return notFound("sitnet_error_enrolment_not_found");
@@ -186,7 +184,7 @@ public class CalendarController extends SitnetController {
             // users reservations starting from now
             List<Reservation> reservations = Ebean.find(Reservation.class)
                     .where()
-                    .eq("user", UserController.getLoggedUser())
+                    .eq("user", getLoggedUser())
                     .gt("startAt", searchDate.toDate())
                     .findList();
             // Resolve eligible machines based on software and accessibility requirements
@@ -237,7 +235,7 @@ public class CalendarController extends SitnetController {
         Integer examDuration = exam.getDuration();
         for (Interval slot : eligibleSlots) {
             DateTime beginning = slot.getStart();
-            DateTime openUntil = getEndOfOpeningHours(beginning, openingHours, room.getTimezoneOffset(date));
+            DateTime openUntil = getEndOfOpeningHours(beginning, openingHours);
             if (!beginning.plusMinutes(examDuration).isAfter(openUntil)) {
                 DateTime end = beginning.plusMinutes(examDuration);
                 freeTimes.add(new FreeTimeSlot(new Interval(beginning, end)));
@@ -281,8 +279,8 @@ public class CalendarController extends SitnetController {
         return endOfMonth.isBefore(examEnd) ? endOfMonth : examEnd;
     }
 
-    private static Exam getEnrolledExam(Long examId) {
-        User user = UserController.getLoggedUser();
+    private Exam getEnrolledExam(Long examId) {
+        User user = getLoggedUser();
         DateTime now = AppUtil.adjustDST(DateTime.now());
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
@@ -371,11 +369,10 @@ public class CalendarController extends SitnetController {
 
     private static boolean isRoomAccessibilitySatisfied(ExamRoom room, Collection<Integer> wanted) {
         List<Accessibility> roomAccessibility = room.getAccessibility();
-        List<Integer> roomAccessibilityIds = new ArrayList<>();
-        for (Accessibility accessibility : roomAccessibility) {
-            roomAccessibilityIds.add(accessibility.getId().intValue());
-        }
-        return roomAccessibilityIds.containsAll(wanted);
+        return roomAccessibility.stream()
+                .map(accessibility -> accessibility.getId().intValue())
+                .collect(Collectors.toList())
+                .containsAll(wanted);
     }
 
     // TODO: this room vs machine accessibility needs some UI work and rethinking.
@@ -385,11 +382,10 @@ public class CalendarController extends SitnetController {
         }
         // The following is always empty because no UI-support for adding
         List<Accessibility> machineAccessibility = machine.getAccessibility();
-        List<Integer> machineAccessibilityIds = new ArrayList<>();
-        for (Accessibility accessibility : machineAccessibility) {
-            machineAccessibilityIds.add(accessibility.getId().intValue());
-        }
-        return machineAccessibilityIds.containsAll(wanted);
+        return machineAccessibility.stream()
+                .map(accessibility -> accessibility.getId().intValue())
+                .collect(Collectors.toList())
+                .containsAll(wanted);
     }
 
     private static boolean hasRequiredSoftware(ExamMachine machine, Exam exam) {
@@ -423,7 +419,7 @@ public class CalendarController extends SitnetController {
         return hours;
     }
 
-    private static DateTime getEndOfOpeningHours(DateTime instant, List<ExamRoom.OpeningHours> openingHours, int offset) {
+    private static DateTime getEndOfOpeningHours(DateTime instant, List<ExamRoom.OpeningHours> openingHours) {
         for (ExamRoom.OpeningHours oh : openingHours) {
             if (oh.getHours().contains(instant.plusMillis(oh.getTimezoneOffset()))) {
                 return oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset());

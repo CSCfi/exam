@@ -1,9 +1,9 @@
 package controllers;
 
-import exceptions.MalformedDataException;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import exceptions.MalformedDataException;
 import models.Accessibility;
 import models.ExamRoom;
 import play.libs.Json;
@@ -12,24 +12,24 @@ import play.mvc.Result;
 import java.util.List;
 
 
-public class AccessibilityController extends SitnetController {
+public class AccessibilityController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
-    public static Result addAccessibility() throws MalformedDataException {
+    public Result addAccessibility() throws MalformedDataException {
         Accessibility accessibility = bindForm(Accessibility.class);
         accessibility.save();
         return ok(Json.toJson(accessibility));
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result updateAccessibility() throws MalformedDataException {
+    public Result updateAccessibility() throws MalformedDataException {
         Accessibility accessibility = bindForm(Accessibility.class);
         accessibility.update();
         return ok(Json.toJson(accessibility));
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result removeAccessibility(Long id) {
+    public Result removeAccessibility(Long id) {
         Accessibility accessibility = Ebean.find(Accessibility.class, id);
 
         if(accessibility == null) {
@@ -53,7 +53,7 @@ public class AccessibilityController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getAccessibilities() {
+    public Result getAccessibilities() {
         List<Accessibility> accessibilities = Ebean.find(Accessibility.class).findList();
         return ok(Json.toJson(accessibilities));
     }

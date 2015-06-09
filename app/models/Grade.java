@@ -1,17 +1,15 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import play.db.ebean.Model;
+import com.avaje.ebean.Model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 public class Grade extends Model {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
 
     @Column
