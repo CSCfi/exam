@@ -21,14 +21,7 @@
                     "get": {method: "GET", params: { uid: "@uid" }}
                 }),
 
-                enrolments: $resource("/enrolments/user/:uid",
-                {
-                    uid: "@uid"
-                },
-                {
-                    "get": {method: "GET", params: { uid: "@uid" }}
-                }),
-
+                enrolments: $resource("/enrolments"),
                 enrolment: $resource("/enrolments/:eid",
                 {
                     eid: "@eid"

@@ -26,6 +26,14 @@
                     </div>
                     <div class="detail-row info-row info-column">
                         <div class="col-md-4 header">
+                            {{ 'sitnet_exam_validity' | translate }}:
+                        </div>
+                        <div class="col-md-8">
+                            {{ enrolment.exam.examActiveStartDate | date:'dd.MM.yyyy' }} - {{ enrolment.exam.examActiveEndDate | date:'dd.MM.yyyy' }}
+                        </div>
+                    </div>
+                    <div class="detail-row info-row info-column">
+                        <div class="col-md-4 header">
                             {{ 'sitnet_course_name' | translate }}:
                         </div>
                         <div class="col-md-8">

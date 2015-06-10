@@ -142,7 +142,8 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result getEnrolmentsForUser(Long uid) {
+    public static Result getEnrolmentsForUser() {
+        User user = UserController.getLoggedUser();
         DateTime now = AppUtil.adjustDST(new DateTime());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
@@ -150,7 +151,7 @@ public class StudentExamController extends SitnetController {
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .where()
-                .eq("user.id", uid)
+                .eq("user", user)
                 .gt("exam.examActiveEndDate", now.toDate())
                 .disjunction()
                 .gt("reservation.endAt", now.toDate())
@@ -169,7 +170,7 @@ public class StudentExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, enrolledOn, user, exam, reservation, information, reservationCanceled");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction, examOwners");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction, examOwners, examActiveStartDate, examActiveEndDate");
             options.setPathProperties("exam.examOwners", "firstName, lastName");
             options.setPathProperties("exam.course", "name, code");
             options.setPathProperties("reservation", "id, startAt, endAt, machine");
