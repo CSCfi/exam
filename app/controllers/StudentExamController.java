@@ -112,8 +112,9 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result getEnrolmentsForUser(Long uid) {
+    public Result getEnrolmentsForUser() {
         DateTime now = AppUtil.adjustDST(new DateTime());
+        User user = getLoggedUser();
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .fetch("exam.course", "name, code")
@@ -122,7 +123,7 @@ public class StudentExamController extends BaseController {
                 .fetch("reservation.machine", "name")
                 .fetch("reservation.machine.room", "name, roomCode")
                 .where()
-                .eq("user.id", uid)
+                .eq("user", user)
                 .gt("exam.examActiveEndDate", now.toDate())
                 .disjunction()
                 .gt("reservation.endAt", now.toDate())
@@ -133,13 +134,7 @@ public class StudentExamController extends BaseController {
                 .eq("exam.state", "STUDENT_STARTED")
                 .endJunction()
                 .findList();
-
-        if (enrolments == null) {
-            return notFound();
-        } else {
-            return ok(enrolments);
-
-        }
+        return ok(enrolments);
     }
 
     @Restrict({@Group("STUDENT")})

@@ -15,8 +15,7 @@
                 if ($scope.user) {
                     if ($scope.user.isStudent) {
                         $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/student/dashboard.html";
-                        StudentExamRes.enrolments.query({uid: $scope.user.id},
-                            function (enrolments) {
+                        StudentExamRes.enrolments.query(function (enrolments) {
                                 $scope.userEnrolments = enrolments;
                                 if (enrolments && enrolments.length > 0) {
                                     angular.forEach(enrolments, function (enrolment) {

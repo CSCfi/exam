@@ -83,7 +83,7 @@ GET           /feedback/exams/:eid                                  controllers.
 PUT           /student/exams/:id                                    controllers.StudentExamController.saveAnswersAndExit(id: Long)
 PUT           /student/exam/abort/:id                               controllers.StudentExamController.abortExam(id: Long)
 GET           /student/doexam/:hash                                 controllers.StudentExamController.startExam(hash: String)
-GET           /enrolments/user/:uid                                 controllers.StudentExamController.getEnrolmentsForUser(uid: Long)
+GET           /enrolments                                           controllers.StudentExamController.getEnrolmentsForUser()
 GET           /enrolments/:eid                                      controllers.StudentExamController.getEnrolment(eid: Long)
 PUT           /enrolments/:eid                                      controllers.EnrollController.updateEnrolment(eid: Long)
 GET           /student/exams/:eid                                   controllers.StudentExamController.getReservationInstructions(eid: Long)
