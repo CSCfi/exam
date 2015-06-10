@@ -613,5 +613,6 @@
   "sitnet_room_in_service": "Tila käytössä",
   "sitnet_canceled": "Peruttu",
   "sitnet_already_enrolled": "Olet jo ilmoittautunut kyseiseen tenttiin. Voit muuttaa ajanvaraustasi Työpöydän kautta.",
-  "sitnet_exam_preview": "Esikatselu"
+  "sitnet_exam_preview": "Esikatselu",
+  "sitnet_exam_questions": "Tenttikysymykset"
 }

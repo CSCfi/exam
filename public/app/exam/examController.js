@@ -5,12 +5,14 @@
             function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService, $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
 
                 $scope.newExam = {};
+                $scope.sectionTemplate = {visible: true};
                 $scope.templates = {
                     section: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section.html",
                     question: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_question.html",
                     generalInfo: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general.html",
                     library: EXAM_CONF.TEMPLATES_PATH + "question/library.html",
                     selectCourse: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general_course_select.html",
+                    sections: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_sections.html"
                 };
 
                 $scope.examTypes = [];
@@ -748,8 +750,8 @@
                                 nextSeq = 0;
                             } else {
                                 nextSeq = Math.max.apply(Math, section.sectionQuestions.map(function (s) {
-                                    return s.sequenceNumber;
-                                })) + 1;
+                                        return s.sequenceNumber;
+                                    })) + 1;
                             }
                             $location.path("/questions/" + response.id + "/exam/" + $scope.newExam.id + "/section/" + section.id + "/sequence/" + nextSeq);
                         }, function (error) {
