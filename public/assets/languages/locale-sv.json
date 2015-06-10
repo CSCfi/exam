@@ -613,5 +613,6 @@
   "sitnet_room_in_service": "Tentrummet är i bruk",
   "sitnet_canceled": "Inhiberad",
   "sitnet_already_enrolled": "Du har redan anmält dig till tenten. Du kan ändra din platsbokning på Arbetsbordet.",
-  "sitnet_exam_preview": "Förhandsvisning"
+  "sitnet_exam_preview": "Förhandsvisning",
+  "sitnet_exam_questions": "Tentfrågor"
 }
