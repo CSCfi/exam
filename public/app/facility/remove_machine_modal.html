@@ -1,6 +1,6 @@
 <div id="sitnet-dialog">
     <div class="terms-dialog-header">
-        <h4><i class="sitnet-white">{{'sitnet_remove_exam_machine' | translate}}</i></h4>
+        <h4 class="sitnet-white"><i class="fa fa-remove"></i>&nbsp;&nbsp;{{'sitnet_remove_exam_machine' | translate}}</i></h4>
     </div>
     <div class="dialog-body-wrapper" ng-show="enrollments.length > 0">
         <div class="header">
@@ -36,13 +36,21 @@
             </table>
         </div>
     </div>
-    <div class="modal-footer">
-        <div class="col-md-3">
-            <button ng-click="cancel()" class="btn btn-danger">{{'sitnet_button_cancel' | translate}}</button>
+    <div class="dialog-body-wrapper" ng-show="enrollments.length === 0">
+        <div class="header">
+            <p>&nbsp;</p>
         </div>
-        <div class="col-md-3 col-md-offset-5">
-            <!--{{'sitnet_create_new' | translate}}-->
-            <button ng-click="ok()" class="btn btn-primary">{{'sitnet_exam_remove' | translate}}</button>
+    </div>
+</div>
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-primary" ng-click="ok()">
+                {{'sitnet_exam_remove' | translate}}
+            </button>
         </div>
     </div>
 </div>

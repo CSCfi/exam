@@ -347,21 +347,21 @@
 
                         $scope.newQuestion = question;
 
-                        $scope.submit = function (question) {
+                        $scope.submit = function () {
 
                             var file = $scope.attachmentFile;
                             var url = "attachment/question";
                             //$scope.fileUpload.uploadAttachment(file, url);
                             var fd = new FormData();
                             fd.append('file', file);
-                            fd.append('questionId', question.id);
+                            fd.append('questionId', $scope.newQuestion.id);
                             $http.post(url, fd, {
                                 transformRequest: angular.identity,
                                 headers: {'Content-Type': undefined}
                             })
                                 .success(function (attachment) {
                                     $modalInstance.dismiss();
-                                    question.attachment = attachment;
+                                    $scope.newQuestion.attachment = attachment;
                                 })
                                 .error(function (error) {
                                     $modalInstance.dismiss();
@@ -375,7 +375,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/editor/dialog_question_attachment_selection.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: ctrl

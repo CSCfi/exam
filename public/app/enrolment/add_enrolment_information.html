@@ -1,6 +1,7 @@
 <div id="sitnet-dialog">
     <div class="terms-dialog-header">
-        <h4 class="sitnet-white">{{'sitnet_student_enrolment_info' | translate}}</h4>
+        <h4 class="sitnet-white"><i class="fa fa-info-circle"></i>&nbsp;&nbsp;{{'sitnet_student_enrolment_info' |
+            translate}}</i></h4>
     </div>
     <div class="modal-body">
         <form role="form" id="infoForm" name="infoForm" novalidate>
@@ -11,11 +12,13 @@
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}</button>
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            </button>
         </div>
         <div class="col-md-6">
-            <button class="btn btn-success" ng-click="ok()">
-                {{'sitnet_button_save' | translate}}</button>
+            <button class="btn btn-sm btn-primary" ng-click="ok()">
+                {{'sitnet_button_save' | translate}}
+            </button>
         </div>
     </div>
 </div>

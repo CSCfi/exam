@@ -1,29 +1,20 @@
 <div id="sitnet-dialog" ng-controller="ExamController">
-        <div class="terms-dialog-header">
-            <h4><i class="sitnet-white">{{'sitnet_unpublish_exam_confirm_dialog_title' | translate }}</i></h4>
-        </div>
+    <div class="terms-dialog-header">
+        <h4 class="sitnet-white"><i class="fa fa-lock"></i>&nbsp;&nbsp;{{'sitnet_unpublish_exam_confirm_dialog_title' | translate }}</h4>
+    </div>
     <div class="modal-body">
         <p>
             {{'sitnet_unpublish_exam_confirm' | translate}}
         </p>
     </div>
     <div class="modal-footer">
-        <div class="col-md-2">
-            <span ng-click="cancel()" class="sitnet-red pointer">
-                <i class="fa fa-arrow-circle-left fa-stack-2x"></i>
-            </span>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}</button>
         </div>
-        <div class="col-md-2 pull-left sitnet-red pointer" ng-click="cancel()">
-            {{'sitnet_button_cancel' | translate}}
-        </div>
-        <div class="col-md-2"></div>
-        <div>
-            <div class="col-md-2 col-md-offset-2">
-            <span ng-click="ok()" class="sitnet-student-lightgreen pointer">
-                <span>{{'sitnet_button_ok' | translate}}</span>
-                <i class="arrow-right-button fa fa-arrow-circle-right fa-stack-2x"></i>
-            </span>
-            </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-primary" ng-click="ok()">
+                {{'sitnet_button_ok' | translate}}
+            </button>
         </div>
     </div>
 </div>

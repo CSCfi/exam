@@ -804,7 +804,7 @@
 
                         $scope.newExam = exam;
 
-                        $scope.submit = function (exam) {
+                        $scope.submit = function () {
 
                             var file = $scope.attachmentFile;
                             if (file === undefined) {
@@ -814,14 +814,14 @@
                             var url = "attachment/exam";
                             var fd = new FormData();
                             fd.append('file', file);
-                            fd.append('examId', exam.id);
+                            fd.append('examId', $scope.newExam.id);
                             $http.post(url, fd, {
                                 transformRequest: angular.identity,
                                 headers: {'Content-Type': undefined}
                             })
                                 .success(function (attachment) {
                                     $modalInstance.dismiss();
-                                    exam.attachment = attachment;
+                                    $scope.newExam.attachment = attachment;
                                 })
                                 .error(function (error) {
                                     $modalInstance.dismiss();
@@ -835,7 +835,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'exam/editor/dialog_exam_attachment_selection.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: ctrl
