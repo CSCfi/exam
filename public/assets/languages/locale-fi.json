@@ -614,5 +614,6 @@
   "sitnet_canceled": "Peruttu",
   "sitnet_already_enrolled": "Olet jo ilmoittautunut kyseiseen tenttiin. Voit muuttaa ajanvaraustasi Työpöydän kautta.",
   "sitnet_exam_preview": "Esikatselu",
-  "sitnet_exam_questions": "Tenttikysymykset"
+  "sitnet_exam_questions": "Tenttikysymykset",
+  "sitnet_download_question_attachment": "Lataa kysymyksen liite"
 }

@@ -614,5 +614,6 @@
   "sitnet_canceled": "Cancelled",
   "sitnet_already_enrolled": "You have already registered for the exam. You can change your booking on the Dashboard.",
   "sitnet_exam_preview": "Preview",
-  "sitnet_exam_questions": "Exam questions"
+  "sitnet_exam_questions": "Exam questions",
+  "sitnet_download_question_attachment": "Download question attachment"
 }
