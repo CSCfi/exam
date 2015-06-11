@@ -507,7 +507,7 @@
 
                         $scope.questionTemp = question;
 
-                        $scope.submit = function (question) {
+                        $scope.submit = function () {
 
                             var file = $scope.attachmentFile;
                             var url = "attachment/question/answer";
@@ -535,7 +535,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'question/editor/dialog_question_attachment_selection.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: ctrl,

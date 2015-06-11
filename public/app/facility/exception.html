@@ -1,50 +1,52 @@
-<div class='modal-header'>
-    <h4>{{'sitnet_exception_time' | translate}}</h4>
-</div>
-
-<div class='modal-body'>
-
-    <div class="row">
-        <span class="col-md-12">
-            <p>{{'sitnet_room_out_of_service' | translate}}:&nbsp;
-            <input type='checkbox' ng-model="exception.outOfService"
-                   ng-click="exception.outOfService=!exception.outOfService"/></p>
-        </span>
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4 class="sitnet-white"><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{'sitnet_exception_time' |
+            translate}}</i></h4>
     </div>
-    <div id="datetimepicker">
+
+    <div class='modal-body'>
+
         <div class="row">
-            <div class="col-md-6">
-                <p>{{'sitnet_begin' | translate}}</p>
+            <span class="col-md-12">
+                <p>{{'sitnet_room_out_of_service' | translate}}:&nbsp;
+                    <input type='checkbox' ng-model="exception.outOfService"
+                           ng-click="exception.outOfService=!exception.outOfService"/></p>
+            </span>
+        </div>
+        <div id="datetimepicker">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>{{'sitnet_begin' | translate}}:</p>
+                </div>
+                <div class="col-md-6">
+                    <p>{{'sitnet_end' | translate}}:</p>
+                </div>
             </div>
-            <div class="col-md-6">
-                <p>{{'sitnet_end' | translate}}</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="exception.startDate"
+                                    show-meridian="false" starting-day="1"
+                                    date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
+                </div>
+                <div class="col-md-6">
+                    <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="exception.endDate"
+                                    show-meridian="false" starting-day="1"
+                                    date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
+                </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-6">
-                <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="exception.startDate"
-                                show-meridian="false" starting-day="1"
-                                date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
-            </div>
-            <div class="col-md-6">
-                <datetimepicker show-weeks="true" hour-step="1" minute-step="15" ng-model="exception.endDate"
-                                show-meridian="false" starting-day="1"
-                                date-format="dd-MM-yyyy" readonly-time="false"></datetimepicker>
-            </div>
-        </div>
     </div>
-    <div class='row'>
-        <div class="col-md-12">
-            <button ng-click='ok()' class='btn btn-primary'>
-                    {{'sitnet_add_exception_time' | translate}}
-            </button>
-
-            <button ng-click='cancel()' class='btn btn-primary'>
-                {{'sitnet_button_cancel' | translate}}
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
             </button>
         </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-primary" ng-click="ok()">
+                {{'sitnet_button_save' | translate}}
+            </button>
+        </div>
     </div>
+
 </div>
-
-
 
