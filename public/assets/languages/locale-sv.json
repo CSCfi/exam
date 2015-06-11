@@ -614,5 +614,6 @@
   "sitnet_canceled": "Inhiberad",
   "sitnet_already_enrolled": "Du har redan anmält dig till tenten. Du kan ändra din platsbokning på Arbetsbordet.",
   "sitnet_exam_preview": "Förhandsvisning",
-  "sitnet_exam_questions": "Tentfrågor"
+  "sitnet_exam_questions": "Tentfrågor",
+  "sitnet_download_question_attachment": "Ladda ner bilaga till frågan"
 }

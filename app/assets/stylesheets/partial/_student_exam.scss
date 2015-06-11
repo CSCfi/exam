@@ -84,7 +84,7 @@
   .question-active-header,
   .question-unanswered-header,
   .question-answered-header {
-    padding: 1em 0.5em;
+    padding: 1em 1em;
     margin-top: 1em;
     background-color: $sitnet-white;
     border:1px solid $sitnet-common-dark;
@@ -147,15 +147,9 @@
     line-height: 2.5em;
   }
 
-  .exam-question-instruction {
-    font-weight: 200;
-    font-size: 1em;
-    padding-bottom: 1em;
-  }
-
   .exam-question-container {
     background-color: $sitnet-white;
-    padding: 0.4em 1.2em 1.6em;
+    padding-top: 0.4em;
     clear:both;
   }
 

@@ -379,6 +379,10 @@
                     }
                 };
 
+                $scope.chevronClicked = function(sectionQuestion) {
+                    sectionQuestion.question.expanded = !sectionQuestion.question.expanded;
+                };
+
                 $scope.saveEssay = function (question, answer) {
                     question.answered = true;
                     question.questionStatus = $translate.instant("sitnet_answer_saved");
