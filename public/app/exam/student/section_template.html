@@ -5,9 +5,9 @@
     <div ng-show="!guide">
         <div class="{{sectionQuestion.question.selectedAnsweredState}} col-md-12 info-row"
              ng-repeat="sectionQuestion in activeSection.sectionQuestions"
-             ng-init="examService.setQuestionColors(sectionQuestion.question); sectionQuestion.question.expanded = false;">
+             ng-init="examService.setQuestionColors(sectionQuestion.question); sectionQuestion.question.expanded = true;">
 
-            <div class="row">
+            <div class="row bottom-padding-2">
                 <!-- chevron -->
                 <div class="col-md-1 fa-stack fa-lg pointer " ng-click="chevronClicked(sectionQuestion)">
                     <i ng-class="sectionQuestion.question.expanded ? 'fa-chevron-down sitnet-text' : 'fa-chevron-right sitnet-text-medium'"
@@ -20,7 +20,8 @@
                   <i class="fa fa-stack-1x question-icon" ng-class="sectionQuestion.question.type === 'MultipleChoiceQuestion' ? 'fa-list-ul' : 'fa-pencil-square-o'"></i>
                 </div>
                 <!-- question text -->
-                <div class="question-text col-md-10" style="padding-left: 0.5em" mathjax ng-bind-html="sectionQuestion.question.question"></div>
+                <div ng-if="sectionQuestion.question.expanded" class="question-text col-md-10" style="padding-left: 0.5em" mathjax ng-bind-html="sectionQuestion.question.question"></div>
+                <div ng-if="!sectionQuestion.question.expanded" class="question-text col-md-10" style="padding-left: 0.5em" mathjax ng-bind-html="truncate(sectionQuestion.question.question, 360)"></div>
             </div>
             <!-- attachment -->
             <div class="row" ng-show="sectionQuestion.question.attachment">
@@ -37,10 +38,10 @@
             <div class="row">
                 <div class="col-md-10 col-md-offset-2" style="padding-left: 0">
                     <p class="question-text text-info" ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion' || (sectionQuestion.question.type == 'EssayQuestion' && sectionQuestion.question.evaluationType == 'Points')">
-                        <i class="sitnet-blue fa fa-signal"></i>
+                        <i class="text-info fa fa-star"></i>
                         {{sectionQuestion.question.maxScore}} {{'sitnet_unit_points' | translate}}</p>
                     <p class="question-text text-info" ng-if="sectionQuestion.question.type == 'EssayQuestion' && sectionQuestion.question.evaluationType == 'Select'">
-                        <i class="text-info fa fa-signal"></i>
+                        <i class="text-info fa fa-star"></i>
                         {{'sitnet_evaluation_type' | translate}}: {{'sitnet_evaluation_select' | translate}}</p>
                 </div>
             </div>

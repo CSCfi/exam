@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService', 'examService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
-            function (dialogs, $document, $rootScope, $scope, sessionService, examService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
+        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService', 'examService', 'questionService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
+            function (dialogs, $document, $rootScope, $scope, sessionService, examService, questionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
 
                 $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
                 $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
@@ -354,14 +354,7 @@
                 };
 
                 $scope.truncate = function (answer, offset) {
-                    if (answer && answer.indexOf("math-tex") === -1) {
-                        if (offset < answer.length) {
-                            return answer.substring(0, offset) + " ...";
-                        } else {
-                            return answer;
-                        }
-                    }
-                    return answer;
+                    return questionService.truncate(answer, offset);
                 };
 
                 var refreshRejectedAcceptedCounts = function () {
