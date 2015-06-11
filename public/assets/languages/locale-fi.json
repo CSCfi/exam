@@ -416,7 +416,7 @@
   "sitnet_internal_error": "Järjestelmävirhe",
   "sitnet_positive_integer_required": "Arvon pitää olla positiivinen kokonaisluku",
   "sitnet_exam_returned": "Tentti on palautettu.",
-  "sitnet_exam_aborted": "Olet keskeyttänyt tentin. Muista kirjautua ulos järjestelmästä.",
+  "sitnet_exam_aborted": "Olet keskeyttänyt tentin.",
   "sitnet_confirm_logout": "Oletko varma, että haluat kirjautua ulos?",
   "sitnet_endtime_before_starttime": "Lopetusaika ei voi olla ennen aloitusaikaa",
   "sitnet_section_name": "Aihealueen nimi (näkyy opiskelijoille)",

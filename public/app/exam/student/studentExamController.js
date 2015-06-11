@@ -330,10 +330,12 @@
                     dialog.result.then(function () {
                         saveAllEssays().then(function () {
                             StudentExamRes.exams.update({id: doexam.id}, function () {
-                                toastr.info($translate.instant('sitnet_exam_returned'));
+                                toastr.info($translate.instant('sitnet_exam_returned'), { timeOut: 5000 });
                                 $timeout.cancel($scope.remainingTimePoller);
-                                $location.path("/logout");
-                                $rootScope.$broadcast('examEnded');
+                                $timeout(function() {
+                                    $location.path("/logout");
+                                    $rootScope.$broadcast('examEnded');
+                                }, 5000);
                             }, function (error) {
                                 toastr.error($translate.instant(error));
                             });
@@ -346,10 +348,12 @@
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
                     dialog.result.then(function (btn) {
                         StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
-                            toastr.info($translate.instant('sitnet_exam_aborted'));
+                            toastr.info($translate.instant('sitnet_exam_aborted'), { timeOut: 5000 });
                             $timeout.cancel($scope.remainingTimePoller);
-                            $location.path("/logout");
-                            $rootScope.$broadcast('examEnded');
+                            $timeout(function() {
+                                $location.path("/logout");
+                                $rootScope.$broadcast('examEnded');
+                            }, 5000);
                         }, function () {
 
                         });
@@ -458,9 +462,11 @@
                         // Finally save the exam and logout
                         $q.all(promises).then(function () {
                             StudentExamRes.exams.update({id: $scope.doexam.id}, function () {
-                                toastr.info($translate.instant("sitnet_exam_time_is_up"));
-                                $location.path("/logout");
-                                $rootScope.$broadcast('examEnded');
+                                toastr.info($translate.instant("sitnet_exam_time_is_up"), { timeOut: 5000 });
+                                $timeout(function() {
+                                    $location.path("/logout");
+                                    $rootScope.$broadcast('examEnded');
+                                }, 5000);
                             }, function () {
 
                             });

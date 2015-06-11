@@ -377,6 +377,7 @@ public class StudentExamController extends SitnetController {
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", id)
+                .isNull("ended")
                 .findUnique();
 
         if (p != null) {
@@ -388,12 +389,14 @@ public class StudentExamController extends SitnetController {
             Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
             p.setDeadline(deadline);
             p.save();
+
+            exam.setState("REVIEW");
+            exam.update();
+
+            return ok("Exam send for review");
+        } else {
+            return forbidden("exam already returned");
         }
-
-        exam.setState("REVIEW");
-        exam.update();
-
-        return ok("Exam send for review");
     }
 
     @Restrict({@Group("STUDENT")})
@@ -405,6 +408,7 @@ public class StudentExamController extends SitnetController {
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", id)
+                .isNull("ended")
                 .findUnique();
 
         if (p != null) {
@@ -416,12 +420,15 @@ public class StudentExamController extends SitnetController {
             p.setDeadline(new Date(p.getEnded().getTime() + settings.getReviewDeadline()));
 
             p.save();
+
+
+            exam.setState("ABORTED");
+            exam.update();
+
+            return ok("Exam aborted");
+        } else {
+            return forbidden("Exam already returned");
         }
-
-        exam.setState("ABORTED");
-        exam.update();
-
-        return ok("Exam aborted");
     }
 
     @Restrict({@Group("STUDENT")})

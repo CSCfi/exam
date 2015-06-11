@@ -416,7 +416,7 @@
   "sitnet_internal_error": "Systemfel",
   "sitnet_positive_integer_required": "Värdet ska vara ett positivt heltal",
   "sitnet_exam_returned": "Ditt tentsvar är inlämnat.",
-  "sitnet_exam_aborted": "Du har avbrutit tenten. Kom ihåg att logga ut.",
+  "sitnet_exam_aborted": "Du har avbrutit tenten.",
   "sitnet_confirm_logout": "Är du säker på att du vill logga ut?",
   "sitnet_endtime_before_starttime": "Sluttiden kan inte vara före starttiden",
   "sitnet_section_name": "Sektionens namn (visas för studerandena)",
