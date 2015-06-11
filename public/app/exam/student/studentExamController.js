@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF', 'StudentExamRes', 'dateService', 'examService',
-            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, StudentExamRes, dateService, examService) {
+        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF', 'StudentExamRes', 'dateService', 'examService', 'questionService',
+            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, StudentExamRes, dateService, examService, questionService) {
 
                 $scope.sectionsBar = EXAM_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
@@ -278,6 +278,7 @@
                             $scope.activeSection.autosaver = getAutosaver();
                         }
                     }
+                    window.scrollTo(0, 0);
                 };
 
                 var saveAllEssaysOfSection = function (section) {
@@ -300,6 +301,10 @@
                         deferred.resolve();
                     });
                     return deferred.promise;
+                };
+
+                $scope.truncate = function (question, offset) {
+                    return questionService.truncate(question, offset);
                 };
 
                 var saveAllEssays = function () {

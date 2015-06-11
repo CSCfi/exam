@@ -21,8 +21,20 @@
                 );
             };
 
+            var truncate = function (content, offset) {
+                if (content && content.indexOf("math-tex") === -1) {
+                    if (offset < content.length) {
+                        return content.substring(0, offset) + " ...";
+                    } else {
+                        return content;
+                    }
+                }
+                return content;
+            };
+
             return {
-                createQuestion: createQuestion
+                createQuestion: createQuestion,
+                truncate: truncate
             };
 
         }]);
