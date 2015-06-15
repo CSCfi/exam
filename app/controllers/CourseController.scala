@@ -53,13 +53,13 @@ object CourseController extends Controller with ScalaHacks {
     val user = Ebean.find(classOf[User], userId)
     var query = Ebean.find(classOf[Course]).where
     if (!user.hasRole("ADMIN")) query = query.eq("exams.creator.id", userId)
-    if (examIds.isDefined && examIds.get.size > 0) {
+    if (examIds.isDefined && examIds.get.nonEmpty) {
       query = query.in("exams.id", examIds.get.asJava)
     }
-    if (sectionIds.isDefined && sectionIds.get.size > 0) {
+    if (sectionIds.isDefined && sectionIds.get.nonEmpty) {
       query = query.in("exams.examSections.id", sectionIds.get.asJava)
     }
-    if (tagIds.isDefined && tagIds.get.size > 0) {
+    if (tagIds.isDefined && tagIds.get.nonEmpty) {
       query = query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
     }
     query.orderBy("name desc").findList

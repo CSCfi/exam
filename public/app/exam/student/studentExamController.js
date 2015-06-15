@@ -1,8 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF', 'StudentExamRes', 'dateService', 'examService', 'questionService',
-            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, StudentExamRes, dateService, examService, questionService) {
+        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout',
+                'EXAM_CONF', 'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService',
+            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout,
+                      EXAM_CONF, StudentExamRes, dateService, examService, questionService, fileService) {
 
                 $scope.sectionsBar = EXAM_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
@@ -523,30 +525,14 @@
                         $scope.questionTemp = question;
 
                         $scope.submit = function () {
-
-                            var file = $scope.attachmentFile;
-                            var url = "attachment/question/answer";
-                            var fd = new FormData();
-                            fd.append('file', file);
-                            fd.append('questionId', $scope.questionTemp.id);
-                            fd.append('answerId', $scope.questionTemp.answer.id);
-                            $http.post(url, fd, {
-                                transformRequest: angular.identity,
-                                headers: {'Content-Type': undefined}
-                            })
-                                .success(function (attachment) {
-                                    $modalInstance.dismiss();
-                                    $scope.questionTemp.answer.attachment = attachment;
-                                })
-                                .error(function (error) {
-                                    $modalInstance.dismiss();
-                                    toastr.error(error);
-                                });
+                            fileService.upload("attachment/question/answer", $scope.attachmentFile,
+                                {questionId: $scope.questionTemp.id, answerId: $scope.questionTemp.answer.id}, $scope.questionTemp.answer, $modalInstance);
                         };
-                        // Cancel button is pressed in the modal dialog
+
                         $scope.cancel = function () {
                             $modalInstance.dismiss('Canceled');
                         };
+
                     };
 
                     var modalInstance = $modal.open({

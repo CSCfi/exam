@@ -9,8 +9,8 @@
             };
         })
 
-        .controller('QuestionCtrl', ['dialogs', '$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams', '$location', '$translate', 'focus', 'QuestionRes', 'ExamRes', 'TagRes', 'EXAM_CONF',
-            function (dialogs, $rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus, QuestionRes, ExamRes, TagRes, EXAM_CONF) {
+        .controller('QuestionCtrl', ['dialogs', '$rootScope', '$scope', '$q', '$http', '$modal', '$routeParams', '$location', '$translate', 'focus', 'QuestionRes', 'ExamRes', 'TagRes', 'EXAM_CONF', 'fileService',
+            function (dialogs, $rootScope, $scope, $q, $http, $modal, $routeParams, $location, $translate, focus, QuestionRes, ExamRes, TagRes, EXAM_CONF, fileService) {
 
                 $scope.newOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/editor/multiple_choice_option.html";
 
@@ -47,15 +47,15 @@
                                         if (exam.course != undefined && exam.course.code != undefined) {
                                             code = " (" + exam.course.code + ")";
                                         }
-                                        if(! isInArray($scope.examNames , exam.name + code)) {
-                                            $scope.examNames .push(exam.name + code);
+                                        if (!isInArray($scope.examNames, exam.name + code)) {
+                                            $scope.examNames.push(exam.name + code);
                                         }
                                     }
                                     if (exam.examSections && exam.examSections.length > 0) {
 
                                         angular.forEach(exam.examSections, function (section) {
                                             if (section.id == $routeParams.sectionId) {
-                                                if(! isInArray($scope.sectionNames, section.name)) {
+                                                if (!isInArray($scope.sectionNames, section.name)) {
                                                     $scope.sectionNames.push(section.name);
                                                 }
                                             }
@@ -75,21 +75,19 @@
                                             question.examSectionQuestion &&
                                             question.examSectionQuestion.examSection &&
                                             question.examSectionQuestion.examSection.exam &&
-                                            question.examSectionQuestion.examSection.exam.name &&
-                                            ! isInArray($scope.examNames, question.examSectionQuestion.examSection.exam.name)) {
+                                            question.examSectionQuestion.examSection.exam.name && !isInArray($scope.examNames, question.examSectionQuestion.examSection.exam.name)) {
                                             var code = "";
                                             if (question.examSectionQuestion.examSection.exam.course && question.examSectionQuestion.examSection.exam.course.code) {
                                                 code = " (" + question.examSectionQuestion.examSection.exam.course.code + ")";
                                             }
-                                            if(! isInArray($scope.examNames , question.examSectionQuestion.examSection.exam.name + code)) {
+                                            if (!isInArray($scope.examNames, question.examSectionQuestion.examSection.exam.name + code)) {
                                                 $scope.examNames.push(question.examSectionQuestion.examSection.exam.name + code);
                                             }
                                         }
-                                        if(question &&
-                                           question.examSectionQuestion &&
-                                           question.examSectionQuestion.examSection &&
-                                           question.examSectionQuestion.examSection.name &&
-                                            ! isInArray($scope.sectionNames, question.examSectionQuestion.examSection.name)) {
+                                        if (question &&
+                                            question.examSectionQuestion &&
+                                            question.examSectionQuestion.examSection &&
+                                            question.examSectionQuestion.examSection.name && !isInArray($scope.sectionNames, question.examSectionQuestion.examSection.name)) {
                                             $scope.sectionNames.push(question.examSectionQuestion.examSection.name);
                                         }
                                     });
@@ -125,7 +123,7 @@
                     return $scope.newQuestion.words;
                 };
 
-                var update = function () {
+                var update = function (displayErrors) {
                     var questionToUpdate = {
                         "id": $scope.newQuestion.id,
                         "type": $scope.newQuestion.type,
@@ -153,7 +151,9 @@
                             toastr.info($translate.instant("sitnet_question_saved"));
                             deferred.resolve();
                         }, function (error) {
-                            toastr.error(error.data);
+                            if (displayErrors) {
+                                toastr.error(error.data);
+                            }
                             deferred.reject();
                         }
                     );
@@ -162,7 +162,7 @@
 
                 $scope.deleteQuestion = function () {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question_from_library_only'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         QuestionRes.questions.delete({'id': $scope.newQuestion.id}, function () {
                             toastr.info($translate.instant('sitnet_question_removed'));
                             if ($routeParams.examId === undefined) {
@@ -185,7 +185,7 @@
                         query = {'scrollTo': 'section' + $routeParams.sectionId};
                         returnUrl = "/exams/" + $routeParams.examId;
                     }
-                    update().then(function () {
+                    update(true).then(function () {
                         // If creating new exam question also bind the question to section of the exam at this point
                         if (!$routeParams.examId || $routeParams.editId) {
                             if (query) {
@@ -206,12 +206,13 @@
                                 $location.path(returnUrl);
                             }, function (error) {
                                 toastr.error(error.data);
-                                $location.search(query);
-                                $location.path(returnUrl);
+                                //$location.search(query);
+                                //$location.path(returnUrl);
                             });
                         }
                     }, function () {
-                        $location.path(returnUrl);
+                        toastr.error(error.data);
+                        //$location.path(returnUrl);
                     });
                 };
 
@@ -290,8 +291,8 @@
 
                 };
 
-                $scope.selectIfDefault = function(value, $event) {
-                    if(value === $translate.instant('sitnet_default_option_description')) {
+                $scope.selectIfDefault = function (value, $event) {
+                    if (value === $translate.instant('sitnet_default_option_description')) {
                         $event.target.select();
                     }
                 };
@@ -306,37 +307,15 @@
                     );
                 };
 
-                $scope.correctAnswerToggled = function (optionId, newQuestion) {
-
-                    angular.forEach(newQuestion.options, function (option) {
-                        // This is the option that was clicked
-                        if (option.id === optionId) {
-                            // If the correct is false then switch it to true, otherwise do nothing
-                            if (option.correctOption === false) {
-                                option.correctOption = true;
-
-                                QuestionRes.options.update({oid: optionId}, option,
-                                    function () {
-                                        toastr.info($translate.instant('sitnet_correct_option_updated'));
-                                    }, function (error) {
-                                        toastr.error(error.data);
-                                    }
-                                );
-                            }
-                        } else {
-                            // Check for true values in other options than that was clicked and if found switch them to false
-                            if (option.correctOption === true) {
-                                option.correctOption = false;
-
-                                QuestionRes.options.update({oid: optionId}, option,
-                                    function (response) {
-                                    }, function (error) {
-                                        toastr.error(error.data);
-                                    }
-                                );
-                            }
+                $scope.correctAnswerToggled = function (option) {
+                    QuestionRes.correctOption.update({oid: option.id}, option,
+                        function (question) {
+                            $scope.newQuestion = question;
+                            toastr.info($translate.instant('sitnet_correct_option_updated'));
+                        }, function (error) {
+                            toastr.error(error.data);
                         }
-                    });
+                    );
                 };
 
                 $scope.selectFile = function () {
@@ -348,30 +327,13 @@
                         $scope.newQuestion = question;
 
                         $scope.submit = function () {
-
-                            var file = $scope.attachmentFile;
-                            var url = "attachment/question";
-                            //$scope.fileUpload.uploadAttachment(file, url);
-                            var fd = new FormData();
-                            fd.append('file', file);
-                            fd.append('questionId', $scope.newQuestion.id);
-                            $http.post(url, fd, {
-                                transformRequest: angular.identity,
-                                headers: {'Content-Type': undefined}
-                            })
-                                .success(function (attachment) {
-                                    $modalInstance.dismiss();
-                                    $scope.newQuestion.attachment = attachment;
-                                })
-                                .error(function (error) {
-                                    $modalInstance.dismiss();
-                                    toastr.error(error);
-                                });
+                            fileService.upload("attachment/question", $scope.attachmentFile, {questionId: $scope.newQuestion.id}, $scope.newQuestion, $modalInstance);
                         };
                         // Cancel button is pressed in the modal dialog
                         $scope.cancel = function () {
                             $modalInstance.dismiss('Canceled');
                         };
+
                     };
 
                     var modalInstance = $modal.open({

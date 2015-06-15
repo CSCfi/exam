@@ -615,5 +615,7 @@
   "sitnet_already_enrolled": "You have already registered for the exam. You can change your booking on the Dashboard.",
   "sitnet_exam_preview": "Preview",
   "sitnet_exam_questions": "Exam questions",
-  "sitnet_download_question_attachment": "Download question attachment"
+  "sitnet_download_question_attachment": "Download question attachment",
+  "sitnet_minimum_of_two_options_required": "Minimum of two answer options required",
+  "sitnet_correct_option_required": "One of the answer options need to be marked as the correct one"
 }

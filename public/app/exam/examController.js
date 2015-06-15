@@ -1,8 +1,12 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService', '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource', 'SoftwareResource', 'DragDropHandler', 'SettingsResource',
-            function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService, $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource, SoftwareResource, DragDropHandler, SettingsResource) {
+        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService',
+                '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
+                'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService',
+            function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService,
+                      $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
+                      SoftwareResource, DragDropHandler, SettingsResource, fileService) {
 
                 $scope.newExam = {};
                 $scope.sectionTemplate = {visible: true};
@@ -634,7 +638,6 @@
                 };
 
                 // TODO: this controller should be split on a per-view basis to avoid having this kind of duplication
-
                 $scope.deleteExam = function (exam) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
@@ -805,33 +808,13 @@
                         $scope.newExam = exam;
 
                         $scope.submit = function () {
-
-                            var file = $scope.attachmentFile;
-                            if (file === undefined) {
-                                toastr.error($translate.instant("sitnet_attachment_not_chosen"));
-                                return;
-                            }
-                            var url = "attachment/exam";
-                            var fd = new FormData();
-                            fd.append('file', file);
-                            fd.append('examId', $scope.newExam.id);
-                            $http.post(url, fd, {
-                                transformRequest: angular.identity,
-                                headers: {'Content-Type': undefined}
-                            })
-                                .success(function (attachment) {
-                                    $modalInstance.dismiss();
-                                    $scope.newExam.attachment = attachment;
-                                })
-                                .error(function (error) {
-                                    $modalInstance.dismiss();
-                                    toastr.error(error);
-                                });
+                            fileService.upload("attachment/exam", $scope.attachmentFile, {examId: $scope.newExam.id}, $scope.newExam, $modalInstance);
                         };
-                        // Cancel button is pressed in the modal dialog
+
                         $scope.cancel = function () {
                             $modalInstance.dismiss("Cancelled");
                         };
+
                     };
 
                     var modalInstance = $modal.open({

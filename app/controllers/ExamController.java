@@ -13,6 +13,7 @@ import models.*;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
+import models.questions.MultipleChoiseOption;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -867,10 +868,27 @@ public class ExamController extends SitnetController {
         User user = UserController.getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+            if (question instanceof MultipleChoiceQuestion) {
+                MultipleChoiceQuestion mcq = (MultipleChoiceQuestion) question;
+                if (mcq.getOptions().size() < 2) {
+                    return forbidden("sitnet_minimum_of_two_options_required");
+                }
+                boolean hasCorrectOption = false;
+                for (MultipleChoiseOption option : mcq.getOptions()) {
+                    if (option.isCorrectOption()) {
+                        hasCorrectOption = true;
+                        break;
+                    }
+                }
+                if (!hasCorrectOption) {
+                    return forbidden("sitnet_correct_option_required");
+                }
+            }
             AbstractQuestion clone = clone(question.getType(), question.getId());
             if (clone == null) {
                 return notFound("Question type not specified");
             }
+
 
             // Assert that the sequence number provided is within limits
             if (seq < 0) {

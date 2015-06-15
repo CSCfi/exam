@@ -615,5 +615,7 @@
   "sitnet_already_enrolled": "Olet jo ilmoittautunut kyseiseen tenttiin. Voit muuttaa ajanvaraustasi Työpöydän kautta.",
   "sitnet_exam_preview": "Esikatselu",
   "sitnet_exam_questions": "Tenttikysymykset",
-  "sitnet_download_question_attachment": "Lataa kysymyksen liite"
+  "sitnet_download_question_attachment": "Lataa kysymyksen liite",
+  "sitnet_minimum_of_two_options_required": "Kysymyksellä tulee olla vähintään kaksi vastausvaihtoehtoa",
+  "sitnet_correct_option_required": "Yksi vastausvaihtoehdoista täytyy olla oikea vaihtoehto"
 }

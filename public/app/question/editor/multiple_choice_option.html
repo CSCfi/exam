@@ -8,7 +8,7 @@
         <div class="col-md-2">
             <div class="btn"
                   ng-class="{'btn-success': option.correctOption, 'btn-danger': !option.correctOption}"
-                  ng-click="correctAnswerToggled(option.id, newQuestion)">
+                  ng-click="correctAnswerToggled(option)">
                 {{option.correctOption ? ('sitnet_multiplechoice_question_correct' | translate) : ('sitnet_multiplechoice_question_incorrect' | translate)}}
             </div>
         </div>
