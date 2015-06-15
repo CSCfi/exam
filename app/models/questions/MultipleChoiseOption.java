@@ -9,7 +9,7 @@ import javax.persistence.ManyToOne;
 
 
 @Entity
-public class MultipleChoiseOption extends GeneratedIdentityModel {
+public class MultipleChoiseOption extends GeneratedIdentityModel implements Comparable<MultipleChoiseOption> {
 
     private String option;
 
@@ -89,5 +89,13 @@ public class MultipleChoiseOption extends GeneratedIdentityModel {
                 ", correctOption=" + correctOption +
                 ", score=" + score +
                 '}';
+    }
+
+    @Override
+    public int compareTo(MultipleChoiseOption o) {
+        if (getId() < o.getId()) {
+            return -1;
+        }
+        return getId().equals(o.getId()) ? 0 : 1;
     }
 }

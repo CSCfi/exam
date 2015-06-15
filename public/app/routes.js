@@ -30,7 +30,6 @@
             $routeProvider.when('/invalid_session', { templateUrl: tmpl + 'common/invalid_session.html'});
 
             /* extra */
-            $routeProvider.when('/user', { templateUrl: tmpl + 'common/user.html', controller: 'SessionCtrl'});
             $routeProvider.when('/login', { templateUrl: tmpl + 'common/login.html', controller: 'SessionCtrl' });
             $routeProvider.when('/logout', { templateUrl: tmpl + 'common/login.html', controller: 'SessionCtrl' });
             $routeProvider.when('/machines/:id', { templateUrl: tmpl + 'facility/machine.html', controller: 'MachineCtrl'});

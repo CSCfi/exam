@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.MalformedDataException;
 import exceptions.SitnetException;
 import models.*;
+import models.questions.MultipleChoiseOption;
 import models.questions.Question;
 import play.Logger;
 import play.data.DynamicForm;
@@ -709,6 +710,14 @@ public class ExamController extends BaseController {
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             Question question = Ebean.find(Question.class, qid);
+            if (question.getType().equals(Question.Type.MultipleChoiceQuestion.toString())) {
+                if (question.getOptions().size() < 2) {
+                    return forbidden("sitnet_minimum_of_two_options_required");
+                }
+                if (!question.getOptions().stream().anyMatch(MultipleChoiseOption::isCorrectOption)) {
+                    return forbidden("sitnet_correct_option_required");
+                }
+            }
             Question clone = clone(question.getId());
 
             // Assert that the sequence number provided is within limits
@@ -1062,7 +1071,7 @@ public class ExamController extends BaseController {
                 .fetch("exam", "id, name")
                 .fetch("user", "id")
                 .findList();
-            return ok(inspections);
+        return ok(inspections);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

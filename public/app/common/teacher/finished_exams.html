@@ -16,8 +16,6 @@
             <table class="table table-bordered table-striped exams-table">
                 <thead>
                 <tr>
-                    <th><i class="fa fa-flag"></i></th>
-                    <th><i class="fa fa-exclamation-triangle"></i></th>
                     <th>{{ 'sitnet_examcode' | translate }}</th>
                     <th>{{ 'sitnet_exam_name' | translate }}</th>
                     <th>{{ 'sitnet_exam_validity' | translate }}</th>
@@ -29,8 +27,6 @@
 
                 <tbody>
                 <tr ng-repeat="finishedExam in finishedExams">
-                    <td class="table-column-flag"><!--<i class="sitnet-dark-blue fa fa-flag"></i>--></td>
-                    <td class="table-column-exclamation"><!--<i class="sitnet-red fa fa-flash"></i>--></td>
                     <td class="table-column-examcode">{{ finishedExam.course.code }}</td>
                     <td class="table-column-examname"><a href="#/exams/reviews/{{finishedExam.id}}">{{
                         finishedExam.name }}</a></td>

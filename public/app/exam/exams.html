@@ -54,7 +54,10 @@
                     <td>
                         <span class="status_green">{{ 'sitnet_published' | translate }}</span>
                     </td>
-                    <td>
+                    <td class="text-center">
+                        <a>
+                            <i class="fa fa-times fa-lg text-muted"></i>
+                        </a>
                     </td>
                 </tr>
                 <tr ng-repeat="exam in exams | filter: {state: 'SAVED'}">
@@ -80,8 +83,8 @@
                         <span class="status_red">{{ 'sitnet_draft' | translate }}</span>
                     </td>
                     <td class="text-center">
-                        <a ng-click="deleteExam(exam)" class="pointer fa-stack fa-lg">
-                            <i class="fa fa-times fa-2x sitnet-red"></i>
+                        <a ng-click="deleteExam(exam)" class="pointer">
+                            <i class="fa fa-times fa-lg sitnet-red"></i>
                         </a>
                     </td>
                 </tr>

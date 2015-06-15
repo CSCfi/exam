@@ -122,6 +122,7 @@ PUT           /questions/:id                                        controllers.
 PUT           /questions/:id/score                                  controllers.QuestionController.scoreQuestion(id: Long)
 
 PUT           /questions/option/:oid                                controllers.QuestionController.updateOption(oid: Long)
+PUT           /questions/correctoption/:oid                         controllers.QuestionController.toggleCorrectOption(oid: Long)
 POST          /questions                                            controllers.QuestionController.addQuestion()
 POST          /question/:id                                         controllers.QuestionController.copyQuestion(id: Long)
 POST          /questions/:qid/option                                controllers.QuestionController.addOption(qid: Long)

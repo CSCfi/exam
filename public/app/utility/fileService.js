@@ -43,7 +43,29 @@
                     });
             };
 
-            return {download: download};
+            var upload = function (url, file, params, parent, modal) {
+                var fd = new FormData();
+                fd.append('file', file);
+                for (var k in params) {
+                    if (params.hasOwnProperty(k)) {
+                        fd.append(k, params[k]);
+                    }
+                }
+                $http.post(url, fd, {
+                    transformRequest: angular.identity,
+                    headers: {'Content-Type': undefined}
+                })
+                    .success(function (attachment) {
+                        modal.dismiss();
+                        parent.attachment = attachment;
+                    })
+                    .error(function (error) {
+                        modal.dismiss();
+                        toastr.error(error);
+                    });
+            };
+
+            return {download: download, upload: upload};
         }]);
 }());
 

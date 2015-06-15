@@ -148,7 +148,6 @@
                     </th>
                     <th>{{ 'sitnet_question' | translate }}</th>
                     <th>{{ 'sitnet_question_type' | translate }}</th>
-                    <th>{{ 'sitnet_status' | translate }}</th>
                     <th>{{ 'sitnet_exam_remove' | translate }}</th>
                 </tr>
                 </thead>
@@ -159,17 +158,11 @@
                     </td>
                     <td>
                         <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax
-                           ng-bind-html="shortText(question.question)"></a>
+                           ng-bind-html="shortText(question.question, 360)"></a>
                     </td>
                     <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
                         <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
-                    </td>
-                    <td>
-                        <span class="status_green"
-                              ng-if="question.shared">{{ 'sitnet_shared' | translate }}</span>
-                        <span class="status_theme"
-                              ng-if="!question.shared">{{ 'sitnet_own' | translate }}</span>
                     </td>
                     <td class="text-center">
                         <a class="bold-button" ng-click="deleteQuestion(question)"><i

@@ -1,14 +1,22 @@
 #studentexam {
 
+  .exam-content-wrapper {
+    float: left;
+    width: 100%;
+  }
+
+  .exam-content-column {
+    margin: 0 400px 0 0;
+  }
+
   .floating-section {
     right:0;
     top:0;
-    float:right;
-    z-index:1000;
+    float:left;
     position: fixed !important;
-    padding:0 1em 0 0;
-    margin:0;
-    max-width:37em;
+    padding:0;
+    width:400px;
+    margin-left: -400px;
 
     .floating-clock {
 
@@ -50,7 +58,7 @@
     }
   }
 
-  padding: 1em;
+  margin: 0 1em 0 1em;
 
   li {
     list-style: none;
@@ -76,7 +84,7 @@
 //  }
 
   .studentexam-header {
-    padding: 0.5em;
+    padding-left: 1.2em;
     margin-top: 0.5em;
     font-size: 1.2em;
   }
@@ -207,9 +215,9 @@
   }
 
   .section-container {
-    padding: 1em;
     padding-bottom: 2em;
-    background-color: $sitnet-white
+    padding-left: 0.5em;
+    background-color: $sitnet-white;
   }
 
   .exam-name-section {

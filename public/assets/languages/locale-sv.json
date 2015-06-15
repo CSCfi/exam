@@ -615,5 +615,7 @@
   "sitnet_already_enrolled": "Du har redan anmält dig till tenten. Du kan ändra din platsbokning på Arbetsbordet.",
   "sitnet_exam_preview": "Förhandsvisning",
   "sitnet_exam_questions": "Tentfrågor",
-  "sitnet_download_question_attachment": "Ladda ner bilaga till frågan"
+  "sitnet_download_question_attachment": "Ladda ner bilaga till frågan",
+  "sitnet_minimum_of_two_options_required": "Minst två svaralternativer som krävs till frågan",
+  "sitnet_correct_option_required": "En av de svaralternativerna måste sättas som rätt alternativ"
 }
