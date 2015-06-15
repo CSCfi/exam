@@ -193,7 +193,7 @@ public class QuestionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result toggleCorrectOption(Long oid) {
+    public Result toggleCorrectOption(Long oid) {
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
         if (option == null) {
             return notFound();
