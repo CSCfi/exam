@@ -19,6 +19,7 @@
                 var isPreview = function () {
                     return $location.path().match(/preview/) && $routeParams.id;
                 };
+
                 if (isPreview()) {
                     $scope.headerText = 'sitnet_exam_preview';
                 } else {
@@ -306,7 +307,7 @@
                 };
 
                 $scope.truncate = function (question, offset) {
-                    return questionService.truncate(question, offset);
+                    return questionService.shortText(question, offset);
                 };
 
                 var saveAllEssays = function () {

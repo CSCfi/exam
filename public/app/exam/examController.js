@@ -3,10 +3,10 @@
     angular.module("exam.controllers")
         .controller('ExamController', ['dialogs', '$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService',
                 '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
-                'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService',
+                'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService',
             function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
-                      SoftwareResource, DragDropHandler, SettingsResource, fileService) {
+                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService) {
 
                 $scope.newExam = {};
                 $scope.sectionTemplate = {visible: true};
@@ -799,6 +799,14 @@
                     }
                 };
 
+                $scope.longTextIfNotMath = function (text) {
+                    return questionService.longTextIfNotMath(text);
+                };
+
+                $scope.truncate = function(text, limit) {
+                    return questionService.truncate(text, limit);
+                }
+
                 $scope.selectFile = function () {
 
                     var exam = $scope.newExam;
@@ -843,9 +851,8 @@
                     }
                 };
 
-                $scope.shortText = function (text) {
-                    // remove HTML tags
-                    return String(text).replace(/<[^>]+>/gm, '');
+                $scope.shortText = function (text, limit) {
+                    return questionService.shortText(text, limit);
                 };
 
             }]);

@@ -287,36 +287,15 @@
                     return text;
                 };
 
-                function decodeHtml(html) {
-                    var txt = document.createElement("textarea");
-                    txt.innerHTML = html;
-                    return txt.value;
-                }
-
                 /**
                  * if mathjax formula then no cut
                  **/
                 $scope.shortText = function (text, maxLength) {
-
-                    if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
-                        // remove HTML tags
-                        var str = String(text).replace(/<[^>]+>/gm, '');
-                        // shorten string
-                        str = decodeHtml(str);
-                        return str.length + 3 > maxLength ? str.substr(0, maxLength) + "..." : str;
-                    }
-                    return text ? decodeHtml(text) : "";
+                    return questionService.shortText(text, maxLength);
                 };
 
                 $scope.longTextIfNotMath = function (text) {
-
-                    if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
-                        // remove HTML tags
-                        var str = String(text).replace(/<[^>]+>/gm, '');
-                        // shorten string
-                        return decodeHtml(str);
-                    }
-                    return "";
+                    return questionService.longTextIfNotMath(text);
                 };
 
                 $scope.createQuestion = function (type) {

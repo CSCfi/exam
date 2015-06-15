@@ -32,9 +32,40 @@
                 return content;
             };
 
+            var decodeHtml = function(html) {
+                var txt = document.createElement("textarea");
+                txt.innerHTML = html;
+                return txt.value;
+            };
+
+            var longTextIfNotMath = function (text) {
+                if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
+                    // remove HTML tags
+                    var str = String(text).replace(/<[^>]+>/gm, '');
+                    // shorten string
+                    return decodeHtml(str);
+                }
+                return "";
+            };
+
+            var shortText = function (text, maxLength) {
+
+                if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
+                    // remove HTML tags
+                    var str = String(text).replace(/<[^>]+>/gm, '');
+                    // shorten string
+                    str = decodeHtml(str);
+                    return str.length + 3 > maxLength ? str.substr(0, maxLength) + "..." : str;
+                }
+                return text ? decodeHtml(text) : "";
+            };
+
             return {
                 createQuestion: createQuestion,
-                truncate: truncate
+                truncate: truncate,
+                decodeHtml: decodeHtml,
+                longTextIfNotMath: longTextIfNotMath,
+                shortText: shortText
             };
 
         }]);

@@ -159,7 +159,7 @@
                     </td>
                     <td>
                         <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax
-                           ng-bind-html="shortText(question.question)"></a>
+                           ng-bind-html="shortText(question.question, 360)"></a>
                     </td>
                     <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
