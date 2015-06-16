@@ -92,10 +92,10 @@
                 };
 
                 $scope.createReservation = function (slot) {
-                    var text = $translate.instant('sitnet_about_to_reserve') + " "
+                    var text = $translate.instant('sitnet_about_to_reserve') + "<br/>"
                         + formatDateTime(slot) + " "
-                        + $translate.instant('sitnet_at_room')
-                        + $scope.selectedRoom.name + ". "
+                        + $translate.instant('sitnet_at_room') + " "
+                        + $scope.selectedRoom.name + ".<br/>"
                         + $translate.instant('sitnet_confirm_reservation');
                     dialogs.confirm($translate.instant('sitnet_confirm'), text).result
                         .then(function () {
@@ -104,7 +104,9 @@
                 };
 
                 var formatDateTime = function (slot) {
-                    return $scope.formatDate(slot) + " " + $scope.formatTime(slot);
+                    var start = moment.parseZone(slot.start, "DD.MM.YYYY HH:mm Z").format("DD.MM.YYYY HH:mm");
+                    var end = moment.parseZone(slot.end, "DD.MM.YYYY HH:mm Z").format(" - HH:mm");
+                    return start + end;
                 };
 
                 $scope.formatTime = function (stamp) {
