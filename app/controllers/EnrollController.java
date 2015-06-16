@@ -117,6 +117,16 @@ public class EnrollController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public Result removeEnrolment(Long id) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
+        if (enrolment.getReservation() != null) {
+            return forbidden("sitnet_cancel_reservation_first");
+        }
+        enrolment.delete();
+        return ok();
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result updateEnrolment(Long id) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
         if (enrolment == null) {

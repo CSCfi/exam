@@ -1,8 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('DashboardCtrl', ['dialogs', '$scope', '$http', '$translate', '$location', '$modal', 'EXAM_CONF', 'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService',
-            function (dialogs, $scope, $http, $translate, $location, $modal, EXAM_CONF, sessionService, ExamRes, examService, questionService, StudentExamRes, dateService) {
+        .controller('DashboardCtrl', ['dialogs', '$scope', '$http', '$translate', '$location', '$modal', 'EXAM_CONF',
+            'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService', 'EnrollRes',
+            function (dialogs, $scope, $http, $translate, $location, $modal, EXAM_CONF,
+                      sessionService, ExamRes, examService, questionService, StudentExamRes, dateService, EnrollRes) {
 
                 $scope.templates = {
                     dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html",
@@ -206,6 +208,20 @@
                         return enrolment.reservation;
                     }).length;
                 };
+
+                $scope.removeEnrolment = function (enrolment) {
+                    if (enrolment.reservation) {
+                        toastr.error($translate.instant('sitnet_cancel_reservation_first'));
+                    } else {
+                        dialogs.confirm($translate.instant('sitnet_confirm'),
+                            $translate.instant('sitnet_are_you_sure')).result
+                            .then(function () {
+                                EnrollRes.enrolment.remove({id: enrolment.id}, function () {
+                                    $scope.userEnrolments.splice(enrolment);
+                                });
+                            });
+                    }
+                }
 
             }]);
 }());

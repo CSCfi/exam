@@ -1,16 +1,11 @@
 <div class="main-row">
-    <span class="col-md-12" ng-click="exam.expanded = !exam.expanded">
-        <a class="header-icon fa-stack fa-lg">
-            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-            <i ng-show="!exam.expanded" class="fa fa-chevron-right fa-stack-1x"></i>
-            <i ng-show="exam.expanded" class="fa fa-chevron-down fa-stack-1x"></i>
-        </a>
-        <span class="exams-list-title-text pointer">{{ 'sitnet_exam_basic_information' | translate }}</span>
-    </span>
+    <div class="col-md-12">
+        <h3 class="exams-list-title-text">{{ 'sitnet_exam_basic_information' | translate }}</h3>
+    </div>
 </div>
 
 <!-- General info section container -->
-<div class="detail-row" ng-show="exam.expanded">
+<div class="detail-row">
     <div class="detail-row">
         <!-- Start time field -->
         <div class="col-md-2">
@@ -98,7 +93,7 @@
 
     <div class="detail-row">
         <!-- Exam information field -->
-        <div class="col-md-2">
+        <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_instruction' | translate}}</div>
             <div class="input-group">
                 <div>{{exam.enrollInstruction}}</div>

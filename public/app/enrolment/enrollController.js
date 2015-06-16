@@ -6,7 +6,7 @@
 
                 $scope.enrollPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
                 $scope.examPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam.html";
-                $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/review_exam_section_general.html";
+                $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/detailed_info.html";
 
                 if ($routeParams.code === undefined) {
                     console.log($routeParams.code);
