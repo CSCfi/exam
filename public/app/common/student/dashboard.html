@@ -10,7 +10,7 @@
     </div>
 
     <div class="main-row">
-        <div class="top-row" ng-repeat="enrolment in userEnrolments">
+        <div class="top-row list-item" ng-repeat="enrolment in userEnrolments">
             <div class="detail-row col-md-4">
                 <div class="col-md-2">
                     <div class="info-column-large-icon fa-stack fa-2x">
@@ -151,7 +151,7 @@
     </div>
 
     <div class="detail-row">
-        <div class="bottom-row" ng-repeat="finishedExam in studentFinishedExams">
+        <div class="bottom-row list-item" ng-repeat="finishedExam in studentFinishedExams">
             <div class="col-md-3">
                 <h2 ng-if="finishedExam.state ==='REVIEW' || finishedExam.state === 'REVIEW_STARTED'"
                       class="label label-warning">{{'sitnet_exam_in_review_state' | translate}}</h2>

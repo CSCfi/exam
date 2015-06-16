@@ -99,7 +99,6 @@
                         $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
                             delete enrolment.reservation;
                             enrolment.reservationCanceled = true;
-                            toastr.success("ok");
                         }).error(function (msg) {
                             toastr.error(msg);
                         });
@@ -217,7 +216,7 @@
                             $translate.instant('sitnet_are_you_sure')).result
                             .then(function () {
                                 EnrollRes.enrolment.remove({id: enrolment.id}, function () {
-                                    $scope.userEnrolments.splice(enrolment);
+                                    $scope.userEnrolments.splice($scope.userEnrolments.indexOf(enrolment), 1);
                                 });
                             });
                     }
