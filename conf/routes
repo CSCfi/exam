@@ -59,7 +59,7 @@ DELETE        /exam/:eid/owner/:uid                                 controllers.
 
 PUT           /exams/inspection/:id/:ready                          controllers.ExamController.updateInspection(id: Long, ready: Boolean)
 POST          /exams/localInspection/:eid/:uid                      controllers.ExamController.insertLocalInspectionWithoutCommentAndEmail(eid: Long, uid: Long)
-POST          /email/inspection/:eid/:msg                           controllers.ExamController.sendInspectionMessage(eid: Long, msg: String)
+POST          /email/inspection/:eid                                controllers.ExamController.sendInspectionMessage(eid: Long)
 
 POST          /exams/:eid/section/:sid/:seq/question/:qid           controllers.ExamController.insertQuestion(eid: Long, sid: Long, seq: Int, qid: Long)
 POST          /exams/:eid/section/:sid/:seq/questions               controllers.ExamController.insertMultipleQuestions(eid: Long, sid: Long, seq: Int, questions: String)

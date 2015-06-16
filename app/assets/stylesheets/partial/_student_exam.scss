@@ -249,14 +249,12 @@
     text-decoration: none;
 
     span {
-      font-style: italic;
       text-decoration: none;
       margin: 1em;
       padding:0.5em 1em;
       background-color: $sitnet-theme;
       color: $sitnet-white;
       font-size: 0.9em;
-      font-weight: bold;
     }
     :hover {
       text-decoration: none;

@@ -2,7 +2,11 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.*;
+import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
+import com.avaje.ebean.FetchConfig;
+import com.avaje.ebean.Query;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.MalformedDataException;
 import exceptions.SitnetException;
@@ -25,6 +29,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+<<<<<<<HEAD
+        =======
+        >>>>>>>dev
 
 public class ExamController extends BaseController {
 
@@ -1204,11 +1212,15 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result sendInspectionMessage(Long eid, String msg) {
+    public Result sendInspectionMessage(Long eid) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
+        }
+        JsonNode body = request().body().asJson();
+        if (!body.has("msg")) {
+            return badRequest("no message received");
         }
         User loggedUser = getLoggedUser();
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
@@ -1232,7 +1244,7 @@ public class ExamController extends BaseController {
         }
         try {
             for (User user : recipients) {
-                emailComposer.composeInspectionMessage(user, loggedUser, exam, msg);
+                emailComposer.composeInspectionMessage(user, loggedUser, exam, body.get("msg").asText());
             }
         } catch (IOException e) {
             Logger.error("Failure to access message template on disk", e);
