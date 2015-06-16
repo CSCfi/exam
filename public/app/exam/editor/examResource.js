@@ -177,13 +177,12 @@
                 {
                     id: "@id"
                 }),
-                email: $resource("/email/inspection/:eid/:msg",
+                email: $resource("/email/inspection/:eid",
                 {
-                    eid: "@eid",
-                    msg: "@msg"
+                    eid: "@eid"
                 },
                 {
-                    inspection: {method: "POST", params: { eid: "@eid", msg: "@msg" }}
+                    inspection: {method: "POST", params: { eid: "@eid" }}
                 }),
 
                 saveRecord: $resource("/exam/record", null,

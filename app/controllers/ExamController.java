@@ -6,6 +6,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.MalformedDataException;
 import exceptions.SitnetException;
@@ -1464,11 +1465,15 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result sendInspectionMessage(Long eid, String msg) {
+    public static Result sendInspectionMessage(Long eid) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
+        }
+        JsonNode body = request().body().asJson();
+        if (!body.has("msg")) {
+            return badRequest("no message received");
         }
         User loggedUser = UserController.getLoggedUser();
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
@@ -1495,7 +1500,7 @@ public class ExamController extends SitnetController {
         }
         try {
             for (User user : recipients) {
-                EmailComposer.composeInspectionMessage(user, loggedUser, exam, msg);
+                EmailComposer.composeInspectionMessage(user, loggedUser, exam, body.get("msg").asText());
             }
         } catch (IOException e) {
             Logger.error("Failure to access message template on disk", e);
