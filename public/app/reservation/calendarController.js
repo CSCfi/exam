@@ -2,9 +2,8 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService',
-            '$locale', 'StudentExamRes', 'dateService',
-            function ($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes,
-                      dateService) {
+            '$locale', 'StudentExamRes', 'dialogs',
+            function ($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes, dialogs) {
 
                 var enrolmentId = $routeParams.enrolment;
                 $scope.user = sessionService.getUser();
@@ -76,9 +75,7 @@
                     formatMoment($scope.selectedMonth.data);
                 });
 
-
-                $scope.createReservation = function (slot) {
-
+                var reserve = function (slot) {
                     slot.examId = enrolmentId;
                     slot.roomId = $scope.selectedRoom.id;
                     slot.aids = $scope.accessibilities.filter(
@@ -87,8 +84,6 @@
                         }).map(function (item) {
                             return item.id;
                         });
-
-
                     $http.post('calendar/reservation', slot).then(function () {
                         $location.path('#/home');
                     }, function (error) {
@@ -96,6 +91,21 @@
                     });
                 };
 
+                $scope.createReservation = function (slot) {
+                    var text = $translate.instant('sitnet_about_to_reserve') + " "
+                        + formatDateTime(slot) + " "
+                        + $translate.instant('sitnet_at_room')
+                        + $scope.selectedRoom.name + ". "
+                        + $translate.instant('sitnet_confirm_reservation');
+                    dialogs.confirm($translate.instant('sitnet_confirm'), text).result
+                        .then(function () {
+                            reserve(slot);
+                        });
+                };
+
+                var formatDateTime = function (slot) {
+                    return $scope.formatDate(slot) + " " + $scope.formatTime(slot);
+                };
 
                 $scope.formatTime = function (stamp) {
                     var date = moment(stamp, 'DD.MM.YYYY HH:mmZZ');
@@ -135,5 +145,7 @@
                     }
                     refresh();
                 }
-            }]);
+            }
+        ])
+    ;
 }());
