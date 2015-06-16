@@ -10,20 +10,23 @@
                 <strong>{{ 'sitnet_question' | translate }}</strong>
             </span>
         </div>
+
+        <!-- question text -->
         <div class="detail-row">
             <div class="col-md-12 review-question-value">
                 <span mathjax ng-bind-html="sectionQuestion.question.question"></span>
             </div>
         </div>
         <!-- question attachment -->
-        <div class="main-row" ng-show="sectionQuestion.question.reviewExpanded" ng-controller="AttachmentController">
+        <div class="main-row" ng-show="sectionQuestion.question.reviewExpanded && sectionQuestion.question.attachment"
+             ng-controller="AttachmentController">
             <strong class="col-md-4 review-question"> {{ 'sitnet_question_attachment' | translate
                 }}:
             </strong>
-            <div class="col-md-8" ng-hide="sectionQuestion.question.attachment">N/A</div>
-            <div class="col-md-8" ng-show="sectionQuestion.question.attachment">
+            <div class="col-md-8">
                 <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)">
-                    {{sectionQuestion.question.attachment.fileName}}</a>
+                    {{sectionQuestion.question.attachment.fileName}}
+                </a>
             </div>
         </div>
         <!-- answer -->
