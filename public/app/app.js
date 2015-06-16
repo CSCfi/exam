@@ -8,6 +8,7 @@
     angular.module('exam.filters', []);
     angular.module('exam.utils', []);
     angular.module('exam', [
+        'ngAnimate',
         'ngRoute',
         'ngResource',
         'ngStorage',

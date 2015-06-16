@@ -143,7 +143,7 @@
   .table-column-teachers {
     width: 25%;
   }
-  
+
   .table-column-bold {
     font-weight: bold;
   }
@@ -171,6 +171,27 @@
 
   ul {
     list-style-type: none;
+  }
+
+  // fade in/out animations for list items
+
+  .list-item.ng-enter,
+  .list-item.ng-leave,
+  .list-item.ng-move {
+    -webkit-transition: 0.7s linear all;
+    transition: 0.7s linear all;
+  }
+
+  .list-item.ng-leave.ng-leave-active,
+  .list-item.ng-move,
+  .list-item.ng-enter {
+    opacity: 0;
+  }
+
+  .list-item.ng-leave,
+  .list-item.ng-move.ng-move-active,
+  .list-item.ng-enter.ng-enter-active {
+    opacity: 1;
   }
 
 }
