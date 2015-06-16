@@ -618,5 +618,6 @@
   "sitnet_download_question_attachment": "Ladda ner bilaga till frågan",
   "sitnet_minimum_of_two_options_required": "Minst två svaralternativer som krävs till frågan",
   "sitnet_about_to_reserve": "Du är på väg att boka följande tenttid:",
-  "sitnet_confirm_reservation": "Skall bokningen bekräftas?"
+  "sitnet_confirm_reservation": "Skall bokningen bekräftas?",
+  "sitnet_cancel_reservation_first": "Du måste inhibera din bokning innan du kan fortsätta"
 }

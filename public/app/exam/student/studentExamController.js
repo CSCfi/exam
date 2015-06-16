@@ -357,8 +357,6 @@
                                 $location.path("/logout");
                                 $rootScope.$broadcast('examEnded');
                             }, 5000);
-                        }, function () {
-
                         });
                     });
                 };
@@ -410,8 +408,6 @@
                         StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
                             toastr.info($translate.instant("sitnet_answer_saved"));
                             examService.setQuestionColors(question);
-                        }, function () {
-
                         });
                     }
                 };
@@ -470,8 +466,6 @@
                                     $location.path("/logout");
                                     $rootScope.$broadcast('examEnded');
                                 }, 5000);
-                            }, function () {
-
                             });
                         });
                     }

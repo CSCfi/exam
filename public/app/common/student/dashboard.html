@@ -13,16 +13,22 @@
         <div class="top-row" ng-repeat="enrolment in userEnrolments">
             <div class="detail-row col-md-4">
                 <div class="col-md-2">
-                    <span class="info-column-large-icon fa-stack fa-2x">
+                    <div class="info-column-large-icon fa-stack fa-2x">
                         <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                         <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
-                    </span>
+                    </div>
                 </div>
                 <div class="col-md-10">
                     <div class="detail-row info-row info-column">
-                        <div class="info-header-bold">
+                        <span class="info-header-bold">
                             {{enrolment.exam.name}} - {{enrolment.exam.course.code}}
-                        </div>
+                        </span>
+                        <span class="pointer">&nbsp;&nbsp;
+                            <i class="fa fa-times text-danger" popover-placement="top"
+                               popover-popup-delay="500" popover-trigger="mouseenter"
+                               popover="{{ 'sitnet_remove' | translate }}" ng-click="removeEnrolment(enrolment)">
+                            </i>
+                        </span>
                     </div>
                     <div class="detail-row info-row info-column">
                         <div class="col-md-4 header">
