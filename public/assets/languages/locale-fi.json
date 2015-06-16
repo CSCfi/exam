@@ -617,5 +617,7 @@
   "sitnet_exam_questions": "Tenttikysymykset",
   "sitnet_download_question_attachment": "Lataa kysymyksen liite",
   "sitnet_minimum_of_two_options_required": "Kysymyksellä tulee olla vähintään kaksi vastausvaihtoehtoa",
-  "sitnet_correct_option_required": "Yksi vastausvaihtoehdoista täytyy olla oikea vaihtoehto"
+  "sitnet_correct_option_required": "Yksi vastausvaihtoehdoista täytyy olla oikea vaihtoehto",
+  "sitnet_about_to_reserve": "Olet varaamassa tenttiaikaa",
+  "sitnet_confirm_reservation": "Vahvistetaanko varaus?"
 }
