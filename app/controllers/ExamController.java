@@ -2,10 +2,7 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.FetchConfig;
-import com.avaje.ebean.Query;
+import com.avaje.ebean.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.MalformedDataException;
@@ -30,9 +27,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-<<<<<<<HEAD
-        =======
-        >>>>>>>dev
 
 public class ExamController extends BaseController {
 
