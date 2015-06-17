@@ -44,6 +44,11 @@
     font-weight: bold;
   }
 
+  .enrolment-row {
+    @extend .row;
+    margin-left: 0.5em;
+  }
+
   .exams-table {
     border-left: $sitnet-common-light solid 0.15em;
     border-top: $sitnet-common-light solid 0.15em;
