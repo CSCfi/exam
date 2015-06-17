@@ -10,6 +10,7 @@ import exceptions.SitnetException;
 import models.*;
 import models.questions.MultipleChoiseOption;
 import models.questions.Question;
+import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -582,13 +583,13 @@ public class ExamController extends BaseController {
     public Result createExamDraft() {
         User user = getLoggedUser();
         Exam exam = new Exam();
-        exam.setName("Kirjoita tentin nimi tähän");
+        exam.setName("Kirjoita tentin nimi tähän"); // TODO: i18n
         exam.setState(Exam.State.DRAFT.toString());
         AppUtil.setCreator(exam, user);
         exam.save();
 
         ExamSection examSection = new ExamSection();
-        examSection.setName("Aihealue");
+        examSection.setName("Aihealue"); // TODO: i18n
         AppUtil.setCreator(examSection, user);
 
         examSection.setExam(exam);
@@ -596,8 +597,17 @@ public class ExamController extends BaseController {
         examSection.save();
 
         exam.getExamSections().add(examSection);
-        exam.getExamLanguages().add(Ebean.find(Language.class, "fi")); // Finnish
+        exam.getExamLanguages().add(Ebean.find(Language.class, "fi")); // TODO: configurable?
         exam.setExamType(Ebean.find(ExamType.class, 2)); // Final
+
+        DateTime start = DateTime.now().withTimeAtStartOfDay();
+        exam.setExamActiveStartDate(start.toDate());
+        exam.setExamActiveEndDate(start.plusDays(1).toDate());
+        exam.setDuration(AppUtil.getExamDurations().get(0));
+        if (AppUtil.isCourseGradeScaleOverridable()) {
+           exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
+        }
+
         exam.save();
 
         exam.getExamOwners().add(getLoggedUser());
