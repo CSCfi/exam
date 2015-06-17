@@ -585,10 +585,10 @@
 
                 };
 
-                $scope.countQuestions = function (exam) {
+                var countQuestions = function () {
 
                     var count = 0;
-                    angular.forEach(exam.examSections, function (section, index) {
+                    angular.forEach($scope.newExam.examSections, function (section) {
                         count += section.sectionQuestions.length;
                     });
                     return count;
@@ -598,11 +598,11 @@
 
                     var errors = {};
 
-                    if (exam.course == undefined) { // use == not ===
+                    if (!exam.course) {
                         errors.course = $translate.instant("sitnet_course_missing");
                     }
 
-                    if (exam.name === undefined || exam.name.length < 2) {
+                    if (!exam.name || exam.name.length < 2) {
                         errors.name = $translate.instant('sitnet_exam_name_missing_or_too_short');
                     }
 
@@ -618,19 +618,19 @@
                         errors.examActiveEndDate = $translate.instant('sitnet_exam_end_date_missing');
                     }
 
-                    if (!$scope.countQuestions || $scope.countQuestions < 1) {
+                    if (countQuestions() == 0) {
                         errors.questions = $translate.instant('sitnet_exam_has_no_questions');
                     }
 
-                    if (exam.duration === undefined || exam.duration < 1) {
+                    if (!exam.duration) {
                         errors.duration = $translate.instant('sitnet_exam_duration_missing');
                     }
 
-                    if ($scope.newExam.gradeScale === undefined) {
+                    if (!$scope.newExam.gradeScale) {
                         errors.grading = $translate.instant('sitnet_exam_grade_scale_missing');
                     }
 
-                    if (exam.examType === undefined) {
+                    if (!exam.examType) {
                         errors.examType = $translate.instant('sitnet_exam_credit_type_missing');
                     }
 
