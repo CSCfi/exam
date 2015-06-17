@@ -19,11 +19,9 @@
                         $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/student/dashboard.html";
                         StudentExamRes.enrolments.query(function (enrolments) {
                                 $scope.userEnrolments = enrolments;
-                                if (enrolments && enrolments.length > 0) {
-                                    angular.forEach(enrolments, function (enrolment) {
-                                        setExamOwners(enrolment.exam);
-                                    });
-                                }
+                                angular.forEach($scope.userEnrolments, function (enrolment) {
+                                    setExamOwners(enrolment.exam);
+                                });
                             },
                             function (error) {
                                 toastr.error(error.data);
