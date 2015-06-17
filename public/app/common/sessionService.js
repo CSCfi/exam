@@ -76,7 +76,8 @@
                                 isTeacher: (hasRole(user, 'TEACHER')),
                                 isLoggedOut: false,
                                 token: user.token,
-                                hasAcceptedUserAgreament: user.hasAcceptedUserAgreament
+                                hasAcceptedUserAgreament: user.hasAcceptedUserAgreament,
+                                userNo: user.userIdentifier
                             };
 
                             $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY] = _user;

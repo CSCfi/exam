@@ -620,5 +620,6 @@
   "sitnet_correct_option_required": "One of the answer options need to be marked as the correct one",
   "sitnet_about_to_reserve": "You are about to make a reservation for",
   "sitnet_confirm_reservation": "Shall it be confirmed?",
-  "sitnet_cancel_reservation_first": "You have to cancel your ongoing reservation in order to continue"
+  "sitnet_cancel_reservation_first": "You have to cancel your ongoing reservation in order to continue",
+  "sitnet_logged_in_as": "You are logged in as"
 }

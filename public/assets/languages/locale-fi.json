@@ -620,5 +620,6 @@
   "sitnet_correct_option_required": "Yksi vastausvaihtoehdoista täytyy olla oikea vaihtoehto",
   "sitnet_about_to_reserve": "Olet varaamassa tenttiaikaa",
   "sitnet_confirm_reservation": "Vahvistetaanko varaus?",
-  "sitnet_cancel_reservation_first": "Sinun täytyy peruuttaa varauksesi ennen kuin voit jatkaa"
+  "sitnet_cancel_reservation_first": "Sinun täytyy peruuttaa varauksesi ennen kuin voit jatkaa",
+  "sitnet_logged_in_as": "Olet kirjautuneena käyttäjänä"
 }

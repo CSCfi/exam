@@ -152,6 +152,7 @@ public class SessionController extends SitnetController {
         result.put("lang", user.getUserLanguage().getUILanguageCode());
         result.put("roles", Json.toJson(user.getRoles()));
         result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
+        result.put("userIdentifier", user.getUserIdentifier());
 
         response().setCookie("XSRF-TOKEN", session.getXsrfToken());
 
