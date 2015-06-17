@@ -384,7 +384,7 @@ public class ExamController extends BaseController {
         // Assure that ongoing exams will not be returned
         statuses.remove(Exam.State.STUDENT_STARTED.toString());
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
-                .fetch("user", "id, firstName, lastName, email")
+                .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state, gradedTime, customCredit")
                 .fetch("exam.course", "code, credits")
                 .fetch("exam.grade", "id, name")
@@ -404,7 +404,7 @@ public class ExamController extends BaseController {
     public Result getExamStudentInfo(Long eid) {
 
         ExamParticipation participation = Ebean.find(ExamParticipation.class)
-                .fetch("user", "id, firstName, lastName, email")
+                .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .where()
                 .eq("exam.id", eid)
                 .findUnique();

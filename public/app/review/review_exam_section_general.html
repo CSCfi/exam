@@ -4,7 +4,9 @@
 <div class="detail-row">
     <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_name' | translate}}:</div>
     <div class="col-md-4 sitnet-info-text-compact">
-        <a href="mailto:{{userInfo.user.email}}">{{userInfo.user.firstName}} {{userInfo.user.lastName}}</a>
+        <a href="mailto:{{userInfo.user.email}}">{{userInfo.user.firstName}} {{userInfo.user.lastName}}
+            <span ng-if="userInfo.user.userIdentifier">&nbsp;({{userInfo.user.userIdentifier}})</span>
+        </a>
     </div>
     <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_email' | translate}}:</div>
     <div class="col-md-4 sitnet-info-text-compact">{{userInfo.user.email}}</div>

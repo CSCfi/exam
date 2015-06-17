@@ -55,8 +55,12 @@
 
                 <tbody>
                     <tr ng-repeat="review in abortedExams | orderBy:abortedPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
-                        <td class="table-column-examname"><a ng-click="go(review.exam)">
-                            {{review.user.firstName}}&nbsp;{{review.user.lastName}}</a></td>
+                        <td class="table-column-examname">
+                            <a ng-click="go(review.exam)">
+                                {{review.user.firstName}}&nbsp;{{review.user.lastName}}
+                                <span ng-if="review.user.userIdentifier"><br />({{review.user.userIdentifier}})</span>
+                            </a>
+                        </td>
                         <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">
                             {{review.user.email}}</a></td>
                         <td class="table-column-25">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
@@ -117,8 +121,11 @@
 
                     <tbody>
                     <tr ng-repeat="review in examReviews | orderBy:reviewPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
-                        <td class="table-column-15 table-column-bold"><a class="pointer" ng-click="go(review.exam)">{{review.user.firstName}}
-                            {{review.user.lastName}}</a>
+                        <td class="table-column-15 table-column-bold">
+                            <a class="pointer" ng-click="go(review.exam)">
+                                {{review.user.firstName}} {{review.user.lastName}}
+                                <span ng-if="review.user.userIdentifier"><br />({{review.user.userIdentifier}})</span>
+                            </a>
                         </td>
                         <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                         </td>
@@ -210,8 +217,12 @@
                     <tr ng-repeat="review in gradedReviews | offset: currentPageGraded*pageSize | limitTo: pageSize">
                         <td class="table-column-checkbox"><input type="checkbox" class="gradedReviewsBox"
                                                                  value="{{review.exam.id}}"/></td>
-                        <td class="table-column-13 table-column-bold"><a class="pointer" ng-click="go(review.exam)">{{review.user.firstName}}
-                            {{review.user.lastName}}</a></td>
+                        <td class="table-column-13 table-column-bold">
+                            <a class="pointer" ng-click="go(review.exam)">
+                                {{review.user.firstName}} {{review.user.lastName}}
+                                <span ng-if="review.user.userIdentifier"><br />({{review.user.userIdentifier}})</span>
+                            </a>
+                        </td>
                         <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                         </td>
                         <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
@@ -297,8 +308,12 @@
                     <tr ng-repeat="review in gradedLoggedReviews | offset: currentPageGradedLogged*pageSize | limitTo: pageSize">
                         <td class="table-column-checkbox"><input type="checkbox" class="printToFileBox"
                                                                  value="{{review.exam.id}}"/></td>
-                        <td class="table-column-13 table-column-bold"><a class="pointer" ng-click="go(review.exam)">{{review.user.firstName}}
-                            {{review.user.lastName}}</a></td>
+                        <td class="table-column-13 table-column-bold">
+                            <a class="pointer" ng-click="go(review.exam)">
+                                {{review.user.firstName}} {{review.user.lastName}}
+                                <span ng-if="review.user.userIdentifier"><br />({{review.user.userIdentifier}})</span>
+                            </a>
+                        </td>
                         <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                         </td>
                         <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |

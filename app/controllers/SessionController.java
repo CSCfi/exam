@@ -151,6 +151,7 @@ public class SessionController extends BaseController {
         result.put("lang", user.getUserLanguage().getUILanguageCode());
         result.set("roles", Json.toJson(user.getRoles()));
         result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
+        result.put("userIdentifier", user.getUserIdentifier());
 
         response().setCookie("XSRF-TOKEN", session.getXsrfToken());
 

@@ -2,9 +2,9 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout',
-                'EXAM_CONF', 'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService',
+                'EXAM_CONF', 'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService', 'sessionService',
             function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout,
-                      EXAM_CONF, StudentExamRes, dateService, examService, questionService, fileService) {
+                      EXAM_CONF, StudentExamRes, dateService, examService, questionService, fileService, sessionService) {
 
                 $scope.sectionsBar = EXAM_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
                 $scope.multipleChoiseOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
@@ -308,6 +308,12 @@
 
                 $scope.truncate = function (question, offset) {
                     return questionService.shortText(question, offset);
+                };
+
+                $scope.getUser = function() {
+                    var user = sessionService.getUser();
+                    var userNo = user.userNo ? ' (' + user.userNo + ')' : '';
+                    return user.firstname + " " + user.lastname + userNo;
                 };
 
                 var saveAllEssays = function () {

@@ -127,7 +127,7 @@ public class AdminReservationController extends BaseController {
     public Result getReservations(F.Option<String> state, F.Option<Long> ownerId, F.Option<Long> studentId, F.Option<Long> roomId, F.Option<Long> machineId,
                                   F.Option<Long> examId, Long start, Long end) {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
-                .fetch("user", "id, firstName, lastName, email")
+                .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state")
                 .fetch("exam.examOwners", "id, firstName, lastName")
                 .fetch("exam.parent", "id")

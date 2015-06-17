@@ -8,7 +8,6 @@
                 $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
                 $scope.multiplechoiceQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_multiplechoice_question.html";
                 $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_essay_question.html";
-                $scope.studentInfoTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_student_info.html";
                 $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
                 $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
 
