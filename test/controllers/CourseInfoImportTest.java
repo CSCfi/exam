@@ -32,12 +32,15 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     public static class CourseInfoServlet extends HttpServlet {
 
         private File jsonFile = new File("test/resource/courseUnitInfo.json");
+        private File expiredJsonFile = new File("test/resource/courseUnitInfoExpired.json");
+        private static boolean SEND_EXPIRED_COURSE;
 
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) {
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
-            try (FileInputStream fis = new FileInputStream(jsonFile); ServletOutputStream sos = response.getOutputStream()) {
+            File file = SEND_EXPIRED_COURSE ? expiredJsonFile : jsonFile;
+            try (FileInputStream fis = new FileInputStream(file); ServletOutputStream sos = response.getOutputStream()) {
                 IOUtils.copy(fis, sos);
                 sos.flush();
             } catch (IOException e) {
@@ -58,6 +61,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
 
     @Test
     public void testGetCourse() throws Exception {
+        CourseInfoServlet.SEND_EXPIRED_COURSE = false;
         Result result = get("/courses?filter=code&q=2121219");
         assertThat(status(result)).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
@@ -70,6 +74,15 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         List<Grade> grades = Ebean.find(Grade.class).where()
                 .eq("gradeScale.id", course.getGradeScale().getId()).findList();
         assertThat(grades).hasSize(7);
+    }
+
+    @Test
+    public void testGetExpiredCourse() throws Exception {
+        CourseInfoServlet.SEND_EXPIRED_COURSE = true;
+        Result result = get("/courses?filter=code&q=2121219");
+        assertThat(status(result)).isEqualTo(200);
+        JsonNode node = Json.parse(contentAsString(result));
+        assertThat(node).isEmpty();
     }
 
 }

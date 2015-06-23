@@ -791,6 +791,13 @@ public class ExamController extends SitnetController {
         User user = UserController.getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             Course course = Ebean.find(Course.class, cid);
+            Date now = new Date();
+            if (course.getStartDate() != null && course.getStartDate().after(now)) {
+                return forbidden("sitnet_error_course_not_active");
+            }
+            if (course.getEndDate() != null && course.getEndDate().before(now)) {
+                return forbidden("sitnet_error_course_not_active");
+            }
             exam.setCourse(course);
             exam.save();
             return ok(Json.toJson(exam));
