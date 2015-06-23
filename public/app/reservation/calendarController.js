@@ -2,8 +2,8 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService',
-            '$locale', 'StudentExamRes', 'dialogs',
-            function ($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes, dialogs) {
+            '$locale', 'StudentExamRes', 'dialogs', 'CalendarRes',
+            function ($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes, dialogs, CalendarRes) {
 
                 var enrolmentId = $routeParams.enrolment;
                 $scope.user = sessionService.getUser();
@@ -33,20 +33,17 @@
                     }).map(function (item) {
                         return item.id;
                     });
-                    var params = {day: day, aids: accessibility};
                     if ($scope.selectedRoom) {
-                        $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id, {params: params})
-                            .then(function (reply) {
-                                Object.keys(reply.data).forEach(function (key) {
-                                    if ($scope.selectedMonth.data.get('month') !==
-                                        moment(key, 'DD.MM.YYYY').get('month')) {
-                                        delete reply.data[key];
-                                    }
-                                });
-
-                                $scope.daySlots = reply.data;
+                        CalendarRes.slots.get({
+                                eid: enrolmentId,
+                                rid: $scope.selectedRoom.id,
+                                day: day,
+                                aids: accessibility
+                            },
+                            function (slots) {
+                                $scope.daySlots = slots;
                             }, function (error) {
-                                if (error.data && error.data.cause === 'EXAM_NOT_ACTIVE_TODAY') {
+                                if (error && error.status === 404) {
                                     toastr.error($translate.instant('sitnet_exam_not_active_now'));
                                 } else {
                                     toastr.error($translate.instant('sitnet_no_suitable_enrolment_found'));
@@ -67,8 +64,9 @@
                     $scope.reservationInstructions = result.enrollInstructions;
                 });
 
-                $scope.formatDate = function (stamp) {
-                    return moment(stamp, 'DD.MM.YYYY HH:mm').format('DD.MM.');
+                $scope.formatDate = function (stamp, showYear) {
+                    var fmt = showYear ? 'DD.MM.YYYY' : 'DD.MM.';
+                    return moment(stamp, 'DD.MM.YYYY HH:mm').format(fmt);
                 };
 
                 $scope.$on('$localeChangeSuccess', function () {
@@ -104,9 +102,10 @@
                 };
 
                 var formatDateTime = function (slot) {
-                    var start = moment.parseZone(slot.start, "DD.MM.YYYY HH:mm Z").format("DD.MM.YYYY HH:mm");
-                    var end = moment.parseZone(slot.end, "DD.MM.YYYY HH:mm Z").format(" - HH:mm");
-                    return start + end;
+                    var start = $scope.formatTime(slot.start);
+                    var end = $scope.formatTime(slot.end);
+                    var date = $scope.formatDate(slot.start, true);
+                    return date + " " + start + " - " + end;
                 };
 
                 $scope.formatTime = function (stamp) {

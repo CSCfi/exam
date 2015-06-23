@@ -27,6 +27,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -35,6 +38,8 @@ public class Interfaces extends BaseController implements ExternalAPI  {
 
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
+
+    private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
 
     private static final ObjectMapper SORTED_MAPPER = new ObjectMapper();
 
@@ -100,7 +105,17 @@ public class Interfaces extends BaseController implements ExternalAPI  {
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public F.Promise<List<Course>> getCourseInfoByCode(String code) throws MalformedURLException {
         URL url = new URL(ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url"));
-        final List<Course> courses = Ebean.find(Course.class).where().ilike("code", code + "%").orderBy("name desc").findList();
+        final List<Course> courses = Ebean.find(Course.class).where()
+                .ilike("code", code + "%")
+                .disjunction()
+                .isNull("endDate")
+                .gt("endDate", new Date())
+                .endJunction()
+                .disjunction()
+                .isNull("startDate")
+                .lt("startDate", new Date())
+                .endJunction()
+                .orderBy("name desc").findList();
         if (!courses.isEmpty() || !isCourseSearchActive()) {
             // we already have it or we don't want to fetch it
             return F.Promise.promise(() -> courses);
@@ -205,13 +220,27 @@ public class Interfaces extends BaseController implements ExternalAPI  {
         return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
     }
 
-    private static List<Course> parseCourse(JsonNode response) {
+    private static List<Course> parseCourse(JsonNode response) throws ParseException {
         List<Course> results = new ArrayList<>();
         if (response.get("status").asText().equals("OK")) {
             for (JsonNode node : response) {
                 // check that this is a course node, response can also contain error messages and so on
                 if (node.has("identifier") && node.has("courseUnitCode") && node.has("courseUnitTitle") && node.has("institutionName")) {
                     Course course = new Course();
+                    if (node.has("endDate")) {
+                        Date endDate = DF.parse(node.get("endDate").asText());
+                        if (endDate.before(new Date())) {
+                            continue;
+                        }
+                        course.setEndDate(endDate);
+                    }
+                    if (node.has("startDate")) {
+                        Date startDate = DF.parse(node.get("startDate").asText());
+                        if (startDate.after(new Date())) {
+                            continue;
+                        }
+                        course.setStartDate(startDate);
+                    }
                     course.setId(0L); // FIXME: smells like a hack
                     course.setIdentifier(node.get("identifier").asText());
                     course.setName(node.get("courseUnitTitle").asText());

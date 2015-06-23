@@ -621,5 +621,6 @@
   "sitnet_about_to_reserve": "You are about to make a reservation for",
   "sitnet_confirm_reservation": "Shall it be confirmed?",
   "sitnet_cancel_reservation_first": "You have to cancel your ongoing reservation in order to continue",
-  "sitnet_logged_in_as": "You are logged in as"
+  "sitnet_logged_in_as": "You are logged in as",
+  "sitnet_error_course_not_active": "Course is currently inactive and can't be selected"
 }

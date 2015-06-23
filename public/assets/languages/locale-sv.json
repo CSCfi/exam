@@ -620,5 +620,6 @@
   "sitnet_about_to_reserve": "Du är på väg att boka följande tenttid:",
   "sitnet_confirm_reservation": "Skall bokningen bekräftas?",
   "sitnet_cancel_reservation_first": "Du måste inhibera din bokning innan du kan fortsätta",
-  "sitnet_logged_in_as": "Du är inloggad som"
+  "sitnet_logged_in_as": "Du är inloggad som",
+  "sitnet_error_course_not_active": "Kursen är på tillfället inaktiv och kan inte väljas"
 }

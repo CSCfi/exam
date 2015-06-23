@@ -32,7 +32,7 @@
                             </span>
                         </div>
                     </div>
-                    <div class="enrolment-row">
+                    <div class="enrolment-row top-margin-1">
                         <div class="col-md-12 info-column">
                             <div class="col-md-3 header">
                                 {{ 'sitnet_exam_validity' | translate }}:
@@ -170,12 +170,8 @@
     <div class="detail-row">
         <div class="bottom-row list-item" ng-repeat="finishedExam in studentFinishedExams">
             <div class="col-md-3">
-                <h2 ng-if="finishedExam.state ==='REVIEW' || finishedExam.state === 'REVIEW_STARTED'"
+                <h2 ng-if="finishedExam.state ==='REVIEW' || finishedExam.state === 'REVIEW_STARTED' || finishedExam.state === 'GRADED'"
                     class="label label-warning">{{'sitnet_exam_in_review_state' | translate}}</h2>
-
-                <h2 ng-if="finishedExam.state === 'GRADED'" class="label label-success">{{'sitnet_exam_reviewed' |
-                    translate}}</h2>
-
                 <h2 ng-if="finishedExam.state === 'GRADED_LOGGED'" class="label label-success">
                     {{'sitnet_state_graded_logged' | translate}}</h2>
             </div>

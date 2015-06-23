@@ -413,9 +413,7 @@ public class EmailComposerImpl implements EmailComposer {
 
     private static DateTime adjustDST(Date date, DateTimeZone dtz) {
         DateTime dateTime = new DateTime(date, dtz);
-        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
-            dateTime = dateTime.minusHours(1);
-        } else if (!dtz.isStandardOffset(date.getTime())) {
+        if (!dtz.isStandardOffset(date.getTime())) {
             dateTime = dateTime.minusHours(1);
         }
         return dateTime;

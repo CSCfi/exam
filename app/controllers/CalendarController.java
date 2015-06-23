@@ -4,7 +4,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.*;
@@ -177,9 +176,7 @@ public class CalendarController extends BaseController {
             try {
                 searchDate = parseSearchDate(day, exam);
             } catch (NotFoundException e) {
-                ObjectNode node = Json.newObject();
-                node.put("cause", "EXAM_NOT_ACTIVE_TODAY");
-                return notFound(Json.toJson(node));
+                return notFound();
             }
             // users reservations starting from now
             List<Reservation> reservations = Ebean.find(Reservation.class)

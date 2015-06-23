@@ -30,7 +30,7 @@ public class CourseInfoController extends BaseController {
                 .eq("code", code)
                 .findUnique();
         if (course != null) {
-            return wrapAsPromise(Action.notFound("sitnet_course_not_found"));
+            return wrapAsPromise(Action.ok(Json.toJson(course)));
         }
 
         // get it through remote interface
