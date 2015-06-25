@@ -18,7 +18,8 @@
                 examDurations: $resource("/settings/durations"),
                 gradeScale: $resource("/settings/gradescale"),
                 enrolmentPermissions: $resource("/settings/enrolmentPermissionCheck"),
-                environment: $resource("/settings/environment")
+                environment: $resource("/settings/environment"),
+                maxFilesize: $resource("/settings/maxfilesize")
             }
         }]);
 }());

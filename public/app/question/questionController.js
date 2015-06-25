@@ -325,6 +325,10 @@
                     var ctrl = function ($scope, $modalInstance) {
 
                         $scope.newQuestion = question;
+                        $scope.isTeacherModal = true;
+                        fileService.getMaxFilesize().then(function(data) {
+                            $scope.maxFileSize = data.filesize;
+                        });
 
                         $scope.submit = function () {
                             fileService.upload("attachment/question", $scope.attachmentFile, {questionId: $scope.newQuestion.id}, $scope.newQuestion, $modalInstance);

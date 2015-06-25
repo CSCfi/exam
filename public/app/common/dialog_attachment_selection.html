@@ -1,14 +1,14 @@
 <script>
-    $(document).on('change', '.btn-file :file', function() {
+    $(document).on('change', '.btn-file :file', function () {
         var input = $(this);
         var label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
         input.trigger('fileselect', [label]);
     });
 
-    $(document).ready( function() {
-        $('.btn-file :file').on('fileselect', function(event, label) {
+    $(document).ready(function () {
+        $('.btn-file :file').on('fileselect', function (event, label) {
             var input = $(this).parents('.input-group').find(':text');
-            if( input.length ) {
+            if (input.length) {
                 input.val(label);
             }
         });
@@ -17,7 +17,8 @@
 
 <div id="sitnet-dialog">
     <div class="terms-dialog-header">
-        <h4 class="sitnet-white"><i class="fa fa-upload"></i>&nbsp;&nbsp;{{'sitnet_attachment_selection' | translate}}</h4>
+        <h4 class="sitnet-white"><i class="fa fa-upload"></i>&nbsp;&nbsp;{{'sitnet_attachment_selection' | translate}}
+        </h4>
     </div>
     <div class="modal-body">
         <div class="row">
@@ -32,10 +33,19 @@
                 </div>
             </div>
         </div>
+        <div class="row top-padding-2">
+            <div class="col-md-12" ng-if="isTeacherModal">
+                <p>{{'sitnet_check_file_accessible' | translate}}</p>
+            </div>
+            <div class="col-md-12">
+                <p>{{'sitnet_max_file_size' | translate }} {{maxFileSize / 1000}} kB.</p>
+            </div>
+        </div>
     </div>
     <div class="modal-footer">
         <div class="col-md-6">
-            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}</button>
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            </button>
         </div>
         <div class="col-md-6">
             <button class="btn btn-sm btn-primary" ng-click="ok(); submit()">

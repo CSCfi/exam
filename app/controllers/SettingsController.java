@@ -54,9 +54,16 @@ public class SettingsController  extends SitnetController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
-    public static Result getHostname() {
+     public static Result getHostname() {
         ObjectNode node = Json.newObject();
         node.put("hostname", AppUtil.getHostName());
+        return ok(Json.toJson(node));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    public static Result getMaxFilesize() {
+        ObjectNode node = Json.newObject();
+        node.put("filesize", AppUtil.getMaxFileSize());
         return ok(Json.toJson(node));
     }
 

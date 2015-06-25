@@ -159,8 +159,6 @@ public class SessionController extends SitnetController {
         return ok(result);
     }
 
-    // prints HAKA attributes, used for debugging
-    @Restrict({@Group("ADMIN")})
     public static Result getAttributes() {
 
         Map<String, String[]> attributes = request().headers();
