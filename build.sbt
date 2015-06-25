@@ -6,11 +6,9 @@ lazy val `exam` = (project in file(".")).enablePlugins(PlayScala, PlayEbean)
 
 scalaVersion := "2.11.6"
 
-resolvers += Resolver.sonatypeRepo("snapshots")
-
 libraryDependencies ++= Seq(javaJdbc, cache , javaWs, evolutions,
   "org.postgresql" % "postgresql" % "9.3-1100-jdbc4",
-  "be.objectify" %% "deadbolt-java" % "2.4.0-SNAPSHOT",
+  "be.objectify" %% "deadbolt-java" % "2.4.0",
   "com.typesafe.play" %% "play-mailer" % "3.0.1",
   "org.apache.poi" % "poi" % "3.11",
   "org.apache.poi" % "poi-ooxml" % "3.11",

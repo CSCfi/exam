@@ -28,6 +28,10 @@ public class AppUtil {
         return ConfigFactory.load().getString("sitnet.application.hostname");
     }
 
+    public static Integer getMaxFileSize() {
+        return ConfigFactory.load().getInt("sitnet.attachment.maxsize");
+    }
+
     public static List<Integer> getExamDurations() {
         String[] durations = ConfigFactory.load().getString("sitnet.exam.durations").split(",");
         List<Integer> values = new ArrayList<>();
@@ -54,7 +58,7 @@ public class AppUtil {
         // FIXME: this method should be made unnecessary, DST adjustments should always be done based on reservation data.
         // Until we get some of the queries rephrased, we have to live with this quick-fix
         return doAdjustDST(dateTime, null);
-     }
+    }
 
     public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
         return doAdjustDST(dateTime, reservation.getMachine().getRoom());

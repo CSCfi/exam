@@ -34,12 +34,16 @@ public class AttachmentController extends BaseController {
         if (filePart == null) {
             return notFound();
         }
+        File file = filePart.getFile();
+        if (file.length() > AppUtil.getMaxFileSize()) {
+            return forbidden("sitnet_file_too_large");
+        }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long qid = Long.parseLong(m.get("questionId")[0]);
 
         String fileName = filePart.getFilename();
         String contentType = filePart.getContentType();
-        File file = filePart.getFile();
+
         String uploadPath = Play.application().configuration().getString("sitnet.question.answer.attachments.path");
         String playPath = Play.application().path().getAbsolutePath();
 
@@ -86,13 +90,16 @@ public class AttachmentController extends BaseController {
         if (filePart == null) {
             return notFound();
         }
+        File file = filePart.getFile();
+        if (file.length() > AppUtil.getMaxFileSize()) {
+            return forbidden("sitnet_file_too_large");
+        }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long qid = Long.parseLong(m.get("questionId")[0]);
         Question question = Ebean.find(Question.class, qid);
         if (question == null) {
             return notFound();
         }
-        File file = filePart.getFile();
         String uploadPath = Play.application().configuration().getString("sitnet.question.attachments.path");
         String playPath = Play.application().path().getAbsolutePath();
 
@@ -174,13 +181,16 @@ public class AttachmentController extends BaseController {
         if (filePart == null) {
             return notFound();
         }
+        File file = filePart.getFile();
+        if (file.length() > AppUtil.getMaxFileSize()) {
+            return forbidden("sitnet_file_too_large");
+        }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long eid = Long.parseLong(m.get("examId")[0]);
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound();
         }
-        File file = filePart.getFile();
         String uploadPath = Play.application().configuration().getString("sitnet.exam.attachments.path");
         String playPath = Play.application().path().getAbsolutePath();
 

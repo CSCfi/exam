@@ -79,7 +79,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     public void testGetExpiredCourse() throws Exception {
         CourseInfoServlet.SEND_EXPIRED_COURSE = true;
         Result result = get("/courses?filter=code&q=2121219");
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).isEmpty();
     }

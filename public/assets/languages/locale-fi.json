@@ -622,5 +622,8 @@
   "sitnet_confirm_reservation": "Vahvistetaanko varaus?",
   "sitnet_cancel_reservation_first": "Sinun täytyy peruuttaa varauksesi ennen kuin voit jatkaa",
   "sitnet_logged_in_as": "Olet kirjautuneena käyttäjänä",
-  "sitnet_error_course_not_active": "Opintojakso ei ole tällä hetkellä voimassa, joten sitä ei voi valita"
+  "sitnet_error_course_not_active": "Opintojakso ei ole tällä hetkellä voimassa, joten sitä ei voi valita",
+  "sitnet_check_file_accessible": "Tarkistathan, että liitetiedosto on avattavissa tenttikoneella.",
+  "sitnet_max_file_size": "Suurin sallittu liitetiedoston koko on",
+  "sitnet_file_too_large": "Tiedosto on liian suuri ladattavaksi"
 }

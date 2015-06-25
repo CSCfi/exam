@@ -60,6 +60,13 @@ public class SettingsController  extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    public Result getMaxFilesize() {
+        ObjectNode node = Json.newObject();
+        node.put("filesize", AppUtil.getMaxFileSize());
+        return ok(Json.toJson(node));
+    }
+
     @Restrict({ @Group("ADMIN"), @Group("TEACHER")})
     public Result getExamDurations() {
         ObjectNode node = Json.newObject();

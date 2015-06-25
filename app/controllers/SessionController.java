@@ -160,7 +160,6 @@ public class SessionController extends BaseController {
 
     // prints HAKA attributes, used for debugging
     public Result getAttributes() {
-
         Map<String, String[]> attributes = request().headers();
         ObjectNode node = Json.newObject();
 

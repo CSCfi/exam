@@ -805,7 +805,7 @@
 
                 $scope.truncate = function(text, limit) {
                     return questionService.truncate(text, limit);
-                }
+                };
 
                 $scope.selectFile = function () {
 
@@ -814,6 +814,10 @@
                     var ctrl = function ($scope, $modalInstance) {
 
                         $scope.newExam = exam;
+                        $scope.isTeacherModal = true;
+                        fileService.getMaxFilesize().then(function(data) {
+                            $scope.maxFileSize = data.filesize;
+                        });
 
                         $scope.submit = function () {
                             fileService.upload("attachment/exam", $scope.attachmentFile, {examId: $scope.newExam.id}, $scope.newExam, $modalInstance);
