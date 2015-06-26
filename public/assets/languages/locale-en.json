@@ -625,5 +625,9 @@
   "sitnet_error_course_not_active": "Course is currently not valid and therefore you cannot choose it",
   "sitnet_check_file_accessible": "Check that the attachment can be opened with the exam computer ",
   "sitnet_max_file_size": "The allowed maximum size of the attachment is",
-  "sitnet_file_too_large": "The file is too big to upload"
+  "sitnet_file_too_large": "The file is too big to upload",
+  "sitnet_end_of_exam": "Your exam has ended",
+  "sitnet_exam_returned": "Your exam response has been submitted to teacher for assessment.",
+  "sitnet_exam_aborted": "You aborted the exam. Therefore your exam response was not submitted for assessment.",
+  "sitnet_log_out_will_commence": "You will be logged out of the system in a few seconds."
 }

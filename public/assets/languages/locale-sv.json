@@ -625,5 +625,9 @@
   "sitnet_error_course_not_active": "Studiekurs är inte giltig so du can inte väljä det.",
   "sitnet_check_file_accessible": "Kolla att bilagen kan öppnas med tent datamaskin",
   "sitnet_max_file_size": "Störstaste tillåten storlek av bilaga är",
-  "sitnet_file_too_large": "Filen är alltför stor att ladda upp. "
+  "sitnet_file_too_large": "Filen är alltför stor att ladda upp.",
+  "sitnet_end_of_exam": "Din tent har slutit",
+  "sitnet_exam_returned": "Ditt tentsvar har lämnats in för värdering.",
+  "sitnet_exam_aborted": "Du avbröt tenten. Det innebär att ditt tentsvar inte värderas.",
+  "sitnet_log_out_will_commence": "Du kommer att loggas ut i några sekunder."
 }
