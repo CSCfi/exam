@@ -14,6 +14,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
+import play.Play;
 import play.api.mvc.Handler;
 import play.cache.Cache;
 import play.libs.Akka;
