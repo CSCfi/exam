@@ -341,10 +341,7 @@
                             StudentExamRes.exams.update({id: doexam.id}, function () {
                                 toastr.info($translate.instant('sitnet_exam_returned'), { timeOut: 5000 });
                                 $timeout.cancel($scope.remainingTimePoller);
-                                $timeout(function() {
-                                    $location.path("/logout");
-                                    $rootScope.$broadcast('examEnded');
-                                }, 5000);
+                                $location.path("/student/logout/finished");
                             }, function (error) {
                                 toastr.error($translate.instant(error));
                             });
@@ -359,10 +356,7 @@
                         StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
                             toastr.info($translate.instant('sitnet_exam_aborted'), { timeOut: 5000 });
                             $timeout.cancel($scope.remainingTimePoller);
-                            $timeout(function() {
-                                $location.path("/logout");
-                                $rootScope.$broadcast('examEnded');
-                            }, 5000);
+                            $location.path("/student/logout/aborted");
                         });
                     });
                 };
@@ -468,10 +462,7 @@
                         $q.all(promises).then(function () {
                             StudentExamRes.exams.update({id: $scope.doexam.id}, function () {
                                 toastr.info($translate.instant("sitnet_exam_time_is_up"), { timeOut: 5000 });
-                                $timeout(function() {
-                                    $location.path("/logout");
-                                    $rootScope.$broadcast('examEnded');
-                                }, 5000);
+                                $location.path("/student/logout");
                             });
                         });
                     }

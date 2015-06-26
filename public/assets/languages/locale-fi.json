@@ -625,5 +625,9 @@
   "sitnet_error_course_not_active": "Opintojakso ei ole tällä hetkellä voimassa, joten sitä ei voi valita",
   "sitnet_check_file_accessible": "Tarkistathan, että liitetiedosto on avattavissa tenttikoneella.",
   "sitnet_max_file_size": "Suurin sallittu liitetiedoston koko on",
-  "sitnet_file_too_large": "Tiedosto on liian suuri ladattavaksi"
+  "sitnet_file_too_large": "Tiedosto on liian suuri ladattavaksi",
+  "sitnet_end_of_exam": "Tenttisi on päättynyt",
+  "sitnet_exam_returned": "Tenttisi on palautettu opettajalle arvioitavaksi.",
+  "sitnet_exam_aborted": "Keskeytit tenttisi, jolloin suoritus ei siirry arvioitavaksi.",
+  "sitnet_log_out_will_commence": "Sinut kirjataan hetken kuluttua ulos järjestelmästä."
 }
