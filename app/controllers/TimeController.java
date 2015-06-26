@@ -9,26 +9,25 @@ import org.joda.time.DateTime;
 import org.joda.time.Seconds;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import play.mvc.Controller;
 import play.mvc.Result;
 import util.AppUtil;
 
 
-public class TimeController extends Controller {
+public class TimeController extends BaseController {
 
     private static DateTimeFormatter format = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
 
 
     @Restrict({@Group("STUDENT")})
-    public static Result getTime() {
+    public Result getTime() {
         return ok(DateTime.now().toString(format));
     }
 
 
     @Restrict({@Group("STUDENT")})
-    public static Result getExamRemainingTime(Long examId) {
+    public Result getExamRemainingTime(Long examId) {
 
-        User user = UserController.getLoggedUser();
+        User user = getLoggedUser();
         if (user == null) {
             return forbidden("sitnet_error_invalid_session");
         }

@@ -4,15 +4,12 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.text.json.JsonContext;
-import com.avaje.ebean.text.json.JsonWriteOptions;
+
 import exceptions.MalformedDataException;
 import models.Attachment;
 import models.Exam;
-import models.answers.AbstractAnswer;
-import models.answers.EssayAnswer;
-import models.answers.MultipleChoiseAnswer;
-import models.questions.AbstractQuestion;
+import models.questions.Answer;
+import models.questions.Question;
 import play.Logger;
 import play.Play;
 import play.mvc.Http.MultipartFormData;
@@ -27,11 +24,10 @@ import java.util.UUID;
 
 import static util.java.AttachmentUtils.setData;
 
-
-public class AttachmentController extends SitnetController {
+public class AttachmentController extends BaseController {
 
     @Restrict({@Group("STUDENT")})
-    public static Result addAttachmentToQuestionAnswer() throws MalformedDataException {
+    public Result addAttachmentToQuestionAnswer() throws MalformedDataException {
 
         MultipartFormData body = request().body().asMultipartFormData();
         FilePart filePart = body.getFile("file");
@@ -49,27 +45,16 @@ public class AttachmentController extends SitnetController {
         String contentType = filePart.getContentType();
 
         // first check if answer already exist
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class)
+        Question question = Ebean.find(Question.class)
                 .fetch("answer")
                 .where()
-                .eq("id", qid)
+                .idEq(qid)
                 .findUnique();
 
         // TODO: is this really necessary?
         if (question.getAnswer() == null) {
-            switch (question.getType()) {
-                case "EssayQuestion":
-                    question.setAnswer(new EssayAnswer());
-                    question.save();
-                    break;
-
-                case "MultipleChoiceQuestion":
-                    question.setAnswer(new MultipleChoiseAnswer());
-                    question.save();
-                    break;
-                default:
-                    return notFound("Unsupported question type");
-            }
+            question.setAnswer(new Answer());
+            question.save();
         }
 
         String newFilePath;
@@ -86,16 +71,11 @@ public class AttachmentController extends SitnetController {
         attachment.save();
         question.getAnswer().setAttachment(attachment);
         question.save();
-
-        JsonContext jsonContext = Ebean.createJsonContext();
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, fileName");
-
-        return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
+        return ok(attachment);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result addAttachmentToQuestion() throws MalformedDataException {
+    public Result addAttachmentToQuestion() throws MalformedDataException {
 
         MultipartFormData body = request().body().asMultipartFormData();
         FilePart filePart = body.getFile("file");
@@ -108,7 +88,7 @@ public class AttachmentController extends SitnetController {
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long qid = Long.parseLong(m.get("questionId")[0]);
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+        Question question = Ebean.find(Question.class, qid);
         if (question == null) {
             return notFound();
         }
@@ -128,17 +108,13 @@ public class AttachmentController extends SitnetController {
         question.setAttachment(attachment);
         question.save();
 
-        JsonContext jsonContext = Ebean.createJsonContext();
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, fileName");
-
-        return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
+        return ok(attachment);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result deleteQuestionAttachment(Long id) {
+    public Result deleteQuestionAttachment(Long id) {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        Question question = Ebean.find(Question.class, id);
         Attachment aa = Ebean.find(Attachment.class, question.getAttachment().getId());
 
         question.setAttachment(null);
@@ -151,12 +127,12 @@ public class AttachmentController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result deleteQuestionAnswerAttachment(Long qid, String hash) {
+    public Result deleteQuestionAnswerAttachment(Long qid, String hash) {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+        Question question = Ebean.find(Question.class, qid);
         Attachment aa = Ebean.find(Attachment.class, question.getAnswer().getAttachment().getId());
 
-        AbstractAnswer answer = question.getAnswer();
+        Answer answer = question.getAnswer();
         answer.setAttachment(null);
         answer.save();
         aa.delete();
@@ -166,7 +142,7 @@ public class AttachmentController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result deleteExamAttachment(Long id) {
+    public Result deleteExamAttachment(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
         if (exam.getAttachment() != null) {
             Attachment aa = Ebean.find(Attachment.class, exam.getAttachment().getId());
@@ -181,7 +157,7 @@ public class AttachmentController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result addAttachmentToExam() throws MalformedDataException {
+    public Result addAttachmentToExam() throws MalformedDataException {
         MultipartFormData body = request().body().asMultipartFormData();
         FilePart filePart = body.getFile("file");
         if (filePart == null) {
@@ -213,17 +189,13 @@ public class AttachmentController extends SitnetController {
         exam.setAttachment(attachment);
         exam.save();
 
-        JsonContext jsonContext = Ebean.createJsonContext();
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, fileName");
-
-        return ok(jsonContext.toJsonString(attachment, true, options)).as("application/json");
+        return ok(attachment);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result downloadQuestionAttachment(Long id) {
+    public Result downloadQuestionAttachment(Long id) {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class)
+        Question question = Ebean.find(Question.class)
                 .fetch("attachment")
                 .where()
                 .eq("id", id)
@@ -237,9 +209,9 @@ public class AttachmentController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result downloadQuestionAnswerAttachment(Long qid, String hash) {
+    public Result downloadQuestionAnswerAttachment(Long qid, String hash) {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class)
+        Question question = Ebean.find(Question.class)
                 .fetch("attachment")
                 .where()
                 .eq("id", qid)
@@ -253,7 +225,7 @@ public class AttachmentController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result downloadExamAttachment(Long id) {
+    public Result downloadExamAttachment(Long id) {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("attachment")

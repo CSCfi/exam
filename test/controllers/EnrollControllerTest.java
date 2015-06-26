@@ -22,7 +22,6 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.status;
 
 
 public class EnrollControllerTest extends IntegrationTestCase {
@@ -74,7 +73,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
         // Execute
         Result result = request(Helpers.POST,
                 String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("exam.id", exam.getId())
@@ -93,7 +92,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
         // Execute
         Result result = request(Helpers.POST,
                 String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
-        assertThat(status(result)).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualTo("sitnet_error_enrolment_exists");
 
         // Verify
@@ -120,7 +119,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
         // Execute
         Result result = request(Helpers.POST,
                 String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
@@ -147,7 +146,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
         // Execute
         Result result = request(Helpers.POST,
                 String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
-        assertThat(status(result)).isEqualTo(403); // Not found
+        assertThat(result.status()).isEqualTo(403); // Not found
         assertThat(contentAsString(result)).isEqualTo("sitnet_reservation_in_effect");
 
         // Verify
@@ -173,7 +172,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
         // Execute
         Result result = request(Helpers.POST,
                 String.format("/enroll/%s/exam/%d", exam.getCourse().getCode(), exam.getId()), null);
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();

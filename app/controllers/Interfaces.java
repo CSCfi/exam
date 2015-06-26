@@ -1,6 +1,8 @@
 package controllers;
 
 
+import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,7 +18,7 @@ import play.Logger;
 import play.libs.F;
 import play.libs.Json;
 import play.libs.ws.WS;
-import play.libs.ws.WSRequestHolder;
+import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -30,8 +32,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
-public class Interfaces extends SitnetController {
+public class Interfaces extends BaseController implements ExternalAPI  {
 
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
@@ -64,47 +67,43 @@ public class Interfaces extends SitnetController {
         return new URL(url);
     }
 
-    public static F.Promise<Collection<String>> getPermittedCourses(User user) throws MalformedURLException {
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public F.Promise<Collection<String>> getPermittedCourses(User user) throws MalformedURLException {
         URL url = parseUrl(user);
-        WSRequestHolder request = WS.url(url.toString().split("\\?")[0]);
+        WSRequest request = WS.url(url.toString().split("\\?")[0]);
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
         }
-        F.Function<WSResponse, Collection<String>> onSuccess = new F.Function<WSResponse, Collection<String>>() {
-            @Override
-            public Collection<String> apply(WSResponse response) throws Throwable {
-                JsonNode root = response.asJson();
-                if (root.has("exception")) {
-                    throw new RemoteException(root.get("exception").asText());
-                } else if (root.has("data")) {
-                    Set<String> results = new HashSet<>();
-                    for (JsonNode course : root.get("data")) {
-                        if (course.has("course_code")) {
-                            results.add(course.get("course_code").asText());
-                        } else {
-                            Logger.warn("Unexpected content {}", course.asText());
-                        }
+        F.Function<WSResponse, Collection<String>> onSuccess = response -> {
+            JsonNode root = response.asJson();
+            if (root.has("exception")) {
+                throw new RemoteException(root.get("exception").asText());
+            } else if (root.has("data")) {
+                Set<String> results = new HashSet<>();
+                for (JsonNode course : root.get("data")) {
+                    if (course.has("course_code")) {
+                        results.add(course.get("course_code").asText());
+                    } else {
+                        Logger.warn("Unexpected content {}", course.asText());
                     }
-                    return results;
-                } else {
-                    Logger.warn("Unexpected content {}", root.asText());
-                    throw new RemoteException("sitnet_internal_error");
                 }
+                return results;
+            } else {
+                Logger.warn("Unexpected content {}", root.asText());
+                throw new RemoteException("sitnet_internal_error");
             }
         };
-        F.Function<Throwable, Collection<String>> onFailure = new F.Function<Throwable, Collection<String>>() {
-            @Override
-            public Collection<String> apply(Throwable throwable) throws Throwable {
-                if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
-                    throw new TimeoutException("sitnet_request_timed_out");
-                }
-                throw throwable;
+        F.Function<Throwable, Collection<String>> onFailure = throwable -> {
+            if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
+                throw new TimeoutException("sitnet_request_timed_out");
             }
+            throw throwable;
         };
         return request.get().map(onSuccess).recover(onFailure);
     }
 
-    public static F.Promise<List<Course>> getCourseInfoByCode(String code) throws MalformedURLException {
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public F.Promise<List<Course>> getCourseInfoByCode(String code) throws MalformedURLException {
         URL url = new URL(ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url"));
         final List<Course> courses = Ebean.find(Course.class).where()
                 .ilike("code", code + "%")
@@ -119,31 +118,20 @@ public class Interfaces extends SitnetController {
                 .orderBy("name desc").findList();
         if (!courses.isEmpty() || !isCourseSearchActive()) {
             // we already have it or we don't want to fetch it
-            return F.Promise.promise(new F.Function0<List<Course>>() {
-                @Override
-                public List<Course> apply() throws Throwable {
-                    return courses;
-                }
-            });
+            return F.Promise.promise(() -> courses);
         }
-        return WS.url(url.toString()).setQueryParameter("courseUnitCode", code).get().map(new F.Function<WSResponse, List<Course>>() {
-            @Override
-            public List<Course> apply(WSResponse wsResponse) throws Throwable {
-                int status = wsResponse.getStatus();
-                if (status == HttpServletResponse.SC_OK) {
-                    return parseCourse(wsResponse.asJson());
-                }
-                Logger.info("Non-OK response received {}", status);
-                throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, wsResponse.getStatusText()));
+        return WS.url(url.toString()).setQueryParameter("courseUnitCode", code).get().map(wsResponse -> {
+            int status = wsResponse.getStatus();
+            if (status == HttpServletResponse.SC_OK) {
+                return parseCourse(wsResponse.asJson());
             }
-        }).recover(new F.Function<Throwable, List<Course>>() {
-            @Override
-            public List<Course> apply(Throwable throwable) throws Throwable {
-                if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
-                    throw new TimeoutException("sitnet_request_timed_out");
-                }
-                throw throwable;
+            Logger.info("Non-OK response received {}", status);
+            throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, wsResponse.getStatusText()));
+        }).recover(throwable -> {
+            if (throwable instanceof TimeoutException || throwable instanceof ConnectException) {
+                throw new TimeoutException("sitnet_request_timed_out");
             }
+            throw throwable;
         });
     }
 
@@ -196,12 +184,12 @@ public class Interfaces extends SitnetController {
         return scales;
     }
 
-    public static Result getNewRecords(String startDate) {
+    public Result getNewRecords(String startDate) {
         return ok(Json.toJson(getScores(startDate)));
     }
 
     // for testing purposes
-    public static Result getNewRecordsAlphabeticKeyOrder(String startDate) {
+    public Result getNewRecordsAlphabeticKeyOrder(String startDate) {
         try {
             return ok(convertNode(Json.toJson(getScores(startDate))));
         } catch (JsonProcessingException e) {
@@ -229,12 +217,7 @@ public class Interfaces extends SitnetController {
                 .where()
                 .gt("time_stamp", start.toDate())
                 .findList();
-
-        List<ExamScore> examScores = new ArrayList<>();
-        for (ExamRecord record : examRecords) {
-            examScores.add(record.getExamScore());
-        }
-        return examScores;
+        return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
     }
 
     private static List<Course> parseCourse(JsonNode response) throws ParseException {

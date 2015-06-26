@@ -1,9 +1,8 @@
 package models;
 
-import play.db.ebean.Model;
+import com.avaje.ebean.Model;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,7 +41,7 @@ public class GradeScale extends Model {
     }
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
     @Column
     private int id;
 
@@ -56,7 +55,7 @@ public class GradeScale extends Model {
     private String displayName;
 
     @OneToMany(mappedBy = "gradeScale", cascade = CascadeType.ALL)
-    private List<Grade> grades = new ArrayList<>();
+    private List<Grade> grades;
 
     public int getId() {
         return id;

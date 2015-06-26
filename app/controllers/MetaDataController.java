@@ -3,45 +3,33 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.text.json.JsonContext;
-import com.avaje.ebean.text.json.JsonWriteOptions;
-import models.questions.AbstractQuestion;
+import models.questions.Question;
 import play.mvc.Result;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
-public class MetaDataController extends SitnetController {
+public class MetaDataController extends BaseController {
 
     /**
      * @param questionId <b>PARENT</b> questionId !!!
-     * @return
      */
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result getQuestionMetaData(long questionId) {
+    public Result getQuestionMetaData(long questionId) {
 
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, questionId);
-
+        Question question = Ebean.find(Question.class)
+                .fetch("creator", "firstName, lastName")
+                .fetch("examSectionQuestion", "id")
+                .fetch("examSectionQuestion.examSection", "name")
+                .fetch("examSectionQuestion.examSection.exam", "name")
+                .fetch("examSectionQuestion.examSection.exam.course", "code")
+                .where().idEq(questionId).findUnique();
         if(question == null || question.getChildren().isEmpty()) {
             return noContent();
         }
-
-        Set<AbstractQuestion> questions = new HashSet<>();
-        for(AbstractQuestion child : question.getChildren()) {
-            questions.add(Ebean.find(AbstractQuestion.class, child.getId()));
-        }
-
-        JsonContext jsonContext = Ebean.createJsonContext();
-        JsonWriteOptions options = new JsonWriteOptions();
-
-        options.setRootPathProperties("id, creator, type, shared, examSectionQuestion");
-        options.setPathProperties("creator", "firstName, lastName");
-        options.setPathProperties("examSectionQuestion", "id, examSection");
-        options.setPathProperties("examSectionQuestion.examSection", "name, exam");
-        options.setPathProperties("examSectionQuestion.examSection.exam", "name, course");
-        options.setPathProperties("examSectionQuestion.examSection.exam.course", "code");
-
-        return ok(jsonContext.toJsonString(questions, true, options)).as("application/json");
+        Set<Question> questions = question.getChildren().stream()
+                .map(c -> Ebean.find(Question.class, c.getId())).collect(Collectors.toSet());
+        return ok(questions);
     }
 }

@@ -9,7 +9,7 @@ import javax.persistence.MappedSuperclass;
 public abstract class GeneratedIdentityModel extends VersionedModel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     protected Long id;
 
     public Long getId() {

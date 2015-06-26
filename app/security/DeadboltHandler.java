@@ -2,38 +2,35 @@ package security;
 
 import be.objectify.deadbolt.core.models.Subject;
 import be.objectify.deadbolt.java.AbstractDeadboltHandler;
-import controllers.UserController;
+import com.avaje.ebean.Ebean;
+import controllers.BaseController;
+import models.Session;
+import models.User;
+import play.cache.Cache;
 import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Result;
 
+import java.util.Optional;
+
 public class DeadboltHandler extends AbstractDeadboltHandler {
 
     @Override
-    public F.Promise<Result> beforeAuthCheck(Http.Context context) {
-
-        // returning null means that everything is OK.  Return a real result if you want a redirect to a login page or
-        // somewhere else
-        return F.Promise.pure(null);
+    public F.Promise<Optional<Result>> beforeAuthCheck(Http.Context context) {
+        return F.Promise.promise(Optional::empty);
     }
 
     @Override
-    public Subject getSubject(Http.Context context) {
-        // in a real application, the user name would probably be in the session following a login process
-        return UserController.getLoggedUser();
-
+    public F.Promise<Optional<Subject>> getSubject(Http.Context context) {
+        String token = context.request().getHeader(BaseController.SITNET_TOKEN_HEADER_KEY);
+        Session session = (Session) Cache.get(BaseController.SITNET_CACHE_KEY + token);
+        User user = session == null ? null : Ebean.find(User.class, session.getUserId());
+        return F.Promise.promise(() -> Optional.ofNullable(user));
     }
 
     @Override
     public F.Promise<Result> onAuthFailure(Http.Context context, String content) {
-        // you can return any result from here - forbidden, etc
-        return F.Promise.promise(new F.Function0<Result>() {
-            @Override
-            public Result apply() throws Throwable {
-                // TODO: localize
-                return forbidden("Authentication failure");
-            }
-        });
+        return F.Promise.promise(() -> forbidden("Authentication failure"));
     }
 
 }

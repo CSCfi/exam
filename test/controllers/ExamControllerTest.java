@@ -19,7 +19,6 @@ import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.status;
 
 public class ExamControllerTest extends IntegrationTestCase {
 
@@ -27,7 +26,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testGetActiveExamsUnauthorized() {
         Result result = get("/reviewerexams");
-        assertThat(status(result)).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
 
@@ -50,7 +49,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         Result result = get("/reviewerexams");
 
         // Verify
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         ArrayNode exams = (ArrayNode) node;
         assertThat(exams.size()).isEqualTo(ids.size());
@@ -68,7 +67,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     public void testCreateDraftExamUnauthorized() {
         // Execute
         Result result = get("/draft");
-        assertThat(status(result)).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
 
@@ -82,7 +81,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         Result result = get("/draft");
 
         // Verify
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         Long id = node.get("id").asLong();
         Exam draft = Ebean.find(Exam.class, id);
@@ -114,7 +113,7 @@ public class ExamControllerTest extends IntegrationTestCase {
 
         // Verify that some paths exist in JSON, this is a significant set of information so really hard to test it's
         // all there :p
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertPathsExist(node, getExamFields());
         assertPathCounts(node, 3, getExamSectionFieldsOfExam("*"));
@@ -149,7 +148,7 @@ public class ExamControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = get("/exams/" + id);
-        assertThat(status(result)).isEqualTo(404);
+        assertThat(result.status()).isEqualTo(404);
     }
 
     private String[] getExamFields() {

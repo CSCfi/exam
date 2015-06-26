@@ -25,7 +25,6 @@ import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.status;
 
 public class CourseInfoImportTest extends IntegrationTestCase {
 
@@ -63,7 +62,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     public void testGetCourse() throws Exception {
         CourseInfoServlet.SEND_EXPIRED_COURSE = false;
         Result result = get("/courses?filter=code&q=2121219");
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).hasSize(1);
         Course course = deserialize(Course.class, node.get(0));
@@ -80,7 +79,7 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     public void testGetExpiredCourse() throws Exception {
         CourseInfoServlet.SEND_EXPIRED_COURSE = true;
         Result result = get("/courses?filter=code&q=2121219");
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node).isEmpty();
     }

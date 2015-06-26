@@ -7,36 +7,40 @@ import com.avaje.ebean.config.dbplatform.PostgresPlatform;
 import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.avaje.ebeaninternal.server.ddl.DdlGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import org.junit.*;
 import org.junit.rules.TestName;
-import play.api.db.evolutions.InconsistentDatabase;
-import play.api.db.evolutions.OfflineEvolutions;
+import play.Application;
+import play.db.evolutions.Evolutions;
+import play.db.Database;
+import play.db.Databases;
 import play.libs.Json;
+import play.mvc.Http;
 import play.mvc.Result;
-import play.test.FakeApplication;
-import play.test.FakeRequest;
 import play.test.Helpers;
 import util.AppUtil;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.*;
+import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeRequest;
 
 public class IntegrationTestCase {
 
-    protected static FakeApplication app;
+    protected static Application app;
     protected String sessionToken;
     protected Long userId;
 
-    private static final Map<String, String> HAKA_HEADERS = new HashMap<String, String>();
+    private static final Map<String, String> HAKA_HEADERS = new HashMap<>();
 
     static {
         HAKA_HEADERS.put("displayName", "George");
@@ -54,30 +58,24 @@ public class IntegrationTestCase {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        System.setProperty("config.resource", "integrationtest.conf");
     }
 
     @Rule
     public TestName currentTest = new TestName();
 
-    @BeforeClass
-    public static void evolve() {
-        System.setProperty("config.file", "conf/integrationtest.conf");
-        // Apply evolutions manually to test database
-        try {
-            OfflineEvolutions.applyScript(new File("."), IntegrationTestCase.class.getClassLoader(), "default", true);
-        } catch (InconsistentDatabase e) {
-            int revision = e.rev();
-            OfflineEvolutions.resolve(new File("."), IntegrationTestCase.class.getClassLoader(), "default", revision);
+    private Database getDB() {
+        return  Databases.createFrom("org.postgresql.Driver", "jdbc:postgresql://localhost/sitnet_test",
+                ImmutableMap.of("user", "sitnet", "password", "sitnetsitnet"));
+    }
+
+    private void cleanEvolvedTables(Database db) throws SQLException {
+        String[] tables = {"language", "grade", "grade_scale"};
+        for (String table : tables) {
+            Statement stmt = db.getConnection().createStatement();
+            stmt.execute("delete from " + table);
+            stmt.close();
         }
-    }
-
-    protected void startApp() {
-        app = fakeApplication(new FakeGlobal());
-        start(app);
-    }
-
-    public static void stopApp() {
-        stop(app);
     }
 
     @Before
@@ -85,16 +83,14 @@ public class IntegrationTestCase {
         // Unfortunately we need to restart for each test because there is some weird issue with question id sequence.
         // Ebean allocates us duplicate PKs eventually unless server is recreated in between. This is either a bug with
         // Ebean (batching) or an issue with our question entity JPA mappings.
-        startApp();
-        EbeanServer server = Ebean.getServer("default");
+        app = Helpers.fakeApplication();
+        Helpers.start(app);
+        cleanDB();
+        Database db = getDB();
+        Evolutions.applyEvolutions(db);
+        cleanEvolvedTables(db);
+        db.shutdown();
 
-        DdlGenerator generator = new DdlGenerator();
-        generator.setup((SpiEbeanServer) server, new PostgresPlatform(), new ServerConfig());
-        // Drop
-        generator.runScript(false, generator.generateDropDdl());
-        // Create
-        generator.runScript(false, generator.generateCreateDdl());
-        // Initialize
         AppUtil.initializeDataModel();
 
         Method testMethod = getClass().getDeclaredMethod(currentTest.getMethodName());
@@ -107,14 +103,33 @@ public class IntegrationTestCase {
         }
     }
 
+    private void cleanDB() throws SQLException {
+        DdlGenerator generator = new DdlGenerator();
+        EbeanServer server = Ebean.getServer("default");
+        generator.setup((SpiEbeanServer) server, new PostgresPlatform(), new ServerConfig());
+        // Drop
+        Database db = getDB();
+
+        Statement statement = db.getConnection().createStatement();
+        try {
+            statement.executeUpdate("delete from play_evolutions");
+            statement.close();
+        } catch (SQLException e) {
+            // OK
+        }
+        db.shutdown();
+        generator.runScript(false, generator.generateDropDdl());
+    }
+
     @After
-    public void tearDown() {
+    public void tearDown() throws SQLException {
         if (sessionToken != null) {
             logout();
             sessionToken = null;
             userId = null;
         }
-        stopApp();
+        //cleanDB();
+        Helpers.stop(app);
     }
 
     // Common helper methods -->
@@ -128,15 +143,15 @@ public class IntegrationTestCase {
     }
 
     protected Result request(String method, String path, JsonNode body, Map<String, String> headers) {
-        FakeRequest request = fakeRequest(method, path);
+        Http.RequestBuilder request = fakeRequest(method, path);
         for (Map.Entry<String, String> header : headers.entrySet()) {
-            request = request.withHeader(header.getKey(), header.getValue());
+            request.headers().put(header.getKey(), new String[]{header.getValue()});
         }
         if (body != null && !method.equals(Helpers.GET)) {
-            request = request.withJsonBody(body, method);
+            request = request.bodyJson(body);
         }
         if (sessionToken != null) {
-            request = request.withHeader("x-exam-authentication", sessionToken);
+            request.headers().put("x-exam-authentication", new String[]{sessionToken});
         }
         return Helpers.route(request);
     }
@@ -156,7 +171,7 @@ public class IntegrationTestCase {
     protected void login(String eppn) {
         HAKA_HEADERS.put("eppn", eppn);
         Result result = request(Helpers.POST, "/login", null, HAKA_HEADERS);
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode user = Json.parse(contentAsString(result));
         sessionToken = user.get("token").asText();
         userId = user.get("id").asLong();

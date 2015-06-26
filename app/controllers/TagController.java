@@ -7,7 +7,7 @@ import com.avaje.ebean.ExpressionList;
 import exceptions.MalformedDataException;
 import models.Tag;
 import models.User;
-import models.questions.AbstractQuestion;
+import models.questions.Question;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
@@ -15,11 +15,11 @@ import util.AppUtil;
 
 import java.util.List;
 
-public class TagController extends SitnetController {
+public class TagController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public static Result listTags(F.Option<String> filter, F.Option<List<Long>> examIds, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds) {
-        User user = UserController.getLoggedUser();
+    public Result listTags(F.Option<String> filter, F.Option<List<Long>> examIds, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds) {
+        User user = getLoggedUser();
         ExpressionList<Tag> query = Ebean.find(Tag.class).where();
         if (!user.hasRole("ADMIN")) {
             query = query.where().eq("creator.id", user.getId());
@@ -42,10 +42,11 @@ public class TagController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public static Result createTag() throws MalformedDataException {
+    public Result createTag() throws MalformedDataException {
         Tag tag = bindForm(Tag.class);
-        AppUtil.setCreator(tag);
-        AppUtil.setModifier(tag);
+        User user = getLoggedUser();
+        AppUtil.setCreator(tag, user);
+        AppUtil.setModifier(tag, user);
         // Save only if not already exists
         Tag existing = Ebean.find(Tag.class).where().eq("name", tag.getName())
                 .eq("creator.id", tag.getCreator().getId()).findUnique();
@@ -58,7 +59,7 @@ public class TagController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public static Result deleteTag(Long tagId) {
+    public Result deleteTag(Long tagId) {
         Tag tag = Ebean.find(Tag.class, tagId);
         if (tag == null) {
             return notFound();
@@ -68,9 +69,9 @@ public class TagController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public static Result tagQuestion(Long tagId, Long questionId) {
+    public Result tagQuestion(Long tagId, Long questionId) {
         Tag tag = Ebean.find(Tag.class, tagId);
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, questionId);
+        Question question = Ebean.find(Question.class, questionId);
         if (tag == null || question == null) {
             return notFound();
         }
@@ -83,9 +84,9 @@ public class TagController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public static Result untagQuestion(Long tagId, Long questionId) {
+    public Result untagQuestion(Long tagId, Long questionId) {
         Tag tag = Ebean.find(Tag.class, tagId);
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, questionId);
+        Question question = Ebean.find(Question.class, questionId);
         if (tag == null || question == null) {
             return notFound();
         }

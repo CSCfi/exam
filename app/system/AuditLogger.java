@@ -1,4 +1,4 @@
-package global;
+package system;
 
 import com.avaje.ebean.Ebean;
 import models.Session;

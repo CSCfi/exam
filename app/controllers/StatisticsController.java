@@ -3,8 +3,6 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.text.json.JsonContext;
-import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.ning.http.util.Base64;
 import models.Exam;
 import models.ExamEnrolment;
@@ -25,35 +23,30 @@ import java.io.IOException;
 import java.util.*;
 
 
-public class StatisticsController extends SitnetController {
+public class StatisticsController extends BaseController {
 
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy");
 
 
     @Restrict({@Group("ADMIN")})
-    public static Result getStudents() {
+    public Result getStudents() {
         List<User> students = Ebean.find(User.class)
+                .select("id, firstName, lastName")
                 .where()
                 .eq("roles.name", "STUDENT")
                 .findList();
-        JsonContext jsonContext = Ebean.createJsonContext();
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, firstName, lastName");
-        return ok(jsonContext.toJsonString(students, true, options)).as("application/json");
+        return ok(students);
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getExamNames() {
+    public Result getExamNames() {
         List<Exam> exams = Ebean.find(Exam.class)
-                .fetch("course")
+                .select("id, name")
+                .fetch("course", "id, name, code")
                 .where()
                 .isNull("parent") // only Exam prototypes
                 .findList();
-        JsonContext jsonContext = Ebean.createJsonContext();
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, course");
-        options.setPathProperties("course", "id, code, name");
-        return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
+        return ok(exams);
     }
 
     private static Result examToExcel(Exam exam) throws IOException {
@@ -95,36 +88,17 @@ public class StatisticsController extends SitnetController {
     }
 
     private static Result examToJson(Exam exam) {
-        JsonContext jsonContext = Ebean.createJsonContext();
-        JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, name, course, parent, examType, instruction, shared, examSections, examActiveStartDate, examActiveEndDate, room, " +
-                "duration, gradeScale, grade, customCredit, totalScore, examLanguage, answerLanguage, state, examFeedback, creditType, expanded, attachment");
-        options.setPathProperties("parent", "id");
-        options.setPathProperties("course", "id, code, name, level, type, credits, institutionName, department");
-        options.setPathProperties("room", "id, name");
-        options.setPathProperties("attachment", "id, fileName");
-        options.setPathProperties("examType", "id, type");
-        options.setPathProperties("examSections", "id, name, questions, exam, totalScore, expanded, lotteryOn, lotteryItemCount");
-        options.setPathProperties("examSections.questions", "id, type, question, shared, instruction, maxScore, evaluationType, evaluatedScore, evaluationCriterias, options, answer");
-        options.setPathProperties("examSections.questions.answer", "type, option, answer");
-        options.setPathProperties("examSections.questions.answer.option", "id, option, correctOption, score");
-        options.setPathProperties("examSections.questions.options", "id, option");
-        options.setPathProperties("examSections.questions.comments", "id, comment");
-        options.setPathProperties("examFeedback", "id, comment");
-
-        String content = jsonContext.toJsonString(exam, true, options);
+        String content = Ebean.json().toJson(exam);
         response().setHeader("Content-Disposition", "attachment; filename=\"exams.json\"");
         return ok(com.ning.http.util.Base64.encode(content.getBytes()));
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getExam(Long id, String reportType) throws IOException {
+    public Result getExam(Long id, String reportType) throws IOException {
 
-        Exam exam = Ebean.find(Exam.class)
-                .fetch("creator")
-                .fetch("course")
+        Exam exam = ExamController.createQuery()
                 .where()
-                .eq("id", id)
+                .idEq(id)
                 .isNotNull("course")
                 .findUnique();
         if (exam == null) {
@@ -142,7 +116,7 @@ public class StatisticsController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getTeacherExamsByDate(Long uid, String from, String to)  throws IOException {
+    public Result getTeacherExamsByDate(Long uid, String from, String to)  throws IOException {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
         List<Exam> exams = Ebean.find(Exam.class)
@@ -206,7 +180,7 @@ public class StatisticsController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getExamEnrollments(Long id) throws IOException {
+    public Result getExamEnrollments(Long id) throws IOException {
         Exam proto = Ebean.find(Exam.class).fetch("examEnrolments").fetch("examEnrolments.user")
                 .fetch("examEnrolments.reservation").fetch("course")
                 .where().eq("id", id).isNull("parent").findUnique();
@@ -240,7 +214,7 @@ public class StatisticsController extends SitnetController {
      * @return excel
      */
     @Restrict({@Group("ADMIN")})
-    public static Result getReviewsByDate(String from, String to) throws IOException {
+    public Result getReviewsByDate(String from, String to) throws IOException {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
         List<Exam> exams = Ebean.find(Exam.class)
@@ -285,7 +259,7 @@ public class StatisticsController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result getReservationsForRoomByDate(Long roomId, String from, String to)  throws IOException {
+    public Result getReservationsForRoomByDate(Long roomId, String from, String to)  throws IOException {
 
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
@@ -336,7 +310,7 @@ public class StatisticsController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result reportAllExams(String from, String to) throws IOException {
+    public Result reportAllExams(String from, String to) throws IOException {
 
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
@@ -360,7 +334,7 @@ public class StatisticsController extends SitnetController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public static Result reportStudentActivity(Long studentId, String from, String to) throws IOException {
+    public Result reportStudentActivity(Long studentId, String from, String to) throws IOException {
 
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
