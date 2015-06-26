@@ -3,22 +3,14 @@ package models.calendar;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import models.ExamRoom;
-import play.db.ebean.Model;
+import models.GeneratedIdentityModel;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 @DiscriminatorValue("ExceptionWorkingHours")
-public class ExceptionWorkingHours extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
+public class ExceptionWorkingHours extends GeneratedIdentityModel {
 
     @Temporal(TemporalType.TIMESTAMP)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
@@ -37,14 +29,6 @@ public class ExceptionWorkingHours extends Model {
     @ManyToOne
     @JsonBackReference
     private ExamRoom room;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public Date getEndDate() {
         return endDate;

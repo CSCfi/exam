@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('sitnet.directives')
+    angular.module('exam.directives')
 
         .directive('dateValidator', function() {
             return {
@@ -225,40 +225,6 @@
                 });
             };
         })
-
-        .directive('answerState', ['$translate', function ($translate) {
-            return {
-                link: function (scope, elem, attrs, ngModel) {
-
-                    if (scope.option.correctOption === true) {
-                        scope.answerState = $translate("sitnet_multiplechoice_question_correct");
-                    } else {
-                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");
-                    }
-
-                    elem.bind('change', function () {
-                        scope.$apply(attrs.uiChange);
-                    });
-                }
-            };
-        }])
-
-//        .directive('examScore', function () {
-//            return {
-//                link: function (scope, elem, attrs, ngModel) {
-//
-//                    if (scope.option.correctOption == true) {
-//                        scope.maxScore = scope.question.maxScore;
-//                    } else {
-//                        scope.answerState = $translate("sitnet_multiplechoice_question_incorrect");;
-//                    }
-//
-//                    elem.bind('blur', function () {
-//                        scope.$apply(attrs.uiBlur);
-//                    });
-//                }
-//            };
-//        }])
 
         .directive('uiChange', function () {
             return {

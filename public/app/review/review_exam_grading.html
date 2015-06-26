@@ -107,16 +107,16 @@
                     <select id="examGrade"
                             name="examGrade"
                             class="form-control"
-                            ng-model="selectedGrade"
+                            ng-model="selections.grade"
                             ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()"
-                            ng-change="setGrade(selectedGrade, examToBeReviewed)"
+                            ng-change="setGrade(selections.grade, examToBeReviewed)"
                             required>
                         <option value=""
                                 ng-selected="examToBeReviewed.grade == undefined">{{'sitnet_choose' | translate}}
                         </option>
                         <option ng-repeat="grade in examGrading"
                                 value="{{grade.id}}"
-                                ng-selected="selectedGrade === grade.id">{{ grade.name }}
+                                ng-selected="selections.grade === grade.id">{{ grade.name }}
                         </option>
                     </select>
                 </div>
@@ -124,8 +124,8 @@
                 <div class="col-md-2">
                     <label for="creditType">{{'sitnet_exam_choose_credit_type' | translate}}:</label>
                     <select id="creditType" name="creditType" class="form-control"
-                            ng-model="selectedType"
-                            ng-change="setCreditType(selectedType)"
+                            ng-model="selections.type"
+                            ng-change="setCreditType(selections.type)"
                             ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
                         <option ng-repeat="examType in examTypes" value="{{examType.type}}"
@@ -138,11 +138,11 @@
                     <label for="answerLanguage">{{'sitnet_exam_record_language' | translate}}:</label>
                     <select id="answerLanguage" name="answerLanguage" class="form-control"
                             ng-disabled="isReadOnly || !isCreatorOrOwnerOrAdmin()"
-                            ng-model="selectedLanguage"
-                            ng-change="setLanguage(selectedLanguage)" required>
+                            ng-model="selections.language"
+                            ng-change="setLanguage(selections.language)" required>
                         <option value="">{{'sitnet_choose' | translate}}</option>
                         <option ng-repeat="lang in languages" value="{{lang.name}}"
-                                ng-selected="lang.name === selectedLanguage">{{lang.name}}
+                                ng-selected="lang.name === selections.language">{{lang.name}}
                         </option>
                     </select>
                 </div>

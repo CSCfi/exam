@@ -1,24 +1,13 @@
 package models;
 
 import models.dto.ExamScore;
-import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.Date;
 
-/**
- * Created by alahtinen on 02/09/14.
- */
+
 @Entity
-public class ExamRecord extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
+public class ExamRecord extends GeneratedIdentityModel {
 
     @OneToOne
     private User teacher;
@@ -86,11 +75,4 @@ public class ExamRecord extends Model {
         this.timeStamp = timeStamp;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 }

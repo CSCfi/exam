@@ -1,26 +1,18 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.GeneratedIdentityModel;
 import org.springframework.beans.BeanUtils;
-import play.db.ebean.Model;
 
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
 
 @Entity
-public class MultipleChoiseOption extends Model {
+public class MultipleChoiseOption extends GeneratedIdentityModel implements Comparable<MultipleChoiseOption> {
 
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
+    private String option;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-	private String option;
-    
     private boolean correctOption;
 
     private Double score;
@@ -29,25 +21,17 @@ public class MultipleChoiseOption extends Model {
     @JsonBackReference
     private MultipleChoiceQuestion question;
 
-	public Long getId() {
-		return id;
-	}
+    public String getOption() {
+        return option;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setOption(String option) {
+        this.option = option;
+    }
 
-	public String getOption() {
-		return option;
-	}
-
-	public void setOption(String option) {
-		this.option = option;
-	}
-
-	public boolean isCorrectOption() {
-		return correctOption;
-	}
+    public boolean isCorrectOption() {
+        return correctOption;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -59,30 +43,30 @@ public class MultipleChoiseOption extends Model {
         }
 
         MultipleChoiseOption that = (MultipleChoiseOption) o;
-        return id.equals(that.id);
+        return getId().equals(that.getId());
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        if (id != null) {
-            result = 31 * result + id.hashCode();
+        if (getId() != null) {
+            result = 31 * result + getId().hashCode();
         }
         return result;
     }
 
     public void setCorrectOption(boolean correctOption) {
 
-		this.correctOption = correctOption;
-	}
+        this.correctOption = correctOption;
+    }
 
-	public Double getScore() {
-		return score;
-	}
+    public Double getScore() {
+        return score;
+    }
 
-	public void setScore(Double score) {
-		this.score = score;
-	}
+    public void setScore(Double score) {
+        this.score = score;
+    }
 
     public MultipleChoiceQuestion getQuestion() {
         return question;
@@ -92,18 +76,26 @@ public class MultipleChoiseOption extends Model {
         this.question = question;
     }
 
-	public MultipleChoiseOption copy() {
+    public MultipleChoiseOption copy() {
         MultipleChoiseOption option = new MultipleChoiseOption();
-        BeanUtils.copyProperties(this, option , new String[] {"id"});
+        BeanUtils.copyProperties(this, option, "id");
         return option;
     }
 
     public String toString() {
         return "MultipleChoiseOption{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", option='" + option + '\'' +
                 ", correctOption=" + correctOption +
                 ", score=" + score +
                 '}';
+    }
+
+    @Override
+    public int compareTo(MultipleChoiseOption o) {
+        if (getId() < o.getId()) {
+            return -1;
+        }
+        return getId().equals(o.getId()) ? 0 : 1;
     }
 }

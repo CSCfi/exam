@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('sitnet.services')
+    angular.module('exam.services')
         .factory('dateService', function () {
 
             var printExamDuration = function (exam) {

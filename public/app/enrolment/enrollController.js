@@ -1,12 +1,12 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('EnrollController', ['$scope', '$translate', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'SITNET_CONF', '$location', 'enrolmentService',
-            function ($scope, $translate, EnrollRes, examService, dateService, $routeParams, SITNET_CONF, $location, enrolmentService) {
+    angular.module("exam.controllers")
+        .controller('EnrollController', ['$scope', '$translate', 'EnrollRes', 'examService', 'dateService', '$routeParams', 'EXAM_CONF', '$location', 'enrolmentService',
+            function ($scope, $translate, EnrollRes, examService, dateService, $routeParams, EXAM_CONF, $location, enrolmentService) {
 
-                $scope.enrollPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
-                $scope.examPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/exam.html";
-                $scope.generalInfoPath = SITNET_CONF.TEMPLATES_PATH + "enrolment/review_exam_section_general.html";
+                $scope.enrollPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/enroll.html";
+                $scope.examPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/exam.html";
+                $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "enrolment/detailed_info.html";
 
                 if ($routeParams.code === undefined) {
                     console.log($routeParams.code);
@@ -58,7 +58,7 @@
                 $scope.enrollExam = function (exam) {
                     EnrollRes.check.get({id: exam.id}, function () {
                             // already enrolled
-                            toastr.error($translate('sitnet_already_enrolled'));
+                            toastr.error($translate.instant('sitnet_already_enrolled'));
                         }, function () {
                             enrolmentService.enroll(exam);
                         }

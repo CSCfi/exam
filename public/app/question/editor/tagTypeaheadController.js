@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('TagTypeaheadCtrl', ['$scope', 'limitToFilter', 'TagRes', '$translate',
             function ($scope, limitToFilter, TagRes, $translate) {
 
@@ -26,7 +26,7 @@
 
                 var associate = function(tag, question) {
                     TagRes.question.add({tid: tag.id, qid: question.id}, function () {
-                        toastr.info($translate('sitnet_question_associated_with_tag'));
+                        toastr.info($translate.instant('sitnet_question_associated_with_tag'));
                         $scope.newQuestion.tags.push(tag);
                         delete $scope.newQuestion.newTag;
                     }, function (error) {
@@ -39,7 +39,7 @@
                         // add first
                         TagRes.tags.add(tag, function (response) {
                             if (response.status === 201) {
-                                toastr.info($translate('sitnet_new_tag_added'));
+                                toastr.info($translate.instant('sitnet_new_tag_added'));
                             }
                             tag = response.data;
                             associate(tag, question);

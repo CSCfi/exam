@@ -3,21 +3,16 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.joda.time.LocalTime;
-import play.db.ebean.Model;
 
-import javax.persistence.*;
+import javax.annotation.Nonnull;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 
 @Entity
-public class ExamStartingHour extends Model implements Comparable<ExamStartingHour> {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class ExamStartingHour extends GeneratedIdentityModel implements Comparable<ExamStartingHour> {
 
     @Temporal(TemporalType.TIME)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mmZ")
@@ -28,14 +23,6 @@ public class ExamStartingHour extends Model implements Comparable<ExamStartingHo
     @ManyToOne
     @JsonBackReference
     private ExamRoom room;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public ExamRoom getRoom() {
         return room;
@@ -62,7 +49,7 @@ public class ExamStartingHour extends Model implements Comparable<ExamStartingHo
     }
 
     @Override
-    public int compareTo(ExamStartingHour o) {
+    public int compareTo(@Nonnull ExamStartingHour o) {
         return new LocalTime(startingHour).plusMillis(timezoneOffset).compareTo(
                 new LocalTime(o.startingHour).plusMillis(timezoneOffset));
     }

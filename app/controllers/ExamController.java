@@ -6,6 +6,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.MalformedDataException;
 import exceptions.SitnetException;
@@ -13,13 +14,15 @@ import models.*;
 import models.questions.AbstractQuestion;
 import models.questions.EssayQuestion;
 import models.questions.MultipleChoiceQuestion;
+import models.questions.MultipleChoiseOption;
+import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 import util.java.EmailComposer;
 import util.java.ValidationUtil;
 
@@ -247,7 +250,7 @@ public class ExamController extends SitnetController {
 
             if (count > 0) {
                 exam.setState(Exam.State.ARCHIVED.name());
-                exam = (Exam) SitnetUtil.setModifier(exam);
+                exam = (Exam) AppUtil.setModifier(exam);
                 exam.save();
                 return ok("Exam archived");
             } else {
@@ -506,7 +509,7 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("user, exam, started, ended, duration, deadline");
-            options.setPathProperties("user", "id, firstName, lastName, email");
+            options.setPathProperties("user", "id, firstName, lastName, email, userIdentifier");
             options.setPathProperties("exam", "id, name, course, state, grade, gradedTime, customCredit");
             options.setPathProperties("exam.grade", "id, name");
             options.setPathProperties("exam.course", "code, credits");
@@ -530,10 +533,7 @@ public class ExamController extends SitnetController {
             JsonContext jsonContext = Ebean.createJsonContext();
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("user, started, ended, duration");
-
-            // Todo: tähän mahd paljon infoa opiskelijasta, HAKAsta jne
-            options.setPathProperties("user", "id, firstName, lastName, email");
-
+            options.setPathProperties("user", "id, firstName, lastName, email, userIdentifier");
             return ok(jsonContext.toJsonString(participation, true, options)).as("application/json");
         }
     }
@@ -542,7 +542,7 @@ public class ExamController extends SitnetController {
     public static Result insertComment(Long eid, Long cid) throws MalformedDataException {
 
         Comment comment = bindForm(Comment.class);
-        SitnetUtil.setCreator(comment);
+        AppUtil.setCreator(comment);
         comment.save();
 
         Exam exam = Ebean.find(Exam.class, eid);
@@ -566,7 +566,7 @@ public class ExamController extends SitnetController {
             return notFound();
         }
         if (form.getComment() != null) {
-            SitnetUtil.setModifier(comment);
+            AppUtil.setModifier(comment);
             comment.setComment(form.getComment());
             comment.save();
             Exam exam = Ebean.find(Exam.class, eid);
@@ -675,7 +675,7 @@ public class ExamController extends SitnetController {
 
     private static void updateGrading(Exam exam, int grading) {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
-        boolean canOverrideGrading = SitnetUtil.isCourseGradeScaleOverridable();
+        boolean canOverrideGrading = AppUtil.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
             exam.setGradeScale(Ebean.find(GradeScale.class, grading));
         }
@@ -727,22 +727,31 @@ public class ExamController extends SitnetController {
     public static Result createExamDraft() {
 
         Exam exam = new Exam();
-        exam.setName("Kirjoita tentin nimi tähän");
+        exam.setName("Kirjoita tentin nimi tähän"); // TODO: i18n
         exam.setState(Exam.State.DRAFT.toString());
-        SitnetUtil.setCreator(exam);
+        AppUtil.setCreator(exam);
         exam.save();
 
         ExamSection examSection = new ExamSection();
-        examSection.setName("Aihealue");
-        SitnetUtil.setCreator(examSection);
+        examSection.setName("Aihealue"); // TODO: i18n
+        AppUtil.setCreator(examSection);
 
         examSection.setExam(exam);
         examSection.setExpanded(true);
         examSection.save();
 
         exam.getExamSections().add(examSection);
-        exam.getExamLanguages().add(Ebean.find(Language.class, "fi")); // Finnish
+        exam.getExamLanguages().add(Ebean.find(Language.class, "fi")); // TODO: configurable?
         exam.setExamType(Ebean.find(ExamType.class, 2)); // Final
+
+        DateTime start = DateTime.now().withTimeAtStartOfDay();
+        exam.setExamActiveStartDate(start.toDate());
+        exam.setExamActiveEndDate(start.plusDays(1).toDate());
+        exam.setDuration(AppUtil.getExamDurations().get(0));
+        if (AppUtil.isCourseGradeScaleOverridable()) {
+           exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
+        }
+
         exam.save();
 
         exam.getExamOwners().add(UserController.getLoggedUser());
@@ -768,7 +777,7 @@ public class ExamController extends SitnetController {
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             ExamSection section = bindForm(ExamSection.class);
             section.setExam(Ebean.find(Exam.class, id));
-            SitnetUtil.setCreator(section);
+            AppUtil.setCreator(section);
             section.save();
             return ok(Json.toJson(section));
         } else {
@@ -782,6 +791,13 @@ public class ExamController extends SitnetController {
         User user = UserController.getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             Course course = Ebean.find(Course.class, cid);
+            Date now = new Date();
+            if (course.getStartDate() != null && course.getStartDate().after(now)) {
+                return forbidden("sitnet_error_course_not_active");
+            }
+            if (course.getEndDate() != null && course.getEndDate().before(now)) {
+                return forbidden("sitnet_error_course_not_active");
+            }
             exam.setCourse(course);
             exam.save();
             return ok(Json.toJson(exam));
@@ -810,13 +826,13 @@ public class ExamController extends SitnetController {
                 MultipleChoiceQuestion choice = Ebean.find(MultipleChoiceQuestion.class, id).copy();
                 choice.setCreator(UserController.getLoggedUser());
                 choice.setCreated(new Date());
-                SitnetUtil.setModifier(choice);
+                AppUtil.setModifier(choice);
                 choice.save();
                 Ebean.save(choice.getOptions());
                 return choice;
             case "EssayQuestion":
                 EssayQuestion essay = Ebean.find(EssayQuestion.class, id).copy();
-                SitnetUtil.setModifier(essay);
+                AppUtil.setModifier(essay);
                 essay.save();
                 return essay;
             default:
@@ -867,10 +883,27 @@ public class ExamController extends SitnetController {
         User user = UserController.getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             AbstractQuestion question = Ebean.find(AbstractQuestion.class, qid);
+            if (question instanceof MultipleChoiceQuestion) {
+                MultipleChoiceQuestion mcq = (MultipleChoiceQuestion) question;
+                if (mcq.getOptions().size() < 2) {
+                    return forbidden("sitnet_minimum_of_two_options_required");
+                }
+                boolean hasCorrectOption = false;
+                for (MultipleChoiseOption option : mcq.getOptions()) {
+                    if (option.isCorrectOption()) {
+                        hasCorrectOption = true;
+                        break;
+                    }
+                }
+                if (!hasCorrectOption) {
+                    return forbidden("sitnet_correct_option_required");
+                }
+            }
             AbstractQuestion clone = clone(question.getType(), question.getId());
             if (clone == null) {
                 return notFound("Question type not specified");
             }
+
 
             // Assert that the sequence number provided is within limits
             if (seq < 0) {
@@ -894,7 +927,7 @@ public class ExamController extends SitnetController {
             sectionQuestion.setQuestion(clone);
             sectionQuestion.setSequenceNumber(seq);
             section.getSectionQuestions().add(sectionQuestion);
-            SitnetUtil.setModifier(section);
+            AppUtil.setModifier(section);
             section.save();
             return ok(Json.toJson(section));
         }
@@ -940,7 +973,7 @@ public class ExamController extends SitnetController {
                 sectionQuestion.setQuestion(clone);
                 sectionQuestion.setSequenceNumber(seq);
                 section.getSectionQuestions().add(sectionQuestion);
-                SitnetUtil.setModifier(section);
+                AppUtil.setModifier(section);
                 section.save();
             }
             section = Ebean.find(ExamSection.class, sid);
@@ -1370,7 +1403,7 @@ public class ExamController extends SitnetController {
         inspection.setAssignedBy(UserController.getLoggedUser());
 
         if (inspection.getComment() != null) {
-            inspection.setComment((Comment) SitnetUtil.setCreator(inspection.getComment()));
+            inspection.setComment((Comment) AppUtil.setCreator(inspection.getComment()));
             inspection.getComment().save();
         }
         inspection.save();
@@ -1446,11 +1479,15 @@ public class ExamController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result sendInspectionMessage(Long eid, String msg) {
+    public static Result sendInspectionMessage(Long eid) {
 
         Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
+        }
+        JsonNode body = request().body().asJson();
+        if (!body.has("msg")) {
+            return badRequest("no message received");
         }
         User loggedUser = UserController.getLoggedUser();
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
@@ -1477,7 +1514,7 @@ public class ExamController extends SitnetController {
         }
         try {
             for (User user : recipients) {
-                EmailComposer.composeInspectionMessage(user, loggedUser, exam, msg);
+                EmailComposer.composeInspectionMessage(user, loggedUser, exam, body.get("msg").asText());
             }
         } catch (IOException e) {
             Logger.error("Failure to access message template on disk", e);

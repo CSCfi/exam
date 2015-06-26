@@ -1,10 +1,9 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService',
-            '$locale', 'StudentExamRes', 'dateService',
-            function ($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes,
-                      dateService) {
+            '$locale', 'StudentExamRes', 'dialogs', 'CalendarRes',
+            function ($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes, dialogs, CalendarRes) {
 
                 var enrolmentId = $routeParams.enrolment;
                 $scope.user = sessionService.getUser();
@@ -34,23 +33,20 @@
                     }).map(function (item) {
                         return item.id;
                     });
-                    var params = {day: day, aids: accessibility};
                     if ($scope.selectedRoom) {
-                        $http.get('calendar/' + enrolmentId + '/' + $scope.selectedRoom.id, {params: params})
-                            .then(function (reply) {
-                                Object.keys(reply.data).forEach(function (key) {
-                                    if ($scope.selectedMonth.data.get('month') !==
-                                        moment(key, 'DD.MM.YYYY').get('month')) {
-                                        delete reply.data[key];
-                                    }
-                                });
-
-                                $scope.daySlots = reply.data;
+                        CalendarRes.slots.get({
+                                eid: enrolmentId,
+                                rid: $scope.selectedRoom.id,
+                                day: day,
+                                aids: accessibility
+                            },
+                            function (slots) {
+                                $scope.daySlots = slots;
                             }, function (error) {
-                                if (error.data && error.data.cause === 'EXAM_NOT_ACTIVE_TODAY') {
-                                    toastr.error($translate('sitnet_exam_not_active_now'));
+                                if (error && error.status === 404) {
+                                    toastr.error($translate.instant('sitnet_exam_not_active_now'));
                                 } else {
-                                    toastr.error($translate('sitnet_no_suitable_enrolment_found'));
+                                    toastr.error($translate.instant('sitnet_no_suitable_enrolment_found'));
                                 }
                                 $scope.daySlots = [];
                             });
@@ -68,17 +64,16 @@
                     $scope.reservationInstructions = result.enrollInstructions;
                 });
 
-                $scope.formatDate = function (stamp) {
-                    return moment(stamp, 'DD.MM.YYYY HH:mm').format('DD.MM.');
+                $scope.formatDate = function (stamp, showYear) {
+                    var fmt = showYear ? 'DD.MM.YYYY' : 'DD.MM.';
+                    return moment(stamp, 'DD.MM.YYYY HH:mm').format(fmt);
                 };
 
                 $scope.$on('$localeChangeSuccess', function () {
                     formatMoment($scope.selectedMonth.data);
                 });
 
-
-                $scope.createReservation = function (slot) {
-
+                var reserve = function (slot) {
                     slot.examId = enrolmentId;
                     slot.roomId = $scope.selectedRoom.id;
                     slot.aids = $scope.accessibilities.filter(
@@ -87,8 +82,6 @@
                         }).map(function (item) {
                             return item.id;
                         });
-
-
                     $http.post('calendar/reservation', slot).then(function () {
                         $location.path('#/home');
                     }, function (error) {
@@ -96,6 +89,24 @@
                     });
                 };
 
+                $scope.createReservation = function (slot) {
+                    var text = $translate.instant('sitnet_about_to_reserve') + "<br/>"
+                        + formatDateTime(slot) + " "
+                        + $translate.instant('sitnet_at_room') + " "
+                        + $scope.selectedRoom.name + ".<br/>"
+                        + $translate.instant('sitnet_confirm_reservation');
+                    dialogs.confirm($translate.instant('sitnet_confirm'), text).result
+                        .then(function () {
+                            reserve(slot);
+                        });
+                };
+
+                var formatDateTime = function (slot) {
+                    var start = $scope.formatTime(slot.start);
+                    var end = $scope.formatTime(slot.end);
+                    var date = $scope.formatDate(slot.start, true);
+                    return date + " " + start + " - " + end;
+                };
 
                 $scope.formatTime = function (stamp) {
                     var date = moment(stamp, 'DD.MM.YYYY HH:mmZZ');
@@ -128,12 +139,14 @@
                     $scope.selectedRoom = room;
 
                     if (room.outOfService) {
-                        $scope.selectedRoomsString = $translate("sitnet_room_out_of_service") + ": " + room.statusComment;
+                        $scope.selectedRoomsString = $translate.instant("sitnet_room_out_of_service") + ": " + room.statusComment;
                     }
                     else {
-                        $scope.selectedRoomsString = $translate("sitnet_display_free_time_slots") + ": " + room.name;
+                        $scope.selectedRoomsString = $translate.instant("sitnet_display_free_time_slots") + ": " + room.name;
                     }
                     refresh();
                 }
-            }]);
+            }
+        ])
+    ;
 }());

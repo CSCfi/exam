@@ -1,7 +1,6 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import play.db.ebean.Model;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
@@ -9,15 +8,7 @@ import java.util.Date;
 
 
 @Entity
-public class ExamEnrolment extends Model implements Comparable<ExamEnrolment> {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
 
     @ManyToOne
     @JsonBackReference
@@ -36,14 +27,6 @@ public class ExamEnrolment extends Model implements Comparable<ExamEnrolment> {
     private String information;
 
     private boolean reservationCanceled;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public User getUser() {
         return user;

@@ -1,41 +1,32 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('DashboardCtrl', ['dialogs','$scope', '$http', '$translate', '$location', '$modal', 'SITNET_CONF', 'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService',
-            function (dialogs, $scope, $http, $translate, $location, $modal, SITNET_CONF, sessionService, ExamRes, examService, questionService, StudentExamRes, dateService) {
+    angular.module("exam.controllers")
+        .controller('DashboardCtrl', ['dialogs', '$scope', '$http', '$translate', '$location', '$modal', 'EXAM_CONF',
+            'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService', 'EnrollRes',
+            function (dialogs, $scope, $http, $translate, $location, $modal, EXAM_CONF,
+                      sessionService, ExamRes, examService, questionService, StudentExamRes, dateService, EnrollRes) {
 
-                $scope.dashboardToolbarPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html";
-                $scope.dashboardActiveExamsPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html";
-                $scope.dashboardFinishedExamsPath = SITNET_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html";
+                $scope.templates = {
+                    dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html",
+                    dashboardActiveExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/active_exams.html",
+                    dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html"
+                };
 
                 $scope.user = sessionService.getUser();
 
                 if ($scope.user) {
                     if ($scope.user.isStudent) {
-
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/student/dashboard.html";
-
-                        StudentExamRes.enrolments.query({uid: $scope.user.id},
-                            function (enrolments) {
+                        $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/student/dashboard.html";
+                        StudentExamRes.enrolments.query(function (enrolments) {
                                 $scope.userEnrolments = enrolments;
-                                if (enrolments && enrolments.length > 0) {
-                                    angular.forEach(enrolments, function (enrolment) {
-                                        StudentExamRes.teachers.get({id: enrolment.exam.id},
-                                            function (teachers) {
-                                                setExamOwners(enrolment.exam);
-                                            },
-                                            function (error) {
-                                                toastr.error(error.data);
-                                            }
-                                        );
-                                    });
-                                }
+                                angular.forEach($scope.userEnrolments, function (enrolment) {
+                                    setExamOwners(enrolment.exam);
+                                });
                             },
                             function (error) {
                                 toastr.error(error.data);
                             }
                         );
-
                         StudentExamRes.finishedExams.query({uid: $scope.user.id},
                             function (finishedExams) {
                                 $scope.studentFinishedExams = finishedExams;
@@ -45,7 +36,7 @@
                             });
 
                     } else if ($scope.user.isTeacher) {
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "common/teacher/dashboard.html";
+                        $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/teacher/dashboard.html";
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
                             $scope.activeExams = reviewerExams.filter(function (review) {
@@ -62,7 +53,7 @@
                         });
                     }
                     else if ($scope.user.isAdmin) {
-                        $scope.dashboardTemplate = SITNET_CONF.TEMPLATES_PATH + "reservation/reservations.html";
+                        $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "reservation/reservations.html";
                     }
                 }
 
@@ -101,12 +92,11 @@
                 };
 
                 $scope.removeReservation = function (enrolment) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_are_you_sure'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_are_you_sure'));
                     dialog.result.then(function (btn) {
                         $http.delete('calendar/reservation/' + enrolment.reservation.id).success(function () {
                             delete enrolment.reservation;
                             enrolment.reservationCanceled = true;
-                            toastr.success("ok");
                         }).error(function (msg) {
                             toastr.error(msg);
                         });
@@ -122,7 +112,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'reservation/show_reservation_instructions.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/show_reservation_instructions.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: modalController,
@@ -148,7 +138,7 @@
                                 eid: enrolment.id,
                                 information: $scope.enrolment.information
                             }, function () {
-                                toastr.success($translate('sitnet_saved'));
+                                toastr.success($translate.instant('sitnet_saved'));
                             })
                         };
 
@@ -158,7 +148,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'enrolment/add_enrolment_information.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'enrolment/add_enrolment_information.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: modalController,
@@ -215,6 +205,20 @@
                         return enrolment.reservation;
                     }).length;
                 };
+
+                $scope.removeEnrolment = function (enrolment) {
+                    if (enrolment.reservation) {
+                        toastr.error($translate.instant('sitnet_cancel_reservation_first'));
+                    } else {
+                        dialogs.confirm($translate.instant('sitnet_confirm'),
+                            $translate.instant('sitnet_are_you_sure')).result
+                            .then(function () {
+                                EnrollRes.enrolment.remove({id: enrolment.id}, function () {
+                                    $scope.userEnrolments.splice($scope.userEnrolments.indexOf(enrolment), 1);
+                                });
+                            });
+                    }
+                }
 
             }]);
 }());

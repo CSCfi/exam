@@ -44,6 +44,11 @@
     font-weight: bold;
   }
 
+  .enrolment-row {
+    @extend .row;
+    margin-left: 0.5em;
+  }
+
   .exams-table {
     border-left: $sitnet-common-light solid 0.15em;
     border-top: $sitnet-common-light solid 0.15em;
@@ -90,6 +95,20 @@
     font-weight: bold;
   }
 
+  .table-column-checkbox {
+    width: 2%;
+    text-align: center;
+  }
+
+  .table-column-13 {
+    width: 13%;
+  }
+
+  .table-column-examname-narrow {
+    width: 22%;
+    font-weight: bold;
+  }
+
   .table-column-examname {
     width: 25%;
     font-weight: bold;
@@ -110,6 +129,10 @@
     width: 10%;
   }
 
+  .table-column-10 {
+    width: 10%;
+  }
+
   .table-column-15 {
     width: 15%;
   }
@@ -118,8 +141,16 @@
     width: 20%;
   }
 
+  .table-column-25 {
+    width: 25%;
+  }
+
   .table-column-teachers {
     width: 25%;
+  }
+
+  .table-column-bold {
+    font-weight: bold;
   }
 
   .exams-table-title-area {
@@ -145,6 +176,32 @@
 
   ul {
     list-style-type: none;
+  }
+
+  // fade in/out animations for list items
+
+  .list-item.ng-enter,
+  .list-item.ng-leave,
+  .list-item.ng-move {
+    -webkit-transition: 0.7s linear all;
+    transition: 0.7s linear all;
+  }
+
+  .list-item.ng-leave.ng-leave-active,
+  .list-item.ng-move,
+  .list-item.ng-enter {
+    opacity: 0;
+  }
+
+  .list-item.ng-leave,
+  .list-item.ng-move.ng-move-active,
+  .list-item.ng-enter.ng-enter-active {
+    opacity: 1;
+  }
+
+  .exam-logout-wrapper {
+    margin: 200px 50px 200px 50px;
+    text-align: center;
   }
 
 }

@@ -1,31 +1,18 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import play.db.ebean.Model;
 
-import javax.persistence.*;
-import java.sql.Timestamp;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 
-/*
- * Opintojakso
- * http://tietomalli.csc.fi/Opintojakso-kaavio.html
- * 
- * 
- */
 @Entity
-public class Course extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Course extends GeneratedIdentityModel {
 
     private String code;
 
@@ -35,12 +22,13 @@ public class Course extends Model {
 
     private Double credits;
 
-    /**** NEW ONES ****/
     private String courseUnitType;
 
     private String identifier;
 
-    private String startDate;
+    private Date startDate;
+
+    private Date endDate;
 
     private String courseImplementation;
 
@@ -71,18 +59,6 @@ public class Course extends Model {
     @ManyToOne
     private Organisation organisation;
 
-    public Course() {
-
-    }
-
-    public Date getEbeanTimestamp() {
-        return ebeanTimestamp;
-    }
-
-    public void setEbeanTimestamp(Timestamp ebeanTimestamp) {
-        this.ebeanTimestamp = ebeanTimestamp;
-    }
-
     public String getIdentifier() {
         return identifier;
     }
@@ -91,12 +67,20 @@ public class Course extends Model {
         this.identifier = identifier;
     }
 
-    public String getStartDate() {
+    public Date getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(String startDate) {
+    public void setStartDate(Date startDate) {
         this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 
     public String getCourseImplementation() {
@@ -187,10 +171,6 @@ public class Course extends Model {
         this.courseMaterial = courseMaterial;
     }
 
-    public Course(String name) {
-        this.name = name;
-    }
-
     public String getLevel() {
         return level;
     }
@@ -213,14 +193,6 @@ public class Course extends Model {
 
     public void setCredits(Double credits) {
         this.credits = credits;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -250,7 +222,7 @@ public class Course extends Model {
     @Override
     public String toString() {
         return "Course{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 ", credits=" + credits +

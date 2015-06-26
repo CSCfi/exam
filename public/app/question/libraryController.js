@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('LibraryCtrl', ['dialogs', '$q', '$scope', '$location', '$translate', 'sessionService', 'QuestionRes',
             'questionService', 'ExamRes', 'CourseRes', 'TagRes', 'UserRes',
             function (dialogs, $q, $scope, $location, $translate, sessionService, QuestionRes, questionService, ExamRes, CourseRes, TagRes, UserRes) {
@@ -14,6 +14,8 @@
                 $scope.filteredQuestions = [];
                 $scope.visibleQuestions = [];
                 $scope.maxVisible = step;
+                $scope.limitations = {};
+                $scope.filter = {};
                 $scope.moreQuestions = false;
 
                 var htmlDecode = function(text) {
@@ -21,9 +23,9 @@
                 };
 
                 $scope.applyFreeSearchFilter = function () {
-                    if ($scope.selected) {
+                    if ($scope.filter.text) {
                         $scope.filteredQuestions = $scope.questions.filter(function (question) {
-                            var re = new RegExp($scope.selected, 'i');
+                            var re = new RegExp($scope.filter.text, 'i');
 
                             var isMatch = question.question && htmlDecode(question.question).match(re);
                             if(isMatch) {
@@ -58,7 +60,7 @@
                         $scope.moreQuestions = true;
                         var i = 0;
                         $scope.visibleQuestions = $scope.filteredQuestions.filter(function(question){
-                            return ++i <= $scope.maxVisible ? true : false;
+                            return ++i <= $scope.maxVisible;
                         });
                     } else {
                         $scope.moreQuestions = false;
@@ -73,9 +75,9 @@
                     });
                 };
 
-                $scope.newTeacher = "";
+                //$scope.newTeacher = {};
 
-                $scope.onCourseSelect = function ($item, $model, $label) {
+                $scope.onTeacherSelect = function ($item, $model, $label) {
                     $scope.newTeacher = $item;
                 };
 
@@ -96,12 +98,12 @@
                     });
 
                     if (isEmpty) {
-                        toastr.warning($translate('sitnet_choose_atleast_one'));
+                        toastr.warning($translate.instant('sitnet_choose_atleast_one'));
                         $scope.ownerProcess = false;
                         return;
                     }
-                    if(! $scope.newTeacher){
-                        toastr.warning($translate('sitnet_select_teacher_to_move_the_questions_to'));
+                    if(!$scope.newTeacher){
+                        toastr.warning($translate.instant('sitnet_select_teacher_to_move_the_questions_to'));
                         $scope.ownerProcess = false;
                         return;
                     }
@@ -114,10 +116,10 @@
 
                     QuestionRes.questionOwner.update(questionToMove,
                         function(result){
-                            toastr.info($translate('sitnet_question_owner_changed'));
+                            toastr.info($translate.instant('sitnet_question_owner_changed'));
                             query();
                         }, function(error){
-                            toastr.info($translate('sitnet_update_failed'));
+                            toastr.info($translate.instant('sitnet_update_failed'));
                     });
                     $scope.ownerProcess = false;
                 };
@@ -285,36 +287,15 @@
                     return text;
                 };
 
-                function decodeHtml(html) {
-                    var txt = document.createElement("textarea");
-                    txt.innerHTML = html;
-                    return txt.value;
-                }
-
                 /**
                  * if mathjax formula then no cut
                  **/
                 $scope.shortText = function (text, maxLength) {
-
-                    if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
-                        // remove HTML tags
-                        var str = String(text).replace(/<[^>]+>/gm, '');
-                        // shorten string
-                        str = decodeHtml(str);
-                        return str.length + 3 > maxLength ? str.substr(0, maxLength) + "..." : str;
-                    }
-                    return text ? decodeHtml(text) : "";
+                    return questionService.shortText(text, maxLength);
                 };
 
                 $scope.longTextIfNotMath = function (text) {
-
-                    if (text && text.length > 0 && text.indexOf("math-tex") === -1) {
-                        // remove HTML tags
-                        var str = String(text).replace(/<[^>]+>/gm, '');
-                        // shorten string
-                        return decodeHtml(str);
-                    }
-                    return "";
+                    return questionService.longTextIfNotMath(text);
                 };
 
                 $scope.createQuestion = function (type) {
@@ -322,12 +303,12 @@
                 };
 
                 $scope.deleteQuestion = function (question) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_question_from_library_only'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question_from_library_only'));
                     dialog.result.then(function (btn) {
                         $scope.questions.splice($scope.questions.indexOf(question), 1);
 
                         QuestionRes.questions.delete({'id': question.id}, function () {
-                            toastr.info($translate('sitnet_question_removed'));
+                            toastr.info($translate.instant('sitnet_question_removed'));
                         });
                     });
                 };
@@ -336,7 +317,7 @@
                     var text = "Add all";
                     $scope.$watch(
                         function () {
-                            text = $translate('sitnet_add_all');
+                            text = $translate.instant('sitnet_add_all');
                             return text;
                         },
                         function (data) {

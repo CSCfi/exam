@@ -54,7 +54,7 @@
     <div class="col-md-10" ng-show="section.expanded">
         <ul droppable="section.sectionQuestions" ng-move="moveQuestion(section, from, to)"
             ng-create="insertQuestion(section, object, to)" class="sortable">
-            <li ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="questionPath"
+            <li ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
             </li>
             <li ng-show="section.sectionQuestions.length == 0" class="create-new dropdown">

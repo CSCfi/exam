@@ -3,7 +3,7 @@ package models.questions;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.Attachment;
 import models.ExamSectionQuestion;
-import models.SitnetModel;
+import models.OwnedModel;
 import models.Tag;
 import models.answers.AbstractAnswer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -16,7 +16,7 @@ import java.util.List;
 @Table(name = "question")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "question_type", discriminatorType = DiscriminatorType.STRING)
-public class AbstractQuestion extends SitnetModel {
+public class AbstractQuestion extends OwnedModel {
 
     protected String type;
 

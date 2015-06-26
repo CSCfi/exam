@@ -1,38 +1,16 @@
 package models;
 
-import play.db.ebean.Model;
-
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
 
 
-/**
- * Created by avainik on 4/8/14.
- */
 @Entity
-public class MailAddress extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class MailAddress extends GeneratedIdentityModel {
 
     private String street;
 
     private String zip;
 
     private String city;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getStreet() {
         return street;

@@ -13,7 +13,7 @@ import play.Logger;
 import play.cache.Cache;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -70,7 +70,7 @@ public class SessionController extends SitnetController {
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
             return unauthorized("sitnet_error_unauthenticated");
         }
-        String md5psswd = SitnetUtil.encodeMD5(credentials.getPassword());
+        String md5psswd = AppUtil.encodeMD5(credentials.getPassword());
         User user = Ebean.find(User.class)
                 .where().eq("eppn", credentials.getUsername() + "@funet.fi")
                 .eq("password", md5psswd).findUnique();
@@ -101,8 +101,8 @@ public class SessionController extends SitnetController {
         return language;
     }
 
-    private static SitnetRole getRole(String affiliation) throws NotFoundException {
-        SitnetRole role = findRole(affiliation);
+    private static Role getRole(String affiliation) throws NotFoundException {
+        Role role = findRole(affiliation);
         if (role == null) {
             throw new NotFoundException("sitnet_error_role_not_found " + affiliation);
         }
@@ -152,14 +152,13 @@ public class SessionController extends SitnetController {
         result.put("lang", user.getUserLanguage().getUILanguageCode());
         result.put("roles", Json.toJson(user.getRoles()));
         result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
+        result.put("userIdentifier", user.getUserIdentifier());
 
         response().setCookie("XSRF-TOKEN", session.getXsrfToken());
 
         return ok(result);
     }
 
-    // prints HAKA attributes, used for debugging
-    @Restrict({@Group("ADMIN")})
     public static Result getAttributes() {
 
         Map<String, String[]> attributes = request().headers();
@@ -172,7 +171,7 @@ public class SessionController extends SitnetController {
         return ok(node);
     }
 
-    static private SitnetRole findRole(String affiliation) {
+    static private Role findRole(String affiliation) {
         List<String> affiliations = Arrays.asList(affiliation.split(";"));
 
         Map<String, List<String>> roles = getRoles();
@@ -184,7 +183,7 @@ public class SessionController extends SitnetController {
         } else if (!Collections.disjoint(affiliations, roles.get("ADMIN"))) {
             roleName = "ADMIN";
         }
-        return roleName == null ? null : Ebean.find(SitnetRole.class)
+        return roleName == null ? null : Ebean.find(Role.class)
                 .where()
                 .eq("name", roleName)
                 .findUnique();

@@ -1,8 +1,8 @@
 (function () {
     'use strict';
-    angular.module('sitnet.services')
-        .factory('sessionService', ['$q', '$sessionStorage', '$translate', '$injector', 'tmhDynamicLocale', 'SITNET_CONF',
-            function ($q, $sessionStorage, $translate, $injector, tmhDynamicLocale, SITNET_CONF) {
+    angular.module('exam.services')
+        .factory('sessionService', ['$q', '$sessionStorage', '$translate', '$injector', 'tmhDynamicLocale', 'EXAM_CONF',
+            function ($q, $sessionStorage, $translate, $injector, tmhDynamicLocale, EXAM_CONF) {
 
                 var _user;
 
@@ -38,7 +38,7 @@
                 var logout = function () {
                     var deferred = $q.defer();
                     http().post('/logout').success(function (data) {
-                        delete $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY];
+                        delete $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
                         delete http().defaults.headers.common;
                         _user = undefined;
                         deferred.resolve(data);
@@ -50,7 +50,7 @@
                 };
 
                 var translate = function (lang) {
-                    $translate.uses(lang);
+                    $translate.use(lang);
                     tmhDynamicLocale.set(lang);
                 };
 
@@ -63,7 +63,7 @@
                     http().post('/login', credentials, {ignoreAuthModule: true}).success(
                         function (user) {
                             var header = {};
-                            header[SITNET_CONF.AUTH_HEADER] = user.token;
+                            header[EXAM_CONF.AUTH_HEADER] = user.token;
                             http().defaults.headers.common = header;
 
                             _user = {
@@ -76,10 +76,11 @@
                                 isTeacher: (hasRole(user, 'TEACHER')),
                                 isLoggedOut: false,
                                 token: user.token,
-                                hasAcceptedUserAgreament: user.hasAcceptedUserAgreament
+                                hasAcceptedUserAgreament: user.hasAcceptedUserAgreament,
+                                userNo: user.userIdentifier
                             };
 
-                            $sessionStorage[SITNET_CONF.AUTH_STORAGE_KEY] = _user;
+                            $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY] = _user;
                             translate(_user.lang);
                             deferred.resolve();
                         }).error(function (error) {

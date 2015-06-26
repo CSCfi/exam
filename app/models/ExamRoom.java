@@ -3,29 +3,22 @@ package models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
-import org.joda.time.*;
-import play.db.ebean.Model;
-import util.SitnetUtil;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
+import util.AppUtil;
 import util.java.DateTimeUtils;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 @Entity
-public class ExamRoom extends Model {
+public class ExamRoom extends GeneratedIdentityModel {
 
     public enum State {ACTIVE, INACTIVE}
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
 
     private String name;
 
@@ -97,7 +90,7 @@ public class ExamRoom extends Model {
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
-    private String localTimezone = SitnetUtil.getDefaultTimeZone().getID();
+    private String localTimezone = AppUtil.getDefaultTimeZone().getID();
 
     public boolean getExpanded() {
         return expanded;
@@ -196,14 +189,6 @@ public class ExamRoom extends Model {
 
     public void setRoomCode(String roomCode) {
         this.roomCode = roomCode;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {

@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.resources")
+    angular.module("exam.resources")
         .factory("SettingsResource", ['$resource', function ($resource) {
             return {
                 agreement: $resource(
@@ -18,7 +18,8 @@
                 examDurations: $resource("/settings/durations"),
                 gradeScale: $resource("/settings/gradescale"),
                 enrolmentPermissions: $resource("/settings/enrolmentPermissionCheck"),
-                environment: $resource("/settings/environment")
+                environment: $resource("/settings/environment"),
+                maxFilesize: $resource("/settings/maxfilesize")
             }
         }]);
 }());

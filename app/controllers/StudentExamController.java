@@ -4,7 +4,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
-import com.avaje.ebean.Query;
 import com.avaje.ebean.text.json.JsonContext;
 import com.avaje.ebean.text.json.JsonWriteOptions;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,14 +22,14 @@ import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.net.MalformedURLException;
 import java.util.*;
 
 public class StudentExamController extends SitnetController {
 
-    private static final boolean PERM_CHECK_ACTIVE = SitnetUtil.isEnrolmentPermissionCheckActive();
+    private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
 
 
     @Restrict({@Group("STUDENT")})
@@ -43,7 +42,7 @@ public class StudentExamController extends SitnetController {
             @Override
             public Result apply(Collection<String> codes) throws Throwable {
                 if (codes.isEmpty()) {
-                    return ok(Json.toJson(Collections.<Exam> emptyList())).as("application/json");
+                    return ok(Json.toJson(Collections.<Exam>emptyList())).as("application/json");
                 } else {
                     return listExams(filter, codes);
                 }
@@ -58,34 +57,19 @@ public class StudentExamController extends SitnetController {
 
     @Restrict({@Group("STUDENT")})
     public static Result getFinishedExams(Long uid) {
-        Logger.debug("getFinishedExams()");
         User user = UserController.getLoggedUser();
-        String oql = "find exam " +
-                "fetch examSections " +
-                "fetch course " +
-                "where (state=:graded_logged or state=:aborted or state=:review or state=:graded) " +
-                "and (creator.id=:userid)";
+        List<Exam> exams = Ebean.find(Exam.class).where()
+                .ne("state", Exam.State.STUDENT_STARTED.toString())
+                .ne("state", Exam.State.ABORTED.toString())
+                .eq("creator", user)
+                .findList();
 
-        Query<Exam> query = Ebean.createQuery(Exam.class, oql);
-        query.setParameter("review", "REVIEW");
-        query.setParameter("graded", "GRADED");
-        query.setParameter("graded_logged", "GRADED_LOGGED");
-        query.setParameter("aborted", "ABORTED");
-        query.setParameter("userid", user.getId());
-
-        List<Exam> finishedExams = query.findList();
-
-        if (finishedExams == null) {
-            return notFound();
-        } else {
-            JsonContext jsonContext = Ebean.createJsonContext();
-            JsonWriteOptions options = new JsonWriteOptions();
-            options.setRootPathProperties("id, creator, name, course, state");
-            options.setPathProperties("creator", "id");
-            options.setPathProperties("course", "code");
-
-            return ok(jsonContext.toJsonString(finishedExams, true, options)).as("application/json");
-        }
+        JsonContext jsonContext = Ebean.createJsonContext();
+        JsonWriteOptions options = new JsonWriteOptions();
+        options.setRootPathProperties("id, creator, name, course, state");
+        options.setPathProperties("creator", "id");
+        options.setPathProperties("course", "code");
+        return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
     }
 
     @Restrict({@Group("STUDENT")})
@@ -157,15 +141,16 @@ public class StudentExamController extends SitnetController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public static Result getEnrolmentsForUser(Long uid) {
-        DateTime now = SitnetUtil.adjustDST(new DateTime());
+    public static Result getEnrolmentsForUser() {
+        User user = UserController.getLoggedUser();
+        DateTime now = AppUtil.adjustDST(new DateTime());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .fetch("reservation")
                 .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .where()
-                .eq("user.id", uid)
+                .eq("user", user)
                 .gt("exam.examActiveEndDate", now.toDate())
                 .disjunction()
                 .gt("reservation.endAt", now.toDate())
@@ -184,7 +169,7 @@ public class StudentExamController extends SitnetController {
             JsonWriteOptions options = new JsonWriteOptions();
             options.setRootPathProperties("id, enrolledOn, user, exam, reservation, information, reservationCanceled");
             options.setPathProperties("user", "id");
-            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction, examOwners");
+            options.setPathProperties("exam", "id, name, course, hash, duration, state, examLanguage, enrollInstruction, examOwners, examActiveStartDate, examActiveEndDate");
             options.setPathProperties("exam.examOwners", "firstName, lastName");
             options.setPathProperties("exam.course", "name, code");
             options.setPathProperties("reservation", "id, startAt, endAt, machine");
@@ -277,7 +262,7 @@ public class StudentExamController extends SitnetController {
     }
 
     private static ExamEnrolment getEnrolment(User user, Exam prototype) {
-        DateTime now = SitnetUtil.adjustDST(DateTime.now());
+        DateTime now = AppUtil.adjustDST(DateTime.now());
         return Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("reservation.machine")
@@ -302,7 +287,7 @@ public class StudentExamController extends SitnetController {
             return forbidden("sitnet_reservation_not_found");
         } else if (enrolment.getReservation().getMachine() == null) {
             return forbidden("sitnet_reservation_machine_not_found");
-        } else if (!enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
+        } else if (!Play.isDev() && !enrolment.getReservation().getMachine().getIpAddress().equals(clientIP)) {
             ExamRoom examRoom = Ebean.find(ExamRoom.class)
                     .fetch("mailAddress")
                     .where()
@@ -391,6 +376,7 @@ public class StudentExamController extends SitnetController {
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", id)
+                .isNull("ended")
                 .findUnique();
 
         if (p != null) {
@@ -402,12 +388,14 @@ public class StudentExamController extends SitnetController {
             Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
             p.setDeadline(deadline);
             p.save();
+
+            exam.setState("REVIEW");
+            exam.update();
+
+            return ok("Exam send for review");
+        } else {
+            return forbidden("exam already returned");
         }
-
-        exam.setState("REVIEW");
-        exam.update();
-
-        return ok("Exam send for review");
     }
 
     @Restrict({@Group("STUDENT")})
@@ -419,10 +407,11 @@ public class StudentExamController extends SitnetController {
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
                 .eq("exam.id", id)
+                .isNull("ended")
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(SitnetUtil.adjustDST(DateTime.now()).toDate());
+            p.setEnded(AppUtil.adjustDST(DateTime.now()).toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
@@ -430,12 +419,15 @@ public class StudentExamController extends SitnetController {
             p.setDeadline(new Date(p.getEnded().getTime() + settings.getReviewDeadline()));
 
             p.save();
+
+
+            exam.setState("ABORTED");
+            exam.update();
+
+            return ok("Exam aborted");
+        } else {
+            return forbidden("Exam already returned");
         }
-
-        exam.setState("ABORTED");
-        exam.update();
-
-        return ok("Exam aborted");
     }
 
     @Restrict({@Group("STUDENT")})

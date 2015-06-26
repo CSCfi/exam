@@ -1,7 +1,7 @@
 #sitnet-dialog {
 
   .terms-dialog-header {
-    background-color: $sitnet-blue;
+    background-color: $sitnet-dark-blue;
     padding-top: 1em;
     padding-bottom: 1em;
     padding-left: 1em;
@@ -46,7 +46,6 @@
       background-color: $sitnet-common-light;
       font-family: $sitnet-family-georgia;
       color: $sitnet-common-medium;
-      font-style: italic;
       font-weight: normal;
       border:0;
     }
@@ -87,4 +86,28 @@
       font-weight: bold;
     }
   }
+
+  .btn-file {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 100px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    background: red;
+    cursor: inherit;
+    display: block;
+  }
+  input[readonly] {
+    background-color: white !important;
+    cursor: text !important;
+  }
+
 }

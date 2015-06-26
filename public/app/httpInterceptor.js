@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('sitnet.services')
+    angular.module('exam.services')
         .service('httpInterceptor', [
             function () {
 
@@ -17,12 +17,12 @@
                                 return decodeURIComponent(escape(atob(data)));
                             };
 
-                            var unknownMachine = response.headers()['x-sitnet-unknown-machine'];
-                            var wrongRoom = response.headers()['x-sitnet-wrong-room'];
-                            var wrongMachine = response.headers()['x-sitnet-wrong-machine'];
-                            var hash = response.headers()['x-sitnet-start-exam'];
+                            var unknownMachine = response.headers()['x-exam-unknown-machine'];
+                            var wrongRoom = response.headers()['x-exam-wrong-room'];
+                            var wrongMachine = response.headers()['x-exam-wrong-machine'];
+                            var hash = response.headers()['x-exam-start-exam'];
 
-                            var enrolmentId = response.headers()['x-sitnet-upcoming-exam'];
+                            var enrolmentId = response.headers()['x-exam-upcoming-exam'];
                             if (unknownMachine) {
                                 var location = b64_to_utf8(unknownMachine).split(":::");
                                 wrongRoomService.display(location);
@@ -61,19 +61,24 @@
                             return response;
                         },
                         'responseError': function (response) {
+                            var deferred = $q.defer();
                             if (typeof response.data === "string" || response.data instanceof String) {
                                 if (response.data.match(/^".*"$/g)) {
                                     response.data = response.data.slice(1, response.data.length - 1)
                                 }
                                 var parts = response.data.split(" ");
-                                for (var i = 0; i < parts.length; i++) {
-                                    if (parts[i].substring(0, 7) === "sitnet_") {
-                                        parts[i] = $translate(parts[i]);
+                                $translate(parts).then(function (t) {
+                                    for (var i = 0; i < parts.length; i++) {
+                                        if (parts[i].substring(0, 7) === "sitnet_") {
+                                            parts[i] = t[parts[i]];
+                                        }
                                     }
-                                }
-                                response.data = parts.join(" ");
+                                    response.data = parts.join(" ");
+                                    return deferred.reject(response);
+                                });
+                                return deferred.promise;
                             }
-                            return $q.reject(response);
+                            return deferred.reject(response);
                         }
                     }
                 }

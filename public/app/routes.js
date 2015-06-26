@@ -1,9 +1,9 @@
 (function () {
     'use strict';
-    angular.module('sitnet')
-        .config(['$routeProvider', 'SITNET_CONF', function ($routeProvider, SITNET_CONF) {
+    angular.module('exam')
+        .config(['$routeProvider', 'EXAM_CONF', function ($routeProvider, EXAM_CONF) {
 
-            var tmpl = SITNET_CONF.TEMPLATES_PATH;
+            var tmpl = EXAM_CONF.TEMPLATES_PATH;
 
             /* Enrollment */
             $routeProvider.when('/enroll/:code', { templateUrl: tmpl + 'enrolment/enroll.html', controller: 'EnrollController'});
@@ -30,7 +30,6 @@
             $routeProvider.when('/invalid_session', { templateUrl: tmpl + 'common/invalid_session.html'});
 
             /* extra */
-            $routeProvider.when('/user', { templateUrl: tmpl + 'common/user.html', controller: 'SessionCtrl'});
             $routeProvider.when('/login', { templateUrl: tmpl + 'common/login.html', controller: 'SessionCtrl' });
             $routeProvider.when('/logout', { templateUrl: tmpl + 'common/login.html', controller: 'SessionCtrl' });
             $routeProvider.when('/machines/:id', { templateUrl: tmpl + 'facility/machine.html', controller: 'MachineCtrl'});
@@ -46,6 +45,8 @@
             $routeProvider.when('/student/waitingroom', { templateUrl: tmpl + 'enrolment/waitingroom.html', controller: 'WaitingRoomCtrl'});
             $routeProvider.when('/student/wrongmachine', { templateUrl: tmpl + 'enrolment/wrong_machine.html', controller: 'WrongMachineCtrl'});
             $routeProvider.when('/student/exams', { templateUrl: tmpl + 'exam/student/exam_search.html', controller: 'ExamSearchCtrl'});
+            $routeProvider.when('/student/logout/:reason?', { templateUrl: tmpl + 'exam/student/exam_logout.html', controller: 'ExamLogoutCtrl'});
+
 
             /* Teacher */
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'review/review.html', controller: 'ExamReviewController'});

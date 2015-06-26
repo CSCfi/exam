@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.resources")
+    angular.module("exam.resources")
         .factory("EnrollRes", ['$resource', function ($resource) {
             return {
                 list: $resource("/enroll/:code",
@@ -10,7 +10,7 @@
                     {
                         "get": {method: "GET", isArray: true, params: {code: "@code"}}
                     }),
-
+                enrolment: $resource("/enroll/:id", {id: "@id"}, {"remove": {method: "DELETE"}}),
                 enroll: $resource("/enroll/:code/exam/:id",
                     {
                         code: "@code", id: "@id"

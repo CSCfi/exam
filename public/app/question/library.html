@@ -60,12 +60,12 @@
                             <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                                 aria-labelledby="dropDownMenu1">
                                 <li role="presentation" class="input-group">
-                                    <input ng-model="limitCourses" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                                    <input ng-model="limitations.course" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
                                     <div class="input-group-addon">
                                         <i class="fa fa-search fa-fw"></i>
                                     </div>
                                 </li>
-                                <li ng-repeat="course in courses | filter:limitCourses" role="presentation"
+                                <li ng-repeat="course in courses | filter:limitations.courses" role="presentation"
                                     ng-class="course.filtered ? 'active': ''" ng-click="applyFilter(course)">
                                     <a role="menuitem" title="{{course.name}}">{{course.name | truncate:30}}</a>
                                 </li>
@@ -79,12 +79,12 @@
                             <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
                                 aria-labelledby="dropDownMenu2">
                                 <li role="presentation" class="input-group">
-                                    <input ng-model="limitExams" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                                    <input ng-model="limitations.exams" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
                                     <div class="input-group-addon">
                                         <i class="fa fa-search fa-fw"></i>
                                     </div>
                                 </li>
-                                <li ng-repeat="exam in exams | filter:limitExams" role="presentation"
+                                <li ng-repeat="exam in exams | filter:limitations.exams" role="presentation"
                                     ng-class="exam.filtered ? 'active': ''" ng-click="applyFilter(exam)">
                                     <a role="menuitem" title="{{exam.name}}">{{exam.name | truncate:30}}</a>
                                 </li>
@@ -99,12 +99,12 @@
                             <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                                 aria-labelledby="dropDownMenu3">
                                 <li role="presentation" class="input-group">
-                                    <input ng-model="limitTags" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                                    <input ng-model="limitations.tags" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
                                     <div class="input-group-addon">
                                         <i class="fa fa-search fa-fw"></i>
                                     </div>
                                 </li>
-                                <li ng-repeat="tag in tags | filter:limitTags" role="presentation"
+                                <li ng-repeat="tag in tags | filter:limitations.tags" role="presentation"
                                     ng-class="tag.filtered ? 'active': ''" ng-click="applyFilter(tag)">
                                     <a role="menuitem" title="{{tag.name}}">{{tag.name | truncate:30}}</a>
                                 </li>
@@ -125,7 +125,7 @@
                     </div>
                 </div>
                 <div class="input-group">
-                    <input ng-change="applyFreeSearchFilter()" ng-model="selected" type="text" class="form-control"
+                    <input ng-change="applyFreeSearchFilter()" ng-model="filter.text" type="text" class="form-control"
                            placeholder="{{'sitnet_search' | translate }}">
 
                     <div class="input-group-addon">
@@ -144,7 +144,7 @@
                                 <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
                                 </div>
                                 <div class="library-row-text-wrap">
-                                    <div class="library-row-text" mathjax ng-bind-html="shortText(question.question,55)" title="{{longTextIfNotMath(question.question)}}"></div>
+                                    <div class="library-row-text" mathjax ng-bind-html="shortText(question.question, 55)" title="{{longTextIfNotMath(question.question)}}"></div>
                                 </div>
                             </div>
                         </li>

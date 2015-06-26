@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('MachineModalController', ['$scope', '$translate', '$filter', 'sessionService', '$modalInstance', 'params','EnrollRes',
             function ($scope, $translate, $filter, sessionService, $modalInstance, params, EnrollRes) {
 
@@ -54,10 +54,10 @@
                             return $filter("date")(new Date(input), "HH:mm");
                         };
 
-                        return $translate("sitnet_email_hi") + ",\n\n" +
-                            $translate("sitnet_email_body_text") + "\n\n" +
-                            enrollment.exam.course.code + " - " + enrollment.exam.course.name + ", " + $translate("sitnet_date_short") + "." +
-                            date(enrollment.reservation.startAt) + " " + $translate("sitnet_clock_short") + " " +
+                        return $translate.instant("sitnet_email_hi") + ",\n\n" +
+                            $translate.instant("sitnet_email_body_text") + "\n\n" +
+                            enrollment.exam.course.code + " - " + enrollment.exam.course.name + ", " + $translate.instant("sitnet_date_short") + "." +
+                            date(enrollment.reservation.startAt) + " " + $translate.instant("sitnet_clock_short") + " " +
                             hours(enrollment.reservation.startAt) + " - " + hours(enrollment.reservation.endAt) +
                             "\n\n\n - " + sessionService.getUserName();
                     }

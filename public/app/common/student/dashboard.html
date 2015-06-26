@@ -9,112 +9,151 @@
         </div>
     </div>
 
-    <div class="main-row" ng-controller="DashboardCtrl">
-        <div class="top-row" ng-repeat="enrolment in userEnrolments">
-            <div class="detail-row col-md-4">
-                <div class="col-md-2">
+    <div class="main-row">
+        <div class="col-md-6 list-item bottom-padding-2" ng-repeat="enrolment in userEnrolments">
+            <div class="detail-row">
+                <div class="col-md-1">
                     <span class="info-column-large-icon fa-stack fa-2x">
                         <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                         <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
                     </span>
                 </div>
-                <div class="col-md-10">
-                    <div class="detail-row info-row info-column">
-                        <div class="info-header-bold">
-                            {{enrolment.exam.name}} - {{enrolment.exam.course.code}}
+                <div class="col-md-11">
+                    <div class="enrolment-row">
+                        <div class="col-md-12">
+                            <span class="info-header-bold">
+                                {{enrolment.exam.name}} - {{enrolment.exam.course.code}}
+                            </span>
+                            <span class="pointer">&nbsp;&nbsp;
+                                <i class="fa fa-times text-danger" popover-placement="top"
+                                   popover-popup-delay="500" popover-trigger="mouseenter"
+                                   popover="{{ 'sitnet_remove' | translate }}" ng-click="removeEnrolment(enrolment)">
+                                </i>
+                            </span>
                         </div>
                     </div>
-                    <div class="detail-row info-row info-column">
-                        <div class="col-md-4 header">
-                            {{ 'sitnet_course_name' | translate }}:
-                        </div>
-                        <div class="col-md-8">
-                            {{ enrolment.exam.course.name }}
+                    <div class="enrolment-row top-margin-1">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_exam_validity' | translate }}:
+                            </div>
+                            <div class="col-md-9">
+                                {{ enrolment.exam.examActiveStartDate | date:'dd.MM.yyyy' }} -
+                                {{enrolment.exam.examActiveEndDate | date:'dd.MM.yyyy' }}
+                            </div>
                         </div>
                     </div>
-                    <div class="detail-row info-row info-column">
-                        <div class="col-md-4 header">
-                            {{ 'sitnet_exam_time' | translate }}:
+                    <div class="enrolment-row">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_course_name' | translate }}:
+                            </div>
+                            <div class="col-md-9">
+                                {{ enrolment.exam.course.name }}
+                            </div>
                         </div>
-                        <div class="col-md-8">
+                    </div>
+                    <div class="enrolment-row">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_exam_time' | translate }}:
+                            </div>
+                            <div class="col-md-9">
                                 {{ printExamDuration(enrolment.exam) }}
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="detail-row col-md-5" ng-hide='isExamEnded(enrolment)'>
-                <div class="detail-row info-row info-column">
-                    <div class="col-md-3 header">
-                        {{ 'sitnet_exam_room' | translate }}:
+                    <div class="enrolment-row">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_exam_room' | translate }}:
+                            </div>
+                            <div class="col-md-9" ng-show="enrolment.reservation">
+                                {{ enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                                {{enrolment.reservation.machine.room.name}}({{enrolment.reservation.machine.room.roomCode}})
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-9" ng-if="enrolment.reservation">
-                        {{ enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{enrolment.reservation.machine.room.name}}({{enrolment.reservation.machine.room.roomCode }})
+                    <div class="enrolment-row">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_reservation' | translate }}:
+                            </div>
+                            <div class="col-md-9" ng-if="enrolment.reservation">
+                                {{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.startAt |
+                                adjustdst | date:'HH:mm'}} - {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}
+                            </div>
+                            <div class="col-md-9" ng-if="enrolment.reservationCanceled">
+                                {{ 'sitnet_canceled' | translate }}
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="detail-row info-row info-column">
-                    <div class="col-md-3 header">
-                        {{ 'sitnet_reservation' | translate }}:
+                    <div class="enrolment-row">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_toolbar_calendar' | translate }}:
+                            </div>
+                            <div class="col-md-9">
+                                <span>
+                                    <a ng-if="enrolment.reservation" class="text-info" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation'
+                                        | translate}}</a>
+                                    <span ng-if="enrolment.reservation">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
+                                    <a ng-if="enrolment.reservation" class="text-danger pointer"
+                                       ng-click="removeReservation(enrolment)">{{'sitnet_remove_reservation' | translate}}</a>
+                                    <a ng-if="!enrolment.reservation" class="text-info" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation'
+                                        | translate}}</a>
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-9" ng-if="enrolment.reservation">
-                        {{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}} - {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}
+                    <div class="enrolment-row">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_instructions' | translate }}:
+                            </div>
+                            <div class="col-md-9" ng-show="enrolment.exam.enrollInstruction">
+                                <a class="text-info pointer" ng-click="showInstructions(enrolment)">{{ 'sitnet_view' | translate}}</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-9 text-warning" ng-if="enrolment.reservationCanceled">
-                        {{ 'sitnet_canceled' | translate }}
+                    <div class="enrolment-row">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_teachers' | translate }}:
+                            </div>
+                            <div class="col-md-9" ng-bind-html="enrolment.exam.teachersStr">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="detail-row info-row info-column">
-                    <div class="col-md-3 header">
-                        {{ 'sitnet_toolbar_calendar' | translate }}:
+                    <div class="enrolment-row">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_status' | translate }}:
+                            </div>
+                            <div class="col-md-9">
+                                <span>
+                                    <span ng-if="enrolment.exam.state ==='PUBLISHED' && enrolment.reservation"
+                                          class="text-success">{{'sitnet_state_ready' | translate}}</span>
+                                    <span ng-if="enrolment.exam.state ==='PUBLISHED' && !enrolment.reservation"
+                                          class="text-danger">{{'sitnet_state_needs_reservation' | translate}}</span>
+                                    <span ng-if="enrolment.exam.state === 'STUDENT_STARTED'"
+                                          class="light-text text-info">{{'sitnet_state_started' | translate}}</span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-9">
-                        <span>
-                            <a ng-if="enrolment.reservation" class="text-info" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation' | translate}}</a>
-                            <span ng-if="enrolment.reservation">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
-                            <a ng-if="enrolment.reservation" class="text-danger pointer" ng-click="removeReservation(enrolment)">{{'sitnet_remove_reservation' | translate}}</a>
-                            <a ng-if="!enrolment.reservation" class="text-info" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation' | translate}}</a>
-                        </span>
-                    </div>
-                </div>
-                <div class="detail-row info-row info-column">
-                    <div class="col-md-3 header">
-                        {{ 'sitnet_instructions' | translate }}:
-                    </div>
-                    <div class="col-md-9" ng-if="enrolment.exam.enrollInstruction">
-                        <a class="text-info pointer" ng-click="showInstructions(enrolment)">{{ 'sitnet_view' | translate }}</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="detail-row col-md-3">
-                <div class="detail-row info-row info-column">
-                    <div class="col-md-4 header">
-                        {{ 'sitnet_teachers' | translate }}:
-                    </div>
-                    <div class="col-md-8" ng-bind-html="enrolment.exam.teachersStr"></td>
-                    </div>
-                </div>
-                <div class="detail-row info-row info-column">
-                    <div class="col-md-4 header">
-                        {{ 'sitnet_status' | translate }}:
-                    </div>
-                    <div class="col-md-8">
-                        <span>
-                            <span ng-if="enrolment.exam.state ==='PUBLISHED' && enrolment.reservation" class="text-success">{{'sitnet_state_ready' | translate}}</span>
-                            <span ng-if="enrolment.exam.state ==='PUBLISHED' && !enrolment.reservation" class="text-danger">{{'sitnet_state_needs_reservation' | translate}}</span>
-                            <span ng-if="enrolment.exam.state === 'STUDENT_STARTED'" class="light-text text-info">{{'sitnet_state_started' | translate}}</span>
-                        </span>
-                    </div>
-                </div>
-                <div class="detail-row info-row info-column">
-                    <div class="col-md-4 header">
-                        {{ 'sitnet_student_enrolment_info' | translate }}:
-                    </div>
-                    <div class="col-md-8">
-                        <a class="text-info pointer" ng-click="addEnrolmentInformation(enrolment)">
-                            <span ng-if="enrolment.information">{{ 'sitnet_edit' | translate }}</span>
-                            <span ng-if="!enrolment.information">{{ 'sitnet_add' | translate }}</span>
-                        </a>
+                    <div class="enrolment-row">
+                        <div class="col-md-12 info-column">
+                            <div class="col-md-3 header">
+                                {{ 'sitnet_student_enrolment_info' | translate }}:
+                            </div>
+                            <div class="col-md-9">
+                                <a class="text-info pointer" ng-click="addEnrolmentInformation(enrolment)">
+                                    <span ng-if="enrolment.information">{{ 'sitnet_edit' | translate }}</span>
+                                    <span ng-if="!enrolment.information">{{ 'sitnet_add' | translate }}</span>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -128,32 +167,29 @@
         </div>
     </div>
 
-    <div class="bottom-row">
-        <table class="light-table col-md-12">
-            <tbody>
-            <tr ng-repeat="finishedExam in studentFinishedExams">
-                <td>
-                    <span ng-if="finishedExam.state ==='REVIEW' || finishedExam.state === 'REVIEW_STARTED' || finishedExam.state === 'ABORTED'" class="status_orange">{{'sitnet_exam_in_review_state' | translate}}</span>
-                    <span ng-if="finishedExam.state === 'GRADED'" class="status_green">{{'sitnet_exam_reviewed' | translate}}</span>
-                    <span ng-if="finishedExam.state === 'GRADED_LOGGED'" class="status_green">{{'sitnet_state_graded_logged' | translate}}</span>
-                </td>
-                <td>
-                    <div class="info-column col-md-12">
-                        <span class="header col-md-12">{{ 'sitnet_examcode_and_name' | translate }}:</span><br/>
-                        <span class="text col-md-12">{{finishedExam.course.code}} - {{finishedExam.name}}</span>
-                    </div>
-                </td>
-                <td>
-                    <div class="info-column col-md-12">
-                        <span class="header col-md-12">{{'sitnet_teachers_comment' | translate}}:</span><br/>
-                        <span class="text col-md-12">
-                            <span ng-if="finishedExam.state === 'GRADED_LOGGED'" popover-placement="top" popover-popup-delay="1000" popover-trigger="mouseenter" popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(finishedExam.id)" class="pointer sitnet-text-theme">{{'sitnet_comments' | translate}}</span>
-                            <span ng-if="finishedExam.state === 'GRADED' || finishedExam.state === 'REVIEW' || finishedExam.state === 'REVIEW_STARTED' || finishedExam.state === 'ABORTED'" class="sitnet-text-alarm">{{'sitnet_no_comments' | translate}}</span>
-                        </span>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="detail-row">
+        <div class="bottom-row list-item" ng-repeat="finishedExam in studentFinishedExams">
+            <div class="col-md-3">
+                <h2 ng-if="finishedExam.state ==='REVIEW' || finishedExam.state === 'REVIEW_STARTED' || finishedExam.state === 'GRADED'"
+                    class="label label-warning">{{'sitnet_exam_in_review_state' | translate}}</h2>
+                <h2 ng-if="finishedExam.state === 'GRADED_LOGGED'" class="label label-success">
+                    {{'sitnet_state_graded_logged' | translate}}</h2>
+            </div>
+            <div class="info-column col-md-6">
+                <span class="header col-md-12">{{ 'sitnet_examcode_and_name' | translate }}:</span><br/>
+                <span class="text col-md-12">{{ finishedExam.course.code }} - {{ finishedExam.name }}</span>
+            </div>
+            <div class="info-column col-md-3">
+                <span class="header col-md-12">{{ 'sitnet_teachers_comment' | translate }}:</span><br/>
+                <span class="text col-md-12">
+                    <span ng-if="finishedExam.state === 'GRADED_LOGGED'" popover-placement="top"
+                          popover-popup-delay="1000" popover-trigger="mouseenter"
+                          popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(finishedExam.id)"
+                          class="pointer text-info">{{'sitnet_comments' | translate}}</span>
+                    <span ng-if="finishedExam.state === 'GRADED' || finishedExam.state === 'REVIEW' || finishedExam.state === 'REVIEW_STARTED' || finishedExam.state === 'ABORTED'"
+                          class="text-muted">{{'sitnet_no_comments' | translate}}</span>
+                </span>
+            </div>
+        </div>
     </div>
 </div>

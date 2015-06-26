@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.resources")
+    angular.module("exam.resources")
         .factory("QuestionRes", ['$resource', function ($resource) {
             return {
                 questions: $resource("/questions/:id",
@@ -51,7 +51,13 @@
                     "create": {method: "POST", params: {qid: "@qid"}},
                     "delete": {method: "DELETE", params: {oid: "@oid"}}
                 }),
-
+                correctOption: $resource("/questions/correctoption/:oid",
+                {
+                    oid: "@oid"
+                },
+                {
+                    "update": {method: "PUT", params: {oid: "@oid"}}
+                }),
                 metadata: $resource("/question/:id/metadata",
                     {
                         id: "@id"

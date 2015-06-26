@@ -2,23 +2,13 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
-public class ExamMachine extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
+public class ExamMachine extends GeneratedIdentityModel {
 
     private String name;
 
@@ -78,14 +68,6 @@ public class ExamMachine extends Model {
 
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -194,6 +176,6 @@ public class ExamMachine extends Model {
 
     @Override
     public String toString() {
-        return "ExamMachine{ id=" + id + ", name=" + name + " }";
+        return "ExamMachine{ id=" + getId() + ", name=" + name + " }";
     }
 }

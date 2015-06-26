@@ -1,4 +1,4 @@
-<div id="exam">
+<div id="exam" ng-init="sectionQuestion.question.reviewExpanded = true">
     <div class="review-question-border">
         <div class="detail-row">
             <span class="col-md-12">
@@ -10,6 +10,8 @@
                 <strong>{{ 'sitnet_question' | translate }}</strong>
             </span>
         </div>
+
+        <!-- question text -->
         <div class="detail-row">
             <div class="col-md-12 review-question-value">
                 <span mathjax ng-bind-html="sectionQuestion.question.question"></span>
@@ -17,21 +19,19 @@
         </div>
 
         <!-- question attachment -->
-        <div class="bottom-row" ng-show="sectionQuestion.question.reviewExpanded" ng-controller="AttachmentController">
+        <div class="bottom-row" ng-show="sectionQuestion.question.reviewExpanded && sectionQuestion.question.attachment"
+             ng-controller="AttachmentController">
             <strong class="col-md-4 review-question"> {{ 'sitnet_question_attachment' | translate
                 }}:
             </strong>
-
-            <div class="col-md-8" ng-hide="sectionQuestion.question.attachment">N/A</div>
-            <div class="col-md-8" ng-show="sectionQuestion.question.attachment">
+            <div class="col-md-8">
                 <a class="pointer" ng-click="downloadQuestionAttachment(sectionQuestion.question)">
                     {{sectionQuestion.question.attachment.fileName}}</a>
             </div>
         </div>
 
         <!-- question evaluation criteria -->
-        <div class="main-row"
-             ng-show="sectionQuestion.question.reviewExpanded && sectionQuestion.question.evaluationCriterias">
+        <div class="main-row" ng-show="sectionQuestion.question.reviewExpanded && sectionQuestion.question.evaluationCriterias">
             <strong class="col-md-12 review-question"> {{ 'sitnet_exam_evaluation_criteria' | translate}}:</strong>
         </div>
 
@@ -64,13 +64,14 @@
         </div>
 
         <!-- answer attachment -->
-        <div class="main-row" ng-show="sectionQuestion.question.reviewExpanded" ng-controller="AttachmentController">
+        <div class="main-row" ng-show="sectionQuestion.question.reviewExpanded && sectionQuestion.question.answer.attachment"
+             ng-controller="AttachmentController">
             <strong class="col-md-4 review-question"> {{ 'sitnet_answer_attachment' | translate }}:</strong>
-            <div class="col-md-8" ng-hide="sectionQuestion.question.answer.attachment">N/A</div>
-            <div class="col-md-8" ng-show="sectionQuestion.question.answer.attachment">
+            <div class="col-md-8">
                 <a class="pointer"
                    ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, examToBeReviewed.hash)">
-                    {{sectionQuestion.question.answer.attachment.fileName}}</a>
+                    {{sectionQuestion.question.answer.attachment.fileName}}
+                </a>
             </div>
         </div>
 
@@ -84,7 +85,7 @@
                 }}
             </div>
         </div>
-        <div class="main-row" ng-show="sectionQuestion.question.reviewExpanded">
+        <div class="main-row" ng-show="sectionQuestion.question.reviewExpanded && sectionQuestion.question.maxCharacters">
             <strong class="col-md-4 review-question">{{ 'sitnet_essay_length_recommendation' | translate}}:</strong>
             <div class="col-md-8">{{ sectionQuestion.question.maxCharacters }}</div>
         </div>

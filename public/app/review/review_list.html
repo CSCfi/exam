@@ -54,29 +54,24 @@
                 </thead>
 
                 <tbody>
-                <tr ng-repeat="review in abortedExams | orderBy:abortedPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize"
-                    ng-click="go(review.exam)" class="pointer">
-                    <td class="table-column-examname"><a ng-click="$event.stopPropagation();"
-                                                         href="mailto:{{review.user.email}}">{{review.user.firstName}}
-                        {{review.user.lastName}}</a></td>
-                    <td>{{review.user.email}}</td>
-                    <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                        translate}}.{{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date: 'HH:mm'}}
-                        ({{review.started | diffInMinutesTo:review.ended }}min)
-                    </td>
-                    <td class="table-column-20" class="sitnet-text-aborted">
-                        {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
-                    </td>
-                </tr>
-                <!--Fill if page not full-->
-                <tr ng-repeat="r in [] | pagefill: examReviews.length:currentPage:pageSize">
-                    <td class="table-column-examname">&nbsp;</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
+                    <tr ng-repeat="review in abortedExams | orderBy:abortedPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
+                        <td class="table-column-examname">
+                            <a ng-click="go(review.exam)">
+                                {{review.user.firstName}}&nbsp;{{review.user.lastName}}
+                                <span ng-if="review.user.userIdentifier"><br />({{review.user.userIdentifier}})</span>
+                            </a>
+                        </td>
+                        <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">
+                            {{review.user.email}}</a></td>
+                        <td class="table-column-25">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
+                            translate}}.{{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date:
+                            'HH:mm'}}
+                            ({{review.started | diffInMinutesTo:review.ended }}min)
+                        </td>
+                        <td class="table-column-25" class="sitnet-text-aborted">
+                            {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -125,16 +120,20 @@
                     </thead>
 
                     <tbody>
-                    <tr ng-repeat="review in examReviews | orderBy:reviewPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize"
-                        ng-click="go(review.exam)" class="pointer">
-                        <td class="table-column-examname">{{review.user.firstName}} {{review.user.lastName}}
+                    <tr ng-repeat="review in examReviews | orderBy:reviewPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
+                        <td class="table-column-15 table-column-bold">
+                            <a class="pointer" ng-click="go(review.exam)">
+                                {{review.user.firstName}} {{review.user.lastName}}
+                                <span ng-if="review.user.userIdentifier"><br />({{review.user.userIdentifier}})</span>
+                            </a>
                         </td>
-                        <td>{{review.user.email}}</td>
+                        <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+                        </td>
                         <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
                             translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
                             ({{review.started | diffInMinutesTo:review.ended }}min)
                         </td>
-                        <td class="table-column-20">{{review.deadline | date:'dd.MM.yyyy'}} (<span
+                        <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                                 ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                         </td>
                         <td class="table-column-teachers">
@@ -150,7 +149,7 @@
                                         {{owner.firstName}} {{owner.lastName}}</span>
                             </div>
                         </td>
-                        <td class="table-column-20"
+                        <td class="table-column-15"
                             ng-class="review.exam.state !== 'ABORTED' ? 'sitnet-text-ready' : 'sitnet-text-aborted'">
                             {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
                         </td>
@@ -198,9 +197,12 @@
                 <table class="table table-bordered table-striped exams-table">
                     <thead>
                     <tr>
-                        <th><input type="checkbox" name="select_all" class="gradedReviewAll"
-                                   ng-click="selectAll('gradedReviewAll', 'gradedReviewsBox')" popover-placement="right"
-                                   popover-trigger="mouseenter" popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
+                        <th class="table-column-checkbox"><input type="checkbox" name="select_all"
+                                                                 class="gradedReviewAll"
+                                                                 ng-click="selectAll('gradedReviewAll', 'gradedReviewsBox')"
+                                                                 popover-placement="right"
+                                                                 popover-trigger="mouseenter"
+                                                                 popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
                         </th>
                         <th colspan="2">{{'sitnet_student' | translate }}</th>
                         <th>{{'sitnet_exam_duration' | translate}}</th>
@@ -212,26 +214,29 @@
                     </thead>
 
                     <tbody>
-                    <tr ng-repeat="review in gradedReviews | offset: currentPageGraded*pageSize | limitTo: pageSize"
-                        ng-click="go(review.exam)" class="pointer">
-                        <td ng-click="$event.stopPropagation();"><input type="checkbox" class="gradedReviewsBox"
-                                                                        value="{{review.exam.id}}"/></td>
-                        <td class="table-column-examname"><a ng-click="$event.stopPropagation();"
-                                                             href="mailto:{{review.user.email}}">{{review.user.firstName}}
-                            {{review.user.lastName}}</a></td>
-                        <td>{{review.user.email}}</td>
+                    <tr ng-repeat="review in gradedReviews | offset: currentPageGraded*pageSize | limitTo: pageSize">
+                        <td class="table-column-checkbox"><input type="checkbox" class="gradedReviewsBox"
+                                                                 value="{{review.exam.id}}"/></td>
+                        <td class="table-column-13 table-column-bold">
+                            <a class="pointer" ng-click="go(review.exam)">
+                                {{review.user.firstName}} {{review.user.lastName}}
+                                <span ng-if="review.user.userIdentifier"><br />({{review.user.userIdentifier}})</span>
+                            </a>
+                        </td>
+                        <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+                        </td>
                         <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
                             translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
                             ({{review.started | diffInMinutesTo:review.ended }}min)
                         </td>
-                        <td class="table-column-20">{{review.deadline | date:'dd.MM.yyyy'}} (<span
+                        <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                                 ng-bind-html="review.deadline | diffInDaysToNow"></span>)
                         </td>
-                        <td class="table-column-open-until">{{translateGrade(review.exam)}}</td>
-                        <td class="table-column-15">
+                        <td class="table-column-15">{{translateGrade(review.exam)}}</td>
+                        <td class="table-column-10">
                             {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
                         </td>
-                        <td class="table-column-open-until">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+                        <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
                     </tr>
                     <!--Fill if page not full-->
                     <tr ng-repeat="r in [] | pagefill: gradedReviews.length:currentPageGraded:pageSize">
@@ -286,7 +291,8 @@
                 <table class="table table-bordered table-striped exams-table">
                     <thead>
                     <tr>
-                        <th><input type="checkbox" name="select_all" class="gradedLoggedAll"
+                        <th class="table-column-checkbox">
+                            <input type="checkbox" name="select_all" class="gradedLoggedAll"
                                    ng-click="selectAll('gradedLoggedAll', 'printToFileBox')" popover-placement="right"
                                    popover-trigger="mouseenter" popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
                         </th>
@@ -299,24 +305,26 @@
                     </thead>
 
                     <tbody>
-                    <tr ng-repeat="review in gradedLoggedReviews | offset: currentPageGradedLogged*pageSize | limitTo: pageSize"
-                        ng-click="go(review.exam)" class="pointer">
-                        <td ng-click="$event.stopPropagation();">
-                            <input type="checkbox" class="printToFileBox" value="{{review.exam.id}}"/>
+                    <tr ng-repeat="review in gradedLoggedReviews | offset: currentPageGradedLogged*pageSize | limitTo: pageSize">
+                        <td class="table-column-checkbox"><input type="checkbox" class="printToFileBox"
+                                                                 value="{{review.exam.id}}"/></td>
+                        <td class="table-column-13 table-column-bold">
+                            <a class="pointer" ng-click="go(review.exam)">
+                                {{review.user.firstName}} {{review.user.lastName}}
+                                <span ng-if="review.user.userIdentifier"><br />({{review.user.userIdentifier}})</span>
+                            </a>
                         </td>
-                        <td class="table-column-examname"><a ng-click="$event.stopPropagation();"
-                                                             href="mailto:{{review.user.email}}">{{review.user.firstName}}
-                            {{review.user.lastName}}</a></td>
-                        <td>{{review.user.email}}</td>
+                        <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
+                        </td>
                         <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
                             translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
                             ({{review.started | diffInMinutesTo:review.ended }}min)
                         </td>
-                        <td class="table-column-open-until">{{translateGrade(review.exam)}}</td>
-                        <td class="table-column-15">
+                        <td class="table-column-25">{{translateGrade(review.exam)}}</td>
+                        <td class="table-column-10">
                             {{ printExamCredit(review.exam.course.credits, review.exam.customCredit) }}
                         </td>
-                        <td class="table-column-open-until">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
+                        <td class="table-column-15">{{review.exam.gradedTime | date:'dd.MM.yyyy'}}</td>
                     </tr>
                     <!--Fill if page not full-->
                     <tr ng-repeat="r in [] | pagefill: gradedLoggedReviews.length:currentPageGradedLogged:pageSize">

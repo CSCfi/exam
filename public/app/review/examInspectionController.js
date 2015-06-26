@@ -1,8 +1,8 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('ExamInspectionController', ['$scope', '$modalInstance', 'exam', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'SITNET_CONF','ExamRes', 'UserRes', 'limitToFilter',
-            function ($scope, $modalInstance, exam, sessionService, $routeParams, $translate, $http, $location, SITNET_CONF, ExamRes, UserRes, limitToFilter) {
+    angular.module("exam.controllers")
+        .controller('ExamInspectionController', ['$scope', '$modalInstance', 'exam', 'sessionService', '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF','ExamRes', 'UserRes', 'limitToFilter',
+            function ($scope, $modalInstance, exam, sessionService, $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, UserRes, limitToFilter) {
 
                 $scope.user = sessionService.getUser();
                 $scope.exam = exam;
@@ -49,14 +49,14 @@
                 $scope.saveInspector = function () {
                     if($scope.newInspection.user.id && $scope.newInspection.user.id > 0 && $scope.newInspection.exam.id && $scope.newInspection.exam.id > 0) {
                         ExamRes.inspection.insert({eid: $scope.newInspection.exam.id, uid: $scope.newInspection.user.id}, $scope.newInspection, function (inspection) {
-                            toastr.info($translate("sitnet_exam_saved"));
+                            toastr.info($translate.instant("sitnet_exam_saved"));
                             $scope.ok(inspection);
                         }, function (error) {
                             toastr.error(error.data);
                             $scope.cancel();
                         });
                     } else {
-                        toastr.error($translate('sitnet_teacher_not_found'));
+                        toastr.error($translate.instant('sitnet_teacher_not_found'));
                         $scope.cancel();
                     }
                 };

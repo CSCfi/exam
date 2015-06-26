@@ -1,14 +1,14 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('AdminReservationController', ['ExamRes', '$scope', '$location', '$http', 'SITNET_CONF', 'AdminReservationResource', 'dateService',
-            function (ExamRes, $scope, $location, $http, SITNET_CONF, AdminReservationResource, dateService) {
+    angular.module("exam.controllers")
+        .controller('AdminReservationController', ['ExamRes', '$scope', '$location', '$http', 'EXAM_CONF', 'AdminReservationResource', 'dateService',
+            function (ExamRes, $scope, $location, $http, EXAM_CONF, AdminReservationResource, dateService) {
 
                 $scope.dateService = dateService;
 
-                $scope.examReservations = SITNET_CONF.TEMPLATES_PATH + "reservation/reservations.html";
+                $scope.examReservations = EXAM_CONF.TEMPLATES_PATH + "reservation/reservations.html";
 
-                $scope.reservationDetails = SITNET_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
+                $scope.reservationDetails = EXAM_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
 
                 $scope.selection = {};
 

@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module('sitnet.filters')
+    angular.module('exam.filters')
         .filter('newlines', function (text) {
             return text.replace(/\n/g, '');
         })
@@ -100,9 +100,7 @@
         })
         .filter('adjustdst', function () {
             return function (date) {
-                if (moment().isDST()) {
-                    date = moment(date).add(-1, 'hour').format();
-                } else if (moment(date).isDST()) {
+                if (moment(date).isDST()) {
                     date = moment(date).add(-1, 'hour').format();
                 }
                 return date;

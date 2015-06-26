@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Entity
-public final class ExamSection extends SitnetModel {
+public final class ExamSection extends OwnedModel {
 
     private String name;
 
@@ -98,7 +98,7 @@ public final class ExamSection extends SitnetModel {
     public ExamSection copy(Exam exam, boolean shuffleQuestions)
     {
         ExamSection section = new ExamSection();
-        BeanUtils.copyProperties(this, section, new String[] {"id", "exam", "sectionQuestions"});
+        BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
         section.setExam(exam);
         for (ExamSectionQuestion esq : sectionQuestions) {
             section.getSectionQuestions().add(esq.copy());

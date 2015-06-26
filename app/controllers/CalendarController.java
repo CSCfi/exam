@@ -4,7 +4,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.*;
@@ -15,7 +14,7 @@ import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
-import util.SitnetUtil;
+import util.AppUtil;
 import util.java.EmailComposer;
 
 import java.io.IOException;
@@ -45,7 +44,7 @@ public class CalendarController extends SitnetController {
         }
         // Removal not permitted if reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
-        DateTime now = SitnetUtil.adjustDST(DateTime.now(), reservation);
+        DateTime now = AppUtil.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
@@ -90,7 +89,7 @@ public class CalendarController extends SitnetController {
         }
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
-        DateTime now = SitnetUtil.adjustDST(DateTime.now(), room);
+        DateTime now = AppUtil.adjustDST(DateTime.now(), room);
         final User user = UserController.getLoggedUser();
         final ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("reservation")
@@ -179,9 +178,7 @@ public class CalendarController extends SitnetController {
             try {
                 searchDate = parseSearchDate(day, exam);
             } catch (NotFoundException e) {
-                ObjectNode node = Json.newObject();
-                node.put("cause", "EXAM_NOT_ACTIVE_TODAY");
-                return notFound(Json.toJson(node));
+                return notFound();
             }
             // users reservations starting from now
             List<Reservation> reservations = Ebean.find(Reservation.class)
@@ -283,7 +280,7 @@ public class CalendarController extends SitnetController {
 
     private static Exam getEnrolledExam(Long examId) {
         User user = UserController.getLoggedUser();
-        DateTime now = SitnetUtil.adjustDST(DateTime.now());
+        DateTime now = AppUtil.adjustDST(DateTime.now());
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where()

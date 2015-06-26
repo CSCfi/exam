@@ -1,11 +1,11 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
-        .controller('MachineCtrl', ['dialogs', '$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'SITNET_CONF', 'dateService', '$translate',
-            function (dialogs, $scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, SITNET_CONF, dateService, $translate) {
+    angular.module("exam.controllers")
+        .controller('MachineCtrl', ['dialogs', '$scope', '$modal', '$routeParams', '$location', 'SoftwareResource', 'ExamMachineResource', 'EnrollRes', 'EXAM_CONF', 'dateService', '$translate',
+            function (dialogs, $scope, $modal, $routeParams, $location, SoftwareResource, ExamMachineResource, EnrollRes, EXAM_CONF, dateService, $translate) {
 
                 $scope.dateService = dateService;
-                $scope.machineTemplate = SITNET_CONF.TEMPLATES_PATH + "facility/machine.html";
+                $scope.machineTemplate = EXAM_CONF.TEMPLATES_PATH + "facility/machine.html";
 
                 ExamMachineResource.get({id: $routeParams.id},
                     function (machine) {
@@ -45,12 +45,12 @@
 
 
                 $scope.removeMachine = function (machine) {
-                    var dialog = dialogs.confirm($translate('sitnet_confirm'), $translate('sitnet_remove_machine'));
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_machine'));
                     dialog.result.then(function(btn){
                         ExamMachineResource.remove({id: machine.id},
                             function () {
                                 $scope.roomInstance.examMachines.splice($scope.roomInstance.examMachines.indexOf(machine), 1);
-                                toastr.info($translate('sitnet_machine_removed'));
+                                toastr.info($translate.instant('sitnet_machine_removed'));
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -79,7 +79,7 @@
                             angular.forEach($scope.machine.softwareInfo, function(software) {
                                 SoftwareResource.machine.add({mid: $scope.machine.id, sid: software.id});
                             });
-                            toastr.info($translate('sitnet_machine_updated'));
+                            toastr.info($translate.instant('sitnet_machine_updated'));
                             $scope.selectedSoftwares($scope.machine);
                         },
                         function (error) {
@@ -102,7 +102,7 @@
 
                     $http.post('room/' + room.id + '/accessibility', {ids:ids})
                         .success(function () {
-                            toastr.info($translate('sitnet_room_updated'));
+                            toastr.info($translate.instant('sitnet_room_updated'));
                         });
                 };
 
@@ -113,7 +113,7 @@
                         function (updated_machine) {
                             machine = updated_machine;
                             $scope.selectedSoftwares(machine);
-                            toastr.info($translate('sitnet_machine_updated'));
+                            toastr.info($translate.instant('sitnet_machine_updated'));
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -140,7 +140,7 @@
                     };
 
                     var modalInstance = $modal.open({
-                        templateUrl: SITNET_CONF.TEMPLATES_PATH + 'facility/remove_machine_modal.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'facility/remove_machine_modal.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: "MachineModalController",

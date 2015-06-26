@@ -52,14 +52,14 @@
                     <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                         aria-labelledby="dropDownMenu1">
                         <li role="presentation" class="input-group">
-                            <input ng-model="limitCourses" type="text" class="form-control"
+                            <input ng-model="limitations.courses" type="text" class="form-control"
                                    placeholder="{{'sitnet_search' | translate }}">
 
                             <div class="input-group-addon">
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
                         </li>
-                        <li ng-repeat="course in courses | filter:limitCourses" ng-hide='course.filtered' role="presentation"
+                        <li ng-repeat="course in courses | filter:limitations.courses" ng-hide='course.filtered' role="presentation"
                             ng-click="applyFilter(course)">
                             <a role="menuitem">{{course.name | truncate:30}}</a>
                         </li>
@@ -73,14 +73,14 @@
                     <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
                         aria-labelledby="dropDownMenu2">
                         <li role="presentation" class="input-group">
-                            <input ng-model="limitExams" type="text" class="form-control"
+                            <input ng-model="limitations.exams" type="text" class="form-control"
                                    placeholder="{{'sitnet_search' | translate }}">
 
                             <div class="input-group-addon">
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
                         </li>
-                        <li ng-repeat="exam in exams | filter:limitExams" ng-hide='exam.filtered' role="presentation"
+                        <li ng-repeat="exam in exams | filter:limitations.exams" ng-hide='exam.filtered' role="presentation"
                             ng-click="applyFilter(exam)">
                             <a role="menuitem">{{exam.name | truncate:30}}</a>
                         </li>
@@ -95,14 +95,14 @@
                     <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                         aria-labelledby="dropDownMenu3">
                         <li role="presentation" class="input-group">
-                            <input ng-model="limitTags" type="text" class="form-control"
+                            <input ng-model="limitations.tags" type="text" class="form-control"
                                    placeholder="{{'sitnet_search' | translate }}">
 
                             <div class="input-group-addon">
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
                         </li>
-                        <li ng-repeat="tag in tags | filter:limitTags" ng-hide='tag.filtered' role="presentation"
+                        <li ng-repeat="tag in tags | filter:limitations.tags" ng-hide='tag.filtered' role="presentation"
                             ng-click="applyFilter(tag)">
                             <a role="menuitem">{{tag.name | truncate:30}}</a>
                         </li>
@@ -113,7 +113,7 @@
         <div class="col-md-4">
             <label for="freesearch">&nbsp;</label>
             <div id="freesearch" class="form-group input-group">
-                <input ng-change="applyFreeSearchFilter()" ng-model="selected" type="text" class="form-control"
+                <input ng-change="applyFreeSearchFilter()" ng-model="filter.text" type="text" class="form-control"
                        placeholder="{{'sitnet_search' | translate }}">
 
                 <div class="input-group-addon">
@@ -148,7 +148,6 @@
                     </th>
                     <th>{{ 'sitnet_question' | translate }}</th>
                     <th>{{ 'sitnet_question_type' | translate }}</th>
-                    <th>{{ 'sitnet_status' | translate }}</th>
                     <th>{{ 'sitnet_exam_remove' | translate }}</th>
                 </tr>
                 </thead>
@@ -159,17 +158,11 @@
                     </td>
                     <td>
                         <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax
-                           ng-bind-html="shortText(question.question)"></a>
+                           ng-bind-html="shortText(question.question, 360)"></a>
                     </td>
                     <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
                         <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
-                    </td>
-                    <td>
-                        <span class="status_green"
-                              ng-if="question.shared">{{ 'sitnet_shared' | translate }}</span>
-                        <span class="status_theme"
-                              ng-if="!question.shared">{{ 'sitnet_own' | translate }}</span>
                     </td>
                     <td class="text-center">
                         <a class="bold-button" ng-click="deleteQuestion(question)"><i

@@ -19,8 +19,9 @@
                 <tbody>
                 <tr ng-repeat="enrolment in enrolments | orderBy:predicate:reverse">
                     <td>
-                        {{enrolment.user.firstName}} {{enrolment.user.lastName}}<br/>
-                        <a href="mailto:{{enrolment.user.email}}">{{enrolment.user.email}}</a>
+                        <span>{{enrolment.user.firstName}} {{enrolment.user.lastName}}</span>
+                        <span ng-if="enrolment.user.userIdentifier">&nbsp;({{enrolment.user.userIdentifier}})</span>
+                        <span><br /><a href="mailto:{{enrolment.user.email}}">{{enrolment.user.email}}</a></span>
                     </td>
                     <td ng-if="enrolment.exam.state === 'PUBLISHED'">{{ enrolment.exam.name }}</td>
                     <td ng-if="enrolment.exam.state !== 'PUBLISHED'"><a href="#/exams/review/{{enrolment.exam.id}}">{{enrolment.exam.name}}</a></td>

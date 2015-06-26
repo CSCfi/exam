@@ -1,12 +1,12 @@
 (function () {
     'use strict';
-    angular.module('sitnet.services')
+    angular.module('exam.services')
         .factory('examService', ['$translate', '$q', '$location', 'ExamRes', function ($translate, $q, $location, ExamRes) {
 
             var createExam = function() {
                 ExamRes.draft.get(
                     function (response) {
-                        toastr.info($translate("sitnet_exam_added"));
+                        toastr.info($translate.instant("sitnet_exam_added"));
                         $location.path("/exams/addcourse/" + response.id);
                     }, function (error) {
                         toastr.error(error.data);
@@ -17,10 +17,10 @@
                 var name;
                 switch (type) {
                     case 'PARTIAL':
-                        name = $translate('sitnet_exam_credit_type_partial');
+                        name = $translate.instant('sitnet_exam_credit_type_partial');
                         break;
                     case 'FINAL':
-                        name = $translate('sitnet_exam_credit_type_final');
+                        name = $translate.instant('sitnet_exam_credit_type_final');
                         break;
                     default:
                         break;
@@ -56,10 +56,10 @@
                         name = 'Laudatur approbatur';
                         break;
                     case 'REJECTED':
-                        name = $translate('sitnet_rejected');
+                        name = $translate.instant('sitnet_rejected');
                         break;
                     case 'APPROVED':
-                        name = $translate('sitnet_approved');
+                        name = $translate.instant('sitnet_approved');
                         break;
                     default:
                         name = grade;
@@ -90,7 +90,7 @@
                         name = 'Improbatur-Laudatur';
                         break;
                     case 'APPROVED_REJECTED':
-                        name = $translate('sitnet_evaluation_select');
+                        name = $translate.instant('sitnet_evaluation_select');
                         break;
                     case 'OTHER':
                         name = type.displayName || type;
@@ -158,7 +158,7 @@
                     (question.answer && question.type === "MultipleChoiceQuestion" && question.answer.option) // has option selected
                 ) {
                     question.answered = true;
-                    question.questionStatus = $translate("sitnet_question_answered");
+                    question.questionStatus = $translate.instant("sitnet_question_answered");
                     if (question.expanded) {
                         question.selectedAnsweredState = 'question-active-header';
                     } else {
@@ -167,7 +167,7 @@
 
                 } else {
 
-                    question.questionStatus = $translate("sitnet_question_unanswered");
+                    question.questionStatus = $translate.instant("sitnet_question_unanswered");
 
                     if (question.expanded) {
                         question.selectedAnsweredState = 'question-active-header';

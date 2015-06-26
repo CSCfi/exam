@@ -18,8 +18,9 @@ import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -69,7 +70,7 @@ public class QuestionController extends SitnetController {
     public static Result copyQuestion(Long id) throws SitnetException {
 
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id).copy();
-        SitnetUtil.setCreator(question);
+        AppUtil.setCreator(question);
         question.save();
         if (question instanceof MultipleChoiceQuestion) {
             Ebean.save(((MultipleChoiceQuestion) question).getOptions());
@@ -92,7 +93,7 @@ public class QuestionController extends SitnetController {
                 throw new IllegalArgumentException("question type not supported");
         }
         AbstractQuestion question = bindForm(clazz);
-        SitnetUtil.setCreator(question);
+        AppUtil.setCreator(question);
         question.setState(QuestionState.NEW.toString());
         Ebean.save(question);
         return ok(Json.toJson(question));
@@ -107,13 +108,7 @@ public class QuestionController extends SitnetController {
         return ok(Json.toJson(essayQuestion));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result updateQuestion(Long id) {
-        DynamicForm df = Form.form().bindFromRequest();
-        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
-        if (question == null) {
-            return notFound("question not found");
-        }
+    private static void doUpdateQuestion(AbstractQuestion question, DynamicForm df) {
         if (df.get("question") != null) {
             question.setQuestion(df.get("question"));
         }
@@ -125,6 +120,24 @@ public class QuestionController extends SitnetController {
         question.setShared(Boolean.parseBoolean(df.get("shared")));
         question.setState(QuestionState.SAVED.toString());
         question.update();
+    }
+
+    private static boolean hasCorrectOption(MultipleChoiceQuestion question) {
+        for (MultipleChoiseOption option : question.getOptions()) {
+            if (option.isCorrectOption()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result updateQuestion(Long id) {
+        DynamicForm df = Form.form().bindFromRequest();
+        AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
+        if (question == null) {
+            return notFound("question not found");
+        }
         switch (df.get("type")) {
             case "EssayQuestion":
                 EssayQuestion essay = Ebean.find(EssayQuestion.class, id);
@@ -134,9 +147,17 @@ public class QuestionController extends SitnetController {
                 if (df.get("evaluationType") != null) {
                     essay.setEvaluationType(df.get("evaluationType"));
                 }
-                essay.update();
+                doUpdateQuestion(essay, df);
                 return ok(Json.toJson(essay));
             case "MultipleChoiceQuestion":
+                MultipleChoiceQuestion mcq = (MultipleChoiceQuestion) question;
+                if (mcq.getOptions().size() < 2) {
+                    return forbidden("sitnet_minimum_of_two_options_required");
+                }
+                if (!hasCorrectOption(mcq)) {
+                    return forbidden("sitnet_correct_option_required");
+                }
+                doUpdateQuestion(mcq, df);
                 return ok(Json.toJson(question));
             default:
                 return badRequest();
@@ -148,14 +169,14 @@ public class QuestionController extends SitnetController {
 
         final User teacher = Ebean.find(User.class, uid);
 
-        if(teacher == null) {
+        if (teacher == null) {
             return notFound();
         }
 
         final DynamicForm df = Form.form().bindFromRequest();
         final String questionIds = df.data().get("questionIds");
 
-        if(questionIds == null || questionIds.length() < 1) {
+        if (questionIds == null || questionIds.length() < 1) {
             return notFound();
         }
 
@@ -189,30 +210,45 @@ public class QuestionController extends SitnetController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result updateOption(Long oid) throws MalformedDataException {
-
-        MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
+        MultipleChoiseOption form = bindForm(MultipleChoiseOption.class);
+        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+        option.setOption(form.getOption());
+        option.setScore(form.getScore());
         option.update();
-
         return ok(Json.toJson(option));
+    }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public static Result toggleCorrectOption(Long oid) {
+        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+        if (option == null) {
+            return notFound();
+        }
+        boolean isCorrect = !option.isCorrectOption();
+        MultipleChoiceQuestion question = option.getQuestion();
+        for (MultipleChoiseOption mco : option.getQuestion().getOptions()) {
+            if (mco.equals(option)) {
+                mco.setCorrectOption(isCorrect);
+            } else {
+                mco.setCorrectOption(!isCorrect);
+            }
+            mco.update();
+        }
+        Collections.sort(question.getOptions());
+        return ok(Json.toJson(question));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteQuestion(Long id) {
-
         AbstractQuestion question = Ebean.find(AbstractQuestion.class, id);
-
         question.setState(QuestionState.DELETED.toString());
         question.save();
-
         return ok("Question deleted from database!");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public static Result deleteOption(Long oid) {
-
         Ebean.delete(MultipleChoiseOption.class, oid);
-
         return ok("Option deleted from database!");
     }
 
@@ -266,12 +302,12 @@ public class QuestionController extends SitnetController {
 
 
     private static void handleTags(AbstractQuestion question, List<Tag> teacherTags, User teacher) {
-        if(question != null && question.getTags() != null) {
+        if (question != null && question.getTags() != null) {
             List<Tag> tags = question.getTags();
-            for(Tag tag : tags) {
+            for (Tag tag : tags) {
 
                 // create new tag and add it to question if current user has no tags ->
-                if(teacherTags == null) {
+                if (teacherTags == null) {
                     addNewTag(tag, question, teacher);
                     removeOldTag(tag, question);
                     continue;
@@ -279,13 +315,13 @@ public class QuestionController extends SitnetController {
 
                 // check if user has tag with same name ->
                 Boolean add = true;
-                for(Tag userTag : teacherTags) {
+                for (Tag userTag : teacherTags) {
 
                     // if user has a tag with same name ->
                     // remove question old user's tag and add new user's own tag to question
-                    if(userTag.getName().equalsIgnoreCase(tag.getName())) { // case insensitive !!!
+                    if (userTag.getName().equalsIgnoreCase(tag.getName())) { // case insensitive !!!
                         add = false;
-                        if(! userTag.getQuestions().contains(question)) {
+                        if (!userTag.getQuestions().contains(question)) {
                             userTag.getQuestions().add(question);
                             userTag.update();
                         }
@@ -296,7 +332,7 @@ public class QuestionController extends SitnetController {
                 }
 
                 // if user does not have a tag with same name -> add
-                if(add) {
+                if (add) {
                     addNewTag(tag, question, teacher);
                     removeOldTag(tag, question);
                 }
@@ -316,7 +352,7 @@ public class QuestionController extends SitnetController {
         tag.getQuestions().remove(question);
         tag.update();
 
-        if(tag.getQuestions() == null || tag.getQuestions().size() == 0) {
+        if (tag.getQuestions() == null || tag.getQuestions().size() == 0) {
             tag.delete();
         }
     }

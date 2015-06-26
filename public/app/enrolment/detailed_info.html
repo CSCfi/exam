@@ -1,0 +1,104 @@
+<div class="main-row">
+    <div class="col-md-12">
+        <h3 class="exams-list-title-text">{{ 'sitnet_exam_basic_information' | translate }}</h3>
+    </div>
+</div>
+
+<!-- General info section container -->
+<div class="detail-row">
+    <div class="detail-row">
+        <!-- Start time field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.examActiveStartDate | date:'dd.MM.yyyy'}}</div>
+            </div>
+        </div>
+
+        <!-- End time field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_end_time' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</div>
+            </div>
+        </div>
+
+        <!-- Course name field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_course_name' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.course.name}}</div>
+            </div>
+        </div>
+
+        <!-- Course code field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_course_code' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.course.code}}</div>
+            </div>
+        </div>
+
+        <!-- Course scope field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_course_scope' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.course.credits}}</div>
+            </div>
+        </div>
+
+        <!-- Faculty name field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.course.organisation.name}}</div>
+            </div>
+        </div>
+    </div>
+    <div class="detail-row">
+
+        <!-- Exam duration field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_exam_duration' | translate}}</div>
+            <div class="input-group">
+                <div>{{ printExamDuration(exam) }}</div>
+            </div>
+        </div>
+
+        <!-- Exam score scale field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_grade_scale' | translate}}</div>
+            <div class="input-group">
+                <div ng-if="exam.gradeScale">{{translateGradeScale(exam.gradeScale.description)}}</div>
+            </div>
+        </div>
+
+        <!-- Exam language field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.languages.join(', ')}}</div>
+            </div>
+        </div>
+
+        <!-- Exam type field -->
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_exam_credit_type' | translate}}</div>
+            <div class="input-group">
+                <div>{{translateExamType(exam.examType.type)}}</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="detail-row">
+        <!-- Exam information field -->
+        <div class="col-md-12">
+            <div class="sitnet-info-text">{{'sitnet_instruction' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.enrollInstruction}}</div>
+            </div>
+        </div>
+    </div>
+
+</div>

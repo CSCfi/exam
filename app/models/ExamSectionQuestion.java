@@ -67,7 +67,7 @@ public class ExamSectionQuestion extends Model {
 
     public ExamSectionQuestion copy() {
         ExamSectionQuestion esq = new ExamSectionQuestion();
-        BeanUtils.copyProperties(this, esq, new String[] {"id"});
+        BeanUtils.copyProperties(this, esq, "id");
         esq.setQuestion(question.copy());
         return esq;
     }

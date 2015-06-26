@@ -6,24 +6,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import play.db.ebean.Model;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "sitnet_users")
-public class User extends Model implements Subject {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+@Table(name = "app_user")
+public class User extends GeneratedIdentityModel implements Subject {
 
     private String email;
 
@@ -49,7 +39,7 @@ public class User extends Model implements Subject {
     private List<Exam> ownedExams;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<SitnetRole> roles = new ArrayList<>();
+    private List<Role> roles = new ArrayList<>();
 
     @OneToOne
     private UserLanguage userLanguage;
@@ -113,14 +103,6 @@ public class User extends Model implements Subject {
         this.organisation = organisation;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -161,12 +143,12 @@ public class User extends Model implements Subject {
         this.logoutUrl = logoutUrl;
     }
 
-    public void setRoles(List<SitnetRole> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 
     @Override
-    public List<SitnetRole> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
@@ -180,8 +162,6 @@ public class User extends Model implements Subject {
 
     @Override
     public List<? extends Permission> getPermissions() {
-
-        // TODO: return null
         return null;
     }
 
@@ -224,7 +204,7 @@ public class User extends Model implements Subject {
 
     public boolean hasRole(String name) {
 
-        for (SitnetRole role : roles) {
+        for (Role role : roles) {
             if (role.getName().equals(name))
                 return true;
         }
@@ -233,7 +213,7 @@ public class User extends Model implements Subject {
 
     @Override
     public String toString() {
-        return "User [id=" + id + ", email=" + email + ", name=" + lastName + " " +
+        return "User [id=" + getId() + ", email=" + email + ", name=" + lastName + " " +
                 firstName + ", password=" + password + "]";
     }
 
@@ -242,11 +222,11 @@ public class User extends Model implements Subject {
         if (other == this) return true;
         if (!(other instanceof User)) return false;
         User otherUser = (User) other;
-        return new EqualsBuilder().append(id, otherUser.id).build();
+        return new EqualsBuilder().append(getId(), otherUser.getId()).build();
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(id).build();
+        return new HashCodeBuilder().append(getId()).build();
     }
 }

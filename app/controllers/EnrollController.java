@@ -14,7 +14,7 @@ import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.F;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.net.MalformedURLException;
 import java.util.Collection;
@@ -23,7 +23,7 @@ import java.util.List;
 
 public class EnrollController extends SitnetController {
 
-    private static final boolean PERM_CHECK_ACTIVE = SitnetUtil.isEnrolmentPermissionCheckActive();
+    private static final boolean PERM_CHECK_ACTIVE = AppUtil.isEnrolmentPermissionCheckActive();
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result enrollExamList(String code) {
@@ -114,7 +114,7 @@ public class EnrollController extends SitnetController {
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public static Result checkIfEnrolled(Long id) {
-        DateTime now = SitnetUtil.adjustDST(new DateTime());
+        DateTime now = AppUtil.adjustDST(new DateTime());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .where()
                 .eq("user.id", UserController.getLoggedUser().getId())
@@ -132,6 +132,16 @@ public class EnrollController extends SitnetController {
         if (enrolments.isEmpty()) {
             return notFound();
         }
+        return ok();
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    public static Result removeEnrolment(Long id) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
+        if (enrolment.getReservation() != null) {
+            return forbidden("sitnet_cancel_reservation_first");
+        }
+        enrolment.delete();
         return ok();
     }
 
@@ -182,7 +192,7 @@ public class EnrollController extends SitnetController {
             if (reservation == null) {
                 // enrolment without reservation already exists, no need to create a new one
                 return forbidden("sitnet_error_enrolment_exists");
-            } else if (reservation.toInterval().contains(SitnetUtil.adjustDST(DateTime.now(), reservation))) {
+            } else if (reservation.toInterval().contains(AppUtil.adjustDST(DateTime.now(), reservation))) {
                 // reservation in effect
                 if (exam.getState().equals(Exam.State.STUDENT_STARTED.toString())) {
                     // exam for reservation is ongoing

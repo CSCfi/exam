@@ -204,7 +204,7 @@ public class AdminReservationController extends SitnetController {
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
         options.setRootPathProperties("id, enrolledOn, user, exam, reservation");
-        options.setPathProperties("user", "id, firstName, lastName, email");
+        options.setPathProperties("user", "id, firstName, lastName, email, userIdentifier");
         options.setPathProperties("exam", "id, name, state, examOwners, parent, examInspections");
         options.setPathProperties("exam.examOwners", "id, firstName, lastName");
         options.setPathProperties("exam.examInspections", "id, user");

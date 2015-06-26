@@ -1,17 +1,10 @@
 package models;
 
-import play.db.ebean.Model;
-
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
 @Entity
-public class Language extends Model {
-
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
+public class Language extends VersionedModel {
 
     @Id
     private String code;

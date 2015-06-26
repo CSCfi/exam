@@ -1,5 +1,6 @@
 package actions;
 
+import controllers.SitnetController;
 import exceptions.AuthenticateException;
 import models.Session;
 import org.joda.time.DateTime;
@@ -11,13 +12,12 @@ import play.mvc.Result;
 
 public class AuthenticateAction extends Action<Authenticate> {
 
-    public static final String SITNET_TOKEN_HEADER_KEY = "x-sitnet-authentication";
     public static final String SITNET_CACHE_KEY = "user.session.";
     public static final int SITNET_TIMEOUT_MINUTES = 30;
 
     @Override
     public Promise<Result> call(Context ctx) throws Throwable {
-        String token = ctx.request().getHeader(SITNET_TOKEN_HEADER_KEY);
+        String token = ctx.request().getHeader(SitnetController.SITNET_TOKEN_HEADER_KEY);
         Session session = (Session) Cache.get(SITNET_CACHE_KEY + token);
         if (null == session) {
             throw new AuthenticateException("Invalid token: no such token.");

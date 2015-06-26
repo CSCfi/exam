@@ -1,24 +1,12 @@
 package models;
 
-import play.db.ebean.Model;
-
-import javax.persistence.*;
-import java.util.Date;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
 import java.util.List;
 
-/**
- * Created by mikkokatajamaki on 05/05/14.
- */
 @Entity
-public class Software extends Model {
-
-    @Version
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date ebeanTimestamp;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+public class Software extends GeneratedIdentityModel {
 
     @ManyToMany(cascade = CascadeType.ALL, mappedBy = "softwareInfo")
     private List<ExamMachine> machine;
@@ -29,14 +17,6 @@ public class Software extends Model {
     private String name;
 
     private String status;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

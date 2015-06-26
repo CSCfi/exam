@@ -11,7 +11,7 @@ import play.Logger;
 import play.Play;
 import play.i18n.Lang;
 import play.i18n.Messages;
-import util.SitnetUtil;
+import util.AppUtil;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -29,11 +29,11 @@ public class EmailComposer {
     private static final Charset ENCODING = Charset.defaultCharset();
     private static final String TEMPLATES_ROOT = String.format("%s/conf/template/email/",
             Play.application().path().getAbsolutePath());
-    private static final String HOSTNAME = SitnetUtil.getHostName();
+    private static final String HOSTNAME = AppUtil.getHostName();
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm ZZZ");
     private static final DateTimeFormatter DF = DateTimeFormat.forPattern("dd.MM.yyyy");
     private static final DateTimeFormatter TF = DateTimeFormat.forPattern("HH:mm");
-    private static final DateTimeZone TZ = SitnetUtil.getDefaultTimeZone();
+    private static final DateTimeZone TZ = AppUtil.getDefaultTimeZone();
 
     /**
      * This notification is sent to student, when teacher has reviewed the exam
@@ -403,9 +403,7 @@ public class EmailComposer {
 
     private static DateTime adjustDST(Date date, DateTimeZone dtz) {
         DateTime dateTime = new DateTime(date, dtz);
-        if (!dtz.isStandardOffset(System.currentTimeMillis())) {
-            dateTime = dateTime.minusHours(1);
-        } else if (!dtz.isStandardOffset(date.getTime())) {
+        if (!dtz.isStandardOffset(date.getTime())) {
             dateTime = dateTime.minusHours(1);
         }
         return dateTime;

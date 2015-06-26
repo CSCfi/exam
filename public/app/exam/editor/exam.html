@@ -30,22 +30,9 @@
                 <div id="exam">
                     <div class="row top-margin-1">
                         <!-- General Information -->
-                        <div class="bottom-padding-2" ng-include="generalInfoPath"></div>
-
-                        <div class="col-md-12">
-                            <div class="section-border" ng-include="sectionPath" ng-model="newExam.examSections"
-                                 ng-repeat="section in newExam.examSections">
-                            </div>
-                            <div class="row col-md-12 create-new-section">
-                                <div class="col-md-1 fa-stack fa-lg">
-                                    <i class="fa icon-theme fa-stop fa-stack-2x"></i>
-                                    <i class="fa sitnet-white fa-plus fa-stack-1x"></i>
-                                </div>
-                                <a ng-click="addNewSection()" class="create-new-section-button">
-                                    {{'sitnet_section_add' | translate}}
-                                </a>
-                            </div>
-                        </div>
+                        <div class="bottom-padding-2" ng-include="templates.generalInfo"></div>
+                        <!-- Sections & Questions -->
+                        <div class="bottom-padding-2" ng-include="templates.sections"></div>
                     </div>
                 </div>
                 <div class="row col-md-12 bottom-padding-2">
@@ -67,7 +54,7 @@
                     </span>
                 </div>
             </div>
-            <div ng-include="libraryTemplate" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
+            <div ng-include="templates.library" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
         </div>
     </div>
 </div>

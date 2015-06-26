@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.controllers")
+    angular.module("exam.controllers")
         .controller('DatepickerCtrl', ['$scope', '$locale', 'dateService', 'datepickerPopupConfig',
             function ($scope, $locale, dateService, datepickerPopupConfig) {
 

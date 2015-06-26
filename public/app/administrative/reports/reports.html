@@ -6,29 +6,29 @@
 
 <div id="report" class="base">
     <hr>
-    <div ng-include="examRoomReservations" ng-controller="DatepickerCtrl">
+    <div ng-include="templates.examRoomReservations" ng-controller="DatepickerCtrl">
     </div>
     <hr>
-    <div ng-include="examReport">
+    <div ng-include="templates.examReport">
     </div>
     <hr>
-    <div ng-include="examReportJson">
+    <div ng-include="templates.examReportJson">
     </div>
     <hr>
-    <div ng-include="examEnrollmentsReport" ng-controller="DatepickerCtrl">
+    <div ng-include="templates.examEnrollmentsReport" ng-controller="DatepickerCtrl">
     </div>
     <hr>
-    <div ng-include="examAnswers" ng-controller="DatepickerCtrl">
+    <div ng-include="templates.examAnswers" ng-controller="DatepickerCtrl">
      </div>
     <hr>
-    <div ng-include="reviewedExams" ng-controller="DatepickerCtrl">
+    <div ng-include="templates.reviewedExams" ng-controller="DatepickerCtrl">
     </div>
-    <div ng-include="examRecordsCsv" ng-controller="DatepickerCtrl">
-    </div>
-    <hr>
-    <div ng-include="teacherExamsReport" ng-controller="DatepickerCtrl">
+    <div ng-include="templates.examRecordsCsv" ng-controller="DatepickerCtrl">
     </div>
     <hr>
-    <div ng-include="studentReport" ng-controller="DatepickerCtrl">
+    <div ng-include="templates.teacherExamsReport" ng-controller="DatepickerCtrl">
+    </div>
+    <hr>
+    <div ng-include="templates.studentReport" ng-controller="DatepickerCtrl">
     </div>
 </div>

@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    angular.module("sitnet.resources")
+    angular.module("exam.resources")
         .factory("StudentExamRes", ['$resource', function ($resource) {
             return {
                 exams: $resource("/student/exams/:id",
@@ -21,14 +21,7 @@
                     "get": {method: "GET", params: { uid: "@uid" }}
                 }),
 
-                enrolments: $resource("/enrolments/user/:uid",
-                {
-                    uid: "@uid"
-                },
-                {
-                    "get": {method: "GET", params: { uid: "@uid" }}
-                }),
-
+                enrolments: $resource("/enrolments"),
                 enrolment: $resource("/enrolments/:eid",
                 {
                     eid: "@eid"

@@ -11,7 +11,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.mvc.Controller;
 import play.mvc.Result;
-import util.SitnetUtil;
+import util.AppUtil;
 
 
 public class TimeController extends Controller {
@@ -49,7 +49,7 @@ public class TimeController extends Controller {
 
         final DateTime reservationStart = new DateTime(enrolment.getReservation().getStartAt());
         final int durationMinutes = enrolment.getExam().getDuration();
-        DateTime now = SitnetUtil.adjustDST(DateTime.now(), enrolment.getReservation());
+        DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation());
         final Seconds timeLeft = Seconds.secondsBetween(now, reservationStart.plusMinutes(durationMinutes));
 
         return ok(String.valueOf(timeLeft.getSeconds()));
