@@ -4,6 +4,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+
 import exceptions.MalformedDataException;
 import models.Attachment;
 import models.Exam;
@@ -22,7 +23,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static util.java.AttachmentUtils.setData;
-
 
 public class AttachmentController extends BaseController {
 
@@ -44,9 +44,6 @@ public class AttachmentController extends BaseController {
         String fileName = filePart.getFilename();
         String contentType = filePart.getContentType();
 
-        String uploadPath = Play.application().configuration().getString("sitnet.question.answer.attachments.path");
-        String playPath = Play.application().path().getAbsolutePath();
-
         // first check if answer already exist
         Question question = Ebean.find(Question.class)
                 .fetch("answer")
@@ -54,33 +51,28 @@ public class AttachmentController extends BaseController {
                 .idEq(qid)
                 .findUnique();
 
+        // TODO: is this really necessary?
         if (question.getAnswer() == null) {
             question.setAnswer(new Answer());
             question.save();
         }
-        // TODO Use smarter config
-        String basePath = String.format("%s/%s/%d/answer/%d", playPath, uploadPath, qid, question.getAnswer().getId());
-        File dir = new File(basePath);
-        if (dir.mkdirs()) {
-            Logger.info("Created attachment directory");
-        }
-        String rndFileName = UUID.randomUUID().toString();
-        String newFile = basePath + "/" + rndFileName;
+
+        String newFilePath;
         try {
-            AppUtil.copyFile(file, new File(newFile));
+            newFilePath = copyFile(file, "question", qid.toString(), "answer", question.getAnswer().getId().toString());
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_attachment");
         }
+
         Attachment attachment = new Attachment();
         attachment.setFileName(fileName);
-        attachment.setFilePath(newFile);
+        attachment.setFilePath(newFilePath);
         attachment.setMimeType(contentType);
         attachment.save();
         question.getAnswer().setAttachment(attachment);
         question.save();
         return ok(attachment);
     }
-
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addAttachmentToQuestion() throws MalformedDataException {
@@ -100,26 +92,16 @@ public class AttachmentController extends BaseController {
         if (question == null) {
             return notFound();
         }
-        String uploadPath = Play.application().configuration().getString("sitnet.question.attachments.path");
-        String playPath = Play.application().path().getAbsolutePath();
-
-        // TODO Use smarter config
-        String basePath = playPath + "/" + uploadPath + "/" + qid;
-        File dir = new File(basePath);
-        if (dir.mkdirs()) {
-            Logger.info("Created attachment directory");
-        }
-        String rndFileName = UUID.randomUUID().toString();
-        String newFile = basePath + "/" + rndFileName;
-
+        String newFilePath;
         try {
-            AppUtil.copyFile(file, new File(newFile));
+            newFilePath = copyFile(file, "question", qid.toString());
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_attachment");
         }
+
         Attachment attachment = new Attachment();
         attachment.setFileName(filePart.getFilename());
-        attachment.setFilePath(newFile);
+        attachment.setFilePath(newFilePath);
         attachment.setMimeType(filePart.getContentType());
         attachment.save();
 
@@ -191,25 +173,16 @@ public class AttachmentController extends BaseController {
         if (exam == null) {
             return notFound();
         }
-        String uploadPath = Play.application().configuration().getString("sitnet.exam.attachments.path");
-        String playPath = Play.application().path().getAbsolutePath();
-
-        // TODO Use smarter config
-        String basePath = playPath + "/" + uploadPath + "/" + eid;
-        File dir = new File(basePath);
-        if (dir.mkdirs()) {
-            Logger.info("Created attachment directory");
-        }
-        String rndFileName = UUID.randomUUID().toString();
-        String newFile = basePath + "/" + rndFileName;
+        String newFilePath;
         try {
-            AppUtil.copyFile(file, new File(newFile));
+            newFilePath = copyFile(file, "exam", eid.toString());
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_attachment");
         }
+
         Attachment attachment = new Attachment();
         attachment.setFileName(filePart.getFilename());
-        attachment.setFilePath(newFile);
+        attachment.setFilePath(newFilePath);
         attachment.setMimeType(filePart.getContentType());
         attachment.save();
 
@@ -266,4 +239,30 @@ public class AttachmentController extends BaseController {
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
         return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
     }
+
+    private static String copyFile(File srcFile, String... pathParams) throws IOException {
+        String uploadPath = Play.application().configuration().getString("sitnet.attachments.path");
+        StringBuilder path = new StringBuilder();
+        // Following does not work on windows, but we hopefully aren't using it anyway :)
+        if (!uploadPath.startsWith(File.separator)) {
+            // relative path
+            path.append(Play.application().path().getAbsolutePath()).append(File.separator);
+        }
+        path.append(uploadPath).append(File.separator);
+        for (String param : pathParams) {
+            path.append(File.separator).append(param);
+        }
+
+        File dir = new File(path.toString());
+        if (dir.mkdirs()) {
+            Logger.info("Created attachment directory");
+        }
+        String rndFileName = UUID.randomUUID().toString();
+        String newFilePath = path.append(File.separator).append(rndFileName).toString();
+        AppUtil.copyFile(srcFile, new File(newFilePath));
+        return newFilePath;
+    }
+
+
+
 }
