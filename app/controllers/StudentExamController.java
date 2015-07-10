@@ -59,7 +59,10 @@ public class StudentExamController extends SitnetController {
     @Restrict({@Group("STUDENT")})
     public static Result getFinishedExams(Long uid) {
         User user = UserController.getLoggedUser();
-        List<Exam> exams = Ebean.find(Exam.class).where()
+        List<Exam> exams = Ebean.find(Exam.class)
+                .fetch("examParticipations")
+                .fetch("examInspectors")
+                .where()
                 .ne("state", Exam.State.STUDENT_STARTED.toString())
                 .ne("state", Exam.State.ABORTED.toString())
                 .eq("creator", user)
@@ -67,9 +70,11 @@ public class StudentExamController extends SitnetController {
 
         JsonContext jsonContext = Ebean.createJsonContext();
         JsonWriteOptions options = new JsonWriteOptions();
-        options.setRootPathProperties("id, creator, name, course, state");
+        options.setRootPathProperties("id, creator, name, course, state, examInspectors, examParticipations");
         options.setPathProperties("creator", "id");
         options.setPathProperties("course", "code");
+        options.setPathProperties("examInspectors", "firstName, lastName");
+        options.setPathProperties("examParticipations", "ended");
         return ok(jsonContext.toJsonString(exams, true, options)).as("application/json");
     }
 
