@@ -147,6 +147,7 @@
                                popover-trigger="mouseenter" popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
                     </th>
                     <th>{{ 'sitnet_question' | translate }}</th>
+                    <th>{{ 'sitnet_max_score' | translate }}</th>
                     <th>{{ 'sitnet_question_type' | translate }}</th>
                     <th>{{ 'sitnet_exam_remove' | translate }}</th>
                 </tr>
@@ -159,6 +160,10 @@
                     <td>
                         <a class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax
                            ng-bind-html="shortText(question.question, 360)"></a>
+                    </td>
+                    <td>
+                        <span ng-if="question.evaluationType === 'Points' || question.type === 'MultipleChoiceQuestion'">{{ question.maxScore }}</span>
+                        <span ng-if="question.evaluationType === 'Select'">{{ 'sitnet_evaluation_select' | translate }}</span>
                     </td>
                     <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
