@@ -70,7 +70,7 @@ public class EnrollController extends BaseController {
                 .fetch("gradeScale")
                 .fetch("creator", "firstName, lastName, email")
                 .fetch("examLanguages")
-                .fetch("examOwners(firtName, lastName")
+                .fetch("examOwners", "firstName, lastName")
                 .fetch("examInspections")
                 .fetch("examInspections.user")
                 .fetch("examType")

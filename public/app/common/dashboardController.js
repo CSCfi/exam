@@ -12,6 +12,9 @@
                     dashboardFinishedExamsPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/finished_exams.html"
                 };
 
+                // Pagesize for showing finished exams
+                $scope.pageSize = 10;
+
                 $scope.user = sessionService.getUser();
 
                 if ($scope.user) {

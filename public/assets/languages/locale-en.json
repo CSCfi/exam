@@ -629,5 +629,7 @@
   "sitnet_end_of_exam": "Your exam has ended",
   "sitnet_exam_returned": "Your exam response has been submitted to teacher for assessment.",
   "sitnet_exam_aborted": "You aborted the exam. Therefore your exam response was not submitted for assessment.",
-  "sitnet_log_out_will_commence": "You will be logged out from the system in a few seconds."
+  "sitnet_log_out_will_commence": "You will be logged out from the system in a few seconds.",
+  "sitnet_exam_teachers": "Teachers",
+  "sitnet_exam_endtime": "Suoritusaika EN"
 }

@@ -57,6 +57,8 @@ public class StudentExamController extends BaseController {
                 .select("id, state, name")
                 .fetch("creator", "id")
                 .fetch("course", "code")
+				.fetch("examParticipations", "ended")
+				.fetch("examInspectors", "firstName, lastName")
                 .where()
                 .ne("state", Exam.State.STUDENT_STARTED.toString())
                 .ne("state", Exam.State.ABORTED.toString())

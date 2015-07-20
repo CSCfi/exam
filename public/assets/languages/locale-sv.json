@@ -629,5 +629,7 @@
   "sitnet_end_of_exam": "Din tent har slutit",
   "sitnet_exam_returned": "Ditt tentsvar har lämnats in för värdering.",
   "sitnet_exam_aborted": "Du avbröt tenten. Det innebär att ditt tentsvar inte värderas.",
-  "sitnet_log_out_will_commence": "Du kommer att loggas ut i några sekunder."
+  "sitnet_log_out_will_commence": "Du kommer att loggas ut i några sekunder.",
+  "sitnet_exam_teachers": "Opettajat SV",
+  "sitnet_exam_endtime": "Suoritusaika SV"
 }

@@ -41,6 +41,10 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     @ManyToMany
     @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> examOwners;
+	
+    @ManyToMany
+    @JoinTable(name = "exam_inspection", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private List<User> examInspectors;
 
     // Instruction written by teacher, shown during exam
     @Column(columnDefinition = "TEXT")

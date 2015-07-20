@@ -167,17 +167,21 @@
         </div>
     </div>
 
+    <!-- List of finished exams -->
     <div class="detail-row">
-        <div class="bottom-row list-item" ng-repeat="finishedExam in studentFinishedExams">
-            <div class="col-md-3">
-                <h2 ng-if="finishedExam.state ==='REVIEW' || finishedExam.state === 'REVIEW_STARTED' || finishedExam.state === 'GRADED'"
-                    class="label label-warning">{{'sitnet_exam_in_review_state' | translate}}</h2>
-                <h2 ng-if="finishedExam.state === 'GRADED_LOGGED'" class="label label-success">
-                    {{'sitnet_state_graded_logged' | translate}}</h2>
+        <div class="bottom-row" ng-repeat="finishedExam in studentFinishedExams | orderBy: '-examParticipations[0].ended' | offset: currentPage*pageSize | limitTo: pageSize">
+            <div class="info-column col-md-3">
+                <span class="header col-md-12">{{ 'sitnet_exam_endtime' | translate }}:</span><br/>
+                <span class="text col-md-12">{{ finishedExam.examParticipations[0].ended  | date:'dd.MM.yyyy HH:mm'}}</span>
             </div>
-            <div class="info-column col-md-6">
+            <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_examcode_and_name' | translate }}:</span><br/>
                 <span class="text col-md-12">{{ finishedExam.course.code }} - {{ finishedExam.name }}</span>
+            </div>
+            <div class="info-column col-md-3">
+                <span class="header col-md-12">{{ 'sitnet_exam_teachers' | translate }}:</span><br/>
+                <span class="text col-md-12"
+                      ng-repeat = "examInspector in finishedExam.examInspectors">{{ examInspector.firstName }} {{ examInspector.lastName }}</span>
             </div>
             <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_teachers_comment' | translate }}:</span><br/>
@@ -192,4 +196,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Div structure is same, as in exams list. This ensures that they are aligned similarly -->
+    <div class="detail-row">
+        <div class="bottom-row">
+            <div col-md-12 ng-show="studentFinishedExams.length > pageSize">
+                <paginator items="studentFinishedExams" page-size="pageSize" current-page="currentPage"/>
+            </div>
+        </div>
+    </div>
+    <!--div class="detail-row">
+        <div class="bottom-row">
+            <div class="info-column col-md-12">
+                <paginator items="studentFinishedExams" page-size="pageSize" current-page="currentPage"/>
+            </div>
+        </div>
+    </div-->
+
 </div>
