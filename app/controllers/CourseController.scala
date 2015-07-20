@@ -14,12 +14,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class CourseController @Inject()(externalApi : ExternalAPI) extends Controller with ScalaHacks {
 
-  sealed trait FilterType
-
-  case object FilterByName extends FilterType
-
-  case object FilterByCode extends FilterType
-
   val CriteriaLengthLimiter = 2
 
   @Restrict(Array(new Group(Array("TEACHER")), new Group(Array("ADMIN"))))

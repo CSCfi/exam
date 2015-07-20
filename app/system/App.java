@@ -10,7 +10,6 @@ public class App extends AbstractModule {
     @Override
     protected void configure() {
         bind(SystemInitializer.class).asEagerSingleton();
-        //bind(DeadboltHandler.class).toConstructor().asEagerSingleton();
     }
 
 }
