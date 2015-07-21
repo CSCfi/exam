@@ -454,8 +454,7 @@ public class ExamController extends BaseController {
     public Result updateExam(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
 
-        Exam exam = createQuery().where()
-                .idEq(id).findUnique();
+        Exam exam = createQuery().where().idEq(id).findUnique();
 
         if (exam == null) {
             return notFound();
@@ -465,6 +464,9 @@ public class ExamController extends BaseController {
             String str = ValidationUtil.validateExamForm(df);
             if (!str.equalsIgnoreCase("OK")) {
                 return badRequest(str);
+            }
+            if (exam.getExamSections().stream().anyMatch((section) -> section.getName() == null)) {
+                return badRequest("sitnet_exam_contains_unnamed_sections");
             }
             String examName = df.get("name");
             Boolean shared = Boolean.parseBoolean(df.get("shared"));
@@ -583,13 +585,11 @@ public class ExamController extends BaseController {
     public Result createExamDraft() {
         User user = getLoggedUser();
         Exam exam = new Exam();
-        exam.setName("Kirjoita tentin nimi tähän"); // TODO: i18n
         exam.setState(Exam.State.DRAFT.toString());
         AppUtil.setCreator(exam, user);
         exam.save();
 
         ExamSection examSection = new ExamSection();
-        examSection.setName("Aihealue"); // TODO: i18n
         AppUtil.setCreator(examSection, user);
 
         examSection.setExam(exam);
@@ -605,7 +605,7 @@ public class ExamController extends BaseController {
         exam.setExamActiveEndDate(start.plusDays(1).toDate());
         exam.setDuration(AppUtil.getExamDurations().get(0));
         if (AppUtil.isCourseGradeScaleOverridable()) {
-           exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
+            exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0));
         }
 
         exam.save();
@@ -1075,7 +1075,6 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamInspections(Long id) {
-
         Set<ExamInspection> inspections = Ebean.find(ExamInspection.class)
                 .fetch("user", "id, email, firstName, lastName")
                 .where()

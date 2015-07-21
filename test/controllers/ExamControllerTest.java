@@ -86,12 +86,12 @@ public class ExamControllerTest extends IntegrationTestCase {
         Long id = node.get("id").asLong();
         Exam draft = Ebean.find(Exam.class, id);
         assertThat(draft).isNotNull();
-        assertThat(draft.getName()).isEqualTo("Kirjoita tentin nimi tähän");
+        assertThat(draft.getName()).isNull();
         assertThat(draft.getCreator().getId()).isEqualTo(userId);
         assertThat(draft.getCreated()).isNotNull();
         assertThat(draft.getState()).isEqualTo(Exam.State.DRAFT.toString());
         assertThat(draft.getExamSections().size()).isEqualTo(1);
-        assertThat(draft.getExamSections().get(0).getName()).isEqualTo("Aihealue");
+        assertThat(draft.getExamSections().get(0).getName()).isNull();
         assertThat(draft.getExamSections().get(0).getExpanded()).isTrue();
         assertThat(draft.getExamLanguages().size()).isEqualTo(1);
         assertThat(draft.getExamLanguages().get(0).getCode()).isEqualTo("fi");

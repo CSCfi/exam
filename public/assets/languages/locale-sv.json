@@ -631,5 +631,6 @@
   "sitnet_exam_aborted": "Du avbröt tenten. Det innebär att ditt tentsvar inte värderas.",
   "sitnet_log_out_will_commence": "Du kommer att loggas ut i några sekunder.",
   "sitnet_exam_teachers": "Opettajat SV",
-  "sitnet_exam_endtime": "Suoritusaika SV"
+  "sitnet_exam_endtime": "Suoritusaika SV",
+  "sitnet_exam_contains_unnamed_sections": "Kaikilla tentin aihealueilla ei ole nimiä SV"
 }

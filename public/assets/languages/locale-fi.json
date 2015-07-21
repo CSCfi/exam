@@ -631,5 +631,6 @@
   "sitnet_exam_aborted": "Keskeytit tenttisi, jolloin suoritus ei siirry arvioitavaksi.",
   "sitnet_log_out_will_commence": "Sinut kirjataan hetken kuluttua ulos järjestelmästä.",
   "sitnet_exam_teachers": "Opettajat",
-  "sitnet_exam_endtime": "Suoritusaika"
+  "sitnet_exam_endtime": "Suoritusaika",
+  "sitnet_exam_contains_unnamed_sections": "Kaikilla tentin aihealueilla ei ole nimiä"
 }
