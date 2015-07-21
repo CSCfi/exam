@@ -184,6 +184,13 @@
                 return text;
             };
 
+            // Defining markup outside templates is not advisable, but creating a working custom dialog template for this
+            // proved to be a bit too much of a hassle. Lets live with this.
+            var getRecordReviewConfirmationDialogContent = function(feedback) {
+                return '<h4>' + $translate.instant('sitnet_teachers_comment') + '</h4>'
+                    + feedback + '<br/><strong>' + $translate.instant('sitnet_confirm_record_review') + '</strong>';
+            };
+
             return {
                 createExam: createExam,
                 refreshExamTypes: refreshExamTypes,
@@ -195,7 +202,8 @@
                 setExamOwnersAndInspectors: setExamOwnersAndInspectors,
                 setCredit: setCredit,
                 setQuestionColors: setQuestionColors,
-                stripHtml: stripHtml
+                stripHtml: stripHtml,
+                getRecordReviewConfirmationDialogContent: getRecordReviewConfirmationDialogContent
             };
 
         }]);
