@@ -59,6 +59,7 @@ public class SessionController extends BaseController {
         } catch (NotFoundException | AddressException e) {
             return badRequest(e.getMessage());
         }
+        user.setLastLogin(new Date());
         user.save();
         return createSession(toUtf8(request().getHeader("Shib-Session-ID")), user);
     }
@@ -77,6 +78,8 @@ public class SessionController extends BaseController {
         if (user == null) {
             return unauthorized("sitnet_error_unauthenticated");
         }
+        user.setLastLogin(new Date());
+        user.save();
         return createSession(UUID.randomUUID().toString(), user);
     }
 

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -61,6 +62,7 @@ public class User extends GeneratedIdentityModel implements Subject {
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean hasAcceptedUserAgreament;
 
+    private Date lastLogin;
 
     public boolean isHasAcceptedUserAgreament() {
         return hasAcceptedUserAgreament;
@@ -199,6 +201,14 @@ public class User extends GeneratedIdentityModel implements Subject {
 
     public void setOwnedExams(List<Exam> ownedExams) {
         this.ownedExams = ownedExams;
+    }
+
+    public Date getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Date lastLogin) {
+        this.lastLogin = lastLogin;
     }
 
     public boolean hasRole(String name) {

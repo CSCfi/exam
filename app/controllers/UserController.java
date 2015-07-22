@@ -4,13 +4,12 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
+import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.Exam;
-import models.ExamInspection;
-import models.User;
-import models.UserLanguage;
+import models.*;
+import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
 
@@ -26,6 +25,62 @@ public class UserController extends BaseController {
             return notFound();
         }
         return ok(user);
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public Result findUsers(F.Option<String> filter) {
+        Query<User> query = Ebean.find(User.class).fetch("roles");
+        List<User> results;
+        if (filter.isDefined() && !filter.get().isEmpty()) {
+            String condition = String.format("%%%s%%", filter.get());
+            results = query.where()
+                    .disjunction()
+                    .ilike("firstName", condition)
+                    .ilike("lastName", condition)
+                    .ilike("email", condition)
+                    .ilike("userIdentifier", condition)
+                    .ilike("employeeNumber", condition)
+                    .endJunction()
+                    .orderBy("lastName, firstName")
+                    .findList();
+        } else {
+            results = query.orderBy("lastName, firstName").findList();
+        }
+        return ok(Json.toJson(results));
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public Result addRole(Long uid, String roleName) {
+        User user = Ebean.find(User.class, uid);
+        if (user == null) {
+            return notFound("sitnet_user_not_found");
+        }
+        if (user.getRoles().stream().noneMatch((r) -> r.getName().equals(roleName))) {
+            Role role = Ebean.find(Role.class).where().eq("name", roleName).findUnique();
+            if (role == null) {
+                return notFound("sitnet_role_not_found");
+            }
+            user.getRoles().add(role);
+            user.save();
+        }
+        return ok();
+    }
+
+    @Restrict({@Group("ADMIN")})
+    public Result removeRole(Long uid, String roleName) {
+        User user = Ebean.find(User.class, uid);
+        if (user == null) {
+            return notFound("sitnet_user_not_found");
+        }
+        if (user.getRoles().stream().anyMatch((r) -> r.getName().equals(roleName))) {
+            Role role = Ebean.find(Role.class).where().eq("name", roleName).findUnique();
+            if (role == null) {
+                return notFound("sitnet_role_not_found");
+            }
+            user.getRoles().remove(role);
+            user.save();
+        }
+        return ok();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

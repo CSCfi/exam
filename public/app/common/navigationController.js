@@ -66,6 +66,12 @@
                             name: "sitnet_settings"
                         },
                         {
+                            href: "#/users",
+                            visible: (admin),
+                            class: "fa-users",
+                            name: "sitnet_users"
+                        },
+                        {
                             href: "#/student/exams",
                             visible: (student),
                             class: "fa-search",

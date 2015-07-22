@@ -15,6 +15,9 @@ GET           /users/filter/:role/:eid                              controllers.
 GET           /users/filter/owner/:role/:eid                        controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
 PUT           /users/agreement/:id                                  controllers.UserController.updateUserAgreementAccepted(id: Long)
 PUT           /user/lang                                            controllers.UserController.updateLanguage
+GET           /users                                                controllers.UserController.findUsers(filter: play.libs.F.Option[String])
+POST          /users/:id/roles/:rname                               controllers.UserController.addRole(id: Long, rname: String)
+DELETE        /users/:id/roles/:rname                               controllers.UserController.removeRole(id: Long, rname: String)
 
 ############### Exam interface ###############
 GET           /exams                                                controllers.ExamController.getExams

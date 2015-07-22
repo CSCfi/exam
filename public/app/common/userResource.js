@@ -3,21 +3,16 @@
     angular.module("exam.resources")
     	.factory("UserRes", ['$resource', function ($resource) {
             return { 
-	            users: $resource("/users/:id", 
-	            {
-	                id: "@id"
-	            }, 
-	            {
-	                "update": {
-	                    method: "PUT"
-	                },
-	
-	                "delete": {
-	                    method: 'DELETE', params: {id: "@id"}
-	                }
-	            }),
+	            users: $resource("/users"),
+                userRoles: $resource("/users/:id/roles/:role", {
+                    id: "@id", role: "@role"
 
-	            usersByRole: $resource("/users/byrole/:role", 
+                },
+                {
+                    "add": {method: "POST", params: {id: "@id", role: "@role"}},
+                    "remove" : {method: "DELETE", params: {id: "@id", role: "@role"}}
+                }),
+	            usersByRole: $resource("/users/byrole/:role",
 	            {
 	            	role: "@role"
 	            }),

@@ -632,5 +632,18 @@
   "sitnet_log_out_will_commence": "Sinut kirjataan hetken kuluttua ulos järjestelmästä.",
   "sitnet_exam_teachers": "Opettajat",
   "sitnet_exam_endtime": "Suoritusaika",
-  "sitnet_exam_contains_unnamed_sections": "Kaikilla tentin aihealueilla ei ole nimiä"
+  "sitnet_exam_contains_unnamed_sections": "Kaikilla tentin aihealueilla ei ole nimiä",
+  "sitnet_users": "Käyttäjät",
+  "sitnet_user_administration": "Käyttäjien hallinta",
+  "sitnet_search_for_users": "Etsi käyttäjiä",
+  "sitnet_user_search_description": "Voit hakea käyttäjiä nimen, sähköpostiosoitteen, henkilöstönumeron tai opiskelijanumeron mukaan",
+  "sitnet_firstname": "Etunimi",
+  "sitnet_lastname": "Sukunimi",
+  "sitnet_userid": "Opiskelijatunnus",
+  "sitnet_employeeno": "Henkilökunnan tunnus",
+  "sitnet_user_roles": "Käyttäjäroolit",
+  "sitnet_filter_by_role": "Suodata käyttäjäroolin perusteella",
+  "sitnet_admin": "Ylläpitäjä",
+  "sitnet_last_login": "Viimeksi kirjautunut",
+  "sitnet_at_least_one_role_required": "Roolia ei voi poistaa. Käyttäjällä täytyy olla vähintään yksi rooli."
 }
