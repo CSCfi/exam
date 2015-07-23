@@ -645,5 +645,8 @@
   "sitnet_filter_by_role": "Suodata käyttäjäroolin perusteella EN",
   "sitnet_admin": "Ylläpitäjä EN",
   "sitnet_last_login": "Viimeksi kirjautunut EN",
-  "sitnet_at_least_one_role_required": "Roolia ei voi poistaa. Käyttäjällä täytyy olla vähintään yksi rooli. EN"
+  "sitnet_at_least_one_role_required": "Roolia ei voi poistaa. Käyttäjällä täytyy olla vähintään yksi rooli. EN",
+  "sitnet_copy": "Kopioi EN",
+  "sitnet_copy_question": "Kopioidaanko kysymys? EN",
+  "sitnet_question_copied": "Kysymys kopioitu EN"
 }

@@ -6,7 +6,6 @@ import com.avaje.ebean.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.MalformedDataException;
-import exceptions.SitnetException;
 import models.*;
 import models.questions.MultipleChoiseOption;
 import models.questions.Question;
@@ -418,7 +417,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertComment(Long eid, Long cid) throws MalformedDataException {
+    public Result insertComment(Long eid, Long cid) {
 
         Comment comment = bindForm(Comment.class);
         AppUtil.setCreator(comment, getLoggedUser());
@@ -432,7 +431,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateComment(Long eid, Long cid) throws MalformedDataException {
+    public Result updateComment(Long eid, Long cid) {
 
         Comment form = bindForm(Comment.class);
         Comment comment = Ebean.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(cid).findUnique();
@@ -623,7 +622,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertSection(Long id) throws MalformedDataException {
+    public Result insertSection(Long id) {
 
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
@@ -1131,7 +1130,7 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result insertInspection(Long eid, Long uid) throws SitnetException {
+    public Result insertInspection(Long eid, Long uid) {
 
         final ExamInspection inspection = bindForm(ExamInspection.class);
         final User recipient = Ebean.find(User.class, uid);

@@ -149,6 +149,7 @@
                     <th>{{ 'sitnet_question' | translate }}</th>
                     <th>{{ 'sitnet_max_score' | translate }}</th>
                     <th>{{ 'sitnet_question_type' | translate }}</th>
+                    <th>{{ 'sitnet_copy' | translate }}</th>
                     <th>{{ 'sitnet_exam_remove' | translate }}</th>
                 </tr>
                 </thead>
@@ -169,7 +170,11 @@
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
                         <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
                     </td>
-                    <td class="text-center">
+                    <td>
+                        <a class="bold-button" ng-click="copyQuestion(question)"><i
+                                class="fa fa-lg fa-copy text-info"></i></a>
+                    </td>
+                    <td>
                         <a class="bold-button" ng-click="deleteQuestion(question)"><i
                                 class="fa fa-lg fa-times sitnet-red"></i></a>
                     </td>
@@ -177,6 +182,8 @@
                 <!--Fill if page not full-->
                 <tr ng-repeat="r in [] | pagefill: filteredQuestions.length:currentPage:pageSize">
                     <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>

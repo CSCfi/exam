@@ -6,7 +6,6 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import exceptions.SitnetException;
 import models.*;
 import models.questions.Answer;
 import models.questions.MultipleChoiseOption;
@@ -268,7 +267,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result startExam(String hash) throws SitnetException {
+    public Result startExam(String hash) {
         Exam prototype = getPrototype(hash);
         Exam possibleClone = getPossibleClone(hash);
         // no exam found for hash

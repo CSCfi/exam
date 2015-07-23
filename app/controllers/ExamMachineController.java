@@ -47,7 +47,7 @@ public class ExamMachineController extends BaseController {
 
 
     @Restrict({@Group("ADMIN")})
-    public Result updateExamMachine(Long id) throws MalformedDataException {
+    public Result updateExamMachine(Long id) {
         ExamMachine src = Form.form(ExamMachine.class).bindFromRequest(
                 "id",
                 "name",
@@ -79,7 +79,7 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result resetExamMachineSoftwareInfo(Long mid) throws MalformedDataException {
+    public Result resetExamMachineSoftwareInfo(Long mid) {
         ExamMachine machine = Ebean.find(ExamMachine.class, mid);
 
         machine.getSoftwareInfo().clear();
@@ -89,7 +89,7 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result updateExamMachineSoftwareInfo(Long mid, Long sid) throws MalformedDataException {
+    public Result updateExamMachineSoftwareInfo(Long mid, Long sid) {
         ExamMachine machine = Ebean.find(ExamMachine.class, mid);
         Software software = Ebean.find(Software.class, sid);
 
@@ -100,7 +100,7 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result toggleExamMachineSoftwareInfo(Long mid, Long sid) throws MalformedDataException {
+    public Result toggleExamMachineSoftwareInfo(Long mid, Long sid) {
         ExamMachine machine = Ebean.find(ExamMachine.class, mid);
         Software software = Ebean.find(Software.class, sid);
 
@@ -123,7 +123,7 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result insertExamMachine(Long id) throws MalformedDataException {
+    public Result insertExamMachine(Long id) {
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
 
@@ -138,7 +138,7 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result removeExamMachine(Long id) throws MalformedDataException {
+    public Result removeExamMachine(Long id) {
         // SIT-690
         return forbidden("Tenttikoneen poistaminen estetty väliaikaisesti");
     }
@@ -171,7 +171,7 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result addSoftware(String name) throws MalformedDataException {
+    public Result addSoftware(String name) {
         Software software = bindForm(Software.class);
         software.setStatus("ACTIVE");
         software.setName(name);
@@ -181,7 +181,7 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result updateSoftware(Long id, String name) throws MalformedDataException {
+    public Result updateSoftware(Long id, String name) {
         Software software = Ebean.find(Software.class, id);
         software.setName(name);
         software.setStatus("ACTIVE");
@@ -191,7 +191,7 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result removeSoftware(Long id) throws MalformedDataException {
+    public Result removeSoftware(Long id) {
         Software software = Ebean.find(Software.class, id);
         software.setStatus("DISABLED");
         software.update();

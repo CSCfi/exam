@@ -5,8 +5,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
-import exceptions.MalformedDataException;
-import exceptions.SitnetException;
 import models.Tag;
 import models.User;
 import models.questions.MultipleChoiseOption;
@@ -17,9 +15,7 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class QuestionController extends BaseController {
 
@@ -63,16 +59,22 @@ public class QuestionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result copyQuestion(Long id) throws SitnetException {
-        Question question = Ebean.find(Question.class, id).copy();
-        AppUtil.setCreator(question, getLoggedUser());
-        question.save();
-        Ebean.save(question.getOptions());
-        return ok(Json.toJson(question));
+    public Result copyQuestion(Long id) {
+        Question question = Ebean.find(Question.class, id);
+        Question copy = question.copy();
+        copy.setParent(null);
+        copy.setQuestion(String.format("<p>**COPY**</p>%s", question.getQuestion()));
+        copy.setCreated(new Date());
+        copy.setCreator(getLoggedUser());
+        copy.save();
+        copy.getTags().addAll(question.getTags());
+        copy.update();
+        Ebean.save(copy.getOptions());
+        return ok(Json.toJson(copy));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addQuestion() throws SitnetException {
+    public Result addQuestion() {
         Question question = bindForm(Question.class);
         AppUtil.setCreator(question, getLoggedUser());
         question.setState(QuestionState.NEW.toString());
@@ -183,7 +185,7 @@ public class QuestionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateOption(Long oid) throws MalformedDataException {
+    public Result updateOption(Long oid) {
         MultipleChoiseOption form = bindForm(MultipleChoiseOption.class);
         MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
         option.setOption(form.getOption());
@@ -227,7 +229,7 @@ public class QuestionController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addOption(Long qid) throws MalformedDataException {
+    public Result addOption(Long qid) {
 
         Question question = Ebean.find(Question.class, qid);
         MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);

@@ -27,7 +27,7 @@ import static util.java.AttachmentUtils.setData;
 public class AttachmentController extends BaseController {
 
     @Restrict({@Group("STUDENT")})
-    public Result addAttachmentToQuestionAnswer() throws MalformedDataException {
+    public Result addAttachmentToQuestionAnswer() {
 
         MultipartFormData body = request().body().asMultipartFormData();
         FilePart filePart = body.getFile("file");
@@ -75,7 +75,7 @@ public class AttachmentController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addAttachmentToQuestion() throws MalformedDataException {
+    public Result addAttachmentToQuestion() {
 
         MultipartFormData body = request().body().asMultipartFormData();
         FilePart filePart = body.getFile("file");
@@ -121,7 +121,8 @@ public class AttachmentController extends BaseController {
         question.save();
 
         aa.delete();
-        AppUtil.removeAttachmentFile(aa.getFilePath());
+        // DO NOT DELETE THE ACTUAL FILE, IT MAY BE REFERENCED FROM CHILD QUESTIONS!
+        //AppUtil.removeAttachmentFile(aa.getFilePath());
 
         return redirect("/#/questions/" + String.valueOf(id));
     }
@@ -150,14 +151,15 @@ public class AttachmentController extends BaseController {
                 exam.setAttachment(null);
                 exam.save();
                 aa.delete();
-                AppUtil.removeAttachmentFile(aa.getFilePath());
+                // DO NOT DELETE THE ACTUAL FILE, IT MAY BE REFERENCED FROM CHILD EXAMS!
+                // AppUtil.removeAttachmentFile(aa.getFilePath());
             }
         }
         return redirect("/#/exams/" + String.valueOf(id));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result addAttachmentToExam() throws MalformedDataException {
+    public Result addAttachmentToExam() {
         MultipartFormData body = request().body().asMultipartFormData();
         FilePart filePart = body.getFile("file");
         if (filePart == null) {

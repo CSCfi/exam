@@ -15,14 +15,14 @@ import java.util.List;
 public class AccessibilityController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
-    public Result addAccessibility() throws MalformedDataException {
+    public Result addAccessibility() {
         Accessibility accessibility = bindForm(Accessibility.class);
         accessibility.save();
         return ok(Json.toJson(accessibility));
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result updateAccessibility() throws MalformedDataException {
+    public Result updateAccessibility() {
         Accessibility accessibility = bindForm(Accessibility.class);
         accessibility.update();
         return ok(Json.toJson(accessibility));

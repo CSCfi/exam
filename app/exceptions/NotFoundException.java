@@ -1,6 +1,6 @@
 package exceptions;
 
-public class NotFoundException extends SitnetException {
+public class NotFoundException extends Exception {
     public NotFoundException() {
     }
 

@@ -4,7 +4,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
-import exceptions.MalformedDataException;
 import models.Tag;
 import models.User;
 import models.questions.Question;
@@ -42,7 +41,7 @@ public class TagController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result createTag() throws MalformedDataException {
+    public Result createTag() {
         Tag tag = bindForm(Tag.class);
         User user = getLoggedUser();
         AppUtil.setCreator(tag, user);

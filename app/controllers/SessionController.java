@@ -26,7 +26,7 @@ public class SessionController extends BaseController {
 
     private static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
 
-    public Result login() throws MalformedDataException {
+    public Result login() {
         Result result;
         switch (LOGIN_TYPE) {
             case "HAKA":
@@ -64,7 +64,7 @@ public class SessionController extends BaseController {
         return createSession(toUtf8(request().getHeader("Shib-Session-ID")), user);
     }
 
-    private Result devLogin() throws MalformedDataException {
+    private Result devLogin() {
         Credentials credentials = bindForm(Credentials.class);
         Logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
         if (credentials.getPassword() == null || credentials.getUsername() == null) {

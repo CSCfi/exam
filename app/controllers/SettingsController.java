@@ -27,7 +27,7 @@ public class SettingsController  extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN")})
-    public Result updateUserAgreement() throws MalformedDataException {
+    public Result updateUserAgreement() {
         DynamicForm df = Form.form().bindFromRequest();
         String eula = df.get("eula");
         GeneralSettings gs = Ebean.find(GeneralSettings.class).setMaxRows(1).findList().get(0);
@@ -44,7 +44,7 @@ public class SettingsController  extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN")})
-    public Result updateSettings() throws MalformedDataException {
+    public Result updateSettings() {
         DynamicForm df = Form.form().bindFromRequest();
         long deadline = Long.valueOf(df.get("reviewDeadline"));
         GeneralSettings gs = Ebean.find(GeneralSettings.class).setMaxRows(1).findList().get(0);

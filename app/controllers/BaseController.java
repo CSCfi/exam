@@ -20,7 +20,7 @@ public class BaseController extends Controller {
     @Inject
     protected CacheApi cache;
 
-    public <T> T bindForm(final Class<T> clazz) throws MalformedDataException {
+    public <T> T bindForm(final Class<T> clazz) {
         final Form<T> form = Form.form(clazz);
         if (form.hasErrors()) {
             throw new MalformedDataException(form.errorsAsJson().asText());

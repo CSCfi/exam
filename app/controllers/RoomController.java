@@ -101,7 +101,7 @@ public class RoomController extends BaseController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result updateExamRoomAddress(Long id) throws MalformedDataException {
+    public Result updateExamRoomAddress(Long id) {
         MailAddress address = bindForm(MailAddress.class);
         MailAddress existing = Ebean.find(MailAddress.class, id);
         existing.setCity(address.getCity());
