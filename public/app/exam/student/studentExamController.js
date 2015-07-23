@@ -13,7 +13,6 @@
 
                 // section back / forward buttons
                 $scope.pages = ["guide"];
-                $scope.guide = true;
                 $scope.previousButton = {};
                 $scope.nextButton = {};
 
@@ -89,9 +88,10 @@
                     }
                 };
 
-                $scope.doExam = function (hash) {
-                    $http.get('/student/doexam/' + $routeParams.hash)
-                        .success(function (data, status, headers, config) {
+                $scope.doExam = function () {
+                    var url = isPreview() ? '/exampreview/' + $routeParams.id : '/student/doexam/' + $routeParams.hash;
+                    $http.get(url)
+                        .success(function (data) {
                             $scope.doexam = data;
                             if (data.cloned) {
                                 // we came here with a reference to the parent exam so do not render page just yet,
@@ -144,8 +144,8 @@
                                 $scope.activeSection.autosaver = getAutosaver();
                             }
                         }).
-                        error(function (data, status, headers, config) {
-                            $location.path("//");
+                        error(function () {
+                            $location.path("/");
                         });
                 };
 
@@ -187,7 +187,8 @@
                 }
 
 
-                if ($routeParams.hash) {
+                // if id -> preview
+                if ($routeParams.hash || isPreview()) {
                     $scope.doExam();
                 }
 
@@ -205,18 +206,11 @@
                     }
                 };
 
-                $scope.$on('$localeChangeSuccess', function () {
-                    if ($scope.previousButton.isGuide) {
-                        $scope.previousButton.text = $translate("sitnet_exam_quide");
-                    }
-                });
-
                 $scope.setActiveSection = function (sectionName) {
-                    if ($scope.activeSection && !$scope.guide) {
+                    if (!isPreview() && $scope.activeSection && !$scope.guide) {
                         saveAllEssaysOfSection($scope.activeSection);
                     }
                     if (sectionName !== "guide" || ($scope.doexam.instruction && $scope.doexam.instruction.length > 0 && sectionName === "guide")) {
-
                         // next
                         if ($scope.pages[$scope.pages.indexOf(sectionName) + 1]) {
                             $scope.nextButton = {
@@ -226,12 +220,10 @@
                         } else {
                             $scope.nextButton = {valid: false};
                         }
-
                         // previous
                         if ($scope.pages[$scope.pages.indexOf(sectionName) - 1]) {
-                            $scope.previousButton = { valid: true };
-
-                            if($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
+                            $scope.previousButton = {valid: true};
+                            if ($scope.pages.indexOf(sectionName) - 1 >= 0 && sectionName !== "guide") {
                                 var name = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
                                 if (name === 'guide') {
                                     $scope.previousButton.isGuide = true;
@@ -243,15 +235,15 @@
                                 $scope.previousButton.text = $translate.instant("sitnet_exam_quide");
                             }
                         } else {
-                            $scope.previousButton = { valid: false };
+                            $scope.previousButton = {valid: false};
                         }
                     } else {
                         $scope.guide = true;
-                        $scope.nextButton = { valid: true, text: $scope.pages[1] };
-                        $scope.previousButton = { valid: false };
+                        $scope.nextButton = {valid: true, text: $scope.pages[1]};
+                        $scope.previousButton = {valid: false};
                     }
 
-                    $scope.activeSection = undefined;
+                    delete $scope.activeSection;
                     if (sectionName === "guide") {
                         $scope.guide = true;
                     } else {
@@ -264,7 +256,7 @@
                         });
                     }
 
-                    if ($scope.activeSection !== undefined) {
+                    if ($scope.activeSection) {
                         // Loop through all questions in the active section
                         angular.forEach($scope.activeSection.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
@@ -281,14 +273,13 @@
                                     break;
                             }
                             question.template = template;
-
-                            if (!question.expanded) {
-                                question.expanded = false;
-                            }
+                            question.expanded = false;
                             examService.setQuestionColors(question);
                         });
                         cancelAutosavers();
-                        $scope.activeSection.autosaver = getAutosaver();
+                        if (!isPreview()) {
+                            $scope.activeSection.autosaver = getAutosaver();
+                        }
                     }
                     window.scrollTo(0, 0);
                 };
@@ -337,6 +328,11 @@
                     return deferred.promise;
                 };
 
+                // Called when the exit button is clicked
+                $scope.exitPreview = function () {
+                    $location.path("/exams/" + $routeParams.id);
+                };
+
                 // Called when the save and exit button is clicked
                 $scope.saveExam = function (doexam) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
@@ -382,7 +378,15 @@
                                 examService.setQuestionColors(question);
                             }, function (error) {
 
-                        });
+                            });
+                    } else {
+                        question.answer = {
+                            option: {
+                                option: option.option
+                            }
+                        };
+                        examService.setQuestionColors(question);
+                    }
                 };
 
                 $scope.chevronClicked = function(sectionQuestion) {
@@ -393,14 +397,7 @@
                     question.answered = true;
                     question.questionStatus = $translate.instant("sitnet_answer_saved");
 
-                    var params = {
-                        hash: $scope.doexam.hash,
-                        qid: question.id
-                    };
-                    var msg = {};
-                    msg.answer = answer;
-                    StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
-                        toastr.info($translate("sitnet_answer_saved"));
+                    if (isPreview()) {
                         examService.setQuestionColors(question);
                     } else {
                         var params = {
@@ -419,7 +416,6 @@
                     n += '';
                     return n.length > 1 ? n : '0' + n;
                 }
-
 
                 $scope.formatRemainingTime = function (time) {
                     if (time <= 0) {
@@ -475,11 +471,11 @@
                 $scope.remainingTime = "";
                 var updateCheck = 15;
                 var updateInterval = 0;
-                var count = function () {
+                var startClock = function () {
                     if ($scope.doexam) {
                         updateInterval++;
 
-                        $scope.remainingTimePoller = $timeout(count, 1000);
+                        $scope.remainingTimePoller = $timeout(startClock, 1000);
 
                         if (updateInterval >= updateCheck) {
                             updateInterval = 0;
@@ -487,16 +483,16 @@
                         } else {
                             $scope.remainingTime--;
                         }
-
-                        // console.log("frontend count: " + $scope.remainingTime);
-
                         if ($scope.timeChecked === true && $scope.remainingTime < 0) {
                             onTimeout();
                         }
                     }
                 };
 
-                count(); // start the clock
+                if (!isPreview()) {
+                    // start the clock
+                    startClock();
+                }
 
                 $scope.isAnswer = function (question, option) {
 
@@ -512,6 +508,9 @@
                 };
 
                 $scope.selectFile = function (question) {
+                    if (isPreview()) {
+                        return;
+                    }
 
                     var ctrl = function ($scope, $modalInstance) {
 
@@ -544,7 +543,7 @@
                         }
                     });
 
-                    modalInstance.result.then(function (resp) {
+                    modalInstance.result.then(function () {
                         // OK button
                         $location.path('/student/doexam/' + $routeParams.hash);
                     }, function () {
