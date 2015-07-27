@@ -69,15 +69,12 @@ languages:
 grade-scales:
 
   - &zerotofive !!models.GradeScale
-    id: 1
     description: ZERO_TO_FIVE
 
   - &latin !!models.GradeScale
-    id: 2
     description: LATIN
 
   - &approvedrejected !!models.GradeScale
-    id: 3
     description: APPROVED_REJECTED
 
 

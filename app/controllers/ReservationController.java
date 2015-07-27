@@ -22,21 +22,28 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class AdminReservationController extends BaseController {
+public class ReservationController extends BaseController {
 
     @Inject
     protected EmailComposer emailComposer;
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getExams() {
-        List<Exam> exams = Ebean.find(Exam.class)
+        User user = getLoggedUser();
+        ExpressionList<Exam> el = Ebean.find(Exam.class)
                 .select("id, name")
                 .where()
                 .isNull("parent") // only Exam prototypes
                 .eq("state", Exam.State.PUBLISHED.toString())
-                .gt("examActiveEndDate", new Date())
-                .findList();
-        return ok(exams);
+                .gt("examActiveEndDate", new Date());
+        if (user.hasRole("TEACHER")) {
+            el = el.disjunction()
+                    .eq("creator", user)
+                    .eq("examOwners", user)
+                    .eq("shared", true)
+                    .endJunction();
+        }
+        return ok(el.findList());
     }
 
     @Restrict({@Group("ADMIN")})
@@ -46,7 +53,7 @@ public class AdminReservationController extends BaseController {
         return ok(examRooms);
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getStudents() {
 
         List<User> students = Ebean.find(User.class)
@@ -123,9 +130,9 @@ public class AdminReservationController extends BaseController {
         return ok("removed");
     }
 
-    @Restrict({@Group("ADMIN")})
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result getReservations(F.Option<String> state, F.Option<Long> ownerId, F.Option<Long> studentId, F.Option<Long> roomId, F.Option<Long> machineId,
-                                  F.Option<Long> examId, Long start, Long end) {
+                                  F.Option<Long> examId, F.Option<Long> start, F.Option<Long> end) {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state")
@@ -133,13 +140,31 @@ public class AdminReservationController extends BaseController {
                 .fetch("exam.parent", "id")
                 .fetch("exam.examInspections", "id")
                 .fetch("exam.examInspections.user", "id, firstName, lastName")
+                .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "id, name, ipAddress, otherIdentifier")
                 .fetch("reservation.machine.room", "id, name, roomCode")
                 .where();
-        DateTime startDate = new DateTime(start).withTimeAtStartOfDay();
-        query = query.ge("reservation.startAt", startDate.toDate());
-        DateTime endDate = new DateTime(end).plusDays(1).withTimeAtStartOfDay();
-        query = query.lt("reservation.endAt", endDate.toDate());
+
+        User user = getLoggedUser();
+        if (user.hasRole("TEACHER")) {
+            query = query.disjunction()
+                    .eq("exam.examOwners", user)
+                    .eq("exam.creator", user)
+                    .eq("exam.parent.creator", user)
+                    .endJunction();
+        }
+
+        if (start.isDefined()) {
+            DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
+            query = query.ge("reservation.startAt", startDate.toDate());
+        } else {
+            query = query.ge("reservation.startAt", new DateTime().withTimeAtStartOfDay());
+        }
+
+        if (end.isDefined()) {
+            DateTime endDate = new DateTime(end.get()).plusDays(1).withTimeAtStartOfDay();
+            query = query.lt("reservation.endAt", endDate.toDate());
+        }
 
         if (state.isDefined() && !state.get().equals("NO_SHOW")) {
             query = query.eq("exam.state", state.get());
@@ -165,12 +190,12 @@ public class AdminReservationController extends BaseController {
         }
 
         if (ownerId.isDefined()) {
-            User user = Ebean.find(User.class, ownerId.get());
+            User owner = Ebean.find(User.class, ownerId.get());
             Iterator<ExamEnrolment> it = enrolments.listIterator();
             while (it.hasNext()) {
                 ExamEnrolment ee = it.next();
                 Exam exam = ee.getExam().getParent() == null ? ee.getExam() : ee.getExam().getParent();
-                if (!exam.getExamOwners().contains(user)) {
+                if (!exam.getExamOwners().contains(owner)) {
                     it.remove();
                 }
             }

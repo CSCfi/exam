@@ -65,6 +65,10 @@
                 };
 
                 $scope.isUnfiltered = function (user) {
+                    // Do not show logged in user in results
+                    if (user.id === sessionService.getUser().id) {
+                        return false;
+                    }
                     var result = true;
                     $scope.roles.filter(
                         function (role) {

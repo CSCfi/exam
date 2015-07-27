@@ -52,19 +52,14 @@
             $routeProvider.when('/exams/review/:id', { templateUrl: tmpl + 'review/review.html', controller: 'ExamReviewController'});
             $routeProvider.when('/exams/reviews/:id', { templateUrl: tmpl + 'review/review_list.html', controller: 'ReviewListingController'});
             $routeProvider.when('/exams/preview/:id', { templateUrl: tmpl + 'exam/student/exam.html', controller: 'StudentExamController' });
+            $routeProvider.when('/reservations', { templateUrl: tmpl + 'reservation/teacher_reservations.html', controller: 'ReservationCtrl'});
 
             /* Admin */
             $routeProvider.when('/rooms', { templateUrl: tmpl + 'facility/rooms.html', controller: 'RoomCtrl'});
             $routeProvider.when('/rooms/:id', { templateUrl: tmpl + 'facility/room.html', controller: 'RoomCtrl'});
             $routeProvider.when('/reports', { templateUrl: tmpl + 'administrative/reports/reports.html', controller: 'ReportController'});
-            $routeProvider.when('/admin/reservations/', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
             $routeProvider.when('/settings', { templateUrl: tmpl + 'common/admin/settings.html'});
-            $routeProvider.when('/admin/reservations/list/student/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
-            $routeProvider.when('/admin/reservations/list/room/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
-            $routeProvider.when('/admin/reservations/list/exam/:id/:start/:end', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
-            $routeProvider.when('/admin/reservations/list/student:sid/room:rid/exam:eid', { templateUrl: tmpl + 'reservation/reservations.html', controller: 'AdminReservationController'});
             $routeProvider.when('/users', { templateUrl: tmpl + 'administrative/users.html', controller: 'UserCtrl'});
-
 
             /* Print */
             $routeProvider.when('/print/exam/:id', { templateUrl: tmpl + 'review/print/fullReview.html', controller: 'ExamReviewController'});

@@ -52,18 +52,19 @@ public class StudentExamController extends BaseController {
     @Restrict({@Group("STUDENT")})
     public Result getFinishedExams(Long uid) {
         User user = getLoggedUser();
-        List<Exam> exams = Ebean.find(Exam.class)
-                .select("id, state, name")
-                .fetch("creator", "id")
-                .fetch("course", "code")
-				.fetch("examParticipations", "ended")
-				.fetch("examInspectors", "firstName, lastName")
+        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+                .select("ended")
+                .fetch("exam", "id, state, name")
+                .fetch("exam.creator", "id")
+                .fetch("exam.course", "code")
+                .fetch("exam.examOwners", "firstName, lastName, id")
+				.fetch("exam.examInspectors", "firstName, lastName, id")
                 .where()
-                .ne("state", Exam.State.STUDENT_STARTED.toString())
-                .ne("state", Exam.State.ABORTED.toString())
-                .eq("creator", user)
+                .ne("exam.state", Exam.State.STUDENT_STARTED.toString())
+                .ne("exam.state", Exam.State.ABORTED.toString())
+                .eq("exam.creator", user)
                 .findList();
-        return ok(exams);
+        return ok(participations);
     }
 
     @Restrict({@Group("STUDENT")})

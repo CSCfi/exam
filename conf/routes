@@ -163,15 +163,12 @@ GET           /accessibility                                        controllers.
 
 GET           /draft/rooms                                          controllers.RoomController.createExamRoomDraft
 
-GET           /admin/students                                       controllers.AdminReservationController.getStudents
-GET           /admin/teachers                                       controllers.AdminReservationController.getTeachers
-GET           /admin/examrooms                                      controllers.AdminReservationController.getExamRooms
-GET           /admin/exams                                          controllers.AdminReservationController.getExams
-
-GET           /admin/reservations                                   controllers.AdminReservationController.getReservations(state: play.libs.F.Option[java.lang.String], ownerId: play.libs.F.Option[java.lang.Long], studentId: play.libs.F.Option[java.lang.Long], roomId: play.libs.F.Option[java.lang.Long], machineId: play.libs.F.Option[java.lang.Long], examId: play.libs.F.Option[java.lang.Long], start: Long, end: Long)
-DELETE        /admin/reservations/delete/:id                        controllers.AdminReservationController.removeReservation(id: Long)
-
-
+GET           /reservations/students                                controllers.ReservationController.getStudents
+GET           /reservations/teachers                                controllers.ReservationController.getTeachers
+GET           /reservations/examrooms                               controllers.ReservationController.getExamRooms
+GET           /reservations/exams                                   controllers.ReservationController.getExams
+GET           /reservations                                         controllers.ReservationController.getReservations(state: play.libs.F.Option[java.lang.String], ownerId: play.libs.F.Option[java.lang.Long], studentId: play.libs.F.Option[java.lang.Long], roomId: play.libs.F.Option[java.lang.Long], machineId: play.libs.F.Option[java.lang.Long], examId: play.libs.F.Option[java.lang.Long], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
+DELETE        /reservations/:id                                     controllers.ReservationController.removeReservation(id: Long)
 
 ############### ExamMachines interface ###############
 

@@ -4,6 +4,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
+import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -32,12 +33,25 @@ public class UserController extends BaseController {
         Query<User> query = Ebean.find(User.class).fetch("roles");
         List<User> results;
         if (filter.isDefined() && !filter.get().isEmpty()) {
-            String condition = String.format("%%%s%%", filter.get());
-            results = query.where()
-                    .disjunction()
-                    .ilike("firstName", condition)
-                    .ilike("lastName", condition)
-                    .ilike("email", condition)
+            String rawFilter = filter.get().replaceAll(" +", " ").trim();
+            String condition = String.format("%%%s%%", rawFilter);
+            ExpressionList<User> el = query.where().disjunction();
+            if (rawFilter.contains(" ")) {
+                // Possible that user provided us two names. Lets try out some combinations of first and last names
+                String name1 = rawFilter.split(" ")[0];
+                String name2 = rawFilter.split(" ")[1];
+                el = el.disjunction().conjunction()
+                        .ilike("firstName", String.format("%%%s%%", name1))
+                        .ilike("lastName", String.format("%%%s%%", name2))
+                        .endJunction().conjunction()
+                        .ilike("firstName", String.format("%%%s%%", name2))
+                        .ilike("lastName", String.format("%%%s%%", name1))
+                        .endJunction().endJunction();
+            } else {
+                el = el.ilike("firstName", condition)
+                        .ilike("lastName", condition);
+            }
+            results = el.ilike("email", condition)
                     .ilike("userIdentifier", condition)
                     .ilike("employeeNumber", condition)
                     .endJunction()

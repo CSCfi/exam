@@ -13,7 +13,7 @@
                         {{'sitnet_room' | translate}}<br/>{{'sitnet_exam_machine' | translate}}
                     </th>
                     <th>{{'sitnet_exam_state' | translate}}</th>
-                    <th>{{'sitnet_remove_reservation' | translate}}</th>
+                    <th ng-if="isAdminView()">{{'sitnet_remove_reservation' | translate}}</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -30,7 +30,7 @@
                     <td>{{enrolment.reservation.machine.room.name}}<br/>{{enrolment.reservation.machine.name}}</td>
                     <td>{{'sitnet_exam_status_' + printExamState(enrolment) | lowercase | translate}}</td>
 
-                    <td>
+                    <td ng-if="isAdminView()">
                         <button ng-disabled="enrolment.exam.state !== 'PUBLISHED'" ng-click="removeReservation(enrolment)"
                                 class="btn btn-primary pull-left">
                             {{'sitnet_remove_reservation' | translate}}
