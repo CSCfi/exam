@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CsvBuilder {
 
@@ -25,10 +26,7 @@ public class CsvBuilder {
                 .between("time_stamp", start, end)
                 .findList();
 
-        List<ExamScore> examScores = new ArrayList<>();
-        for (ExamRecord record : examRecords) {
-            examScores.add(record.getExamScore());
-        }
+        List<ExamScore> examScores = examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
         File file = File.createTempFile("csv-output", ".tmp");
         CSVWriter writer = new CSVWriter(new FileWriter(file));
         writer.writeNext(ExamScore.getHeaders());

@@ -5,10 +5,14 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import exceptions.MalformedDataException;
 import models.*;
+import models.questions.Answer;
 import models.questions.MultipleChoiseOption;
 import models.questions.Question;
+import org.apache.commons.compress.archivers.ArchiveOutputStream;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.utils.IOUtils;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
@@ -21,11 +25,14 @@ import util.java.EmailComposer;
 import util.java.ValidationUtil;
 
 import javax.inject.Inject;
-import java.io.IOException;
+import java.io.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
+
+import static util.java.AttachmentUtils.setData;
 
 
 public class ExamController extends BaseController {
@@ -1278,6 +1285,60 @@ public class ExamController extends BaseController {
 
         inspection.save();
         return ok(inspection);
+    }
+
+    private void createArchive(Exam prototype, ArchiveOutputStream aos) throws IOException {
+        List<Exam> children = prototype.getChildren().stream().filter(
+                (e) -> e.getState().equals(Exam.State.REVIEW.toString()) ||
+                        e.getState().equals(Exam.State.REVIEW_STARTED.toString())).collect(Collectors.toList());
+        for (Exam exam : children) {
+            String uid = exam.getCreator().getUserIdentifier() == null ?
+                    exam.getCreator().getId().toString() : exam.getCreator().getUserIdentifier();
+            for (ExamSection es : exam.getExamSections()) {
+                for (ExamSectionQuestion esq : es.getSectionQuestions()) {
+                    Long questionId = esq.getQuestion().getParent().getId();
+                    Answer answer = esq.getQuestion().getAnswer();
+                    if (answer != null) {
+                        Attachment attachment = answer.getAttachment();
+                        if (attachment != null) {
+                            File file = new File(String.format("%s/%s", attachment.getFilePath(), attachment.getFileName()));
+                            if (!file.exists()) {
+                                continue;
+                            }
+                            String entryName = String.format("%d/%d/%s/%s",
+                                    prototype.getId(), questionId, uid, file.getName());
+                            TarArchiveEntry entry = new TarArchiveEntry(entryName);
+                            entry.setSize(file.length());
+                            aos.putArchiveEntry(entry);
+                            IOUtils.copy(new FileInputStream(file), aos);
+                            aos.closeArchiveEntry();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public Result getArchivedAttachments(Long eid) throws IOException {
+        Exam prototype = Ebean.find(Exam.class, eid);
+        if (prototype == null) {
+            return notFound();
+        }
+        File tarball = File.createTempFile(eid.toString(), ".tar.gz");
+        try (ArchiveOutputStream aos = new TarArchiveOutputStream(
+                new GZIPOutputStream(
+                        new BufferedOutputStream(
+                                new FileOutputStream(tarball))))) {
+            createArchive(prototype, aos);
+            if (aos.getBytesWritten() == 0) {
+                return notFound("sitnet_no_attachments_to_archive");
+            }
+        } catch (IOException e) {
+            Logger.error("Failed in creating a tarball", e);
+        }
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + tarball.getName() + "\"");
+        return ok(com.ning.http.util.Base64.encode(setData(tarball).toByteArray()));
     }
 
 }

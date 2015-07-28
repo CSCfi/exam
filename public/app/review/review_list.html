@@ -7,21 +7,28 @@
 <div id="dashboard">
 
     <div class="main-row">
-        <div class="col-md-4">
+        <div class="col-md-8">
             <h4>{{ examInfo }}</h4>
         </div>
-        <div class="col-md-7">
+        <span class="col-md-4">
             <a class="header-top-link pull-right" ng-click="setShowAborted(true)" ng-if="!showAborted">
-                 <span class="pull-left fa-stack fa-lg header-top-icon">
+                 <span class="fa-stack fa-lg header-top-icon">
                     <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                     <i class="fa fa-ban fa-stack-1x sitnet-white"></i>
                 </span>
                 {{'sitnet_aborted_exams' | translate}} ({{abortedExams.length}})
             </a>
-            <a class="header-top-link row pull-right" ng-if="showAborted" ng-click="setShowAborted(false)">
+            <a class="header-top-link pull-right" ng-if="showAborted" ng-click="setShowAborted(false)">
                 <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
             </a>
-        </div>
+            <a target="_self" class="header-top-link pull-right" ng-click="getAnswerAttachments()" ng-if="examReviews.length > 0 && !showAborted">
+                 <span class="fa-stack fa-lg header-top-icon">
+                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                    <i class="fa fa-file-archive-o fa-stack-1x sitnet-white"></i>
+                </span>
+                {{'sitnet_get_answer_attachments' | translate }}
+            </a>
+        </span>
     </div>
 
     <div class="detail-row" ng-if="showAborted">

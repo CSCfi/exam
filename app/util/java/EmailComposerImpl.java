@@ -132,9 +132,7 @@ public class EmailComposerImpl implements EmailComposer {
         }
 
         StringBuilder rowBuilder = new StringBuilder();
-        for (String row : inspectionRows) {
-            rowBuilder.append(row);
-        }
+        inspectionRows.stream().forEach(rowBuilder::append);
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("enrolments_title", Messages.get(lang, "email.template.weekly.report.enrolments"));

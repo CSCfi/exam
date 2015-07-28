@@ -297,7 +297,8 @@ public class ExamRoom extends GeneratedIdentityModel {
             DateTime start = midnight.withMillisOfDay((int) dwh.getStartTime().getTime());
             DateTime end = midnight.withMillisOfDay((int) dwh.getEndTime().getTime());
             Interval interval = new Interval(start.plusMillis(dwh.getTimezoneOffset()), end.plusMillis(dwh.getTimezoneOffset()));
-            hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));});
+            hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
+        });
         return hours;
     }
 
@@ -322,9 +323,8 @@ public class ExamRoom extends GeneratedIdentityModel {
                 tzOffset = workingHours.get(0).timezoneOffset;
             }
             workingHours.clear();
-            for (Interval interval : unifiedIntervals) {
-                workingHours.add(new OpeningHours(interval, tzOffset));
-            }
+            workingHours.addAll(unifiedIntervals.stream().map(
+                    interval -> new OpeningHours(interval, tzOffset)).collect(Collectors.toList()));
         }
         if (!restrictionEvents.isEmpty()) {
             for (OpeningHours hours : workingHours) {

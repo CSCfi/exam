@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DateTimeUtils {
 
@@ -58,13 +59,7 @@ public class DateTimeUtils {
     }
 
     public static List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
-        List<Interval> subExistingList = new ArrayList<>();
-        for (Interval interval : reserved) {
-            if (interval.overlaps(searchInterval)) {
-                subExistingList.add(interval);
-            }
-        }
-        return subExistingList;
+        return reserved.stream().filter(interval -> interval.overlaps(searchInterval)).collect(Collectors.toList());
     }
 
     public static boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
