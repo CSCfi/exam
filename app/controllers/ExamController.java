@@ -26,6 +26,9 @@ import util.java.ValidationUtil;
 
 import javax.inject.Inject;
 import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -1287,10 +1290,17 @@ public class ExamController extends BaseController {
         return ok(inspection);
     }
 
-    private void createArchive(Exam prototype, ArchiveOutputStream aos) throws IOException {
+    private static boolean isEligibleForArchiving(Exam exam, Date start, Date end) {
+        return (exam.getState().equals(Exam.State.ABORTED.toString())
+                || exam.getState().equals(Exam.State.REVIEW.toString())
+                || exam.getState().equals(Exam.State.REVIEW_STARTED.toString()))
+                && !(start != null && exam.getCreated().before(start))
+                && !(end != null && exam.getCreated().after(end));
+    }
+
+    private void createArchive(Exam prototype, ArchiveOutputStream aos, Date start, Date end) throws IOException {
         List<Exam> children = prototype.getChildren().stream().filter(
-                (e) -> e.getState().equals(Exam.State.REVIEW.toString()) ||
-                        e.getState().equals(Exam.State.REVIEW_STARTED.toString())).collect(Collectors.toList());
+                (e) -> isEligibleForArchiving(e, start, end)).collect(Collectors.toList());
         for (Exam exam : children) {
             String uid = exam.getCreator().getUserIdentifier() == null ?
                     exam.getCreator().getId().toString() : exam.getCreator().getUserIdentifier();
@@ -1298,39 +1308,59 @@ public class ExamController extends BaseController {
                 for (ExamSectionQuestion esq : es.getSectionQuestions()) {
                     Long questionId = esq.getQuestion().getParent().getId();
                     Answer answer = esq.getQuestion().getAnswer();
-                    if (answer != null) {
-                        Attachment attachment = answer.getAttachment();
-                        if (attachment != null) {
-                            File file = new File(String.format("%s/%s", attachment.getFilePath(), attachment.getFileName()));
-                            if (!file.exists()) {
-                                continue;
-                            }
-                            String entryName = String.format("%d/%d/%s/%s",
-                                    prototype.getId(), questionId, uid, file.getName());
+                    Attachment attachment;
+                    File file = null;
+                    if (answer != null && (attachment = answer.getAttachment()) != null) {
+                        // attached answer
+                        String fileName = attachment.getFileName();
+                        file = new File(String.format("%s/%s", attachment.getFilePath(), fileName));
+                        if (file.exists()) {
+                            String entryName = String.format("%d/%d/%s/%s", prototype.getId(), questionId, uid, fileName);
                             TarArchiveEntry entry = new TarArchiveEntry(entryName);
                             entry.setSize(file.length());
                             aos.putArchiveEntry(entry);
                             IOUtils.copy(new FileInputStream(file), aos);
-                            aos.closeArchiveEntry();
+                        } else {
+                            Logger.warn("Attachment {} is not connected to a file on disk!", attachment.getId());
                         }
                     }
+                    if (file == null || !file.exists()) {
+                        // no attached answer, create empty directory
+                        String entryName = String.format("%d/%d/%s/", prototype.getId(), questionId, uid);
+                        TarArchiveEntry entry = new TarArchiveEntry(entryName);
+                        aos.putArchiveEntry(entry);
+                    }
+                    aos.closeArchiveEntry();
                 }
             }
         }
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
-    public Result getArchivedAttachments(Long eid) throws IOException {
+    public Result getArchivedAttachments(Long eid, F.Option<String> start, F.Option<String> end) throws IOException {
         Exam prototype = Ebean.find(Exam.class, eid);
         if (prototype == null) {
             return notFound();
+        }
+        Date startDate = null;
+        Date endDate = null;
+        try {
+            DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+            if (start.isDefined() && !start.isEmpty()) {
+                startDate = df.parse(start.get());
+            }
+            if (end.isDefined() && !end.isEmpty()) {
+                endDate = df.parse(end.get());
+            }
+        } catch (ParseException e) {
+            return badRequest();
         }
         File tarball = File.createTempFile(eid.toString(), ".tar.gz");
         try (ArchiveOutputStream aos = new TarArchiveOutputStream(
                 new GZIPOutputStream(
                         new BufferedOutputStream(
                                 new FileOutputStream(tarball))))) {
-            createArchive(prototype, aos);
+            createArchive(prototype, aos, startDate, endDate);
             if (aos.getBytesWritten() == 0) {
                 return notFound("sitnet_no_attachments_to_archive");
             }

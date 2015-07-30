@@ -1,8 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ReviewListingController', ['$filter', 'dialogs', '$scope', '$q', '$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'fileService',
-            function ($filter, dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService, examService, fileService) {
+        .controller('ReviewListingController', ['$filter', 'dialogs', '$scope', '$q', '$route', '$routeParams',
+            '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'fileService', '$modal', 'EXAM_CONF',
+            function ($filter, dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService,
+                      examService, fileService, $modal, EXAM_CONF) {
 
                 $scope.reviewPredicate = 'examReview.deadline';
                 $scope.abortedPredicate = 'examReview.user.lastName';
@@ -286,8 +288,43 @@
                 };
 
                 $scope.getAnswerAttachments = function () {
-                    fileService.download('/exam/' + $routeParams.id + '/attachments', $routeParams.id + '.tar.gz');
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/archive_download.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: function ($scope, $modalInstance) {
+                            $scope.params = {};
+                            $scope.ok = function () {
+                                var start, end;
+                                if ($scope.params.startDate) {
+                                    start = moment($scope.params.startDate).format('DD.MM.YYYY');
+                                }
+                                if ($scope.params.endDate) {
+                                    end = moment($scope.params.endDate).format('DD.MM.YYYY');
+                                }
+                                if (start && end && end <= start) {
+                                    toastr.error($translate.instant('sitnet_endtime_before_starttime'))
+                                } else {
+                                    $modalInstance.close({
+                                        "start": start,
+                                        "end": end
+                                    });
+                                }
+                            };
+
+                            $scope.cancel = function () {
+                                $modalInstance.dismiss('cancel');
+                            };
+                        }
+                    });
+
+                    modalInstance.result.then(function (params) {
+                        fileService.download(
+                            '/exam/' + $routeParams.id + '/attachments', $routeParams.id + '.tar.gz', params);
+                    })
                 };
+
 
             }]);
 }());
