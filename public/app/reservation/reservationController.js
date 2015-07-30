@@ -2,14 +2,14 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ReservationCtrl', ['ExamRes', '$scope', '$location', '$http', 'EXAM_CONF',
-            'ReservationResource', 'dateService', 'examService',
-            function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, dateService, examService) {
+            'ReservationResource', 'dateService', 'examService', '$timeout', '$routeParams',
+            function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, dateService, examService, $timeout, $routeParams) {
 
                 $scope.dateService = dateService;
 
                 $scope.reservationDetails = EXAM_CONF.TEMPLATES_PATH + "reservation/reservation_details.html";
 
-                $scope.selection = {};
+                $scope.selection = {examId: $routeParams.eid};
 
                 $scope.isAdminView = function () {
                     return $location.path() === '/';
@@ -35,6 +35,15 @@
                     }
                 );
 
+                ReservationResource.exams.query(
+                    function (exams) {
+                        $scope.examnames = exams;
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                    }
+                );
+
                 if ($scope.isAdminView()) {
                     ReservationResource.teachers.query(function (teachers) {
                             $scope.examOwners = teachers;
@@ -47,15 +56,6 @@
                     ReservationResource.examrooms.query(
                         function (examrooms) {
                             $scope.examrooms = examrooms;
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
-
-                    ReservationResource.exams.query(
-                        function (exams) {
-                            $scope.examnames = exams;
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -93,17 +93,22 @@
                 };
 
                 function initQuery() {
-
-                    if ($scope.dateService.startDate && $scope.dateService.endDate) {
+                    // Teacher not required to specify time ranges
+                    if (!$scope.isAdminView() || ($scope.dateService.startDate && $scope.dateService.endDate)) {
                         var params = $scope.selection;
                         // have to clear empty strings completely
                         for (var k in params) {
                             if (params.hasOwnProperty(k) && params[k] === '') {
-                                params[k] = undefined;
+                                delete params[k];
                             }
                         }
-                        params.start = Date.parse($scope.dateService.startDate);
-                        params.end = Date.parse($scope.dateService.endDate);
+
+                        if ($scope.dateService.startDate) {
+                            params.start = Date.parse($scope.dateService.startDate);
+                        }
+                        if ($scope.dateService.endDate) {
+                            params.end = Date.parse($scope.dateService.endDate);
+                        }
 
                         ReservationResource.reservations.query(params,
                             function (enrolments) {
@@ -117,7 +122,7 @@
                     }
                 }
 
-                initQuery();
+                $timeout(initQuery, 500);
 
                 $scope.query = function () {
                     initQuery();

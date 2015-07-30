@@ -198,7 +198,11 @@
                                 });
                             });
                     }
-                }
+                };
+
+                $scope.showReservations = function (examId) {
+                    $location.path('/reservations').search({eid: examId});
+                };
 
             }]);
 }());

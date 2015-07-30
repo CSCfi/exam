@@ -14,7 +14,7 @@
                        close-text="{{'sitnet_close' | translate}}"
                        current-text="{{'sitnet_today' | translate}}"
                        toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                       clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()">
+                       clear-text="{{'sitnet_clear' | translate}}" ng-change="query()">
 
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
@@ -30,8 +30,7 @@
                        close-text="{{'sitnet_close' | translate}}"
                        current-text="{{'sitnet_today' | translate}}"
                        toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                       clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()"
-                       ng-init="modifyDay('end', 1)">
+                       clear-text="{{'sitnet_clear' | translate}}" ng-change="query()" ng-init="dateService.endDate=undefined">
 
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openEndDate($event)">
