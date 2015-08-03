@@ -72,9 +72,8 @@
                     <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">
                         {{review.user.email}}</a></td>
                     <td class="table-column-25">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                        translate}}.{{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date:
-                        'HH:mm'}}
-                        ({{review.started | diffInMinutesTo:review.ended }}min)
+                        translate}} {{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                        ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                     </td>
                     <td class="table-column-25" class="sitnet-text-aborted">
                         {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
@@ -138,8 +137,8 @@
                         <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                         </td>
                         <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                            translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
-                            ({{review.started | diffInMinutesTo:review.ended }}min)
+                            translate}} {{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                            ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                         </td>
                         <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                                 ng-bind-html="review.deadline | diffInDaysToNow"></span>)
@@ -234,8 +233,8 @@
                         <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                         </td>
                         <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                            translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
-                            ({{review.started | diffInMinutesTo:review.ended }}min)
+                            translate}} {{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                            ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                         </td>
                         <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
                                 ng-bind-html="review.deadline | diffInDaysToNow"></span>)
@@ -325,8 +324,8 @@
                         <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                         </td>
                         <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                            translate}}.{{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
-                            ({{review.started | diffInMinutesTo:review.ended }}min)
+                            translate}} {{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                            ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                         </td>
                         <td class="table-column-25">{{translateGrade(review.exam)}}</td>
                         <td class="table-column-10">

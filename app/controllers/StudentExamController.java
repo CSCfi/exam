@@ -326,7 +326,6 @@ public class StudentExamController extends BaseController {
             Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
             p.setDeadline(deadline);
             p.save();
-
             exam.setState("REVIEW");
             exam.update();
 
@@ -349,16 +348,9 @@ public class StudentExamController extends BaseController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(AppUtil.adjustDST(DateTime.now()).toDate());
+            p.setEnded(DateTime.now().toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
-
-            GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
-
-            p.setDeadline(new Date(p.getEnded().getTime() + settings.getReviewDeadline()));
-
             p.save();
-
-
             exam.setState("ABORTED");
             exam.update();
 
