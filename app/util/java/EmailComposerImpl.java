@@ -335,7 +335,10 @@ public class EmailComposerImpl implements EmailComposer {
                 .fetch("examEnrolments")
                 .fetch("examEnrolments.reservation")
                 .where()
-                .eq("creator.id", teacher.getId())
+                .disjunction()
+                .eq("examOwners", teacher)
+                .eq("examInspections.user", teacher)
+                .endJunction()
                 .eq("state", Exam.State.PUBLISHED.toString())
                 .gt("examActiveEndDate", new Date())
                 .findList();
@@ -364,17 +367,14 @@ public class EmailComposerImpl implements EmailComposer {
     }
 
 
-    // return exams in review state where teacher is either creator or inspector
+    // return exams in review state where teacher is either owner or inspector
     private static List<ExamParticipation> getReviews(User teacher) {
         return Ebean.find(ExamParticipation.class)
                 .fetch("exam.course")
                 .where()
                 .disjunction()
-                .eq("exam.parent.creator.id", teacher.getId())
-                .conjunction()
-                .eq("exam.parent.examInspections.user.id", teacher.getId())
-                .isNotNull("exam.parent.examInspections.assignedBy")
-                .endJunction()
+                .eq("exam.parent.examOwners", teacher)
+                .eq("exam.parent.examInspections.user", teacher)
                 .endJunction()
                 .disjunction()
                 .eq("exam.state", Exam.State.REVIEW.toString())
