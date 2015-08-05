@@ -650,5 +650,6 @@
   "sitnet_copy_question": "Kopioidaanko kysymys? SV",
   "sitnet_question_copied": "Kysymys kopioitu SV",
   "sitnet_get_answer_attachments": "Hae tenttivastausten liitetiedostot SV",
-  "sitnet_no_attachments_to_archive": "Arkistointikelpoisia liitetiedostoja ei löytynyt vastauksista SV"
+  "sitnet_no_attachments_to_archive": "Arkistointikelpoisia liitetiedostoja ei löytynyt vastauksista SV",
+  "sitnet_no_name": "EI NIMEÄ SV"
 }

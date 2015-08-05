@@ -650,5 +650,6 @@
   "sitnet_copy_question": "Kopioidaanko kysymys? EN",
   "sitnet_question_copied": "Kysymys kopioitu EN",
   "sitnet_get_answer_attachments": "Hae tenttivastausten liitetiedostot EN",
-  "sitnet_no_attachments_to_archive": "Arkistointikelpoisia liitetiedostoja ei löytynyt vastauksista EN"
+  "sitnet_no_attachments_to_archive": "Arkistointikelpoisia liitetiedostoja ei löytynyt vastauksista EN",
+  "sitnet_no_name": "EI NIMEÄ EN"
 }
