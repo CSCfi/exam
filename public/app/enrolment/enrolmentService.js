@@ -1,7 +1,8 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .factory('enrolmentService', ['$translate', '$q', '$location', 'EnrollRes', function ($translate, $q, $location, EnrollRes) {
+        .factory('enrolmentService', ['$translate', '$q', '$location', '$modal', 'EnrollRes', 'EXAM_CONF', function (
+            $translate, $q, $location, $modal, EnrollRes, EXAM_CONF) {
 
             var enroll = function(exam) {
                 var deferred = $q.defer();
@@ -18,8 +19,34 @@
                 return deferred.promise;
             };
 
+            var showInstructions = function(enrolment) {
+                    var modalController = function ($scope, $modalInstance, instructions) {
+                        $scope.instructions = instructions;
+                        $scope.ok = function () {
+                            $modalInstance.close("Accepted");
+                        };
+                    };
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/show_reservation_instructions.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController,
+                        resolve: {
+                            instructions: function () {
+                                return enrolment.exam.enrollInstruction;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        console.log("closed");
+                    });
+                };
+
             return {
-                enroll: enroll
+                enroll: enroll,
+                showInstructions: showInstructions
             };
 
         }]);

@@ -3,8 +3,9 @@
     angular.module("exam.controllers")
         .controller('DashboardCtrl', ['dialogs', '$scope', '$http', '$translate', '$location', '$modal', 'EXAM_CONF',
             'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService', 'EnrollRes',
-            function (dialogs, $scope, $http, $translate, $location, $modal, EXAM_CONF,
-                      sessionService, ExamRes, examService, questionService, StudentExamRes, dateService, EnrollRes) {
+            'enrolmentService',
+            function (dialogs, $scope, $http, $translate, $location, $modal, EXAM_CONF, sessionService, ExamRes,
+                      examService, questionService, StudentExamRes, dateService, EnrollRes, enrolmentService) {
 
                 $scope.templates = {
                     dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html",
@@ -84,28 +85,7 @@
                 };
 
                 $scope.showInstructions = function (enrolment) {
-                    var modalController = function ($scope, $modalInstance, instructions) {
-                        $scope.instructions = instructions;
-                        $scope.ok = function () {
-                            $modalInstance.close("Accepted");
-                        };
-                    };
-
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/show_reservation_instructions.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: modalController,
-                        resolve: {
-                            instructions: function () {
-                                return enrolment.exam.enrollInstruction;
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function () {
-                        console.log("closed");
-                    });
+                    enrolmentService.showInstructions(enrolment);
                 };
 
                 $scope.addEnrolmentInformation = function (enrolment) {
