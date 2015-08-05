@@ -4,8 +4,6 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-
-import exceptions.MalformedDataException;
 import models.Attachment;
 import models.Exam;
 import models.questions.Answer;
@@ -51,9 +49,14 @@ public class AttachmentController extends BaseController {
                 .idEq(qid)
                 .findUnique();
 
-        // TODO: is this really necessary?
         if (question.getAnswer() == null) {
-            question.setAnswer(new Answer());
+            Answer answer = new Answer();
+            if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                answer.setType(Answer.Type.EssayAnswer.toString());
+            } else {
+                answer.setType(Answer.Type.MultipleChoiseAnswer.toString());
+            }
+            question.setAnswer(answer);
             question.save();
         }
 
