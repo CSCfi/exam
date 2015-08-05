@@ -11,6 +11,8 @@ import javax.persistence.OneToOne;
 @Entity
 public class Answer extends OwnedModel {
 
+    public enum Type { MultipleChoiseAnswer, EssayAnswer }
+
     protected String type;
 
     public String getType() {

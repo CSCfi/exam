@@ -365,6 +365,7 @@ public class StudentExamController extends BaseController {
 
         Question question = Ebean.find(Question.class, questionId);
         Answer answer = new Answer();
+        answer.setType(Answer.Type.MultipleChoiseAnswer.toString());
         MultipleChoiseOption option = new MultipleChoiseOption();
 
         option.setQuestion(question);
@@ -390,6 +391,7 @@ public class StudentExamController extends BaseController {
 
         if (previousAnswer == null) {
             previousAnswer = new Answer();
+            previousAnswer.setType(Answer.Type.EssayAnswer.toString());
         }
 
         previousAnswer.setAnswer(answer);
@@ -424,6 +426,7 @@ public class StudentExamController extends BaseController {
 
             if (question.getAnswer() == null) {
                 Answer answer = new Answer();
+                answer.setType(Answer.Type.MultipleChoiseAnswer.toString());
                 answer.setOption(answeredOption);
                 question.setAnswer(answer);
                 answer.save();
