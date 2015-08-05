@@ -177,7 +177,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
 
     private Action handleUpcomingEnrolment(ExamEnrolment enrolment, Http.Request request) {
         Map<String, String> headers = new HashMap<>();
-        if (!machineOk(enrolment, request, headers)) {
+        if (!Play.isDev() && !machineOk(enrolment, request, headers)) {
             return new AddHeader(doCreateAction(), headers);
         }
         String hash = enrolment.getExam().getHash();

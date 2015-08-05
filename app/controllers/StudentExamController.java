@@ -100,6 +100,7 @@ public class StudentExamController extends BaseController {
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examOwners", "firstName, lastName")
                 .fetch("user", "id")
+                .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "name")
                 .fetch("reservation.machine.room", "name, roomCode")
                 .where()
