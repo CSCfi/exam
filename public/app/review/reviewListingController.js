@@ -303,7 +303,7 @@
                                 if ($scope.params.endDate) {
                                     end = moment($scope.params.endDate).format('DD.MM.YYYY');
                                 }
-                                if (start && end && end <= start) {
+                                if (start && end && end < start) {
                                     toastr.error($translate.instant('sitnet_endtime_before_starttime'))
                                 } else {
                                     $modalInstance.close({

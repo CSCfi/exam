@@ -1347,10 +1347,10 @@ public class ExamController extends BaseController {
         try {
             DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
             if (start.isDefined() && !start.isEmpty()) {
-                startDate = df.parse(start.get());
+                startDate = new DateTime(df.parse(start.get())).withTimeAtStartOfDay().toDate();
             }
             if (end.isDefined() && !end.isEmpty()) {
-                endDate = df.parse(end.get());
+                endDate = new DateTime(df.parse(end.get())).withTimeAtStartOfDay().plusDays(1).toDate();
             }
         } catch (ParseException e) {
             return badRequest();
