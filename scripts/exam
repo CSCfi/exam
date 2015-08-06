@@ -34,7 +34,7 @@ LOG_DIR=/var/log/${prog}
 PID_FILE="${PID_DIR}/${prog}.pid"
 LOCK_FILE=/var/lock/subsys/${prog}
 APP_SECRET="mysecret"
-APP_OPTS="-Dapplication.secret=${APP_SECRET} -DapplyEvolutions.default=true -Dpidfile.path=${PID_FILE}"
+APP_OPTS="-Dplay.crypto.secret=\"${APP_SECRET}\" -Dplay.evolutions.db.default.autoApply=true -Dpidfile.path=${PID_FILE}"
 
 [ -e /etc/sysconfig/${prog} ] && . /etc/sysconfig/${prog}
 
