@@ -8,7 +8,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.*;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -39,7 +39,7 @@ public class User extends GeneratedIdentityModel implements Subject {
     private List<Exam> ownedExams;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Role> roles = new ArrayList<>();
+    private List<Role> roles;
 
     @OneToOne
     private UserLanguage userLanguage;
@@ -49,19 +49,20 @@ public class User extends GeneratedIdentityModel implements Subject {
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
-    private List<ExamEnrolment> enrolments = new ArrayList<>();
+    private List<ExamEnrolment> enrolments;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     @JsonManagedReference
-    private List<ExamParticipation> participations = new ArrayList<>();
+    private List<ExamParticipation> participations;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     @JsonManagedReference
-    private List<ExamInspection> inspections = new ArrayList<>();
+    private List<ExamInspection> inspections;
 
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean hasAcceptedUserAgreament;
 
+    private Date lastLogin;
 
     public boolean isHasAcceptedUserAgreament() {
         return hasAcceptedUserAgreament;
@@ -200,6 +201,14 @@ public class User extends GeneratedIdentityModel implements Subject {
 
     public void setOwnedExams(List<Exam> ownedExams) {
         this.ownedExams = ownedExams;
+    }
+
+    public Date getLastLogin() {
+        return lastLogin;
+    }
+
+    public void setLastLogin(Date lastLogin) {
+        this.lastLogin = lastLogin;
     }
 
     public boolean hasRole(String name) {

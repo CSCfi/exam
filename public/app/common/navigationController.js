@@ -48,6 +48,12 @@
                             name: "sitnet_exams"
                         },
                         {
+                            href: "#/reservations",
+                            visible: (teacher),
+                            class: "fa-clock-o",
+                            name: "sitnet_reservations"
+                        },
+                        {
                             href: "#/rooms",
                             visible: (admin),
                             class: "fa-building-o",
@@ -64,6 +70,12 @@
                             visible: (admin),
                             class: "fa-wrench",
                             name: "sitnet_settings"
+                        },
+                        {
+                            href: "#/users",
+                            visible: (admin),
+                            class: "fa-users",
+                            name: "sitnet_users"
                         },
                         {
                             href: "#/student/exams",

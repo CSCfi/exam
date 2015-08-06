@@ -3,7 +3,7 @@
     angular.module('exam.services')
         .factory('examService', ['$translate', '$q', '$location', 'ExamRes', function ($translate, $q, $location, ExamRes) {
 
-            var createExam = function() {
+            var createExam = function () {
                 ExamRes.draft.get(
                     function (response) {
                         toastr.info($translate.instant("sitnet_exam_added"));
@@ -13,7 +13,7 @@
                     });
             };
 
-            var getExamTypeDisplayName = function(type) {
+            var getExamTypeDisplayName = function (type) {
                 var name;
                 switch (type) {
                     case 'PARTIAL':
@@ -28,7 +28,7 @@
                 return name;
             };
 
-            var getExamGradeDisplayName = function(grade) {
+            var getExamGradeDisplayName = function (grade) {
                 var name;
                 switch (grade) {
                     case 'I':
@@ -79,7 +79,7 @@
                 return deferred.promise;
             };
 
-            var getScaleDisplayName = function(type) {
+            var getScaleDisplayName = function (type) {
                 var name;
                 var description = type.description || type;
                 switch (description) {
@@ -109,41 +109,44 @@
                 return deferred.promise;
             };
 
-            var setExamOwners = function (exam) {
-                exam.examTeachers = [];
-                exam.teachersStr = "";
-                angular.forEach(exam.examOwners, function(owner){
-                    if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
-                        exam.examTeachers.push(owner.firstName + " " + owner.lastName);
-                    }
+            var unique = function (array, key) {
+                var seen = {};
+                return array.filter(function (item) {
+                    var k = key(item);
+                    return seen.hasOwnProperty(k) ? false : (seen[k] = true);
                 });
-                exam.teachersStr = exam.examTeachers.map(function(teacher) {
-                    return teacher;
+            };
+
+            var setExamOwners = function (exam) {
+                exam.teachersStr = unique(exam.examOwners, JSON.stringify).map(function (owner) {
+                    return owner.firstName + " " + owner.lastName;
                 }).join(", ");
             };
 
-            var setExamOwnersAndInspectors = function (exam) {
-                exam.examTeachers = [];
-                exam.teachersStr = "";
-
-                angular.forEach(exam.examInspections, function (inspection) {
-                    if(exam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
-                        exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
+            var setExamOwnersAndInspectors = function (exam, highlightOwners) {
+                exam.examOwners = exam.examOwners || (exam.parent ? exam.parent.examOwners : []) || [];
+                exam.examInspections = exam.examInspections || [];
+                if (highlightOwners) {
+                    exam.examOwners.forEach(function (owner) {
+                        owner.isOwner = true;
+                    });
+                }
+                exam.teachersStr = unique(exam.examOwners.concat(exam.examInspections.map(
+                    function (ei) {
+                        return ei.user
+                    })), function (person) {
+                    return person.id
+                }).map(function (person) {
+                    var name = person.firstName + " " + person.lastName;
+                    if (person.isOwner) {
+                        return '<b>' + name + '</b>';
                     }
-                });
-                var examToCheck = exam.parent || exam;
-                angular.forEach(examToCheck.examOwners, function(owner){
-                    if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
-                        exam.examTeachers.push(owner.firstName + " " + owner.lastName);
-                    }
-                });
-                exam.teachersStr = exam.examTeachers.map(function(teacher) {
-                    return teacher;
+                    return name;
                 }).join(", ");
             };
 
             var setCredit = function (exam) {
-                if(exam.customCredit !== undefined && exam.customCredit) {
+                if (exam.customCredit !== undefined && exam.customCredit) {
                     exam.credit = exam.customCredit;
                 } else {
                     exam.course && exam.course.credits ? exam.credit = exam.course.credits : exam.credit = 0;
@@ -177,11 +180,18 @@
                 }
             };
 
-            var stripHtml = function(text) {
-                if(text && text.indexOf("math-tex") === -1) {
+            var stripHtml = function (text) {
+                if (text && text.indexOf("math-tex") === -1) {
                     return String(text).replace(/<[^>]+>/gm, '');
                 }
                 return text;
+            };
+
+            // Defining markup outside templates is not advisable, but creating a working custom dialog template for this
+            // proved to be a bit too much of a hassle. Lets live with this.
+            var getRecordReviewConfirmationDialogContent = function (feedback) {
+                return '<h4>' + $translate.instant('sitnet_teachers_comment') + '</h4>'
+                    + feedback + '<br/><strong>' + $translate.instant('sitnet_confirm_record_review') + '</strong>';
             };
 
             return {
@@ -195,7 +205,8 @@
                 setExamOwnersAndInspectors: setExamOwnersAndInspectors,
                 setCredit: setCredit,
                 setQuestionColors: setQuestionColors,
-                stripHtml: stripHtml
+                stripHtml: stripHtml,
+                getRecordReviewConfirmationDialogContent: getRecordReviewConfirmationDialogContent
             };
 
         }]);

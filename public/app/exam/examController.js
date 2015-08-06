@@ -215,12 +215,6 @@
                         });
                 };
 
-                $scope.newSection = {
-                    expanded: true,
-                    name: $translate.instant("sitnet_exam_section_default_name"),
-                    questions: []
-                };
-
                 $scope.examOwners = [];
 
                 function getExamOwners() {
@@ -271,11 +265,12 @@
                 };
 
                 $scope.addNewSection = function () {
+                    var newSection = {
+                        expanded: true,
+                        questions: []
+                    };
 
-                    var index = $scope.newExam.examSections.length + 1;
-                    $scope.newSection.name = $translate.instant("sitnet_exam_section_default_name") + " " + index;
-
-                    ExamRes.sections.insert({eid: $scope.newExam.id}, $scope.newSection, function (section) {
+                    ExamRes.sections.insert({eid: $scope.newExam.id}, newSection, function (section) {
                         toastr.success($translate.instant('sitnet_section_added'));
                         $scope.newExam.examSections.push(section);
                         $scope.reindexNumbering();
@@ -632,6 +627,13 @@
 
                     if (!exam.examType) {
                         errors.examType = $translate.instant('sitnet_exam_credit_type_missing');
+                    }
+
+                    var allSectionsNamed = exam.examSections.every(function(section) {
+                        return section.name;
+                    });
+                    if (!allSectionsNamed) {
+                        errors.sectionNames = $translate.instant('sitnet_exam_contains_unnamed_sections');
                     }
 
                     return errors;

@@ -19,7 +19,7 @@ public class MultipleChoiseOption extends GeneratedIdentityModel implements Comp
 
     @ManyToOne
     @JsonBackReference
-    private MultipleChoiceQuestion question;
+    private Question question;
 
     public String getOption() {
         return option;
@@ -68,11 +68,11 @@ public class MultipleChoiseOption extends GeneratedIdentityModel implements Comp
         this.score = score;
     }
 
-    public MultipleChoiceQuestion getQuestion() {
+    public Question getQuestion() {
         return question;
     }
 
-    public void setQuestion(MultipleChoiceQuestion question) {
+    public void setQuestion(Question question) {
         this.question = question;
     }
 

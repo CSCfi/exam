@@ -95,12 +95,15 @@
                             </div>
                             <div class="col-md-9">
                                 <span>
-                                    <a ng-if="enrolment.reservation" class="text-info" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation'
+                                    <a ng-if="enrolment.reservation" class="text-info"
+                                       href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_change_reservation'
                                         | translate}}</a>
                                     <span ng-if="enrolment.reservation">&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;</span>
                                     <a ng-if="enrolment.reservation" class="text-danger pointer"
-                                       ng-click="removeReservation(enrolment)">{{'sitnet_remove_reservation' | translate}}</a>
-                                    <a ng-if="!enrolment.reservation" class="text-info" href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation'
+                                       ng-click="removeReservation(enrolment)">{{'sitnet_remove_reservation' |
+                                        translate}}</a>
+                                    <a ng-if="!enrolment.reservation" class="text-info"
+                                       href="#/calendar/{{enrolment.exam.id}}">{{'sitnet_new_reservation'
                                         | translate}}</a>
                                 </span>
                             </div>
@@ -112,7 +115,8 @@
                                 {{ 'sitnet_instructions' | translate }}:
                             </div>
                             <div class="col-md-9" ng-show="enrolment.exam.enrollInstruction">
-                                <a class="text-info pointer" ng-click="showInstructions(enrolment)">{{ 'sitnet_view' | translate}}</a>
+                                <a class="text-info pointer" ng-click="showInstructions(enrolment)">{{ 'sitnet_view' |
+                                    translate}}</a>
                             </div>
                         </div>
                     </div>
@@ -167,25 +171,22 @@
         </div>
     </div>
 
-    <!-- Div structure is same, as in exams list. This ensures that they are aligned similarly -->
-    <div class="detail-row">
-        <div class="bottom-row list-item">
-            <div class="info-column col-md-12" ng-show="true">
-                <paginator items="studentFinishedExams" page-size="pageSize" current-page="currentPage"/>
-            </div>
-        </div>
-    </div>
-
     <!-- List of finished exams -->
     <div class="detail-row">
-        <div class="bottom-row list-item" ng-repeat="finishedExam in studentFinishedExams | orderBy: '-examParticipations[0].ended' | offset: currentPage*pageSize | limitTo: pageSize">
+        <div class="bottom-row"
+             ng-repeat="participation in participations | orderBy: '-ended' | offset: currentPage*pageSize | limitTo: pageSize">
             <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_exam_endtime' | translate }}:</span><br/>
-                <span class="text col-md-12">{{ finishedExam.examParticipations[0].ended  | date:'dd.MM.yyyy HH:mm'}}</span>
+                <span class="text col-md-12">{{ participation.ended  | date:'dd.MM.yyyy HH:mm'}}</span>
             </div>
             <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_examcode_and_name' | translate }}:</span><br/>
-                <span class="text col-md-12">{{ finishedExam.course.code }} - {{ finishedExam.name }}</span>
+                <span class="text col-md-12">{{ participation.exam.course.code }} - {{ participation.exam.name }}</span>
+            </div>
+            <div class="info-column col-md-3">
+                <span class="header col-md-12">{{ 'sitnet_exam_teachers' | translate }}:</span><br/>
+                <span class="text col-md-12">{{ participation.exam.teachersStr }}</span>
+                      <!--ng-repeat="examInspector in participation.exam.examInspectors">{{ examInspector.firstName }} {{ examInspector.lastName }}</span>-->
             </div>
             <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_exam_teachers' | translate }}:</span><br/>
@@ -195,15 +196,26 @@
             <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_teachers_comment' | translate }}:</span><br/>
                 <span class="text col-md-12">
-                    <span ng-if="finishedExam.state === 'GRADED_LOGGED'" popover-placement="top"
+                    <span ng-if="participation.exam.state === 'GRADED_LOGGED'" popover-placement="top"
                           popover-popup-delay="1000" popover-trigger="mouseenter"
-                          popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(finishedExam.id)"
+                          popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(participation.exam.id)"
                           class="pointer text-info">{{'sitnet_comments' | translate}}</span>
-                    <span ng-if="finishedExam.state === 'GRADED' || finishedExam.state === 'REVIEW' || finishedExam.state === 'REVIEW_STARTED' || finishedExam.state === 'ABORTED'"
+                    <span ng-if="participation.exam.state === 'GRADED' || participation.exam.state === 'REVIEW'
+                                    || participation.exam.state === 'REVIEW_STARTED'"
                           class="text-muted">{{'sitnet_no_comments' | translate}}</span>
                 </span>
             </div>
         </div>
     </div>
+
+    <!-- Div structure is same, as in exams list. This ensures that they are aligned similarly -->
+    <div class="detail-row">
+        <div class="bottom-row">
+            <div col-md-12 ng-show="participations.length > pageSize">
+                <paginator items="participations" page-size="pageSize" current-page="currentPage"/>
+            </div>
+        </div>
+    </div>
+
 
 </div>

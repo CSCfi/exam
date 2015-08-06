@@ -1,4 +1,4 @@
-package global;
+package system;
 
 import com.avaje.ebean.Ebean;
 import models.Exam;
@@ -7,12 +7,13 @@ import models.ExamParticipation;
 import models.GeneralSettings;
 import org.joda.time.DateTime;
 import play.Logger;
-import play.mvc.Controller;
 
+import javax.inject.Singleton;
 import java.util.Date;
 import java.util.List;
 
-public class ReviewRunner extends Controller implements Runnable {
+@Singleton
+public class ReviewRunner implements Runnable {
 
     @Override
     public void run() {

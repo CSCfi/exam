@@ -2,11 +2,14 @@ package models;
 
 import play.data.format.Formats.DateTime;
 
-import javax.persistence.*;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 
 @MappedSuperclass
-public abstract class OwnedModel extends GeneratedIdentityModel {
+public class OwnedModel extends GeneratedIdentityModel {
 
 	@Temporal(TemporalType.TIMESTAMP)
     @DateTime(pattern="yyyy/MM/dd")

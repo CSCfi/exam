@@ -1,8 +1,10 @@
 (function() {
     'use strict';
     angular.module("exam.controllers")
-        .controller('WaitingRoomCtrl', ['$scope', '$http', '$timeout', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
-            function($scope, $http, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
+        .controller('WaitingRoomCtrl', ['$scope', '$http', '$timeout', '$translate', '$location', 'sessionService',
+            'StudentExamRes', 'waitingRoomService', 'dateService', 'enrolmentService',
+            function($scope, $http, $timeout, $translate, $location, sessionService, StudentExamRes, waitingRoomService,
+                     dateService, enrolmentService) {
 
                 var user = sessionService.getUser();
 
@@ -79,6 +81,10 @@
 
                 $scope.getUsername = function() {
                     return sessionService.getUserName();
+                };
+
+                $scope.showInstructions = function(enrolment) {
+                    enrolmentService.showInstructions(enrolment);
                 };
 
                 // This is just to get page refresh to route us back here

@@ -1,16 +1,14 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('DatepickerCtrl', ['$scope', '$locale', 'dateService', 'datepickerPopupConfig',
-            function ($scope, $locale, dateService, datepickerPopupConfig) {
+        .controller('DatepickerCtrl', ['$scope', '$locale', 'dateService',
+            function ($scope, $locale, dateService) {
 
                 $scope.dateService = dateService;
 
                 $scope.today = function () {
                     $scope.dateService.startDate = new Date();
-                    $scope.dateService.exceptionStartDate = new Date();
                     $scope.dateService.endDate = new Date();
-                    $scope.dateService.exceptionEndDate = new Date();
                 };
 
                 // may not work with multiple inputs on same page
@@ -35,13 +33,6 @@
                 $scope.showWeeks = true;
                 $scope.toggleWeeks = function () {
                     $scope.showWeeks = !$scope.showWeeks;
-                };
-
-                $scope.clear = function () {
-                    $scope.dateService.startDate = null;
-                    $scope.dateService.exceptionStartDate = null;
-                    $scope.dateService.endDate = null;
-                    $scope.dateService.exceptionEndDate = null;
                 };
 
                 // Disable weekend selection
@@ -73,46 +64,18 @@
                 };
 
                 $scope.$watch('dateService.startDate', function (v) {
-                    var d = new Date(v);
-                    var curr_date = d.getDate();
-                    var curr_month = d.getMonth() + 1; //Months are zero based
-                    var curr_year = d.getFullYear();
-                    $scope.dateService.modStartDate = curr_date + "-" + curr_month + "-" + curr_year;
-                    $scope.dateService.startTimestamp = d.getTime();
+                    $scope.dateService.startTimestamp = new Date(v).getTime();
                 });
 
                 $scope.$watch('dateService.endDate', function (v) {
-                    var d = new Date(v);
-                    var curr_date = d.getDate();
-                    var curr_month = d.getMonth() + 1; //Months are zero based
-                    var curr_year = d.getFullYear();
-                    $scope.dateService.modEndDate = curr_date + "-" + curr_month + "-" + curr_year;
-                    $scope.dateService.endTimestamp = d.getTime();
-                });
-                $scope.$watch('dateService.exceptionStartDate', function (v) {
-                    var d = new Date(v);
-                    var curr_date = d.getDate();
-                    var curr_month = d.getMonth() + 1; //Months are zero based
-                    var curr_year = d.getFullYear();
-                    $scope.dateService.modStartDate = curr_date + "-" + curr_month + "-" + curr_year;
-                    $scope.dateService.exceptionStartDateTimestamp = d.getTime();
-                });
-
-                $scope.$watch('dateService.exceptionEndDate', function (v) {
-                    var d = new Date(v);
-                    var curr_date = d.getDate();
-                    var curr_month = d.getMonth() + 1; //Months are zero based
-                    var curr_year = d.getFullYear();
-                    $scope.dateService.modEndDate = curr_date + "-" + curr_month + "-" + curr_year;
-                    $scope.dateService.exceptionEndDateTimestamp = d.getTime();
+                    $scope.dateService.endTimestamp = new Date(v).getTime();
                 });
 
                 $scope.dateOptions = {
                     'starting-day': 1
                 };
 
-                $scope.formats = ['dd.MM.yyyy', 'yyyy/MM/dd', 'shortDate'];
-                $scope.format = $scope.formats[0];
+                $scope.format = 'dd.MM.yyyy';
 
             }])
 }());

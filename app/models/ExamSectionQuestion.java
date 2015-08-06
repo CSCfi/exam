@@ -1,11 +1,11 @@
 package models;
 
+import com.avaje.ebean.Model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import models.questions.AbstractQuestion;
+import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
-import play.db.ebean.Model;
 
 import javax.persistence.*;
 
@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class ExamSectionQuestion extends Model {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @ManyToOne
@@ -24,7 +24,7 @@ public class ExamSectionQuestion extends Model {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "question_id")
-    private AbstractQuestion question;
+    private Question question;
 
     @Column
     private int sequenceNumber;
@@ -49,11 +49,11 @@ public class ExamSectionQuestion extends Model {
         this.examSection = examSection;
     }
 
-    public AbstractQuestion getQuestion() {
+    public Question getQuestion() {
         return question;
     }
 
-    public void setQuestion(AbstractQuestion question) {
+    public void setQuestion(Question question) {
         this.question = question;
     }
 
@@ -80,7 +80,7 @@ public class ExamSectionQuestion extends Model {
         if (!(o instanceof ExamSectionQuestion)) {
             return false;
         }
-        ExamSectionQuestion other = (ExamSectionQuestion)o;
+        ExamSectionQuestion other = (ExamSectionQuestion) o;
         return new EqualsBuilder().append(getExamSection(), other.getExamSection())
                 .append(getQuestion(), other.getQuestion()).build();
     }

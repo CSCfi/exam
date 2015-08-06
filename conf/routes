@@ -15,6 +15,9 @@ GET           /users/filter/:role/:eid                              controllers.
 GET           /users/filter/owner/:role/:eid                        controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
 PUT           /users/agreement/:id                                  controllers.UserController.updateUserAgreementAccepted(id: Long)
 PUT           /user/lang                                            controllers.UserController.updateLanguage
+GET           /users                                                controllers.UserController.findUsers(filter: play.libs.F.Option[String])
+POST          /users/:id/roles/:rname                               controllers.UserController.addRole(id: Long, rname: String)
+DELETE        /users/:id/roles/:rname                               controllers.UserController.removeRole(id: Long, rname: String)
 
 ############### Exam interface ###############
 GET           /exams                                                controllers.ExamController.getExams
@@ -72,6 +75,8 @@ DELETE        /exam/:eid/software                                   controllers.
 
 PUT           /exam/:eid/language/:code                             controllers.ExamController.addExamLanguage(eid: Long, code: String)
 DELETE        /exam/:eid/languages                                  controllers.ExamController.resetExamLanguages(eid: Long)
+
+GET           /exam/:eid/attachments                                controllers.ExamController.getArchivedAttachments(eid: Long, start: play.libs.F.Option[String], end: play.libs.F.Option[String])
 
 GET           /examtypes                                            controllers.ExamController.getExamTypes
 GET           /gradescales                                          controllers.ExamController.getExamGradeScales
@@ -160,15 +165,12 @@ GET           /accessibility                                        controllers.
 
 GET           /draft/rooms                                          controllers.RoomController.createExamRoomDraft
 
-GET           /admin/students                                       controllers.AdminReservationController.getStudents
-GET           /admin/teachers                                       controllers.AdminReservationController.getTeachers
-GET           /admin/examrooms                                      controllers.AdminReservationController.getExamRooms
-GET           /admin/exams                                          controllers.AdminReservationController.getExams
-
-GET           /admin/reservations                                   controllers.AdminReservationController.getReservations(state: play.libs.F.Option[java.lang.String], ownerId: play.libs.F.Option[java.lang.Long], studentId: play.libs.F.Option[java.lang.Long], roomId: play.libs.F.Option[java.lang.Long], machineId: play.libs.F.Option[java.lang.Long], examId: play.libs.F.Option[java.lang.Long], start: Long, end: Long)
-DELETE        /admin/reservations/delete/:id                        controllers.AdminReservationController.removeReservation(id: Long)
-
-
+GET           /reservations/students                                controllers.ReservationController.getStudents
+GET           /reservations/teachers                                controllers.ReservationController.getTeachers
+GET           /reservations/examrooms                               controllers.ReservationController.getExamRooms
+GET           /reservations/exams                                   controllers.ReservationController.getExams
+GET           /reservations                                         controllers.ReservationController.getReservations(state: play.libs.F.Option[java.lang.String], ownerId: play.libs.F.Option[java.lang.Long], studentId: play.libs.F.Option[java.lang.Long], roomId: play.libs.F.Option[java.lang.Long], machineId: play.libs.F.Option[java.lang.Long], examId: play.libs.F.Option[java.lang.Long], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
+DELETE        /reservations/:id                                     controllers.ReservationController.removeReservation(id: Long)
 
 ############### ExamMachines interface ###############
 

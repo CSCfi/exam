@@ -9,14 +9,17 @@ import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Result;
 
+import javax.inject.Inject;
 import java.net.MalformedURLException;
-import java.util.List;
 
 
-public class CourseInfoController extends SitnetController {
+public class CourseInfoController extends BaseController {
+
+    @Inject
+    protected ExternalAPI externalAPI;
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static F.Promise<Result> insertCourseFromInterface(String code) throws MalformedURLException {
+    public F.Promise<Result> insertCourseFromInterface(String code) throws MalformedURLException {
         if (code.isEmpty()) {
             return wrapAsPromise(Action.notFound("sitnet_course_not_found"));
         }
@@ -31,26 +34,16 @@ public class CourseInfoController extends SitnetController {
         }
 
         // get it through remote interface
-        return Interfaces.getCourseInfoByCode(code).map(new F.Function<List<Course>, Course>() {
-            @Override
-            public Course apply(List<Course> courses) throws Throwable {
-                if (courses.isEmpty()) {
-                    return null;
-                }
-                Course first = courses.get(0);
-                first.save();
-                return first;
-            }
-        }).map(new F.Function<Course, Result>() {
-            @Override
-            public Result apply(Course course) throws Throwable {
-                return course == null ? notFound() : ok(Json.toJson(course));
-            }
-        }).recover(new F.Function<Throwable, Result>() {
-            @Override
-            public Result apply(Throwable throwable) throws Throwable {
-                return internalServerError(throwable.getMessage());
-            }
-        });
+        return externalAPI.getCourseInfoByCode(code)
+                .map(courses -> {
+                    if (courses.isEmpty()) {
+                        return null;
+                    }
+                    Course first = courses.get(0);
+                    first.save();
+                    return first;
+                })
+                .map(foundCourse -> foundCourse == null ? notFound() : ok(Json.toJson(foundCourse)))
+                .recover(throwable -> internalServerError(throwable.getMessage()));
     }
 }

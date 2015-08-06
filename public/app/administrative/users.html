@@ -1,0 +1,120 @@
+<script>
+    $(document).ready(function () {
+        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function(e) {
+            e.stopPropagation();
+        });
+    });
+</script>
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_user_administration' | translate}}</span>
+    </div>
+</div>
+
+<div id="dashboard">
+    <div class="main-row">
+        <label class="col-md-12" for="userSearch">{{'sitnet_search_for_users' | translate}}</label>
+        <div id="userSearch">
+            <div class="col-md-4">
+                <div class="form-group input-group">
+                    <input ng-change="search()" ng-model="filter.text" type="text" class="form-control"
+                           placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
+                           popover-trigger="mouseenter" popover="{{ 'sitnet_user_search_description' | translate }}">
+
+                    <div class="input-group-addon">
+                        <i class="fa fa-search fa-fw"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <span class="dropdown" dropdown>
+                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                            data-toggle="dropdown" aria-expanded="true">
+                        {{'sitnet_filter_by_role' | translate}}&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" style="min-width: 17em" role="menu" aria-labelledby="dropDownMenu1">
+                        <li ng-repeat="role in roles" role="presentation"
+                            ng-class="role.filtered ? 'active': ''" ng-click="applyFilter(role)">
+                            <a role="menuitem" title="{{role.name}}"><i class="fa pull-right" ng-class="role.icon"></i>{{role.name | translate}}</a>
+                        </li>
+                    </ul>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12">
+            <button ng-show="loader.loading" class="btn btn-success">{{'sitnet_searching' | translate }}...
+                <i class="fa fa-spinner fa-spin"></i>
+            </button>
+        </div>
+    </div>
+    <div class="main-row">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>{{'sitnet_lastname' | translate}}</th>
+                    <th>{{'sitnet_firstname' | translate}}</th>
+                    <th>{{'sitnet_email' | translate}}</th>
+                    <th>{{'sitnet_userid' | translate}}</th>
+                    <th>{{'sitnet_employeeno' | translate}}</th>
+                    <th>{{'sitnet_last_login' | translate}}</th>
+                    <th>{{'sitnet_user_roles' | translate}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="user in users" ng-if="isUnfiltered(user)">
+                    <td>{{user.lastName}}</td>
+                    <td>{{user.firstName}}</td>
+                    <td>
+                        <a class="pointer" href="mailto:{{user.email}}">{{user.email}}</a>
+                    </td>
+                    <td>{{user.userIdentifier}}</td>
+                    <td>{{user.employeeNumber}}</td>
+                    <td>{{user.lastLogin | date:'dd.MM.yyyy HH:mm:ss'}}</td>
+                    <td>
+                        <i ng-if="hasRole(user, 'ADMIN')" class="fa fa-cog"/>
+                        <i ng-if="hasRole(user, 'TEACHER')" class="fa fa-university"/>
+                        <i ng-if="hasRole(user, 'STUDENT')" class="fa fa-graduation-cap"/>
+                        <div class="pull-right">
+                            <span class="dropdown pointer" dropdown>
+                                <a href class="dropdown-toggle" dropdown-toggle>
+                                    <i ng-if="user.availableRoles.length > 0" class="text-success fa fa-plus"></i>
+                                    <i ng-if="user.availableRoles.length === 0" class="text-muted fa fa-plus"></i>
+                                </a>
+                                <ul class="dropdown-menu pull-right" ng-if="user.availableRoles.length > 0">
+                                    <li class="dropdown-header">{{'sitnet_add' | translate}}</li>
+                                    <li ng-repeat="role in user.availableRoles">
+                                        <a role="menuitem" title="{{role.name}}" ng-click="addRole(user, role)">
+                                            <i class="fa pull-right" ng-class="role.icon"></i>
+                                            {{role.name | translate}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </span>
+                            <span class="dropdown pointer" dropdown>
+                                <a href class="dropdown-toggle" dropdown-toggle>
+                                    <i ng-if="user.removableRoles.length > 1" class="text-danger fa fa-minus"></i>
+                                    <i ng-if="user.removableRoles.length <= 1" class="text-muted fa fa-minus"
+                                       popover-placement="left" popover-popup-delay="500"
+                                       popover-trigger="mouseenter" popover="{{ 'sitnet_at_least_one_role_required' | translate }}"></i>
+                                </a>
+                                <ul class="dropdown-menu pull-right" ng-if="user.removableRoles.length > 1">
+                                    <li class="dropdown-header">{{'sitnet_remove' | translate}}</li>
+                                    <li ng-repeat="role in user.removableRoles">
+                                        <a role="menuitem" title="{{role.name}}" ng-click="removeRole(user, role)">
+                                            <i class="fa pull-right" ng-class="role.icon"></i>{{role.name | translate}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

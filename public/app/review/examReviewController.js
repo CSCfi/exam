@@ -594,7 +594,8 @@
                         });
                     }
                     else {
-                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
+                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                            examService.getRecordReviewConfirmationDialogContent(reviewedExam.examFeedback.comment));
                         dialog.result.then(function () {
                             $scope.saveFeedback(true);
                             var examToRecord = getReviewUpdate(reviewedExam, 'GRADED');
@@ -629,5 +630,14 @@
                     return text;
                 };
             }
-        ]);
+        ])
+        .controller('RecordReviewConfirmationCtrl', function($scope, $modalInstance) {
+            $scope.yes = function() {
+                $modalInstance.close();
+            };
+
+            $scope.no = function() {
+                $modalInstance.dismiss('canceled');
+            }
+        });
 }());

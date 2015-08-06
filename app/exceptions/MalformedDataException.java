@@ -1,6 +1,6 @@
 package exceptions;
 
-public class MalformedDataException extends SitnetException {
+public class MalformedDataException extends RuntimeException {
     public MalformedDataException() {
     }
 

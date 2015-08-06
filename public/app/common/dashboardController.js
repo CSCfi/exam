@@ -3,8 +3,9 @@
     angular.module("exam.controllers")
         .controller('DashboardCtrl', ['dialogs', '$scope', '$http', '$translate', '$location', '$modal', 'EXAM_CONF',
             'sessionService', 'ExamRes', 'examService', 'questionService', 'StudentExamRes', 'dateService', 'EnrollRes',
-            function (dialogs, $scope, $http, $translate, $location, $modal, EXAM_CONF,
-                      sessionService, ExamRes, examService, questionService, StudentExamRes, dateService, EnrollRes) {
+            'enrolmentService',
+            function (dialogs, $scope, $http, $translate, $location, $modal, EXAM_CONF, sessionService, ExamRes,
+                      examService, questionService, StudentExamRes, dateService, EnrollRes, enrolmentService) {
 
                 $scope.templates = {
                     dashboardToolbarPath: EXAM_CONF.TEMPLATES_PATH + "common/teacher/toolbar.html",
@@ -23,7 +24,7 @@
                         StudentExamRes.enrolments.query(function (enrolments) {
                                 $scope.userEnrolments = enrolments;
                                 angular.forEach($scope.userEnrolments, function (enrolment) {
-                                    setExamOwners(enrolment.exam);
+                                    examService.setExamOwnersAndInspectors(enrolment.exam);
                                 });
                             },
                             function (error) {
@@ -31,8 +32,15 @@
                             }
                         );
                         StudentExamRes.finishedExams.query({uid: $scope.user.id},
-                            function (finishedExams) {
-                                $scope.studentFinishedExams = finishedExams;
+                            function (participations) {
+                                participations.forEach(function (participation) {
+                                    participation.exam.examInspections = [];
+                                    participation.exam.examInspectors.forEach(function (inspector) {
+                                        participation.exam.examInspections.push({user: inspector});
+                                    });
+                                    examService.setExamOwnersAndInspectors(participation.exam);
+                                });
+                                $scope.participations = participations;
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -51,7 +59,7 @@
                             var allExams = $scope.activeExams.concat($scope.finishedExams);
 
                             angular.forEach(allExams, function (exam) {
-                                setExamOwners(exam);
+                                examService.setExamOwnersAndInspectors(exam, true);
                             });
                         });
                     }
@@ -59,36 +67,6 @@
                         $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "reservation/reservations.html";
                     }
                 }
-
-                var printTeacher = function (teacher, tag) {
-                    var t = [teacher.firstName, teacher.lastName].join(" ");
-                    if (tag) {
-                        return ['<', tag, '>', t, '</', tag, '>'].join('');
-                    } else {
-                        return t;
-                    }
-                };
-
-                var setExamOwners = function (exam) {
-                    exam.teachersStr = "";
-                    var i = 0;
-                    angular.forEach(exam.examOwners, function (owner) {
-                        if (i++ !== 0) {
-                            exam.teachersStr += ", ";
-                        }
-                        exam.teachersStr += printTeacher(owner, $scope.user.isStudent ? undefined : 'b');
-                    });
-                    i = 0;
-                    angular.forEach(exam.examInspections, function (inspection) {
-                        var user = inspection.user;
-                        if (exam.teachersStr.indexOf(printTeacher(user, 'b')) === -1) {
-                            if (i++ !== 0 || exam.teachersStr.length > 0) {
-                                exam.teachersStr += ", ";
-                            }
-                            exam.teachersStr += printTeacher(user, $scope.user.isStudent ? undefined : 'span');
-                        }
-                    });
-                };
 
                 $scope.printExamDuration = function (exam) {
                     return dateService.printExamDuration(exam);
@@ -107,28 +85,7 @@
                 };
 
                 $scope.showInstructions = function (enrolment) {
-                    var modalController = function ($scope, $modalInstance, instructions) {
-                        $scope.instructions = instructions;
-                        $scope.ok = function () {
-                            $modalInstance.close("Accepted");
-                        };
-                    };
-
-                    var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/show_reservation_instructions.html',
-                        backdrop: 'static',
-                        keyboard: true,
-                        controller: modalController,
-                        resolve: {
-                            instructions: function () {
-                                return enrolment.exam.enrollInstruction;
-                            }
-                        }
-                    });
-
-                    modalInstance.result.then(function () {
-                        console.log("closed");
-                    });
+                    enrolmentService.showInstructions(enrolment);
                 };
 
                 $scope.addEnrolmentInformation = function (enrolment) {
@@ -221,7 +178,11 @@
                                 });
                             });
                     }
-                }
+                };
+
+                $scope.showReservations = function (examId) {
+                    $location.path('/reservations').search({eid: examId});
+                };
 
             }]);
 }());

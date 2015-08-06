@@ -310,7 +310,7 @@
                 $scope.correctAnswerToggled = function (option) {
                     QuestionRes.correctOption.update({oid: option.id}, option,
                         function (question) {
-                            $scope.newQuestion = question;
+                            $scope.newQuestion.options = question.options;
                             toastr.info($translate.instant('sitnet_correct_option_updated'));
                         }, function (error) {
                             toastr.error(error.data);

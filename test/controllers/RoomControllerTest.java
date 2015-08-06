@@ -13,7 +13,6 @@ import play.test.Helpers;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.status;
 
 
 public class RoomControllerTest extends IntegrationTestCase {
@@ -28,7 +27,7 @@ public class RoomControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.DELETE, "/rooms/" + 1, null);
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify (both response and database)
         JsonNode node = Json.parse(contentAsString(result));
@@ -50,7 +49,7 @@ public class RoomControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = get("/rooms");
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         JsonNode node = Json.parse(contentAsString(result));
@@ -68,7 +67,7 @@ public class RoomControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = request(Helpers.POST, "/rooms/" + 1, null);
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify (both response and database)
         JsonNode node = Json.parse(contentAsString(result));
@@ -90,7 +89,7 @@ public class RoomControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = get("/rooms");
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         JsonNode node = Json.parse(contentAsString(result));

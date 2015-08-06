@@ -1,0 +1,68 @@
+<div id="sitnet-dialog">
+    <div class="terms-dialog-header">
+        <h4 class="sitnet-white"><i class="fa fa-calendar"></i>&nbsp;&nbsp;{{'sitnet_exam_validity' |
+            translate}}</i></h4>
+    </div>
+
+    <div class='modal-body'>
+
+        <div id="datetimepicker">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>{{'sitnet_begin' | translate}}:</p>
+                </div>
+                <div class="col-md-6">
+                    <p>{{'sitnet_end' | translate}}:</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6" ng-controller="DatepickerCtrl">
+                    <p class="input-group">
+                        <input type="text" class="form-control" datepicker-popup="{{format}}"
+                               ng-model="params.startDate"
+                               is-open="startDateOpened" datepicker-options="dateOptions"
+                               close-text="{{'sitnet_close' | translate}}"
+                               current-text="{{'sitnet_today' | translate}}"
+                               toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                               clear-text="{{'sitnet_clear' | translate}}">
+
+                <span class="input-group-btn">
+                    <button class="btn btn-default" ng-click="openStartDate($event)">
+                        <i class="fa fa-calendar"></i>
+                    </button>
+                </span>
+                    </p>
+                </div>
+                <div class="col-md-6" ng-controller="DatepickerCtrl">
+                    <p class="input-group">
+                        <input type="text" class="form-control" datepicker-popup="{{format}}"
+                               ng-model="params.endDate"
+                               is-open="endDateOpened" datepicker-options="dateOptions"
+                               close-text="{{'sitnet_close' | translate}}"
+                               current-text="{{'sitnet_today' | translate}}"
+                               toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                               clear-text="{{'sitnet_clear' | translate}}">
+
+                <span class="input-group-btn">
+                    <button class="btn btn-default" ng-click="openEndDate($event)">
+                        <i class="fa fa-calendar"></i>
+                    </button>
+                </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-danger pull-left" ng-click="cancel()">{{'sitnet_button_cancel' | translate}}
+            </button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-sm btn-primary" ng-click="ok()">
+                {{'sitnet_search' | translate}}
+            </button>
+        </div>
+    </div>
+
+</div>

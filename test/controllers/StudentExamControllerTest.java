@@ -13,7 +13,6 @@ import play.mvc.Result;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.status;
 
 public class StudentExamControllerTest extends IntegrationTestCase {
 
@@ -51,7 +50,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     public void testCreateStudentExam() throws Exception {
         // Execute
         Result result = get("/student/doexam/" + exam.getHash());
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Verify
         JsonNode node = Json.parse(contentAsString(result));
@@ -60,7 +59,6 @@ public class StudentExamControllerTest extends IntegrationTestCase {
         assertThat(studentExam.getCourse().getId()).isEqualTo(exam.getCourse().getId());
         assertThat(studentExam.getInstruction()).isEqualTo(exam.getInstruction());
         assertThat(studentExam.getExamSections()).hasSize(exam.getExamSections().size());
-        assertThat(studentExam.getParent()).isNull();
         assertThat(studentExam.getHash()).isNotEqualTo(exam.getHash());
         assertThat(studentExam.isCloned()).isTrue();
         assertThat(studentExam.getExamLanguages()).hasSize(exam.getExamLanguages().size());
@@ -87,7 +85,7 @@ public class StudentExamControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = get("/student/doexam/" + exam.getHash());
-        assertThat(status(result)).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(403);
 
         // Verify that no student exam was created
         assertThat(Ebean.find(Exam.class).where().eq("parent.id", exam.getId()).findList()).hasSize(0);
@@ -98,11 +96,11 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     public void testCreateSeveralStudentExamsFails() throws Exception {
         // Execute
         Result result = get("/student/doexam/" + exam.getHash());
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         // Try again
         result = get("/student/doexam/" + exam.getHash());
-        assertThat(status(result)).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(403);
 
         // Verify that no student exam was created
         assertThat(Ebean.find(Exam.class).where().eq("parent.id", exam.getId()).findList()).hasSize(1);
@@ -113,13 +111,13 @@ public class StudentExamControllerTest extends IntegrationTestCase {
     public void testCreateStudentExamAlreadyStarted() throws Exception {
         // Execute
         Result result = get("/student/doexam/" + exam.getHash());
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
 
         // Try again
         result = get("/student/doexam/" + studentExam.getHash());
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
 
         node = Json.parse(contentAsString(result));
         Exam anotherStudentExam = deserialize(Exam.class, node);

@@ -305,10 +305,19 @@
                 $scope.deleteQuestion = function (question) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question_from_library_only'));
                     dialog.result.then(function (btn) {
-                        $scope.questions.splice($scope.questions.indexOf(question), 1);
-
-                        QuestionRes.questions.delete({'id': question.id}, function () {
+                        QuestionRes.questions.delete({id: question.id}, function () {
+                            $scope.questions.splice($scope.questions.indexOf(question), 1);
                             toastr.info($translate.instant('sitnet_question_removed'));
+                        });
+                    });
+                };
+
+                $scope.copyQuestion = function(question) {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_copy_question'));
+                    dialog.result.then(function (btn) {
+                        QuestionRes.question.copy({id: question.id}, function (copy) {
+                            $scope.questions.unshift(copy);
+                            toastr.info($translate.instant('sitnet_question_copied'));
                         });
                     });
                 };

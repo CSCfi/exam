@@ -14,6 +14,7 @@ import scala.concurrent.duration.Duration;
 import util.java.CsvBuilder;
 import util.java.EmailComposer;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -24,12 +25,15 @@ import java.util.concurrent.TimeUnit;
 
 import static util.java.AttachmentUtils.setData;
 
-public class ExamRecordController extends SitnetController {
+public class ExamRecordController extends BaseController {
+
+    @Inject
+    protected EmailComposer emailComposer;
 
     // Do not update anything else but state to GRADED_LOGGED regarding the exam
     // Instead assure that all required exam fields are set
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result addExamRecord() throws IOException {
+    public Result addExamRecord() throws IOException {
         DynamicForm df = Form.form().bindFromRequest();
         final Exam exam = Ebean.find(Exam.class).fetch("parent").fetch("parent.creator")
                 .where().eq("id", Long.parseLong(df.get("id"))).findUnique();
@@ -51,23 +55,20 @@ public class ExamRecordController extends SitnetController {
         score.save();
         record.setExamScore(score);
         record.save();
-        final User user = UserController.getLoggedUser();
-        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    EmailComposer.composeInspectionReady(exam.getCreator(), user, exam);
-                    Logger.info("Inspection ready notification email sent");
-                } catch (IOException e) {
-                    Logger.error("Failed to send inspection ready notification email", e);
-                }
+        final User user = getLoggedUser();
+        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            try {
+                emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+                Logger.info("Inspection ready notification email sent");
+            } catch (IOException e) {
+                Logger.error("Failed to send inspection ready notification email", e);
             }
         }, Akka.system().dispatcher());
         return ok();
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result exportExamRecordsAsCsv(Long startDate, Long endDate) {
+    public Result exportExamRecordsAsCsv(Long startDate, Long endDate) {
         File file;
         try {
             file = CsvBuilder.build(startDate, endDate);
@@ -83,7 +84,7 @@ public class ExamRecordController extends SitnetController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public static Result exportSelectedExamRecordsAsCsv(Long examId) {
+    public Result exportSelectedExamRecordsAsCsv(Long examId) {
 
         String[] ids = request().queryString().get("childIds");
         List<Long> childIds = new ArrayList<>();
@@ -107,11 +108,11 @@ public class ExamRecordController extends SitnetController {
         return ok(content);
     }
 
-    private static Result validateExamState(Exam exam) {
+    private Result validateExamState(Exam exam) {
         if (exam == null) {
             return notFound();
         }
-        User user = UserController.getLoggedUser();
+        User user = getLoggedUser();
         if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN")) {
             return forbidden("You are not allowed to modify this object");
         }

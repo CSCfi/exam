@@ -1,8 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ReviewListingController', ['$filter', 'dialogs', '$scope', '$q', '$route', '$routeParams', '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'fileService',
-            function ($filter, dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService, examService, fileService) {
+        .controller('ReviewListingController', ['$filter', 'dialogs', '$scope', '$q', '$route', '$routeParams',
+            '$location', '$translate', 'ExamRes', 'dateService', 'examService', 'fileService', '$modal', 'EXAM_CONF',
+            function ($filter, dialogs, $scope, $q, $route, $routeParams, $location, $translate, ExamRes, dateService,
+                      examService, fileService, $modal, EXAM_CONF) {
 
                 $scope.reviewPredicate = 'examReview.deadline';
                 $scope.abortedPredicate = 'examReview.user.lastName';
@@ -29,7 +31,7 @@
                 };
 
                 ExamRes.exams.get({id: $routeParams.id}, function (exam) {
-                    if(exam.course && exam.course.code) {
+                    if (exam.course && exam.course.code) {
                         $scope.examInfo = exam.course.code + " " + exam.name;
                     } else {
                         $scope.examInfo = exam.name;
@@ -53,7 +55,7 @@
                     });
                 };
 
-                $scope.printSelected = function() {
+                $scope.printSelected = function () {
 
                     // check that atleast one has been selected
                     var isEmpty = true,
@@ -144,10 +146,10 @@
                     });
                 };
 
-                $scope.isNotInspector = function(teacher, inspections) {
+                $scope.isNotInspector = function (teacher, inspections) {
                     var isNotInspector = true;
-                    angular.forEach(inspections, function(inspection){
-                        if(inspection.user.id === teacher.id) {
+                    angular.forEach(inspections, function (inspection) {
+                        if (inspection.user.id === teacher.id) {
                             isNotInspector = false;
                         }
                     });
@@ -195,11 +197,11 @@
                     }
                 );
 
-                $scope.isOwner = function(user, owners) {
+                $scope.isOwner = function (user, owners) {
                     var b = false;
-                    if(owners) {
-                        angular.forEach(owners, function(owner){
-                            if((owner.firstName + " " + owner.lastName) === (user.firstName + " " + user.lastName)) {
+                    if (owners) {
+                        angular.forEach(owners, function (owner) {
+                            if ((owner.firstName + " " + owner.lastName) === (user.firstName + " " + user.lastName)) {
                                 b = true;
                             }
                         });
@@ -207,11 +209,11 @@
                     return b;
                 };
 
-                $scope.isInspector = function(user, inspections) {
+                $scope.isInspector = function (user, inspections) {
                     var b = false;
-                    if(inspections) {
-                        angular.forEach(inspections, function(inspection){
-                            if((inspection.user.firstName + " " + inspection.user.lastName) === (user.firstName + " " + user.lastName)) {
+                    if (inspections) {
+                        angular.forEach(inspections, function (inspection) {
+                            if ((inspection.user.firstName + " " + inspection.user.lastName) === (user.firstName + " " + user.lastName)) {
                                 b = true;
                             }
                         });
@@ -284,6 +286,45 @@
                         $scope.toggleLoggedReviews = !$scope.toggleLoggedReviews;
                     }
                 };
+
+                $scope.getAnswerAttachments = function () {
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'review/archive_download.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: function ($scope, $modalInstance) {
+                            $scope.params = {};
+                            $scope.ok = function () {
+                                var start, end;
+                                if ($scope.params.startDate) {
+                                    start = moment($scope.params.startDate).format('DD.MM.YYYY');
+                                }
+                                if ($scope.params.endDate) {
+                                    end = moment($scope.params.endDate).format('DD.MM.YYYY');
+                                }
+                                if (start && end && end < start) {
+                                    toastr.error($translate.instant('sitnet_endtime_before_starttime'))
+                                } else {
+                                    $modalInstance.close({
+                                        "start": start,
+                                        "end": end
+                                    });
+                                }
+                            };
+
+                            $scope.cancel = function () {
+                                $modalInstance.dismiss('cancel');
+                            };
+                        }
+                    });
+
+                    modalInstance.result.then(function (params) {
+                        fileService.download(
+                            '/exam/' + $routeParams.id + '/attachments', $routeParams.id + '.tar.gz', params);
+                    })
+                };
+
 
             }]);
 }());

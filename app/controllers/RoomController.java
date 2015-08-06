@@ -14,7 +14,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
 import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
@@ -23,15 +22,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Created by avainik on 4/9/14.
- */
-public class RoomController extends SitnetController {
+public class RoomController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public static Result getExamRooms() {
+    public Result getExamRooms() {
         ExpressionList<ExamRoom> query = Ebean.find(ExamRoom.class).fetch("examMachines").where();
-        if (!UserController.getLoggedUser().hasRole("ADMIN")) {
+        if (!getLoggedUser().hasRole("ADMIN")) {
             query = query.ne("state", ExamRoom.State.INACTIVE.toString());
         }
         List<ExamRoom> rooms = query.findList();
@@ -48,27 +44,22 @@ public class RoomController extends SitnetController {
     }
 
     @Restrict(@Group("ADMIN"))
-    public static Result getExamRoom(Long id) {
-        Logger.debug("getExamRoomid)");
-        ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
-
+    public Result getExamRoom(Long id) {
+        ExamRoom examRoom = ExamRoom.find.ref(id);
         return ok(Json.toJson(examRoom));
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result createExamRoomDraft() {
-        Logger.debug("createExamRoomDraft()");
-
+    public Result createExamRoomDraft() {
         ExamRoom examRoom = new ExamRoom();
-        examRoom.setName("Kirjoita tenttitilan nimi tähän");
+        examRoom.setName("Kirjoita tenttitilan nimi tähän"); // TODO: i18n
         examRoom.setState("SAVED");
         examRoom.save();
         return ok(Json.toJson(examRoom));
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result updateExamRoom(Long id) {
-
+    public Result updateExamRoom(Long id) {
         ExamRoom room = Form.form(ExamRoom.class).bindFromRequest(
                 "name",
                 "roomCode",
@@ -87,8 +78,7 @@ public class RoomController extends SitnetController {
                 "outOfService",
                 "state",
                 "expanded").get();
-
-        ExamRoom existing = Ebean.find(ExamRoom.class, id);
+        ExamRoom existing = ExamRoom.find.ref(id);
         existing.setName(room.getName());
         existing.setRoomCode(room.getRoomCode());
         existing.setBuildingName(room.getBuildingName());
@@ -111,7 +101,7 @@ public class RoomController extends SitnetController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result updateExamRoomAddress(Long id) throws MalformedDataException {
+    public Result updateExamRoomAddress(Long id) {
         MailAddress address = bindForm(MailAddress.class);
         MailAddress existing = Ebean.find(MailAddress.class, id);
         existing.setCity(address.getCity());
@@ -122,7 +112,7 @@ public class RoomController extends SitnetController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result updateExamRoomWorkingHours(Long id) {
+    public Result updateExamRoomWorkingHours(Long id) {
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
         if (examRoom == null) {
             return notFound();
@@ -152,7 +142,7 @@ public class RoomController extends SitnetController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result updateExamStartingHours(Long id) {
+    public Result updateExamStartingHours(Long id) {
         ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
         if (examRoom == null) {
             return notFound();
@@ -177,7 +167,7 @@ public class RoomController extends SitnetController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result addRoomExceptionHour(Long id) {
+    public Result addRoomExceptionHour(Long id) {
 
         final JsonNode root = request().body().asJson();
 
@@ -206,7 +196,7 @@ public class RoomController extends SitnetController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result updateExamRoomAccessibility(Long id) {
+    public Result updateExamRoomAccessibility(Long id) {
         JsonNode json = request().body().asJson();
         final List<String> ids = Arrays.asList(json.get("ids").asText().split(","));
 
@@ -232,7 +222,7 @@ public class RoomController extends SitnetController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result removeRoomExceptionHour(Long id) {
+    public Result removeRoomExceptionHour(Long id) {
         ExceptionWorkingHours exception = Ebean.find(ExceptionWorkingHours.class, id);
 
         exception.delete();
@@ -242,7 +232,7 @@ public class RoomController extends SitnetController {
 
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result inactivateExamRoom(Long id) {
+    public Result inactivateExamRoom(Long id) {
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
         if (room == null) {
@@ -254,7 +244,7 @@ public class RoomController extends SitnetController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public static Result activateExamRoom(Long id) {
+    public Result activateExamRoom(Long id) {
 
         ExamRoom room = Ebean.find(ExamRoom.class, id);
         if (room == null) {

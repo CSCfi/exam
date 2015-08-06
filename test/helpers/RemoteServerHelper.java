@@ -34,7 +34,7 @@ public class RemoteServerHelper {
         response.setStatus(HttpServletResponse.SC_OK);
         try (Writer writer = response.getWriter()) {
             ObjectNode data = Json.newObject();
-            data.put("data", new ObjectMapper().createArrayNode());
+            data.set("data", new ObjectMapper().createArrayNode());
             writer.write(data.toString());
         } catch (IOException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

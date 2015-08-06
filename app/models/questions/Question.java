@@ -1,23 +1,23 @@
 package models.questions;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
 import models.ExamSectionQuestion;
 import models.OwnedModel;
 import models.Tag;
-import models.answers.AbstractAnswer;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.springframework.beans.BeanUtils;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "question")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "question_type", discriminatorType = DiscriminatorType.STRING)
-public class AbstractQuestion extends OwnedModel {
+public class Question extends OwnedModel {
 
+    public enum Type { MultipleChoiceQuestion, EssayQuestion }
+
+    @Column
     protected String type;
 
     @Column(columnDefinition = "TEXT")
@@ -37,14 +37,14 @@ public class AbstractQuestion extends OwnedModel {
     protected Double evaluatedScore;
 
     @ManyToOne(cascade = CascadeType.PERSIST) // do not delete parent question
-    protected AbstractQuestion parent;
+    protected Question parent;
 
     @OneToMany(mappedBy = "parent")
     @JsonBackReference
-    protected List<AbstractQuestion> children = new ArrayList<>();
+    protected List<Question> children;
 
     @OneToOne (cascade = CascadeType.ALL)
-    protected AbstractAnswer answer;
+    protected Answer answer;
 
     @Column(columnDefinition = "TEXT")
     protected String evaluationCriterias;
@@ -60,8 +60,19 @@ public class AbstractQuestion extends OwnedModel {
     @Column(columnDefinition="boolean default false")
     protected boolean expanded;
 
+    // not really max length, Just a recommendation
+    private Long maxCharacters;
+
+    // Points, Select
+    private String evaluationType;
+
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "question")
+    @JsonManagedReference
+    private List<MultipleChoiseOption> options;
+
+
     @ManyToMany(cascade = CascadeType.ALL)
-    protected List<Tag> tags = new ArrayList<>();
+    protected List<Tag> tags;
 
 
     public String getState() { return state; }
@@ -100,19 +111,19 @@ public class AbstractQuestion extends OwnedModel {
         this.instruction = instruction;
     }
 
-    public AbstractQuestion getParent() {
+    public Question getParent() {
         return parent;
     }
 
-    public void setParent(AbstractQuestion parent) {
+    public void setParent(Question parent) {
         this.parent = parent;
     }
 
-    public AbstractAnswer getAnswer() {
+    public Answer getAnswer() {
         return answer;
     }
 
-    public void setAnswer(AbstractAnswer answer) {
+    public void setAnswer(Answer answer) {
         this.answer = answer;
     }
 
@@ -148,6 +159,14 @@ public class AbstractQuestion extends OwnedModel {
         this.maxScore = maxScore;
     }
 
+    public List<MultipleChoiseOption> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<MultipleChoiseOption> options) {
+        this.options = options;
+    }
+
     public Double getEvaluatedScore() {
         return evaluatedScore;
     }
@@ -164,11 +183,27 @@ public class AbstractQuestion extends OwnedModel {
         this.examSectionQuestion = examSectionQuestion;
     }
 
-    public List<AbstractQuestion> getChildren() {
+    public Long getMaxCharacters() {
+        return maxCharacters;
+    }
+
+    public void setMaxCharacters(Long maxCharacters) {
+        this.maxCharacters = maxCharacters;
+    }
+
+    public String getEvaluationType() {
+        return evaluationType;
+    }
+
+    public void setEvaluationType(String evaluationType) {
+        this.evaluationType = evaluationType;
+    }
+
+    public List<Question> getChildren() {
         return children;
     }
 
-    public void setChildren(List<AbstractQuestion> children) {
+    public void setChildren(List<Question> children) {
         this.children = children;
     }
 
@@ -180,27 +215,31 @@ public class AbstractQuestion extends OwnedModel {
         this.tags = tags;
     }
 
-
-
     @Override
     public boolean equals(Object object) {
         if (this == object) {
             return true;
         }
-        if (!(object instanceof AbstractQuestion)) {
+        if (!(object instanceof Question)) {
             return false;
         }
-        AbstractQuestion other = (AbstractQuestion)object;
+        Question other = (Question)object;
         return new EqualsBuilder().append(id, other.getId()).build();
     }
 
-	public AbstractQuestion copy() {
-        throw new RuntimeException("Not implemented");
+	public Question copy() {
+        Question question = new Question();
+        BeanUtils.copyProperties(this, question, "id", "answer", "options", "tags", "children");
+        question.setParent(this);
+        for (MultipleChoiseOption o : options) {
+            question.getOptions().add(o.copy());
+        }
+        return question;
     }
 
    	@Override
     public String toString() {
-        return "AbstractQuestion [type=" + type + ", question=" + question
+        return "Question [type=" + type + ", question=" + question
                 + ", shared=" + shared + ", instruction=" + instruction
                 + ", parent=" + parent
                 + ", evaluationCriterias=" + evaluationCriterias + "]";

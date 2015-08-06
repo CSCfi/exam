@@ -1,5 +1,7 @@
 package controllers
 
+import javax.inject.Inject
+
 import be.objectify.deadbolt.java.actions.{Group, Restrict}
 import com.avaje.ebean.Ebean
 import models.{Course, User}
@@ -10,13 +12,7 @@ import util.scala.ScalaHacks
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object CourseController extends Controller with ScalaHacks {
-
-  sealed trait FilterType
-
-  case object FilterByName extends FilterType
-
-  case object FilterByCode extends FilterType
+class CourseController @Inject()(externalApi : ExternalAPI) extends Controller with ScalaHacks {
 
   val CriteriaLengthLimiter = 2
 
@@ -24,7 +20,7 @@ object CourseController extends Controller with ScalaHacks {
   def getCourses(filterType: Option[String], criteria: Option[String]) = Action.async {
     (filterType, criteria) match {
       case (Some("code"), Some(x)) =>
-        Interfaces.getCourseInfoByCode(x).wrapped.map(i => java2Response(i))
+        externalApi.getCourseInfoByCode(x).wrapped.map(i => java2Response(i))
       case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
         val courses = scala.concurrent.Future {
           Ebean.find(classOf[Course]).where

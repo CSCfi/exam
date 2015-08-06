@@ -6,7 +6,7 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.ExamSection;
 import models.ExamSectionQuestion;
-import models.questions.EssayQuestion;
+import models.questions.Question;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
@@ -14,11 +14,8 @@ import play.test.Helpers;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.status;
 
-/**
- * Created by mlupari on 26/01/15.
- */
+
 public class QuestionControllerTest extends IntegrationTestCase {
 
     @Test
@@ -33,9 +30,9 @@ public class QuestionControllerTest extends IntegrationTestCase {
 
         // Create draft
         Result result = request(Helpers.POST, "/questions", Json.newObject().put("type", "EssayQuestion"));
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
-        EssayQuestion question = deserialize(EssayQuestion.class, node);
+        Question question = deserialize(Question.class, node);
         assertThat(question.getType().equals("EssayQuestion"));
 
         // Update it
@@ -48,16 +45,16 @@ public class QuestionControllerTest extends IntegrationTestCase {
                 .put("maxCharacters", 3000)
                 .put("evaluationType", "Points");
         result = request(Helpers.PUT, "/questions/" + question.getId(), questionUpdate);
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         node = Json.parse(contentAsString(result));
-        question = deserialize(EssayQuestion.class, node);
+        question = deserialize(Question.class, node);
         assertThat(question.getMaxScore()).isEqualTo(3);
-        assertThat(Ebean.find(EssayQuestion.class, question.getId()).getMaxCharacters()).isEqualTo(3000);
+        assertThat(Ebean.find(Question.class, question.getId()).getMaxCharacters()).isEqualTo(3000);
 
         // Add to exam
         result = request(Helpers.POST, String.format("/exams/%d/section/%d/0/question/%d",
                 examId, sectionId, question.getId()), null);
-        assertThat(status(result)).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(200);
         node = Json.parse(contentAsString(result));
         ExamSection deserialized = deserialize(ExamSection.class, node);
         assertThat(deserialized.getSectionQuestions().size()).isEqualTo(sectionQuestionCount + 1);

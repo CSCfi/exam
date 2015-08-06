@@ -6,8 +6,6 @@ import javax.persistence.Entity;
 @Entity
 public class Role extends GeneratedIdentityModel implements be.objectify.deadbolt.core.models.Role {
 
-    public static final Finder<Long, Role> find = new Finder<>(Long.class, Role.class);
-
     private String name;
 
     @Override

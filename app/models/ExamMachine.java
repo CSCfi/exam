@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,7 +22,7 @@ public class ExamMachine extends GeneratedIdentityModel {
     private boolean accessible;
 
     @ManyToMany(cascade = CascadeType.ALL)
-    private List<Software> softwareInfo = new ArrayList<>();
+    private List<Software> softwareInfo;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JsonManagedReference

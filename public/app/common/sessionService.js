@@ -109,7 +109,8 @@
                     getUserName: getUserName,
                     setUser: setUser,
                     switchLanguage: switchLanguage,
-                    translate: translate
+                    translate: translate,
+                    hasRole: hasRole
                 };
 
             }]);
