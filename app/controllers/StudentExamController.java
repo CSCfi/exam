@@ -123,6 +123,7 @@ public class StudentExamController extends BaseController {
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examLanguages")
                 .fetch("exam.examOwners", "firstName, lastName")
+                .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "name")
                 .fetch("reservation.machine.room", "name, roomCode")
                 .where()
