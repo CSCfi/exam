@@ -168,10 +168,6 @@
                         <span ng-if="question.evaluationType === 'Select'">{{ 'sitnet_evaluation_select' | translate }}</span>
                     </td>
                     <td>
-                        <span ng-if="question.evaluationType === 'Points' || question.type === 'MultipleChoiceQuestion'">{{ question.maxScore }}</span>
-                        <span ng-if="question.evaluationType === 'Select'">{{ 'sitnet_evaluation_select' | translate }}</span>
-                    </td>
-                    <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
                         <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
                     </td>

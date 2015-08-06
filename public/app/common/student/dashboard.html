@@ -189,11 +189,6 @@
                       <!--ng-repeat="examInspector in participation.exam.examInspectors">{{ examInspector.firstName }} {{ examInspector.lastName }}</span>-->
             </div>
             <div class="info-column col-md-3">
-                <span class="header col-md-12">{{ 'sitnet_exam_teachers' | translate }}:</span><br/>
-                <span class="text col-md-12"
-                      ng-repeat = "examInspector in finishedExam.examInspectors">{{ examInspector.firstName }} {{ examInspector.lastName }}</span>
-            </div>
-            <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_teachers_comment' | translate }}:</span><br/>
                 <span class="text col-md-12">
                     <span ng-if="participation.exam.state === 'GRADED_LOGGED'" popover-placement="top"
