@@ -40,6 +40,7 @@ public class ReservationController extends BaseController {
             el = el.disjunction()
                     .eq("creator", user)
                     .eq("examOwners", user)
+                    .eq("examInspections.user", user)
                     .eq("shared", true)
                     .endJunction();
         }

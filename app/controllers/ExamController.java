@@ -470,6 +470,12 @@ public class ExamController extends BaseController {
         }
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || getLoggedUser().hasRole("ADMIN")) {
+            // Update draft's name even though other relevant stuff might be missing
+            String examName = df.get("name");
+            if (exam.getState().equals(Exam.State.DRAFT.toString()) && examName != null) {
+                exam.setName(examName);
+                exam.update();
+            }
             String str = ValidationUtil.validateExamForm(df);
             if (!str.equalsIgnoreCase("OK")) {
                 return badRequest(str);
@@ -477,7 +483,6 @@ public class ExamController extends BaseController {
             if (exam.getExamSections().stream().anyMatch((section) -> section.getName() == null)) {
                 return badRequest("sitnet_exam_contains_unnamed_sections");
             }
-            String examName = df.get("name");
             Boolean shared = Boolean.parseBoolean(df.get("shared"));
             String duration = df.get("duration");
             Integer grading = df.get("grading") == null ? null : Integer.parseInt(df.get("grading"));
@@ -1145,6 +1150,10 @@ public class ExamController extends BaseController {
         final ExamInspection inspection = bindForm(ExamInspection.class);
         final User recipient = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
+        // Name required before adding inspectors
+        if (exam.getName() == null) {
+            return badRequest("sitnet_exam_name_missing_or_too_short");
+        }
 
         if (exam.getParent() == null) {
             inspection.setExam(exam);
