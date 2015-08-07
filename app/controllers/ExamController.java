@@ -1032,6 +1032,8 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getReservationInformationForExam(Long eid) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .fetch("reservation.machine")
                 .fetch("reservation.machine.room")
                 .where()
                 .eq("exam.id", eid)

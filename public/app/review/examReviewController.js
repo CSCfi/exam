@@ -205,7 +205,11 @@
                             function (info) {
                                 $scope.userInfo = info;
                                 if (info && info.duration) {
-                                    $scope.userInfo.duration = moment.utc(Date.parse(info.duration)).format('HH:mm');
+                                    var duration = moment.utc(new Date(info.duration));
+                                    if (duration.second() > 29) {
+                                        duration.add(1, 'minutes');
+                                    }
+                                    $scope.userInfo.duration = duration.format('HH:mm');
                                 }
                                 // get previous participations ->
                                 ExamRes.examParticipationsOfUser.query(
