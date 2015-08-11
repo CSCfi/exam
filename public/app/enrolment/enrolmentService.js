@@ -19,6 +19,20 @@
                 return deferred.promise;
             };
 
+            var enrollStudent = function(exam, student) {
+                var deferred = $q.defer();
+                EnrollRes.enrollStudent.create({eid: exam.id, uid: student.id},
+                    function (enrolment) {
+                        toastr.success($translate.instant('sitnet_student_enrolled_to_exam'));
+                        deferred.resolve(enrolment);
+                    },
+                    function (error) {
+                        toastr.error(error.data);
+                        deferred.reject(error);
+                    });
+                return deferred.promise;
+            };
+
             var showInstructions = function(enrolment) {
                     var modalController = function ($scope, $modalInstance, instructions) {
                         $scope.instructions = instructions;
@@ -46,6 +60,7 @@
 
             return {
                 enroll: enroll,
+                enrollStudent: enrollStudent,
                 showInstructions: showInstructions
             };
 

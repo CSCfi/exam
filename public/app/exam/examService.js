@@ -3,11 +3,11 @@
     angular.module('exam.services')
         .factory('examService', ['$translate', '$q', '$location', 'ExamRes', function ($translate, $q, $location, ExamRes) {
 
-            var createExam = function () {
-                ExamRes.draft.get(
+            var createExam = function (executionType) {
+                ExamRes.draft.get({executionType: executionType},
                     function (response) {
                         toastr.info($translate.instant("sitnet_exam_added"));
-                        $location.path("/exams/addcourse/" + response.id);
+                        $location.path("/exams/course/" + response.id);
                     }, function (error) {
                         toastr.error(error.data);
                     });

@@ -146,8 +146,8 @@
                     return end.isBefore(moment());
                 };
 
-                $scope.createExam = function () {
-                    examService.createExam();
+                $scope.createExam = function (executionType) {
+                    examService.createExam(executionType);
                 };
 
                 $scope.createQuestion = function (type) {

@@ -19,6 +19,14 @@
                         "get": {method: "GET", isArray: false, params: {code: "@code", id: "@id"}},
                         "create": {method: "POST", params: {code: "@code", id: "@id"}}
                     }),
+                enrollStudent: $resource("/enroll/student/:eid/:uid ",
+                    {
+                        eid: "@eid", uid: "@uid"
+                    },
+                    {
+                        "create": {method: "POST", params: {eid: "@eid", uid: "@uid"}}
+                    }),
+                unenrollStudent: $resource("/enroll/student/:id", {id: "@id"}, {"remove": {method: "DELETE"}}),
                 reservations: $resource("/machines/:id/reservations",
                     {
                         id: "@id"

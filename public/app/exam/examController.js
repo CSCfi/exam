@@ -2,11 +2,11 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ExamController', ['dialogs', '$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService',
-                '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
-                'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService',
+            '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
+            'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes',
             function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
-                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService) {
+                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes) {
 
                 $scope.newExam = {};
                 $scope.sectionTemplate = {visible: true};
@@ -173,12 +173,15 @@
                     var templateType = "",
                         controllerType = "";
 
-                    if (modalType && modalType === 'owner') {
+                    if (modalType === 'owner') {
                         templateType = EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_owner.html';
                         controllerType = "ExamOwnerController";
-                    } else {
+                    } else if (modalType === 'inspector') {
                         templateType = EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_inspector.html';
                         controllerType = "ExamInspectionController";
+                    } else if (modalType === 'student') {
+                        templateType = EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_participation.html';
+                        controllerType = "ExamEnrolmentController";
                     }
 
                     var modalInstance = $modal.open({
@@ -195,10 +198,14 @@
 
                     modalInstance.result.then(function (result) {
                         // OK button clicked
-                        if (modalType && modalType === 'owner') {
+                        if (modalType === 'owner') {
                             getExamOwners();
-                        } else {
+                        }
+                        if (modalType === 'inspector') {
                             getInspectors();
+                        }
+                        if (modalType === 'student') {
+                            $scope.newExam.examEnrolments.push(result);
                         }
                     }, function () {
                         // Cancel button clicked
@@ -253,6 +260,18 @@
                         });
                 };
 
+                $scope.removeParticipant = function (id) {
+                    EnrollRes.unenrollStudent.remove({id: id}, function () {
+                        $scope.newExam.examEnrolments = $scope.newExam.examEnrolments.filter(function (ee) {
+                            return ee.id !== id;
+                        });
+                        toastr.info($translate.instant('sitnet_participant_removed'));
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+
+                };
+
                 $scope.reindexNumbering = function () {
                     // set sections and question numbering
                     angular.forEach($scope.newExam.examSections, function (section, index) {
@@ -280,8 +299,8 @@
                 };
 
                 // Called when create exam button is clicked
-                $scope.createExam = function () {
-                    examService.createExam();
+                $scope.createExam = function (executionType) {
+                    examService.createExam(executionType);
                 };
 
                 $scope.continueToExam = function () {
@@ -629,7 +648,7 @@
                         errors.examType = $translate.instant('sitnet_exam_credit_type_missing');
                     }
 
-                    var allSectionsNamed = exam.examSections.every(function(section) {
+                    var allSectionsNamed = exam.examSections.every(function (section) {
                         return section.name;
                     });
                     if (!allSectionsNamed) {
@@ -805,7 +824,7 @@
                     return questionService.longTextIfNotMath(text);
                 };
 
-                $scope.truncate = function(text, limit) {
+                $scope.truncate = function (text, limit) {
                     return questionService.truncate(text, limit);
                 };
 
@@ -817,7 +836,7 @@
 
                         $scope.newExam = exam;
                         $scope.isTeacherModal = true;
-                        fileService.getMaxFilesize().then(function(data) {
+                        fileService.getMaxFilesize().then(function (data) {
                             $scope.maxFileSize = data.filesize;
                         });
 

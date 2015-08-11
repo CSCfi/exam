@@ -21,11 +21,23 @@
         </div>
     </div>
     <div class="col-md-9">
-        <a class="header-top-link" ng-click="createExam()">
-         <span class="pull-left fa-stack fa-lg header-top-icon">
+        <span class="pull-left fa-stack fa-lg header-top-icon">
             <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
             <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
         </span>
-            {{'sitnet_toolbar_new_exam' | translate}}</a>
+        <div class="dropdown" dropdown>
+            <a class="header-top-link dropdown-toggle" data-toggle="dropdown" dropdown-toggle>
+                {{'sitnet_toolbar_new_exam' | translate}}
+            </a>
+            <ul class="dropdown-menu" role="menu">
+                <li role="presentation">
+                    <a role="menuitem" ng-click="createExam('PUBLIC')" class="pointer">{{'sitnet_public_exam'
+                        | translate}}</a>
+                    <a role="menuitem" ng-click="createExam('PRIVATE')" class="pointer">{{'sitnet_private_exam' |
+                        translate}}</a>
+                </li>
+            </ul>
+        </div>
     </div>
+
 </div>

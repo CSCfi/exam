@@ -246,6 +246,7 @@ public class ExamController extends BaseController {
                 .fetch("parent.gradeScale.grades", new FetchConfig().query())
                 .fetch("parent.examOwners", new FetchConfig().query())
                 .fetch("examType")
+                .fetch("executionType")
                 .fetch("examSections")
                 .fetch("examSections.sectionQuestions")
                 .fetch("examSections.sectionQuestions.question")
@@ -257,6 +258,7 @@ public class ExamController extends BaseController {
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
+                .fetch("examEnrolments.user")
                 .fetch("examFeedback")
                 .fetch("creditType")
                 .fetch("attachment")
@@ -596,10 +598,15 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result createExamDraft() {
+    public Result createExamDraft(String executionType) {
         User user = getLoggedUser();
         Exam exam = new Exam();
         exam.setState(Exam.State.DRAFT.toString());
+        ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class).where().eq("type", executionType).findUnique();
+        if (examExecutionType == null) {
+            return badRequest("Unsupported execution type");
+        }
+        exam.setExecutionType(examExecutionType);
         AppUtil.setCreator(exam, user);
         exam.save();
 
@@ -629,10 +636,11 @@ public class ExamController extends BaseController {
         exam.setExpanded(true);
         exam.save();
 
-        // return only id, its all we need at this point
         ObjectNode part = Json.newObject();
         part.put("id", exam.getId());
-
+        ObjectNode typeNode = Json.newObject();
+        typeNode.put("type", examExecutionType.getType());
+        part.put("executionType", typeNode);
         return ok(Json.toJson(part));
     }
 

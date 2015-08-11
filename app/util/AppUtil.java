@@ -116,6 +116,8 @@ public class AppUtil {
                 StandardCopyOption.COPY_ATTRIBUTES);
     }
 
+    /* TODO: GET RID OF THIS MESS AND USE AN SQL UPDATE SCRIPT INSTEAD
+    * now it's hard to keep track of what's inserted through evolutions and what's not :( */
     @Transactional(type = TxType.REQUIRES_NEW)
     @SuppressWarnings("unchecked")
     public static void initializeDataModel() {
@@ -153,7 +155,13 @@ public class AppUtil {
                 if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
                     Ebean.save(all.get("languages"));
                 }
+
                 Ebean.save(all.get("exam-types"));
+                for (Object o : all.get("exams")) {
+                    Exam e = (Exam)o;
+                    e.setExecutionType(Ebean.find(ExamExecutionType.class, 1));
+                    e.save();
+                }
                 Ebean.save(all.get("exams"));
                 Ebean.save(all.get("exam-sections"));
                 Ebean.save(all.get("section-questions"));

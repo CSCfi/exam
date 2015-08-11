@@ -4,10 +4,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.Exam;
-import models.ExamEnrolment;
-import models.Reservation;
-import models.User;
+import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.libs.F;
@@ -85,12 +82,13 @@ public class EnrollController extends BaseController {
         return ok(exam);
     }
 
-    private static void makeEnrolment(Exam exam, User user) {
+    private static ExamEnrolment makeEnrolment(Exam exam, User user) {
         ExamEnrolment enrolment = new ExamEnrolment();
         enrolment.setEnrolledOn(new Date());
         enrolment.setUser(user);
         enrolment.setExam(exam);
         enrolment.save();
+        return enrolment;
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
@@ -139,12 +137,11 @@ public class EnrollController extends BaseController {
         return ok();
     }
 
-    private Result doCreateEnrolment(String code, Long id) {
-        User user = getLoggedUser();
+    private Result doCreateEnrolment(Long eid, Long uid) {
+        User user = uid == null ? getLoggedUser() : Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class)
                 .where()
-                .eq("course.code", code)
-                .eq("id", id)
+                .eq("id", eid)
                 .findUnique();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -187,25 +184,53 @@ public class EnrollController extends BaseController {
                 enrolment.delete();
             }
         }
-        makeEnrolment(exam, user);
-        return ok();
+        ExamEnrolment newEnrolment = makeEnrolment(exam, user);
+        return ok(newEnrolment);
     }
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public F.Promise<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
         if (!PERM_CHECK_ACTIVE) {
-            return wrapAsPromise(doCreateEnrolment(code, id));
+            return wrapAsPromise(doCreateEnrolment(id, null));
         }
         final User user = getLoggedUser();
         F.Promise<Collection<String>> promise = externalAPI.getPermittedCourses(user);
         return promise.map(codes -> {
             if (codes.contains(code)) {
-                return doCreateEnrolment(code, id);
+                return doCreateEnrolment(id, null);
             } else {
                 Logger.warn("Attempt to enroll for a course without permission from {}", user.toString());
                 return forbidden("sitnet_error_access_forbidden");
             }
         }).recover(throwable -> internalServerError(throwable.getMessage()));
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public Result createStudentEnrolment(Long eid, Long uid) {
+        return doCreateEnrolment(eid, uid);
+    }
+
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public Result removeStudentEnrolment(Long id) {
+        User user = getLoggedUser();
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
+                .idEq(id)
+                .eq("exam.executionType.type", ExamExecutionType.Type.PRIVATE.toString())
+                .isNull("reservation")
+                .disjunction()
+                .eq("exam.state", Exam.State.DRAFT.toString())
+                .eq("exam.state", Exam.State.SAVED.toString())
+                .endJunction()
+                .disjunction()
+                .eq("exam.examOwners", user)
+                .eq("exam.creator", user)
+                .endJunction()
+                .findUnique();
+        if (enrolment == null) {
+            return forbidden("sitnet_not_possible_to_remove_participant");
+        }
+        enrolment.delete();
+        return ok();
     }
 
 }

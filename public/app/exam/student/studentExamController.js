@@ -79,7 +79,6 @@
                                         StudentExamRes.essayAnswer.saveEssay(params, msg, function () {
                                             question.autosaved = new Date();
                                             examService.setQuestionColors(question);
-                                        }, function () {
                                         });
                                     }
                                 });

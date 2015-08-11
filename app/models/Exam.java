@@ -148,6 +148,9 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     @ManyToOne
     private ExamType creditType;
 
+    @ManyToOne
+    private ExamExecutionType executionType;
+
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
@@ -548,6 +551,14 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     public Attachment getAttachment() {
         return attachment;
+    }
+
+    public ExamExecutionType getExecutionType() {
+        return executionType;
+    }
+
+    public void setExecutionType(ExamExecutionType executionType) {
+        this.executionType = executionType;
     }
 
     @Transient

@@ -18,6 +18,7 @@ PUT           /user/lang                                            controllers.
 GET           /users                                                controllers.UserController.findUsers(filter: play.libs.F.Option[String])
 POST          /users/:id/roles/:rname                               controllers.UserController.addRole(id: Long, rname: String)
 DELETE        /users/:id/roles/:rname                               controllers.UserController.removeRole(id: Long, rname: String)
+GET           /students/:eid                                        controllers.UserController.getUnenrolledStudents(eid: Long, q: String)
 
 ############### Exam interface ###############
 GET           /exams                                                controllers.ExamController.getExams
@@ -68,7 +69,7 @@ POST          /exams/:eid/section/:sid/:seq/question/:qid           controllers.
 POST          /exams/:eid/section/:sid/:seq/questions               controllers.ExamController.insertMultipleQuestions(eid: Long, sid: Long, seq: Int, questions: String)
 DELETE        /exams/:eid/section/:sid/question/:qid                controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
 PUT           /exams/:eid/section/:sid/:from/:to                    controllers.ExamController.reorderQuestion(eid: Long, sid: Long, from: Int, to: Int)
-GET           /draft                                                controllers.ExamController.createExamDraft
+GET           /draft                                                controllers.ExamController.createExamDraft(executionType: String)
 
 PUT           /exam/:eid/software/:sid                              controllers.ExamController.updateExamSoftwareInfo(eid: Long, sid: Long)
 DELETE        /exam/:eid/software                                   controllers.ExamController.resetExamSoftwareInfo(eid: Long)
@@ -104,8 +105,9 @@ GET           /enroll/reservation/:id                               controllers.
 GET           /enroll/:code/exam/:id                                controllers.EnrollController.enrollExamInfo(code: String, id: Long)
 POST          /enroll/:code/exam/:id                                controllers.EnrollController.createEnrolment(code: String, id: Long)
 GET           /enroll/exam/:id                                      controllers.EnrollController.checkIfEnrolled(id: Long)
+POST          /enroll/student/:eid/:uid                             controllers.EnrollController.createStudentEnrolment(eid: Long, uid: Long)
 DELETE        /enroll/:id                                           controllers.EnrollController.removeEnrolment(id: Long)
-
+DELETE        /enroll/student/:id                                  controllers.EnrollController.removeStudentEnrolment(id: Long)
 ############### Section interface ###############
 
 GET           /sections/:id                                         controllers.ExamController.getExamSections(id: Long)

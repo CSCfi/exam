@@ -22,7 +22,7 @@
             $routeProvider.when('/exams/:examId/section/:sectionId/edit/:editId', { templateUrl: tmpl + 'question/editor/question.html'});
 
             $routeProvider.when('/exams/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
-            $routeProvider.when('/exams/addcourse/:id', { templateUrl: tmpl + 'exam/editor/exam_section_general_course_new.html', controller: 'ExamController'});
+            $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_section_general_course_new.html', controller: 'ExamController'});
             $routeProvider.when('/exampreview/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
 
             $routeProvider.when('/calendar/:enrolment?', { templateUrl: tmpl + 'reservation/calendar.html'});

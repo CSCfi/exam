@@ -42,7 +42,11 @@
                      "update": {
                          method: "PUT", params: {id: "@id"}
                      }
-                 })
+                 }),
+                unenrolledStudents: $resource("students/:eid",
+                {
+                    eid: "@eid"
+                })
             }
         }]);
 }());

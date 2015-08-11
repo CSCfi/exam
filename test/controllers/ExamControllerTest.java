@@ -66,7 +66,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateDraftExamUnauthorized() {
         // Execute
-        Result result = get("/draft");
+        Result result = get("/draft?executionType=PRIVATE");
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result)).isEqualToIgnoringCase("authentication failure");
     }
@@ -78,7 +78,7 @@ public class ExamControllerTest extends IntegrationTestCase {
         int originalRowCount = Ebean.find(Exam.class).findRowCount();
 
         // Execute
-        Result result = get("/draft");
+        Result result = get("/draft?executionType=PRIVATE");
 
         // Verify
         assertThat(result.status()).isEqualTo(200);
