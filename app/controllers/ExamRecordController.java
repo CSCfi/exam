@@ -1,5 +1,6 @@
 package controllers;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -8,7 +9,6 @@ import models.dto.ExamScore;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
-import play.libs.Akka;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.java.CsvBuilder;
@@ -29,6 +29,9 @@ public class ExamRecordController extends BaseController {
 
     @Inject
     protected EmailComposer emailComposer;
+
+    @Inject
+    protected ActorSystem actor;
 
     // Do not update anything else but state to GRADED_LOGGED regarding the exam
     // Instead assure that all required exam fields are set
@@ -56,14 +59,14 @@ public class ExamRecordController extends BaseController {
         record.setExamScore(score);
         record.save();
         final User user = getLoggedUser();
-        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             try {
                 emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
                 Logger.info("Inspection ready notification email sent");
             } catch (IOException e) {
                 Logger.error("Failed to send inspection ready notification email", e);
             }
-        }, Akka.system().dispatcher());
+        }, actor.dispatcher());
         return ok();
     }
 

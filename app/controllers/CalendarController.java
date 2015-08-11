@@ -1,5 +1,6 @@
 package controllers;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -10,7 +11,6 @@ import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
-import play.libs.Akka;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
@@ -31,6 +31,10 @@ public class CalendarController extends BaseController {
 
     @Inject
     protected EmailComposer emailComposer;
+
+    @Inject
+    protected ActorSystem actor;
+
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result removeReservation(long id) throws NotFoundException {
@@ -59,14 +63,14 @@ public class CalendarController extends BaseController {
 
         // send email asynchronously
         final boolean isStudentUser = user.equals(enrolment.getUser());
-        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             try {
                 emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
                 Logger.info("Reservation cancellation confirmation email sent");
             } catch (IOException e) {
                 Logger.error("Failed to send reservation confirmation email", e);
             }
-        }, Akka.system().dispatcher());
+        }, actor.dispatcher());
         return ok("removed");
     }
 
@@ -135,14 +139,14 @@ public class CalendarController extends BaseController {
         }
 
         // Send asynchronously
-        Akka.system().scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             try {
                 emailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
                 Logger.info("Reservation confirmation email sent");
             } catch (IOException e) {
                 Logger.error("Failed to send reservation confirmation email", e);
             }
-        }, Akka.system().dispatcher());
+        }, actor.dispatcher());
 
         return ok("ok");
     }

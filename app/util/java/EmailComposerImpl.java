@@ -310,6 +310,35 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
+    @Override
+    public void composePrivateExamParticipantNotification(User student, User fromUser, Exam exam) throws IOException {
+        String templatePath = getTemplatesRoot() + "participationNotification.html";
+        String template = readFile(templatePath, ENCODING);
+        Lang lang = getLang(student);
+        String subject = Messages.get(lang, "email.template.participant.notification.subject");
+        String title = Messages.get(lang, "email.template.participant.notification.title");
+        String examInfo = Messages.get(lang, "email.template.participant.notification.exam",
+                String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
+        String teacherName = Messages.get(lang, "email.template.participant.notification.teacher",
+                String.format("%s %s <%s>", fromUser.getFirstName(), fromUser.getLastName(), fromUser.getEmail()));
+        String examPeriod = Messages.get(lang, "email.template.participant.notification.exam.period",
+                String.format("%s - %s", DF.print(new DateTime(exam.getExamActiveStartDate())),
+                        DF.print(new DateTime(exam.getExamActiveEndDate()))));
+        String examDuration = Messages.get(lang, "email.template.participant.notification.exam.duration",
+                exam.getDuration());
+        String reservationInfo = Messages.get(lang, "email.template.participant.notification.please.reserve");
+        Map<String, String> stringValues = new HashMap<>();
+        stringValues.put("title", title);
+        stringValues.put("exam_info", examInfo);
+        stringValues.put("teacher_name", teacherName);
+        stringValues.put("exam_period", examPeriod);
+        stringValues.put("exam_duration", examDuration);
+        stringValues.put("reservation_info", reservationInfo);
+        stringValues.put("main_system_url", BASE_SYSTEM_URL);
+        String content = replaceAll(template, stringValues);
+        emailSender.send(student.getEmail(), fromUser.getEmail(), subject, content);
+    }
+
     private static List<ExamEnrolment> getEnrolments(Exam exam) {
         List<ExamEnrolment> enrolments = exam.getExamEnrolments();
         Collections.sort(enrolments);

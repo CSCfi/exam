@@ -1,5 +1,6 @@
 package controllers;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.*;
@@ -20,6 +21,7 @@ import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import util.AppUtil;
 import util.java.EmailComposer;
 import util.java.ValidationUtil;
@@ -32,6 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
@@ -43,6 +46,8 @@ public class ExamController extends BaseController {
     @Inject
     protected EmailComposer emailComposer;
 
+    @Inject
+    protected ActorSystem actor;
 
     private static ExpressionList<Exam> createPrototypeQuery() {
         return Ebean.find(Exam.class)
@@ -461,6 +466,28 @@ public class ExamController extends BaseController {
         return ok(comment);
     }
 
+    private void updateState(Exam exam, String state) {
+        if (state != null) {
+            if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.PRIVATE.toString()) &&
+                    !exam.getState().equals(Exam.State.PUBLISHED.toString()) &&
+                    state.equals(Exam.State.PUBLISHED.toString())) {
+                User sender = getLoggedUser();
+                // Send mail to participants now that exam is published
+                actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+                    for (ExamEnrolment ee : exam.getExamEnrolments())
+                        try {
+                            emailComposer.composePrivateExamParticipantNotification(ee.getUser(), sender, exam);
+                            Logger.info("Exam participation notification email sent to {}",
+                                    ee.getUser().getEmail());
+                        } catch (IOException e) {
+                            Logger.error("Failed to send participation notification email", e);
+                        }
+                }, actor.dispatcher());
+            }
+            exam.setState(state);
+        }
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateExam(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
@@ -496,9 +523,7 @@ public class ExamController extends BaseController {
             if (examName != null) {
                 exam.setName(examName);
             }
-            if (state != null) {
-                exam.setState(state);
-            }
+            updateState(exam, df.get("state"));
             exam.setShared(shared);
             Long start = new Long(df.get("examActiveStartDate"));
             Long end = new Long(df.get("examActiveEndDate"));

@@ -24,4 +24,7 @@ public interface EmailComposer {
     void composeReservationCancellationNotification(User student, Reservation reservation, String message,
                                                     Boolean isStudentUser, ExamEnrolment enrolment) throws IOException;
 
+    void composePrivateExamParticipantNotification(User student, User fromUser, Exam exam) throws IOException;
+
+
 }
