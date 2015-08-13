@@ -6,7 +6,6 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Update;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import exceptions.MalformedDataException;
 import models.GeneralSettings;
 import models.User;
 import play.Play;
@@ -35,7 +34,8 @@ public class SettingsController  extends BaseController {
         gs.update();
 
         // Since the EULA has changed, force users to accept it again.
-        String updStatement = "update sitnet_users set has_accepted_user_agreament = :hasNot";
+
+        String updStatement = "update app_user set has_accepted_user_agreament = :hasNot";
         Update<User> update = Ebean.createUpdate(User.class, updStatement);
         update.set("hasNot", false);
         update.execute();
