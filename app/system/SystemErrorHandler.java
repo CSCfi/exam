@@ -46,7 +46,7 @@ public class SystemErrorHandler implements HttpErrorHandler {
             if (cause instanceof IllegalArgumentException) {
                 return Results.badRequest(Json.toJson(new ApiError(errorMessage)));
             }
-            return Results.internalServerError(Json.toJson(errorMessage));
+            return Results.internalServerError(Json.toJson(new ApiError(errorMessage)));
         });
     }
 }
