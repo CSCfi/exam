@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class EmailComposerImpl implements EmailComposer {
 
@@ -310,17 +311,24 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
+    private static String getTeachers(Exam exam) {
+        Set<User> teachers = new HashSet<>(exam.getExamOwners());
+        teachers.addAll(exam.getExamInspections().stream().map(ExamInspection::getUser).collect(Collectors.toSet()));
+        return String.join(", ", teachers.stream().map((t) -> String.format("%s %s <%s>",
+                t.getFirstName(), t.getLastName(), t.getEmail())).collect(Collectors.<String>toList()));
+    }
+
     @Override
     public void composePrivateExamParticipantNotification(User student, User fromUser, Exam exam) throws IOException {
         String templatePath = getTemplatesRoot() + "participationNotification.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
-        String subject = Messages.get(lang, "email.template.participant.notification.subject");
+        String subject = Messages.get(lang, "email.template.participant.notification.subject",
+                String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         String title = Messages.get(lang, "email.template.participant.notification.title");
         String examInfo = Messages.get(lang, "email.template.participant.notification.exam",
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
-        String teacherName = Messages.get(lang, "email.template.participant.notification.teacher",
-                String.format("%s %s <%s>", fromUser.getFirstName(), fromUser.getLastName(), fromUser.getEmail()));
+        String teacherName = Messages.get(lang, "email.template.participant.notification.teacher", getTeachers(exam));
         String examPeriod = Messages.get(lang, "email.template.participant.notification.exam.period",
                 String.format("%s - %s", DF.print(new DateTime(exam.getExamActiveStartDate())),
                         DF.print(new DateTime(exam.getExamActiveEndDate()))));
