@@ -1,10 +1,36 @@
 (function() {
     'use strict';
     angular.module("exam.controllers")
-        .controller('WrongMachineCtrl', ['$scope', '$translate', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
-            function($scope, $translate, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
+        .controller('WrongMachineCtrl', ['$scope', '$translate', '$http', '$location', 'sessionService', 'StudentExamRes', 'waitingRoomService', 'dateService',
+            function($scope, $translate, $http, $location, sessionService, StudentExamRes, waitingRoomService, dateService) {
 
                 var user = sessionService.getUser();
+
+                function setExamTeachers(exam) {
+                    exam.examTeachers = [];
+                    exam.teachersStr = "";
+
+                    StudentExamRes.teachers.get({id: exam.id}, function(inspections) {
+
+                            angular.forEach(inspections, function (inspection) {
+                                if(exam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
+                                    exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
+                                }
+                            });
+                            angular.forEach(exam.examOwners, function(owner){
+                                if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
+                                    exam.examTeachers.push(owner.firstName + " " + owner.lastName);
+                                }
+                            });
+                            exam.teachersStr = exam.examTeachers.map(function(teacher) {
+                                return teacher;
+                            }).join(", ");
+                        },
+                        function(error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                }
 
                 var proceed = function() {
                     if (user && user.isStudent) {
@@ -12,16 +38,7 @@
                         StudentExamRes.enrolment.get({eid: eid},
                             function(enrolment) {
                                 $scope.enrolment = enrolment;
-                                StudentExamRes.teachers.get({id: enrolment.exam.id},
-                                    function(teachers) {
-                                        enrolment.teachers = teachers.map(function(teacher) {
-                                            return teacher.user.firstName + " " + teacher.user.lastName;
-                                        }).join(", ");
-                                    },
-                                    function(error) {
-                                        toastr.error(error.data);
-                                    }
-                                );
+                                setExamTeachers($scope.enrolment.exam);
                             },
                             function(error) {
                                 toastr.error(error.data);
@@ -31,7 +48,7 @@
                 };
 
                 $scope.$on('wrongMachine', function() {
-                    if (!$scope.enrolment) {
+                    if (!$scope.enrolment && waitingRoomService.getEnrolmentId()) {
                         $scope.currentRoom = waitingRoomService.getActualRoom();
                         $scope.currentMachine = waitingRoomService.getActualMachine();
                         proceed();
@@ -45,6 +62,9 @@
                 $scope.getUsername = function() {
                     return sessionService.getUserName();
                 };
+
+                // This is just to get page refresh to route us back here
+                $http.get('/checkSession');
 
             }]);
 }());

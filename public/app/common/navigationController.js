@@ -27,7 +27,6 @@
                     // Do not show if waiting for exam to begin
                     var hideDashboard = (waitingRoomService.getEnrolmentId() || $scope.examStarted) && student;
 
-
                     return [
                         {
                             href: "#/",
@@ -79,7 +78,7 @@
                         },
                         {
                             href: "#/student/exams",
-                            visible: (student),
+                            visible: (student && !$scope.wrongMachine),
                             class: "fa-search",
                             name: "sitnet_exam_search",
                             sub: []
@@ -126,6 +125,7 @@
                 });
 
                 $scope.$on('wrongMachine', function () {
+                    $scope.wrongMachine = true;
                     $scope.links = links();
                 });
 
