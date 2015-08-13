@@ -466,26 +466,40 @@ public class ExamController extends BaseController {
         return ok(comment);
     }
 
-    private void updateState(Exam exam, String state) {
+    private void notifyPartiesAboutPrivateExamPublication(Exam exam) {
+        User sender = getLoggedUser();
+        // Include participants, inspectors and owners. Exclude the sender.
+        Set<User> users = exam.getExamEnrolments().stream().map(ExamEnrolment::getUser).collect(Collectors.toSet());
+        users.addAll(exam.getExamInspections().stream().map(ExamInspection::getUser).collect(Collectors.toSet()));
+        users.addAll(exam.getExamOwners());
+        users.remove(sender);
+
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            for (User u : users)
+                try {
+                    emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
+                    Logger.info("Exam participation notification email sent to {}",
+                            u.getEmail());
+                } catch (IOException e) {
+                    Logger.error("Failed to send participation notification email", e);
+                }
+        }, actor.dispatcher());
+    }
+
+    private boolean updateState(Exam exam, String state) {
         if (state != null) {
             if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.PRIVATE.toString()) &&
                     !exam.getState().equals(Exam.State.PUBLISHED.toString()) &&
                     state.equals(Exam.State.PUBLISHED.toString())) {
-                User sender = getLoggedUser();
-                // Send mail to participants now that exam is published
-                actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-                    for (ExamEnrolment ee : exam.getExamEnrolments())
-                        try {
-                            emailComposer.composePrivateExamParticipantNotification(ee.getUser(), sender, exam);
-                            Logger.info("Exam participation notification email sent to {}",
-                                    ee.getUser().getEmail());
-                        } catch (IOException e) {
-                            Logger.error("Failed to send participation notification email", e);
-                        }
-                }, actor.dispatcher());
+                // No participants added, this is not good.
+                if (exam.getExamEnrolments().isEmpty()) {
+                    return false;
+                }
+                notifyPartiesAboutPrivateExamPublication(exam);
             }
             exam.setState(state);
         }
+        return true;
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -518,12 +532,13 @@ public class ExamController extends BaseController {
             String answerLanguage = df.get("answerLanguage");
             String instruction = df.get("instruction");
             String enrollInstruction = df.get("enrollInstruction");
-            String state = df.get("state");
             boolean expanded = Boolean.parseBoolean(df.get("expanded"));
             if (examName != null) {
                 exam.setName(examName);
             }
-            updateState(exam, df.get("state"));
+            if (!updateState(exam, df.get("state"))) {
+                return badRequest("sitnet_no_participants");
+            }
             exam.setShared(shared);
             Long start = new Long(df.get("examActiveStartDate"));
             Long end = new Long(df.get("examActiveEndDate"));

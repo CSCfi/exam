@@ -514,6 +514,7 @@
                         });
                 };
 
+                // TODO: how should this work when it comes to private exams?
                 $scope.unpublishExam = function () {
                     ExamRes.examEnrolments.query({eid: $scope.newExam.id}, function (enrolments) {
                         if (enrolments && enrolments.length > 0) {
@@ -653,6 +654,9 @@
                     });
                     if (!allSectionsNamed) {
                         errors.sectionNames = $translate.instant('sitnet_exam_contains_unnamed_sections');
+                    }
+                    if (exam.executionType.type === 'PRIVATE' && exam.examEnrolments.length < 1) {
+                        errors.participants = $translate.instant('sitnet_no_participants');
                     }
 
                     return errors;

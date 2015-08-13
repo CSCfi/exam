@@ -658,5 +658,6 @@
   "sitnet_add_exam_participant": "Lisää osallistuja",
   "sitnet_student_enrolled_to_exam": "Osallistuja lisätty tenttiin",
   "sitnet_not_possible_to_remove_participant": "Osallistujaa ei voi poistaa.",
-  "sitnet_participant_removed": "Osallistuja poistettu"
+  "sitnet_participant_removed": "Osallistuja poistettu",
+  "sitnet_no_participants": "Osallistujia ei määritelty"
 }
