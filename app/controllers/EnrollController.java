@@ -34,6 +34,8 @@ public class EnrollController extends BaseController {
         List<Exam> exams = Ebean.find(Exam.class)
                 .fetch("creator", "firstName, lastName")
                 .fetch("examLanguages")
+                .fetch("examOwners", "firstName, lastName")
+                .fetch("course", "code, name")
                 .where()
                 .eq("course.code", code)
                 .eq("state", "PUBLISHED")
