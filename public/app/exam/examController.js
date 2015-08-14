@@ -131,11 +131,19 @@
                             angular.forEach($scope.newExam.softwares, function (software) {
                                 promises.push(ExamRes.software.add({eid: $scope.newExam.id, sid: software.id}));
                             });
-                            $q.all(promises).then(function () {
-                                toastr.info($translate.instant('sitnet_exam_software_updated'));
-                                $scope.selectedSoftwares($scope.newExam);
 
-                                $scope.softwaresUpdate = $scope.newExam.softwares.length;
+                            $q.all(promises).then(function () {
+
+                                ExamRes.hasrequiredsoftware.post({eid: $scope.newExam.id},
+                                function () {
+                                    toastr.info($translate.instant('sitnet_exam_software_updated'));
+
+                                    $scope.selectedSoftwares($scope.newExam);
+                                    $scope.softwaresUpdate = $scope.newExam.softwares.length;
+                                },
+                                function (error) {
+                                    toastr.error($translate.instant('sitnet_no_required_softwares'));
+                                });
                             });
                         });
                     }
@@ -785,8 +793,6 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
-
-
                 };
 
                 $scope.examFilter = function (item, comparator) {

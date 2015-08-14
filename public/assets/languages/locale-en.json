@@ -659,5 +659,6 @@
   "sitnet_student_enrolled_to_exam": "Osallistuja lisätty tenttiin EN",
   "sitnet_not_possible_to_remove_participant": "Osallistujaa ei voi poistaa EN",
   "sitnet_participant_removed": "Osallistuja poistettu EN",
-  "sitnet_no_participants": "Osallistujia ei määritelty EN"
+  "sitnet_no_participants": "Osallistujia ei määritelty EN",
+  "sitnet_no_required_softwares": "Tenttikoneilla ei ole tarvittavaa ohjelmistoyhdistelmää EN"
 }

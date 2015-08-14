@@ -73,6 +73,7 @@ GET           /draft                                                controllers.
 
 PUT           /exam/:eid/software/:sid                              controllers.ExamController.updateExamSoftwareInfo(eid: Long, sid: Long)
 DELETE        /exam/:eid/software                                   controllers.ExamController.resetExamSoftwareInfo(eid: Long)
+POST           /exam/:eid/hasrequiredsoftware                        controllers.ExamController.hasRequiredSoftware(eid: Long)
 
 PUT           /exam/:eid/language/:code                             controllers.ExamController.addExamLanguage(eid: Long, code: String)
 DELETE        /exam/:eid/languages                                  controllers.ExamController.resetExamLanguages(eid: Long)
@@ -107,7 +108,7 @@ POST          /enroll/:code/exam/:id                                controllers.
 GET           /enroll/exam/:id                                      controllers.EnrollController.checkIfEnrolled(id: Long)
 POST          /enroll/student/:eid/:uid                             controllers.EnrollController.createStudentEnrolment(eid: Long, uid: Long)
 DELETE        /enroll/:id                                           controllers.EnrollController.removeEnrolment(id: Long)
-DELETE        /enroll/student/:id                                  controllers.EnrollController.removeStudentEnrolment(id: Long)
+DELETE        /enroll/student/:id                                   controllers.EnrollController.removeStudentEnrolment(id: Long)
 ############### Section interface ###############
 
 GET           /sections/:id                                         controllers.ExamController.getExamSections(id: Long)

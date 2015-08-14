@@ -231,6 +231,13 @@
                 reservation: $resource("/exams/:eid/reservation",
                 {
                     eid: "@eid"
+                }),
+                hasrequiredsoftware: $resource("/exam/:eid/hasrequiredsoftware",
+                {
+                    eid: "@eid"
+                },
+                {
+                    "post": {method: "POST"}
                 })
             };
         }]);
