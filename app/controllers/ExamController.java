@@ -31,7 +31,10 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -610,46 +613,28 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result updateExamSoftwareInfo(Long eid, Long sid) {
-
+    public Result updateExamSoftwareInfo(Long eid) {
+        DynamicForm df = Form.form().bindFromRequest();
+        String[] softwareIds = df.get("softwareIds").split(",");
         Exam exam = Ebean.find(Exam.class, eid);
-        Software software = Ebean.find(Software.class, sid);
-
-        exam.getSoftwareInfo().add(software);
-        exam.update();
-
-        return ok(Json.toJson(exam));
-
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result hasRequiredSoftware(Long eid) {
-
-        Exam exam = Ebean.find(Exam.class, eid);
-        ListIterator<ExamMachine> machines = Ebean.find(ExamMachine.class)
-                                            .where()
-                                            .eq("archived", false)
-                                            .findList()
-                                            .listIterator();
-
-        Boolean requiredSoftware = false;
-
-        while (machines.hasNext()) {
-
-            List<Boolean> requiredSoftwares = new LinkedList<>();
-            requiredSoftwares.clear();
-
-            ExamMachine current_machine = machines.next();
-            if (current_machine.getSoftwareInfo().containsAll(exam.getSoftwareInfo())) {
-                requiredSoftware = true;
-            }
-        }
-
-        if (requiredSoftware) {
+        List<Software> software = Ebean.find(Software.class).where().idIn(Arrays.asList(softwareIds)).findList();
+        exam.getSoftwareInfo().clear();
+        exam.getSoftwareInfo().addAll(software);
+        if (softwareRequirementDoable(exam)) {
+            exam.update();
             return ok(Json.toJson(exam));
         } else {
             return badRequest("sitnet_no_required_softwares");
         }
+    }
+
+    private static boolean softwareRequirementDoable(Exam exam) {
+        List<ExamMachine> machines = Ebean.find(ExamMachine.class)
+                .where()
+                .eq("archived", false)
+                .findList();
+
+        return machines.stream().anyMatch((m) -> m.getSoftwareInfo().containsAll(exam.getSoftwareInfo()));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

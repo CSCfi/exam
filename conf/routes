@@ -71,9 +71,7 @@ DELETE        /exams/:eid/section/:sid/question/:qid                controllers.
 PUT           /exams/:eid/section/:sid/:from/:to                    controllers.ExamController.reorderQuestion(eid: Long, sid: Long, from: Int, to: Int)
 GET           /draft                                                controllers.ExamController.createExamDraft(executionType: String)
 
-PUT           /exam/:eid/software/:sid                              controllers.ExamController.updateExamSoftwareInfo(eid: Long, sid: Long)
-DELETE        /exam/:eid/software                                   controllers.ExamController.resetExamSoftwareInfo(eid: Long)
-POST           /exam/:eid/hasrequiredsoftware                        controllers.ExamController.hasRequiredSoftware(eid: Long)
+PUT           /exam/:eid/software                                   controllers.ExamController.updateExamSoftwareInfo(eid: Long)
 
 PUT           /exam/:eid/language/:code                             controllers.ExamController.addExamLanguage(eid: Long, code: String)
 DELETE        /exam/:eid/languages                                  controllers.ExamController.resetExamLanguages(eid: Long)
