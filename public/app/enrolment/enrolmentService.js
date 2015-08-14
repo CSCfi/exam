@@ -7,7 +7,7 @@
             var enroll = function(exam) {
                 var deferred = $q.defer();
                 EnrollRes.enroll.create({code: exam.course.code, id: exam.id},
-                    function (exam) {
+                    function () {
                         toastr.success($translate.instant('sitnet_you_have_enrolled_to_exam') + '<br/>' + $translate.instant('sitnet_remember_exam_machine_reservation'));
                         $location.path('/calendar/' + exam.id);
                         deferred.resolve();
