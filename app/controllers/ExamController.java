@@ -619,7 +619,6 @@ public class ExamController extends BaseController {
         String[] softwareIds;
         if (args == null || args.isEmpty()) {
             softwareIds = new String[] {};
-
         } else {
             softwareIds = args.split(",");
         }
