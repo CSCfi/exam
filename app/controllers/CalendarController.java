@@ -137,14 +137,24 @@ public class CalendarController extends BaseController {
         if (oldReservation != null) {
             Ebean.delete(oldReservation);
         }
+        Exam exam = enrolment.getExam();
+        Set<User> recipients = new HashSet<>();
+        if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.PRIVATE.toString())) {
+            recipients.addAll(exam.getExamOwners());
+            recipients.addAll(exam.getExamInspections().stream().map(
+                    ExamInspection::getUser).collect(Collectors.toSet()));
+        }
+        recipients.add(user);
 
         // Send asynchronously
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            try {
-                emailComposer.composeReservationNotification(user, reservation, enrolment.getExam());
-                Logger.info("Reservation confirmation email sent");
-            } catch (IOException e) {
-                Logger.error("Failed to send reservation confirmation email", e);
+            for (User recipient : recipients) {
+                try {
+                    emailComposer.composeReservationNotification(recipient, reservation, exam);
+                    Logger.info("Reservation confirmation email sent");
+                } catch (IOException e) {
+                    Logger.error("Failed to send reservation confirmation email", e);
+                }
             }
         }, actor.dispatcher());
 

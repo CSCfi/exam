@@ -148,12 +148,11 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(teacher.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
-    public void composeReservationNotification(User student, Reservation reservation, Exam exam)
-            throws IOException {
-
+    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam) throws IOException {
+        boolean isTeacher = recipient.hasRole("TEACHER");
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
         String template = readFile(templatePath, ENCODING);
-        Lang lang = getLang(student);
+        Lang lang = getLang(recipient);
         String subject = Messages.get(lang, "email.machine.reservation.subject");
 
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode());
@@ -193,9 +192,13 @@ public class EmailComposerImpl implements EmailComposer {
                 roomName = forceNotNull(room.getName());
             }
         }
+        String title = isTeacher ? Messages.get(lang, "email.template.reservation.new.student",
+                String.format("%s %s <%s>", reservation.getUser().getFirstName(),
+                        reservation.getUser().getLastName(), reservation.getUser().getEmail())) :
+                Messages.get(lang, "email.template.reservation.new");
 
         Map<String, String> stringValues = new HashMap<>();
-        stringValues.put("title", Messages.get(lang, "email.template.reservation.new"));
+        stringValues.put("title", title);
         stringValues.put("exam_info", Messages.get(lang, "email.template.reservation.exam", examInfo));
         stringValues.put("teacher_name", Messages.get(lang, "email.template.reservation.teacher", teacherName));
         stringValues.put("reservation_date", Messages.get(lang, "email.template.reservation.date", reservationDate));
@@ -203,13 +206,12 @@ public class EmailComposerImpl implements EmailComposer {
         stringValues.put("building_info", Messages.get(lang, "email.template.reservation.building", buildingInfo));
         stringValues.put("room_name", Messages.get(lang, "email.template.reservation.room", roomName));
         stringValues.put("machine_name", Messages.get(lang, "email.template.reservation.machine", machineName));
-        stringValues.put("room_instructions", roomInstructions);
-        stringValues.put("cancellation_info", Messages.get(lang, "email.template.reservation.cancel.info"));
-        stringValues.put("cancellation_link", String.format("%s/#/", HOSTNAME));
-        stringValues.put("cancellation_link_text", Messages.get(lang, "email.template.reservation.cancel.link.text"));
-
+        stringValues.put("room_instructions", isTeacher ? null : roomInstructions);
+        stringValues.put("cancellation_info", isTeacher ? null : Messages.get(lang, "email.template.reservation.cancel.info"));
+        stringValues.put("cancellation_link", isTeacher ? null : String.format("%s/#/", HOSTNAME));
+        stringValues.put("cancellation_link_text", isTeacher ? null : Messages.get(lang, "email.template.reservation.cancel.link.text"));
         String content = replaceAll(template, stringValues);
-        emailSender.send(student.getEmail(), SYSTEM_ACCOUNT, subject, content);
+        emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
     public void composeExamReviewRequest(User toUser, User fromUser, Exam exam, String message)

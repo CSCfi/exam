@@ -43,3 +43,4 @@ email.template.participant.notification.teacher=Opettajat: {0} SV
 email.template.participant.notification.exam.period=Tentin voimassaoloaika: {0} SV
 email.template.participant.notification.exam.duration=Tentin kesto: {0} minuuttia SV
 email.template.participant.notification.please.reserve=Varaa tenttiaika. SV
+email.template.reservation.new.student=Opiskelija {0} on varannut tenttiajan henkilökohtaiseen tenttiin SV
