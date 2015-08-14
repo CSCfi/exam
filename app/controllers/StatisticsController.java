@@ -116,7 +116,7 @@ public class StatisticsController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result getTeacherExamsByDate(Long uid, String from, String to)  throws IOException {
+    public Result getTeacherExamsByDate(Long uid, String from, String to) throws IOException {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
         List<Exam> exams = Ebean.find(Exam.class)
@@ -206,13 +206,6 @@ public class StatisticsController extends BaseController {
         return ok(encode(wb));
     }
 
-    /**
-     * Hae kaikki suoritukset aikavälillä
-     *
-     * @param from alkupäivä
-     * @param to   loppupäivä
-     * @return excel
-     */
     @Restrict({@Group("ADMIN")})
     public Result getReviewsByDate(String from, String to) throws IOException {
         final DateTime start = DateTime.parse(from, DTF);
@@ -220,10 +213,10 @@ public class StatisticsController extends BaseController {
         List<Exam> exams = Ebean.find(Exam.class)
                 .fetch("course")
                 .where()
-                .between("exam.gradedTime", start, end)
+                .between("gradedTime", start, end)
                 .disjunction()
-                .eq("exam.state", "GRADED")
-                .eq("exam.state", "GRADED_LOGGED")
+                .eq("state", Exam.State.GRADED.toString())
+                .eq("state", Exam.State.GRADED_LOGGED.toString())
                 .endJunction()
                 .orderBy("creator.id")
                 .findList();
@@ -259,7 +252,7 @@ public class StatisticsController extends BaseController {
     }
 
     @Restrict({@Group("ADMIN")})
-    public Result getReservationsForRoomByDate(Long roomId, String from, String to)  throws IOException {
+    public Result getReservationsForRoomByDate(Long roomId, String from, String to) throws IOException {
 
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);

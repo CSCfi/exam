@@ -471,6 +471,7 @@ public class StudentExamController extends BaseController {
                 .fetch("creator", "firstName, lastName")
                 .where()
                 .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
                 .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate());
         if (!courseCodes.isEmpty()) {
             query.in("course.code", courseCodes);

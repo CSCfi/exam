@@ -139,11 +139,12 @@ public class EnrollController extends BaseController {
         return ok();
     }
 
-    private Result doCreateEnrolment(Long eid, Long uid) {
+    private Result doCreateEnrolment(Long eid, Long uid, ExamExecutionType.Type type) {
         User user = uid == null ? getLoggedUser() : Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class)
                 .where()
                 .eq("id", eid)
+                .eq("executionType.type", type.toString())
                 .findUnique();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -193,13 +194,13 @@ public class EnrollController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public F.Promise<Result> createEnrolment(final String code, final Long id) throws MalformedURLException {
         if (!PERM_CHECK_ACTIVE) {
-            return wrapAsPromise(doCreateEnrolment(id, null));
+            return wrapAsPromise(doCreateEnrolment(id, null, ExamExecutionType.Type.PUBLIC));
         }
         final User user = getLoggedUser();
         F.Promise<Collection<String>> promise = externalAPI.getPermittedCourses(user);
         return promise.map(codes -> {
             if (codes.contains(code)) {
-                return doCreateEnrolment(id, null);
+                return doCreateEnrolment(id, null, ExamExecutionType.Type.PUBLIC);
             } else {
                 Logger.warn("Attempt to enroll for a course without permission from {}", user.toString());
                 return forbidden("sitnet_error_access_forbidden");
@@ -209,7 +210,7 @@ public class EnrollController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result createStudentEnrolment(Long eid, Long uid) {
-        return doCreateEnrolment(eid, uid);
+        return doCreateEnrolment(eid, uid, ExamExecutionType.Type.PRIVATE);
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})

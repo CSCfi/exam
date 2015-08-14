@@ -676,7 +676,7 @@ public class ExamController extends BaseController {
         part.put("id", exam.getId());
         ObjectNode typeNode = Json.newObject();
         typeNode.put("type", examExecutionType.getType());
-        part.put("executionType", typeNode);
+        part.set("executionType", typeNode);
         return ok(Json.toJson(part));
     }
 
