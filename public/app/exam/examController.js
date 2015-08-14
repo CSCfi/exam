@@ -80,7 +80,6 @@
                                 // Use front-end language names always to allow for i18n etc
                                 language.name = getLanguageNativeName(language.code);
                             });
-                            $scope.softwaresUpdate = exam.softwares ? exam.softwares.length : 0;
                             $scope.languagesUpdate = exam.examLanguages ? exam.examLanguages.length : 0;
                             // Set exam grade scale from course default if not specifically set for exam
                             if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
@@ -123,30 +122,17 @@
                 };
 
                 $scope.updateSoftwareInfo = function () {
-
-                    if ($scope.newExam.softwares.length !== $scope.softwaresUpdate) {
-
-                        ExamRes.softwares.reset({eid: $scope.newExam.id}, function () {
-                            var promises = [];
-                            angular.forEach($scope.newExam.softwares, function (software) {
-                                promises.push(ExamRes.software.add({eid: $scope.newExam.id, sid: software.id}));
-                            });
-
-                            $q.all(promises).then(function () {
-
-                                ExamRes.hasrequiredsoftware.post({eid: $scope.newExam.id},
-                                function () {
-                                    toastr.info($translate.instant('sitnet_exam_software_updated'));
-
-                                    $scope.selectedSoftwares($scope.newExam);
-                                    $scope.softwaresUpdate = $scope.newExam.softwares.length;
-                                },
-                                function (error) {
-                                    toastr.error($translate.instant('sitnet_no_required_softwares'));
-                                });
-                            });
-                        });
-                    }
+                    var softwareIds = $scope.newExam.softwares.map(function (s) {
+                        return s.id;
+                    }).join();
+                    ExamRes.software.add({eid: $scope.newExam.id, softwareIds: softwareIds}, function () {
+                        toastr.info($translate.instant('sitnet_exam_software_updated'));
+                        $scope.selectedSoftwares($scope.newExam);
+                    }, function (error) {
+                        $scope.newExam.softwares = [];
+                        $scope.selectedSoftwares($scope.newExam);
+                        toastr.error(error.data);
+                    });
                 };
 
                 $scope.updateExamLanguages = function () {

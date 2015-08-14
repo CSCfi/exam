@@ -213,31 +213,16 @@
                 }),
                 examTypes: $resource("/examtypes"),
                 gradeScales: $resource("/gradescales"),
-                software: $resource("/exam/:eid/software/:sid",
+                software: $resource("/exam/:eid/software",
                 {
-                    eid: "@eid",
-                    sid: "@sid"
+                    eid: "@eid"
                 },
                 {
                     "add": {method: "PUT"}
                 }),
-                softwares: $resource("exam/:eid/software",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "reset": {method: "DELETE"}
-                }),
                 reservation: $resource("/exams/:eid/reservation",
                 {
                     eid: "@eid"
-                }),
-                hasrequiredsoftware: $resource("/exam/:eid/hasrequiredsoftware",
-                {
-                    eid: "@eid"
-                },
-                {
-                    "post": {method: "POST"}
                 })
             };
         }]);
