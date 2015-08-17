@@ -74,7 +74,7 @@ public class CalendarController extends BaseController {
         return ok("removed");
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result createReservation() {
         // Parse request body
         JsonNode json = request().body().asJson();
@@ -139,7 +139,7 @@ public class CalendarController extends BaseController {
         }
         Exam exam = enrolment.getExam();
         Set<User> recipients = new HashSet<>();
-        if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.PRIVATE.toString())) {
+        if (exam.isPrivate()) {
             recipients.addAll(exam.getExamOwners());
             recipients.addAll(exam.getExamInspections().stream().map(
                     ExamInspection::getUser).collect(Collectors.toSet()));
@@ -173,7 +173,7 @@ public class CalendarController extends BaseController {
         return null;
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result getSlots(Long examId, Long roomId, String day, List<Integer> aids) {
         Exam exam = getEnrolledExam(examId);
         if (exam == null) {

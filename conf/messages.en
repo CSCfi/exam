@@ -44,3 +44,7 @@ email.template.participant.notification.exam.period=Tentin voimassaoloaika: {0} 
 email.template.participant.notification.exam.duration=Tentin kesto: {0} minuuttia EN
 email.template.participant.notification.please.reserve=Varaa tenttiaika. EN
 email.template.reservation.new.student=Opiskelija {0} on varannut tenttiajan henkilökohtaiseen tenttiin EN
+email.template.exam.aborted.subject=Henkilökohtainen tentti on keskeytetty EN
+email.template.exam.aborted.message=Opiskelija {0} on keskeyttänyt tentin {1}. EN
+email.template.exam.returned.subject=Henkilökohtainen tentti on palautettu EN
+email.template.exam.returned.message=Opiskelija {0} on palauttanut tentin {1} arvioitavaksi. EN

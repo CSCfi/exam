@@ -26,5 +26,6 @@ public interface EmailComposer {
 
     void composePrivateExamParticipantNotification(User student, User fromUser, Exam exam) throws IOException;
 
+    void composePrivateExamEnded(User toUser, Exam exam) throws IOException;
 
 }

@@ -1,5 +1,6 @@
 package controllers;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
@@ -18,14 +19,16 @@ import play.data.Form;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import util.AppUtil;
+import util.java.EmailComposer;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class StudentExamController extends BaseController {
 
@@ -33,6 +36,11 @@ public class StudentExamController extends BaseController {
 
     @Inject
     protected ExternalAPI externalAPI;
+    @Inject
+    protected EmailComposer emailComposer;
+    @Inject
+    protected ActorSystem actor;
+
 
     @Restrict({@Group("STUDENT")})
     public F.Promise<Result> listAvailableExams(final F.Option<String> filter) throws MalformedURLException {
@@ -58,7 +66,7 @@ public class StudentExamController extends BaseController {
                 .fetch("exam.creator", "id")
                 .fetch("exam.course", "code")
                 .fetch("exam.examOwners", "firstName, lastName, id")
-				.fetch("exam.examInspectors", "firstName, lastName, id")
+                .fetch("exam.examInspectors", "firstName, lastName, id")
                 .where()
                 .ne("exam.state", Exam.State.STUDENT_STARTED.toString())
                 .ne("exam.state", Exam.State.ABORTED.toString())
@@ -328,10 +336,12 @@ public class StudentExamController extends BaseController {
             Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
             p.setDeadline(deadline);
             p.save();
-            exam.setState("REVIEW");
+            exam.setState(Exam.State.REVIEW.toString());
             exam.update();
-
-            return ok("Exam send for review");
+            if (exam.isPrivate()) {
+                notifyTeachers(exam);
+            }
+            return ok("Exam sent for review");
         } else {
             return forbidden("exam already returned");
         }
@@ -353,9 +363,11 @@ public class StudentExamController extends BaseController {
             p.setEnded(DateTime.now().toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
             p.save();
-            exam.setState("ABORTED");
+            exam.setState(Exam.State.ABORTED.toString());
             exam.update();
-
+            if (exam.isPrivate()) {
+                notifyTeachers(exam);
+            }
             return ok("Exam aborted");
         } else {
             return forbidden("Exam already returned");
@@ -488,5 +500,23 @@ public class StudentExamController extends BaseController {
         List<Exam> exams = query.orderBy("course.code").findList();
         return ok(exams);
     }
+
+    private void notifyTeachers(Exam exam) {
+        Set<User> recipients = new HashSet<>();
+        recipients.addAll(exam.getExamOwners());
+        recipients.addAll(exam.getExamInspections().stream().map(
+                ExamInspection::getUser).collect(Collectors.toSet()));
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            for (User r : recipients) {
+                try {
+                    emailComposer.composePrivateExamEnded(r, exam);
+                    Logger.info("Email sent to {}", r.getEmail());
+                } catch (IOException e) {
+                    Logger.error("Failed to send email", e);
+                }
+            }
+        }, actor.dispatcher());
+    }
+
 
 }

@@ -485,8 +485,7 @@ public class ExamController extends BaseController {
 
     private boolean updateState(Exam exam, String state) {
         if (state != null) {
-            if (exam.getExecutionType().getType().equals(ExamExecutionType.Type.PRIVATE.toString()) &&
-                    !exam.getState().equals(Exam.State.PUBLISHED.toString()) &&
+            if (exam.isPrivate() && !exam.getState().equals(Exam.State.PUBLISHED.toString()) &&
                     state.equals(Exam.State.PUBLISHED.toString())) {
                 // No participants added, this is not good.
                 if (exam.getExamEnrolments().isEmpty()) {

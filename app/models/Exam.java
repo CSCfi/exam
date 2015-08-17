@@ -593,6 +593,11 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         return isInspectedBy(user, applyToChildOnly) || isOwnedBy(user) || isCreatedBy(user);
     }
 
+    @Transient
+    public boolean isPrivate() {
+        return executionType.getType().equals(ExamExecutionType.Type.PRIVATE.toString());
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
