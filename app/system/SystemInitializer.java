@@ -62,7 +62,7 @@ public class SystemInitializer {
         autosaver = actor.scheduler().schedule(
                 Duration.create(EXAM_AUTO_SAVER_START_AFTER_MINUTES, TimeUnit.MINUTES),
                 Duration.create(EXAM_AUTO_SAVER_INTERVAL_MINUTES, TimeUnit.MINUTES),
-                new ExamAutosaver(composer),
+                new ExamAutoSaver(composer),
                 actor.dispatcher()
         );
         reservationPoller = actor.scheduler().schedule(

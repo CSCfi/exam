@@ -15,11 +15,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Singleton
-public class ExamAutosaver implements Runnable {
+public class ExamAutoSaver implements Runnable {
 
     EmailComposer emailComposer;
 
-    public ExamAutosaver(EmailComposer composer) {
+    public ExamAutoSaver(EmailComposer composer) {
         emailComposer = composer;
     }
 
