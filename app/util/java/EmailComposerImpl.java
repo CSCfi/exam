@@ -359,12 +359,30 @@ public class EmailComposerImpl implements EmailComposer {
         if (exam.getState().equals(Exam.State.ABORTED.toString())) {
             subject = Messages.get(lang, "email.template.exam.aborted.subject");
             message = Messages.get(lang, "email.template.exam.aborted.message", String.format("%s %s <%s>",
-                    student.getFirstName(), student.getLastName(), student.getEmail()));
+                            student.getFirstName(), student.getLastName(), student.getEmail()),
+                    String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         } else {
             subject = Messages.get(lang, "email.template.exam.returned.subject");
             message = Messages.get(lang, "email.template.exam.returned.message", String.format("%s %s <%s>",
-                    student.getFirstName(), student.getLastName(), student.getEmail()));
+                            student.getFirstName(), student.getLastName(), student.getEmail()),
+                    String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         }
+        Map<String, String> stringValues = new HashMap<>();
+        stringValues.put("message", message);
+        String content = replaceAll(template, stringValues);
+        emailSender.send(toUser.getEmail(), SYSTEM_ACCOUNT, subject, content);
+    }
+
+    @Override
+    public void composeNoShowMessage(User toUser, Exam exam) throws IOException {
+        String templatePath = getTemplatesRoot() + "noShow.html";
+        String template = readFile(templatePath, ENCODING);
+        Lang lang = getLang(toUser);
+        User student = exam.getCreator();
+        String subject = Messages.get(lang, "email.template.nowshow.subject");
+        String message = Messages.get(lang, "email.template.noshow.message", String.format("%s %s <%s>",
+                        student.getFirstName(), student.getLastName(), student.getEmail()),
+                String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("message", message);
         String content = replaceAll(template, stringValues);

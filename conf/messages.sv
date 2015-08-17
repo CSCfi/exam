@@ -48,3 +48,6 @@ email.template.exam.aborted.subject=Henkilökohtainen tentti on keskeytetty SV
 email.template.exam.aborted.message=Opiskelija {0} on keskeyttänyt tentin {1}. SV
 email.template.exam.returned.subject=Henkilökohtainen tentti on palautettu SV
 email.template.exam.returned.message=Opiskelija {0} on palauttanut tentin {1} arvioitavaksi. SV
+email.template.noshow.subject=Opiskelija ei saapunut henkilökohtaiseen tenttiin SV
+email.template.noshow.message=Opiskelija {0} ei käyttänyt tenttiin {1} varaamaansa aikaa, no-show. SV
+

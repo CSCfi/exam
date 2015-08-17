@@ -29,8 +29,10 @@ import java.util.concurrent.TimeUnit;
 @Singleton
 public class SystemInitializer {
 
-    public static final int SITNET_EXAM_REVIEWER_START_AFTER_MINUTES = 1;
-    public static final int SITNET_EXAM_REVIEWER_INTERVAL_MINUTES = 1;
+    public static final int EXAM_AUTO_SAVER_START_AFTER_MINUTES = 1;
+    public static final int EXAM_AUTO_SAVER_INTERVAL_MINUTES = 1;
+    public static final int RESERVATION_POLLER_START_AFTER_MINUTES = 1;
+    public static final int RESERVATION_POLLER_INTERVAL_HOURS = 1;
 
     protected ApplicationLifecycle lifecycle;
     protected EmailComposer composer;
@@ -38,7 +40,8 @@ public class SystemInitializer {
     protected Database database;
 
     private Scheduler reportSender;
-    private Cancellable reviewRunner;
+    private Cancellable autosaver;
+    private Cancellable reservationPoller;
     private Cancellable reportTask;
 
     @Inject
@@ -56,10 +59,16 @@ public class SystemInitializer {
         System.setProperty("user.timezone", "UTC");
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         DateTimeZone.setDefault(DateTimeZone.forID("UTC"));
-        reviewRunner = actor.scheduler().schedule(
-                Duration.create(SITNET_EXAM_REVIEWER_START_AFTER_MINUTES, TimeUnit.MINUTES),
-                Duration.create(SITNET_EXAM_REVIEWER_INTERVAL_MINUTES, TimeUnit.MINUTES),
-                new ReviewRunner(),
+        autosaver = actor.scheduler().schedule(
+                Duration.create(EXAM_AUTO_SAVER_START_AFTER_MINUTES, TimeUnit.MINUTES),
+                Duration.create(EXAM_AUTO_SAVER_INTERVAL_MINUTES, TimeUnit.MINUTES),
+                new ExamAutosaver(composer),
+                actor.dispatcher()
+        );
+        reservationPoller = actor.scheduler().schedule(
+                Duration.create(RESERVATION_POLLER_START_AFTER_MINUTES, TimeUnit.MINUTES),
+                Duration.create(RESERVATION_POLLER_INTERVAL_HOURS, TimeUnit.HOURS),
+                new ReservationPoller(composer),
                 actor.dispatcher()
         );
         reportSender = actor.scheduler();
@@ -69,7 +78,8 @@ public class SystemInitializer {
 
         lifecycle.addStopHook(() -> {
             cancelReportSender();
-            cancelReviewRunner();
+            cancelAutosaver();
+            cancelReservationPoller();
             database.shutdown();
             CacheManager.getInstance().removeCache("play");
             return null;
@@ -129,9 +139,15 @@ public class SystemInitializer {
         }
     }
 
-    private void cancelReviewRunner() {
-        if (reviewRunner != null && !reviewRunner.isCancelled()) {
-            reviewRunner.cancel();
+    private void cancelAutosaver() {
+        if (autosaver != null && !autosaver.isCancelled()) {
+            autosaver.cancel();
+        }
+    }
+
+    private void cancelReservationPoller() {
+        if (reservationPoller != null && !reservationPoller.isCancelled()) {
+            reservationPoller.cancel();
         }
     }
 }

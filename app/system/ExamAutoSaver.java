@@ -1,23 +1,31 @@
 package system;
 
 import com.avaje.ebean.Ebean;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamParticipation;
-import models.GeneralSettings;
+import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
+import util.java.EmailComposer;
 
 import javax.inject.Singleton;
+import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Singleton
-public class ReviewRunner implements Runnable {
+public class ExamAutosaver implements Runnable {
+
+    EmailComposer emailComposer;
+
+    public ExamAutosaver(EmailComposer composer) {
+        emailComposer = composer;
+    }
 
     @Override
     public void run() {
-        Logger.info("Running exam participation clean up ...");
+        Logger.info("Checking for ongoing exams ...");
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("exam")
                 .where()
@@ -25,7 +33,7 @@ public class ReviewRunner implements Runnable {
                 .findList();
 
         if (participations == null || participations.isEmpty()) {
-            Logger.info(" -> no dirty participations found.");
+            Logger.info(" -> none found.");
             return;
         }
         markEnded(participations);
@@ -36,7 +44,7 @@ public class ReviewRunner implements Runnable {
             Exam exam = participation.getExam();
 
             ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
-                    .select("reservation.machine.room.transitionTime")
+                    .fetch("exam")
                     .fetch("reservation")
                     .fetch("reservation.machine")
                     .fetch("reservation.machine.room")
@@ -60,6 +68,21 @@ public class ReviewRunner implements Runnable {
                     Logger.info(" -> setting exam {} state to REVIEW", exam.getId());
                     exam.setState(state);
                     exam.save();
+                    if (exam.isPrivate()) {
+                        // Notify teachers
+                        Set<User> recipients = new HashSet<>();
+                        recipients.addAll(exam.getExamOwners());
+                        recipients.addAll(exam.getExamInspections().stream().map(
+                                ExamInspection::getUser).collect(Collectors.toSet()));
+                        for (User r : recipients) {
+                            try {
+                                emailComposer.composePrivateExamEnded(r, exam);
+                                Logger.info("Email sent to {}", r.getEmail());
+                            } catch (IOException e) {
+                                Logger.error("Failed to send email", e);
+                            }
+                        }
+                    }
                 } else {
                     Logger.info(" -> exam {} is ongoing until {}", exam.getId(), participationTimeLimit);
                 }

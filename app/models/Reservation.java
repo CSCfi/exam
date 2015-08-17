@@ -15,6 +15,8 @@ public class Reservation extends GeneratedIdentityModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endAt;
 
+    private boolean noShow;
+
     @OneToOne
     @JsonBackReference
     ExamMachine machine;
@@ -37,6 +39,14 @@ public class Reservation extends GeneratedIdentityModel {
 
     public void setEndAt(Date endAt) {
         this.endAt = endAt;
+    }
+
+    public boolean isNoShow() {
+        return noShow;
+    }
+
+    public void setNoShow(boolean noShow) {
+        this.noShow = noShow;
     }
 
     public ExamMachine getMachine() {

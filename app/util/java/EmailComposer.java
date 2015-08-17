@@ -28,4 +28,6 @@ public interface EmailComposer {
 
     void composePrivateExamEnded(User toUser, Exam exam) throws IOException;
 
+    void composeNoShowMessage(User teacher, Exam exam) throws IOException;
+
 }
