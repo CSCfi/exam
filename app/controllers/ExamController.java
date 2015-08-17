@@ -15,6 +15,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.joda.time.DateTime;
+import org.jsoup.Jsoup;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -31,10 +32,7 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
@@ -617,7 +615,7 @@ public class ExamController extends BaseController {
         String args = df.get("softwareIds");
         String[] softwareIds;
         if (args == null || args.isEmpty()) {
-            softwareIds = new String[] {};
+            softwareIds = new String[]{};
         } else {
             softwareIds = args.split(",");
         }
@@ -1375,14 +1373,43 @@ public class ExamController extends BaseController {
                 && !(end != null && exam.getCreated().after(end));
     }
 
+    private static void createSummaryFile(ArchiveOutputStream aos, Date start, Date end, Exam exam,
+                                          Map<Long, String> questions) throws IOException {
+        File file = File.createTempFile("summary", ".txt");
+        FileOutputStream fos = new FileOutputStream(file);
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
+        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+        writer.write(String.format("period: %s-%s", df.format(start), df.format(end)));
+        writer.newLine();
+        writer.write(String.format("exam id: %d", exam.getId()));
+        writer.newLine();
+        writer.write(String.format("exam name: %s", exam.getName()));
+        writer.newLine();
+        writer.newLine();
+        writer.write("questions");
+        writer.newLine();
+        for (Map.Entry<Long, String> entry : questions.entrySet()) {
+            writer.write(String.format("%d: %s", entry.getKey(), Jsoup.parse(entry.getValue()).text()));
+            writer.newLine();
+        }
+        writer.close();
+        TarArchiveEntry entry = new TarArchiveEntry("summary.txt");
+        entry.setSize(file.length());
+        aos.putArchiveEntry(entry);
+        IOUtils.copy(new FileInputStream(file), aos);
+        aos.closeArchiveEntry();
+    }
+
     private void createArchive(Exam prototype, ArchiveOutputStream aos, Date start, Date end) throws IOException {
         List<Exam> children = prototype.getChildren().stream().filter(
                 (e) -> isEligibleForArchiving(e, start, end)).collect(Collectors.toList());
+        Map<Long, String> questions = new LinkedHashMap<>();
         for (Exam exam : children) {
             String uid = exam.getCreator().getUserIdentifier() == null ?
                     exam.getCreator().getId().toString() : exam.getCreator().getUserIdentifier();
             for (ExamSection es : exam.getExamSections()) {
                 for (ExamSectionQuestion esq : es.getSectionQuestions()) {
+                    questions.put(esq.getQuestion().getId(), esq.getQuestion().getQuestion());
                     Long questionId = esq.getQuestion().getParent().getId();
                     Answer answer = esq.getQuestion().getAnswer();
                     Attachment attachment;
@@ -1411,6 +1438,7 @@ public class ExamController extends BaseController {
                 }
             }
         }
+        createSummaryFile(aos, start, end, prototype, questions);
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
