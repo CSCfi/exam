@@ -1,14 +1,15 @@
 <form class="form-inline" role="form">
-<div class="{{sectionQuestion.question.selectedAnsweredState}}"
-            ng-repeat="sectionQuestion in activeSection.sectionQuestions">
-    <h4>
-        <div>
+    <div class="{{sectionQuestion.question.selectedAnsweredState}}"
+         ng-repeat="sectionQuestion in activeSection.sectionQuestions">
+        <h4>
+            <div>
 			<span class="fa-stack sitnet-white">
                 <i class="fa fa-square fa-stack-2x"></i>
                 <i class="fa-stack-1x sitnet-black">{{question.id}}.</i>
             </span>
-            <span class="sitnet-white" mathjax ng-bind-html="sectionQuestion.question.question"></span>
-			<span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded" class="pull-right fa-stack fa-lg">
+                <span class="sitnet-white" mathjax ng-bind-html="sectionQuestion.question.question"></span>
+			<span ng-click="sectionQuestion.question.expanded = !sectionQuestion.question.expanded"
+                  class="pull-right fa-stack fa-lg">
                 <i ng-class="question.expanded ? 'sitnet-white' : 'sitnet-student-darkgreen'"
                    class="fa fa-square fa-stack-2x section-header-icon-square">
                 </i>
@@ -21,12 +22,12 @@
             <span class="pull-right sitnet-white">
                 <i class="question-status" ng-model="sectionQuestion.question">{{sectionQuestion.question.questionStatus}}</i>
             </span>
-        </div>
-    </h4>
+            </div>
+        </h4>
 
         <div class="exam-question-container" ng-hide="!sectionQuestion.question.expanded">
-            <div class="question" ng-include="multipleChoiseOptionTemplate"></div>
+            <div class="question" ng-include="multipleChoiceOptionTemplate"></div>
         </div>
 
-</div>
+    </div>
 </form>

@@ -5,7 +5,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.ConfigFactory;
-import exceptions.MalformedDataException;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateTime;
@@ -153,7 +152,7 @@ public class SessionController extends BaseController {
         result.put("lastname", user.getLastName());
         result.put("lang", user.getUserLanguage().getUILanguageCode());
         result.set("roles", Json.toJson(user.getRoles()));
-        result.put("hasAcceptedUserAgreament", user.isHasAcceptedUserAgreament());
+        result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
 
         response().setCookie("XSRF-TOKEN", session.getXsrfToken());

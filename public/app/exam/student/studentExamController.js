@@ -7,7 +7,7 @@
                       EXAM_CONF, StudentExamRes, dateService, examService, questionService, fileService, sessionService) {
 
                 $scope.sectionsBar = EXAM_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
-                $scope.multipleChoiseOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
+                $scope.multipleChoiceOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
                 $scope.essayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/essay_question.html";
                 $scope.sectionTemplate = EXAM_CONF.TEMPLATES_PATH + "exam/student/section_template.html";
 
@@ -112,7 +112,7 @@
                                 var template = "";
                                 switch (question.type) {
                                     case "MultipleChoiceQuestion":
-                                        template = $scope.multipleChoiseOptionTemplate;
+                                        template = $scope.multipleChoiceOptionTemplate;
                                         break;
                                     case "EssayQuestion":
                                         template = $scope.essayQuestionTemplate;
@@ -262,7 +262,7 @@
                             var template = "";
                             switch (question.type) {
                                 case "MultipleChoiceQuestion":
-                                    template = $scope.multipleChoiseOptionTemplate;
+                                    template = $scope.multipleChoiceOptionTemplate;
                                     break;
                                 case "EssayQuestion":
                                     template = $scope.essayQuestionTemplate;
@@ -366,7 +366,7 @@
                     question.questionStatus = $translate.instant("sitnet_question_answered");
 
                     if (!isPreview()) {
-                        StudentExamRes.multipleChoiseAnswer.saveMultipleChoice({
+                        StudentExamRes.multipleChoiceAnswer.saveMultipleChoice({
                                 hash: doexam.hash,
                                 qid: question.id,
                                 oid: option.id

@@ -9,7 +9,7 @@ import javax.persistence.ManyToOne;
 
 
 @Entity
-public class MultipleChoiseOption extends GeneratedIdentityModel implements Comparable<MultipleChoiseOption> {
+public class MultipleChoiceOption extends GeneratedIdentityModel implements Comparable<MultipleChoiceOption> {
 
     private String option;
 
@@ -42,7 +42,7 @@ public class MultipleChoiseOption extends GeneratedIdentityModel implements Comp
             return false;
         }
 
-        MultipleChoiseOption that = (MultipleChoiseOption) o;
+        MultipleChoiceOption that = (MultipleChoiceOption) o;
         return getId().equals(that.getId());
     }
 
@@ -76,14 +76,14 @@ public class MultipleChoiseOption extends GeneratedIdentityModel implements Comp
         this.question = question;
     }
 
-    public MultipleChoiseOption copy() {
-        MultipleChoiseOption option = new MultipleChoiseOption();
+    public MultipleChoiceOption copy() {
+        MultipleChoiceOption option = new MultipleChoiceOption();
         BeanUtils.copyProperties(this, option, "id");
         return option;
     }
 
     public String toString() {
-        return "MultipleChoiseOption{" +
+        return "MultipleChoiceOption{" +
                 "id=" + getId() +
                 ", option='" + option + '\'' +
                 ", correctOption=" + correctOption +
@@ -92,7 +92,7 @@ public class MultipleChoiseOption extends GeneratedIdentityModel implements Comp
     }
 
     @Override
-    public int compareTo(MultipleChoiseOption o) {
+    public int compareTo(MultipleChoiceOption o) {
         if (getId() < o.getId()) {
             return -1;
         }

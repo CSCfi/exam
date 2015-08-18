@@ -49,7 +49,7 @@
                     "get": {method: "GET", params: { eid: "@eid" }}
                 }),
 
-                multipleChoiseAnswer: $resource("/student/exams/:hash/question/:qid/option/:oid",
+                multipleChoiceAnswer: $resource("/student/exams/:hash/question/:qid/option/:oid",
                 {
                     hash: "@hash", qid: "@qid", oid: "@oid"
                 },

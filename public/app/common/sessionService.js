@@ -76,7 +76,7 @@
                                 isTeacher: (hasRole(user, 'TEACHER')),
                                 isLoggedOut: false,
                                 token: user.token,
-                                hasAcceptedUserAgreament: user.hasAcceptedUserAgreament,
+                                userAgreementAccepted: user.userAgreementAccepted,
                                 userNo: user.userIdentifier
                             };
 

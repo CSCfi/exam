@@ -9,7 +9,7 @@ import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.Answer;
-import models.questions.MultipleChoiseOption;
+import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -379,8 +379,8 @@ public class StudentExamController extends BaseController {
 
         Question question = Ebean.find(Question.class, questionId);
         Answer answer = new Answer();
-        answer.setType(Answer.Type.MultipleChoiseAnswer.toString());
-        MultipleChoiseOption option = new MultipleChoiseOption();
+        answer.setType(Answer.Type.MultipleChoiceAnswer.toString());
+        MultipleChoiceOption option = new MultipleChoiceOption();
 
         option.setQuestion(question);
         answer.setOption(option);
@@ -429,10 +429,10 @@ public class StudentExamController extends BaseController {
 
         if (oid > 0) {
 
-            MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+            MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
 
             // must clone answered option because teacher can remove original option.
-            MultipleChoiseOption answeredOption = new MultipleChoiseOption();
+            MultipleChoiceOption answeredOption = new MultipleChoiceOption();
             answeredOption.setOption(option.getOption());
             answeredOption.setCorrectOption(option.isCorrectOption());
             answeredOption.setScore(option.getScore());
@@ -440,7 +440,7 @@ public class StudentExamController extends BaseController {
 
             if (question.getAnswer() == null) {
                 Answer answer = new Answer();
-                answer.setType(Answer.Type.MultipleChoiseAnswer.toString());
+                answer.setType(Answer.Type.MultipleChoiceAnswer.toString());
                 answer.setOption(answeredOption);
                 question.setAnswer(answer);
                 answer.save();
@@ -465,7 +465,7 @@ public class StudentExamController extends BaseController {
                     question.update();
 
                     // delete old answered option
-                    Ebean.delete(MultipleChoiseOption.class, optionId);
+                    Ebean.delete(MultipleChoiceOption.class, optionId);
                 }
                 return ok(Json.toJson(answer));
             }

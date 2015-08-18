@@ -188,7 +188,7 @@ public class UserController extends BaseController {
         if (user == null) {
             result = notFound();
         } else {
-            user.setHasAcceptedUserAgreament(true);
+            user.setUserAgreementAccepted(true);
             user.save();
             Ebean.update(user);
             result = ok(user);

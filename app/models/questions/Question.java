@@ -68,7 +68,7 @@ public class Question extends OwnedModel {
 
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "question")
     @JsonManagedReference
-    private List<MultipleChoiseOption> options;
+    private List<MultipleChoiceOption> options;
 
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -159,11 +159,11 @@ public class Question extends OwnedModel {
         this.maxScore = maxScore;
     }
 
-    public List<MultipleChoiseOption> getOptions() {
+    public List<MultipleChoiceOption> getOptions() {
         return options;
     }
 
-    public void setOptions(List<MultipleChoiseOption> options) {
+    public void setOptions(List<MultipleChoiceOption> options) {
         this.options = options;
     }
 
@@ -231,7 +231,7 @@ public class Question extends OwnedModel {
         Question question = new Question();
         BeanUtils.copyProperties(this, question, "id", "answer", "options", "tags", "children");
         question.setParent(this);
-        for (MultipleChoiseOption o : options) {
+        for (MultipleChoiceOption o : options) {
             question.getOptions().add(o.copy());
         }
         if (attachment != null) {

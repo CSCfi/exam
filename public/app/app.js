@@ -119,7 +119,7 @@
                         };
                         setTimeout(welcome, 2000);
                         restartSessionCheck();
-                        if (user.isStudent && !user.hasAcceptedUserAgreament) {
+                        if (user.isStudent && !user.userAgreementAccepted) {
 
                             $modal.open({
                                 templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/show_eula.html',
@@ -131,7 +131,7 @@
                                         console.log("ok");
                                         // OK button
                                         UserRes.updateAgreementAccepted.update({id: user.id}, function () {
-                                            user.hasAcceptedUserAgreament = true;
+                                            user.userAgreementAccepted = true;
                                             sessionService.setUser(user);
                                         }, function (error) {
                                             toastr.error(error.data);

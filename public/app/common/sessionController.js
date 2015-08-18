@@ -53,7 +53,7 @@
                         };
                         setTimeout(welcome, 2000);
 
-                        if (user.isStudent && !user.hasAcceptedUserAgreament) {
+                        if (user.isStudent && !user.userAgreementAccepted) {
 
                             $modal.open({
 
@@ -65,7 +65,7 @@
                                     $scope.ok = function () {
                                         // OK button
                                         UserRes.updateAgreementAccepted.update({id: user.id}, function () {
-                                            user.hasAcceptedUserAgreament = true;
+                                            user.userAgreementAccepted = true;
                                             sessionService.setUser(user);
                                         }, function (error) {
                                             toastr.error(error.data);

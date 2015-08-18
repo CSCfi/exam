@@ -59,18 +59,20 @@ public class User extends GeneratedIdentityModel implements Subject {
     @JsonManagedReference
     private List<ExamInspection> inspections;
 
+    public boolean isUserAgreementAccepted() {
+        return userAgreementAccepted;
+    }
+
+    public void setUserAgreementAccepted(boolean userAgreementAccepted) {
+        this.userAgreementAccepted = userAgreementAccepted;
+    }
+
     @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean hasAcceptedUserAgreament;
+    private boolean userAgreementAccepted;
 
     private Date lastLogin;
 
-    public boolean isHasAcceptedUserAgreament() {
-        return hasAcceptedUserAgreament;
-    }
 
-    public void setHasAcceptedUserAgreament(boolean hasAcceptedUserAgreament) {
-        this.hasAcceptedUserAgreament = hasAcceptedUserAgreament;
-    }
 
     public String getEmployeeNumber() {
         return employeeNumber;

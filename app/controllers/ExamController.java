@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.Answer;
-import models.questions.MultipleChoiseOption;
+import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -839,7 +839,7 @@ public class ExamController extends BaseController {
                 if (question.getOptions().size() < 2) {
                     return forbidden("sitnet_minimum_of_two_options_required");
                 }
-                if (!question.getOptions().stream().anyMatch(MultipleChoiseOption::isCorrectOption)) {
+                if (!question.getOptions().stream().anyMatch(MultipleChoiceOption::isCorrectOption)) {
                     return forbidden("sitnet_correct_option_required");
                 }
             }

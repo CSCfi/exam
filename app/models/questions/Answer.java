@@ -11,7 +11,7 @@ import javax.persistence.OneToOne;
 @Entity
 public class Answer extends OwnedModel {
 
-    public enum Type { MultipleChoiseAnswer, EssayAnswer }
+    public enum Type { MultipleChoiceAnswer, EssayAnswer }
 
     protected String type;
 
@@ -46,13 +46,13 @@ public class Answer extends OwnedModel {
     }
 
     @OneToOne(cascade = CascadeType.ALL)
-    private MultipleChoiseOption option;
+    private MultipleChoiceOption option;
 
-    public MultipleChoiseOption getOption() {
+    public MultipleChoiceOption getOption() {
         return option;
     }
 
-    public void setOption(MultipleChoiseOption option) {
+    public void setOption(MultipleChoiceOption option) {
         this.option = option;
     }
 

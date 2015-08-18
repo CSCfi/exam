@@ -7,7 +7,7 @@ import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import models.Tag;
 import models.User;
-import models.questions.MultipleChoiseOption;
+import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -106,7 +106,7 @@ public class QuestionController extends BaseController {
     }
 
     private static boolean hasCorrectOption(Question question) {
-        return question.getOptions().stream().anyMatch(MultipleChoiseOption::isCorrectOption);
+        return question.getOptions().stream().anyMatch(MultipleChoiceOption::isCorrectOption);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -186,8 +186,8 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateOption(Long oid) {
-        MultipleChoiseOption form = bindForm(MultipleChoiseOption.class);
-        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+        MultipleChoiceOption form = bindForm(MultipleChoiceOption.class);
+        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
         option.setOption(form.getOption());
         option.setScore(form.getScore());
         option.update();
@@ -196,13 +196,13 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result toggleCorrectOption(Long oid) {
-        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
         if (option == null) {
             return notFound();
         }
         boolean isCorrect = !option.isCorrectOption();
         Question question = option.getQuestion();
-        for (MultipleChoiseOption mco : option.getQuestion().getOptions()) {
+        for (MultipleChoiceOption mco : option.getQuestion().getOptions()) {
             if (mco.equals(option)) {
                 mco.setCorrectOption(isCorrect);
             } else {
@@ -224,7 +224,7 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteOption(Long oid) {
-        Ebean.delete(MultipleChoiseOption.class, oid);
+        Ebean.delete(MultipleChoiceOption.class, oid);
         return ok("Option deleted from database!");
     }
 
@@ -232,7 +232,7 @@ public class QuestionController extends BaseController {
     public Result addOption(Long qid) {
 
         Question question = Ebean.find(Question.class, qid);
-        MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
+        MultipleChoiceOption option = bindForm(MultipleChoiceOption.class);
         question.getOptions().add(option);
         question.save();
         option.save();
@@ -244,7 +244,7 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result createOption() {
 
-        MultipleChoiseOption option = new MultipleChoiseOption();
+        MultipleChoiceOption option = new MultipleChoiceOption();
         option.setCorrectOption(false);
         option.save();
 
@@ -254,7 +254,7 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getOption(Long id) {
 
-        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
+        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, id);
         return ok(Json.toJson(option));
     }
 
