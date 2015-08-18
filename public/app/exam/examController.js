@@ -656,7 +656,15 @@
                     return errors;
                 };
 
-                // TODO: this controller should be split on a per-view basis to avoid having this kind of duplication
+                $scope.copyExam = function(exam) {
+                    ExamRes.exams.copy({id: exam.id}, function(copy) {
+                        toastr.success($translate.instant('sitnet_exam_copied'));
+                        $scope.exams.push(copy);
+                    }, function(error) {
+                        toastr.error(error.data);
+                    });
+                };
+
                 $scope.deleteExam = function (exam) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {

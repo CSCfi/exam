@@ -11,7 +11,10 @@ import util.AppUtil;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam> {
@@ -41,7 +44,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     @ManyToMany
     @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> examOwners;
-	
+
     @ManyToMany
     @JoinTable(name = "exam_inspection", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> examInspectors;
@@ -495,10 +498,10 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         this.examInspections = examInspections;
     }
 
-    public Exam copy(User user) {
+    public Exam copy(User user, boolean produceStudentExam) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
-                "examInspections", "creator", "created", "examOwners");
+                "examInspections", "creator", "created", produceStudentExam ? "examOwners" : "none");
         clone.setParent(this);
         AppUtil.setCreator(clone, user);
         AppUtil.setModifier(clone, user);
@@ -512,7 +515,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
             inspection.save();
         }
         for (ExamSection es : examSections) {
-            ExamSection esCopy = es.copy(clone, true);
+            ExamSection esCopy = es.copy(clone, produceStudentExam);
             esCopy.save();
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
                 esq.getQuestion().save();
@@ -520,12 +523,12 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
             }
             clone.getExamSections().add(esCopy);
         }
-        Collections.sort(clone.getExamSections(), new Comparator<ExamSection>() {
-            @Override
-            public int compare(ExamSection o1, ExamSection o2) {
-                return (int) (o1.getId() - o2.getId());
-            }
-        });
+        if (attachment != null) {
+            Attachment copy = new Attachment();
+            BeanUtils.copyProperties(attachment, copy, "id");
+            clone.setAttachment(copy);
+        }
+        Collections.sort(clone.getExamSections(), (o1, o2) -> (int) (o1.getId() - o2.getId()));
         return clone;
     }
 
@@ -619,10 +622,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
                 "course=" + course +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", state='" + state + '\'' +
                 ", examType=" + examType +
-                ", instruction='" + instruction + '\'' +
-                ", shared=" + shared +
                 ", hash='" + hash + '\'' +
                 ", state='" + state + '\'' +
                 '}';

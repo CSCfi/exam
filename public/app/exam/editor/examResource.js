@@ -8,6 +8,7 @@
                 	id: "@id"
                 },
                 {
+                    "copy" : {method: "POST"},
                     "update": {method: "PUT"},
                     "remove": {method: "DELETE"}
                 }),

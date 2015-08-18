@@ -172,22 +172,13 @@ public class ExamController extends BaseController {
         Exam exam = Ebean.find(Exam.class, id);
         User user = getLoggedUser();
         if (user.hasRole("ADMIN") || exam.isOwnedOrCreatedBy(user)) {
-
-            // check if exam has children
-            // if true, we cannot delete it because children exams reference this exam
-            // so we just set it ARCHIVED
-            int count = Ebean.find(Exam.class)
-                    .where()
-                    .eq("parent.id", id)
-                    .findRowCount();
-
-            if (count > 0) {
+            if (!exam.getChildren().isEmpty()) {
+                // Can't delete because of child references
                 exam.setState(Exam.State.ARCHIVED.name());
-                exam = (Exam) AppUtil.setModifier(exam, user);
-                exam.save();
+                AppUtil.setModifier(exam, user);
+                exam.update();
                 return ok("Exam archived");
             } else {
-
                 // If we're here it means, this exam does not have any children.
                 // e.g. this exam has never been cloned
                 // we can safely delete it completely from DB
@@ -385,7 +376,6 @@ public class ExamController extends BaseController {
             exam.setGradedTime(new Date());
             exam.setGradedByUser(getLoggedUser());
         }
-        exam.generateHash();
         exam.update();
 
         return ok();
@@ -568,8 +558,6 @@ public class ExamController extends BaseController {
                     exam.setExamType(eType);
                 }
             }
-            exam.generateHash();
-
             if (df.get("expanded") != null) {
                 exam.setExpanded(expanded);
             }
@@ -651,6 +639,46 @@ public class ExamController extends BaseController {
         exam.update();
 
         return ok(Json.toJson(exam));
+    }
+
+    private static Exam getPrototype(Long id) {
+
+        return Ebean.find(Exam.class)
+                .fetch("creator", "id")
+                .fetch("examType", "id, type")
+                .fetch("examSections", "id, name")
+                .fetch("examSections.sectionQuestions", "sequenceNumber")
+                .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, maxCharacters, evaluationType, expanded")
+                .fetch("examSections.sectionQuestions.question.parent", "id")
+                .fetch("examSections.sectionQuestions.question.options", "id, option")
+                .fetch("examSections.sectionQuestions.question.attachment", "fileName")
+                .fetch("examLanguages", "code")
+                .fetch("attachment", "fileName")
+                .fetch("examOwners", "firstName, lastName")
+                .fetch("examInspections.user", "firstName, lastName")
+                .where()
+                .idEq(id)
+                .findUnique();
+    }
+
+    @Restrict({@Group("TEACHER")})
+    public Result copyExam(Long id) {
+        User user = getLoggedUser();
+        Exam prototype = getPrototype(id);
+        if (prototype == null) {
+            return notFound("sitnet_exam_not_found");
+        }
+        Exam copy = prototype.copy(user, false);
+        copy.setName(String.format("**COPY**%s", copy.getName()));
+        copy.setState(Exam.State.DRAFT.toString());
+        AppUtil.setCreator(copy, user);
+        copy.setParent(null);
+        copy.setCourse(null);
+        DateTime now = DateTime.now().withTimeAtStartOfDay();
+        copy.setExamActiveStartDate(now.toDate());
+        copy.setExamActiveEndDate(now.plusDays(1).toDate());
+        copy.save();
+        return ok(copy);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

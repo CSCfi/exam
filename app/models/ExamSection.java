@@ -94,25 +94,18 @@ public final class ExamSection extends OwnedModel {
         sectionQuestions = new HashSet<>(questions.subList(0, lotteryItemCount));
     }
 
-    public ExamSection copy(Exam exam, boolean shuffleQuestions)
+    public ExamSection copy(Exam exam, boolean produceStudentExamSection)
     {
         ExamSection section = new ExamSection();
         BeanUtils.copyProperties(this, section, "id", "exam", "sectionQuestions");
         section.setExam(exam);
         for (ExamSectionQuestion esq : sectionQuestions) {
-            section.getSectionQuestions().add(esq.copy());
+            section.getSectionQuestions().add(esq.copy(!produceStudentExamSection));
         }
-        if (shuffleQuestions && lotteryOn) {
+        if (produceStudentExamSection && lotteryOn) {
             section.shuffleQuestions();
         }
         return section;
     }
 
-    @Override
-    public String toString() {
-        return "ExamSection{" +
-                "name='" + name + '\'' +
-                ", totalScore=" + totalScore +
-                '}';
-    }
 }

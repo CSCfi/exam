@@ -196,7 +196,7 @@ public class StudentExamController extends BaseController {
     }
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
-        Exam studentExam = prototype.copy(user);
+        Exam studentExam = prototype.copy(user, true);
         studentExam.setState(Exam.State.STUDENT_STARTED.toString());
         studentExam.setCreator(user);
         studentExam.setParent(prototype);

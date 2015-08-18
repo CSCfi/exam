@@ -234,15 +234,18 @@ public class Question extends OwnedModel {
         for (MultipleChoiseOption o : options) {
             question.getOptions().add(o.copy());
         }
+        if (attachment != null) {
+            Attachment copy = new Attachment();
+            BeanUtils.copyProperties(attachment, copy, "id");
+            question.setAttachment(copy);
+        }
         return question;
     }
 
    	@Override
     public String toString() {
-        return "Question [type=" + type + ", question=" + question
-                + ", shared=" + shared + ", instruction=" + instruction
-                + ", parent=" + parent
-                + ", evaluationCriterias=" + evaluationCriterias + "]";
+        return "Question [type=" + type
+                + ", id=" + id + "]";
     }
 
 }

@@ -65,10 +65,14 @@ public class ExamSectionQuestion extends Model {
         this.sequenceNumber = sequenceNumber;
     }
 
-    public ExamSectionQuestion copy() {
+    public ExamSectionQuestion copy(boolean usePrototypeQuestion) {
         ExamSectionQuestion esq = new ExamSectionQuestion();
         BeanUtils.copyProperties(this, esq, "id");
-        esq.setQuestion(question.copy());
+        Question blueprint = question.copy();
+        if (usePrototypeQuestion) {
+            blueprint.setParent(question.getParent());
+        }
+        esq.setQuestion(blueprint);
         return esq;
     }
 
