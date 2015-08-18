@@ -17,7 +17,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="enrolment in enrolments | orderBy:predicate:reverse">
+                <tr ng-repeat="enrolment in enrolments | orderBy:predicate:reverse | filter: noShowFilter">
                     <td>
                         <span>{{enrolment.user.firstName}} {{enrolment.user.lastName}}</span>
                         <span ng-if="enrolment.user.userIdentifier">&nbsp;({{enrolment.user.userIdentifier}})</span>

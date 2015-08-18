@@ -152,6 +152,20 @@
                     $scope.sort.column = value;
                     $scope.sort.order = !$scope.sort.order;
                 };
+
+                $scope.noShowFilter = function(enrolment) {
+
+                    var status = $scope.printExamState(enrolment);
+                    var visible;
+
+                    if (status == "NO_SHOW") {
+                        visible = false;
+                    } else {
+                        visible = true;
+                    }
+
+                    return visible;
+                };
             }
         ])
     ;
