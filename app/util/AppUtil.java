@@ -137,7 +137,9 @@ public class AppUtil {
                 Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
 
                 Ebean.save(all.get("user-roles"));
-                Ebean.save(all.get("user_languages"));
+                if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
+                    Ebean.save(all.get("languages"));
+                }
                 Ebean.save(all.get("organisations"));
                 Ebean.save(all.get("attachments"));
                 Ebean.save(all.get("users"));
@@ -152,10 +154,6 @@ public class AppUtil {
                 Ebean.save(all.get("softwares"));
                 Ebean.save(all.get("courses"));
                 Ebean.save(all.get("comments"));
-                if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
-                    Ebean.save(all.get("languages"));
-                }
-
                 Ebean.save(all.get("exam-types"));
                 for (Object o : all.get("exams")) {
                     Exam e = (Exam)o;

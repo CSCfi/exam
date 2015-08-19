@@ -1,5 +1,6 @@
 # --- !Ups
 DROP TABLE user_language CASCADE;
+DROP SEQUENCE user_language_seq;
 ALTER TABLE app_user ADD language_id VARCHAR(2);
 UPDATE app_user SET language_id='fi' WHERE user_language_id=1;
 UPDATE app_user SET language_id='en' WHERE user_language_id=2;

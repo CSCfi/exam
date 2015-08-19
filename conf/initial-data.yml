@@ -35,27 +35,6 @@ user-roles:
 
 ######################################################################
 
-user_languages:
-    - &suomi !!models.UserLanguage
-      nativeLanguageCode: fi
-      nativeLanguageName: Suomi
-      UILanguageCode: fi
-      UILanguageName: Suomi
-
-    - &englanti !!models.UserLanguage
-      nativeLanguageCode: en
-      nativeLanguageName: Englanti
-      UILanguageCode: en
-      UILanguageName: Englanti
-
-    - &ruotsi !!models.UserLanguage
-      nativeLanguageCode: sv
-      nativeLanguageName: ruotsi
-      UILanguageCode: sv
-      UILanguageName: ruotsi
-
-######################################################################
-
 organisations:
 
     - &OulunYliopisto !!models.Organisation
@@ -101,6 +80,19 @@ organisations:
       code:
       vatIdNumber: FI0245895-1
 
+################################################################
+
+languages:
+
+    - &fi !!models.Language
+      code: fi
+    - &sv !!models.Language
+      code: sv
+    - &en !!models.Language
+      code: en
+    - &de !!models.Language
+      code: de
+
 ######################################################################
 
 users:
@@ -113,7 +105,7 @@ users:
       password:   c74626d3eca0613f356cd34ecd1301c5  #sitnetad
       roles:
             - *role-admin
-      userLanguage: *suomi
+      language: *fi
       organisation: *OulunYliopisto
 
     - &maika !!models.User
@@ -124,7 +116,7 @@ users:
       password:   1d0ebf168b86f79a0c34e81eb1fd70cd  # maikaope
       roles:  
             - *role-teacher
-      userLanguage: *suomi
+      language: *fi
 
 
     - &sauli !!models.User
@@ -135,7 +127,7 @@ users:
       password:   72e6570dbfeb95d5df59e08f1fa6302f   # saulistu
       roles:  
             - *role-student
-      userLanguage: *suomi
+      language: *fi
       organisation: *OulunYliopisto
 
     - &arvo !!models.User
@@ -146,7 +138,7 @@ users:
       password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
       roles:  
             - *role-teacher
-      userLanguage: *suomi
+      language: *fi
       organisation: *OulunYliopisto
 
     - &soikkeli !!models.User
@@ -157,7 +149,7 @@ users:
       password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
       roles:  
             - *role-teacher
-      userLanguage: *suomi
+      language: *fi
       organisation: *OulunYliopisto
       
     - &orville !!models.User
@@ -168,7 +160,7 @@ users:
       password:   2664274e7f6f56c565470797478cb406  #oppilas
       roles:  
             - *role-student
-      userLanguage: *suomi
+      language: *fi
       organisation: *OulunYliopisto
 
 ################################################################
@@ -1021,19 +1013,6 @@ exam-types:
   - &final !!models.ExamType
     type: FINAL
 
-
-################################################################
-
-languages:
-
-  - &fi !!models.Language
-    code: fi
-  - &sv !!models.Language
-    code: sv
-  - &en !!models.Language
-    code: en
-  - &de !!models.Language
-    code: de
 
 ################################################################
 
