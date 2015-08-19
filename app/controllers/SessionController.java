@@ -82,22 +82,16 @@ public class SessionController extends BaseController {
         return createSession(UUID.randomUUID().toString(), user);
     }
 
-    private static UserLanguage getLanguage(String code) {
-        UserLanguage language = null;
+    private static Language getLanguage(String code) {
+        Language language = null;
         if (code != null && !code.isEmpty()) {
             // for example: en-US -> en
             code = code.split("-")[0].toLowerCase();
-            language = Ebean.find(UserLanguage.class)
-                    .where()
-                    .eq("nativeLanguageCode", code)
-                    .findUnique();
+            language = Ebean.find(Language.class, code);
         }
         if (language == null) {
             // Default to English
-            language = Ebean.find(UserLanguage.class)
-                    .where()
-                    .eq("nativeLanguageCode", "en")
-                    .findUnique();
+            language = Ebean.find(Language.class, "en");
         }
         return language;
     }
@@ -130,7 +124,7 @@ public class SessionController extends BaseController {
     private static User createNewUser(String eppn) throws NotFoundException, AddressException {
         User user = new User();
         user.getRoles().add(getRole(toUtf8(request().getHeader("unscoped-affiliation"))));
-        user.setUserLanguage(getLanguage(toUtf8(request().getHeader("preferredLanguage"))));
+        user.setLanguage(getLanguage(toUtf8(request().getHeader("preferredLanguage"))));
         user.setEppn(eppn);
         updateUser(user);
         return user;
@@ -150,7 +144,7 @@ public class SessionController extends BaseController {
         result.put("token", token);
         result.put("firstname", user.getFirstName());
         result.put("lastname", user.getLastName());
-        result.put("lang", user.getUserLanguage().getUILanguageCode());
+        result.put("lang", user.getLanguage().getCode());
         result.set("roles", Json.toJson(user.getRoles()));
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());

@@ -484,8 +484,7 @@ public class EmailComposerImpl implements EmailComposer {
     }
 
     private static Lang getLang(User user) {
-        UserLanguage language = user.getUserLanguage();
-        return Lang.forCode(language.getUILanguageCode());
+        return Lang.forCode(user.getLanguage().getCode());
     }
 
     private static DateTime adjustDST(Date date, DateTimeZone dtz) {

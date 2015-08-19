@@ -200,11 +200,11 @@ public class UserController extends BaseController {
     public Result updateLanguage() {
         User user = getLoggedUser();
         String lang = request().body().asJson().get("lang").asText();
-        UserLanguage language = Ebean.find(UserLanguage.class).where().eq("UILanguageCode", lang).findUnique();
+        Language language = Ebean.find(Language.class, lang);
         if (language == null) {
             return badRequest("Unsupported language code");
         }
-        user.setUserLanguage(language);
+        user.setLanguage(language);
         user.update();
         return ok();
     }

@@ -351,7 +351,7 @@ public class StatisticsController extends BaseController {
         dataRow.createCell(index++).setCellValue(student.getFirstName());
         dataRow.createCell(index++).setCellValue(student.getLastName());
         dataRow.createCell(index++).setCellValue(student.getEmail());
-        dataRow.createCell(index).setCellValue(student.getUserLanguage().getNativeLanguageName());
+        dataRow.createCell(index).setCellValue(student.getLanguage().getCode());
         generateParticipationSheet(wb, participations, false);
         response().setHeader("Content-Disposition", "attachment; filename=\"student_activity.xlsx\"");
         return ok(encode(wb));

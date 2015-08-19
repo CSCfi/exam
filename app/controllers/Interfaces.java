@@ -63,7 +63,7 @@ public class Interfaces extends BaseController implements ExternalAPI  {
             throw new RuntimeException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
         }
         url = url.replace(USER_ID_PLACEHOLDER, user.getUserIdentifier()).replace(USER_LANG_PLACEHOLDER,
-                user.getUserLanguage().getUILanguageCode());
+                user.getLanguage().getCode());
         return new URL(url);
     }
 
