@@ -42,7 +42,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
         exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED.toString()).findList().get(0);
         user = Ebean.find(User.class, userId);
-        user.setUserLanguage(Ebean.find(UserLanguage.class).where().eq("UILanguageCode", "en").findUnique());
+        user.setLanguage(Ebean.find(Language.class, "en"));
         user.update();
         room = Ebean.find(ExamRoom.class, 1L);
         room.setRoomInstructionEN("information in English here");
