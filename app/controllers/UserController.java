@@ -20,7 +20,7 @@ public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result getUser(Long id) {
-        User user = Ebean.find(User.class).fetch("roles", "name").fetch("userLanguage").where().idEq(id).findUnique();
+        User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where().idEq(id).findUnique();
 
         if (user == null) {
             return notFound();
@@ -184,7 +184,7 @@ public class UserController extends BaseController {
     public Result updateUserAgreementAccepted(Long id) {
 
         Result result;
-        User user = Ebean.find(User.class).fetch("roles", "name").fetch("userLanguage").where().idEq(id).findUnique();
+        User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where().idEq(id).findUnique();
         if (user == null) {
             result = notFound();
         } else {
@@ -208,4 +208,5 @@ public class UserController extends BaseController {
         user.update();
         return ok();
     }
+
 }

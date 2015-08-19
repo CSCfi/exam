@@ -10,6 +10,7 @@
                 },
                 {
                     "add": {method: "POST", params: {id: "@id", role: "@role"}},
+                    "update": {method: "PUT", params: {id: "@id", role: "@role"}},
                     "remove" : {method: "DELETE", params: {id: "@id", role: "@role"}}
                 }),
 	            usersByRole: $resource("/users/byrole/:role",

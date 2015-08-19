@@ -48,10 +48,10 @@
             $translateProvider.useSanitizeValueStrategy(null);
             $translateProvider.preferredLanguage('en');
         }])
-        .run(['$http', '$route', '$interval', '$timeout', '$modal', '$sessionStorage', 'sessionService', 'EXAM_CONF',
-            'authService', '$rootScope', '$translate', '$location', 'UserRes',
-            function ($http, $route, $interval, $timeout, $modal, $sessionStorage, sessionService, EXAM_CONF,
-                      authService, $rootScope, $translate, $location, UserRes) {
+        .run(['$http', '$route', '$interval', '$timeout', '$sessionStorage', 'sessionService', 'EXAM_CONF',
+            '$rootScope', '$translate', '$location',
+            function ($http, $route, $interval, $timeout, $sessionStorage, sessionService, EXAM_CONF,
+                      $rootScope, $translate, $location) {
 
                 var user = $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY];
                 if (user) {
@@ -82,12 +82,12 @@
                                 "preventDuplicates": true
                             };
                             toastr.warning($translate.instant("sitnet_session_will_expire_soon") +
-                            "&nbsp;<button onclick=\"" +
-                            "var request = new XMLHttpRequest();" +
-                            "request.open('PUT', '/extendSession', true); " +
-                            "request.setRequestHeader('" + EXAM_CONF.AUTH_HEADER + "', '" + user.token + "'); " +
-                            "request.send();\">" +
-                            $translate.instant("sitnet_continue_session") + "</button>");
+                                "&nbsp;<button onclick=\"" +
+                                "var request = new XMLHttpRequest();" +
+                                "request.open('PUT', '/extendSession', true); " +
+                                "request.setRequestHeader('" + EXAM_CONF.AUTH_HEADER + "', '" + user.token + "'); " +
+                                "request.send();\">" +
+                                $translate.instant("sitnet_continue_session") + "</button>");
                         } else if (data === "no_session") {
                             if (scheduler) {
                                 $interval.cancel(scheduler);
@@ -119,36 +119,10 @@
                         };
                         setTimeout(welcome, 2000);
                         restartSessionCheck();
-                        if (user.isStudent && !user.userAgreementAccepted) {
-
-                            $modal.open({
-                                templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/show_eula.html',
-                                backdrop: 'static',
-                                keyboard: false,
-                                controller: function ($scope, $modalInstance, sessionService) {
-
-                                    $scope.ok = function () {
-                                        console.log("ok");
-                                        // OK button
-                                        UserRes.updateAgreementAccepted.update({id: user.id}, function () {
-                                            user.userAgreementAccepted = true;
-                                            sessionService.setUser(user);
-                                        }, function (error) {
-                                            toastr.error(error.data);
-                                        });
-                                        $modalInstance.dismiss();
-                                        if ($location.url() === '/login' || $location.url() === '/logout') {
-                                            $location.path("/");
-                                        } else {
-                                            $route.reload();
-                                        }
-                                    };
-                                    $scope.cancel = function () {
-                                        $modalInstance.dismiss('cancel');
-                                        $location.path("/logout");
-                                    };
-                                }
-                            });
+                        if (!user.loginRole) {
+                            sessionService.openRoleSelectModal(user);
+                        } else if (user.isStudent && !user.userAgreementAccepted) {
+                            sessionService.openEulaModal(user);
                         } else if ($location.url() === '/login' || $location.url() === '/logout') {
                             $location.path("/");
                         } else {
@@ -166,9 +140,13 @@
 
                 if (!user) {
                     login();
+                } else if (!user.loginRole) {
+                    // This happens if user refreshes the tab before having selected a login role,
+                    // lets just throw him out.
+                    $location.path("/logout");
                 } else {
                     restartSessionCheck();
                 }
-
-            }]);
+            }
+        ]);
 }());

@@ -661,5 +661,6 @@
   "sitnet_participant_removed": "Osallistuja poistettu",
   "sitnet_no_participants": "Osallistujia ei määritelty",
   "sitnet_no_required_softwares": "Tenttikoneilla ei ole tarvittavaa ohjelmistoyhdistelmää",
-  "sitnet_exam_copied": "Tentti kopioitu"
+  "sitnet_exam_copied": "Tentti kopioitu",
+  "sitnet_select_role": "Valitse käyttäjärooli, jolla haluat kirjautua"
 }

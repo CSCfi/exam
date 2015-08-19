@@ -18,6 +18,7 @@ PUT           /user/lang                                            controllers.
 GET           /users                                                controllers.UserController.findUsers(filter: play.libs.F.Option[String])
 POST          /users/:id/roles/:rname                               controllers.UserController.addRole(id: Long, rname: String)
 DELETE        /users/:id/roles/:rname                               controllers.UserController.removeRole(id: Long, rname: String)
+PUT           /users/:id/roles/:rname                               controllers.SessionController.setLoginRole(id: Long, rname: String)
 GET           /students/:eid                                        controllers.UserController.getUnenrolledStudents(eid: Long, q: String)
 
 ############### Exam interface ###############

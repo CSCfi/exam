@@ -1,8 +1,9 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .factory('sessionService', ['$q', '$sessionStorage', '$translate', '$injector', 'tmhDynamicLocale', 'EXAM_CONF',
-            function ($q, $sessionStorage, $translate, $injector, tmhDynamicLocale, EXAM_CONF) {
+        .factory('sessionService', ['$q', '$sessionStorage', '$translate', '$injector', '$location', '$rootScope',
+            'tmhDynamicLocale', 'EXAM_CONF',
+            function ($q, $sessionStorage, $translate, $injector, $location, $rootScope, tmhDynamicLocale, EXAM_CONF) {
 
                 var _user;
 
@@ -20,19 +21,29 @@
                     _user = user;
                 };
 
-                // Service needs to be accessed like this because of circular dependency issue
+                // Services need to be accessed like this because of circular dependency issues
                 var $http;
                 var http = function () {
                     return $http = $http || $injector.get('$http');
                 };
+                var $modal;
+                var modal = function () {
+                    return $modal = $modal || $injector.get('$modal');
+                };
+                var $route;
+                var route = function () {
+                    return $route = $route || $injector.get('$route');
+                };
+                var UserRes;
+                var userRes = function() {
+                    return UserRes = UserRes || $injector.get('UserRes');
+                };
 
                 var hasRole = function (user, role) {
-                    if (!user || !user.roles) {
+                    if (!user || !user.loginRole) {
                         return false;
                     }
-                    return user.roles.some(function (r) {
-                        return (r.name === role)
-                    });
+                    return user.loginRole.name === role;
                 };
 
                 var logout = function () {
@@ -54,6 +65,83 @@
                     tmhDynamicLocale.set(lang);
                 };
 
+                var openEulaModal = function (user) {
+                    modal().open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/show_eula.html',
+                        backdrop: 'static',
+                        keyboard: false,
+                        controller: function ($scope, $modalInstance) {
+                            $scope.ok = function () {
+                                // OK button
+                                userRes().updateAgreementAccepted.update({id: user.id}, function () {
+                                    user.userAgreementAccepted = true;
+                                    setUser(user);
+                                }, function (error) {
+                                    toastr.error(error.data);
+                                });
+                                $modalInstance.dismiss();
+                                if ($location.url() === '/login' || $location.url() === '/logout') {
+                                    $location.path("/");
+                                }
+                                if ($location.url() === '/login' || $location.url() === '/logout') {
+                                    $location.path("/");
+                                } else {
+                                    route().reload();
+                                }
+                            };
+                            $scope.cancel = function () {
+                                $modalInstance.dismiss('cancel');
+                                $location.path("/logout");
+                            };
+                        }
+                    });
+                };
+
+                var openRoleSelectModal = function (user) {
+                    var ctrl = function ($scope, $modalInstance) {
+                        $scope.user = user;
+                        $scope.ok = function (role) {
+                            userRes().userRoles.update({id: user.id, role: role.name}, function () {
+                                user.loginRole = role;
+                                user.isAdmin = hasRole(user, 'ADMIN');
+                                user.isTeacher = hasRole(user, 'TEACHER');
+                                user.isStudent = hasRole(user, 'STUDENT');
+                                setUser(user);
+                                $modalInstance.dismiss();
+                                $rootScope.$broadcast('userUpdated');
+                                if (user.isStudent && !user.userAgreementAccepted) {
+                                    openEulaModal(user);
+                                } else if ($location.url() === '/login' || $location.url() === '/logout') {
+                                    $location.path("/");
+                                }
+                            }, function (error) {
+                                toastr.error(error.data);
+                                $location.path("/logout");
+                            });
+
+                        };
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('cancel');
+                            $location.path("/logout");
+                        };
+                    };
+                    var m = modal().open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/select_role.html',
+                        backdrop: 'static',
+                        keyboard: false,
+                        controller: ctrl,
+                        resolve: {
+                            user: function () {
+                                return user;
+                            }
+                        }
+                    });
+
+                    m.result.then(function () {
+                        console.log("closed");
+                    });
+                };
+
                 var login = function (username, password) {
                     var deferred = $q.defer();
                     var credentials = {
@@ -65,20 +153,38 @@
                             var header = {};
                             header[EXAM_CONF.AUTH_HEADER] = user.token;
                             http().defaults.headers.common = header;
+                            user.roles.forEach(function(role) {
+                                switch (role.name) {
+                                    case 'ADMIN':
+                                        role.displayName = 'sitnet_admin';
+                                        role.icon = 'fa-cog';
+                                        break;
+                                    case 'TEACHER':
+                                        role.displayName = 'sitnet_teacher';
+                                        role.icon = 'fa-university';
+                                        break;
+                                    case 'STUDENT':
+                                        role.displayName = 'sitnet_student';
+                                        role.icon = 'fa-graduation-cap';
+                                        break;
+                                }
+                            });
 
                             _user = {
                                 id: user.id,
                                 firstname: user.firstname,
                                 lastname: user.lastname,
                                 lang: user.lang,
-                                isAdmin: (hasRole(user, 'ADMIN')),
-                                isStudent: (hasRole(user, 'STUDENT')),
-                                isTeacher: (hasRole(user, 'TEACHER')),
+                                loginRole: user.roles.length == 1 ? user.roles[0] : undefined,
+                                roles: user.roles,
                                 isLoggedOut: false,
                                 token: user.token,
                                 userAgreementAccepted: user.userAgreementAccepted,
                                 userNo: user.userIdentifier
                             };
+                            _user.isAdmin = hasRole(_user, 'ADMIN');
+                            _user.isStudent = hasRole(_user, 'STUDENT');
+                            _user.isTeacher = hasRole(_user, 'TEACHER');
 
                             $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY] = _user;
                             translate(_user.lang);
@@ -110,7 +216,9 @@
                     setUser: setUser,
                     switchLanguage: switchLanguage,
                     translate: translate,
-                    hasRole: hasRole
+                    hasRole: hasRole,
+                    openRoleSelectModal: openRoleSelectModal,
+                    openEulaModal: openEulaModal
                 };
 
             }]);

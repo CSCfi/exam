@@ -10,6 +10,7 @@ public class Session {
     private DateTime since;
     private Boolean valid;
     private String xsrfToken;
+    private String loginRole;
 
     public Long getUserId() {
         return userId;
@@ -41,5 +42,13 @@ public class Session {
 
     public String getXsrfToken() {
         return xsrfToken;
+    }
+
+    public String getLoginRole() {
+        return loginRole;
+    }
+
+    public void setLoginRole(String loginRole) {
+        this.loginRole = loginRole;
     }
 }
