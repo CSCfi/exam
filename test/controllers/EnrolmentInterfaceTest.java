@@ -34,7 +34,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
             if (emptyResponse) {
                 RemoteServerHelper.writeEmptyJsonResponse(response);
             } else {
-                RemoteServerHelper.writeResponseFromFile(response, "test/resource/enrolments.json");
+                RemoteServerHelper.writeResponseFromFile(response, "test/resources/enrolments.json");
             }
         }
     }

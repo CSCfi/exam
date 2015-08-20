@@ -1,17 +1,15 @@
 package util;
 
-import com.avaje.ebean.Ebean;
-import com.avaje.ebean.TxType;
-import com.avaje.ebean.annotation.Transactional;
 import com.typesafe.config.ConfigFactory;
-import models.*;
+import models.ExamRoom;
+import models.OwnedModel;
+import models.Reservation;
+import models.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import play.Logger;
-import play.libs.Yaml;
 
-import javax.persistence.PersistenceException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
@@ -20,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class AppUtil {
 
@@ -116,91 +113,6 @@ public class AppUtil {
                 StandardCopyOption.COPY_ATTRIBUTES);
     }
 
-    /* TODO: GET RID OF THIS MESS AND USE AN SQL UPDATE SCRIPT INSTEAD
-    * now it's hard to keep track of what's inserted through evolutions and what's not :( */
-    @Transactional(type = TxType.REQUIRES_NEW)
-    @SuppressWarnings("unchecked")
-    public static void initializeDataModel() {
-        int userCount;
-        try {
-            userCount = Ebean.find(User.class).findRowCount();
-        } catch (PersistenceException e) {
-            // Tables are likely not there yet, skip this.
-            return;
-        }
-        if (userCount == 0) {
-            String productionData = ConfigFactory.load().getString("sitnet.production.initial.data");
 
-            // Should we load production test data
-            if (productionData.equals("false")) {
-
-                Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("initial-data.yml");
-
-                Ebean.save(all.get("user-roles"));
-                if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
-                    Ebean.save(all.get("languages"));
-                }
-                Ebean.save(all.get("organisations"));
-                Ebean.save(all.get("attachments"));
-                Ebean.save(all.get("users"));
-                if (Ebean.find(GradeScale.class).findRowCount() == 0) { // Might already be inserted by evolution
-                    Ebean.save(all.get("grade-scales"));
-                }
-                if (Ebean.find(Grade.class).findRowCount() == 0) { // Might already be inserted by evolution
-                    Ebean.save(all.get("grades"));
-                }
-                Ebean.save(all.get("question_essay"));
-                Ebean.save(all.get("question_multiple_choice"));
-                Ebean.save(all.get("softwares"));
-                Ebean.save(all.get("courses"));
-                Ebean.save(all.get("comments"));
-                Ebean.save(all.get("exam-types"));
-                for (Object o : all.get("exams")) {
-                    Exam e = (Exam)o;
-                    e.setExecutionType(Ebean.find(ExamExecutionType.class, 1));
-                    e.save();
-                }
-                Ebean.save(all.get("exams"));
-                Ebean.save(all.get("exam-sections"));
-                Ebean.save(all.get("section-questions"));
-                Ebean.save(all.get("exam-participations"));
-                Ebean.save(all.get("exam-inspections"));
-                Ebean.save(all.get("mail-addresses"));
-                Ebean.save(all.get("calendar-events"));
-                Ebean.save(all.get("exam-rooms"));
-                Ebean.save(all.get("exam-machines"));
-                Ebean.save(all.get("exam-room-reservations"));
-                Ebean.save(all.get("exam-enrolments"));
-                Ebean.save(all.get("user-agreament"));
-                Ebean.save(all.get("question_multiple_choice"));
-
-                // generate hashes for exams
-                List<Object> exams = all.get("exams");
-                for (Object e : exams) {
-                    ((Exam) e).generateHash();
-                }
-                Ebean.save(exams);
-            } else if (productionData.equals("true")) {
-
-                Map<String, List<Object>> all = (Map<String, List<Object>>) Yaml.load("production-initial-data.yml");
-
-                Ebean.save(all.get("user-roles"));
-                Ebean.save(all.get("user_languages"));
-                Ebean.save(all.get("users"));
-                if (Ebean.find(Language.class).findRowCount() == 0) { // Might already be inserted by evolution
-                    Ebean.save(all.get("languages"));
-                }
-                Ebean.save(all.get("exam-types"));
-                Ebean.save(all.get("softwares"));
-                if (Ebean.find(GradeScale.class).findRowCount() == 0) {
-                    Ebean.save(all.get("grade-scales"));
-                }
-                if (Ebean.find(Grade.class).findRowCount() == 0) {
-                    Ebean.save(all.get("grades"));
-                }
-                Ebean.save(all.get("general-settings"));
-            }
-        }
-    }
 
 }

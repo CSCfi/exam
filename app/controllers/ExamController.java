@@ -376,6 +376,7 @@ public class ExamController extends BaseController {
             exam.setGradedTime(new Date());
             exam.setGradedByUser(getLoggedUser());
         }
+        exam.generateHash();
         exam.update();
 
         return ok();
@@ -558,6 +559,8 @@ public class ExamController extends BaseController {
                     exam.setExamType(eType);
                 }
             }
+            exam.generateHash();
+
             if (df.get("expanded") != null) {
                 exam.setExpanded(expanded);
             }
@@ -1076,7 +1079,7 @@ public class ExamController extends BaseController {
     public Result getRoomInfoFromEnrollment(Long eid) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id")
-                .fetch("user.userLanguage")
+                .fetch("user.language")
                 .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
                 .eq("exam.id", eid)

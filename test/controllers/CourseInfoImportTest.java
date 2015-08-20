@@ -30,8 +30,8 @@ public class CourseInfoImportTest extends IntegrationTestCase {
 
     public static class CourseInfoServlet extends HttpServlet {
 
-        private File jsonFile = new File("test/resource/courseUnitInfo.json");
-        private File expiredJsonFile = new File("test/resource/courseUnitInfoExpired.json");
+        private File jsonFile = new File("test/resources/courseUnitInfo.json");
+        private File expiredJsonFile = new File("test/resources/courseUnitInfoExpired.json");
         private static boolean SEND_EXPIRED_COURSE;
 
         @Override

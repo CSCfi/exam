@@ -74,8 +74,6 @@ public class SystemInitializer {
         reportSender = actor.scheduler();
         scheduleWeeklyReport();
 
-        //AppUtil.initializeDataModel();
-
         lifecycle.addStopHook(() -> {
             cancelReportSender();
             cancelAutosaver();
@@ -115,7 +113,7 @@ public class SystemInitializer {
         reportTask = reportSender.scheduleOnce(delay, () -> {
             Logger.info("Running weekly email report");
             List<User> teachers = Ebean.find(User.class)
-                    .fetch("userLanguage")
+                    .fetch("language")
                     .where()
                     .eq("roles.name", "TEACHER")
                     .findList();
