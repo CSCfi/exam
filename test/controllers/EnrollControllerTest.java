@@ -38,7 +38,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
 
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-            RemoteServerHelper.writeResponseFromFile(response, "test/resource/enrolments.json");
+            RemoteServerHelper.writeResponseFromFile(response, "test/resources/enrolments.json");
         }
     }
 
