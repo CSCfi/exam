@@ -35,7 +35,7 @@ public class SettingsController  extends BaseController {
 
         // Since the EULA has changed, force users to accept it again.
 
-        String updStatement = "update app_user set has_accepted_user_agreament = :hasNot";
+        String updStatement = "update app_user set user_agreement_accepted = :hasNot";
         Update<User> update = Ebean.createUpdate(User.class, updStatement);
         update.set("hasNot", false);
         update.execute();
