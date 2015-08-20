@@ -656,11 +656,11 @@
                     return errors;
                 };
 
-                $scope.copyExam = function(exam) {
-                    ExamRes.exams.copy({id: exam.id}, function(copy) {
+                $scope.copyExam = function (exam) {
+                    ExamRes.exams.copy({id: exam.id}, function (copy) {
                         toastr.success($translate.instant('sitnet_exam_copied'));
                         $scope.exams.push(copy);
-                    }, function(error) {
+                    }, function (error) {
                         toastr.error(error.data);
                     });
                 };
@@ -836,7 +836,7 @@
 
                     var exam = $scope.newExam;
 
-                    var ctrl = function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
 
                         $scope.newExam = exam;
                         $scope.isTeacherModal = true;
@@ -852,7 +852,7 @@
                             $modalInstance.dismiss("Cancelled");
                         };
 
-                    };
+                    }];
 
                     var modalInstance = $modal.open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',

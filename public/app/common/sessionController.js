@@ -3,9 +3,9 @@
     // automatically by the run block in app.js
     'use strict';
     angular.module("exam.controllers")
-        .controller('SessionCtrl', ['$scope', '$rootScope', '$location', '$translate', 'sessionService', 'UserRes',
+        .controller('SessionCtrl', ['$scope', '$rootScope', '$location', '$translate', 'sessionService',
             'SettingsResource', 'EXAM_CONF',
-            function ($scope, $rootScope, $location, $translate, sessionService, UserRes, SettingsResource, EXAM_CONF) {
+            function ($scope, $rootScope, $location, $translate, sessionService, SettingsResource, EXAM_CONF) {
 
                 $scope.credentials = {};
                 $scope.env = {};

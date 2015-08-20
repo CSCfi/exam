@@ -322,11 +322,11 @@
 
                     var question = $scope.newQuestion;
 
-                    var ctrl = function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
 
                         $scope.newQuestion = question;
                         $scope.isTeacherModal = true;
-                        fileService.getMaxFilesize().then(function(data) {
+                        fileService.getMaxFilesize().then(function (data) {
                             $scope.maxFileSize = data.filesize;
                         });
 
@@ -338,7 +338,7 @@
                             $modalInstance.dismiss('Canceled');
                         };
 
-                    };
+                    }];
 
                     var modalInstance = $modal.open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',

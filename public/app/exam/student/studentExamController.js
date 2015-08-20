@@ -511,7 +511,7 @@
                         return;
                     }
 
-                    var ctrl = function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
 
                         $scope.questionTemp = question;
                         fileService.getMaxFilesize().then(function(data) {
@@ -528,7 +528,7 @@
                             $modalInstance.dismiss('Canceled');
                         };
 
-                    };
+                    }];
 
                     var modalInstance = $modal.open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',

@@ -89,7 +89,7 @@
                 };
 
                 $scope.addEnrolmentInformation = function (enrolment) {
-                    var modalController = function ($scope, $modalInstance) {
+                    var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
                         $scope.enrolment = angular.copy(enrolment);
                         $scope.ok = function () {
                             $modalInstance.close("Accepted");
@@ -105,7 +105,7 @@
                         $scope.cancel = function () {
                             $modalInstance.close("Canceled");
                         }
-                    };
+                    }];
 
                     var modalInstance = $modal.open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'enrolment/add_enrolment_information.html',

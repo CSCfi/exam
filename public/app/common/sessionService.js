@@ -28,14 +28,14 @@
                 };
                 var $modal;
                 var modal = function () {
-                    return $modal = $modal || $injector.get('$modal');
+                    return $modal = $modal || $injector.get('$modal');
                 };
                 var $route;
                 var route = function () {
-                    return $route = $route || $injector.get('$route');
+                    return $route = $route || $injector.get('$route');
                 };
                 var UserRes;
-                var userRes = function() {
+                var userRes = function () {
                     return UserRes = UserRes || $injector.get('UserRes');
                 };
 
@@ -98,7 +98,7 @@
                 };
 
                 var openRoleSelectModal = function (user) {
-                    var ctrl = function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
                         $scope.user = user;
                         $scope.ok = function (role) {
                             userRes().userRoles.update({id: user.id, role: role.name}, function () {
@@ -113,6 +113,8 @@
                                     openEulaModal(user);
                                 } else if ($location.url() === '/login' || $location.url() === '/logout') {
                                     $location.path("/");
+                                } else {
+                                    route().reload();
                                 }
                             }, function (error) {
                                 toastr.error(error.data);
@@ -124,7 +126,7 @@
                             $modalInstance.dismiss('cancel');
                             $location.path("/logout");
                         };
-                    };
+                    }];
                     var m = modal().open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/select_role.html',
                         backdrop: 'static',
@@ -153,7 +155,7 @@
                             var header = {};
                             header[EXAM_CONF.AUTH_HEADER] = user.token;
                             http().defaults.headers.common = header;
-                            user.roles.forEach(function(role) {
+                            user.roles.forEach(function (role) {
                                 switch (role.name) {
                                     case 'ADMIN':
                                         role.displayName = 'sitnet_admin';
