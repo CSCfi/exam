@@ -106,16 +106,6 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     // Custom course credit - if teachers changes course credit
     private Double customCredit;
 
-    // Aggregate properties, required as fields by Ebean
-    private Double totalScore;
-    private Double maxScore;
-    private int rejectedAnswerCount;
-    private int approvedAnswerCount;
-
-
-    // Cloned - needed as field for serialization :(
-    private Boolean cloned;
-
     // Exam language
     @ManyToMany
     private List<Language> examLanguages;
@@ -148,6 +138,9 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     private String additionalInfo;
 
+    // Number of times a student is allowed to take the exam before getting a grade
+    private Integer trialCount;
+
     @ManyToOne
     private ExamType creditType;
 
@@ -159,7 +152,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     private boolean expanded;
 
     @OneToOne(cascade = CascadeType.ALL)
-    protected Attachment attachment;
+    private Attachment attachment;
 
     public User getGradedByUser() {
         return gradedByUser;
@@ -168,6 +161,15 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     public void setGradedByUser(User gradedByUser) {
         this.gradedByUser = gradedByUser;
     }
+
+    // Aggregate properties, required as fields by Ebean
+    private Double totalScore;
+    private Double maxScore;
+    private int rejectedAnswerCount;
+    private int approvedAnswerCount;
+
+    // Cloned - needed as field for serialization :(
+    private Boolean cloned;
 
     @Transient
     public Double getTotalScore() {
@@ -432,6 +434,14 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public Integer getTrialCount() {
+        return trialCount;
+    }
+
+    public void setTrialCount(Integer trialCount) {
+        this.trialCount = trialCount;
     }
 
     public Comment getExamFeedback() {

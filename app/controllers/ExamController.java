@@ -517,6 +517,7 @@ public class ExamController extends BaseController {
             String answerLanguage = df.get("answerLanguage");
             String instruction = df.get("instruction");
             String enrollInstruction = df.get("enrollInstruction");
+            Integer trialCount = df.get("trialCount") == null ? null : Integer.parseInt(df.get("trialCount"));
             boolean expanded = Boolean.parseBoolean(df.get("expanded"));
             if (examName != null) {
                 exam.setName(examName);
@@ -559,6 +560,7 @@ public class ExamController extends BaseController {
                     exam.setExamType(eType);
                 }
             }
+            exam.setTrialCount(trialCount);
             exam.generateHash();
 
             if (df.get("expanded") != null) {

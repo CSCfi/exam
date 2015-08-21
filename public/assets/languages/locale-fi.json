@@ -662,5 +662,7 @@
   "sitnet_no_participants": "Osallistujia ei määritelty",
   "sitnet_no_required_softwares": "Tenttikoneilla ei ole tarvittavaa ohjelmistoyhdistelmää",
   "sitnet_exam_copied": "Tentti kopioitu",
-  "sitnet_select_role": "Valitse käyttäjärooli, jolla haluat kirjautua"
+  "sitnet_select_role": "Valitse käyttäjärooli, jolla haluat kirjautua",
+  "sitnet_exam_trial_count": "Suorituskertojen määrä",
+  "sitnet_exam_trial_count_description": "Kuinka monta kertaa tentin saa suorittaa ennen arviointia"
 }

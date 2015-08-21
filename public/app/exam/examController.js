@@ -436,7 +436,8 @@
                         "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999),
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
-                        "expanded": $scope.newExam.expanded
+                        "expanded": $scope.newExam.expanded,
+                        "trialCount": $scope.newExam.trialCount
                     };
                     for (var k in overrides) {
                         if (overrides.hasOwnProperty(k)) {
@@ -830,6 +831,24 @@
 
                 $scope.truncate = function (text, limit) {
                     return questionService.truncate(text, limit);
+                };
+
+                $scope.range = function (min, max, step) {
+                    step |= 1;
+                    var input = [];
+                    for (var i = min; i <= max; i += step) {
+                        input.push(i);
+                    }
+                    return input;
+                };
+
+                $scope.checkTrialCount = function (x) {
+                    return $scope.newExam.trialCount == x ? "btn-primary" : "";
+                };
+
+                $scope.setTrialCount = function (x) {
+                    $scope.newExam.trialCount = x;
+                    $scope.updateExam();
                 };
 
                 $scope.selectFile = function () {
