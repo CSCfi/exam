@@ -374,12 +374,11 @@ public class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
-    public void composeNoShowMessage(User toUser, Exam exam) throws IOException {
+    public void composeNoShowMessage(User toUser, User student, Exam exam) throws IOException {
         String templatePath = getTemplatesRoot() + "noShow.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(toUser);
-        User student = exam.getCreator();
-        String subject = Messages.get(lang, "email.template.nowshow.subject");
+        String subject = Messages.get(lang, "email.template.noshow.subject");
         String message = Messages.get(lang, "email.template.noshow.message", String.format("%s %s <%s>",
                         student.getFirstName(), student.getLastName(), student.getEmail()),
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));

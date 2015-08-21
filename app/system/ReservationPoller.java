@@ -54,7 +54,7 @@ public class ReservationPoller implements Runnable {
                         ExamInspection::getUser).collect(Collectors.toSet()));
                 for (User r : recipients) {
                     try {
-                        emailComposer.composeNoShowMessage(r, exam);
+                        emailComposer.composeNoShowMessage(r, enrolment.getUser(), exam);
                         Logger.info("Email sent to {}", r.getEmail());
                     } catch (IOException e) {
                         Logger.error("Failed to send email", e);
