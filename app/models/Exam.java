@@ -11,10 +11,7 @@ import util.AppUtil;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam> {

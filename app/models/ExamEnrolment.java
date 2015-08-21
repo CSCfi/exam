@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.api.CountsAsTrial;
 
 import javax.annotation.Nonnull;
 import javax.persistence.*;
@@ -8,7 +9,7 @@ import java.util.Date;
 
 
 @Entity
-public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
+public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment>, CountsAsTrial {
 
     @ManyToOne
     @JsonBackReference
@@ -79,5 +80,17 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @Override
     public int compareTo(@Nonnull ExamEnrolment other) {
         return enrolledOn.compareTo(other.enrolledOn);
+    }
+
+    @Override
+    @Transient
+    public Date getTrialTime() {
+        return reservation == null ? null : reservation.getStartAt();
+    }
+
+    @Override
+    @Transient
+    public boolean isProcessed() {
+        return reservation == null || !reservation.isNoShow();
     }
 }

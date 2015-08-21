@@ -7,6 +7,7 @@ import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import exceptions.NotFoundException;
 import models.*;
+import models.api.CountsAsTrial;
 import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -14,6 +15,7 @@ import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
+import system.ReservationPoller;
 import util.AppUtil;
 import util.java.EmailComposer;
 
@@ -74,12 +76,44 @@ public class CalendarController extends BaseController {
         return ok("removed");
     }
 
+    private boolean isAllowedToParticipate(Long examId) {
+        User user = getLoggedUser();
+        ReservationPoller.handleNoShow(user, examId, emailComposer);
+        Integer trialCount = Ebean.find(Exam.class, examId).getTrialCount();
+        if (trialCount == null) {
+            return true;
+        }
+        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class).where()
+                .eq("user", user)
+                .eq("exam.parent.id", examId)
+                .ne("exam.state", Exam.State.DELETED.toString())
+                .findList();
+        List<ExamEnrolment> noShows = Ebean.find(ExamEnrolment.class).where()
+                .eq("user", user)
+                .eq("exam.id", examId)
+                .eq("reservation.noShow", true)
+                .findList();
+        List<CountsAsTrial> trials = new ArrayList<>(participations);
+        trials.addAll(noShows);
+        // Sort by trial time desc
+        Collections.sort(trials, (o1, o2) -> o1.getTrialTime().after(o2.getTrialTime()) ? -1 : 1);
+
+        if (trials.size() >= trialCount) {
+            List<CountsAsTrial> subset = trials.subList(0, trialCount);
+            return subset.stream().anyMatch(CountsAsTrial::isProcessed);
+        }
+        return true;
+    }
+
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result createReservation() {
         // Parse request body
         JsonNode json = request().body().asJson();
         Long roomId = json.get("roomId").asLong();
         Long examId = json.get("examId").asLong();
+        if (!isAllowedToParticipate(examId)) {
+            return forbidden("sitnet_no_trials_left");
+        }
         Set<Integer> aids = new HashSet<>();
         if (json.has("aids")) {
             Iterator<JsonNode> it = json.get("aids").elements();

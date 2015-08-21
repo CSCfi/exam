@@ -36,32 +36,49 @@ public class ReservationPoller implements Runnable {
         if (enrolments.isEmpty()) {
             Logger.info(" -> none found.");
         } else {
-            handleNoShows(enrolments);
+            handleNoShows(enrolments, emailComposer);
         }
     }
 
-    private void handleNoShows(List<ExamEnrolment> noShows) {
-        for (ExamEnrolment enrolment : noShows) {
-            Reservation reservation = enrolment.getReservation();
-            reservation.setNoShow(true);
-            reservation.update();
-            Exam exam = enrolment.getExam();
-            if (exam.isPrivate()) {
-                // Notify teachers
-                Set<User> recipients = new HashSet<>();
-                recipients.addAll(exam.getExamOwners());
-                recipients.addAll(exam.getExamInspections().stream().map(
-                        ExamInspection::getUser).collect(Collectors.toSet()));
-                for (User r : recipients) {
-                    try {
-                        emailComposer.composeNoShowMessage(r, enrolment.getUser(), exam);
-                        Logger.info("Email sent to {}", r.getEmail());
-                    } catch (IOException e) {
-                        Logger.error("Failed to send email", e);
-                    }
+    public static void handleNoShow(User user, Long examId, EmailComposer composer) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam")
+                .where()
+                .eq("user", user)
+                .eq("reservation.noShow", false)
+                .lt("reservation.endAt", new Date())
+                .eq("exam.id", examId)
+                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .findList();
+        handleNoShows(enrolments, composer);
+    }
+
+    public static void handleNoShow(ExamEnrolment enrolment, EmailComposer composer) {
+        Reservation reservation = enrolment.getReservation();
+        reservation.setNoShow(true);
+        reservation.update();
+        Exam exam = enrolment.getExam();
+        if (exam.isPrivate()) {
+            // Notify teachers
+            Set<User> recipients = new HashSet<>();
+            recipients.addAll(exam.getExamOwners());
+            recipients.addAll(exam.getExamInspections().stream().map(
+                    ExamInspection::getUser).collect(Collectors.toSet()));
+            for (User r : recipients) {
+                try {
+                    composer.composeNoShowMessage(r, enrolment.getUser(), exam);
+                    Logger.info("Email sent to {}", r.getEmail());
+                } catch (IOException e) {
+                    Logger.error("Failed to send email", e);
                 }
             }
-            Logger.info(" -> marked reservation {} as no-show", reservation.getId());
+        }
+    }
+
+    public static void handleNoShows(List<ExamEnrolment> noShows, EmailComposer composer) {
+        for (ExamEnrolment enrolment : noShows) {
+            handleNoShow(enrolment, composer);
+            Logger.info(" -> marked reservation {} as no-show", enrolment.getReservation().getId());
         }
     }
 

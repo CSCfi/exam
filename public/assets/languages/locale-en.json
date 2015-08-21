@@ -664,5 +664,6 @@
   "sitnet_exam_copied": "Tentti kopioitu EN",
   "sitnet_select_role": "Valitse käyttäjärooli, jolla haluat kirjautua EN",
   "sitnet_exam_trial_count": "Suorituskertojen määrä EN",
-  "sitnet_exam_trial_count_description": "Kuinka monta kertaa tentin saa suorittaa ennen arviointia EN"
+  "sitnet_exam_trial_count_description": "Kuinka monta kertaa tentin saa suorittaa ennen arviointia EN",
+  "sitnet_no_trials_left": "Suorituskertoja ei jäljellä. Ei uusintamahdollisuutta EN"
 }
