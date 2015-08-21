@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import models.api.CountsAsTrial;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -9,7 +10,7 @@ import javax.persistence.TemporalType;
 import java.util.Date;
 
 @Entity
-public class ExamParticipation extends GeneratedIdentityModel {
+public class ExamParticipation extends GeneratedIdentityModel implements CountsAsTrial {
 
     @ManyToOne
 	@JsonBackReference
@@ -78,4 +79,15 @@ public class ExamParticipation extends GeneratedIdentityModel {
     public void setDuration(Date duration) {
         this.duration = duration;
     }
+
+	@Override
+	public Date getTrialTime() {
+		return started;
+	}
+
+	@Override
+	public boolean isProcessed() {
+		return exam.getState().equals(Exam.State.GRADED_LOGGED.toString())
+				|| exam.getState().equals(Exam.State.ARCHIVED.toString());
+	}
 }

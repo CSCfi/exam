@@ -69,4 +69,5 @@ public class Reservation extends GeneratedIdentityModel {
     public Interval toInterval() {
         return new Interval(startAt.getTime(), endAt.getTime());
     }
+
 }
