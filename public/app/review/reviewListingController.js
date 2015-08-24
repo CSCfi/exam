@@ -38,14 +38,6 @@
                     }
                 });
 
-                var parseDurations = function (reviews) {
-                    angular.forEach(reviews, function (review) {
-                        if (review.duration) {
-                            review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
-                        }
-                    });
-                };
-
                 $scope.selectAll = function (selectAllCssClass, checkboxesCssClass) {
 
                     var isSelected = angular.element("." + selectAllCssClass).prop("checked");
@@ -156,41 +148,41 @@
                     return isNotInspector;
                 };
 
-                // Aborted exams
-                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['ABORTED']},
-                    function (abortedExams) {
-                        angular.forEach(abortedExams, function (aborted) {
-                            if (aborted.duration) {
-                                aborted.duration = moment.utc(Date.parse(aborted.duration)).format('HH:mm');
-                            }
+                var handleOngoingReviews = function (review) {
+                    ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
+                        review.inspections = inspections;
+                    });
+                    ExamRes.owners.get({id: review.exam.id},
+                        function (examOwners) {
+                            review.exam.examOwners = examOwners;
                         });
-                        $scope.abortedExams = abortedExams;
-                    },
-                    function (error) {
-                        toastr.error(error.data);
-                    }
-                );
-                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['REVIEW', 'REVIEW_STARTED']},
-                    function (examReviews) {
-                        if (examReviews && examReviews.length > 0) {
-                            $scope.toggleReviews = true;
-                        }
-                        angular.forEach(examReviews, function (review) {
-                            if (review.duration) {
-                                review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
-                            }
-                            ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
-                                review.inspections = inspections;
-                            });
-                            ExamRes.owners.get({id: review.exam.id},
-                                function (examOwners) {
-                                    review.exam.examOwners = examOwners;
-                                },
-                                function (error) {
+                };
 
-                                });
+                // Aborted exams
+                ExamRes.examReviews.query({
+                        eid: $routeParams.id,
+                        statuses: ['ABORTED', 'REVIEW', 'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED']
+                    },
+                    function (reviews) {
+                        reviews.forEach(function (r) {
+                            r.duration = moment.utc(Date.parse(r.duration)).format('HH:mm');
                         });
-                        $scope.examReviews = examReviews;
+                        $scope.abortedExams = reviews.filter(function (r) {
+                            return r.exam.state === 'ABORTED';
+                        });
+                        $scope.examReviews = reviews.filter(function (r) {
+                            return r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED';
+                        });
+                        $scope.examReviews.forEach(handleOngoingReviews);
+                        $scope.toggleReviews = $scope.examReviews.length > 0;
+                        $scope.gradedReviews = reviews.filter(function (r) {
+                            return r.exam.state === 'GRADED';
+                        });
+                        $scope.toggleGradedReviews = $scope.gradedReviews.length > 0;
+                        $scope.gradedLoggedReviews = reviews.filter(function (r) {
+                            return r.exam.state === 'GRADED_LOGGED';
+                        });
+                        $scope.toggleLoggedReviews = $scope.gradedLoggedReviews.length > 0;
                     },
                     function (error) {
                         toastr.error(error.data);
@@ -220,39 +212,6 @@
                     }
                     return b;
                 };
-
-                // Graded exams
-                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['GRADED']},
-                    function (examReviews) {
-                        if (examReviews && examReviews.length > 0) {
-                            $scope.toggleGradedReviews = true;
-                        }
-                        angular.forEach(examReviews, function (review) {
-                            if (review.duration) {
-                                review.duration = moment.utc(Date.parse(review.duration)).format('HH:mm');
-                            }
-                        });
-
-                        $scope.gradedReviews = examReviews;
-                    },
-                    function (error) {
-                        toastr.error(error.data);
-                    }
-                );
-
-                // Logged exams
-                ExamRes.examReviews.query({eid: $routeParams.id, statuses: ['GRADED_LOGGED']},
-                    function (examReviews) {
-                        if (examReviews && examReviews.length > 0) {
-                            $scope.toggleLoggedReviews = true;
-                        }
-                        $scope.gradedLoggedReviews = examReviews;
-                        parseDurations($scope.gradedLoggedReviews);
-                    },
-                    function (error) {
-                        toastr.error(error.data);
-                    }
-                );
 
                 $scope.isLongerThanSixMonths = function (gradedDate) {
 
@@ -285,6 +244,13 @@
                     if ($scope.gradedLoggedReviews && $scope.gradedLoggedReviews.length > 0) {
                         $scope.toggleLoggedReviews = !$scope.toggleLoggedReviews;
                     }
+                };
+
+                $scope.permitRetrial = function (participation) {
+                    ExamRes.reservation.update({eid: participation.exam.id}, function () {
+                        participation.reservation.retrialPermitted = true;
+                        toastr.info($translate.instant('sitnet_retrial_permitted'));
+                    });
                 };
 
                 $scope.getAnswerAttachments = function () {

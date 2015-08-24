@@ -87,11 +87,13 @@ public class CalendarController extends BaseController {
                 .eq("user", user)
                 .eq("exam.parent.id", examId)
                 .ne("exam.state", Exam.State.DELETED.toString())
+                .ne("reservation.retrialPermitted", true)
                 .findList();
         List<ExamEnrolment> noShows = Ebean.find(ExamEnrolment.class).where()
                 .eq("user", user)
                 .eq("exam.id", examId)
                 .eq("reservation.noShow", true)
+                .ne("reservation.retrialPermitted", true)
                 .findList();
         List<CountsAsTrial> trials = new ArrayList<>(participations);
         trials.addAll(noShows);

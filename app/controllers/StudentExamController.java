@@ -209,7 +209,8 @@ public class StudentExamController extends BaseController {
         ExamParticipation examParticipation = new ExamParticipation();
         examParticipation.setUser(user);
         examParticipation.setExam(studentExam);
-        examParticipation.setStarted(DateTime.now().toDate());
+        examParticipation.setReservation(enrolment.getReservation());
+        examParticipation.setStarted(new Date());
         examParticipation.save();
         user.getParticipations().add(examParticipation);
 

@@ -391,6 +391,7 @@ public class ExamController extends BaseController {
                 .fetch("exam", "id, name, state, gradedTime, customCredit")
                 .fetch("exam.course", "code, credits")
                 .fetch("exam.grade", "id, name")
+                .fetch("reservation", "retrialPermitted")
                 .where()
                 .eq("exam.parent.id", eid)
                 .in("exam.state", statuses)
@@ -1397,6 +1398,26 @@ public class ExamController extends BaseController {
         inspection.save();
         return ok(inspection);
     }
+
+    @Restrict({@Group("TEACHER")})
+    public Result permitRetrial(Long eid) {
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam == null || exam.getExamParticipations().isEmpty()) {
+            return notFound("sitnet_exam_not_found");
+        }
+        if (exam.getExamParticipations().size() > 1) {
+            return internalServerError("found more than one participations for a student exam");
+        }
+        Reservation reservation = exam.getExamParticipations().get(0).getReservation();
+        // In exam versions <= 2.1 participation was not linked with reservation.
+        if (reservation == null) {
+            return notFound("No reservation found for participation, maybe this is a legacy exam?");
+        }
+        reservation.setRetrialPermitted(true);
+        reservation.update();
+        return ok();
+    }
+
 
     private static boolean isEligibleForArchiving(Exam exam, Date start, Date end) {
         return (exam.getState().equals(Exam.State.ABORTED.toString())

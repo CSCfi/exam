@@ -665,5 +665,8 @@
   "sitnet_select_role": "Valitse käyttäjärooli, jolla haluat kirjautua SV",
   "sitnet_exam_trial_count": "Suorituskertojen määrä SV",
   "sitnet_exam_trial_count_description": "Kuinka monta kertaa tentin saa suorittaa ennen arviointia SV",
-  "sitnet_no_trials_left": "Suorituskertoja ei jäljellä. Ei uusintamahdollisuutta SV"
+  "sitnet_no_trials_left": "Suorituskertoja ei jäljellä. Ei uusintamahdollisuutta SV",
+  "sitnet_trial": "Suorituskerta SV",
+  "sitnet_permit_retrial": "Vapauta SV",
+  "sitnet_retrial_permitted": "Suorituskerta vapautettu SV"
 }

@@ -224,6 +224,9 @@
                 reservation: $resource("/exams/:eid/reservation",
                 {
                     eid: "@eid"
+                },
+                {
+                    "update": {method: "PUT"}
                 })
             };
         }]);

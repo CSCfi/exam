@@ -3,34 +3,34 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import models.api.CountsAsTrial;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
 public class ExamParticipation extends GeneratedIdentityModel implements CountsAsTrial {
 
     @ManyToOne
-	@JsonBackReference
-	private User user;
+    @JsonBackReference
+    private User user;
 
     @ManyToOne
     @JsonBackReference
-	private Exam exam;
+    private Exam exam;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date started;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date ended;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date duration;
+    @OneToOne(cascade = CascadeType.REMOVE)
+    private Reservation reservation;
 
     @Temporal(TemporalType.TIMESTAMP)
-	private Date deadline;
+    private Date started;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date ended;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date duration;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date deadline;
 
     public Date getDeadline() {
         return deadline;
@@ -41,36 +41,44 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
     }
 
     public User getUser() {
-		return user;
-	}
+        return user;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-	public Exam getExam() {
-		return exam;
-	}
+    public Exam getExam() {
+        return exam;
+    }
 
-	public void setExam(Exam exam) {
-		this.exam = exam;
-	}
+    public void setExam(Exam exam) {
+        this.exam = exam;
+    }
 
-	public Date getStarted() {
-		return started;
-	}
+    public Reservation getReservation() {
+        return reservation;
+    }
 
-	public void setStarted(Date started) {
-		this.started = started;
-	}
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
+    }
 
-	public Date getEnded() {
-		return ended;
-	}
+    public Date getStarted() {
+        return started;
+    }
 
-	public void setEnded(Date ended) {
-		this.ended = ended;
-	}
+    public void setStarted(Date started) {
+        this.started = started;
+    }
+
+    public Date getEnded() {
+        return ended;
+    }
+
+    public void setEnded(Date ended) {
+        this.ended = ended;
+    }
 
     public Date getDuration() {
         return duration;
@@ -80,14 +88,14 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
         this.duration = duration;
     }
 
-	@Override
-	public Date getTrialTime() {
-		return started;
-	}
+    @Override
+    public Date getTrialTime() {
+        return started;
+    }
 
-	@Override
-	public boolean isProcessed() {
-		return exam.getState().equals(Exam.State.GRADED_LOGGED.toString())
-				|| exam.getState().equals(Exam.State.ARCHIVED.toString());
-	}
+    @Override
+    public boolean isProcessed() {
+        return exam.getState().equals(Exam.State.GRADED_LOGGED.toString())
+                || exam.getState().equals(Exam.State.ARCHIVED.toString());
+    }
 }

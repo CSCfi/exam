@@ -17,6 +17,8 @@ public class Reservation extends GeneratedIdentityModel {
 
     private boolean noShow;
 
+    private boolean retrialPermitted;
+
     @OneToOne
     @JsonBackReference
     ExamMachine machine;
@@ -47,6 +49,14 @@ public class Reservation extends GeneratedIdentityModel {
 
     public void setNoShow(boolean noShow) {
         this.noShow = noShow;
+    }
+
+    public boolean isRetrialPermitted() {
+        return retrialPermitted;
+    }
+
+    public void setRetrialPermitted(boolean retrialPermitted) {
+        this.retrialPermitted = retrialPermitted;
     }
 
     public ExamMachine getMachine() {
