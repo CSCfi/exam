@@ -80,7 +80,7 @@
                         {{'sitnet_exam_status_' + review.exam.state | lowercase | translate}}
                     </td>
                     <td class="table-column-10" class="sitnet-text-aborted">
-                        <button ng-disabled="!review.reservation || review.reservation.retrialPermitted" ng-click="permitRetrial(review)"
+                        <button ng-disabled="!review.exam.trialCount || !review.reservation || review.reservation.retrialPermitted" ng-click="permitRetrial(review)"
                                 class="btn btn-sm btn-primary">
                             {{'sitnet_permit_retrial' | translate}}
                         </button>

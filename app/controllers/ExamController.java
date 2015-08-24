@@ -388,7 +388,7 @@ public class ExamController extends BaseController {
         statuses.remove(Exam.State.STUDENT_STARTED.toString());
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .fetch("exam", "id, name, state, gradedTime, customCredit")
+                .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount")
                 .fetch("exam.course", "code, credits")
                 .fetch("exam.grade", "id, name")
                 .fetch("reservation", "retrialPermitted")
