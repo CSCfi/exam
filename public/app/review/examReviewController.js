@@ -1,8 +1,12 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService', 'examService', 'questionService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
-            function (dialogs, $document, $rootScope, $scope, sessionService, examService, questionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
+        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService',
+            'examService', 'questionService', '$routeParams', '$http', '$modal', '$location', '$translate',
+            '$timeout', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService', 'fileService',
+            function (dialogs, $document, $rootScope, $scope, sessionService, examService, questionService,
+                      $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, ExamRes, LanguageRes,
+                      QuestionRes, dateService, fileService) {
 
                 $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
                 $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
@@ -627,6 +631,37 @@
                     }
                 };
 
+                $scope.selectFile = function () {
+
+                    var exam = $scope.examToBeReviewed;
+
+                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                        $scope.exam = exam;
+                        fileService.getMaxFilesize().then(function (data) {
+                            $scope.maxFileSize = data.filesize;
+                        });
+                        $scope.submit = function () {
+                            fileService.upload("attachment/exam/" + exam.id + "/feedback", $scope.attachmentFile,
+                                {examId: $scope.exam.id}, $scope.exam.examFeedback, $modalInstance);
+                        };
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('Canceled');
+                        };
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: ctrl
+                    });
+
+                    modalInstance.result.then(function () {
+                        // OK button
+                        $modalInstance.dismiss('Closed');
+                    });
+                };
+
                 $scope.stripHtml = function (text) {
                     if (text && text.indexOf("math-tex") === -1) {
                         return String(text).replace(/<[^>]+>/gm, '');
@@ -635,12 +670,12 @@
                 };
             }
         ])
-        .controller('RecordReviewConfirmationCtrl', function($scope, $modalInstance) {
-            $scope.yes = function() {
+        .controller('RecordReviewConfirmationCtrl', function ($scope, $modalInstance) {
+            $scope.yes = function () {
                 $modalInstance.close();
             };
 
-            $scope.no = function() {
+            $scope.no = function () {
                 $modalInstance.dismiss('canceled');
             }
         });

@@ -31,10 +31,7 @@ public class QuestionController extends BaseController {
                 .isNull("parent")
                 .ne("state", QuestionState.DELETED.toString());
         if (user.hasRole("TEACHER")) {
-            query = query.disjunction()
-                    .eq("creator.id", user.getId())
-                    .eq("shared", true)
-                    .endJunction();
+            query = query.eq("creator", user);
         }
         if (!examIds.isEmpty()) {
             query = query.in("children.examSectionQuestion.examSection.exam.id", examIds);

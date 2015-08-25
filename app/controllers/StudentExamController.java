@@ -84,6 +84,7 @@ public class StudentExamController extends BaseController {
                 .fetch("grade")
                 .fetch("gradeScale")
                 .fetch("examFeedback")
+                .fetch("examFeedback.attachment")
                 .fetch("gradedByUser", "firstName, lastName")
                 .fetch("parent.examOwners", "firstName, lastName")
                 .where()

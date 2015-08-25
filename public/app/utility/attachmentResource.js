@@ -33,6 +33,16 @@
                         "get":    {method: "GET", params: {id: "@id"}},
                         "insert": {method: "POST", params: { id: "@id"}},
                         "remove": {method: "DELETE", params: { id: "@id"}}
+                    }),
+                feedbackAttachment: $resource(
+                    "/attachment/exam/:id/feedback",
+                    {
+                        id: "@id"
+                    },
+                    {
+                        "get":    {method: "GET", params: {eid: "@id"}},
+                        "insert": {method: "POST", params: { eid: "@id"}},
+                        "remove": {method: "DELETE", params: { eid: "@id"}}
                     })
             };
         }]);

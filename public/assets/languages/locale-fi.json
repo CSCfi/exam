@@ -668,5 +668,6 @@
   "sitnet_no_trials_left": "Suorituskertoja ei jäljellä. Ei uusintamahdollisuutta",
   "sitnet_trial": "Suorituskerta",
   "sitnet_permit_retrial": "Vapauta",
-  "sitnet_retrial_permitted": "Suorituskerta vapautettu"
+  "sitnet_retrial_permitted": "Suorituskerta vapautettu",
+  "sitnet_feedback_attachment": "Palautteen liitetiedosto"
 }

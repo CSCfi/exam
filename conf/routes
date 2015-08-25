@@ -206,6 +206,10 @@ POST          /attachment/exam                                      controllers.
 DELETE        /attachment/exam/:id                                  controllers.AttachmentController.deleteExamAttachment(id: Long)
 GET           /attachment/exam/:id                                  controllers.AttachmentController.downloadExamAttachment(id: Long)
 
+POST          /attachment/exam/:id/feedback                         controllers.AttachmentController.addFeedbackAttachment(id: Long)
+DELETE        /attachment/exam/:id/feedback                         controllers.AttachmentController.deleteFeedbackAttachment(id: Long)
+GET           /attachment/exam/:id/feedback                         controllers.AttachmentController.downloadFeedbackAttachment(id: Long)
+
 
 #### integration ####
 GET           /integration/record/:startDate                        controllers.Interfaces.getNewRecords(startDate: String)

@@ -668,5 +668,6 @@
   "sitnet_no_trials_left": "Suorituskertoja ei jäljellä. Ei uusintamahdollisuutta SV",
   "sitnet_trial": "Suorituskerta SV",
   "sitnet_permit_retrial": "Vapauta SV",
-  "sitnet_retrial_permitted": "Suorituskerta vapautettu SV"
+  "sitnet_retrial_permitted": "Suorituskerta vapautettu SV",
+  "sitnet_feedback_attachment": "Palautteen liitetiedosto SV"
 }

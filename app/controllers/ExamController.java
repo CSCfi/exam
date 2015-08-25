@@ -251,6 +251,7 @@ public class ExamController extends BaseController {
                 .fetch("grade")
                 .fetch("examEnrolments.user")
                 .fetch("examFeedback")
+                .fetch("examFeedback.attachment")
                 .fetch("creditType")
                 .fetch("attachment")
                 .fetch("creator")
