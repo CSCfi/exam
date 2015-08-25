@@ -72,6 +72,9 @@
                     refreshGradeScales();
                 });
 
+                var initialLanguages;
+                var initialSoftware;
+
                 var initializeExam = function () {
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
@@ -80,7 +83,8 @@
                                 // Use front-end language names always to allow for i18n etc
                                 language.name = getLanguageNativeName(language.code);
                             });
-                            $scope.languagesUpdate = exam.examLanguages ? exam.examLanguages.length : 0;
+                            initialLanguages = exam.examLanguages.length;
+                            initialSoftware = exam.softwares.length;
                             // Set exam grade scale from course default if not specifically set for exam
                             if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
                                 $scope.newExam.gradeScale = exam.course.gradeScale;
@@ -122,22 +126,26 @@
                 };
 
                 $scope.updateSoftwareInfo = function () {
-                    var softwareIds = $scope.newExam.softwares.map(function (s) {
-                        return s.id;
-                    }).join();
-                    ExamRes.software.add({eid: $scope.newExam.id, softwareIds: softwareIds}, function () {
-                        toastr.info($translate.instant('sitnet_exam_software_updated'));
-                        $scope.selectedSoftwares($scope.newExam);
-                    }, function (error) {
-                        $scope.newExam.softwares = [];
-                        $scope.selectedSoftwares($scope.newExam);
-                        toastr.error(error.data);
-                    });
+                    if ($scope.newExam.softwares.length !== initialSoftware) {
+                        var softwareIds = $scope.newExam.softwares.map(function (s) {
+                            return s.id;
+                        }).join();
+                        ExamRes.software.add({eid: $scope.newExam.id, softwareIds: softwareIds}, function () {
+                            toastr.info($translate.instant('sitnet_exam_software_updated'));
+                            $scope.selectedSoftwares($scope.newExam);
+                            initialSoftware = softwareIds.length;
+                        }, function (error) {
+                            $scope.newExam.softwares = [];
+                            $scope.selectedSoftwares($scope.newExam);
+                            initialSoftware = 0;
+                            toastr.error(error.data);
+                        });
+                    }
                 };
 
                 $scope.updateExamLanguages = function () {
 
-                    if ($scope.newExam.examLanguages.length !== $scope.languagesUpdate) {
+                    if ($scope.newExam.examLanguages.length !== initialLanguages) {
 
                         ExamRes.languages.reset({eid: $scope.newExam.id}, function () {
                             var promises = [];
@@ -147,7 +155,7 @@
                             $q.all(promises).then(function () {
                                 toastr.info($translate.instant('sitnet_exam_language_updated'));
                                 $scope.selectedLanguages($scope.newExam);
-                                $scope.languagesUpdate = $scope.newExam.examLanguages.length;
+                                initialLanguages = $scope.newExam.examLanguages.length;
                             });
                         });
                     }
