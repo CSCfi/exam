@@ -33,6 +33,9 @@ public class SystemInitializer {
     public static final int EXAM_AUTO_SAVER_INTERVAL_MINUTES = 1;
     public static final int RESERVATION_POLLER_START_AFTER_MINUTES = 1;
     public static final int RESERVATION_POLLER_INTERVAL_HOURS = 1;
+    public static final int EXAM_EXPIRY_POLLER_START_AFTER_MINUTES = 1;
+    public static final int EXAM_EXPIRY_POLLER_INTERVAL_DAYS = 1;
+
 
     protected ApplicationLifecycle lifecycle;
     protected EmailComposer composer;
@@ -43,6 +46,7 @@ public class SystemInitializer {
     private Cancellable autosaver;
     private Cancellable reservationPoller;
     private Cancellable reportTask;
+    private Cancellable examExpirationPoller;
 
     @Inject
     public SystemInitializer(ActorSystem actor, ApplicationLifecycle lifecycle, EmailComposer composer, Database database) {
@@ -69,6 +73,12 @@ public class SystemInitializer {
                 Duration.create(RESERVATION_POLLER_START_AFTER_MINUTES, TimeUnit.MINUTES),
                 Duration.create(RESERVATION_POLLER_INTERVAL_HOURS, TimeUnit.HOURS),
                 new ReservationPoller(composer),
+                actor.dispatcher()
+        );
+        examExpirationPoller = actor.scheduler().schedule(
+                Duration.create(EXAM_EXPIRY_POLLER_START_AFTER_MINUTES, TimeUnit.MINUTES),
+                Duration.create(EXAM_EXPIRY_POLLER_INTERVAL_DAYS, TimeUnit.DAYS),
+                new ExamExpiryPoller(),
                 actor.dispatcher()
         );
         reportSender = actor.scheduler();

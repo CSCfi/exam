@@ -8,6 +8,7 @@ import models.User;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Period;
 import play.Logger;
 
 import java.io.File;
@@ -17,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AppUtil {
@@ -49,6 +51,12 @@ public class AppUtil {
     public static DateTimeZone getDefaultTimeZone() {
         String config = ConfigFactory.load().getString("sitnet.application.timezone");
         return DateTimeZone.forID(config);
+    }
+
+    public static Date getExamExpirationDate(Date timeOfSubmission) {
+        String expiresAfter = ConfigFactory.load().getString("sitnet.exam.expiration.period");
+        Period period = Period.parse(expiresAfter);
+        return new DateTime(timeOfSubmission).plus(period).toDate();
     }
 
     public static DateTime adjustDST(DateTime dateTime) {
