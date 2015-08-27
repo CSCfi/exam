@@ -74,7 +74,7 @@
                     ExamRes.archive.update({ids: selection}, function() {
                         $scope.gradedLoggedReviews = $scope.gradedLoggedReviews.filter(function(r) {
                             if (selection.indexOf(r.exam.id) !== -1) {
-                                $scope.archivedReviews.push(angular.copy(r));
+                                $scope.archivedReviews.push(r);
                                 return false;
                             }
                             return true;

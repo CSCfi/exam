@@ -494,19 +494,32 @@ public class ExamController extends BaseController {
         }, actor.dispatcher());
     }
 
-    private boolean updateState(Exam exam, String state) {
+    private Result updateStateAndValidate(Exam exam, DynamicForm df) {
+        String state = df.get("state");
         if (state != null) {
-            if (exam.isPrivate() && !exam.getState().equals(Exam.State.PUBLISHED.toString()) &&
+            if (!exam.getState().equals(Exam.State.PUBLISHED.toString()) &&
                     state.equals(Exam.State.PUBLISHED.toString())) {
-                // No participants added, this is not good.
-                if (exam.getExamEnrolments().isEmpty()) {
-                    return false;
+                // Exam is about to be published
+                String str = ValidationUtil.validateExamForm(df);
+                // invalid data
+                if (!str.equalsIgnoreCase("OK")) {
+                    return badRequest(str);
                 }
-                notifyPartiesAboutPrivateExamPublication(exam);
+                // no sections named
+                if (exam.getExamSections().stream().anyMatch((section) -> section.getName() == null)) {
+                    return badRequest("sitnet_exam_contains_unnamed_sections");
+                }
+                if (exam.isPrivate()) {
+                    // No participants added, this is not good.
+                    if (exam.getExamEnrolments().isEmpty()) {
+                        return badRequest("sitnet_no_participants");
+                    }
+                    notifyPartiesAboutPrivateExamPublication(exam);
+                }
             }
             exam.setState(state);
         }
-        return true;
+        return null;
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -520,19 +533,11 @@ public class ExamController extends BaseController {
         }
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || getLoggedUser().hasRole("ADMIN")) {
-            // Update draft's name even though other relevant stuff might be missing
+            Result result = updateStateAndValidate(exam, df);
+            if (result != null) {
+                return result;
+            }
             String examName = df.get("name");
-            if (exam.getState().equals(Exam.State.DRAFT.toString()) && examName != null) {
-                exam.setName(examName);
-                exam.update();
-            }
-            String str = ValidationUtil.validateExamForm(df);
-            if (!str.equalsIgnoreCase("OK")) {
-                return badRequest(str);
-            }
-            if (exam.getExamSections().stream().anyMatch((section) -> section.getName() == null)) {
-                return badRequest("sitnet_exam_contains_unnamed_sections");
-            }
             Boolean shared = Boolean.parseBoolean(df.get("shared"));
             String duration = df.get("duration");
             Integer grading = df.get("grading") == null ? null : Integer.parseInt(df.get("grading"));
@@ -543,9 +548,6 @@ public class ExamController extends BaseController {
             boolean expanded = Boolean.parseBoolean(df.get("expanded"));
             if (examName != null) {
                 exam.setName(examName);
-            }
-            if (!updateState(exam, df.get("state"))) {
-                return badRequest("sitnet_no_participants");
             }
             exam.setShared(shared);
             Long start = new Long(df.get("examActiveStartDate"));
