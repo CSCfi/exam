@@ -12,10 +12,7 @@
                 $scope.toggleLoggedReviews = false;
                 $scope.toggleReviews = false;
                 $scope.toggleGradedReviews = false;
-                $scope.showAborted = false;
-                $scope.setShowAborted = function (value) {
-                    $scope.showAborted = value;
-                };
+                $scope.view = {filter: 'IN_PROGRESS'};
 
                 $scope.pageSize = 10;
 
@@ -95,8 +92,6 @@
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
                     dialog.result.then(function (btn) {
 
-                        var promises = [];
-
                         angular.forEach(boxes, function (input) {
 
                             var isSelected = angular.element(input).prop("checked");
@@ -161,7 +156,7 @@
                 // Aborted exams
                 ExamRes.examReviews.query({
                         eid: $routeParams.id,
-                        statuses: ['ABORTED', 'REVIEW', 'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED']
+                        statuses: ['ABORTED', 'REVIEW', 'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'ARCHIVED']
                     },
                     function (reviews) {
                         reviews.forEach(function (r) {
@@ -183,6 +178,9 @@
                             return r.exam.state === 'GRADED_LOGGED';
                         });
                         $scope.toggleLoggedReviews = $scope.gradedLoggedReviews.length > 0;
+                        $scope.archivedReviews = reviews.filter(function (r) {
+                            return r.exam.state === 'ARCHIVED';
+                        });
                     },
                     function (error) {
                         toastr.error(error.data);

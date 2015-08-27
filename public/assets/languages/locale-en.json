@@ -668,5 +668,6 @@
   "sitnet_no_trials_left": "Suorituskertoja ei jäljellä. Ei uusintamahdollisuutta EN",
   "sitnet_trial": "Suorituskerta EN",
   "sitnet_permit_retrial": "Vapauta EN",
-  "sitnet_feedback_attachment": "Palautteen liitetiedosto EN"
+  "sitnet_feedback_attachment": "Palautteen liitetiedosto EN",
+  "sitnet_archived_exams": "Arkistoidut tenttisuoritukset EN"
 }

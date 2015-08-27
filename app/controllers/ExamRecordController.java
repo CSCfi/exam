@@ -123,7 +123,9 @@ public class ExamRecordController extends BaseController {
                 exam.getGradedByUser() == null) {
             return forbidden("not yet graded by anyone!");
         }
-        if (exam.getState().equals(Exam.State.GRADED_LOGGED.name())) {
+        if (exam.getState().equals(Exam.State.ABORTED.toString()) ||
+                exam.getState().equals(Exam.State.GRADED_LOGGED.toString()) ||
+                exam.getState().equals(Exam.State.ARCHIVED.toString())) {
             return forbidden("sitnet_error_exam_already_graded_logged");
         }
         return null;

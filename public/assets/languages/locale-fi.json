@@ -669,5 +669,6 @@
   "sitnet_trial": "Suorituskerta",
   "sitnet_permit_retrial": "Vapauta",
   "sitnet_retrial_permitted": "Suorituskerta vapautettu",
-  "sitnet_feedback_attachment": "Palautteen liitetiedosto"
+  "sitnet_feedback_attachment": "Palautteen liitetiedosto",
+  "sitnet_archived_exams": "Arkistoidut tenttisuoritukset"
 }

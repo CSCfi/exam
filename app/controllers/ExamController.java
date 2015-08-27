@@ -284,6 +284,8 @@ public class ExamController extends BaseController {
                 .eq("state", Exam.State.REVIEW_STARTED.toString())
                 .eq("state", Exam.State.GRADED.toString())
                 .eq("state", Exam.State.GRADED_LOGGED.toString())
+                .eq("state", Exam.State.ARCHIVED.toString())
+                .endJunction()
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
         if (exam == null) {
@@ -342,6 +344,15 @@ public class ExamController extends BaseController {
     public Result reviewExam(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
         Exam exam = Ebean.find(Exam.class, id);
+        if (exam == null) {
+            return notFound("sitnet_exam_not_found");
+        }
+        if (exam.getState().equals(Exam.State.ABORTED.toString()) ||
+                exam.getState().equals(Exam.State.GRADED_LOGGED.toString()) ||
+                exam.getState().equals(Exam.State.ARCHIVED.toString())) {
+            return forbidden("Not allowed to update grading of this exam");
+        }
+
         Integer grade = df.get("grade") == null || df.get("grade").equals("") ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
@@ -424,11 +435,16 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertComment(Long eid, Long cid) {
 
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam.getState().equals(Exam.State.ABORTED.toString()) ||
+                exam.getState().equals(Exam.State.GRADED_LOGGED.toString()) ||
+                exam.getState().equals(Exam.State.ARCHIVED.toString())) {
+            return forbidden();
+        }
         Comment comment = bindForm(Comment.class);
         AppUtil.setCreator(comment, getLoggedUser());
         comment.save();
 
-        Exam exam = Ebean.find(Exam.class, eid);
         exam.setExamFeedback(comment);
         exam.save();
 
@@ -437,7 +453,12 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateComment(Long eid, Long cid) {
-
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (exam.getState().equals(Exam.State.ABORTED.toString()) ||
+                exam.getState().equals(Exam.State.GRADED_LOGGED.toString()) ||
+                exam.getState().equals(Exam.State.ARCHIVED.toString())) {
+            return forbidden();
+        }
         Comment form = bindForm(Comment.class);
         Comment comment = Ebean.find(Comment.class).fetch("creator", "firstName, lastName").where().idEq(cid).findUnique();
         if (comment == null) {
@@ -447,7 +468,6 @@ public class ExamController extends BaseController {
             AppUtil.setModifier(comment, getLoggedUser());
             comment.setComment(form.getComment());
             comment.save();
-            Exam exam = Ebean.find(Exam.class, eid);
             exam.setExamFeedback(comment);
             exam.save();
         }
