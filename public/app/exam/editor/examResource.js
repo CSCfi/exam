@@ -94,6 +94,7 @@
                 examReviews: $resource("/reviews/:eid",{eid: "@eid", statuses: "@statuses"},
                     {"get": {method: "GET", params: { eid: "@eid", statuses: "@statuses" }}
                 }),
+                archive: $resource("/reviews/archive", {}, {"update": {method: "PUT"}}),
                 comment: $resource("/review/:eid/comment/:cid",
                 {
                     id: "@eid", cid: "@cid"

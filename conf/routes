@@ -30,6 +30,7 @@ PUT           /review/:id                                           controllers.
 POST          /review/:eid/comment/:cid                             controllers.ExamController.insertComment(eid: Long, cid: Long)
 PUT           /review/:eid/comment/:cid                             controllers.ExamController.updateComment(eid: Long, cid: Long)
 GET           /reviews/:eid                                         controllers.ExamController.getExamReviews(eid: Long, statuses: java.util.List[String])
+PUT           /reviews/archive                                      controllers.ExamController.archiveExams
 GET           /review/info/:eid                                     controllers.ExamController.getExamStudentInfo(eid: Long)
 PUT           /exams/:id                                            controllers.ExamController.updateExam(id: Long)
 POST          /exams/:id                                            controllers.ExamController.copyExam(id: Long)

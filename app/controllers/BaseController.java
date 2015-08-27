@@ -6,10 +6,14 @@ import exceptions.MalformedDataException;
 import models.Session;
 import models.User;
 import play.cache.CacheApi;
+import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class BaseController extends Controller {
 
@@ -37,6 +41,18 @@ public class BaseController extends Controller {
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
         Session session = cache.get(SITNET_CACHE_KEY + token);
         return Ebean.find(User.class, session.getUserId());
+    }
+
+    protected List<String> parseArrayFieldFromBody(String field) {
+        DynamicForm df = Form.form().bindFromRequest();
+        String args = df.get(field);
+        String[] array;
+        if (args == null || args.isEmpty()) {
+            array = new String[]{};
+        } else {
+            array = args.split(",");
+        }
+        return Arrays.asList(array);
     }
 
     protected F.Promise<Result> wrapAsPromise(final Result result) {

@@ -12,10 +12,7 @@
                 $scope.toggleLoggedReviews = false;
                 $scope.toggleReviews = false;
                 $scope.toggleGradedReviews = false;
-                $scope.showAborted = false;
-                $scope.setShowAborted = function (value) {
-                    $scope.showAborted = value;
-                };
+                $scope.view = {filter: 'IN_PROGRESS'};
 
                 $scope.pageSize = 10;
 
@@ -47,11 +44,10 @@
                     });
                 };
 
-                $scope.printSelected = function () {
-
+                var getSelectedIds = function () {
                     // check that atleast one has been selected
                     var isEmpty = true,
-                        boxes = angular.element(".printToFileBox"),
+                        boxes = angular.element(".gradedLoggedBox"),
                         ids = [];
 
                     angular.forEach(boxes, function (input) {
@@ -65,15 +61,35 @@
                         toastr.warning($translate.instant('sitnet_choose_atleast_one'));
                         return;
                     }
-                    // print to file
-                    var examsToPrint = {
+                    return {
                         "id": $routeParams.id,
                         "childIds": ids
                     };
 
-                    fileService.download('/exam/record/export/' + examsToPrint.id,
+                };
+
+                $scope.archiveSelected = function () {
+
+                    var selection  = getSelectedIds().childIds.join();
+                    ExamRes.archive.update({ids: selection}, function() {
+                        $scope.gradedLoggedReviews = $scope.gradedLoggedReviews.filter(function(r) {
+                            if (selection.indexOf(r.exam.id) !== -1) {
+                                $scope.archivedReviews.push(angular.copy(r));
+                                return false;
+                            }
+                            return true;
+                        });
+                        toastr.info($translate.instant('sitnet_exams_archived'));
+                    });
+                };
+
+                $scope.printSelected = function () {
+
+                    var selection  = getSelectedIds();
+
+                    fileService.download('/exam/record/export/' + selection.id,
                         $translate.instant("sitnet_grading_info") + '_' + $filter('date')(Date.now(), "dd-MM-yyyy") + '.csv',
-                        {'childIds': ids});
+                        {'childIds': selection.childIds});
                 };
 
                 $scope.sendSelectedToRegistry = function () {
@@ -94,8 +110,6 @@
 
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
                     dialog.result.then(function (btn) {
-
-                        var promises = [];
 
                         angular.forEach(boxes, function (input) {
 
@@ -161,7 +175,7 @@
                 // Aborted exams
                 ExamRes.examReviews.query({
                         eid: $routeParams.id,
-                        statuses: ['ABORTED', 'REVIEW', 'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED']
+                        statuses: ['ABORTED', 'REVIEW', 'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'ARCHIVED']
                     },
                     function (reviews) {
                         reviews.forEach(function (r) {
@@ -183,6 +197,9 @@
                             return r.exam.state === 'GRADED_LOGGED';
                         });
                         $scope.toggleLoggedReviews = $scope.gradedLoggedReviews.length > 0;
+                        $scope.archivedReviews = reviews.filter(function (r) {
+                            return r.exam.state === 'ARCHIVED';
+                        });
                     },
                     function (error) {
                         toastr.error(error.data);

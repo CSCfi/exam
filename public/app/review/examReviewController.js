@@ -161,7 +161,9 @@
                             return $scope.examToBeReviewed && ($scope.user.isAdmin || isCreator() || isOwner());
                         };
 
-                        $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED" || $scope.examToBeReviewed.state === "ABORTED";
+                        $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED" ||
+                            $scope.examToBeReviewed.state === "ARCHIVED" ||
+                            $scope.examToBeReviewed.state === "ABORTED";
                         $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";
 
                         refreshGradeNames();

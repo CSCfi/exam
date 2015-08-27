@@ -669,5 +669,8 @@
   "sitnet_trial": "Suorituskerta SV",
   "sitnet_permit_retrial": "Vapauta SV",
   "sitnet_retrial_permitted": "Suorituskerta vapautettu SV",
-  "sitnet_feedback_attachment": "Palautteen liitetiedosto SV"
+  "sitnet_feedback_attachment": "Palautteen liitetiedosto SV",
+  "sitnet_archived_exams": "Arkistoidut tenttisuoritukset SV",
+  "sitnet_archive_selected": "Arkistoi valitut suoritustiedot SV",
+  "sitnet_exams_archived": "Suoritustiedot arkistoitu SV"
 }
