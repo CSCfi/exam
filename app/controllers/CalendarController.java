@@ -11,6 +11,7 @@ import models.api.CountsAsTrial;
 import org.joda.time.*;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
 public class CalendarController extends BaseController {
 
     private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyyZZ");
-    private static DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
+    private static final DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
 
     @Inject
     protected EmailComposer emailComposer;
@@ -219,7 +220,7 @@ public class CalendarController extends BaseController {
         if (room == null) {
             return notFound(String.format("No room with id: (%d)", roomId));
         }
-        Map<String, List<FreeTimeSlot>> slots = new HashMap<>();
+        List<FreeTimeSlot> slots = new ArrayList<>();
         if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString()) &&
                 isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {
             LocalDate searchDate;
@@ -240,8 +241,8 @@ public class CalendarController extends BaseController {
             while (!searchDate.isAfter(endOfSearch)) {
                 List<FreeTimeSlot> freeTimeSlots = getFreeTimes(room, exam, searchDate, reservations, machines);
                 if (!freeTimeSlots.isEmpty()) {
-                    String key = DateTimeFormat.forPattern("dd.MM.yyyy").print(searchDate);
-                    slots.put(key, freeTimeSlots);
+                    //String key = DateTimeFormat.forPattern("dd.MM.yyyy").print(searchDate);
+                    slots.addAll(freeTimeSlots);
                 }
                 searchDate = searchDate.plusDays(1);
             }
@@ -294,7 +295,7 @@ public class CalendarController extends BaseController {
     // HELPERS -->
 
     /**
-     * Search date is the current date if searching for current month or earlier,
+     * Search date is the current date if searching for current week or earlier,
      * If searching for upcoming months, day of month is one.
      */
     private static LocalDate parseSearchDate(String day, Exam exam) throws NotFoundException {
@@ -302,7 +303,7 @@ public class CalendarController extends BaseController {
         LocalDate examStartDate = new LocalDate(exam.getExamActiveStartDate());
         LocalDate now = LocalDate.now();
         LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, dateFormat);
-        searchDate = searchDate.withDayOfMonth(1);
+        searchDate = searchDate.withDayOfWeek(1);
         if (searchDate.isBefore(now)) {
             searchDate = now;
         }
@@ -318,12 +319,12 @@ public class CalendarController extends BaseController {
     }
 
     /**
-     * @return which one is sooner, exam period's end or month's end
+     * @return which one is sooner, exam period's end or week's end
      */
     private static LocalDate getEndSearchDate(Exam exam, LocalDate searchDate) {
-        LocalDate endOfMonth = searchDate.dayOfMonth().withMaximumValue();
+        LocalDate endOfWeek = searchDate.dayOfWeek().withMaximumValue();
         LocalDate examEnd = new LocalDate(exam.getExamActiveEndDate());
-        return endOfMonth.isBefore(examEnd) ? endOfMonth : examEnd;
+        return endOfWeek.isBefore(examEnd) ? endOfWeek : examEnd;
     }
 
     private Exam getEnrolledExam(Long examId) {
@@ -482,8 +483,8 @@ public class CalendarController extends BaseController {
         private final String end;
 
         public FreeTimeSlot(Interval interval) {
-            start = dateTimeFormat.print(interval.getStart());
-            end = dateTimeFormat.print(interval.getEnd());
+            start = ISODateTimeFormat.dateTime().print(interval.getStart());
+            end = ISODateTimeFormat.dateTime().print(interval.getEnd());
         }
 
         public String getStart() {
