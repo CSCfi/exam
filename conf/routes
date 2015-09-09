@@ -30,6 +30,7 @@ PUT           /review/:id                                           controllers.
 POST          /review/:eid/comment/:cid                             controllers.ExamController.insertComment(eid: Long, cid: Long)
 PUT           /review/:eid/comment/:cid                             controllers.ExamController.updateComment(eid: Long, cid: Long)
 GET           /reviews/:eid                                         controllers.ExamController.getExamReviews(eid: Long, statuses: java.util.List[String])
+GET           /noshows/:eid                                         controllers.ExamController.listNoShows(eid: Long)
 PUT           /reviews/archive                                      controllers.ExamController.archiveExams
 GET           /review/info/:eid                                     controllers.ExamController.getExamStudentInfo(eid: Long)
 PUT           /exams/:id                                            controllers.ExamController.updateExam(id: Long)
@@ -40,7 +41,6 @@ PUT           /exams/:eid/section/:sid                              controllers.
 PUT           /exams/:eid/course/:cid                               controllers.ExamController.updateCourse(eid: Long, cid: Long)
 DELETE        /exams/:eid/course/:cid                               controllers.ExamController.removeCourse(eid: Long, cid: Long)
 GET           /exams/:eid/reservation                               controllers.ExamController.getReservationInformationForExam(eid: Long)
-PUT           /exams/:eid/reservation                               controllers.ExamController.permitRetrial(eid: Long)
 GET           /finishedexams                                        controllers.ExamController.getFinishedExams
 GET           /reviewerexams                                        controllers.ExamController.getTeachersExams
 GET           /reviewerexams/:eid                                   controllers.ExamController.getExamReview(eid: Long)
@@ -176,6 +176,7 @@ GET           /reservations/examrooms                               controllers.
 GET           /reservations/exams                                   controllers.ReservationController.getExams
 GET           /reservations                                         controllers.ReservationController.getReservations(state: play.libs.F.Option[java.lang.String], ownerId: play.libs.F.Option[java.lang.Long], studentId: play.libs.F.Option[java.lang.Long], roomId: play.libs.F.Option[java.lang.Long], machineId: play.libs.F.Option[java.lang.Long], examId: play.libs.F.Option[java.lang.Long], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
 DELETE        /reservations/:id                                     controllers.ReservationController.removeReservation(id: Long)
+PUT           /reservations/:id                                     controllers.ReservationController.permitRetrial(id: Long)
 
 ############### ExamMachines interface ###############
 

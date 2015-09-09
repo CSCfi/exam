@@ -672,5 +672,6 @@
   "sitnet_feedback_attachment": "Palautteen liitetiedosto SV",
   "sitnet_archived_exams": "Arkistoidut tenttisuoritukset SV",
   "sitnet_archive_selected": "Arkistoi valitut suoritustiedot SV",
-  "sitnet_exams_archived": "Suoritustiedot arkistoitu SV"
+  "sitnet_exams_archived": "Suoritustiedot arkistoitu SV",
+  "sitnet_no_shows": "No-show-tapaukset SV"
 }

@@ -94,6 +94,7 @@
                 examReviews: $resource("/reviews/:eid",{eid: "@eid", statuses: "@statuses"},
                     {"get": {method: "GET", params: { eid: "@eid", statuses: "@statuses" }}
                 }),
+                noShows: $resource("/noshows/:eid", {eid: "@eid"}),
                 archive: $resource("/reviews/archive", {}, {"update": {method: "PUT"}}),
                 comment: $resource("/review/:eid/comment/:cid",
                 {
@@ -222,9 +223,9 @@
                 {
                     "add": {method: "PUT"}
                 }),
-                reservation: $resource("/exams/:eid/reservation",
+                reservation: $resource("/reservations/:id",
                 {
-                    eid: "@eid"
+                    id: "@id"
                 },
                 {
                     "update": {method: "PUT"}

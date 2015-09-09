@@ -19,7 +19,7 @@
                 </span>
                 {{'sitnet_get_answer_attachments' | translate }}
             </a>
-            <a class="header-top-link pull-right" ng-click="view.filter = 'ABORTED'"
+            <a target="_self" class="header-top-link pull-right" ng-click="view.filter = 'ABORTED'"
                ng-if="view.filter === 'IN_PROGRESS'">
                  <span class="fa-stack fa-lg header-top-icon">
                     <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
@@ -27,11 +27,23 @@
                 </span>
                 {{'sitnet_aborted_exams' | translate}} ({{abortedExams.length}})
             </a>
+            <a target="_self" class="header-top-link pull-right" ng-click="view.filter = 'NO_SHOW'"
+               ng-if="view.filter === 'IN_PROGRESS'">
+                 <span class="fa-stack fa-lg header-top-icon">
+                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                    <i class="fa fa-undo fa-stack-1x sitnet-white"></i>
+                </span>
+                {{'sitnet_no_shows' | translate}} ({{noShows.length}})
+            </a>
             <a class="header-top-link pull-right" ng-if="view.filter === 'ABORTED'"
                ng-click="view.filter = 'IN_PROGRESS'">
                 <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
             </a>
             <a class="header-top-link pull-right" ng-if="view.filter === 'ARCHIVED'"
+               ng-click="view.filter = 'IN_PROGRESS'">
+                <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
+            </a>
+            <a class="header-top-link pull-right" ng-if="view.filter === 'NO_SHOW'"
                ng-click="view.filter = 'IN_PROGRESS'">
                 <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
             </a>
@@ -87,7 +99,7 @@
                     </td>
                     <td class="table-column-10" class="sitnet-text-aborted">
                         <button ng-disabled="!review.exam.trialCount || !review.reservation || review.reservation.retrialPermitted"
-                                ng-click="permitRetrial(review)"
+                                ng-click="permitRetrial(review.reservation)"
                                 class="btn btn-sm btn-primary">
                             {{'sitnet_permit_retrial' | translate}}
                         </button>
@@ -97,6 +109,61 @@
             </table>
         </div>
     </div>
+
+    <div class="detail-row" ng-if="view.filter === 'NO_SHOW'">
+        <div class="main-row">
+            <span class="col-md-12">
+                <span class="exams-list-title-text pointer">
+                    {{'sitnet_no_shows' | translate}}
+                </span>
+            </span>
+        </div>
+        <div class="indented-row" ng-show="noShows.length === 0">
+            <div class="col-md-12 text">N/A</div>
+        </div>
+        <div class="col-md-12" ng-show="noShows.length > 0">
+            <table class="table table-bordered table-striped exams-table">
+                <thead>
+                <tr>
+                    <th colspan="2">
+                        {{'sitnet_student' | translate }}
+                    </th>
+                    <th>
+                        {{'sitnet_reservation' | translate}}
+                    </th>
+                    <th>{{'sitnet_exam_state' | translate}}</th>
+                    <th>{{'sitnet_trial' | translate}}</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr ng-repeat="review in noShows | offset: currentPage*pageSize | limitTo: pageSize">
+                    <td class="table-column-examname">
+                        {{review.user.firstName}}&nbsp;{{review.user.lastName}}
+                        <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>
+                    </td>
+                    <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">
+                        {{review.user.email}}</a></td>
+                    <td class="table-column-25">{{review.reservation.startAt | date: 'dd.MM.yyyy'}}
+                        {{'sitnet_clock_short' |
+                        translate}} {{review.reservation.startAt | date: 'HH:mm'}} - {{review.reservation.endAt | date:
+                        'HH:mm'}}
+                    </td>
+                    <td class="table-column-15" class="sitnet-text-aborted">
+                        {{'sitnet_exam_status_no_show' | translate}}
+                    </td>
+                    <td class="table-column-10" class="sitnet-text-aborted">
+                        <button ng-disabled="!review.exam.trialCount || !review.reservation || review.reservation.retrialPermitted"
+                                ng-click="permitRetrial(review.reservation)" class="btn btn-sm btn-primary">
+                            {{'sitnet_permit_retrial' | translate}}
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 
     <div ng-if="view.filter === 'IN_PROGRESS'">
         <!-- Ready for review-->
@@ -370,7 +437,8 @@
 
         <div class="main-row" ng-show="toggleLoggedReviews">
             <span class="col-md-12">
-                <a class="btn btn-primary" ng-click="printSelected()">{{'sitnet_print_selected_to_file' | translate}}</a>
+                <a class="btn btn-primary" ng-click="printSelected()">{{'sitnet_print_selected_to_file' |
+                    translate}}</a>
                 <a class="btn btn-primary" ng-click="archiveSelected()">{{'sitnet_archive_selected' | translate}}</a>
             </span>
         </div>

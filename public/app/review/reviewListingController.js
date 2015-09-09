@@ -70,9 +70,9 @@
 
                 $scope.archiveSelected = function () {
 
-                    var selection  = getSelectedIds().childIds.join();
-                    ExamRes.archive.update({ids: selection}, function() {
-                        $scope.gradedLoggedReviews = $scope.gradedLoggedReviews.filter(function(r) {
+                    var selection = getSelectedIds().childIds.join();
+                    ExamRes.archive.update({ids: selection}, function () {
+                        $scope.gradedLoggedReviews = $scope.gradedLoggedReviews.filter(function (r) {
                             if (selection.indexOf(r.exam.id) !== -1) {
                                 $scope.archivedReviews.push(r);
                                 return false;
@@ -85,7 +85,7 @@
 
                 $scope.printSelected = function () {
 
-                    var selection  = getSelectedIds();
+                    var selection = getSelectedIds();
 
                     fileService.download('/exam/record/export/' + selection.id,
                         $translate.instant("sitnet_grading_info") + '_' + $filter('date')(Date.now(), "dd-MM-yyyy") + '.csv',
@@ -172,7 +172,7 @@
                         });
                 };
 
-                // Aborted exams
+                // Reviews
                 ExamRes.examReviews.query({
                         eid: $routeParams.id,
                         statuses: ['ABORTED', 'REVIEW', 'REVIEW_STARTED', 'GRADED', 'GRADED_LOGGED', 'ARCHIVED']
@@ -205,6 +205,11 @@
                         toastr.error(error.data);
                     }
                 );
+
+                // No-shows
+                ExamRes.noShows.query({eid: $routeParams.id}, function (noShows) {
+                    $scope.noShows = noShows;
+                });
 
                 $scope.isOwner = function (user, owners) {
                     var b = false;
@@ -263,9 +268,9 @@
                     }
                 };
 
-                $scope.permitRetrial = function (participation) {
-                    ExamRes.reservation.update({eid: participation.exam.id}, function () {
-                        participation.reservation.retrialPermitted = true;
+                $scope.permitRetrial = function (reservation) {
+                    ExamRes.reservation.update({id: reservation.id}, function () {
+                        reservation.retrialPermitted = true;
                         toastr.info($translate.instant('sitnet_retrial_permitted'));
                     });
                 };

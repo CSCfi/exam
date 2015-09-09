@@ -88,6 +88,7 @@ public class SystemInitializer {
             cancelReportSender();
             cancelAutosaver();
             cancelReservationPoller();
+            cancelExpirationPoller();
             database.shutdown();
             CacheManager.getInstance().removeCache("play");
             return null;
@@ -156,6 +157,12 @@ public class SystemInitializer {
     private void cancelReservationPoller() {
         if (reservationPoller != null && !reservationPoller.isCancelled()) {
             reservationPoller.cancel();
+        }
+    }
+
+    private void cancelExpirationPoller() {
+        if (examExpirationPoller != null && !examExpirationPoller.isCancelled()) {
+            examExpirationPoller.cancel();
         }
     }
 }

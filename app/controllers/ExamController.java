@@ -417,6 +417,26 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result listNoShows(Long eid) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
+                .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount")
+                .fetch("reservation")
+                .fetch("user", "id, firstName, lastName, email, userIdentifier")
+                .fetch("exam.course", "code, credits")
+                .fetch("exam.grade", "id, name")
+                .where()
+                .eq("exam.id", eid)
+                .eq("reservation.noShow", true)
+                .orderBy("reservation.endAt")
+                .findList();
+        if (enrolments == null) {
+            return notFound();
+        } else {
+            return ok(enrolments);
+        }
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamStudentInfo(Long eid) {
 
         ExamParticipation participation = Ebean.find(ExamParticipation.class)
@@ -1413,25 +1433,6 @@ public class ExamController extends BaseController {
 
         inspection.save();
         return ok(inspection);
-    }
-
-    @Restrict({@Group("TEACHER")})
-    public Result permitRetrial(Long eid) {
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null || exam.getExamParticipations().isEmpty()) {
-            return notFound("sitnet_exam_not_found");
-        }
-        if (exam.getExamParticipations().size() > 1) {
-            return internalServerError("found more than one participations for a student exam");
-        }
-        Reservation reservation = exam.getExamParticipations().get(0).getReservation();
-        // In exam versions <= 2.1 participation was not linked with reservation.
-        if (reservation == null) {
-            return notFound("No reservation found for participation, maybe this is a legacy exam?");
-        }
-        reservation.setRetrialPermitted(true);
-        reservation.update();
-        return ok();
     }
 
     @Restrict({@Group("TEACHER")})

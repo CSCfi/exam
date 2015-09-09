@@ -96,6 +96,17 @@ public class ReservationController extends BaseController {
         return ok(Json.toJson(array));
     }
 
+    @Restrict({@Group("TEACHER")})
+    public Result permitRetrial(Long id) {
+        Reservation reservation = Ebean.find(Reservation.class, id);
+        if (reservation == null) {
+            return notFound("sitnet_not_found");
+        }
+        reservation.setRetrialPermitted(true);
+        reservation.update();
+        return ok();
+    }
+
     @Restrict({@Group("ADMIN")})
     public Result removeReservation(long id) throws IOException, NotFoundException {
 
