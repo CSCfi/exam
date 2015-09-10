@@ -65,6 +65,12 @@
                             name: "sitnet_reports"
                         },
                         {
+                            href: "#/statistics",
+                            visible: (admin),
+                            class: "fa-line-chart",
+                            name: "sitnet_statistics"
+                        },
+                        {
                             href: "#/settings",
                             visible: (admin),
                             class: "fa-wrench",

@@ -277,6 +277,22 @@ public class ExamRoom extends GeneratedIdentityModel {
         this.localTimezone = localTimezone;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ExamRoom)) return false;
+
+        ExamRoom examRoom = (ExamRoom) o;
+
+        return !(id != null ? !id.equals(examRoom.id) : examRoom.id != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
     @Transient
     public int getTimezoneOffset(LocalDate date) {
         String day = date.dayOfWeek().getAsText(Locale.ENGLISH);

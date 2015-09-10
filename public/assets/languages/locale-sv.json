@@ -673,5 +673,10 @@
   "sitnet_archived_exams": "Arkistoidut tenttisuoritukset SV",
   "sitnet_archive_selected": "Arkistoi valitut suoritustiedot SV",
   "sitnet_exams_archived": "Suoritustiedot arkistoitu SV",
-  "sitnet_no_shows": "No-show-tapaukset SV"
+  "sitnet_no_shows": "No-show-tapaukset SV",
+  "sitnet_statistics": "Tilastot SV",
+  "sitnet_amount_exams": "TenttiSuoritusten määrä SV",
+  "sitnet_total": "Yhteensä SV",
+  "sitnet_department": "Osasto SV",
+  "sitnet_statistics_participations": "Suoritetut tentit SV"
 }

@@ -1,0 +1,29 @@
+<div class="detail-row">
+    <div class="col-md-12">
+        <button class="btn btn-primary" ng-click="listParticipations()">{{'sitnet_search' | translate}}</button>
+    </div>
+</div>
+<div class="main-row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>{{'sitnet_room' | translate}}</th>
+                <th>{{'sitnet_amount_exams' | translate}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="(room, exams) in participations">
+                <td>{{room.split(':')[1]}}</td>
+                <td>{{exams.length}}</td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td><b>{{ 'sitnet_total' | translate }}</b></td>
+                <td><b>{{ totalParticipations() }}</b></td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

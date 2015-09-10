@@ -259,5 +259,12 @@ GET           /statistics/examnames/:id/:reportType                 controllers.
 GET           /statistics/examenrollments/:id                       controllers.StatisticsController.getExamEnrollments(id: Long)
 GET           /statistics/student/:id/:from/:to                     controllers.StatisticsController.reportStudentActivity(id: Long, from: String, to: String)
 
+################# Reports interface ##################
+
+GET           /reports/participations                               controllers.ReportController.getExamParticipations(dept: play.libs.F.Option[String], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
+GET           /reports/departments                                  controllers.ReportController.listDepartments
+GET           /reports/exams                                        controllers.ReportController.getPublishedExams(dept: play.libs.F.Option[String], start: play.libs.F.Option[java.lang.Long], end: play.libs.F.Option[java.lang.Long])
+
+
 #######################################################
 GET           /assets/*file                                         controllers.Assets.at(path="/public", file)

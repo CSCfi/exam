@@ -60,6 +60,8 @@
             $routeProvider.when('/reports', { templateUrl: tmpl + 'administrative/reports/reports.html', controller: 'ReportController'});
             $routeProvider.when('/settings', { templateUrl: tmpl + 'common/admin/settings.html'});
             $routeProvider.when('/users', { templateUrl: tmpl + 'administrative/users.html', controller: 'UserCtrl'});
+            $routeProvider.when('/statistics', { templateUrl: tmpl + 'administrative/statistics/statistics.html', controller: 'StatisticsController'});
+
 
             /* Print */
             $routeProvider.when('/print/exam/:id', { templateUrl: tmpl + 'review/print/fullReview.html', controller: 'ExamReviewController'});
