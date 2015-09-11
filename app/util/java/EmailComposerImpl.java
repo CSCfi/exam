@@ -356,7 +356,7 @@ public class EmailComposerImpl implements EmailComposer {
         Lang lang = getLang(toUser);
         User student = exam.getCreator();
         String subject, message;
-        if (exam.getState().equals(Exam.State.ABORTED.toString())) {
+        if (exam.getState() == Exam.State.ABORTED) {
             subject = Messages.get(lang, "email.template.exam.aborted.subject");
             message = Messages.get(lang, "email.template.exam.aborted.message", String.format("%s %s <%s>",
                             student.getFirstName(), student.getLastName(), student.getEmail()),
@@ -417,7 +417,7 @@ public class EmailComposerImpl implements EmailComposer {
                 .eq("examOwners", teacher)
                 .eq("examInspections.user", teacher)
                 .endJunction()
-                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.PUBLISHED)
                 .gt("examActiveEndDate", new Date())
                 .findList();
 
@@ -455,8 +455,8 @@ public class EmailComposerImpl implements EmailComposer {
                 .eq("exam.parent.examInspections.user", teacher)
                 .endJunction()
                 .disjunction()
-                .eq("exam.state", Exam.State.REVIEW.toString())
-                .eq("exam.state", Exam.State.REVIEW_STARTED.toString())
+                .eq("exam.state", Exam.State.REVIEW)
+                .eq("exam.state", Exam.State.REVIEW_STARTED)
                 .endJunction()
                 .findList();
     }

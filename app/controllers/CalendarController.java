@@ -86,7 +86,7 @@ public class CalendarController extends BaseController {
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class).where()
                 .eq("user", user)
                 .eq("exam.parent.id", examId)
-                .ne("exam.state", Exam.State.DELETED.toString())
+                .ne("exam.state", Exam.State.DELETED)
                 .ne("reservation.retrialPermitted", true)
                 .findList();
         List<ExamEnrolment> noShows = Ebean.find(ExamEnrolment.class).where()
@@ -137,7 +137,7 @@ public class CalendarController extends BaseController {
                 .where()
                 .eq("user.id", user.getId())
                 .eq("exam.id", examId)
-                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .eq("exam.state", Exam.State.PUBLISHED)
                 .disjunction()
                 .isNull("reservation")
                 .gt("reservation.startAt", now.toDate())
@@ -149,7 +149,7 @@ public class CalendarController extends BaseController {
         // no previous reservation or it's in the future
         // Removal not permitted if reservation is in the past or if exam is already started
         Reservation oldReservation = enrolment.getReservation();
-        if (enrolment.getExam().getState().equals(Exam.State.STUDENT_STARTED.toString()) ||
+        if (enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
                 (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))) {
             return forbidden("sitnet_reservation_in_effect");
         }
@@ -334,7 +334,7 @@ public class CalendarController extends BaseController {
                 .where()
                 .eq("user", user)
                 .eq("exam.id", examId)
-                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .eq("exam.state", Exam.State.PUBLISHED)
                 .disjunction()
                 .isNull("reservation")
                 .gt("reservation.startAt", now.toDate())

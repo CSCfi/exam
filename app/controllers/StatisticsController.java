@@ -65,7 +65,7 @@ public class StatisticsController extends BaseController {
         values.put("Ends", ISODateTimeFormat.date().print(new DateTime(exam.getExamActiveEndDate())));
         values.put("Duration", exam.getDuration() == null ? "N/A" : exam.getDuration().toString());
         values.put("Grade scale", exam.getGradeScale() == null ? "N/A" : exam.getGradeScale().getDescription());
-        values.put("State", exam.getState());
+        values.put("State", exam.getState().toString());
         values.put("Attachment", exam.getAttachment() == null ? "" : exam.getAttachment().getFilePath() + exam.getAttachment().getFileName());
         values.put("Instructions", forceNotNull(exam.getInstruction()));
         values.put("Shared", Boolean.valueOf(exam.isShared()).toString());
@@ -143,14 +143,14 @@ public class StatisticsController extends BaseController {
             int logged = 0;
             for (Exam child : parent.getChildren()) {
                 switch (child.getState()) {
-                    case "REVIEW":
-                    case "REVIEW_STARTED":
+                    case REVIEW:
+                    case REVIEW_STARTED:
                         inReview++;
                         break;
-                    case "GRADED":
+                    case GRADED:
                         graded++;
                         break;
-                    case "GRADED_LOGGED":
+                    case GRADED_LOGGED:
                         logged++;
                         break;
                     default:
@@ -160,7 +160,7 @@ public class StatisticsController extends BaseController {
             String[] data = new String[10];
             data[0] = parent.getName();
             data[1] = ISODateTimeFormat.date().print(new DateTime(parent.getCreated()));
-            data[2] = parent.getState();
+            data[2] = parent.getState().toString();
             data[3] = parent.getCourse().getCode();
             data[4] = String.format("%s - %s", ISODateTimeFormat.date().print(new DateTime(parent.getExamActiveStartDate())),
                     ISODateTimeFormat.date().print(new DateTime(parent.getExamActiveEndDate())));
@@ -215,8 +215,8 @@ public class StatisticsController extends BaseController {
                 .where()
                 .between("gradedTime", start, end)
                 .disjunction()
-                .eq("state", Exam.State.GRADED.toString())
-                .eq("state", Exam.State.GRADED_LOGGED.toString())
+                .eq("state", Exam.State.GRADED)
+                .eq("state", Exam.State.GRADED_LOGGED)
                 .endJunction()
                 .orderBy("creator.id")
                 .findList();
@@ -314,9 +314,9 @@ public class StatisticsController extends BaseController {
                 .gt("started", start)
                 .lt("ended", end)
                 .disjunction()
-                .eq("exam.state", Exam.State.GRADED.toString())
-                .eq("exam.state", Exam.State.GRADED_LOGGED.toString())
-                .eq("exam.state", Exam.State.ARCHIVED.toString())
+                .eq("exam.state", Exam.State.GRADED)
+                .eq("exam.state", Exam.State.GRADED_LOGGED)
+                .eq("exam.state", Exam.State.ARCHIVED)
                 .endJunction()
                 .findList();
 
@@ -408,7 +408,7 @@ public class StatisticsController extends BaseController {
             data.add(Long.toString(p.getExam().getId()));
             data.add(p.getExam().getName());
             data.add(Integer.toString(p.getExam().getDuration()));
-            data.add(p.getExam().getState());
+            data.add(p.getExam().getState().toString());
             data.add(Double.toString(p.getExam().getTotalScore()));
             data.add(p.getExam().getGradeScale().getDescription());
             data.add(p.getExam().getGrade() == null ? "" : p.getExam().getGrade().getName());

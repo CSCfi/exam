@@ -52,10 +52,11 @@ public class AttachmentController extends BaseController {
 
         if (question.getAnswer() == null) {
             Answer answer = new Answer();
-            if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
-                answer.setType(Answer.Type.EssayAnswer.toString());
+
+            if (question.getType() == Question.Type.EssayQuestion) {
+                answer.setType(Answer.Type.EssayAnswer);
             } else {
-                answer.setType(Answer.Type.MultipleChoiceAnswer.toString());
+                answer.setType(Answer.Type.MultipleChoiceAnswer);
             }
             question.setAnswer(answer);
             question.save();

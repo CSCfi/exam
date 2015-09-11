@@ -715,8 +715,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: 7, correctOption: false, score: 1}
     shared: true
     expanded: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: 3, correctOption: false, score: 1}}
 
   - &multi2_sauli !!models.questions.Question
     type: MultipleChoiceQuestion
@@ -732,8 +730,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: IDCHOPPERS, correctOption: false, score: 1}
     shared: false
     expanded: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: IDDQD, correctOption: true, score: 1}}
 
   - &multi4_sauli !!models.questions.Question
     type: MultipleChoiceQuestion
@@ -750,8 +746,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: Jokin muu, correctOption: false, score: 1}
     shared: false
     expanded: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: Lampaita, correctOption: true, score: 1}}
 
   - &avaruus4_sauli !!models.questions.Question
     type: MultipleChoiceQuestion
@@ -765,8 +759,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiceOption {option: Kuun sirppi, correctOption: false, score: 1}
     shared: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}}
 
   - &avaruus5_sauli !!models.questions.Question
     type: MultipleChoiceQuestion
@@ -781,9 +773,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: Meteoriitti, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiceOption {option: Meteorologi, correctOption: false, score: 1}
     shared: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: Meteoroidi, correctOption: false, score: 1}}
-
 
   - &multi1b_sauli !!models.questions.Question
     type: MultipleChoiceQuestion
@@ -801,8 +790,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: 7, correctOption: false, score: 1}
     shared: true
     expanded: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: 3, correctOption: false, score: 1}}
 
   - &multi2b_sauli !!models.questions.Question
     type: MultipleChoiceQuestion
@@ -818,8 +805,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: IDCHOPPERS, correctOption: false, score: 1}
     shared: false
     expanded: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: IDDQD, correctOption: true, score: 1}}
 
   - &multi4b_sauli !!models.questions.Question
     type: MultipleChoiceQuestion
@@ -836,8 +821,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: Jokin muu, correctOption: false, score: 1}
     shared: false
     expanded: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: Lampaita, correctOption: true, score: 1}}
 
   - &avaruus4b_sauli !!models.questions.Question
     type: MultipleChoiceQuestion
@@ -851,8 +834,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiceOption {option: Kuun sirppi, correctOption: false, score: 1}
     shared: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: Maapallon kiertoradan muoto, correctOption: false, score: 1}}
 
   - &avaruus5b_sauli !!models.questions.Question
     type: MultipleChoiceQuestion
@@ -867,8 +848,6 @@ question_multiple_choice:
         - !!models.questions.MultipleChoiceOption {option: Meteoriitti, correctOption: false, score: 1}
         - !!models.questions.MultipleChoiceOption {option: Meteorologi, correctOption: false, score: 1}
     shared: false
-    answer:
-        !!models.questions.Answer {type: MultipleChoiseAnswer, option: !!models.questions.MultipleChoiceOption {option: Meteoroidi, correctOption: false, score: 1}}
 
 ######################################################################
 

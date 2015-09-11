@@ -97,8 +97,8 @@ GET           /enrolments/:eid                                      controllers.
 PUT           /enrolments/:eid                                      controllers.EnrollController.updateEnrolment(eid: Long)
 GET           /student/exams/:eid                                   controllers.StudentExamController.getReservationInstructions(eid: Long)
 
-POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.insertAnswer(hash: String, qid: Long, oid: Long)
-POST          /student/exams/:hash/question/:questionId             controllers.StudentExamController.insertEssay(hash: String, questionId: Long)
+POST          /student/exams/:hash/question/:qid/option/:oid        controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long, oid: Long)
+POST          /student/exams/:hash/question/:questionId             controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
 
 
 ############### Enrolment interface ###############

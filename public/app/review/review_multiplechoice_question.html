@@ -36,12 +36,12 @@
         <!-- compact -->
         <div class="detail-row" ng-hide="sectionQuestion.question.reviewExpanded">
             <span class="col-md-12 review-question-value">
-                <span mathjax ng-bind-html="sectionQuestion.question.answer.option.option"></span>
-                <span ng-class="sectionQuestion.question.answer.option.correctOption ? 'text-success' : 'text-danger'">&nbsp;&nbsp;
-                    <span ng-if="sectionQuestion.question.answer.option.correctOption === true">
+                <span mathjax ng-bind-html="sectionQuestion.question.answer.options[0].option"></span>
+                <span ng-class="sectionQuestion.question.answer.options[0].correctOption ? 'text-success' : 'text-danger'">&nbsp;&nbsp;
+                    <span ng-if="sectionQuestion.question.answer.options[0].correctOption === true">
                         ({{'sitnet_multiplechoice_question_correct' | translate}})
                     </span>
-                    <span ng-if="sectionQuestion.question.answer.option.correctOption === false">
+                    <span ng-if="sectionQuestion.question.answer.options[0].correctOption === false">
                         ({{'sitnet_multiplechoice_question_incorrect' | translate}})
                     </span>
                 </span>
@@ -54,7 +54,7 @@
                 <span class="fa fa-stack">
                     <i class="fa fa-stop-o fa-stack-2x"></i>
                     <i class="fa fa-stack-1x"
-                        ng-class="option.option === sectionQuestion.question.answer.option.option ? 'fa-check-square-o' : 'fa-square-o'"></i>
+                        ng-class="option.option === sectionQuestion.question.answer.options[0].option ? 'fa-check-square-o' : 'fa-square-o'"></i>
                 </span>
                 <span ng-class="option.correctOption ? 'text-success' : 'text-danger'" class="review-question-option-name">
                     {{option.option}}

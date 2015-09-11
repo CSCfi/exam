@@ -33,7 +33,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         Question question = deserialize(Question.class, node);
-        assertThat(question.getType().equals("EssayQuestion"));
+        assertThat(question.getType()).isEqualTo(Question.Type.EssayQuestion);
 
         // Update it
         JsonNode questionUpdate = Json.newObject().put("type", "EssayQuestion")

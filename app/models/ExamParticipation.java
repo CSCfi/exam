@@ -95,7 +95,6 @@ public class ExamParticipation extends GeneratedIdentityModel implements CountsA
 
     @Override
     public boolean isProcessed() {
-        return exam.getState().equals(Exam.State.GRADED_LOGGED.toString())
-                || exam.getState().equals(Exam.State.ARCHIVED.toString());
+        return exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED);
     }
 }

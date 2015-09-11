@@ -68,8 +68,8 @@ public class StudentExamController extends BaseController {
                 .fetch("exam.examOwners", "firstName, lastName, id")
                 .fetch("exam.examInspectors", "firstName, lastName, id")
                 .where()
-                .ne("exam.state", Exam.State.STUDENT_STARTED.toString())
-                .ne("exam.state", Exam.State.ABORTED.toString())
+                .ne("exam.state", Exam.State.STUDENT_STARTED)
+                .ne("exam.state", Exam.State.ABORTED)
                 .eq("exam.creator", user)
                 .findList();
         return ok(participations);
@@ -89,7 +89,7 @@ public class StudentExamController extends BaseController {
                 .fetch("parent.examOwners", "firstName, lastName")
                 .where()
                 .eq("id", id)
-                .eq("state", Exam.State.GRADED_LOGGED.toString())
+                .eq("state", Exam.State.GRADED_LOGGED)
                 .findUnique();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
@@ -143,8 +143,8 @@ public class StudentExamController extends BaseController {
                 .isNull("reservation")
                 .endJunction()
                 .disjunction()
-                .eq("exam.state", "PUBLISHED")
-                .eq("exam.state", "STUDENT_STARTED")
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .eq("exam.state", Exam.State.STUDENT_STARTED)
                 .endJunction()
                 .findList();
         return ok(enrolments);
@@ -198,7 +198,7 @@ public class StudentExamController extends BaseController {
 
     private static Exam createNewExam(Exam prototype, User user, ExamEnrolment enrolment) {
         Exam studentExam = prototype.copy(user, true);
-        studentExam.setState(Exam.State.STUDENT_STARTED.toString());
+        studentExam.setState(Exam.State.STUDENT_STARTED);
         studentExam.setCreator(user);
         studentExam.setParent(prototype);
         studentExam.generateHash();
@@ -271,7 +271,7 @@ public class StudentExamController extends BaseController {
                 .fetch("examSections.sectionQuestions.question.options", "id, option")
                 .fetch("examSections.sectionQuestions.question.attachment", "fileName")
                 .fetch("examSections.sectionQuestions.question.answer", "id, type, answer")
-                .fetch("examSections.sectionQuestions.question.answer.option", "id, option")
+                .fetch("examSections.sectionQuestions.question.answer.options", "id, option")
                 .fetch("examSections.sectionQuestions.question.answer.attachment", "fileName")
                 .fetch("examLanguages", "code")
                 .fetch("attachment", "fileName")
@@ -289,9 +289,9 @@ public class StudentExamController extends BaseController {
         }
         // exam has been started
         if (possibleClone != null) {
-            String state = possibleClone.getState();
+            Exam.State state = possibleClone.getState();
             // sanity check
-            if (!state.equals(Exam.State.STUDENT_STARTED.toString())) {
+            if (state != Exam.State.STUDENT_STARTED) {
                 return forbidden();
             }
         }
@@ -338,7 +338,7 @@ public class StudentExamController extends BaseController {
             Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
             p.setDeadline(deadline);
             p.save();
-            exam.setState(Exam.State.REVIEW.toString());
+            exam.setState(Exam.State.REVIEW);
             exam.update();
             if (exam.isPrivate()) {
                 notifyTeachers(exam);
@@ -365,7 +365,7 @@ public class StudentExamController extends BaseController {
             p.setEnded(DateTime.now().toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
             p.save();
-            exam.setState(Exam.State.ABORTED.toString());
+            exam.setState(Exam.State.ABORTED);
             exam.update();
             if (exam.isPrivate()) {
                 notifyTeachers(exam);
@@ -376,16 +376,16 @@ public class StudentExamController extends BaseController {
         }
     }
 
-    @Restrict({@Group("STUDENT")})
-    private static Result insertEmptyAnswer(String hash, Long questionId) {
+    private static Result addEmptyAnswer(String hash, Long questionId) {
 
         Question question = Ebean.find(Question.class, questionId);
         Answer answer = new Answer();
-        answer.setType(Answer.Type.MultipleChoiceAnswer.toString());
+        answer.setType(Answer.Type.MultipleChoiceAnswer);
         MultipleChoiceOption option = new MultipleChoiceOption();
 
         option.setQuestion(question);
-        answer.setOption(option);
+        answer.setOptions(new ArrayList<>());
+        answer.getOptions().add(option);
         question.setAnswer(answer);
 
         option.save();
@@ -396,7 +396,7 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result insertEssay(String hash, Long questionId) {
+    public Result answerEssay(String hash, Long questionId) {
         DynamicForm df = Form.form().bindFromRequest();
         String answer = df.get("answer");
 
@@ -407,7 +407,7 @@ public class StudentExamController extends BaseController {
 
         if (previousAnswer == null) {
             previousAnswer = new Answer();
-            previousAnswer.setType(Answer.Type.EssayAnswer.toString());
+            previousAnswer.setType(Answer.Type.EssayAnswer);
         }
 
         previousAnswer.setAnswer(answer);
@@ -421,7 +421,7 @@ public class StudentExamController extends BaseController {
 
 
     @Restrict({@Group("STUDENT")})
-    public Result insertAnswer(String hash, Long qid, Long oid) {
+    public Result answerMultiChoice(String hash, Long qid, Long oid) {
 
         Question question = Ebean.find(Question.class)
                 .fetch("answer")
@@ -442,8 +442,9 @@ public class StudentExamController extends BaseController {
 
             if (question.getAnswer() == null) {
                 Answer answer = new Answer();
-                answer.setType(Answer.Type.MultipleChoiceAnswer.toString());
-                answer.setOption(answeredOption);
+                answer.setType(Answer.Type.MultipleChoiceAnswer);
+                answer.setOptions(new ArrayList<>());
+                answer.getOptions().add(option);
                 question.setAnswer(answer);
                 answer.save();
                 question.save();
@@ -452,17 +453,15 @@ public class StudentExamController extends BaseController {
 
             } else {
                 Answer answer = question.getAnswer();
-                if (answer.getOption() == null) {
-
-                    answer.setOption(answeredOption);
+                if (answer.getOptions().isEmpty()) {
+                    answer.setOptions(new ArrayList<>());
+                    answer.getOptions().add(answeredOption);
                     answer.update();
                     question.update();
-
                 } else {
-
-                    long optionId = answer.getOption().getId();
-                    answer.setOption(answeredOption);
-
+                    long optionId = answer.getOptions().get(0).getId();
+                    answer.getOptions().clear();
+                    answer.getOptions().add(answeredOption);
                     answer.update();
                     question.update();
 
@@ -472,7 +471,7 @@ public class StudentExamController extends BaseController {
                 return ok(Json.toJson(answer));
             }
         } else {
-            return insertEmptyAnswer(hash, qid);
+            return addEmptyAnswer(hash, qid);
         }
     }
 
@@ -484,7 +483,7 @@ public class StudentExamController extends BaseController {
                 .fetch("examLanguages", "code, name")
                 .fetch("creator", "firstName, lastName")
                 .where()
-                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.PUBLISHED)
                 .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
                 .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate());
         if (!courseCodes.isEmpty()) {
@@ -519,6 +518,5 @@ public class StudentExamController extends BaseController {
             }
         }, actor.dispatcher());
     }
-
 
 }

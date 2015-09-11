@@ -101,8 +101,8 @@ public class ReportController extends BaseController {
                 .fetch("course", "code")
                 .where()
                 .disjunction()
-                .eq("state", Exam.State.PUBLISHED.toString())
-                .eq("state", Exam.State.ARCHIVED.toString())
+                .eq("state", Exam.State.PUBLISHED)
+                .eq("state", Exam.State.ARCHIVED)
                 .endJunction();
         query = applyFilters(query, "course", "created", dept, start, end);
         List<Exam> exams = query.findList();

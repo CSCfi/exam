@@ -55,9 +55,9 @@ public class ExamController extends BaseController {
                 .fetch("examSections")
                 .fetch("parent").where()
                 .disjunction()
-                .eq("state", Exam.State.PUBLISHED.toString())
-                .eq("state", Exam.State.SAVED.toString())
-                .eq("state", Exam.State.DRAFT.toString())
+                .eq("state", Exam.State.PUBLISHED)
+                .eq("state", Exam.State.SAVED)
+                .eq("state", Exam.State.DRAFT)
                 .endJunction();
     }
 
@@ -145,7 +145,7 @@ public class ExamController extends BaseController {
                 .fetch("examEnrolments.reservation", "id")
                 .fetch("course")
                 .where()
-                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.PUBLISHED)
                 .disjunction()
                 .eq("examInspections.user", user)
                 .eq("creator", user)
@@ -174,7 +174,7 @@ public class ExamController extends BaseController {
         if (user.hasRole("ADMIN") || exam.isOwnedOrCreatedBy(user)) {
             if (!exam.getChildren().isEmpty()) {
                 // Can't delete because of child references
-                exam.setState(Exam.State.ARCHIVED.name());
+                exam.setState(Exam.State.ARCHIVED);
                 AppUtil.setModifier(exam, user);
                 exam.update();
                 return ok("Exam archived");
@@ -211,7 +211,7 @@ public class ExamController extends BaseController {
 
                 // yes yes, its weird, but Ebean won't delete relations with ManyToMany on enchaced classes
                 // so we just tell everyone its "deleted"
-                exam.setState(Exam.State.DELETED.name());
+                exam.setState(Exam.State.DELETED);
                 exam.save();
 
 //                exam.delete();
@@ -245,7 +245,7 @@ public class ExamController extends BaseController {
                 .fetch("examSections.sectionQuestions.question.options")
                 .fetch("examSections.sectionQuestions.question.answer")
                 .fetch("examSections.sectionQuestions.question.answer.attachment")
-                .fetch("examSections.sectionQuestions.question.answer.option")
+                .fetch("examSections.sectionQuestions.question.answer.options")
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
@@ -265,9 +265,9 @@ public class ExamController extends BaseController {
                 .where()
                 .idEq(id)
                 .disjunction()
-                .eq("state", Exam.State.DRAFT.toString())
-                .eq("state", Exam.State.SAVED.toString())
-                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.DRAFT)
+                .eq("state", Exam.State.SAVED)
+                .eq("state", Exam.State.PUBLISHED)
                 .endJunction()
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
@@ -279,12 +279,12 @@ public class ExamController extends BaseController {
                 .where()
                 .eq("id", eid)
                 .disjunction()
-                .eq("state", Exam.State.ABORTED.toString())
-                .eq("state", Exam.State.REVIEW.toString())
-                .eq("state", Exam.State.REVIEW_STARTED.toString())
-                .eq("state", Exam.State.GRADED.toString())
-                .eq("state", Exam.State.GRADED_LOGGED.toString())
-                .eq("state", Exam.State.ARCHIVED.toString())
+                .eq("state", Exam.State.ABORTED)
+                .eq("state", Exam.State.REVIEW)
+                .eq("state", Exam.State.REVIEW_STARTED)
+                .eq("state", Exam.State.GRADED)
+                .eq("state", Exam.State.GRADED_LOGGED)
+                .eq("state", Exam.State.ARCHIVED)
                 .endJunction()
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
@@ -347,9 +347,7 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_exam_not_found");
         }
-        if (exam.getState().equals(Exam.State.ABORTED.toString()) ||
-                exam.getState().equals(Exam.State.GRADED_LOGGED.toString()) ||
-                exam.getState().equals(Exam.State.ARCHIVED.toString())) {
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden("Not allowed to update grading of this exam");
         }
 
@@ -376,7 +374,7 @@ public class ExamController extends BaseController {
         }
         exam.setAdditionalInfo(additionalInfo);
         exam.setAnswerLanguage(df.get("answerLanguage"));
-        exam.setState(df.get("state"));
+        exam.setState(Exam.State.valueOf(df.get("state")));
 
         if (df.get("customCredit") != null) {
             exam.setCustomCredit(Double.parseDouble(df.get("customCredit")));
@@ -384,7 +382,7 @@ public class ExamController extends BaseController {
             exam.setCustomCredit(null);
         }
         // set user only if exam is really graded, not just modified
-        if (exam.getState().equals(Exam.State.GRADED.name()) || exam.getState().equals(Exam.State.GRADED_LOGGED.name())) {
+        if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED)) {
             exam.setGradedTime(new Date());
             exam.setGradedByUser(getLoggedUser());
         }
@@ -398,6 +396,7 @@ public class ExamController extends BaseController {
     public Result getExamReviews(Long eid, List<String> statuses) {
         // Assure that ongoing exams will not be returned
         statuses.remove(Exam.State.STUDENT_STARTED.toString());
+        List<Exam.State> states = statuses.stream().map(Exam.State::valueOf).collect(Collectors.toList());
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount")
@@ -406,7 +405,7 @@ public class ExamController extends BaseController {
                 .fetch("reservation", "retrialPermitted")
                 .where()
                 .eq("exam.parent.id", eid)
-                .in("exam.state", statuses)
+                .in("exam.state", states)
                 .findList();
 
         if (participations == null) {
@@ -456,9 +455,7 @@ public class ExamController extends BaseController {
     public Result insertComment(Long eid, Long cid) {
 
         Exam exam = Ebean.find(Exam.class, eid);
-        if (exam.getState().equals(Exam.State.ABORTED.toString()) ||
-                exam.getState().equals(Exam.State.GRADED_LOGGED.toString()) ||
-                exam.getState().equals(Exam.State.ARCHIVED.toString())) {
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden();
         }
         Comment comment = bindForm(Comment.class);
@@ -474,9 +471,7 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateComment(Long eid, Long cid) {
         Exam exam = Ebean.find(Exam.class, eid);
-        if (exam.getState().equals(Exam.State.ABORTED.toString()) ||
-                exam.getState().equals(Exam.State.GRADED_LOGGED.toString()) ||
-                exam.getState().equals(Exam.State.ARCHIVED.toString())) {
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden();
         }
         Comment form = bindForm(Comment.class);
@@ -515,10 +510,9 @@ public class ExamController extends BaseController {
     }
 
     private Result updateStateAndValidate(Exam exam, DynamicForm df) {
-        String state = df.get("state");
+        Exam.State state = df.get("state") == null ? null : Exam.State.valueOf(df.get("state"));
         if (state != null) {
-            if (!exam.getState().equals(Exam.State.PUBLISHED.toString()) &&
-                    state.equals(Exam.State.PUBLISHED.toString())) {
+            if (exam.hasState(Exam.State.PUBLISHED, Exam.State.PUBLISHED)) {
                 // Exam is about to be published
                 String str = ValidationUtil.validateExamForm(df);
                 // invalid data
@@ -712,7 +706,7 @@ public class ExamController extends BaseController {
         }
         Exam copy = prototype.copy(user, false);
         copy.setName(String.format("**COPY**%s", copy.getName()));
-        copy.setState(Exam.State.DRAFT.toString());
+        copy.setState(Exam.State.DRAFT);
         AppUtil.setCreator(copy, user);
         copy.setParent(null);
         copy.setCourse(null);
@@ -727,7 +721,7 @@ public class ExamController extends BaseController {
     public Result createExamDraft(String executionType) {
         User user = getLoggedUser();
         Exam exam = new Exam();
-        exam.setState(Exam.State.DRAFT.toString());
+        exam.setState(Exam.State.DRAFT);
         ExamExecutionType examExecutionType = Ebean.find(ExamExecutionType.class).where().eq("type", executionType).findUnique();
         if (examExecutionType == null) {
             return badRequest("Unsupported execution type");
@@ -877,7 +871,7 @@ public class ExamController extends BaseController {
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             Question question = Ebean.find(Question.class, qid);
-            if (question.getType().equals(Question.Type.MultipleChoiceQuestion.toString())) {
+            if (question.getType() == Question.Type.MultipleChoiceQuestion) {
                 if (question.getOptions().size() < 2) {
                     return forbidden("sitnet_minimum_of_two_options_required");
                 }
@@ -1140,10 +1134,10 @@ public class ExamController extends BaseController {
                 .eq("user.id", uid)
                 .eq("exam.parent.id", eid)
                 .disjunction()
-                .eq("exam.state", Exam.State.ABORTED.toString())
-                .eq("exam.state", Exam.State.GRADED.toString())
-                .eq("exam.state", Exam.State.GRADED_LOGGED.toString())
-                .eq("exam.state", Exam.State.ARCHIVED.toString())
+                .eq("exam.state", Exam.State.ABORTED)
+                .eq("exam.state", Exam.State.GRADED)
+                .eq("exam.state", Exam.State.GRADED_LOGGED)
+                .eq("exam.state", Exam.State.ARCHIVED)
                 .endJunction()
                 .findList();
         return ok(participations);
@@ -1190,11 +1184,11 @@ public class ExamController extends BaseController {
                 .where()
                 .eq("exam.parent.id", eid)
                 .disjunction()
-                .eq("exam.state", "ABORTED")
-                .eq("exam.state", "REVIEW")
-                .eq("exam.state", "REVIEW_STARTED")
-                .eq("exam.state", "GRADED")
-                .eq("exam.state", "GRADED_LOGGED")
+                .eq("exam.state", Exam.State.ABORTED)
+                .eq("exam.state", Exam.State.REVIEW)
+                .eq("exam.state", Exam.State.REVIEW_STARTED)
+                .eq("exam.state", Exam.State.GRADED)
+                .eq("exam.state", Exam.State.GRADED_LOGGED)
                 .endJunction()
                 .findList();
         return ok(participations);
@@ -1319,8 +1313,7 @@ public class ExamController extends BaseController {
 
         // add to child exams
         for (Exam child : exam.getChildren()) {
-            if (child.getState().equals(Exam.State.GRADED.toString()) || child.getState().equals(
-                    Exam.State.GRADED_LOGGED.toString())) {
+            if (child.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED)) {
                 continue;
             }
             for (ExamInspection ei : child.getExamInspections()) {
@@ -1341,13 +1334,11 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteInspection(Long id) {
-
-        ExamInspection inspection = Ebean.find(ExamInspection.class).fetch("exam").fetch("exam.examInspections").where().eq("id", id).findUnique();
+        ExamInspection inspection = Ebean.find(ExamInspection.class, id);
         User inspector = inspection.getUser();
         Exam exam = inspection.getExam();
         for (Exam child : exam.getChildren()) {
-            if (child.getState().equals(Exam.State.GRADED.toString()) || child.getState().equals(
-                    Exam.State.GRADED_LOGGED.toString())) {
+            if (child.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED)) {
                 continue;
             }
             for (ExamInspection ei : child.getExamInspections()) {
@@ -1442,11 +1433,11 @@ public class ExamController extends BaseController {
             return badRequest();
         }
         List<Exam> exams = Ebean.find(Exam.class).where()
-                .eq("state", Exam.State.GRADED_LOGGED.toString())
+                .eq("state", Exam.State.GRADED_LOGGED)
                 .idIn(ids)
                 .findList();
         for (Exam e : exams) {
-            e.setState(Exam.State.ARCHIVED.toString());
+            e.setState(Exam.State.ARCHIVED);
             e.update();
         }
         return ok();
@@ -1454,9 +1445,7 @@ public class ExamController extends BaseController {
 
 
     private static boolean isEligibleForArchiving(Exam exam, Date start, Date end) {
-        return (exam.getState().equals(Exam.State.ABORTED.toString())
-                || exam.getState().equals(Exam.State.REVIEW.toString())
-                || exam.getState().equals(Exam.State.REVIEW_STARTED.toString()))
+        return exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED)
                 && !(start != null && exam.getCreated().before(start))
                 && !(end != null && exam.getCreated().after(end));
     }

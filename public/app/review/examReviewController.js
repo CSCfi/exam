@@ -198,7 +198,7 @@
                         };
 
                         // get exam inspections ->
-                        ExamRes.inspections.get({id: $scope.examToBeReviewed.id},
+                        ExamRes.inspections.query({id: $scope.examToBeReviewed.id},
                             function (inspections) {
                                 $scope.inspections = inspections;
                             },
@@ -231,7 +231,7 @@
                                 toastr.error(error.data);
                             }
                         );
-                        ExamRes.reservation.get({eid: $routeParams.id},
+                        ExamRes.reservationInfo.get({eid: $routeParams.id},
                             function (reservation) {
                                 $scope.reservation = reservation;
                             }
@@ -263,13 +263,13 @@
                         question.backgroundColor = 'grey';
                         return 0;
                     }
-
-                    if (question.answer.option.correctOption === true) {
+                    if (question.answer.options.length != 1) {
+                        console.error("multiple options selected for a MultiChoice answer!");
+                    }
+                    if (question.answer.options[0].correctOption === true) {
                         score = question.maxScore;
                         question.backgroundColor = 'green';
-                    }
-
-                    if (question.answer.option.correctOption === false) {
+                    } else {
                         question.backgroundColor = 'red';
                     }
 
@@ -296,7 +296,10 @@
                                     question.backgroundColor = 'grey';
                                     return 0;
                                 }
-                                if (question.answer.option.correctOption === true) {
+                                if (question.answer.options.length != 1) {
+                                    console.error("multiple options selected for a MultiChoice answer!");
+                                }
+                                if (question.answer.options[0].correctOption === true) {
                                     score += question.maxScore;
                                 }
                                 break;

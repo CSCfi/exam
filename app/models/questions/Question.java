@@ -1,5 +1,6 @@
 package models.questions;
 
+import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
@@ -15,10 +16,11 @@ import java.util.List;
 @Entity
 public class Question extends OwnedModel {
 
-    public enum Type { MultipleChoiceQuestion, EssayQuestion }
+    @EnumMapping(integerType = true, nameValuePairs = "MultipleChoiceQuestion=1, EssayQuestion=2, WeightedMultipleChoiceQuestion=3")
+    public enum Type { MultipleChoiceQuestion, EssayQuestion, WeightedMultipleChoiceQuestion }
 
     @Column
-    protected String type;
+    protected Type type;
 
     @Column(columnDefinition = "TEXT")
     protected String question;
@@ -81,9 +83,9 @@ public class Question extends OwnedModel {
         this.state = state;
     }
 
-    public String getType() { return type; }
+    public Type getType() { return type; }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 

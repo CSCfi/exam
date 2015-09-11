@@ -19,7 +19,7 @@ public class ExamBuilder {
         exam.setExamActiveStartDate(new Date());
         exam.setInstruction("do like this");
         exam.setName("Exam");
-        exam.setState("SAVED");
+        exam.setState(Exam.State.SAVED);
     }
 
     public static ExamBuilder get() {
@@ -71,7 +71,7 @@ public class ExamBuilder {
     }
 
     public ExamBuilder withState(Exam.State state) {
-        exam.setState(state.toString());
+        exam.setState(state);
         return this;
     }
 

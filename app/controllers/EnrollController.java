@@ -38,7 +38,7 @@ public class EnrollController extends BaseController {
                 .fetch("course", "code, name")
                 .where()
                 .eq("course.code", code)
-                .eq("state", "PUBLISHED")
+                .eq("state", Exam.State.PUBLISHED)
                 .ge("examActiveEndDate", new Date())
                 .findList();
 
@@ -106,8 +106,8 @@ public class EnrollController extends BaseController {
                 .isNull("reservation")
                 .endJunction()
                 .disjunction()
-                .eq("exam.state", "PUBLISHED")
-                .eq("exam.state", "STUDENT_STARTED")
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .eq("exam.state", Exam.State.STUDENT_STARTED)
                 .endJunction()
                 .findList();
         if (enrolments.isEmpty()) {
@@ -162,7 +162,7 @@ public class EnrollController extends BaseController {
                 .disjunction()
                 .conjunction()
                 .eq("exam.parent.id", exam.getId())
-                .eq("exam.state", Exam.State.STUDENT_STARTED.toString())
+                .eq("exam.state", Exam.State.STUDENT_STARTED)
                 .endJunction()
                 .endJunction()
                 .endJunction()
@@ -175,10 +175,10 @@ public class EnrollController extends BaseController {
                 return forbidden("sitnet_error_enrolment_exists");
             } else if (reservation.toInterval().contains(AppUtil.adjustDST(DateTime.now(), reservation))) {
                 // reservation in effect
-                if (exam.getState().equals(Exam.State.STUDENT_STARTED.toString())) {
+                if (exam.getState() == Exam.State.STUDENT_STARTED) {
                     // exam for reservation is ongoing
                     return forbidden("sitnet_reservation_in_effect");
-                } else if (exam.getState().equals(Exam.State.PUBLISHED.toString())) {
+                } else if (exam.getState() == Exam.State.PUBLISHED) {
                     // exam for reservation not started (yet?)
                     return forbidden("sitnet_reservation_in_effect");
                 }
@@ -221,8 +221,8 @@ public class EnrollController extends BaseController {
                 .eq("exam.executionType.type", ExamExecutionType.Type.PRIVATE.toString())
                 .isNull("reservation")
                 .disjunction()
-                .eq("exam.state", Exam.State.DRAFT.toString())
-                .eq("exam.state", Exam.State.SAVED.toString())
+                .eq("exam.state", Exam.State.DRAFT)
+                .eq("exam.state", Exam.State.SAVED)
                 .endJunction()
                 .disjunction()
                 .eq("exam.examOwners", user)

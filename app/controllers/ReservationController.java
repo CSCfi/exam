@@ -34,7 +34,7 @@ public class ReservationController extends BaseController {
                 .select("id, name")
                 .where()
                 .isNull("parent") // only Exam prototypes
-                .eq("state", Exam.State.PUBLISHED.toString())
+                .eq("state", Exam.State.PUBLISHED)
                 .gt("examActiveEndDate", new Date());
         if (user.hasRole("TEACHER")) {
             el = el.disjunction()

@@ -44,7 +44,7 @@ public class ExamRecordController extends BaseController {
         if (failure != null) {
             return failure;
         }
-        exam.setState(Exam.State.GRADED_LOGGED.toString());
+        exam.setState(Exam.State.GRADED_LOGGED);
         exam.update();
 
         ExamParticipation participation = Ebean.find(ExamParticipation.class)
@@ -123,9 +123,7 @@ public class ExamRecordController extends BaseController {
                 exam.getGradedByUser() == null) {
             return forbidden("not yet graded by anyone!");
         }
-        if (exam.getState().equals(Exam.State.ABORTED.toString()) ||
-                exam.getState().equals(Exam.State.GRADED_LOGGED.toString()) ||
-                exam.getState().equals(Exam.State.ARCHIVED.toString())) {
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden("sitnet_error_exam_already_graded_logged");
         }
         return null;

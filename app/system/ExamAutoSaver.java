@@ -64,9 +64,8 @@ public class ExamAutoSaver implements Runnable {
                     participation.setDeadline(new Date(participation.getEnded().getTime() + settings.getReviewDeadline()));
 
                     participation.save();
-                    String state = Exam.State.REVIEW.toString();
                     Logger.info(" -> setting exam {} state to REVIEW", exam.getId());
-                    exam.setState(state);
+                    exam.setState(Exam.State.REVIEW);
                     exam.save();
                     if (exam.isPrivate()) {
                         // Notify teachers

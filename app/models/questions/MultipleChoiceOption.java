@@ -21,6 +21,10 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
     @JsonBackReference
     private Question question;
 
+    @ManyToOne
+    @JsonBackReference
+    private Answer answer;
+
     public String getOption() {
         return option;
     }

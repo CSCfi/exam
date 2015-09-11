@@ -229,7 +229,8 @@
                 },
                 {
                     "update": {method: "PUT"}
-                })
+                }),
+                reservationInfo: $resource("/exams/:eid/reservation", {eid: "@eid"})
             };
         }]);
 }());

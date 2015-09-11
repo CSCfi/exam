@@ -30,7 +30,7 @@ public class ReservationPoller implements Runnable {
                 .where()
                 .eq("reservation.noShow", false)
                 .lt("reservation.endAt", new Date())
-                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .eq("exam.state", Exam.State.PUBLISHED)
                 .findList();
 
         if (enrolments.isEmpty()) {
@@ -48,7 +48,7 @@ public class ReservationPoller implements Runnable {
                 .eq("reservation.noShow", false)
                 .lt("reservation.endAt", new Date())
                 .eq("exam.id", examId)
-                .eq("exam.state", Exam.State.PUBLISHED.toString())
+                .eq("exam.state", Exam.State.PUBLISHED)
                 .findList();
         handleNoShows(enrolments, composer);
     }

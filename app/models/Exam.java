@@ -1,5 +1,6 @@
 package models;
 
+import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.Answer;
@@ -16,18 +17,20 @@ import java.util.*;
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam> {
 
+    @EnumMapping(integerType = true, nameValuePairs = "DRAFT=1, SAVED=2, PUBLISHED=3, STUDENT_STARTED=4, REVIEW=5, " +
+            "REVIEW_STARTED=6, GRADED=7, GRADED_LOGGED=8, ARCHIVED=9, ABORTED=10, DELETED=11")
     public enum State {
         DRAFT,
         SAVED,
-        PUBLISHED,
-        REVIEW,          // OPISKELIJHA ON PALAUTTANUT TENTIN
-        REVIEW_STARTED,  // OPETTAJA ON ALOITTANUT ARVIOINNIN
-        GRADED,
-        GRADED_LOGGED,   // OPINTOSUORITUS KIRJATTU JOHONKIN JÄRJESTELMÄÄN
-        STUDENT_STARTED,
-        ABORTED,
-        ARCHIVED,
-        DELETED
+        PUBLISHED,       // EXAM PUBLISHED, VISIBLE TO STUDENTS AND READY FOR TAKING
+        STUDENT_STARTED, // EXAM STARTED BY STUDENT
+        REVIEW,          // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
+        REVIEW_STARTED,  // REVIEW STARTED BY TEACHERS
+        GRADED,          // GRADE GIVEN
+        GRADED_LOGGED,   // EXAM PROCESSED AND READY FOR REGISTRATION
+        ARCHIVED,        // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
+        ABORTED,         // EXAM ABORTED BY STUDENT WHILST TAKING
+        DELETED          // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
     }
 
     private String name;
@@ -110,7 +113,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     // Exam answer language
     private String answerLanguage;
 
-    private String state;
+    private State state;
 
     @ManyToOne
     private Grade grade; // TODO: make this a Grade instead of String
@@ -175,13 +178,20 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 Question question = esq.getQuestion();
                 Double evaluatedScore = null;
-                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
-                    if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
-                        evaluatedScore = question.getEvaluatedScore();
-                    }
-                } else if (question.getAnswer() != null) {
-                    Answer answer = question.getAnswer();
-                    evaluatedScore = answer.getOption().isCorrectOption() ? question.getMaxScore() : 0;
+                switch (question.getType()) {
+                    case EssayQuestion:
+                        if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
+                            evaluatedScore = question.getEvaluatedScore();
+                        }
+                        break;
+                    case MultipleChoiceQuestion:
+                        if (question.getAnswer() != null) {
+                            Answer answer = question.getAnswer();
+                            evaluatedScore = answer.getOptions().get(0).isCorrectOption() ? question.getMaxScore() : 0;
+                        }
+                        break;
+                    case WeightedMultipleChoiceQuestion:
+                        break;
                 }
                 if (evaluatedScore != null) {
                     total += evaluatedScore;
@@ -206,7 +216,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 Question question = esq.getQuestion();
                 double maxScore = 0;
-                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                if (question.getType() == Question.Type.EssayQuestion) {
                     if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
                         maxScore = question.getMaxScore();
                     }
@@ -225,7 +235,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         for (ExamSection section : examSections) {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 Question question = esq.getQuestion();
-                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                if (question.getType() == Question.Type.EssayQuestion) {
                     if (question.getEvaluationType() != null &&
                             question.getEvaluationType().equals("Select")
                             && question.getEvaluatedScore() != null
@@ -244,7 +254,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         for (ExamSection section : examSections) {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 Question question = esq.getQuestion();
-                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                if (question.getType() == Question.Type.EssayQuestion) {
                     if (question.getEvaluationType() != null &&
                             question.getEvaluationType().equals("Select") &&
                             question.getEvaluatedScore() != null
@@ -425,11 +435,11 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         this.grade = grade;
     }
 
-    public String getState() {
+    public State getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(State state) {
         this.state = state;
     }
 
@@ -606,6 +616,11 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     @Transient
     public boolean isPrivate() {
         return executionType.getType().equals(ExamExecutionType.Type.PRIVATE.toString());
+    }
+
+    @Transient
+    public boolean hasState(State... states) {
+        return Arrays.asList(states).contains(state);
     }
 
     @Override
