@@ -16,6 +16,7 @@ ALTER TABLE exam ALTER foo SET NOT NULL;
 ALTER TABLE exam DROP state;
 ALTER TABLE exam RENAME COLUMN foo TO state;
 
+UPDATE multiple_choice_option set score = NULL;
 
 # --- !Downs
 ALTER TABLE exam ADD foo VARCHAR(255);

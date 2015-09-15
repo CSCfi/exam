@@ -32,6 +32,8 @@
                             | translate}}</a>
                         <a role="menuitem" ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' |
                             translate}}</a>
+                        <a role="menuitem" ng-click="createQuestion('WeightedMultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_weighted_multiplechoice_question'
+                            | translate}}</a>
                     </li>
                 </ul>
             </div>
@@ -166,9 +168,11 @@
                     <td>
                         <span ng-if="question.evaluationType === 'Points' || question.type === 'MultipleChoiceQuestion'">{{ question.maxScore }}</span>
                         <span ng-if="question.evaluationType === 'Select'">{{ 'sitnet_evaluation_select' | translate }}</span>
+                        <span ng-if="question.type === 'WeightedMultipleChoiceQuestion'">{{ calculateMaxPoints(question) }}</span>
                     </td>
                     <td>
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
+                        <span ng-if="question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate}}</span>
                         <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
                     </td>
                     <td>

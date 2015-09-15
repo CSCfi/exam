@@ -188,7 +188,7 @@
   "sitnet_question_attachment": "Question attachment",
   "sitnet_question_copy": "Use as template",
   "sitnet_question_instruction": "Question instructions",
-  "sitnet_question_mc": "Radio buttons",
+  "sitnet_question_mc": "Multiple choice question (single correct answer)",
   "sitnet_question_new_option": "New option",
   "sitnet_question_short_name": "Short name",
   "sitnet_question_type": "Question type",
@@ -278,7 +278,7 @@
   "sitnet_toolbar_essay_question": "Essay question",
   "sitnet_toolbar_feedback": "Feedback",
   "sitnet_toolbar_inspections": "Assessments",
-  "sitnet_toolbar_multiplechoice_question": "Multiple choice question",
+  "sitnet_toolbar_multiplechoice_question": "Multiple choice question (pick one)",
   "sitnet_toolbar_new_exam": "Create new exam",
   "sitnet_toolbar_new_question": "Create new question",
   "sitnet_toolbar_new_question_folder": "Create new question folder",
@@ -678,5 +678,9 @@
   "sitnet_amount_exams": "Tenttisuoritusten määrä EN",
   "sitnet_total": "Yhteensä EN",
   "sitnet_department": "Osasto EN",
-  "sitnet_statistics_participations": "Suoritetut tentit EB"
+  "sitnet_statistics_participations": "Suoritetut tentit EN",
+  "sitnet_toolbar_weighted_multiplechoice_question": "Monivalintakysymys (monta oikein) EN",
+  "sitnet_question_weighted_mc": "Monivalinta (monta oikein) EN",
+  "sitnet_questions_new_weighted_multiplechoice": "Uusi monivalintakysymys (monta oikein) EN",
+  "sitnet_question_options": "Vastausvaihtoehdot EN"
 }

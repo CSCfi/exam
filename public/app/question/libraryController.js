@@ -18,7 +18,7 @@
                 $scope.filter = {};
                 $scope.moreQuestions = false;
 
-                var htmlDecode = function(text) {
+                var htmlDecode = function (text) {
                     return $('<div/>').html(text).text();
                 };
 
@@ -28,11 +28,11 @@
                             var re = new RegExp($scope.filter.text, 'i');
 
                             var isMatch = question.question && htmlDecode(question.question).match(re);
-                            if(isMatch) {
+                            if (isMatch) {
                                 return true;
                             }
-                            angular.forEach(question.children, function(child){
-                                if(child &&
+                            angular.forEach(question.children, function (child) {
+                                if (child &&
                                     child.examSectionQuestion &&
                                     child.examSectionQuestion.examSection &&
                                     child.examSectionQuestion.examSection.exam &&
@@ -56,10 +56,10 @@
                 };
 
                 var limitQuestions = function () {
-                    if($scope.filteredQuestions && $scope.filteredQuestions.length > $scope.maxVisible) {
+                    if ($scope.filteredQuestions && $scope.filteredQuestions.length > $scope.maxVisible) {
                         $scope.moreQuestions = true;
                         var i = 0;
-                        $scope.visibleQuestions = $scope.filteredQuestions.filter(function(question){
+                        $scope.visibleQuestions = $scope.filteredQuestions.filter(function (question) {
                             return ++i <= $scope.maxVisible;
                         });
                     } else {
@@ -82,7 +82,7 @@
                 };
 
                 $scope.ownerProcess = false;
-                $scope.moveSelected = function() {
+                $scope.moveSelected = function () {
                     $scope.ownerProcess = true;
 
                     // check that atleast one has been selected
@@ -102,7 +102,7 @@
                         $scope.ownerProcess = false;
                         return;
                     }
-                    if(!$scope.newTeacher){
+                    if (!$scope.newTeacher) {
                         toastr.warning($translate.instant('sitnet_select_teacher_to_move_the_questions_to'));
                         $scope.ownerProcess = false;
                         return;
@@ -115,12 +115,12 @@
                     };
 
                     QuestionRes.questionOwner.update(questionToMove,
-                        function(result){
+                        function (result) {
                             toastr.info($translate.instant('sitnet_question_owner_changed'));
                             query();
-                        }, function(error){
+                        }, function (error) {
                             toastr.info($translate.instant('sitnet_update_failed'));
-                    });
+                        });
                     $scope.ownerProcess = false;
                 };
 
@@ -195,41 +195,54 @@
                 };
 
                 var union = function (filtered, tags) {
-                    var filteredIds = filtered.map(function(tag) {
+                    var filteredIds = filtered.map(function (tag) {
                         return tag.id;
                     });
-                    return filtered.concat(tags.filter(function(tag) {
+                    return filtered.concat(tags.filter(function (tag) {
                         return filteredIds.indexOf(tag.id) === -1;
                     }));
                 };
 
-                $scope.listCourses = function() {
-                    $scope.courses = $scope.courses.filter(function(course) {
-                       return course.filtered;
+                $scope.listCourses = function () {
+                    $scope.courses = $scope.courses.filter(function (course) {
+                        return course.filtered;
                     });
                     var deferred = $q.defer();
-                    CourseRes.userCourses.query({id: sessionService.getUser().id, examIds: getExamIds(), tagIds : getTagIds(), sectionIds : getSectionIds()}, function(data) {
+                    CourseRes.userCourses.query({
+                        id: sessionService.getUser().id,
+                        examIds: getExamIds(),
+                        tagIds: getTagIds(),
+                        sectionIds: getSectionIds()
+                    }, function (data) {
                         $scope.courses = union($scope.courses, data);
                         deferred.resolve();
                     });
                     return deferred.promise;
                 };
 
-                $scope.listExams = function() {
-                    $scope.exams = $scope.exams.filter(function(exam) {
+                $scope.listExams = function () {
+                    $scope.exams = $scope.exams.filter(function (exam) {
                         return exam.filtered;
                     });
                     var deferred = $q.defer();
-                    ExamRes.examsearch.query({courseIds: getCourseIds(), sectionIds: getSectionIds(), tagIds: getTagIds()}, function(data) {
+                    ExamRes.examsearch.query({
+                        courseIds: getCourseIds(),
+                        sectionIds: getSectionIds(),
+                        tagIds: getTagIds()
+                    }, function (data) {
                         $scope.exams = union($scope.exams, data);
                         deferred.resolve();
                     });
                     return deferred.promise;
                 };
 
-                var doListTags = function(sections) {
+                var doListTags = function (sections) {
                     var deferred = $q.defer();
-                    TagRes.tags.query({examIds: getExamIds(), courseIds : getCourseIds(), sectionIds : getSectionIds()}, function(data) {
+                    TagRes.tags.query({
+                        examIds: getExamIds(),
+                        courseIds: getCourseIds(),
+                        sectionIds: getSectionIds()
+                    }, function (data) {
                         $scope.tags = union($scope.tags, data);
                         var examSections = [];
                         $scope.exams.forEach(function (exam) {
@@ -244,7 +257,7 @@
                     return deferred.promise;
                 };
 
-                $scope.listTags = function() {
+                $scope.listTags = function () {
                     $scope.tags = $scope.tags.filter(function (tag) {
                         return tag.filtered && !tag.isSectionTag;
                     });
@@ -262,6 +275,10 @@
                 $scope.applyFilter = function (tag) {
                     tag.filtered = !tag.filtered;
                     query();
+                };
+
+                $scope.calculateMaxPoints = function (question) {
+                    return questionService.calculateMaxPoints(question);
                 };
 
                 $scope.stripHtml = function (text) {
@@ -312,7 +329,7 @@
                     });
                 };
 
-                $scope.copyQuestion = function(question) {
+                $scope.copyQuestion = function (question) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_copy_question'));
                     dialog.result.then(function (btn) {
                         QuestionRes.question.copy({id: question.id}, function (copy) {

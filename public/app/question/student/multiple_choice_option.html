@@ -1,8 +1,8 @@
 <div class="bottom-padding-2">
 <div ng-repeat="option in sectionQuestion.question.options" class="exam-answer-options">
-<input type="radio" name="answer_{{sectionQuestion.question.id}}"
-       ng-checked="isAnswer(sectionQuestion.question, option);"
-       value="option.option" ng-click="radioChecked(doexam, sectionQuestion.question, option);" />
-   {{option.option}}
+    <input type="radio" name="answer_{{sectionQuestion.question.id}}"
+           ng-model="sectionQuestion.question.selectedOptions" ng-value="option.id"
+           ng-click="optionSelected(doexam, sectionQuestion.question);" />
+       {{option.option}}
 </div>
 </div>

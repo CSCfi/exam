@@ -616,7 +616,12 @@ public class ExamController extends BaseController {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
         boolean canOverrideGrading = AppUtil.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse().getGradeScale() == null) {
-            exam.setGradeScale(Ebean.find(GradeScale.class, grading));
+            GradeScale scale = Ebean.find(GradeScale.class, grading);
+            if (scale != null) {
+                exam.setGradeScale(Ebean.find(GradeScale.class, grading));
+            } else {
+                Logger.warn("Grade scale not found for ID {}. Not gonna update exam with it", grading);
+            }
         }
     }
 
@@ -871,13 +876,20 @@ public class ExamController extends BaseController {
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
             Question question = Ebean.find(Question.class, qid);
-            if (question.getType() == Question.Type.MultipleChoiceQuestion) {
-                if (question.getOptions().size() < 2) {
-                    return forbidden("sitnet_minimum_of_two_options_required");
-                }
-                if (!question.getOptions().stream().anyMatch(MultipleChoiceOption::isCorrectOption)) {
-                    return forbidden("sitnet_correct_option_required");
-                }
+            switch (question.getType()) {
+                case MultipleChoiceQuestion:
+                    if (question.getOptions().size() < 2) {
+                        return forbidden("sitnet_minimum_of_two_options_required");
+                    }
+                    if (!question.getOptions().stream().anyMatch(MultipleChoiceOption::isCorrectOption)) {
+                        return forbidden("sitnet_correct_option_required");
+                    }
+                    break;
+                case WeightedMultipleChoiceQuestion:
+                    if (question.getOptions().size() < 2) {
+                        return forbidden("sitnet_minimum_of_two_options_required");
+                    }
+                    break;
             }
             Question clone = clone(question.getId());
 

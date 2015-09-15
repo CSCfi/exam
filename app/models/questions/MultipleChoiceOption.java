@@ -37,6 +37,14 @@ public class MultipleChoiceOption extends GeneratedIdentityModel implements Comp
         return correctOption;
     }
 
+    public Answer getAnswer() {
+        return answer;
+    }
+
+    public void setAnswer(Answer answer) {
+        this.answer = answer;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

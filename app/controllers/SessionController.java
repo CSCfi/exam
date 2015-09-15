@@ -42,7 +42,7 @@ public class SessionController extends BaseController {
 
     private Result hakaLogin() {
         String eppn = toUtf8(request().getHeader("eppn"));
-        if (eppn == null) {
+        if (eppn == null || eppn.isEmpty()) {
             return badRequest("No credentials!");
         }
         User user = Ebean.find(User.class)

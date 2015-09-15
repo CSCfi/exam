@@ -9,6 +9,8 @@
                      ng-include="multiplechoiceQuestionPath"></div>
                 <div ng-if="sectionQuestion.question.type === 'EssayQuestion'"
                      ng-include="essayQuestionPath"></div>
+                <div ng-if="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
+                     ng-include="multiplechoiceQuestionPath"></div>
             </div>
         </div>
     </div>

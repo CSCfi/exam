@@ -52,6 +52,7 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getQuestion(Long id) {
         Question question = Ebean.find(Question.class, id);
+        Collections.sort(question.getOptions());
         return ok(Json.toJson(question));
     }
 
@@ -113,8 +114,8 @@ public class QuestionController extends BaseController {
         if (question == null) {
             return notFound("question not found");
         }
-        switch (df.get("type")) {
-            case "EssayQuestion":
+        switch (question.getType()) {
+            case EssayQuestion:
                 if (df.get("maxCharacters") != null) {
                     question.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
                 }
@@ -123,12 +124,18 @@ public class QuestionController extends BaseController {
                 }
                 doUpdateQuestion(question, df);
                 return ok(Json.toJson(question));
-            case "MultipleChoiceQuestion":
+            case MultipleChoiceQuestion:
                 if (question.getOptions().size() < 2) {
                     return forbidden("sitnet_minimum_of_two_options_required");
                 }
                 if (!hasCorrectOption(question)) {
                     return forbidden("sitnet_correct_option_required");
+                }
+                doUpdateQuestion(question, df);
+                return ok(Json.toJson(question));
+            case WeightedMultipleChoiceQuestion:
+                if (question.getOptions().size() < 2) {
+                    return forbidden("sitnet_minimum_of_two_options_required");
                 }
                 doUpdateQuestion(question, df);
                 return ok(Json.toJson(question));

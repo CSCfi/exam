@@ -4,6 +4,7 @@ import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.Answer;
+import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -191,6 +192,15 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
                         }
                         break;
                     case WeightedMultipleChoiceQuestion:
+                        if (question.getAnswer() != null) {
+                            Answer answer = question.getAnswer();
+                            evaluatedScore = answer.getOptions().stream().map(MultipleChoiceOption::getScore)
+                                    .reduce(0.0, (sum, x) -> sum += x);
+                            // ATM minimum score is zero
+                            if (evaluatedScore < 0) {
+                                evaluatedScore = 0.0;
+                            }
+                        }
                         break;
                 }
                 if (evaluatedScore != null) {
@@ -216,12 +226,21 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 Question question = esq.getQuestion();
                 double maxScore = 0;
-                if (question.getType() == Question.Type.EssayQuestion) {
-                    if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
+                switch (question.getType()) {
+                    case EssayQuestion:
+                        if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
+                            maxScore = question.getMaxScore();
+                        }
+                        break;
+                    case MultipleChoiceQuestion:
                         maxScore = question.getMaxScore();
-                    }
-                } else {
-                    maxScore = question.getMaxScore();
+                        break;
+                    case WeightedMultipleChoiceQuestion:
+                        maxScore = question.getOptions().stream()
+                                .map(MultipleChoiceOption::getScore)
+                                .filter(o -> o > 0)
+                                .reduce(0.0, (sum, x) -> sum += x);
+                        break;
                 }
                 total += maxScore;
             }

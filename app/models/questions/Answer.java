@@ -46,7 +46,7 @@ public class Answer extends OwnedModel {
         this.attachment = attachment;
     }
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, mappedBy = "answer")
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "answer")
     @JsonManagedReference
     private List<MultipleChoiceOption> options;
 

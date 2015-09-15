@@ -29,6 +29,7 @@ import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StudentExamController extends BaseController {
 
@@ -376,25 +377,6 @@ public class StudentExamController extends BaseController {
         }
     }
 
-    private static Result addEmptyAnswer(String hash, Long questionId) {
-
-        Question question = Ebean.find(Question.class, questionId);
-        Answer answer = new Answer();
-        answer.setType(Answer.Type.MultipleChoiceAnswer);
-        MultipleChoiceOption option = new MultipleChoiceOption();
-
-        option.setQuestion(question);
-        answer.setOptions(new ArrayList<>());
-        answer.getOptions().add(option);
-        question.setAnswer(answer);
-
-        option.save();
-        answer.save();
-        question.save();
-
-        return ok(Json.toJson(answer));
-    }
-
     @Restrict({@Group("STUDENT")})
     public Result answerEssay(String hash, Long questionId) {
         DynamicForm df = Form.form().bindFromRequest();
@@ -421,58 +403,39 @@ public class StudentExamController extends BaseController {
 
 
     @Restrict({@Group("STUDENT")})
-    public Result answerMultiChoice(String hash, Long qid, Long oid) {
-
+    public Result answerMultiChoice(String hash, Long qid, String oids) {
+        List<Long> optionIds;
+        if (oids.equals("none")) { // not so elegant but will do for now
+            optionIds = new ArrayList<>();
+        } else {
+            optionIds = Stream.of(oids.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        }
         Question question = Ebean.find(Question.class)
                 .fetch("answer")
                 .where()
-                .eq("id", qid)
+                .idEq(qid)
                 .findUnique();
-
-        if (oid > 0) {
-
-            MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
-
-            // must clone answered option because teacher can remove original option.
-            MultipleChoiceOption answeredOption = new MultipleChoiceOption();
-            answeredOption.setOption(option.getOption());
-            answeredOption.setCorrectOption(option.isCorrectOption());
-            answeredOption.setScore(option.getScore());
-            answeredOption.save();
-
-            if (question.getAnswer() == null) {
-                Answer answer = new Answer();
-                answer.setType(Answer.Type.MultipleChoiceAnswer);
-                answer.setOptions(new ArrayList<>());
-                answer.getOptions().add(option);
-                question.setAnswer(answer);
-                answer.save();
-                question.save();
-
-                return ok(Json.toJson(answer));
-
-            } else {
-                Answer answer = question.getAnswer();
-                if (answer.getOptions().isEmpty()) {
-                    answer.setOptions(new ArrayList<>());
-                    answer.getOptions().add(answeredOption);
-                    answer.update();
-                    question.update();
-                } else {
-                    long optionId = answer.getOptions().get(0).getId();
-                    answer.getOptions().clear();
-                    answer.getOptions().add(answeredOption);
-                    answer.update();
-                    question.update();
-
-                    // delete old answered option
-                    Ebean.delete(MultipleChoiceOption.class, optionId);
-                }
-                return ok(Json.toJson(answer));
-            }
-        } else {
-            return addEmptyAnswer(hash, qid);
+        Answer answer = question.getAnswer();
+        if (answer == null) {
+            answer = new Answer();
+            answer.setType(Answer.Type.MultipleChoiceAnswer);
+            answer.save();
+            question.setAnswer(answer);
+            question.update();
         }
+        answer.getOptions().stream().forEach(o -> {
+            o.setAnswer(null);
+            o.update();
+        });
+        List<MultipleChoiceOption> options = optionIds.isEmpty()
+                ? new ArrayList<>() : Ebean.find(MultipleChoiceOption.class).where().idIn(optionIds).findList();
+        for (MultipleChoiceOption o : options) {
+            o.setAnswer(answer);
+            o.save();
+        }
+        answer.getOptions().clear();
+        answer.getOptions().addAll(options);
+        return ok(Json.toJson(answer));
     }
 
     private Result listExams(F.Option<String> filter, Collection<String> courseCodes) {

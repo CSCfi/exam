@@ -188,7 +188,7 @@
   "sitnet_question_attachment": "Frågans bilaga",
   "sitnet_question_copy": "Använd som mall",
   "sitnet_question_instruction": "Anvisning för uppgiften",
-  "sitnet_question_mc": "Flervalsknappar",
+  "sitnet_question_mc": "Flervalsfråga (en rätt alternativ)",
   "sitnet_question_new_option": "Nytt alternativ",
   "sitnet_question_short_name": "Kortnamn",
   "sitnet_question_type": "Frågetyp",
@@ -278,7 +278,7 @@
   "sitnet_toolbar_essay_question": "Essäfråga",
   "sitnet_toolbar_feedback": "Respons",
   "sitnet_toolbar_inspections": "Utvärderingar",
-  "sitnet_toolbar_multiplechoice_question": "Flervalsfråga",
+  "sitnet_toolbar_multiplechoice_question": "Flervalsfråga (välj en)",
   "sitnet_toolbar_new_exam": "Skapa ny tent",
   "sitnet_toolbar_new_question": "Skapa ny fråga",
   "sitnet_toolbar_new_question_folder": "Skapa ny frågemapp",
@@ -678,5 +678,9 @@
   "sitnet_amount_exams": "TenttiSuoritusten määrä SV",
   "sitnet_total": "Yhteensä SV",
   "sitnet_department": "Osasto SV",
-  "sitnet_statistics_participations": "Suoritetut tentit SV"
+  "sitnet_statistics_participations": "Suoritetut tentit SV",
+  "sitnet_toolbar_weighted_multiplechoice_question": "Monivalintakysymys (monta oikein) SV",
+  "sitnet_question_weighted_mc": "Monivalinta (monta oikein) SV",
+  "sitnet_questions_new_weighted_multiplechoice": "Uusi monivalintakysymys (monta oikein) SV",
+  "sitnet_question_options": "Vastausvaihtoehdot SV"
 }

@@ -21,6 +21,14 @@
                 );
             };
 
+            var calculateMaxPoints = function (question) {
+                return (question.options.filter(function (option) {
+                    return option.score > 0;
+                }).reduce(function (a, b) {
+                    return a + b.score;
+                }, 0));
+            };
+
             var truncate = function (content, offset) {
                 if (content && content.indexOf("math-tex") === -1) {
                     if (offset < content.length) {
@@ -62,6 +70,7 @@
 
             return {
                 createQuestion: createQuestion,
+                calculateMaxPoints: calculateMaxPoints,
                 truncate: truncate,
                 decodeHtml: decodeHtml,
                 longTextIfNotMath: longTextIfNotMath,

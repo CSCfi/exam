@@ -154,29 +154,30 @@
             };
 
             var setQuestionColors = function (question) {
-
-                // State machine for resolving how the question header is drawn
-                if (question.answered ||
-                    (question.answer && question.type === "EssayQuestion" && question.answer.answer && stripHtml(question.answer.answer).length > 0) || // essay not empty
-                    (question.answer && question.type === "MultipleChoiceQuestion" && question.answer.option) // has option selected
-                ) {
+                var isAnswered;
+                switch (question.type) {
+                    case 'EssayQuestion':
+                        if (question.answer && question.answer.answer && stripHtml(question.answer.answer).length > 0) {
+                            isAnswered = true;
+                        }
+                        break;
+                    case 'MultipleChoiceQuestion':
+                    case 'WeightedMultipleChoiceQuestion':
+                        if (question.answer && question.answer.options.length > 0) {
+                            isAnswered = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                if (isAnswered) {
                     question.answered = true;
                     question.questionStatus = $translate.instant("sitnet_question_answered");
-                    if (question.expanded) {
-                        question.selectedAnsweredState = 'question-active-header';
-                    } else {
-                        question.selectedAnsweredState = 'question-answered-header';
-                    }
-
+                    question.selectedAnsweredState = 'question-answered-header';
                 } else {
-
+                    question.answered = false;
                     question.questionStatus = $translate.instant("sitnet_question_unanswered");
-
-                    if (question.expanded) {
-                        question.selectedAnsweredState = 'question-active-header';
-                    } else {
-                        question.selectedAnsweredState = 'question-unanswered-header';
-                    }
+                    question.selectedAnsweredState = 'question-unanswered-header';
                 }
             };
 
