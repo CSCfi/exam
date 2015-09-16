@@ -114,7 +114,12 @@
     <div ng-show="newExam.executionType.type==='PRIVATE'">
         <div class="row">
             <div class="col-md-12">
-                <div class="sitnet-info-text">{{'sitnet_exam_participants' | translate}}:</div>
+                <div ng-if="newExam.state !== 'PUBLISHED'" class="sitnet-info-text">{{'sitnet_exam_participants' |
+                    translate}}:
+                </div>
+                <div ng-if="newExam.state === 'PUBLISHED'" class="sitnet-info-text">{{'sitnet_exam_participants_left' |
+                    translate}}:
+                </div>
             </div>
         </div>
         <div class="row">
@@ -167,7 +172,7 @@
     </div>
 
 
-    <!-- Exam grade scale and exam type input elements -->
+    <!-- Exam grade scale, type and trial count input elements -->
     <div class="row">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
@@ -189,14 +194,19 @@
         </div>
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_exam_trial_count' | translate}}:&nbsp;
-                <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter" popover="{{'sitnet_exam_trial_count_description' | translate}}"></i></div>
-            <span ng-repeat="x in range(1, 5)">
+                <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
+                   popover="{{'sitnet_exam_trial_count_description' | translate}}"></i></div>
+            <span ng-show="newExam.executionType.type==='PUBLIC'" ng-repeat="x in range(1, 5)">
                 <button class="btn btn-default" ng-class="checkTrialCount(x)" ng-click="setTrialCount(x)">{{x}}
                 </button>&nbsp;
             </span>
-            <button class="btn btn-default" ng-class="checkTrialCount()"
+            <button ng-if="newExam.executionType.type==='PUBLIC'" class="btn btn-default" ng-class="checkTrialCount()"
                     ng-click="setTrialCount()">&infin;
             </button>
+            <button ng-if="newExam.executionType.type==='PRIVATE'" class="btn btn-primary" ng-class="checkTrialCount()"
+                    ng-disabled="true">1
+            </button>
+            <span ng-if="newExam.executionType.type==='PRIVATE'" class="text-muted">({{'sitnet_private_exam_trial_count_description' | translate}})</span>
         </div>
     </div>
 

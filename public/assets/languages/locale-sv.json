@@ -682,5 +682,8 @@
   "sitnet_toolbar_weighted_multiplechoice_question": "Monivalintakysymys (monta oikein) SV",
   "sitnet_question_weighted_mc": "Monivalinta (monta oikein) SV",
   "sitnet_questions_new_weighted_multiplechoice": "Uusi monivalintakysymys (monta oikein) SV",
-  "sitnet_question_options": "Vastausvaihtoehdot SV"
+  "sitnet_question_options": "Vastausvaihtoehdot SV",
+  "sitnet_exam_participants_description": "Tenttiin osallistujat. Tentin julkistamisen jälkeen osallistujia ei voi muokata SV",
+  "sitnet_exam_participants_left": "Osallistujat, joilta puuttuu suoritus SV",
+  "sitnet_private_exam_trial_count_description": "Henkilökohtaiset tentit ovat kertakäyttöisluonteisia SV"
 }

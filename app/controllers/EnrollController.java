@@ -119,7 +119,11 @@ public class EnrollController extends BaseController {
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result removeEnrolment(Long id) {
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
-        if (enrolment.getReservation() != null) {
+        // Disallow removing enrolments to private exams created automatically for student
+        if (enrolment.getExam().isPrivate()) {
+            return forbidden();
+        }
+        if (enrolment.getReservation() != null ) {
             return forbidden("sitnet_cancel_reservation_first");
         }
         enrolment.delete();

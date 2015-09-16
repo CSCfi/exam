@@ -130,6 +130,7 @@ public class StudentExamController extends BaseController {
         User user = getLoggedUser();
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
+                .fetch("exam.executionType")
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examLanguages")
                 .fetch("exam.examOwners", "firstName, lastName")

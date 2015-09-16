@@ -24,7 +24,7 @@
                             <span class="info-header-bold">
                                 {{enrolment.exam.name}} - {{enrolment.exam.course.code}}
                             </span>
-                            <span class="pointer">&nbsp;&nbsp;
+                            <span class="pointer" ng-hide="enrolment.exam.executionType.type === 'PRIVATE'">&nbsp;&nbsp;
                                 <i class="fa fa-times text-danger" popover-placement="top"
                                    popover-popup-delay="500" popover-trigger="mouseenter"
                                    popover="{{ 'sitnet_remove' | translate }}" ng-click="removeEnrolment(enrolment)">

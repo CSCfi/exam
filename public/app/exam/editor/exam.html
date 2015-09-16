@@ -1,7 +1,8 @@
 <div id="dashboard">
     <div id="sitnet-header" class="header">
         <div class="col-md-6 header-wrapper">
-            <span ng-if="newExam.executionType.type==='PUBLIC'" class="header-text">{{'sitnet_public_exam' | translate}}</span>
+            <span ng-if="newExam.executionType.type==='PUBLIC'"
+                  class="header-text">{{'sitnet_public_exam' | translate}}</span>
             <span ng-if="newExam.executionType.type==='PRIVATE'" class="header-text">{{'sitnet_private_exam' | translate}}</span>
         </div>
         <div class="col-md-6 header-wrapper" ng-show="newExam.state === 'DRAFT'">
@@ -49,7 +50,8 @@
                         <button ng-hide="newExam.state === 'PUBLISHED'" ng-click="saveAndPublishExam()"
                                 class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}
                         </button>
-                        <button ng-show="newExam.state === 'PUBLISHED'" ng-click="unpublishExam()"
+                        <button ng-show="newExam.state === 'PUBLISHED' && newExam.examType.type==='PUBLIC'"
+                                ng-click="unpublishExam()"
                                 class="btn btn-warning">{{'sitnet_unpublish_exam' | translate }}
                         </button>
                     </span>

@@ -124,7 +124,13 @@
             };
 
             var setExamOwnersAndInspectors = function (exam, highlightOwners) {
-                exam.examOwners = exam.examOwners || (exam.parent ? exam.parent.examOwners : []) || [];
+                var owners;
+                if (!exam.examOwners || exam.examOwners.length == 0) {
+                    owners = exam.parent ? exam.parent.examOwners || [] : [];
+                } else {
+                    owners = exam.examOwners || [];
+                }
+                exam.examOwners = owners;
                 exam.examInspections = exam.examInspections || [];
                 if (highlightOwners) {
                     exam.examOwners.forEach(function (owner) {
