@@ -25,11 +25,11 @@
             <li role="presentation" ng-class="{'active' : view === 'EXAMS'}">
                 <a class="pointer" target="_self" ng-click="view='EXAMS'">{{'sitnet_exams' | translate}}</a>
             </li>
-            <li role="presentation" ng-class="{'active' : view === 'RESULTS'}">
-                <a class="pointer" target="_self" ng-click="view='RESULTS'">Suoritukset</a>
+            <li role="presentation" ng-class="{'active' : view === 'RESERVATIONS'}">
+                <a class="pointer" target="_self" ng-click="view='RESERVATIONS'">{{'sitnet_reservations' | translate}}</a>
             </li>
-            <li role="presentation" ng-class="{'active' : view === 'USERS'}">
-                <a class="pointer" target="_self" ng-click="view='USERS'">Käyttäjät</a>
+            <li role="presentation" ng-class="{'active' : view === 'RESPONSES'}">
+                <a class="pointer" target="_self" ng-click="view='RESPONSES'">{{'sitnet_exam_responses' | translate}}</a>
             </li>
         </ul>
     </div>
@@ -115,18 +115,7 @@
     <!-- TAB CONTENT -->
     <div ng-if="view === 'ROOMS'" ng-include="templates.rooms" ng-init="listParticipations()"/>
     <div ng-if="view === 'EXAMS'" ng-include="templates.exams" ng-init="listExams()"/>
-
-
-    <div class="main-row" ng-if="view === 'RESULTS'">
-        <div class="col-md-12">
-            <p>Results</p>
-        </div>
-    </div>
-
-    <div class="main-row" ng-if="view === 'USERS'">
-        <div class="col-md-12">
-            <p>Users</p>
-        </div>
-    </div>
+    <div ng-if="view === 'RESERVATIONS'" ng-include="templates.reservations" ng-init="listReservations()"/>
+    <div ng-if="view === 'RESPONSES'" ng-include="templates.responses" ng-init="listResponses()"/>
 
 </div>

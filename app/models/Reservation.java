@@ -19,6 +19,10 @@ public class Reservation extends GeneratedIdentityModel {
 
     private boolean retrialPermitted;
 
+    @OneToOne(mappedBy = "reservation")
+    @JsonBackReference
+    ExamEnrolment enrolment;
+
     @OneToOne
     @JsonBackReference
     ExamMachine machine;
@@ -74,6 +78,16 @@ public class Reservation extends GeneratedIdentityModel {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public ExamEnrolment getEnrolment() {
+        return enrolment;
+    }
+
+    public void setEnrolment(ExamEnrolment enrolment) {
+        this.enrolment = enrolment;
+    }
+
+
 
     @Transient
     public Interval toInterval() {

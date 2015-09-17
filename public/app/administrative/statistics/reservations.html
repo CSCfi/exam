@@ -1,0 +1,14 @@
+<div class="bottom-row">
+    <div class="col-md-12">
+        <button class="btn btn-primary" ng-click="listReservations()">{{'sitnet_search' | translate}}</button>
+    </div>
+</div>
+
+<div class="top-row">
+    <div class="col-md-2"><strong>{{'sitnet_total_reservations' | translate}}:</strong></div>
+    <div class="col-md-10">{{reservations.length}}</div>
+</div>
+<div class="main-row">
+    <div class="col-md-2"><strong>{{'sitnet_total_no_shows' | translate}}:</strong></div>
+    <div class="col-md-10">{{noShows.length}}</div>
+</div>

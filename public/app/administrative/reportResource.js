@@ -37,6 +37,8 @@
                     }),
                 departments: $resource("/reports/departments"),
                 exams: $resource("/reports/exams"),
+                reservations: $resource("/reports/reservations"),
+                responses: $resource("/reports/responses"),
                 participations: $resource("/reports/participations", {}, {
                     find: {
                         method: 'GET',

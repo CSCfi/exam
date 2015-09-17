@@ -3,27 +3,32 @@
         <button class="btn btn-primary" ng-click="listExams()">{{'sitnet_search' | translate}}</button>
     </div>
 </div>
-<div class="main-row">
-    <div class="col-md-12" ng-show="participations">
-        <table class="table table-striped">
+
+<div class="top-row">
+    <div class="col-md-12">
+        <h3>{{'sitnet_most_popular_exams' | translate}}</h3>
+    </div>
+</div>
+<div class="detail-row">
+    <div class="col-md-12" ng-show="exams.length > 0">
+        <table class="table table-striped table-condensed">
             <thead>
             <tr>
+                <th>{{'sitnet_rank' | translate}}</th>
                 <th>{{'sitnet_exam' | translate}}</th>
-                <!--th>{{'sitnet_exam_owners' | translate}}</th-->
                 <th>{{'sitnet_amount_exams' | translate}}</th>
             </tr>
             </thead>
             <tbody>
-            <tr ng-repeat="exam in exams | orderBy:['-participations', 'name']">
+            <tr ng-repeat="exam in exams | orderBy:['-participations', 'name'] as sorted">
+                <td>{{getRank($index, sorted)}}.</td>
                 <td>{{exam.name}}</td>
-                <!--td>{{exam.owners}}</td-->
                 <td>{{exam.participations}}</td>
             </tr>
             </tbody>
             <tfoot>
             <tr>
-                <td><b>{{ 'sitnet_total' | translate }}</b></td>
-                <!--td><b>{{ totalOwners() }}</b></td-->
+                <td colspan="2"><b>{{ 'sitnet_total' | translate }}</b></td>
                 <td><b>{{ totalExams() }}</b></td>
             </tr>
             </tfoot>

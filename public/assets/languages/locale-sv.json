@@ -685,5 +685,14 @@
   "sitnet_question_options": "Vastausvaihtoehdot SV",
   "sitnet_exam_participants_description": "Tenttiin osallistujat. Tentin julkistamisen jälkeen osallistujia ei voi muokata SV",
   "sitnet_exam_participants_left": "Osallistujat, joilta puuttuu suoritus SV",
-  "sitnet_private_exam_trial_count_description": "Henkilökohtaiset tentit ovat kertakäyttöisluonteisia SV"
+  "sitnet_private_exam_trial_count_description": "Henkilökohtaiset tentit ovat kertakäyttöisluonteisia SV",
+  "sitnet_year": "Vuosi SV",
+  "sitnet_month": "Kuukausi SV",
+  "sitnet_rank": "Sija SV",
+  "sitnet_most_popular_exams": "Suoritetuimmat tentit SV",
+  "sitnet_total_reservations": "Varauksia yhteensä SV",
+  "sitnet_total_no_shows": "No-show-tapauksia yhteensä SV",
+  "sitnet_exam_responses": "Suoritukset SV",
+  "sitnet_assessed_exams": "Arvioidut SV",
+  "sitnet_unassessed_exams": "Arvioimattomat SV"
 }

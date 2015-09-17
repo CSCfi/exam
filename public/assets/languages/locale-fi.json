@@ -684,5 +684,14 @@
   "sitnet_questions_new_weighted_multiplechoice": "Uusi monivalintakysymys (monta oikein)",
   "sitnet_question_options": "Vastausvaihtoehdot",
   "sitnet_exam_participants_left": "Osallistujat, joilta puuttuu suoritus",
-  "sitnet_private_exam_trial_count_description": "Henkilökohtaiset tentit ovat kertakäyttöisluonteisia"
+  "sitnet_private_exam_trial_count_description": "Henkilökohtaiset tentit ovat kertakäyttöisluonteisia",
+  "sitnet_year": "Vuosi",
+  "sitnet_month": "Kuukausi",
+  "sitnet_rank": "Sija",
+  "sitnet_most_popular_exams": "Suoritetuimmat tentit",
+  "sitnet_total_reservations": "Varauksia yhteensä",
+  "sitnet_total_no_shows": "No-show-tapauksia yhteensä",
+  "sitnet_exam_responses": "Suoritukset",
+  "sitnet_assessed_exams": "Arvioidut",
+  "sitnet_unassessed_exams": "Arvioimattomat"
 }
