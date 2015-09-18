@@ -142,7 +142,7 @@ public class ExamController extends BaseController {
                 .fetch("examOwners")
                 .fetch("examInspections.user", "id, firstName, lastName")
                 .fetch("examEnrolments.user", "id")
-                .fetch("examEnrolments.reservation", "id")
+                .fetch("examEnrolments.reservation", "id, endAt")
                 .fetch("course")
                 .where()
                 .eq("state", Exam.State.PUBLISHED)

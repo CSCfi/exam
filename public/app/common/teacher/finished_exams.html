@@ -20,7 +20,6 @@
                     <th>{{ 'sitnet_exam_name' | translate }}</th>
                     <th>{{ 'sitnet_exam_validity' | translate }}</th>
                     <th>{{ 'sitnet_participation_unreviewed' | translate }}</th>
-                    <th>{{ 'sitnet_participation_enrolled' | translate }}</th>
                     <th>{{ 'sitnet_teachers' | translate}}</th>
                 </tr>
                 </thead>
@@ -35,7 +34,6 @@
                     </td>
                     <td class="table-column-enroll-participation">{{ getReviewablesCount(finishedExam) }}
                     </td>
-                    <td class="table-column-enroll-participation">{{ getReservationCount(finishedExam) }}</td>
                     <td class="table-column-teachers" ng-bind-html="finishedExam.teachersStr"></td>
                 </tr>
                 </tbody>

@@ -162,7 +162,7 @@
 
                 $scope.getReservationCount = function (exam) {
                     return exam.examEnrolments.filter(function (enrolment) {
-                        return enrolment.reservation;
+                        return enrolment.reservation && enrolment.reservation.endAt > new Date().getTime();
                     }).length;
                 };
 
