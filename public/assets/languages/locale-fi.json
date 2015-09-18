@@ -449,7 +449,7 @@
   "sitnet_error_end_sooner_than_now": "Tenttiperiodin päättymispäivä on menneessä ajassa",
   "sitnet_error_exam_empty_name": "Tentille ei ole määritelty nimeä",
   "sitnet_error_exam_empty_exam_language": "Tentille ei ole valittu oletuskieltä",
-  "sitnet_participation_enrolled": "Ilmoittautuneet",
+  "sitnet_participation_enrolled": "Tulevat varaukset",
   "sitnet_participation_unreviewed": "Arvioimatta",
   "sitnet_exam_time_is_up": "Tenttiaikasi on umpeutunut, vastaus on automaattitallennettu ja tenttivastauksesi on palautettu",
   "sitnet_date_time": "Päivämäärä ja aika",

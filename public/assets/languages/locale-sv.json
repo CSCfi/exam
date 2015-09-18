@@ -449,7 +449,7 @@
   "sitnet_error_end_sooner_than_now": "Tentperiodens slutdatum är förbi",
   "sitnet_error_exam_empty_name": "Tentens namn duger inte",
   "sitnet_error_exam_empty_exam_language": "Tentspråk har icke valt ",
-  "sitnet_participation_enrolled": "De anmälda",
+  "sitnet_participation_enrolled": "Kommande bokningar",
   "sitnet_participation_unreviewed": "Outvärderade svar",
   "sitnet_exam_time_is_up": "Din tenttid är över, ditt svar har automatsparats och lämnats in.",
   "sitnet_date_time": "Datum och tid",

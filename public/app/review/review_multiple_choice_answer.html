@@ -19,8 +19,10 @@
     <div class="col-md-12 review-question-value">
         <span class="fa fa-stack">
             <i class="fa fa-stop-o fa-stack-2x"></i>
+            <!-- FIXME: following comparison should be id based, however it won't work with old answers due to change in logic.
+             Change it to option.id === ... options[0].option.id at a proper occasion-->
             <i class="fa fa-stack-1x"
-               ng-class="option.id === sectionQuestion.question.answer.options[0].id ? 'fa-check-square-o' : 'fa-square-o'"></i>
+               ng-class="option.option === sectionQuestion.question.answer.options[0].option ? 'fa-check-square-o' : 'fa-square-o'"></i>
         </span>
         <span ng-class="option.correctOption ? 'text-success' : 'text-danger'"
               class="review-question-option-name">
