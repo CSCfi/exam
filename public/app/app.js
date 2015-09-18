@@ -40,6 +40,14 @@
         .config(['$translateProvider', '$httpProvider', '$compileProvider', 'EXAM_CONF', function ($translateProvider, $httpProvider, $compileProvider, EXAM_CONF) {
             $compileProvider.debugInfoEnabled(false);
             $httpProvider.useApplyAsync(true);
+
+            // IE caches each and every GET unless the following is applied:
+            if (!$httpProvider.defaults.headers.get) {
+                $httpProvider.defaults.headers.get = {};
+            }
+            $httpProvider.defaults.headers.get['Cache-Control'] = 'no-cache';
+            $httpProvider.defaults.headers.get['Pragma'] = 'no-cache';
+
             var path = EXAM_CONF.LANGUAGES_PATH;
             $translateProvider.useStaticFilesLoader({
                 prefix: path + 'locale-',

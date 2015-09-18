@@ -118,7 +118,8 @@ public class EnrollController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result removeEnrolment(Long id) {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).fetch("exam")
+                .where().idEq(id).findUnique();
         // Disallow removing enrolments to private exams created automatically for student
         if (enrolment.getExam().isPrivate()) {
             return forbidden();
