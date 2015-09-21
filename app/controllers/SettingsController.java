@@ -15,26 +15,44 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
 
-import java.util.List;
-
 public class SettingsController  extends BaseController {
+
+    public static GeneralSettings getOrCreateSettings(String name, String value, String defaultValue) {
+        GeneralSettings gs = Ebean.find(GeneralSettings.class).where().eq("name", name).findUnique();
+        if (gs == null) {
+            gs = new GeneralSettings();
+            gs.setName(name);
+            gs.save();
+        }
+        if (value != null) {
+            gs.setValue(value);
+            gs.update();
+        } else if (gs.getValue() != null && defaultValue != null) {
+            gs.setValue(defaultValue);
+            gs.update();
+        }
+        return gs;
+    }
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT")})
     public Result getUserAgreement() {
-        List<GeneralSettings> gs = Ebean.find(GeneralSettings.class).setMaxRows(1).findList();
-        return ok(Json.toJson(gs.get(0)));
+        GeneralSettings gs = getOrCreateSettings("eula", null, null);
+        return ok(Json.toJson(gs));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT")})
+    public Result getDeadline() {
+        GeneralSettings gs = getOrCreateSettings("review_deadline", null, null);
+        return ok(Json.toJson(gs));
     }
 
     @Restrict({ @Group("ADMIN")})
     public Result updateUserAgreement() {
         DynamicForm df = Form.form().bindFromRequest();
-        String eula = df.get("eula");
-        GeneralSettings gs = Ebean.find(GeneralSettings.class).setMaxRows(1).findList().get(0);
-        gs.setEula(eula);
-        gs.update();
+        String eula = df.get("value");
+        GeneralSettings gs = getOrCreateSettings("eula", eula, null);
 
         // Since the EULA has changed, force users to accept it again.
-
         String updStatement = "update app_user set user_agreement_accepted = :hasNot";
         Update<User> update = Ebean.createUpdate(User.class, updStatement);
         update.set("hasNot", false);
@@ -46,10 +64,8 @@ public class SettingsController  extends BaseController {
     @Restrict({ @Group("ADMIN")})
     public Result updateSettings() {
         DynamicForm df = Form.form().bindFromRequest();
-        long deadline = Long.valueOf(df.get("reviewDeadline"));
-        GeneralSettings gs = Ebean.find(GeneralSettings.class).setMaxRows(1).findList().get(0);
-        gs.setReviewDeadline(deadline);
-        gs.update();
+        String deadline = df.get("value");
+        GeneralSettings gs = getOrCreateSettings("review_deadline", deadline, "14");
         return ok(Json.toJson(gs));
     }
 

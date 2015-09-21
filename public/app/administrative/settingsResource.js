@@ -6,7 +6,6 @@
                 agreement: $resource(
                     "/agreement", null,
                     {
-                        "query":    {method: "GET", isArray: false},
                         'update':   {method: 'PUT'}
                     }),
                 settings: $resource(
@@ -14,6 +13,7 @@
                     {
                         "update": { method: 'PUT'}
                     }),
+                deadline: $resource("/settings/deadline"),
                 hostname: $resource("/settings/hostname"),
                 examDurations: $resource("/settings/durations"),
                 gradeScale: $resource("/settings/gradescale"),

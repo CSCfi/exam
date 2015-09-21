@@ -1,6 +1,7 @@
 package system;
 
 import com.avaje.ebean.Ebean;
+import controllers.SettingsController;
 import models.*;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -60,8 +61,10 @@ public class ExamAutoSaver implements Runnable {
                     participation.setEnded(new Date());
                     participation.setDuration(new Date(participation.getEnded().getTime() - participation.getStarted().getTime()));
 
-                    GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
-                    participation.setDeadline(new Date(participation.getEnded().getTime() + settings.getReviewDeadline()));
+                    GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
+                    int deadlineDays = Integer.parseInt(settings.getValue());
+                    Date deadline = new DateTime(participation.getEnded()).plusDays(deadlineDays).toDate();
+                    participation.setDeadline(deadline);
 
                     participation.save();
                     Logger.info(" -> setting exam {} state to REVIEW", exam.getId());

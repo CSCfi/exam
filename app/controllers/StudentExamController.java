@@ -335,8 +335,8 @@ public class StudentExamController extends BaseController {
             p.setEnded(DateTime.now().toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
-            GeneralSettings settings = Ebean.find(GeneralSettings.class, 1);
-            int deadlineDays = (int) settings.getReviewDeadline();
+            GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
+            int deadlineDays = Integer.parseInt(settings.getValue());
             Date deadline = new DateTime(p.getEnded()).plusDays(deadlineDays).toDate();
             p.setDeadline(deadline);
             p.save();
@@ -353,8 +353,6 @@ public class StudentExamController extends BaseController {
 
     @Restrict({@Group("STUDENT")})
     public Result abortExam(Long id) {
-        Logger.debug("saveAnswersAndExit()");
-
         Exam exam = Ebean.find(Exam.class, id);
 
         ExamParticipation p = Ebean.find(ExamParticipation.class)

@@ -1,30 +1,27 @@
 package models;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 
 @Entity
 public class GeneralSettings extends GeneratedIdentityModel {
 
-    @Column(columnDefinition = "TEXT")
-    private String eula;
+    private String name;
 
-    @Column(columnDefinition="numeric default 14")
-    private long reviewDeadline;
+    private String value;
 
-    public long getReviewDeadline() {
-        return reviewDeadline;
+    public String getName() {
+        return name;
     }
 
-    public void setReviewDeadline(long reviewDeadline) {
-        this.reviewDeadline = reviewDeadline;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getEula() {
-        return eula;
+    public String getValue() {
+        return value;
     }
 
-    public void setEula(String text) {
-        eula = text;
+    public void setValue(String value) {
+        this.value = value;
     }
 }
