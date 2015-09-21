@@ -74,13 +74,14 @@ public class EnrollController extends BaseController {
                 .fetch("examInspections.user")
                 .fetch("examType")
                 .where()
+                .eq("state", Exam.State.PUBLISHED)
                 .eq("course.code", code)
                 .idEq(id)
                 .findUnique();
 
-        //FIXME: should not be handled server-side
-        // Set general info visible
-        exam.setExpanded(true);
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
         return ok(exam);
     }
 
@@ -149,6 +150,7 @@ public class EnrollController extends BaseController {
         Exam exam = Ebean.find(Exam.class)
                 .where()
                 .eq("id", eid)
+                .eq("state", Exam.State.PUBLISHED)
                 .eq("executionType.type", type.toString())
                 .findUnique();
         if (exam == null) {
