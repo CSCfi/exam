@@ -90,6 +90,7 @@ public class StudentExamController extends BaseController {
                 .fetch("parent.examOwners", "firstName, lastName")
                 .where()
                 .eq("id", id)
+                .eq("creator", getLoggedUser())
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .findUnique();
         if (exam == null) {
