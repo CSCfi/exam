@@ -296,7 +296,6 @@ public class IntegrationTestCase {
             Ebean.save(all.get("exam-machines"));
             Ebean.save(all.get("exam-room-reservations"));
             Ebean.save(all.get("exam-enrolments"));
-            Ebean.save(all.get("user-agreament"));
             Ebean.save(all.get("question_multiple_choice"));
         }
     }

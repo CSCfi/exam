@@ -1660,10 +1660,3 @@ exam-enrolments:
     enrolledOn: 2014-05-03 20:32:04.575
 
 ################################################################
-user-agreament:
-  - !!models.GeneralSettings
-    id: 1
-    eula: "Lorem ipsum dolor sit amet, an duo iisque tritani gloriatur, meis theophrastus no vim. No per conceptam signiferumque, nam ut aeque exerci explicari. Hinc brute justo ad mel, quod eripuit dolores ut mei. Fugit praesent iudicabit ex has, te albucius pertinacia neglegentur eos, ex iisque omittam efficiendi cum. Ad qui equidem ullamcorper, ei velit habemus vis. Clita suavitate referrentur sed ut, errem liberavisse ut vix. Cu delenit commune efficiendi sea, ex pri quot admodum electram, vis omnis viris ne."
-    reviewDeadline: 14
-
-################################################################
