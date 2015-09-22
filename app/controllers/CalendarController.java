@@ -186,7 +186,7 @@ public class CalendarController extends BaseController {
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User recipient : recipients) {
                 try {
-                    emailComposer.composeReservationNotification(recipient, reservation, exam);
+                    emailComposer.composeReservationNotification(recipient, reservation, exam, !recipient.equals(user));
                     Logger.info("Reservation confirmation email sent");
                 } catch (IOException e) {
                     Logger.error("Failed to send reservation confirmation email", e);

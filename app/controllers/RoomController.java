@@ -5,7 +5,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.ExpressionList;
 import com.fasterxml.jackson.databind.JsonNode;
-import exceptions.MalformedDataException;
 import models.*;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
@@ -27,7 +26,7 @@ public class RoomController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getExamRooms() {
         ExpressionList<ExamRoom> query = Ebean.find(ExamRoom.class).fetch("examMachines").where();
-        if (!getLoggedUser().hasRole("ADMIN")) {
+        if (!getLoggedUser().hasRole("ADMIN", getSession())) {
             query = query.ne("state", ExamRoom.State.INACTIVE.toString());
         }
         List<ExamRoom> rooms = query.findList();

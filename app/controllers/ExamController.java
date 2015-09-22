@@ -111,7 +111,7 @@ public class ExamController extends BaseController {
     public Result getExams() {
         User user = getLoggedUser();
         List<Exam> exams;
-        if (user.hasRole("ADMIN")) {
+        if (user.hasRole("ADMIN", getSession())) {
             exams = getAllExams();
         } else {
             exams = getAllExamsOfTeacher(user);
@@ -123,7 +123,7 @@ public class ExamController extends BaseController {
     public Result listExams(F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
         User user = getLoggedUser();
         List<Exam> exams;
-        if (user.hasRole("ADMIN")) {
+        if (user.hasRole("ADMIN", getSession())) {
             exams = getAllExams(courseIds, sectionIds, tagIds);
         } else {
             exams = getAllExamsOfTeacher(user, courseIds, sectionIds, tagIds);
@@ -171,7 +171,7 @@ public class ExamController extends BaseController {
     public Result deleteExam(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
         User user = getLoggedUser();
-        if (user.hasRole("ADMIN") || exam.isOwnedOrCreatedBy(user)) {
+        if (user.hasRole("ADMIN", getSession()) || exam.isOwnedOrCreatedBy(user)) {
             if (!exam.getChildren().isEmpty()) {
                 // Can't delete because of child references
                 exam.setState(Exam.State.ARCHIVED);
@@ -292,7 +292,7 @@ public class ExamController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = getLoggedUser();
-        if (!exam.isInspectedOrCreatedOrOwnedBy(user, true) && !user.hasRole("ADMIN")) {
+        if (!exam.isInspectedOrCreatedOrOwnedBy(user, true) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("sitnet_error_access_forbidden");
         }
         return ok(exam);
@@ -305,7 +305,7 @@ public class ExamController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = getLoggedUser();
-        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole("ADMIN", getSession())) {
             return ok(exam);
         } else {
             return forbidden("sitnet_error_access_forbidden");
@@ -332,7 +332,8 @@ public class ExamController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = getLoggedUser();
-        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || getLoggedUser().hasRole("ADMIN")) {
+        if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) ||
+                getLoggedUser().hasRole("ADMIN", getSession())) {
             exam.getExamSections().stream().filter(ExamSection::getLotteryOn).forEach(ExamSection::shuffleQuestions);
             return ok(exam);
         } else {
@@ -546,7 +547,7 @@ public class ExamController extends BaseController {
             return notFound();
         }
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || getLoggedUser().hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || getLoggedUser().hasRole("ADMIN", getSession())) {
             Result result = updateStateAndValidate(exam, df);
             if (result != null) {
                 return result;
@@ -777,7 +778,7 @@ public class ExamController extends BaseController {
             return notFound();
         }
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             ExamSection section = bindForm(ExamSection.class);
             section.setExam(Ebean.find(Exam.class, id));
             AppUtil.setCreator(section, user);
@@ -792,7 +793,7 @@ public class ExamController extends BaseController {
     public Result updateCourse(Long eid, Long cid) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             Course course = Ebean.find(Course.class, cid);
             Date now = new Date();
             if (course.getStartDate() != null && course.getStartDate().after(now)) {
@@ -814,7 +815,7 @@ public class ExamController extends BaseController {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = getLoggedUser();
 
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             exam.setCourse(null);
             exam.save();
             return ok(Json.toJson(exam));
@@ -837,7 +838,7 @@ public class ExamController extends BaseController {
     public Result reorderQuestion(Long eid, Long sid, Integer from, Integer to) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             ExamSection section = Ebean.find(ExamSection.class, sid);
             if (from.equals(to)) {
                 return ok();
@@ -874,7 +875,7 @@ public class ExamController extends BaseController {
             return notFound();
         }
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             Question question = Ebean.find(Question.class, qid);
             switch (question.getType()) {
                 case MultipleChoiceQuestion:
@@ -931,7 +932,7 @@ public class ExamController extends BaseController {
             return notFound();
         }
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             for (String s : questions.split(",")) {
                 Question question = Ebean.find(Question.class, Long.parseLong(s));
                 Question clone = clone(question.getId());
@@ -974,7 +975,7 @@ public class ExamController extends BaseController {
     public Result removeQuestion(Long eid, Long sid, Long qid) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             Question question = Ebean.find(Question.class, qid);
             ExamSection section = Ebean.find(ExamSection.class)
                     .fetch("sectionQuestions")
@@ -1018,7 +1019,7 @@ public class ExamController extends BaseController {
     public Result clearQuestions(Long sid) {
         ExamSection section = Ebean.find(ExamSection.class, sid);
         User user = getLoggedUser();
-        if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             section.getSectionQuestions().forEach(models.ExamSectionQuestion::delete);
             section.getSectionQuestions().clear();
             section.save();
@@ -1032,7 +1033,7 @@ public class ExamController extends BaseController {
     public Result removeSection(Long eid, Long sid) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             ExamSection section = Ebean.find(ExamSection.class, sid);
             exam.getExamSections().remove(section);
             exam.save();
@@ -1078,7 +1079,7 @@ public class ExamController extends BaseController {
     public Result getExamSections(Long examid) {
         Exam exam = Ebean.find(Exam.class, examid);
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             List<ExamSection> sections = Ebean.find(ExamSection.class).where()
                     .eq("id", examid)
                     .findList();
@@ -1095,7 +1096,7 @@ public class ExamController extends BaseController {
                 .eq("examSections.id", sectionId)
                 .findUnique();
         User user = getLoggedUser();
-        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN")) {
+        if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             ExamSection section = Ebean.find(ExamSection.class, sectionId);
             exam.getExamSections().remove(section);
             exam.save();
@@ -1122,14 +1123,17 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getRoomInfoFromEnrollment(Long eid) {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class)
+        User user = getLoggedUser();
+        ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id")
                 .fetch("user.language")
                 .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
                 .where()
-                .eq("exam.id", eid)
-                .findUnique();
-
+                .eq("exam.id", eid);
+        if (user.hasRole("STUDENT", getSession())) {
+            query = query.eq("user", user);
+        }
+        ExamEnrolment enrolment = query.findUnique();
         if (enrolment == null) {
             return notFound();
         } else {
@@ -1155,7 +1159,7 @@ public class ExamController extends BaseController {
         return ok(participations);
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getEnrolmentsForExam(Long eid) {
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam", "id, name")

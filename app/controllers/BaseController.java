@@ -43,6 +43,11 @@ public class BaseController extends Controller {
         return Ebean.find(User.class, session.getUserId());
     }
 
+    protected Session getSession() {
+        String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
+        return cache.get(SITNET_CACHE_KEY + token);
+    }
+
     protected List<String> parseArrayFieldFromBody(String field) {
         DynamicForm df = Form.form().bindFromRequest();
         String args = df.get(field);

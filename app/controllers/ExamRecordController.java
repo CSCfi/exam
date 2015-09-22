@@ -116,7 +116,7 @@ public class ExamRecordController extends BaseController {
             return notFound();
         }
         User user = getLoggedUser();
-        if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN")) {
+        if (!exam.getParent().isOwnedOrCreatedBy(user) && !user.hasRole("ADMIN", getSession())) {
             return forbidden("You are not allowed to modify this object");
         }
         if (exam.getGrade() == null || exam.getCreditType() == null || exam.getAnswerLanguage() == null ||

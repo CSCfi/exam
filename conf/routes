@@ -13,7 +13,7 @@ GET           /users/byrole/:role                                    controllers
 GET           /users/filter/:role                                    controllers.UserController.getUsersByRoleFilter(role: String, q: String)
 GET           /users/filter/:role/:eid                               controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
 GET           /users/filter/owner/:role/:eid                         controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
-PUT           /users/agreement/:id                                   controllers.UserController.updateUserAgreementAccepted(id: Long)
+PUT           /users/agreement                                       controllers.UserController.updateUserAgreementAccepted
 PUT           /user/lang                                             controllers.UserController.updateLanguage
 GET           /users                                                 controllers.UserController.findUsers(filter: play.libs.F.Option[String])
 POST          /users/:id/roles/:rname                                controllers.UserController.addRole(id: Long, rname: String)
@@ -89,8 +89,8 @@ GET           /student/exams                                         controllers
 GET           /student/inspectors/exam/:id                           controllers.StudentExamController.getExamInspectors(id: Long)
 GET           /student/finishedexams/:uid                            controllers.StudentExamController.getFinishedExams(uid: Long)
 GET           /feedback/exams/:eid                                   controllers.StudentExamController.getExamGeneralInfo(eid: Long)
-PUT           /student/exams/:id                                     controllers.StudentExamController.saveAnswersAndExit(id: Long)
-PUT           /student/exam/abort/:id                                controllers.StudentExamController.abortExam(id: Long)
+PUT           /student/exams/:hash                                   controllers.StudentExamController.saveAnswersAndExit(hash: String)
+PUT           /student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)
 GET           /student/doexam/:hash                                  controllers.StudentExamController.startExam(hash: String)
 GET           /enrolments                                            controllers.StudentExamController.getEnrolmentsForUser
 GET           /enrolments/:eid                                       controllers.StudentExamController.getEnrolment(eid: Long)

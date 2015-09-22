@@ -212,13 +212,8 @@ public class User extends GeneratedIdentityModel implements Subject {
         this.lastLogin = lastLogin;
     }
 
-    public boolean hasRole(String name) {
-
-        for (Role role : roles) {
-            if (role.getName().equals(name))
-                return true;
-        }
-        return false;
+    public boolean hasRole(String name, Session session) {
+        return session != null && session.getLoginRole() != null && name.equals(session.getLoginRole());
     }
 
     @Override

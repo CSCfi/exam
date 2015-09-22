@@ -99,7 +99,7 @@ public class EnrollController extends BaseController {
         DateTime now = AppUtil.adjustDST(new DateTime());
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .where()
-                .eq("user.id", getLoggedUser().getId())
+                .eq("user", getLoggedUser())
                 .eq("exam.id", id)
                 .gt("exam.examActiveEndDate", now.toDate())
                 .disjunction()
@@ -119,8 +119,15 @@ public class EnrollController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result removeEnrolment(Long id) {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).fetch("exam")
-                .where().idEq(id).findUnique();
+        User user = getLoggedUser();
+        ExamEnrolment enrolment;
+        if (user.hasRole("STUDENT", getSession())) {
+            enrolment = Ebean.find(ExamEnrolment.class).fetch("exam")
+                    .where().idEq(id).eq("user", user).findUnique();
+        } else {
+            enrolment = Ebean.find(ExamEnrolment.class).fetch("exam")
+                    .where().idEq(id).findUnique();
+        }
         // Disallow removing enrolments to private exams created automatically for student
         if (enrolment.getExam().isPrivate()) {
             return forbidden();
@@ -132,9 +139,12 @@ public class EnrollController extends BaseController {
         return ok();
     }
 
-    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("STUDENT")})
     public Result updateEnrolment(Long id) {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
+                .idEq(id)
+                .eq("user", getLoggedUser())
+                .findUnique();
         if (enrolment == null) {
             return notFound("enrolment not found");
         }

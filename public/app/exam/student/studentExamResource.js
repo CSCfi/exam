@@ -3,14 +3,14 @@
     angular.module("exam.resources")
         .factory("StudentExamRes", ['$resource', function ($resource) {
             return {
-                exams: $resource("/student/exams/:id",
+                exams: $resource("/student/exams/:hash",
                 {
-                    id: "@id"
+                    hash: "@hash"
                 },
                 {
                     "update": {
                         method: "PUT",
-                        params: { id: "@id" }}
+                        params: { hash: "@hash" }}
                 }),
 
                 finishedExams: $resource("/student/finishedexams/:uid",
@@ -31,14 +31,14 @@
                     "update": {method: "PUT", params: { eid: "@eid" }}
                 }),
 
-                exam: $resource("/student/exam/abort/:id",
+                exam: $resource("/student/exam/abort/:hash",
                 {
-                    id: "@id"
+                    hash: "@hash"
                 },
                 {
                     "abort": {
                         method: "PUT",
-                        params: { id: "@id" }}
+                        params: { hash: "@hash" }}
                 }),
 
                 feedback: $resource("/feedback/exams/:eid",

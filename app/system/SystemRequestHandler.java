@@ -71,7 +71,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
         }
 
         User user = Ebean.find(User.class, session.getUserId());
-        if (user == null || !user.hasRole("STUDENT") || request.path().equals("/logout")) {
+        if (user == null || !user.hasRole("STUDENT", session) || request.path().equals("/logout")) {
             return doCreateAction();
         }
 

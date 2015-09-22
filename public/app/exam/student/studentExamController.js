@@ -363,7 +363,7 @@
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_turn_exam'));
                     dialog.result.then(function () {
                         saveAllEssays().then(function () {
-                            StudentExamRes.exams.update({id: doexam.id}, function () {
+                            StudentExamRes.exams.update({hash: doexam.hash}, function () {
                                 toastr.info($translate.instant('sitnet_exam_returned'), {timeOut: 5000});
                                 $timeout.cancel($scope.remainingTimePoller);
                                 $location.path("/student/logout/finished");
@@ -378,7 +378,7 @@
                 $scope.abortExam = function (doexam) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_abort_exam'));
                     dialog.result.then(function (btn) {
-                        StudentExamRes.exam.abort({id: doexam.id}, {data: doexam}, function () {
+                        StudentExamRes.exam.abort({hash: doexam.hash}, {data: doexam}, function () {
                             toastr.info($translate.instant('sitnet_exam_aborted'), {timeOut: 5000});
                             $timeout.cancel($scope.remainingTimePoller);
                             $location.path("/student/logout/aborted");
@@ -398,7 +398,7 @@
                         StudentExamRes.multipleChoiceAnswer.saveMultipleChoice({
                                 hash: doexam.hash,
                                 qid: question.id,
-                                oids: ids.join() || 'none'
+                                oids: ids.join() || 'none'
                             },
                             function (updated_answer) {
                                 question.answer = updated_answer;

@@ -36,7 +36,7 @@ public class ReservationController extends BaseController {
                 .isNull("parent") // only Exam prototypes
                 .eq("state", Exam.State.PUBLISHED)
                 .gt("examActiveEndDate", new Date());
-        if (user.hasRole("TEACHER")) {
+        if (user.hasRole("TEACHER", getSession())) {
             el = el.disjunction()
                     .eq("creator", user)
                     .eq("examOwners", user)
@@ -158,7 +158,7 @@ public class ReservationController extends BaseController {
                 .where();
 
         User user = getLoggedUser();
-        if (user.hasRole("TEACHER")) {
+        if (user.hasRole("TEACHER", getSession())) {
             query = query.disjunction()
                     .eq("exam.examOwners", user)
                     .eq("exam.creator", user)

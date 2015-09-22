@@ -182,6 +182,8 @@
                             var icon;
                             if (item.type === "MultipleChoiceQuestion") {
                                 icon = "fa-list-ul";
+                            } else if (item.type === "WeightedMultipleChoiceQuestion") {
+                                icon = "fa-balance-scale";
                             } else {
                                 icon = "fa-edit";
                             }

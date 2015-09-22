@@ -181,10 +181,11 @@ public class UserController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result updateUserAgreementAccepted(Long id) {
-
+    public Result updateUserAgreementAccepted() {
         Result result;
-        User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where().idEq(id).findUnique();
+        User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where()
+                .idEq(getLoggedUser().getId())
+                .findUnique();
         if (user == null) {
             result = notFound();
         } else {

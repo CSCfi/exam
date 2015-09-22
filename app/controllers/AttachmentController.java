@@ -7,6 +7,7 @@ import com.avaje.ebean.Ebean;
 import models.Attachment;
 import models.Comment;
 import models.Exam;
+import models.User;
 import models.questions.Answer;
 import models.questions.Question;
 import play.Logger;
@@ -44,12 +45,14 @@ public class AttachmentController extends BaseController {
         String contentType = filePart.getContentType();
 
         // first check if answer already exist
-        Question question = Ebean.find(Question.class)
-                .fetch("answer")
+        Question question = Ebean.find(Question.class).fetch("answer")
                 .where()
                 .idEq(qid)
+                .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
                 .findUnique();
-
+        if (question == null) {
+            return forbidden();
+        }
         if (question.getAnswer() == null) {
             Answer answer = new Answer();
             switch (question.getType()) {
@@ -152,9 +155,18 @@ public class AttachmentController extends BaseController {
         return redirect("/#/questions/" + String.valueOf(id));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("ADMIN"), @Group("STUDENT")})
     public Result deleteQuestionAnswerAttachment(Long qid, String hash) {
-        Question question = Ebean.find(Question.class, qid);
+        User user = getLoggedUser();
+        Question question;
+        if (user.hasRole("STUDENT", getSession())) {
+            question = Ebean.find(Question.class).where()
+                    .idEq(qid)
+                    .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                    .findUnique();
+        } else {
+            question = Ebean.find(Question.class, qid);
+        }
         if (question != null && question.getAnswer() != null && question.getAnswer().getAttachment() != null) {
             Answer answer = question.getAnswer();
             Attachment aa = answer.getAttachment();
@@ -291,8 +303,16 @@ public class AttachmentController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result downloadQuestionAttachment(Long id) {
-
-        Question question = Ebean.find(Question.class, id);
+        User user = getLoggedUser();
+        Question question;
+        if (user.hasRole("STUDENT", getSession())) {
+            question = Ebean.find(Question.class).where()
+                    .idEq(id)
+                    .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                    .findUnique();
+        } else {
+            question = Ebean.find(Question.class, id);
+        }
         if (question == null || question.getAttachment() == null) {
             return notFound();
         }
@@ -306,8 +326,16 @@ public class AttachmentController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result downloadQuestionAnswerAttachment(Long qid, String hash) {
-
-        Question question = Ebean.find(Question.class, qid);
+        User user = getLoggedUser();
+        Question question;
+        if (user.hasRole("STUDENT", getSession())) {
+            question = Ebean.find(Question.class).where()
+                    .idEq(qid)
+                    .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                    .findUnique();
+        } else {
+            question = Ebean.find(Question.class, qid);
+        }
         if (question == null || question.getAnswer() == null || question.getAnswer().getAttachment() == null) {
             return notFound();
         }
@@ -320,7 +348,6 @@ public class AttachmentController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result downloadExamAttachment(Long id) {
-
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null || exam.getAttachment() == null) {
             return notFound();
@@ -334,8 +361,13 @@ public class AttachmentController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result downloadFeedbackAttachment(Long id) {
-
-        Exam exam = Ebean.find(Exam.class, id);
+        User user = getLoggedUser();
+        Exam exam;
+        if (user.hasRole("STUDENT", getSession())) {
+            exam = Ebean.find(Exam.class).where().idEq(id).eq("creator", user).findUnique();
+        } else {
+            exam = Ebean.find(Exam.class, id);
+        }
         if (exam == null || exam.getExamFeedback() == null || exam.getExamFeedback().getAttachment() == null) {
             return notFound();
         }

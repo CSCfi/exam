@@ -148,8 +148,7 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(teacher.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
-    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam) throws IOException {
-        boolean isTeacher = recipient.hasRole("TEACHER");
+    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, boolean isTeacher) throws IOException {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(recipient);

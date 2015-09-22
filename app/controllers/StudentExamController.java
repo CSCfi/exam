@@ -116,6 +116,7 @@ public class StudentExamController extends BaseController {
                 .fetch("reservation.machine.room", "name, roomCode")
                 .where()
                 .idEq(eid)
+                .eq("user", getLoggedUser())
                 .findUnique();
 
         if (enrolment == null) {
@@ -186,15 +187,16 @@ public class StudentExamController extends BaseController {
         return createQuery()
                 .where()
                 .eq("hash", hash)
-                .eq("parent", null)
+                .isNull("parent")
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
     }
 
-    private static Exam getPossibleClone(String hash) {
+    private static Exam getPossibleClone(String hash, User user) {
         return createQuery().where()
                 .eq("hash", hash)
-                .ne("parent", null)
+                .eq("creator", user)
+                .isNotNull("parent")
                 .orderBy("examSections.id, examSections.sectionQuestions.sequenceNumber")
                 .findUnique();
     }
@@ -284,8 +286,9 @@ public class StudentExamController extends BaseController {
 
     @Restrict({@Group("STUDENT")})
     public Result startExam(String hash) {
+        User user = getLoggedUser();
         Exam prototype = getPrototype(hash);
-        Exam possibleClone = getPossibleClone(hash);
+        Exam possibleClone = getPossibleClone(hash, user);
         // no exam found for hash
         if (prototype == null && possibleClone == null) {
             return notFound();
@@ -301,7 +304,6 @@ public class StudentExamController extends BaseController {
 
         // Create new exam for student
         if (possibleClone == null) {
-            User user = getLoggedUser();
             ExamEnrolment enrolment = getEnrolment(user, prototype);
             Result error = checkEnrolmentOK(enrolment);
             if (error != null) {
@@ -321,14 +323,14 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result saveAnswersAndExit(Long id) {
-        Logger.debug("saveAnswersAndExit()");
-
-        Exam exam = Ebean.find(Exam.class, id);
+    public Result saveAnswersAndExit(String hash) {
+        User user = getLoggedUser();
+        Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();
 
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
-                .eq("exam.id", id)
+                .eq("exam.id", exam.getId())
+                .eq("user", user)
                 .isNull("ended")
                 .findUnique();
 
@@ -353,12 +355,14 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result abortExam(Long id) {
-        Exam exam = Ebean.find(Exam.class, id);
+    public Result abortExam(String hash) {
+        User user = getLoggedUser();
+        Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findUnique();
 
         ExamParticipation p = Ebean.find(ExamParticipation.class)
                 .where()
-                .eq("exam.id", id)
+                .eq("exam.id", exam.getId())
+                .eq("user", user)
                 .isNull("ended")
                 .findUnique();
 
@@ -384,7 +388,14 @@ public class StudentExamController extends BaseController {
 
         Logger.debug(answer);
 
-        Question question = Ebean.find(Question.class, questionId);
+        Question question = Ebean.find(Question.class).where()
+                .idEq(questionId)
+                .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                .eq("examSectionQuestion.examSection.exam.hash", hash)
+                .findUnique();
+        if (question == null) {
+            return forbidden();
+        }
         Answer previousAnswer = question.getAnswer();
 
         if (previousAnswer == null) {
@@ -410,11 +421,14 @@ public class StudentExamController extends BaseController {
         } else {
             optionIds = Stream.of(oids.split(",")).map(Long::parseLong).collect(Collectors.toList());
         }
-        Question question = Ebean.find(Question.class)
-                .fetch("answer")
-                .where()
+        Question question = Ebean.find(Question.class).fetch("answer").where()
                 .idEq(qid)
+                .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
+                .eq("examSectionQuestion.examSection.exam.hash", hash)
                 .findUnique();
+        if (question == null) {
+            return forbidden();
+        }
         Answer answer = question.getAnswer();
         if (answer == null) {
             answer = new Answer();

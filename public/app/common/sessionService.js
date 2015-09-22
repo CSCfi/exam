@@ -73,7 +73,7 @@
                         controller: function ($scope, $modalInstance) {
                             $scope.ok = function () {
                                 // OK button
-                                userRes().updateAgreementAccepted.update({id: user.id}, function () {
+                                userRes().updateAgreementAccepted.update(function () {
                                     user.userAgreementAccepted = true;
                                     setUser(user);
                                 }, function (error) {
