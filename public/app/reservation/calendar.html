@@ -7,14 +7,6 @@
 
 <div id='sitnet-calendar' class='base' ng-controller='CalendarCtrl'>
 
-    <div class='row'>
-
-        <div class="col-md-1"><i ng-click="prevMonth()" class="fa fa-2x fa-caret-square-o-left"></i></div>
-        <div class="col-md-2">{{selectedMonth.display}}</div>
-        <div class="col-md-1"><i ng-click="nextMonth()" class="fa fa-2x fa-caret-square-o-right"></i></div>
-
-    </div>
-
     <div class="row">
         <div class="col-md-12">
 
@@ -53,15 +45,8 @@
 
     <p>{{ selectedRoomsString }}</p>
 
-    <div class="row">
-        <div class="col-md-12">
-            <ul class="reservationRow">
-                <li ng-repeat='(date, slots) in daySlots'>
-                    <span class="date">{{formatDate(date)}}</span>
-                    <span ng-repeat='slot in slots' class="freeTime"><a class="pointer" ng-click="createReservation(slot)">{{formatTime(slot.start)}} - {{formatTime(slot.end)}}</a></span>
-                </li>
-            </ul>
-        </div>
+    <div class="row bottom-padding-2">
+        <div class="col-md-12" id="calendar" config="calendarConfig" ng-model="eventSources" ui-calendar="calendarConfig" calendar="myCalendar"></div>
     </div>
 
 
