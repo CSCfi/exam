@@ -148,9 +148,12 @@
                                ng-click="selectAll('selectAllQuestions', 'questionToMove')" popover-placement="top"
                                popover-trigger="mouseenter" popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
                     </th>
-                    <th>{{ 'sitnet_question' | translate }}</th>
+                    <th colspan="2">{{ 'sitnet_question' | translate }}</th>
+                    <th>{{ 'sitnet_modified' | translate }}</th>
                     <th>{{ 'sitnet_max_score' | translate }}</th>
                     <th>{{ 'sitnet_question_type' | translate }}</th>
+                    <th>{{ 'sitnet_attachment' | translate }}</th>
+                    <th ng-if="user.isAdmin"> {{'sitnet_owner' | translate}}</th>
                     <th>{{ 'sitnet_copy' | translate }}</th>
                     <th>{{ 'sitnet_exam_remove' | translate }}</th>
                 </tr>
@@ -161,9 +164,19 @@
                         <input type="checkbox" class="questionToMove" value="{{question.id}}"/>
                     </td>
                     <td>
-                        <a ng-if="question.question" class="room-info-title bold-button" href="#/questions/{{question.id}}" mathjax
-                           ng-bind-html="shortText(question.question, 360)"></a>
-                        <a ng-if="!question.question" class="room-info-title bold-button text-danger" href="#/questions/{{question.id}}">{{'sitnet_no_name' | translate}}</a>
+                        <a href="#/questions/{{question.id}}">{{question.id}}</a>
+                    </td>
+
+                    <td>
+                        <span ng-if="question.question" mathjax
+                           ng-bind-html="shortText(question.question, 360)">
+                        </span>
+                        <span ng-if="!question.question" class="text-danger">
+                            {{'sitnet_no_name' | translate}}
+                        </span>
+                    </td>
+                    <td>
+                        <span ng-if="question.modified">{{question.modified | date:'dd.MM.yyyy'}}</span>
                     </td>
                     <td>
                         <span ng-if="question.evaluationType === 'Points' || question.type === 'MultipleChoiceQuestion'">{{ question.maxScore }}</span>
@@ -174,6 +187,16 @@
                         <span ng-if="question.type === 'MultipleChoiceQuestion'">{{ 'sitnet_question_mc' | translate }}</span>
                         <span ng-if="question.type === 'WeightedMultipleChoiceQuestion'">{{ 'sitnet_question_weighted_mc' | translate}}</span>
                         <span ng-if="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
+                    </td>
+                    <td ng-controller="AttachmentController">
+                        <a ng-if="question.attachment" class="pointer" ng-click="downloadQuestionAttachment(question)">{{
+                            question.attachment.fileName }}
+                        </a>
+                    </td>
+                    <td ng-if="user.isAdmin">
+                        <span>{{question.creator.firstName}} {{question.creator.lastName}}</span>
+                        <span ng-if="question.creator.userIdentifier">&nbsp;({{question.creator.userIdentifier}})</span>
+                        <span><br /><a href="mailto:{{question.creator.email}}">{{question.creator.email}}</a></span>
                     </td>
                     <td>
                         <a class="bold-button" ng-click="copyQuestion(question)"><i
@@ -186,12 +209,8 @@
                 </tr>
                 <!--Fill if page not full-->
                 <tr ng-repeat="r in [] | pagefill: filteredQuestions.length:currentPage:pageSize">
-                    <td>&nbsp;</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+                    <td colspan="9">&nbsp;</td>
+                    <td ng-if="user.isAdmin"></td>
                 </tr>
                 </tbody>
             </table>

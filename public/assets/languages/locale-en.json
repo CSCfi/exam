@@ -144,7 +144,7 @@
   "sitnet_inspection_status": "Assessment status",
   "sitnet_inspector_name": "Examiner's name",
   "sitnet_instruction": "Instructions",
-  "sitnet_library": "Question bank",
+  "sitnet_library": "Question drafts",
   "sitnet_logged_out": "You have logged out. Please close the browser window",
   "sitnet_logging_out": "Logging out",
   "sitnet_login": "Log in",
@@ -196,7 +196,6 @@
   "sitnet_question_write_name": "Write the assignment here",
   "sitnet_questions": "Questions",
   "sitnet_questions_all": "All questions",
-  "sitnet_questions_bank": "Question bank",
   "sitnet_questions_edit": "Edit question",
   "sitnet_questions_new": "New question",
   "sitnet_questions_owners_list": "My questions",
@@ -693,5 +692,8 @@
   "sitnet_total_no_shows": "No-show-tapauksia yhteensä EN",
   "sitnet_exam_responses": "Suoritukset EN",
   "sitnet_assessed_exams": "Arvioidut EN",
-  "sitnet_unassessed_exams": "Arvioimattomat EN"
+  "sitnet_unassessed_exams": "Arvioimattomat EN",
+  "sitnet_modified": "Muokattu EN",
+  "sitnet_attachment": "Liite EN",
+  "sitnet_owner": "Omistaja EN"
 }

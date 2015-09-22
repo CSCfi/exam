@@ -18,6 +18,8 @@
                 $scope.filter = {};
                 $scope.moreQuestions = false;
 
+                $scope.user = sessionService.getUser();
+
                 var htmlDecode = function (text) {
                     return $('<div/>').html(text).text();
                 };

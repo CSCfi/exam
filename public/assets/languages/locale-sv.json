@@ -144,7 +144,7 @@
   "sitnet_inspection_status": "Utvärderingens status",
   "sitnet_inspector_name": "Utvärderarens namn",
   "sitnet_instruction": "Anvisningar",
-  "sitnet_library": "Frågebank",
+  "sitnet_library": "Frågeutkast",
   "sitnet_logged_out": "Du har loggat ut. Kom ihåg att stänga detta fönster",
   "sitnet_logging_out": "Utloggning",
   "sitnet_login": "Logga in",
@@ -196,7 +196,6 @@
   "sitnet_question_write_name": "Skriv anvisningen för uppgiften här",
   "sitnet_questions": "Frågor",
   "sitnet_questions_all": "Alla frågor",
-  "sitnet_questions_bank": "Frågebank",
   "sitnet_questions_edit": "Redigera fråga",
   "sitnet_questions_new": "Ny fråga",
   "sitnet_questions_owners_list": "Mina frågor",
@@ -694,5 +693,8 @@
   "sitnet_total_no_shows": "No-show-tapauksia yhteensä SV",
   "sitnet_exam_responses": "Suoritukset SV",
   "sitnet_assessed_exams": "Arvioidut SV",
-  "sitnet_unassessed_exams": "Arvioimattomat SV"
+  "sitnet_unassessed_exams": "Arvioimattomat SV",
+  "sitnet_modified": "Muokattu SV",
+  "sitnet_attachment": "Liite SV",
+  "sitnet_owner": "Omistaja SV"
 }

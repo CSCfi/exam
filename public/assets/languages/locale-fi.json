@@ -144,7 +144,7 @@
   "sitnet_inspection_status": "Arvioinnin tilanne",
   "sitnet_inspector_name": "Arvioijan nimi",
   "sitnet_instruction": "Ohjeistus",
-  "sitnet_library": "Kysymyspankki",
+  "sitnet_library": "Kysymysluonnokset",
   "sitnet_logged_out": "Olet kirjautunut ulos. Muista sulkea selainikkuna",
   "sitnet_logging_out": "Uloskirjautuminen",
   "sitnet_login": "Kirjaudu sisään",
@@ -196,7 +196,6 @@
   "sitnet_question_write_name": "Kirjoita tehtävänanto tähän",
   "sitnet_questions": "Kysymykset",
   "sitnet_questions_all": "Kaikki kysymykset",
-  "sitnet_questions_bank": "Kysymyspankki",
   "sitnet_questions_edit": "Muokkaa kysymystä",
   "sitnet_questions_new": "Uusi kysymys",
   "sitnet_questions_owners_list": "Omat kysymykset",
@@ -693,5 +692,8 @@
   "sitnet_total_no_shows": "No-show-tapauksia yhteensä",
   "sitnet_exam_responses": "Suoritukset",
   "sitnet_assessed_exams": "Arvioidut",
-  "sitnet_unassessed_exams": "Arvioimattomat"
+  "sitnet_unassessed_exams": "Arvioimattomat",
+  "sitnet_modified": "Muokattu",
+  "sitnet_attachment": "Liite",
+  "sitnet_owner": "Omistaja"
 }
