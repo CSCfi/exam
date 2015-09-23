@@ -1,52 +1,150 @@
+<script>
+    $(document).ready(function () {
+
+        /*
+         * Clamped-width.
+         * Usage:
+         *  <div data-clampedwidth=".myParent">This long content will force clamped width</div>
+         *
+         * Author: LV
+         */
+        $('[data-clampedwidth]').each(function () {
+            var elem = $(this);
+            var parentPanel = elem.data('clampedwidth');
+            var resizeFn = function () {
+                var affixWidth = $(parentPanel).width() - parseInt(elem.css('paddingLeft')) - parseInt(elem.css('paddingRight')) - parseInt(elem.css('marginLeft')) - parseInt(elem.css('marginRight')) - parseInt(elem.css('borderLeftWidth')) - parseInt(elem.css('borderRightWidth'));
+                elem.css('width', affixWidth);
+            };
+
+            resizeFn();
+            $(window).resize(resizeFn);
+        });
+
+
+        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
+            e.stopPropagation();
+        });
+
+        $('.disabled li').click(function (e) {
+            e.stopPropagation();
+        });
+
+    });
+</script>
+
 <div id='sitnet-header' class='header'>
-    <div class='col-md-8 header-wrapper'>
+    <div class='col-md-12 header-wrapper'>
         <span class='header-text'>{{'sitnet_calendar' | translate}}</span>
     </div>
 </div>
 
 
-<div id='sitnet-calendar' class='base' ng-controller='CalendarCtrl'>
+<div id='dashboard' ng-controller='CalendarCtrl'>
 
-    <div class="row">
-        <div class="col-md-12">
-
-        <ul class="inline-list">
-            <li>
-                <button ng-repeat='room in rooms' type='button' ng-click="selectRoom(room)"
-                        ng-class="room.selected ? 'selected' : '' " class='btn btn-white btn-xs'>{{room.name}}
-                </button>
-                    <p ng-show="room.outOfService" class="note">{{'sitnet_room_out_of_service' | translate}} {{room.statusComment}}</p>
-            </li>
-        </ul>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            {{ 'sitnet_room_accessibility_info' | translate }}
-            <ul class="inline-list">
-                <li>
-                    <button ng-repeat='accessibility in accessibilities' type='button'
-                            ng-click="selectAccessibility(accessibility)"
-                            ng-class="accessibility.selected ? 'selected' : '' " class='btn btn-white btn-xs'>
-                        {{accessibility.name}}
-                    </button>
+    <div class="top-row">
+        <div class="col-md-6">
+            <h4>{{ examInfo.course.code }} - {{ examInfo.name }}</h4>
+            <ul>
+                <li><strong>{{'sitnet_exam_time' | translate}}:&nbsp;</strong>{{ printExamDuration(examInfo) }}</li>
+                <li><strong>{{'sitnet_exam_validity' | translate}}:&nbsp;</strong>
+                    {{ examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} - {{examInfo.examActiveEndDate |
+                    date:'dd.MM.yyyy' }}
                 </li>
             </ul>
         </div>
-    </div>
+        <div class="col-md-6" ng-if="examInfo.enrollInstruction">
+            <h4>{{ 'sitnet_instruction' | translate }}</h4>
 
-    <div class="row">
-        <div class="col-md-12">
-            {{ 'sitnet_instruction' | translate }}:
-            <p mathjax ng-bind-html="reservationInstructions"></p>
+            <p mathjax ng-bind-html="examInfo.enrollInstruction"></p>
         </div>
     </div>
 
-    <p>{{ selectedRoomsString }}</p>
+    <!-- FILTERS -->
+    <div class="detail-row">
+        <div class="col-md-3">
+            <label for="filters">{{'sitnet_search' | translate}}</label>
 
-    <div class="row bottom-padding-2">
-        <div class="col-md-12" id="calendar" config="calendarConfig" ng-model="eventSources" ui-calendar="calendarConfig" calendar="myCalendar"></div>
+            <div id="filters" class="form-group">
+                <span class="dropdown" dropdown>
+                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                            data-toggle="dropdown" aria-expanded="true">
+                        {{'sitnet_room' | translate}}&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                        aria-labelledby="dropDownMenu1">
+                        <li role="presentation" class="input-group">
+                            <input ng-model="limitations.rooms" type="text" class="form-control"
+                                   placeholder="{{'sitnet_search' | translate }}">
+
+                            <div class="input-group-addon">
+                                <i class="fa fa-search fa-fw"></i>
+                            </div>
+                        </li>
+                        <li ng-repeat="room in rooms | filter:limitations.rooms" ng-hide="room.filtered"
+                            role="presentation" ng-class="room.outOfService ? 'disabled' : ''"
+                            ng-click="selectRoom(room)">
+                            <a role="menuitem" popover-trigger="mouseenter" popover="{{getDescription(room)}}">{{room.name
+                                | truncate:30}}</a>
+                        </li>
+                    </ul>
+                </span>
+                <span class="dropdown" dropdown>
+                    <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                            data-toggle="dropdown" aria-expanded="true">
+                        {{'sitnet_room_accessibility_info' | translate}}&nbsp;<span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
+                        aria-labelledby="dropDownMenu2">
+                        <li role="presentation" class="input-group">
+                            <input ng-model="limitations.accessibilities" type="text" class="form-control"
+                                   placeholder="{{'sitnet_search' | translate }}">
+
+                            <div class="input-group-addon">
+                                <i class="fa fa-search fa-fw"></i>
+                            </div>
+                        </li>
+                        <li ng-repeat="accessibility in accessibilities | filter:limitations.accessibilities"
+                            ng-hide="accessibility.filtered"
+                            role="presentation"
+                            ng-click="selectAccessibility(accessibility)">
+                            <a role="menuitem">{{accessibility.name | truncate:30}}</a>
+                        </li>
+                    </ul>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCESSIBILITY LIMITATIONS SELECTED -->
+    <div class="detail-row" ng-show="selectedAccessibilities().length > 0">
+        <ul class="inline-list">
+            <li>
+                <button ng-repeat='accessibility in selectedAccessibilites()' type='button'
+                        ng-click="selectAccessibility(accessibility)"
+                        class="btn btn-primary btn-xs" style="margin: 0.2em">
+                    {{accessibility.name}}
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- SELECTED ROOM  -->
+    <div class="bottom-row" ng-show="selectedRoom()">
+        <h4 class="col-md-12">{{ selectedRoom().name }}</h4>
+        <span class="col-md-12" ng-show="getRoomAccessibility()">
+            <strong>{{'sitnet_room_accessibility' | translate}}:</strong>&nbsp;
+            {{getRoomAccessibility()}}
+        </span>
+        <span class="col-md-12" ng-show="getRoomInstructions()">
+            <strong>{{'sitnet_instructions' | translate }}:</strong>&nbsp;
+            {{getRoomInstructions()}}
+        </span>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="bottom-row" ng-show="selectedRoom()">
+        <div class="col-md-12" id="calendar" config="calendarConfig" ng-model="eventSources"
+             ui-calendar="calendarConfig" calendar="myCalendar"></div>
     </div>
 
 

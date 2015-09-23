@@ -18,10 +18,10 @@
     <!-- toolbar -->
     <div class="main-row">
         <div class="col-md-12">
-        <span class="pull-left fa-stack fa-lg header-top-icon">
-            <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-            <i class="fa sitnet-white fa-list-ol fa-stack-1x"></i>
-        </span>
+            <span class="pull-left fa-stack fa-lg header-top-icon">
+                <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                <i class="fa sitnet-white fa-list-ol fa-stack-1x"></i>
+            </span>
             <div class="dropdown" dropdown>
                 <a dropdown-toggle class="header-top-link dropdown-toggle" data-toggle="dropdown">
                     {{'sitnet_toolbar_new_question' | translate}}
@@ -30,7 +30,8 @@
                     <li role="presentation">
                         <a role="menuitem" ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question'
                             | translate}}</a>
-                        <a role="menuitem" ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' |
+                        <a role="menuitem" ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question'
+                            |
                             translate}}</a>
                         <a role="menuitem" ng-click="createQuestion('WeightedMultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_weighted_multiplechoice_question'
                             | translate}}</a>
@@ -61,7 +62,8 @@
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
                         </li>
-                        <li ng-repeat="course in courses | filter:limitations.courses" ng-hide='course.filtered' role="presentation"
+                        <li ng-repeat="course in courses | filter:limitations.courses" ng-hide='course.filtered'
+                            role="presentation"
                             ng-click="applyFilter(course)">
                             <a role="menuitem">{{course.name | truncate:30}}</a>
                         </li>
@@ -82,7 +84,8 @@
                                 <i class="fa fa-search fa-fw"></i>
                             </div>
                         </li>
-                        <li ng-repeat="exam in exams | filter:limitations.exams" ng-hide='exam.filtered' role="presentation"
+                        <li ng-repeat="exam in exams | filter:limitations.exams" ng-hide='exam.filtered'
+                            role="presentation"
                             ng-click="applyFilter(exam)">
                             <a role="menuitem">{{exam.name | truncate:30}}</a>
                         </li>
@@ -114,6 +117,7 @@
         </div>
         <div class="col-md-4">
             <label for="freesearch">&nbsp;</label>
+
             <div id="freesearch" class="form-group input-group">
                 <input ng-change="applyFreeSearchFilter()" ng-model="filter.text" type="text" class="form-control"
                        placeholder="{{'sitnet_search' | translate }}">
@@ -123,7 +127,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4" />
+        <div class="col-md-4"/>
     </div>
     <div class="detail-row content-group">
         <div class="col-md-12 row">
@@ -169,7 +173,7 @@
 
                     <td>
                         <span ng-if="question.question" mathjax
-                           ng-bind-html="shortText(question.question, 360)">
+                              ng-bind-html="shortText(question.question, 360)">
                         </span>
                         <span ng-if="!question.question" class="text-danger">
                             {{'sitnet_no_name' | translate}}
@@ -196,7 +200,7 @@
                     <td ng-if="user.isAdmin">
                         <span>{{question.creator.firstName}} {{question.creator.lastName}}</span>
                         <span ng-if="question.creator.userIdentifier">&nbsp;({{question.creator.userIdentifier}})</span>
-                        <span><br /><a href="mailto:{{question.creator.email}}">{{question.creator.email}}</a></span>
+                        <span><br/><a href="mailto:{{question.creator.email}}">{{question.creator.email}}</a></span>
                     </td>
                     <td>
                         <a class="bold-button" ng-click="copyQuestion(question)"><i
@@ -243,7 +247,8 @@
             </div>
         </div>
         <div class="col-md-2 bottom-padding-2">
-            <input type="button" class="btn btn-primary" ng-disabled="ownerProcess" ng-click="moveSelected()" value="{{'sitnet_change_owner' | translate}}"/>
+            <input type="button" class="btn btn-primary" ng-disabled="ownerProcess" ng-click="moveSelected()"
+                   value="{{'sitnet_change_owner' | translate}}"/>
         </div>
     </div>
 </div>

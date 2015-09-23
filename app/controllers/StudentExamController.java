@@ -59,6 +59,21 @@ public class StudentExamController extends BaseController {
     }
 
     @Restrict({@Group("STUDENT")})
+    public Result getExam(Long eid) {
+        Exam exam = Ebean.find(Exam.class).fetch("course", "code")
+                .where()
+                .idEq(eid)
+                .eq("state", Exam.State.PUBLISHED)
+                .eq("examEnrolments.user", getLoggedUser())
+                .findUnique();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        return ok(exam);
+    }
+
+
+    @Restrict({@Group("STUDENT")})
     public Result getFinishedExams(Long uid) {
         User user = getLoggedUser();
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)

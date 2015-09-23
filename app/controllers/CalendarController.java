@@ -9,8 +9,6 @@ import exceptions.NotFoundException;
 import models.*;
 import models.api.CountsAsTrial;
 import org.joda.time.*;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 import play.libs.Json;
@@ -28,9 +26,6 @@ import java.util.stream.Collectors;
 
 
 public class CalendarController extends BaseController {
-
-    private static final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyyZZ");
-    private static final DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
 
     @Inject
     protected EmailComposer emailComposer;
@@ -124,8 +119,8 @@ public class CalendarController extends BaseController {
                 aids.add(it.next().asInt());
             }
         }
-        DateTime start = DateTime.parse(json.get("start").asText(), dateTimeFormat);
-        DateTime end = DateTime.parse(json.get("end").asText(), dateTimeFormat);
+        DateTime start = DateTime.parse(json.get("start").asText(), ISODateTimeFormat.dateTimeParser());
+        DateTime end = DateTime.parse(json.get("end").asText(), ISODateTimeFormat.dateTimeParser());
         if (start.isBeforeNow() || end.isBefore(start)) {
             return badRequest("invalid dates");
         }
@@ -302,7 +297,7 @@ public class CalendarController extends BaseController {
         LocalDate examEndDate = new LocalDate(exam.getExamActiveEndDate());
         LocalDate examStartDate = new LocalDate(exam.getExamActiveStartDate());
         LocalDate now = LocalDate.now();
-        LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, dateFormat);
+        LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, ISODateTimeFormat.dateParser());
         searchDate = searchDate.withDayOfWeek(1);
         if (searchDate.isBefore(now)) {
             searchDate = now;
