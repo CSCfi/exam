@@ -9,6 +9,7 @@ import com.icegreen.greenmail.util.ServerSetup;
 import com.typesafe.config.ConfigFactory;
 import models.*;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,7 +18,6 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 import javax.mail.internet.MimeMessage;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -67,9 +67,11 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
-                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
+                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
         assertThat(result.status()).isEqualTo(200);
+
+        //boolean.dateTime()SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
 
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
@@ -107,8 +109,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
-                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
+                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -154,8 +156,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
-                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
+                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
@@ -189,8 +191,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
-                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
+                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
         assertThat(result.status()).isEqualTo(400);
 
         // Verify
@@ -209,8 +211,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
-                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
+                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
         assertThat(result.status()).isEqualTo(400);
 
         // Verify
@@ -235,8 +237,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/calendar/reservation",
                 Json.newObject().put("roomId", room.getId())
                         .put("examId", exam.getId())
-                        .put("start", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
-                        .put("end", new SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(end)));
+                        .put("start", ISODateTimeFormat.dateTime().print(start.getTime()))
+                        .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
 
