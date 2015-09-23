@@ -85,6 +85,7 @@ GET           /exam/:eid/attachments                                 controllers
 GET           /examtypes                                             controllers.ExamController.getExamTypes
 GET           /gradescales                                           controllers.ExamController.getExamGradeScales
 
+GET           /student/exam/:eid                                     controllers.StudentExamController.getExam(eid: Long)
 GET           /student/exams                                         controllers.StudentExamController.listAvailableExams(filter: play.libs.F.Option[String])
 GET           /student/inspectors/exam/:id                           controllers.StudentExamController.getExamInspectors(id: Long)
 GET           /student/finishedexams/:uid                            controllers.StudentExamController.getFinishedExams(uid: Long)
@@ -95,7 +96,6 @@ GET           /student/doexam/:hash                                  controllers
 GET           /enrolments                                            controllers.StudentExamController.getEnrolmentsForUser
 GET           /enrolments/:eid                                       controllers.StudentExamController.getEnrolment(eid: Long)
 PUT           /enrolments/:eid                                       controllers.EnrollController.updateEnrolment(eid: Long)
-GET           /student/exams/:eid                                    controllers.StudentExamController.getReservationInstructions(eid: Long)
 
 POST          /student/exams/:hash/question/:qid/option/:oids        controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long, oids: String)
 POST          /student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)

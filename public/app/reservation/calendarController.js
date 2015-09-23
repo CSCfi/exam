@@ -1,12 +1,18 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'sessionService',
+        .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'dateService',
             '$locale', 'StudentExamRes', 'dialogs', 'CalendarRes', 'uiCalendarConfig',
-            function ($scope, $http, $location, $translate, $modal, $routeParams, sessionService, $locale, StudentExamRes, dialogs, CalendarRes, uiCalendarConfig) {
+            function ($scope, $http, $location, $translate, $modal, $routeParams, dateService, $locale, StudentExamRes, dialogs, CalendarRes, uiCalendarConfig) {
+
+                $scope.limitations = {};
+                $scope.rooms = [];
+                $scope.accessibilities = [];
 
                 $scope.events = [];
                 $scope.eventSources = [$scope.events];
+
+                $scope.examInfo = StudentExamRes.examInfo.get({eid: $routeParams.id});
 
                 $scope.calendarConfig = {
                     aspectRatio: 3,
@@ -15,18 +21,20 @@
                     selectHelper: false,
                     defaultView: 'agendaWeek',
                     allDaySlot: false,
-                    weekNumbers: true,
+                    weekNumbers: false,
                     firstDay: 1,
                     timezone: 'local',
                     timeFormat: 'H:mm',
                     columnFormat: 'ddd D.M',
                     titleFormat: 'D.M.YYYY',
                     slotLabelFormat: 'H:mm',
+                    slotEventOverlap: false,
                     buttonText: {
                         today: $translate.instant('sitnet_today')
                     },
-                    minTime: '06:00:00',
-                    maxTime: '19:00:00',
+                    minTime: '00:00:00',
+                    maxTime: '24:00:00',
+                    scrollTime: '08:00:00',
                     header: {
                         left: '',
                         center: 'title',
@@ -47,25 +55,28 @@
                         $(this).css('border-color', 'green');
                         $(this).css('background-color', 'green');
                     },
-                    eventRender: function(event, element) {
-                        element.attr('title', 'make reservation for ' + event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
+                    eventRender: function (event, element) {
+                        element.attr('title', $translate.instant('sitnet_new_reservation') + " " +
+                            event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
                     }
                 };
 
-                var enrolmentId = $routeParams.enrolment;
-                $scope.user = sessionService.getUser();
-
-                var formatMoment = function (data) {
-                    if (data.locale) {
-                        data.locale($locale.id.substring(0, 2));
-                    }
-                    $scope.selectedMonth = {
-                        display: data.format("MMMM YYYY"),
-                        data: data
-                    };
+                $scope.selectedRoom = function () {
+                    var room = undefined;
+                    $scope.rooms.some(function (r) {
+                        if (r.filtered) {
+                            room = r;
+                            return true;
+                        }
+                    });
+                    return room;
                 };
 
-                $scope.accessibilities = [];
+                $scope.selectedAccessibilites = function () {
+                    return $scope.accessibilities.filter(function (a) {
+                        return a.filtered;
+                    });
+                };
 
                 $http.get('accessibility').success(function (data) {
                     $scope.accessibilities = data;
@@ -77,28 +88,34 @@
                     return date.add(offset, 'hour').format();
                 };
 
+                var adjustBack = function (date) {
+                    var offset = date.isDST() ? 1 : 0;
+                    return moment.utc(date.add(offset, 'hour')).format();
+                };
+
                 var refresh = function (start) {
-                    var day = start.format("DD.MM.YYYYZZ");
+                    var date = start.format();
+                    var room = $scope.selectedRoom();
                     var accessibility = $scope.accessibilities.filter(function (item) {
-                        return item.selected;
+                        return item.filtered;
                     }).map(function (item) {
                         return item.id;
                     });
-                    if ($scope.selectedRoom) {
+                    if (room) {
                         // hold the reference to event array, can't replace it with []
                         while ($scope.events.length > 0) {
                             $scope.events.pop();
                         }
                         CalendarRes.slots.query({
-                                eid: enrolmentId,
-                                rid: $scope.selectedRoom.id,
-                                day: day,
+                                eid: $routeParams.id,
+                                rid: room.id,
+                                day: date,
                                 aids: accessibility
                             },
                             function (slots) {
                                 slots.forEach(function (slot) {
                                     var event = {
-                                        title: 'FREE',
+                                        title: $translate.instant('sitnet_slot_available'),
                                         color: 'green',
                                         start: adjust(slot.start),
                                         end: adjust(slot.end)
@@ -117,13 +134,6 @@
 
                 $http.get('rooms').then(function (reply) {
                     $scope.rooms = reply.data;
-                    if ($scope.rooms) {
-                        $scope.selectRoom(reply.data[0]);
-                    }
-                });
-
-                StudentExamRes.reservationInstructions.get({"id": enrolmentId}, function (result) {
-                    $scope.reservationInstructions = result.enrollInstructions;
                 });
 
                 $scope.$on('$localeChangeSuccess', function () {
@@ -131,11 +141,14 @@
                 });
 
                 var reserve = function (start, end) {
-                    slot.examId = enrolmentId;
-                    slot.roomId = $scope.selectedRoom.id;
+                    var slot = {};
+                    slot.start = adjustBack(start);
+                    slot.end = adjustBack(end);
+                    slot.examId = $routeParams.id;
+                    slot.roomId = $scope.selectedRoom().id;
                     slot.aids = $scope.accessibilities.filter(
                         function (item) {
-                            return item.selected;
+                            return item.filtered;
                         }).map(function (item) {
                             return item.id;
                         });
@@ -150,36 +163,69 @@
                     var text = $translate.instant('sitnet_about_to_reserve') + "<br/>"
                         + start.format("DD.MM.YYYY HH:mm") + " - " + end.format("HH:mm") + " "
                         + $translate.instant('sitnet_at_room') + " "
-                        + $scope.selectedRoom.name + ".<br/>"
+                        + $scope.selectedRoom().name + ".<br/>"
                         + $translate.instant('sitnet_confirm_reservation');
                     dialogs.confirm($translate.instant('sitnet_confirm'), text).result
                         .then(function () {
-                            // TODO: check DST stuff
                             reserve(start, end);
                         });
                 };
 
                 $scope.selectAccessibility = function (accessibility) {
-                    accessibility.selected = !accessibility.selected;
+                    accessibility.filtered = !accessibility.filtered;
                     uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
                 };
 
-                $scope.selectRoom = function (room) {
-                    $scope.rooms.forEach(function (room) {
-                        delete room.selected;
-                    });
-                    room.selected = true;
-                    $scope.selectedRoom = room;
-
+                $scope.getDescription = function (room) {
                     if (room.outOfService) {
-                        $scope.selectedRoomsString = $translate.instant("sitnet_room_out_of_service") + ": " + room.statusComment;
+                        var status = room.statusComment ? ": " + room.statusComment : "";
+                        return $translate.instant("sitnet_room_out_of_service") + status;
                     }
-                    else {
-                        $scope.selectedRoomsString = $translate.instant("sitnet_display_free_time_slots") + ": " + room.name;
+                    return room.name;
+                };
+
+                $scope.getRoomAccessibility = function() {
+                    if (!$scope.selectedRoom()) {
+                        return;
                     }
-                    uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
+                    return $scope.selectedRoom().accessibility.map(function(a) {
+                        return a.name;
+                    }).join(', ');
+                };
+
+                $scope.getRoomInstructions = function () {
+                    if (!$scope.selectedRoom()) {
+                        return;
+                    }
+                    var info;
+                    switch ($translate.use()) {
+                        case "fi":
+                            info = $scope.selectedRoom().roomInstruction;
+                            break;
+                        case "sv":
+                            info = $scope.selectedRoom().roomInstructionSV;
+                            break;
+                        case "en":
+                        default:
+                            info = $scope.selectedRoom().roomInstructionEN;
+                            break;
+                    }
+                    return info;
+                };
+
+                $scope.printExamDuration = function (exam) {
+                    return dateService.printExamDuration(exam);
+                };
+
+                $scope.selectRoom = function (room) {
+                    if (!room.outOfService) {
+                        $scope.rooms.forEach(function (room) {
+                            delete room.filtered;
+                        });
+                        room.filtered = true;
+                        uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
+                    }
                 }
             }
-        ])
-    ;
+        ]);
 }());

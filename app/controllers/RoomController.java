@@ -25,7 +25,8 @@ public class RoomController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getExamRooms() {
-        ExpressionList<ExamRoom> query = Ebean.find(ExamRoom.class).fetch("examMachines").where();
+        ExpressionList<ExamRoom> query = Ebean.find(ExamRoom.class)
+                .fetch("accessibility").fetch("examMachines").where();
         if (!getLoggedUser().hasRole("ADMIN", getSession())) {
             query = query.ne("state", ExamRoom.State.INACTIVE.toString());
         }

@@ -695,5 +695,7 @@
   "sitnet_unassessed_exams": "Arvioimattomat EN",
   "sitnet_modified": "Muokattu EN",
   "sitnet_attachment": "Liite EN",
-  "sitnet_owner": "Omistaja EN"
+  "sitnet_owner": "Omistaja EN",
+  "sitnet_slot_available": "free",
+  "sitnet_room_accessibility": "Esteettömyystiedot EN"
 }

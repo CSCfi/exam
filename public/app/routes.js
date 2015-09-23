@@ -25,7 +25,7 @@
             $routeProvider.when('/exams/course/:id', { templateUrl: tmpl + 'exam/editor/exam_section_general_course_new.html', controller: 'ExamController'});
             $routeProvider.when('/exampreview/:id', { templateUrl: tmpl + 'exam/editor/exam.html', controller: 'ExamController'});
 
-            $routeProvider.when('/calendar/:enrolment?', { templateUrl: tmpl + 'reservation/calendar.html'});
+            $routeProvider.when('/calendar/:id', { templateUrl: tmpl + 'reservation/calendar.html'});
 
             $routeProvider.when('/invalid_session', { templateUrl: tmpl + 'common/invalid_session.html'});
 
