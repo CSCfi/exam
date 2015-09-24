@@ -697,5 +697,7 @@
   "sitnet_attachment": "Liite",
   "sitnet_owner": "Omistaja",
   "sitnet_slot_available": "vapaa",
-  "sitnet_room_accessibility": "Esteettömyystiedot"
+  "sitnet_room_accessibility": "Esteettömyystiedot",
+  "sitnet_own_reservation": "oma varaus",
+  "sitnet_reserved": "varattu"
 }

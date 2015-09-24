@@ -44,20 +44,30 @@
                         refresh(start);
                     },
                     eventClick: function (event) {
-                        $scope.createReservation(event.start, event.end);
+                        if (event.availableMachines > 0) {
+                            $scope.createReservation(event.start, event.end);
+                        }
                     },
                     eventMouseover: function (event, jsEvent, view) {
-                        $(this).css('background-color', 'limeGreen');
-                        $(this).css('border-color', 'limeGreen');
-                        $(this).css('cursor', 'pointer');
+                        if (event.availableMachines > 0) {
+                            $(this).css('background-color', 'paleGreen');
+                            $(this).css('border-color', 'paleGreen');
+                            $(this).css('color', '#193F19');
+                            $(this).css('cursor', 'pointer');
+                        }
                     },
                     eventMouseout: function (event, jsEvent, view) {
-                        $(this).css('border-color', 'green');
-                        $(this).css('background-color', 'green');
+                        if (event.availableMachines > 0) {
+                            $(this).css('color', 'white');
+                            $(this).css('border-color', '#193F19');
+                            $(this).css('background-color', '#193F19');
+                        }
                     },
                     eventRender: function (event, element) {
-                        element.attr('title', $translate.instant('sitnet_new_reservation') + " " +
-                            event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
+                        if (event.availableMachines > 0) {
+                            element.attr('title', $translate.instant('sitnet_new_reservation') + " " +
+                                event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
+                        }
                     }
                 };
 
@@ -93,6 +103,26 @@
                     return moment.utc(date.add(offset, 'hour')).format();
                 };
 
+                var getTitle = function (slot) {
+                    if (slot.availableMachines > 0) {
+                        return $translate.instant('sitnet_slot_available') + ' (' + slot.availableMachines + ')';
+                    }
+                    if (slot.availableMachines < 0) {
+                        return slot.conflictingExam || $translate.instant('sitnet_own_reservation');
+                    }
+                    return $translate.instant('sitnet_reserved');
+                };
+
+                var getColor = function (slot) {
+                    if (slot.availableMachines < 0) {
+                        return 'orangeRed';
+                    }
+                    if (slot.availableMachines > 0) {
+                        return '#193F19';
+                    }
+                    return 'grey';
+                };
+
                 var refresh = function (start) {
                     var date = start.format();
                     var room = $scope.selectedRoom();
@@ -115,10 +145,11 @@
                             function (slots) {
                                 slots.forEach(function (slot) {
                                     var event = {
-                                        title: $translate.instant('sitnet_slot_available'),
-                                        color: 'green',
+                                        title: getTitle(slot),
+                                        color: getColor(slot),
                                         start: adjust(slot.start),
-                                        end: adjust(slot.end)
+                                        end: adjust(slot.end),
+                                        availableMachines: slot.availableMachines
                                     };
                                     $scope.events.push(event);
                                 });
@@ -184,11 +215,11 @@
                     return room.name;
                 };
 
-                $scope.getRoomAccessibility = function() {
+                $scope.getRoomAccessibility = function () {
                     if (!$scope.selectedRoom()) {
                         return;
                     }
-                    return $scope.selectedRoom().accessibility.map(function(a) {
+                    return $scope.selectedRoom().accessibility.map(function (a) {
                         return a.name;
                     }).join(', ');
                 };

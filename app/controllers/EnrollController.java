@@ -160,7 +160,10 @@ public class EnrollController extends BaseController {
         Exam exam = Ebean.find(Exam.class)
                 .where()
                 .eq("id", eid)
+                .disjunction()
                 .eq("state", Exam.State.PUBLISHED)
+                .eq("executionType.type", ExamExecutionType.Type.PRIVATE.toString())
+                .endJunction()
                 .eq("executionType.type", type.toString())
                 .findUnique();
         if (exam == null) {

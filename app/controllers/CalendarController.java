@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import exceptions.NotFoundException;
 import models.*;
 import models.api.CountsAsTrial;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.*;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
@@ -193,7 +195,7 @@ public class CalendarController extends BaseController {
         return ok("ok");
     }
 
-    private static ExamMachine getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end, Collection<Integer> aids) {
+    private ExamMachine getRandomMachine(ExamRoom room, Exam exam, DateTime start, DateTime end, Collection<Integer> aids) {
         List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
         Collections.shuffle(machines);
         Interval wantedTime = new Interval(start, end);
@@ -215,7 +217,7 @@ public class CalendarController extends BaseController {
         if (room == null) {
             return notFound(String.format("No room with id: (%d)", roomId));
         }
-        List<FreeTimeSlot> slots = new ArrayList<>();
+        List<TimeSlot> slots = new ArrayList<>();
         if (!room.getOutOfService() && !room.getState().equals(ExamRoom.State.INACTIVE.toString()) &&
                 isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {
             LocalDate searchDate;
@@ -226,6 +228,7 @@ public class CalendarController extends BaseController {
             }
             // users reservations starting from now
             List<Reservation> reservations = Ebean.find(Reservation.class)
+                    .fetch("enrolment.exam")
                     .where()
                     .eq("user", getLoggedUser())
                     .gt("startAt", searchDate.toDate())
@@ -234,10 +237,9 @@ public class CalendarController extends BaseController {
             List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
             LocalDate endOfSearch = getEndSearchDate(exam, searchDate);
             while (!searchDate.isAfter(endOfSearch)) {
-                List<FreeTimeSlot> freeTimeSlots = getFreeTimes(room, exam, searchDate, reservations, machines);
-                if (!freeTimeSlots.isEmpty()) {
-                    //String key = DateTimeFormat.forPattern("dd.MM.yyyy").print(searchDate);
-                    slots.addAll(freeTimeSlots);
+                Set<TimeSlot> timeSlots = getExamSlots(room, exam, searchDate, reservations, machines);
+                if (!timeSlots.isEmpty()) {
+                    slots.addAll(timeSlots);
                 }
                 searchDate = searchDate.plusDays(1);
             }
@@ -246,45 +248,60 @@ public class CalendarController extends BaseController {
     }
 
     /**
-     * Queries for available slots for given room and day
+     * Queries for slots for given room and day
      */
-    private static List<FreeTimeSlot> getFreeTimes(
+    private Set<TimeSlot> getExamSlots(
             ExamRoom room, Exam exam, LocalDate date, List<Reservation> reservations, List<ExamMachine> machines) {
 
-        List<FreeTimeSlot> freeTimes = new ArrayList<>();
-
-        List<Interval> eligibleSlots = new ArrayList<>();
+        Set<TimeSlot> slots = new LinkedHashSet<>();
         // Resolve the opening hours for room and day
         List<ExamRoom.OpeningHours> openingHours = room.getWorkingHoursForDate(date);
         if (openingHours.isEmpty()) {
-            return freeTimes;
+            return slots;
         }
-        // Check machine availability for each slot
-        for (Interval slot : allSlots(openingHours, room, date)) {
-            if (hasReservationsDuring(reservations, slot)) {
-                // User has reservations during this time
-                continue;
-            }
-            for (ExamMachine machine : machines) {
-                if (isReservedDuring(machine, slot)) {
-                    // Machine has reservations during this time
-                    continue;
-                }
-                eligibleSlots.add(slot);
-                break;
-            }
-        }
+
         // Get suitable slots based on exam duration
+        List<Interval> examSlots = new ArrayList<>();
         Integer examDuration = exam.getDuration();
-        for (Interval slot : eligibleSlots) {
+        for (Interval slot : allSlots(openingHours, room, date)) {
             DateTime beginning = slot.getStart();
             DateTime openUntil = getEndOfOpeningHours(beginning, openingHours);
             if (!beginning.plusMinutes(examDuration).isAfter(openUntil)) {
                 DateTime end = beginning.plusMinutes(examDuration);
-                freeTimes.add(new FreeTimeSlot(new Interval(beginning, end)));
+                examSlots.add(new Interval(beginning, end));
             }
         }
-        return freeTimes;
+
+        // Check reservation status and machine availability for each slot
+        for (Interval slot : examSlots) {
+            Reservation reservation = getReservationDuring(reservations, slot);
+            if (reservation != null) {
+                // User has reservations during this time, lets handle the situation
+                if (reservation.getEnrolment().getExam().equals(exam)) {
+                    // This is a reservation for the same exam, mark it as replaceable
+                    if (!reservation.toInterval().equals(slot)) {
+                        // No matching slot found in this room, add the reservation as-is.
+                        slots.add(new TimeSlot(reservation.toInterval(), -1, null));
+                    } else {
+                        // This is exactly the same slot, avoid duplicates and continue.
+                        slots.add(new TimeSlot(slot, -1, null));
+                        continue;
+                    }
+                } else {
+                    // User has a reservation to another exam, do not allow making overlapping reservations
+                    String conflictingExam = reservation.getEnrolment().getExam().getName();
+                    slots.add(new TimeSlot(reservation.toInterval(), -1, conflictingExam));
+                    continue;
+                }
+            }
+            // Check machine availability
+            int availableMachineCount = machines.stream()
+                    .filter(m -> !isReservedDuring(m, slot))
+                    .collect(Collectors.toList())
+                    .size();
+            slots.add(new TimeSlot(slot, availableMachineCount, null));
+        }
+        return slots;
     }
 
     // HELPERS -->
@@ -377,17 +394,23 @@ public class CalendarController extends BaseController {
         return intervals;
     }
 
-    private static boolean isReservedDuring(ExamMachine machine, Interval interval) {
-        return hasReservationsDuring(machine.getReservations(), interval);
-    }
-
-    private static boolean hasReservationsDuring(Collection<Reservation> reservations, Interval interval) {
-        for (Reservation reservation : reservations) {
-            if (interval.overlaps(reservation.toInterval())) {
+    private boolean isReservedDuring(ExamMachine machine, Interval interval) {
+        for (Reservation reservation : machine.getReservations()) {
+            // Do not take into account reservations that are from the logged user, he should be allowed to change the slot
+            if (interval.overlaps(reservation.toInterval()) && !reservation.getUser().equals(getLoggedUser())) {
                 return true;
             }
         }
         return false;
+    }
+
+    private static Reservation getReservationDuring(Collection<Reservation> reservations, Interval interval) {
+       for (Reservation reservation : reservations) {
+            if (interval.overlaps(reservation.toInterval())) {
+                return reservation;
+            }
+        }
+        return null;
     }
 
     private static List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Integer> access, Exam exam) {
@@ -472,14 +495,20 @@ public class CalendarController extends BaseController {
         throw new RuntimeException("slot not contained within opening hours, recheck logic!");
     }
 
-
-    private static class FreeTimeSlot {
+    // DTO aimed for clients
+    private static class TimeSlot {
         private final String start;
         private final String end;
+        private final int availableMachines;
+        private final boolean ownReservation;
+        private final String conflictingExam;
 
-        public FreeTimeSlot(Interval interval) {
+        public TimeSlot(Interval interval, int machineCount, String exam) {
             start = ISODateTimeFormat.dateTime().print(interval.getStart());
             end = ISODateTimeFormat.dateTime().print(interval.getEnd());
+            availableMachines = machineCount;
+            ownReservation = machineCount < 0;
+            conflictingExam = exam;
         }
 
         public String getStart() {
@@ -488,6 +517,31 @@ public class CalendarController extends BaseController {
 
         public String getEnd() {
             return end;
+        }
+
+        public int getAvailableMachines() {
+            return availableMachines;
+        }
+
+        public boolean isOwnReservation() {
+            return ownReservation;
+        }
+
+        public String getConflictingExam() {
+            return conflictingExam;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof TimeSlot)) return false;
+            TimeSlot timeSlot = (TimeSlot) o;
+            return new EqualsBuilder().append(start, timeSlot.start).append(end, timeSlot.end).build();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder().append(start).append(end).build();
         }
     }
 

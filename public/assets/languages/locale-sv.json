@@ -698,5 +698,7 @@
   "sitnet_attachment": "Liite SV",
   "sitnet_owner": "Omistaja SV",
   "sitnet_slot_available": "ledig",
-  "sitnet_room_accessibility": "Esteettömyystiedot SV"
+  "sitnet_room_accessibility": "Esteettömyystiedot SV",
+  "sitnet_own_reservation": "egen bokning",
+  "sitnet_reserved": "fullbokad"
 }
