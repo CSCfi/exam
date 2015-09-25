@@ -216,16 +216,15 @@ public class EmailComposerImpl implements EmailComposer {
         MailAddress address = room.getMailAddress();
         String addressString = address == null ? null :
                 String.format("%s, %s  %s", address.getStreet(), address.getZip(), address.getCity());
-        ICalendar iCal = createReservationEvent(lang, startDate, endDate, buildingInfo, roomName, machineName,
-                addressString);
+        ICalendar iCal = createReservationEvent(lang, startDate, endDate, addressString, buildingInfo, roomName, machineName);
         File file = File.createTempFile("reservation", ".ics");
         Biweekly.write(iCal).go(file);
         Attachment attachment = new Attachment(Messages.get(lang, "ical.reservation.filename", ".ics"), file);
         emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
     }
 
-    private ICalendar createReservationEvent(Lang lang, DateTime start, DateTime end, String... locationParts) {
-        List<String> locations = Stream.of(locationParts)
+    private ICalendar createReservationEvent(Lang lang, DateTime start, DateTime end, String address, String... placeInfo) {
+        List<String> info = Stream.of(placeInfo)
                 .filter(s -> s != null && !s.isEmpty())
                 .collect(Collectors.toList());
         ICalendar iCal = new ICalendar();
@@ -235,7 +234,8 @@ public class EmailComposerImpl implements EmailComposer {
         summary.setLanguage(lang.code());
         event.setDateStart(start.toDate());
         event.setDateEnd(end.toDate());
-        event.setLocation(String.join(", ", locations));
+        event.setLocation(address);
+        event.setDescription(Messages.get(lang, "ical.reservation.room.info", String.join(", ", info)));
         iCal.addEvent(event);
         return iCal;
     }

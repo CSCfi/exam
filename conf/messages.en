@@ -52,4 +52,5 @@ email.template.noshow.subject=Opiskelija ei saapunut henkilökohtaiseen tenttiin
 email.template.noshow.message=Opiskelija {0} ei käyttänyt tenttiin {1} varaamaansa aikaa, no-show. EN
 ical.reservation.summary=Exam booking
 ical.reservation.filename=examBooking{0}
+ical.reservation.room.info=Place information: {0}
 

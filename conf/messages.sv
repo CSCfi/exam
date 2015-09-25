@@ -52,5 +52,5 @@ email.template.noshow.subject=Opiskelija ei saapunut henkilökohtaiseen tenttiin
 email.template.noshow.message=Opiskelija {0} ei käyttänyt tenttiin {1} varaamaansa aikaa, no-show. SV
 ical.reservation.summary=Tentbokning
 ical.reservation.filename=tentbokning{0}
-
+ical.reservation.room.info=Platsinformation: {0}
 
