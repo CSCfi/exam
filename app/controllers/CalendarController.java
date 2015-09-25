@@ -200,7 +200,7 @@ public class CalendarController extends BaseController {
         Collections.shuffle(machines);
         Interval wantedTime = new Interval(start, end);
         for (ExamMachine machine : machines) {
-            if (!isReservedDuring(machine, wantedTime)) {
+            if (!isReservedDuring(machine, wantedTime, false)) {
                 return machine;
             }
         }
@@ -274,11 +274,20 @@ public class CalendarController extends BaseController {
 
         // Check reservation status and machine availability for each slot
         for (Interval slot : examSlots) {
-            Reservation reservation = getReservationDuring(reservations, slot);
-            if (reservation != null) {
-                // User has reservations during this time, lets handle the situation
-                if (reservation.getEnrolment().getExam().equals(exam)) {
-                    // This is a reservation for the same exam, mark it as replaceable
+            List<Reservation> conflicting = getReservationsDuring(reservations, slot);
+            if (!conflicting.isEmpty()) {
+                Optional<Reservation> concernsAnotherExam = conflicting.stream()
+                        .filter(c -> !c.getEnrolment().getExam().equals(exam))
+                        .findFirst();
+                if (concernsAnotherExam.isPresent()) {
+                    // User has a reservation to another exam, do not allow making overlapping reservations
+                    Reservation reservation = concernsAnotherExam.get();
+                    String conflictingExam = reservation.getEnrolment().getExam().getName();
+                    slots.add(new TimeSlot(reservation.toInterval(), -1, conflictingExam));
+                    continue;
+                } else {
+                    // User has an existing reservation to this exam
+                    Reservation reservation = conflicting.get(0);
                     if (!reservation.toInterval().equals(slot)) {
                         // No matching slot found in this room, add the reservation as-is.
                         slots.add(new TimeSlot(reservation.toInterval(), -1, null));
@@ -287,16 +296,11 @@ public class CalendarController extends BaseController {
                         slots.add(new TimeSlot(slot, -1, null));
                         continue;
                     }
-                } else {
-                    // User has a reservation to another exam, do not allow making overlapping reservations
-                    String conflictingExam = reservation.getEnrolment().getExam().getName();
-                    slots.add(new TimeSlot(reservation.toInterval(), -1, conflictingExam));
-                    continue;
                 }
             }
             // Check machine availability
             int availableMachineCount = machines.stream()
-                    .filter(m -> !isReservedDuring(m, slot))
+                    .filter(m -> !isReservedDuring(m, slot, true))
                     .collect(Collectors.toList())
                     .size();
             slots.add(new TimeSlot(slot, availableMachineCount, null));
@@ -394,23 +398,15 @@ public class CalendarController extends BaseController {
         return intervals;
     }
 
-    private boolean isReservedDuring(ExamMachine machine, Interval interval) {
-        for (Reservation reservation : machine.getReservations()) {
-            // Do not take into account reservations that are from the logged user, he should be allowed to change the slot
-            if (interval.overlaps(reservation.toInterval()) && !reservation.getUser().equals(getLoggedUser())) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isReservedDuring(ExamMachine machine, Interval interval, boolean excludeOwn) {
+        return machine.getReservations().stream()
+                .anyMatch(r -> interval.overlaps(r.toInterval()) &&
+                        (!excludeOwn && r.getUser().equals(getLoggedUser()))
+                );
     }
 
-    private static Reservation getReservationDuring(Collection<Reservation> reservations, Interval interval) {
-       for (Reservation reservation : reservations) {
-            if (interval.overlaps(reservation.toInterval())) {
-                return reservation;
-            }
-        }
-        return null;
+    private static List<Reservation> getReservationsDuring(Collection<Reservation> reservations, Interval interval) {
+        return reservations.stream().filter(r -> interval.overlaps(r.toInterval())).collect(Collectors.toList());
     }
 
     private static List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Integer> access, Exam exam) {

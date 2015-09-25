@@ -90,6 +90,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(body).contains("You have booked an exam time");
         assertThat(body).contains("information in English here");
         assertThat(body).contains(room.getName());
+        assertThat(GreenMailUtil.hasNonTextAttachments(mails[0])).isTrue();
     }
 
     @Test
@@ -130,6 +131,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(body).contains("You have booked an exam time");
         assertThat(body).contains("information in English here");
         assertThat(body).contains(room.getName());
+        assertThat(GreenMailUtil.hasNonTextAttachments(mails[0])).isTrue();
     }
 
     @Test
@@ -177,8 +179,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
         assertThat(body).contains("You have booked an exam time");
         assertThat(body).contains("information in English here");
         assertThat(body).contains(room.getName());
+        assertThat(GreenMailUtil.hasNonTextAttachments(mails[0])).isTrue();
     }
-
 
     @Test
     @RunAsStudent

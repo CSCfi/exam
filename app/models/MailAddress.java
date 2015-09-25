@@ -38,6 +38,6 @@ public class MailAddress extends GeneratedIdentityModel {
 
     @Override
     public String toString() {
-        return street + ", " + city + ", " + zip;
+        return street + ", " + zip + "  " + city;
     }
 }

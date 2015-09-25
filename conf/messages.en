@@ -50,3 +50,6 @@ email.template.exam.returned.subject=Henkilökohtainen tentti on palautettu EN
 email.template.exam.returned.message=Opiskelija {0} on palauttanut tentin {1} arvioitavaksi. EN
 email.template.noshow.subject=Opiskelija ei saapunut henkilökohtaiseen tenttiin EN
 email.template.noshow.message=Opiskelija {0} ei käyttänyt tenttiin {1} varaamaansa aikaa, no-show. EN
+ical.reservation.summary=Exam booking
+ical.reservation.filename=examBooking{0}
+

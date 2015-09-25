@@ -1,19 +1,26 @@
 package util.java;
 
+import biweekly.Biweekly;
+import biweekly.ICalendar;
+import biweekly.component.VEvent;
+import biweekly.property.Summary;
 import com.avaje.ebean.Ebean;
 import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import models.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
 import play.Play;
 import play.i18n.Lang;
 import play.i18n.Messages;
+import play.libs.mailer.Attachment;
 import util.AppUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -21,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EmailComposerImpl implements EmailComposer {
 
@@ -177,20 +185,13 @@ public class EmailComposerImpl implements EmailComposer {
         String reservationDate = DTF.print(startDate) + " - " + DTF.print(endDate);
         String examDuration = String.format("%dh %dmin", exam.getDuration() / 60, exam.getDuration() % 60);
 
-        String machineName = "";
-        String buildingInfo = "";
-        String roomName = "";
-        String roomInstructions = "";
         ExamMachine machine = reservation.getMachine();
-        if (machine != null) {
-            machineName = forceNotNull(machine.getName());
-            ExamRoom room = machine.getRoom();
-            if (room != null) {
-                buildingInfo = forceNotNull(room.getBuildingName());
-                roomInstructions = forceNotNull(getRoomInstruction(room, lang));
-                roomName = forceNotNull(room.getName());
-            }
-        }
+        String machineName = forceNotNull(machine.getName());
+        ExamRoom room = machine.getRoom();
+        String buildingInfo = forceNotNull(room.getBuildingName());
+        String roomInstructions = forceNotNull(getRoomInstruction(room, lang));
+        String roomName = forceNotNull(room.getName());
+
         String title = isTeacher ? Messages.get(lang, "email.template.reservation.new.student",
                 String.format("%s %s <%s>", reservation.getUser().getFirstName(),
                         reservation.getUser().getLastName(), reservation.getUser().getEmail())) :
@@ -210,7 +211,34 @@ public class EmailComposerImpl implements EmailComposer {
         stringValues.put("cancellation_link", isTeacher ? null : String.format("%s/#/", HOSTNAME));
         stringValues.put("cancellation_link_text", isTeacher ? null : Messages.get(lang, "email.template.reservation.cancel.link.text"));
         String content = replaceAll(template, stringValues);
-        emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content);
+
+        // Export as iCal format
+        MailAddress address = room.getMailAddress();
+        String addressString = address == null ? null :
+                String.format("%s, %s  %s", address.getStreet(), address.getZip(), address.getCity());
+        ICalendar iCal = createReservationEvent(lang, startDate, endDate, buildingInfo, roomName, machineName,
+                addressString);
+        File file = File.createTempFile("reservation", ".ics");
+        Biweekly.write(iCal).go(file);
+        Attachment attachment = new Attachment(Messages.get(lang, "ical.reservation.filename", ".ics"), file);
+        emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
+    }
+
+    private ICalendar createReservationEvent(Lang lang, DateTime start, DateTime end, String... locationParts) {
+        List<String> locations = Stream.of(locationParts)
+                .filter(s -> s != null && !s.isEmpty())
+                .collect(Collectors.toList());
+        ICalendar iCal = new ICalendar();
+        VEvent event = new VEvent();
+        Summary summary = event.setSummary(Messages.get(lang, "ical.reservation.summary"));
+        summary.setLanguage(lang.code());
+        long duration = new Duration(start, end).getStandardMinutes();
+        event.setDateStart(start.toDate());
+        event.setDateEnd(end.toDate());
+        event.setDuration(new biweekly.util.Duration.Builder().minutes((int) duration).build());
+        event.setLocation(String.join(", ", locations));
+        iCal.addEvent(event);
+        return iCal;
     }
 
     public void composeExamReviewRequest(User toUser, User fromUser, Exam exam, String message)
@@ -507,5 +535,4 @@ public class EmailComposerImpl implements EmailComposer {
                 return room.getRoomInstruction();
         }
     }
-
 }
