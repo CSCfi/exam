@@ -699,5 +699,7 @@
   "sitnet_slot_available": "free",
   "sitnet_room_accessibility": "Esteettömyystiedot EN",
   "sitnet_own_reservation": "own reservation",
-  "sitnet_reserved": "full"
+  "sitnet_reserved": "full",
+  "sitnet_open": "open",
+  "sitnet_closed": "closed"
 }

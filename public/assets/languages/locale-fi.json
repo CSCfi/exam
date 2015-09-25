@@ -699,5 +699,7 @@
   "sitnet_slot_available": "vapaa",
   "sitnet_room_accessibility": "Esteettömyystiedot",
   "sitnet_own_reservation": "oma varaus",
-  "sitnet_reserved": "varattu"
+  "sitnet_reserved": "varattu",
+  "sitnet_open": "avoinna",
+  "sitnet_closed": "kiinni"
 }

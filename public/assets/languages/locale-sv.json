@@ -700,5 +700,7 @@
   "sitnet_slot_available": "ledig",
   "sitnet_room_accessibility": "Esteettömyystiedot SV",
   "sitnet_own_reservation": "egen bokning",
-  "sitnet_reserved": "fullbokad"
+  "sitnet_reserved": "fullbokad",
+  "sitnet_open": "öppet",
+  "sitnet_closed": "stängt"
 }

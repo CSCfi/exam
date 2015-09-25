@@ -8,6 +8,8 @@
                 $scope.limitations = {};
                 $scope.rooms = [];
                 $scope.accessibilities = [];
+                $scope.openingHours = [];
+                $scope.exceptionHours = [];
 
                 $scope.events = [];
                 $scope.eventSources = [$scope.events];
@@ -63,10 +65,29 @@
                             $(this).css('background-color', '#193F19');
                         }
                     },
-                    eventRender: function (event, element) {
+                    eventRender: function (event, element, view) {
+                        var maxDate = moment($scope.examInfo.examActiveEndDate);
+                        if (maxDate >= view.start && maxDate <= view.end) {
+                            $(".fc-next-button").prop('disabled', true);
+                            $(".fc-next-button").addClass('fc-state-disabled');
+                        } else {
+                            $(".fc-next-button").removeClass('fc-state-disabled');
+                            $(".fc-next-button").prop('disabled', false);
+                        }
                         if (event.availableMachines > 0) {
                             element.attr('title', $translate.instant('sitnet_new_reservation') + " " +
                                 event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
+                        }
+                    },
+                    viewRender: function (view) {
+                        var minDate = moment();
+                        if (minDate >= view.start && minDate <= view.end) {
+                            $(".fc-prev-button").prop('disabled', true);
+                            $(".fc-prev-button").addClass('fc-state-disabled');
+                        }
+                        else {
+                            $(".fc-prev-button").removeClass('fc-state-disabled');
+                            $(".fc-prev-button").prop('disabled', false);
                         }
                     }
                 };
@@ -82,7 +103,7 @@
                     return room;
                 };
 
-                $scope.selectedAccessibilites = function () {
+                $scope.selectedAccessibilities = function () {
                     return $scope.accessibilities.filter(function (a) {
                         return a.filtered;
                     });
@@ -160,6 +181,7 @@
                                     toastr.error($translate.instant('sitnet_no_suitable_enrolment_found'));
                                 }
                             });
+                        $scope.exceptionHours = getExceptionHours();
                     }
                 };
 
@@ -248,6 +270,99 @@
                     return dateService.printExamDuration(exam);
                 };
 
+                // Opening & exception hours display helpers ->
+
+                var getDateForWeekday = function (ordinal) {
+                    var now = new Date();
+                    var distance = ordinal - now.getDay();
+                    return new Date(now.setDate(now.getDate() + distance));
+                };
+
+                var getWeekdayNames = function () {
+                    var lang = $translate.use();
+                    var locale = lang.toLowerCase() + "-" + lang.toUpperCase();
+                    var options = {weekday: 'short'};
+                    return {
+                        SUNDAY: {ord: 7, name: getDateForWeekday(0).toLocaleDateString(locale, options)},
+                        MONDAY: {ord: 1, name: getDateForWeekday(1).toLocaleDateString(locale, options)},
+                        TUESDAY: {ord: 2, name: getDateForWeekday(2).toLocaleDateString(locale, options)},
+                        WEDNESDAY: {ord: 3, name: getDateForWeekday(3).toLocaleDateString(locale, options)},
+                        THURSDAY: {ord: 4, name: getDateForWeekday(4).toLocaleDateString(locale, options)},
+                        FRIDAY: {ord: 5, name: getDateForWeekday(5).toLocaleDateString(locale, options)},
+                        SATURDAY: {ord: 6, name: getDateForWeekday(6).toLocaleDateString(locale, options)}
+                    };
+                };
+
+                var findOpeningHours = function (obj, items) {
+                    var found = undefined;
+                    items.some(function (item) {
+                        if (item.ref === obj.day) {
+                            found = item;
+                            return true;
+                        }
+                    });
+                    return found;
+                };
+
+                var processOpeningHours = function () {
+                    if (!$scope.selectedRoom()) {
+                        return;
+                    }
+                    var weekdayNames = getWeekdayNames();
+                    var room = $scope.selectedRoom();
+                    var openingHours = [];
+
+                    room.defaultWorkingHours.forEach(function (dwh) {
+                        if (!findOpeningHours(dwh, openingHours)) {
+                            var obj = {
+                                name: weekdayNames[dwh.day].name,
+                                ref: dwh.day,
+                                ord: weekdayNames[dwh.day].ord,
+                                periods: []
+                            };
+                            openingHours.push(obj);
+                        }
+                        var hours = findOpeningHours(dwh, openingHours);
+                        hours.periods.push(
+                            moment(dwh.startTime).format('HH:mm') + " - " +
+                            moment(dwh.endTime).format('HH:mm'));
+                    });
+                    openingHours.forEach(function (oh) {
+                        oh.periods = oh.periods.sort().join(', ');
+                    });
+                    return openingHours.sort(function (a, b) {
+                        return a.ord > b.ord;
+                    });
+                };
+
+                var formatExceptionEvent = function (event) {
+                    var startDate = moment(event.startDate);
+                    var endDate = moment(event.endDate);
+                    var offset = moment().isDST() ? -1 : 0;
+                    startDate.add(offset, 'hour');
+                    endDate.add(offset, 'hour');
+                    event.start = startDate.format('DD.MM.YYYY HH:mm');
+                    event.end = endDate.format('DD.MM.YYYY HH:mm');
+                    event.description = event.outOfService ? 'sitnet_closed' : 'sitnet_open';
+                };
+
+                var getExceptionHours = function () {
+                    if (!$scope.selectedRoom()) {
+                        return;
+                    }
+                    var room = $scope.selectedRoom();
+                    var start = moment.max(moment(),
+                        uiCalendarConfig.calendars.myCalendar.fullCalendar('getView').start);
+                    var end = uiCalendarConfig.calendars.myCalendar.fullCalendar('getView').end;
+                    var events = room.calendarExceptionEvents.filter(function (e) {
+                        return (moment(e.startDate) > start && moment(e.endDate) < end);
+                    });
+                    events.forEach(formatExceptionEvent);
+                    return events;
+                };
+
+                // <--
+
                 $scope.selectRoom = function (room) {
                     if (!room.outOfService) {
                         $scope.rooms.forEach(function (room) {
@@ -255,6 +370,7 @@
                         });
                         room.filtered = true;
                         uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
+                        $scope.openingHours = processOpeningHours();
                     }
                 }
             }

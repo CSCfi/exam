@@ -25,10 +25,6 @@
             e.stopPropagation();
         });
 
-        $('.disabled li').click(function (e) {
-            e.stopPropagation();
-        });
-
     });
 </script>
 
@@ -44,18 +40,20 @@
     <div class="main-row">
         <div class="col-md-6">
             <h4>{{ examInfo.course.code }} - {{ examInfo.name }}</h4>
+
             <div>
                 <strong>{{'sitnet_exam_time' | translate}}:&nbsp;</strong>
                 {{ printExamDuration(examInfo) }}
             </div>
             <div>
                 <strong>{{'sitnet_exam_validity' | translate}}:&nbsp;</strong>
-                    {{ examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} - {{examInfo.examActiveEndDate |
-                    date:'dd.MM.yyyy' }}
+                {{ examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} - {{examInfo.examActiveEndDate |
+                date:'dd.MM.yyyy' }}
             </div>
         </div>
         <div class="col-md-6" ng-if="examInfo.enrollInstruction">
             <h4>{{ 'sitnet_instruction' | translate }}</h4>
+
             <p mathjax ng-bind-html="examInfo.enrollInstruction"></p>
         </div>
     </div>
@@ -120,7 +118,7 @@
     <div class="detail-row" ng-show="selectedAccessibilities().length > 0">
         <ul class="inline-list">
             <li>
-                <button ng-repeat='accessibility in selectedAccessibilites()' type='button'
+                <button ng-repeat='accessibility in selectedAccessibilities()' type='button'
                         ng-click="selectAccessibility(accessibility)"
                         class="btn btn-primary btn-xs" style="margin: 0.2em">
                     {{accessibility.name}}
@@ -139,6 +137,19 @@
         <span class="col-md-12" ng-show="getRoomInstructions()">
             <strong>{{'sitnet_instructions' | translate }}:</strong>&nbsp;
             {{getRoomInstructions()}}
+        </span>
+        <span class="col-md-12">
+            <strong>{{'sitnet_room_default_working_hours' | translate }}:</strong>&nbsp;
+            <small><span ng-repeat="oh in openingHours">
+                {{oh.name}}: {{oh.periods}} {{ $last ? '' : '| ';}}
+            </span></small>
+        </span>
+        <span class="col-md-12" ng-show="exceptionHours.length > 0">
+            <strong>{{'sitnet_exception_datetimes' | translate }}:</strong>&nbsp;
+            <small><span ng-repeat="eh in exceptionHours" ng-class="eh.outOfService ? 'text-danger' : 'text-success'"
+                         popover-trigger="mouseenter" popover="{{eh.description | translate}}">
+                {{eh.start}} - {{eh.end}} {{ $last ? '' : '| ';}}
+            </span></small>
         </span>
     </div>
 
