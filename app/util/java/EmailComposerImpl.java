@@ -1,6 +1,7 @@
 package util.java;
 
 import biweekly.Biweekly;
+import biweekly.ICalVersion;
 import biweekly.ICalendar;
 import biweekly.component.VEvent;
 import biweekly.property.Summary;
@@ -10,7 +11,6 @@ import com.typesafe.config.ConfigFactory;
 import models.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import play.Logger;
@@ -229,13 +229,12 @@ public class EmailComposerImpl implements EmailComposer {
                 .filter(s -> s != null && !s.isEmpty())
                 .collect(Collectors.toList());
         ICalendar iCal = new ICalendar();
+        iCal.setVersion(ICalVersion.V2_0);
         VEvent event = new VEvent();
         Summary summary = event.setSummary(Messages.get(lang, "ical.reservation.summary"));
         summary.setLanguage(lang.code());
-        long duration = new Duration(start, end).getStandardMinutes();
         event.setDateStart(start.toDate());
         event.setDateEnd(end.toDate());
-        event.setDuration(new biweekly.util.Duration.Builder().minutes((int) duration).build());
         event.setLocation(String.join(", ", locations));
         iCal.addEvent(event);
         return iCal;
