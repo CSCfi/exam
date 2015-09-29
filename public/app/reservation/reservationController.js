@@ -85,11 +85,7 @@
                 ];
 
                 $scope.printExamState = function (enrolment) {
-                    if (moment(enrolment.reservation.endAt).isBefore(moment()) && !enrolment.exam.parent) {
-                        return "NO_SHOW";
-                    } else {
-                        return enrolment.exam.state;
-                    }
+                    return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
                 };
 
                 function initQuery() {
@@ -153,10 +149,6 @@
                     $scope.sort.order = !$scope.sort.order;
                 };
 
-                $scope.noShowFilter = function(enrolment) {
-                    var status = $scope.printExamState(enrolment);
-                    return status != "NO_SHOW";
-                };
             }
         ])
     ;
