@@ -49,6 +49,8 @@
                 <strong>{{'sitnet_exam_validity' | translate}}:&nbsp;</strong>
                 {{ examInfo.examActiveStartDate | date:'dd.MM.yyyy' }} - {{examInfo.examActiveEndDate |
                 date:'dd.MM.yyyy' }}
+                <span ng-if="showReservationWindowInfo()" class="text-warning"><i class="fa fa-exclamation-triangle"></i>
+                    <strong> {{ getReservationWindowDescription() }}</strong></span>
             </div>
         </div>
         <div class="col-md-6" ng-if="examInfo.enrollInstruction">
@@ -151,6 +153,13 @@
                 {{eh.start}} - {{eh.end}} {{ $last ? '' : '| ';}}
             </span></small>
         </span>
+    </div>
+    <div class="main-row" ng-show="loader.loading">
+        <div class="col-md-12">
+            <button class="btn btn-success">{{'sitnet_searching' | translate }}...
+                <i class="fa fa-spinner fa-spin"></i>
+            </button>
+        </div>
     </div>
 
     <!-- CALENDAR -->

@@ -27,7 +27,7 @@ public class SettingsController  extends BaseController {
         if (value != null) {
             gs.setValue(value);
             gs.update();
-        } else if (gs.getValue() != null && defaultValue != null) {
+        } else if (gs.getValue() == null && defaultValue != null) {
             gs.setValue(defaultValue);
             gs.update();
         }
@@ -42,7 +42,13 @@ public class SettingsController  extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT")})
     public Result getDeadline() {
-        GeneralSettings gs = getOrCreateSettings("review_deadline", null, null);
+        GeneralSettings gs = getOrCreateSettings("review_deadline", null, "14");
+        return ok(Json.toJson(gs));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("STUDENT")})
+    public Result getReservationWindowSize() {
+        GeneralSettings gs = getOrCreateSettings("reservation_window_size", null, "30");
         return ok(Json.toJson(gs));
     }
 
@@ -62,10 +68,18 @@ public class SettingsController  extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN")})
-    public Result updateSettings() {
+    public Result setDeadline() {
         DynamicForm df = Form.form().bindFromRequest();
         String deadline = df.get("value");
-        GeneralSettings gs = getOrCreateSettings("review_deadline", deadline, "14");
+        GeneralSettings gs = getOrCreateSettings("review_deadline", deadline, null);
+        return ok(Json.toJson(gs));
+    }
+
+    @Restrict({ @Group("ADMIN")})
+    public Result setReservationWindowSize() {
+        DynamicForm df = Form.form().bindFromRequest();
+        String deadline = df.get("value");
+        GeneralSettings gs = getOrCreateSettings("reservation_window_size", deadline, null);
         return ok(Json.toJson(gs));
     }
 

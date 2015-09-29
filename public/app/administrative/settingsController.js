@@ -10,6 +10,11 @@
                     $scope.deadline = deadline;
                 });
 
+                SettingsResource.reservationWindow.get(function (window) {
+                    window.value = parseInt(window.value);
+                    $scope.reservationWindow = window;
+                });
+
                 $scope.updateAgreement = function () {
 
                     SettingsResource.agreement.update($scope.eula,
@@ -22,7 +27,17 @@
 
                 $scope.updateDeadline = function () {
 
-                    SettingsResource.settings.update($scope.deadline,
+                    SettingsResource.deadline.update($scope.deadline,
+                        function () {
+                            toastr.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                };
+
+                $scope.updateReservationWindow = function () {
+
+                    SettingsResource.reservationWindow.update($scope.reservationWindow,
                         function () {
                             toastr.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
                         }, function (error) {

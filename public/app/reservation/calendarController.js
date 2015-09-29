@@ -2,19 +2,42 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('CalendarCtrl', ['$scope', '$http', '$location', '$translate', '$modal', '$routeParams', 'dateService',
-            '$locale', 'StudentExamRes', 'dialogs', 'CalendarRes', 'uiCalendarConfig',
-            function ($scope, $http, $location, $translate, $modal, $routeParams, dateService, $locale, StudentExamRes, dialogs, CalendarRes, uiCalendarConfig) {
+            '$locale', 'StudentExamRes', 'dialogs', 'SettingsResource', 'CalendarRes', 'uiCalendarConfig',
+            function ($scope, $http, $location, $translate, $modal, $routeParams, dateService, $locale, StudentExamRes,
+                      dialogs, SettingsResource, CalendarRes, uiCalendarConfig) {
 
                 $scope.limitations = {};
                 $scope.rooms = [];
                 $scope.accessibilities = [];
                 $scope.openingHours = [];
                 $scope.exceptionHours = [];
+                $scope.loader = {
+                    loading: false
+                };
 
                 $scope.events = [];
                 $scope.eventSources = [$scope.events];
 
                 $scope.examInfo = StudentExamRes.examInfo.get({eid: $routeParams.id});
+                SettingsResource.reservationWindow.get(function (setting) {
+                    $scope.reservationWindowSize = setting.value;
+                    $scope.reservationWindowEndDate = moment().add(setting.value, 'days');
+                });
+
+                $scope.showReservationWindowInfo = function () {
+                    if ($scope.examInfo && $scope.reservationWindowEndDate) {
+                        return moment($scope.examInfo.examActiveEndDate) > $scope.reservationWindowEndDate;
+                    }
+                    return false;
+                };
+
+                $scope.getReservationWindowDescription = function () {
+                    return $translate.instant('sitnet_description_reservation_window')
+                            .replace('{}', $scope.reservationWindowSize) + ' (' +
+                        $scope.reservationWindowEndDate.format('DD.MM.YYYY') + ')';
+                };
+
+                var renderCount = 0;
 
                 $scope.calendarConfig = {
                     aspectRatio: 3,
@@ -43,6 +66,7 @@
                         right: 'prev, next today'
                     },
                     events: function (start) {
+                        renderCount = 0;
                         refresh(start);
                     },
                     eventClick: function (event) {
@@ -66,7 +90,7 @@
                         }
                     },
                     eventRender: function (event, element, view) {
-                        var maxDate = moment($scope.examInfo.examActiveEndDate);
+                        var maxDate = moment.min($scope.reservationWindowEndDate, moment($scope.examInfo.examActiveEndDate));
                         if (maxDate >= view.start && maxDate <= view.end) {
                             $(".fc-next-button").prop('disabled', true);
                             $(".fc-next-button").addClass('fc-state-disabled');
@@ -77,6 +101,9 @@
                         if (event.availableMachines > 0) {
                             element.attr('title', $translate.instant('sitnet_new_reservation') + " " +
                                 event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
+                        }
+                        if (++renderCount === $scope.events.length) {
+                            $scope.loader.loading = false;
                         }
                     },
                     viewRender: function (view) {
@@ -153,6 +180,7 @@
                         return item.id;
                     });
                     if (room) {
+                        $scope.loader.loading=true;
                         // hold the reference to event array, can't replace it with []
                         while ($scope.events.length > 0) {
                             $scope.events.pop();

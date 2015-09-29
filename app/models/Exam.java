@@ -552,9 +552,14 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         }
         for (ExamSection es : examSections) {
             ExamSection esCopy = es.copy(clone, produceStudentExam);
+            AppUtil.setCreator(esCopy, user);
+            AppUtil.setModifier(esCopy, user);
             esCopy.save();
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
-                esq.getQuestion().save();
+                Question questionCopy = esq.getQuestion();
+                AppUtil.setCreator(questionCopy, user);
+                AppUtil.setModifier(questionCopy, user);
+                questionCopy.save();
                 esq.save();
             }
             clone.getExamSections().add(esCopy);

@@ -312,19 +312,27 @@ public class CalendarController extends BaseController {
 
     /**
      * Search date is the current date if searching for current week or earlier,
-     * If searching for upcoming months, day of month is one.
+     * If searching for upcoming weeks, day of week is one.
      */
     private static LocalDate parseSearchDate(String day, Exam exam) throws NotFoundException {
-        LocalDate examEndDate = new LocalDate(exam.getExamActiveEndDate());
-        LocalDate examStartDate = new LocalDate(exam.getExamActiveStartDate());
+        String reservationWindow = SettingsController.getOrCreateSettings(
+                "reservation_window_size", null, null).getValue();
+        int windowSize = 0;
+        if (reservationWindow != null) {
+            windowSize = Integer.parseInt(reservationWindow);
+        }
         LocalDate now = LocalDate.now();
+        LocalDate reservationWindowDate = now.plusDays(windowSize);
+        LocalDate examEndDate = new LocalDate(exam.getExamActiveEndDate());
+        LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
+        LocalDate examStartDate = new LocalDate(exam.getExamActiveStartDate());
         LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, ISODateTimeFormat.dateParser());
         searchDate = searchDate.withDayOfWeek(1);
         if (searchDate.isBefore(now)) {
             searchDate = now;
         }
         // if searching for month(s) after exam's end month -> no can do
-        if (searchDate.isAfter(examEndDate)) {
+        if (searchDate.isAfter(searchEndDate)) {
             throw new NotFoundException();
         }
         // Do not execute search before exam starts
@@ -340,7 +348,16 @@ public class CalendarController extends BaseController {
     private static LocalDate getEndSearchDate(Exam exam, LocalDate searchDate) {
         LocalDate endOfWeek = searchDate.dayOfWeek().withMaximumValue();
         LocalDate examEnd = new LocalDate(exam.getExamActiveEndDate());
-        return endOfWeek.isBefore(examEnd) ? endOfWeek : examEnd;
+        String reservationWindow = SettingsController.getOrCreateSettings(
+                "reservation_window_size", null, null).getValue();
+        int windowSize = 0;
+        if (reservationWindow != null) {
+            windowSize = Integer.parseInt(reservationWindow);
+        }
+        LocalDate reservationWindowDate = LocalDate.now().plusDays(windowSize);
+        LocalDate endOfSearchDate = examEnd.isBefore(reservationWindowDate) ? examEnd : reservationWindowDate;
+
+        return endOfWeek.isBefore(endOfSearchDate) ? endOfWeek : endOfSearchDate;
     }
 
     private Exam getEnrolledExam(Long examId) {
@@ -401,7 +418,7 @@ public class CalendarController extends BaseController {
     private boolean isReservedDuring(ExamMachine machine, Interval interval, boolean excludeOwn) {
         return machine.getReservations().stream()
                 .anyMatch(r -> interval.overlaps(r.toInterval()) &&
-                        (!excludeOwn && r.getUser().equals(getLoggedUser()))
+                                (!excludeOwn && r.getUser().equals(getLoggedUser()))
                 );
     }
 

@@ -3,17 +3,9 @@
     angular.module("exam.resources")
         .factory("SettingsResource", ['$resource', function ($resource) {
             return {
-                agreement: $resource(
-                    "/agreement", null,
-                    {
-                        'update':   {method: 'PUT'}
-                    }),
-                settings: $resource(
-                    "/settings", null,
-                    {
-                        "update": { method: 'PUT'}
-                    }),
-                deadline: $resource("/settings/deadline"),
+                agreement: $resource("/settings/agreement", {}, {'update': {method: 'PUT'}}),
+                deadline: $resource("/settings/deadline", {}, {"update": {method: 'PUT'}}),
+                reservationWindow: $resource("/settings/reservationWindow", {}, {"update": {method: 'PUT'}}),
                 hostname: $resource("/settings/hostname"),
                 examDurations: $resource("/settings/durations"),
                 gradeScale: $resource("/settings/gradescale"),

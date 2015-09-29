@@ -238,10 +238,12 @@ DELETE        /tags/:tid/:qid                                        controllers
 
 ################# General Settings interface ##################
 
-GET           /agreement                                             controllers.SettingsController.getUserAgreement
-PUT           /agreement                                             controllers.SettingsController.updateUserAgreement
-PUT           /settings                                              controllers.SettingsController.updateSettings
+GET           /settings/agreement                                    controllers.SettingsController.getUserAgreement
+PUT           /settings/agreement                                    controllers.SettingsController.updateUserAgreement
 GET           /settings/deadline                                     controllers.SettingsController.getDeadline
+PUT           /settings/deadline                                     controllers.SettingsController.setDeadline
+GET           /settings/reservationWindow                            controllers.SettingsController.getReservationWindowSize
+PUT           /settings/reservationWindow                            controllers.SettingsController.setReservationWindowSize
 GET           /settings/hostname                                     controllers.SettingsController.getHostname
 GET           /settings/durations                                    controllers.SettingsController.getExamDurations
 GET           /settings/gradescale                                   controllers.SettingsController.isExamGradeScaleOverridable

@@ -702,5 +702,8 @@
   "sitnet_own_reservation": "egen bokning",
   "sitnet_reserved": "fullbokad",
   "sitnet_open": "öppet",
-  "sitnet_closed": "stängt"
+  "sitnet_closed": "stängt",
+  "sitnet_reservation_window": "Varausikkuna SV",
+  "sitnet_info_reservation_window": "Kuinka monen päivän päähän nykyhetkestä opiskelija voi tehdä tenttivarauksia SV",
+  "sitnet_description_reservation_window": "Varauksen voi tehdä enintään {} päivän päähän SV"
 }

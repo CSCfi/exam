@@ -701,5 +701,8 @@
   "sitnet_own_reservation": "own reservation",
   "sitnet_reserved": "full",
   "sitnet_open": "open",
-  "sitnet_closed": "closed"
+  "sitnet_closed": "closed",
+  "sitnet_reservation_window": "Varausikkuna EN",
+  "sitnet_info_reservation_window": "Kuinka monen päivän päähän nykyhetkestä opiskelija voi tehdä tenttivarauksia EN",
+  "sitnet_description_reservation_window": "Varauksen voi tehdä enintään {} päivän päähän EN"
 }
