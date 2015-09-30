@@ -29,17 +29,6 @@
                 }, 0));
             };
 
-            var truncate = function (content, offset) {
-                if (content && content.indexOf("math-tex") === -1) {
-                    if (offset < content.length) {
-                        return content.substring(0, offset) + " ...";
-                    } else {
-                        return content;
-                    }
-                }
-                return content;
-            };
-
             var decodeHtml = function(html) {
                 var txt = document.createElement("textarea");
                 txt.innerHTML = html;
@@ -71,7 +60,6 @@
             return {
                 createQuestion: createQuestion,
                 calculateMaxPoints: calculateMaxPoints,
-                truncate: truncate,
                 decodeHtml: decodeHtml,
                 longTextIfNotMath: longTextIfNotMath,
                 shortText: shortText

@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService',
+        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$rootScope', '$q', '$sce', '$anchorScroll', '$modal', 'sessionService', 'examService',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
             'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes',
-            function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService,
+            function (dialogs, $scope, $timeout, $rootScope, $q, $sce, $anchorScroll, $modal, sessionService, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
                       SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes) {
 
@@ -386,6 +386,10 @@
                     }, function (error) {
                         toastr.error(error.data);
                     });
+                };
+
+                $scope.trustAsHtml = function(content) {
+                    return $sce.trustAsHtml(content);
                 };
 
                 $scope.expandSection = function (section) {
@@ -835,10 +839,6 @@
 
                 $scope.longTextIfNotMath = function (text) {
                     return questionService.longTextIfNotMath(text);
-                };
-
-                $scope.truncate = function (text, limit) {
-                    return questionService.truncate(text, limit);
                 };
 
                 $scope.range = function (min, max, step) {

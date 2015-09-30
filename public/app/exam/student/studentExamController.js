@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout',
+        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$sce', '$http', '$modal', '$location', '$translate', '$timeout',
             'EXAM_CONF', 'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService', 'sessionService',
-            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $http, $modal, $location, $translate, $timeout,
+            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $sce, $http, $modal, $location, $translate, $timeout,
                       EXAM_CONF, StudentExamRes, dateService, examService, questionService, fileService, sessionService) {
 
                 $scope.sectionsBar = EXAM_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
@@ -331,10 +331,6 @@
                     return deferred.promise;
                 };
 
-                $scope.truncate = function (question, offset) {
-                    return questionService.shortText(question, offset);
-                };
-
                 $scope.getUser = function () {
                     var user = sessionService.getUser();
                     var userNo = user.userNo ? ' (' + user.userNo + ')' : '';
@@ -552,6 +548,10 @@
                     // start the clock
                     startClock();
                 }
+
+                $scope.trustAsHtml = function(content) {
+                    return $sce.trustAsHtml(content);
+                };
 
                 $scope.selectFile = function (question) {
                     if (isPreview()) {

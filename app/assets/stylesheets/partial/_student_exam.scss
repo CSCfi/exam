@@ -60,29 +60,6 @@
 
   margin: 0 1em 0 1em;
 
-  li {
-    list-style: none;
-    cursor: pointer;
-  }
-
-  li:hover {
-    list-style: none;
-    cursor: pointer;
-  }
-
-  ul {
-    padding: 0;
-  }
-
-//  .base {
-//    background-color: #fff;
-//    border: solid 1px $sitnet-grey;
-//    -webkit-border-radius: 4px;
-//    -moz-border-radius: 4px;
-//    border-radius: 4px;
-//    padding: 2em;
-//  }
-
   .studentexam-header {
     padding-left: 1.2em;
     margin-top: 0.5em;
@@ -260,6 +237,12 @@
       text-decoration: none;
     }
   }
+
+  // to highlight ck-editor content marked with this class
+  .marker {
+    background-color: yellow;
+  }
+
 
 /* Uncomment to disallow copy-paste
 

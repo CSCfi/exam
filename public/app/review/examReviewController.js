@@ -3,10 +3,10 @@
     angular.module("exam.controllers")
         .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService',
             'examService', 'questionService', '$routeParams', '$http', '$modal', '$location', '$translate',
-            '$timeout', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService', 'fileService',
+            '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService', 'fileService', '$sanitize',
             function (dialogs, $document, $rootScope, $scope, sessionService, examService, questionService,
-                      $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, ExamRes, LanguageRes,
-                      QuestionRes, dateService, fileService) {
+                      $routeParams, $http, $modal, $location, $translate, $timeout, $sce, EXAM_CONF, ExamRes, LanguageRes,
+                      QuestionRes, dateService, fileService, $sanitize) {
 
                 $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
                 $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
@@ -30,10 +30,6 @@
                 };
 
                 $scope.user = sessionService.getUser();
-
-                if (!$scope.user || $scope.user.isStudent) {
-                    $location.path("/unauthorized");
-                }
 
                 $scope.inspections = [];
                 $scope.examGrading = [];
@@ -398,10 +394,6 @@
                     }
                 };
 
-                $scope.truncate = function (answer, offset) {
-                    return questionService.truncate(answer, offset);
-                };
-
                 var refreshRejectedAcceptedCounts = function () {
                     var accepted = 0;
                     var rejected = 0;
@@ -482,6 +474,10 @@
                         $scope.saveFeedback();
                     }
                     return !hidden;
+                };
+
+                $scope.trustAsHtml = function(content) {
+                    return $sce.trustAsHtml(content);
                 };
 
                 // Called when the save feedback button is clicked

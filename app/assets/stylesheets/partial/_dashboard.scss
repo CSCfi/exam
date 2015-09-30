@@ -178,8 +178,8 @@
     vertical-align: middle;
   }
 
-  ul {
-    list-style-type: none;
+  .inline-list li {
+     list-style: none;
   }
 
   // fade in/out animations for list items
