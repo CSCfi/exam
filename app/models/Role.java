@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 @Entity
 public class Role extends GeneratedIdentityModel implements be.objectify.deadbolt.core.models.Role {
 
+    public enum Name {STUDENT, TEACHER, ADMIN}
+
     private String name;
 
     @Override
