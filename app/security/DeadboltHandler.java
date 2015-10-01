@@ -28,7 +28,9 @@ public class DeadboltHandler extends AbstractDeadboltHandler {
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());
         // filter out roles not found in session
         if (user != null) {
-            user.setRoles(user.getRoles().stream().filter((r) -> r.getName().equals(session.getLoginRole())).collect(Collectors.toList()));
+            user.setRoles(user.getRoles().stream()
+                    .filter((r) -> r.getName().equals(session.getLoginRole()))
+                    .collect(Collectors.toList()));
         }
         return F.Promise.promise(() -> Optional.ofNullable(user));
     }

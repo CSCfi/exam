@@ -1,6 +1,5 @@
 package models;
 
-import be.objectify.deadbolt.core.models.Permission;
 import be.objectify.deadbolt.core.models.Subject;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -40,6 +39,9 @@ public class User extends GeneratedIdentityModel implements Subject {
 
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Role> roles;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    private List<Permission> permissions;
 
     @ManyToOne
     @JoinColumn(name="language_id")
@@ -163,8 +165,8 @@ public class User extends GeneratedIdentityModel implements Subject {
     }
 
     @Override
-    public List<? extends Permission> getPermissions() {
-        return null;
+    public List<Permission> getPermissions() {
+        return permissions;
     }
 
     public List<ExamEnrolment> getEnrolments() {
