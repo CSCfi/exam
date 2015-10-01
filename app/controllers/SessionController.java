@@ -96,14 +96,6 @@ public class SessionController extends BaseController {
         return language;
     }
 
-    private static Set<Role> parseRoles(String affiliation) throws NotFoundException {
-        Set<Role> roles = findRoles(affiliation);
-        if (roles.isEmpty()) {
-            throw new NotFoundException("sitnet_error_role_not_found " + affiliation);
-        }
-        return roles;
-    }
-
     private static String validateEmail(String email) throws AddressException {
         if (email == null) {
             throw new AddressException("no email address for user");
@@ -169,46 +161,31 @@ public class SessionController extends BaseController {
         return ok(node);
     }
 
-    private static Set<Role> findRoles(String attribute) {
-        Map<String, List<String>> roleMapping = getRoleMapping();
+    private static Set<Role> parseRoles(String attribute) throws NotFoundException {
+        Map<Role, List<String>> roleMapping = getRoleMapping();
         Set<Role> userRoles = new HashSet<>();
         for (String affiliation : attribute.split(";")) {
-            if (roleMapping.get("STUDENT").contains(affiliation)) {
-                userRoles.add(Ebean.find(Role.class).where().eq("name", "STUDENT").findUnique());
-            } else if (roleMapping.get("TEACHER").contains(affiliation)) {
-                userRoles.add(Ebean.find(Role.class).where().eq("name", "TEACHER").findUnique());
-            } else if (roleMapping.get("ADMIN").contains(affiliation)) {
-                userRoles.add(Ebean.find(Role.class).where().eq("name", "ADMIN").findUnique());
+            for (Map.Entry<Role, List<String>> entry : roleMapping.entrySet()) {
+                if (entry.getValue().contains(affiliation)) {
+                    userRoles.add(entry.getKey());
+                    break;
+                }
             }
+        }
+        if (userRoles.isEmpty()) {
+            throw new NotFoundException("sitnet_error_role_not_found " + attribute);
         }
         return userRoles;
     }
 
-    static private Map<String, List<String>> getRoleMapping() {
-        String[] students = ConfigFactory.load().getString("sitnet.roles.student").split(",");
-        String[] teachers = ConfigFactory.load().getString("sitnet.roles.teacher").split(",");
-        String[] admins = ConfigFactory.load().getString("sitnet.roles.admin").split(",");
-
-        Map<String, List<String>> roles = new HashMap<>();
-
-        List<String> studentRoles = new ArrayList<>();
-        for (String student : students) {
-            studentRoles.add(student.trim());
-        }
-        roles.put("STUDENT", studentRoles);
-
-        List<String> teacherRoles = new ArrayList<>();
-        for (String teacher : teachers) {
-            teacherRoles.add(teacher.trim());
-        }
-        roles.put("TEACHER", teacherRoles);
-
-        List<String> adminRoles = new ArrayList<>();
-        for (String admin : admins) {
-            adminRoles.add(admin.trim());
-        }
-        roles.put("ADMIN", adminRoles);
-
+    static private Map<Role, List<String>> getRoleMapping() {
+        Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findUnique();
+        Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findUnique();
+        Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findUnique();
+        Map<Role, List<String>> roles = new HashMap<>();
+        roles.put(student, ConfigFactory.load().getStringList("sitnet.roles.student"));
+        roles.put(teacher, ConfigFactory.load().getStringList("sitnet.roles.teacher"));
+        roles.put(admin, ConfigFactory.load().getStringList("sitnet.roles.admin"));
         return roles;
     }
 
@@ -289,7 +266,7 @@ public class SessionController extends BaseController {
         final long sessionTime = session.getSince().getMillis();
         final long end = sessionTime + timeOut;
         final long now = DateTime.now().getMillis();
-        final long alarmTime = end - (2 * 60 * 1000); // now - 2 minutes
+        final long alarmTime = end - (2 * 60 * 1000); // end - 2 minutes
 
         if (Logger.isDebugEnabled()) {
             DateFormat df = new SimpleDateFormat("HH:mm:ss");
