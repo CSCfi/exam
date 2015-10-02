@@ -30,7 +30,7 @@
                      style="padding-left: 0.5em" mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></div>
                 <div ng-if="!sectionQuestion.question.expanded" class="question-text col-md-10"
                      style="padding-left: 0.5em" mathjax
-                     ng-bind-html="sectionQuestion.question.question | truncate: 360"></div>
+                     ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 120))"></div>
             </div>
             <!-- attachment -->
             <div class="row" ng-show="sectionQuestion.question.attachment">

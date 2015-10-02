@@ -14,6 +14,11 @@
     <div class="main-row">
         <div class="col-md-12">
             <div ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
+                <div class="row" ng-show="newExam.hasEnrolmentsInEffect">
+                    <div class="alert-warning" style="padding: 1em;">
+                        <p class="exams-list-title-text">{{'sitnet_upcoming_reservations_exist' | translate}}</p>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="sitnet-info-text">{{'sitnet_exam_name' | translate}}:</div>
                     <div class="row">

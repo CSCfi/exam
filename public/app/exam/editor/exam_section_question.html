@@ -44,13 +44,11 @@
 
             <div class="col-md-12">
                 <div ng-if="sectionQuestion.question.expanded" ng-bind-html="trustAsHtml(sectionQuestion.question.question)" mathjax
-                     class="exam-editor-question-body"
-                     title="{{longTextIfNotMath(sectionQuestion.question.question)}}">
+                     class="exam-editor-question-body">
                 </div>
                 <div ng-if="!sectionQuestion.question.expanded"
-                     ng-bind-html="sectionQuestion.question.question | truncate: 120" mathjax
-                     class="exam-editor-question-body"
-                     title="{{longTextIfNotMath(sectionQuestion.question.question)}}">
+                     ng-bind-html="trustAsHtml(truncate(sectionQuestion.question.question, 120))" mathjax
+                     class="exam-editor-question-body">
                 </div>
             </div>
         </div>

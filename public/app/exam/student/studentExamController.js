@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$q', '$interval', '$routeParams', '$sce', '$http', '$modal', '$location', '$translate', '$timeout',
+        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$filter', '$q', '$interval', '$routeParams', '$sce', '$http', '$modal', '$location', '$translate', '$timeout',
             'EXAM_CONF', 'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService', 'sessionService',
-            function (dialogs, $rootScope, $scope, $q, $interval, $routeParams, $sce, $http, $modal, $location, $translate, $timeout,
+            function (dialogs, $rootScope, $scope, $filter, $q, $interval, $routeParams, $sce, $http, $modal, $location, $translate, $timeout,
                       EXAM_CONF, StudentExamRes, dateService, examService, questionService, fileService, sessionService) {
 
                 $scope.sectionsBar = EXAM_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
@@ -447,6 +447,10 @@
 
                 $scope.chevronClicked = function (sectionQuestion) {
                     sectionQuestion.question.expanded = !sectionQuestion.question.expanded;
+                };
+
+                $scope.truncate = function(content, offset) {
+                    return $filter('truncate')(content, offset);
                 };
 
                 $scope.saveEssay = function (question, answer) {

@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$rootScope', '$q', '$sce', '$anchorScroll', '$modal', 'sessionService', 'examService',
+        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$anchorScroll', '$modal', 'sessionService', 'examService',
             '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
             'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes',
-            function (dialogs, $scope, $timeout, $rootScope, $q, $sce, $anchorScroll, $modal, sessionService, examService,
+            function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $anchorScroll, $modal, sessionService, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
                       SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes) {
 
@@ -96,6 +96,12 @@
                             $scope.reindexNumbering();
                             getInspectors();
                             getExamOwners();
+                            if (exam.examEnrolments.filter(function (ee) {
+                                    return ee.reservation && ee.reservation.endAt > new Date().getTime();
+                                }).length > 0) {
+                                // Enrolments/reservations in effect
+                                $scope.newExam.hasEnrolmentsInEffect = true;
+                            }
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -852,6 +858,10 @@
 
                 $scope.checkTrialCount = function (x) {
                     return $scope.newExam.trialCount == x ? "btn-primary" : "";
+                };
+
+                $scope.truncate = function(content, offset) {
+                    return $filter('truncate')(content, offset);
                 };
 
                 $scope.setTrialCount = function (x) {

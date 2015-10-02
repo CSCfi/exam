@@ -249,6 +249,7 @@ public class ExamController extends BaseController {
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
+                .fetch("examEnrolments.reservation", "startAt, endAt, noShow")
                 .fetch("examEnrolments.user")
                 .fetch("examFeedback")
                 .fetch("examFeedback.attachment")
@@ -513,7 +514,7 @@ public class ExamController extends BaseController {
     private Result updateStateAndValidate(Exam exam, DynamicForm df) {
         Exam.State state = df.get("state") == null ? null : Exam.State.valueOf(df.get("state"));
         if (state != null) {
-            if (exam.hasState(Exam.State.PUBLISHED, Exam.State.PUBLISHED)) {
+            if (exam.hasState(Exam.State.SAVED, Exam.State.DRAFT) && state == Exam.State.PUBLISHED) {
                 // Exam is about to be published
                 String str = ValidationUtil.validateExamForm(df);
                 // invalid data
@@ -537,6 +538,44 @@ public class ExamController extends BaseController {
         return null;
     }
 
+    private boolean isRestrictingValidityChange(Date newDate, Exam exam, boolean isStartDate) {
+        Date oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
+        return isStartDate ? oldDate.before(newDate) : newDate.before(oldDate);
+    }
+
+    private Result updateTemporalFieldsAndValidate(Exam exam, DynamicForm df, User user) {
+        Long start = new Long(df.get("examActiveStartDate"));
+        Long end = new Long(df.get("examActiveEndDate"));
+        String duration = df.get("duration");
+        boolean hasFutureReservations = hasFutureReservations(exam);
+        boolean isAdmin = user.hasRole(Role.Name.ADMIN.toString(), getSession());
+        if (start != 0) {
+            Date newStart = new Date(start);
+            if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newStart, exam, true)) {
+                exam.setExamActiveStartDate(new Date(start));
+            } else {
+                return forbidden("sitnet_error_future_reservations_exist");
+            }
+        }
+        if (end != 0) {
+            Date newEnd = new Date(end);
+            if (isAdmin || !hasFutureReservations || !isRestrictingValidityChange(newEnd, exam, false)) {
+                exam.setExamActiveEndDate(new Date(end));
+            } else {
+                return forbidden("sitnet_error_future_reservations_exist");
+            }
+        }
+        if (duration != null) {
+            int newDuration = Integer.valueOf(duration);
+            if (newDuration == exam.getDuration() || !hasFutureReservations || isAdmin) {
+                exam.setDuration(newDuration);
+            } else {
+                return forbidden("sitnet_error_future_reservations_exist");
+            }
+        }
+        return null;
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateExam(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
@@ -554,7 +593,6 @@ public class ExamController extends BaseController {
             }
             String examName = df.get("name");
             Boolean shared = Boolean.parseBoolean(df.get("shared"));
-            String duration = df.get("duration");
             Integer grading = df.get("grading") == null ? null : Integer.parseInt(df.get("grading"));
             String answerLanguage = df.get("answerLanguage");
             String instruction = df.get("instruction");
@@ -565,17 +603,11 @@ public class ExamController extends BaseController {
                 exam.setName(examName);
             }
             exam.setShared(shared);
-            Long start = new Long(df.get("examActiveStartDate"));
-            Long end = new Long(df.get("examActiveEndDate"));
-            if (start != 0) {
-                exam.setExamActiveStartDate(new Date(start));
+            result = updateTemporalFieldsAndValidate(exam, df, user);
+            if (result != null) {
+                return result;
             }
-            if (end != 0) {
-                exam.setExamActiveEndDate(new Date(end));
-            }
-            if (duration != null) {
-                exam.setDuration(Integer.valueOf(duration));
-            }
+
             if (grading != null) {
                 updateGrading(exam, grading);
             }
@@ -789,10 +821,24 @@ public class ExamController extends BaseController {
         }
     }
 
+    private boolean hasFutureReservations(Exam exam) {
+        Date now = new Date();
+        return exam.getExamEnrolments().stream()
+                .map(ExamEnrolment::getReservation)
+                .anyMatch(r -> r != null && r.getEndAt().after(now));
+    }
+
+    private boolean isAllowedToUpdate(Exam exam, User user) {
+        return user.hasRole(Role.Name.ADMIN.toString(), getSession()) || !hasFutureReservations(exam);
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateCourse(Long eid, Long cid) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = getLoggedUser();
+        if (!isAllowedToUpdate(exam, user)) {
+            return forbidden("sitnet_error_future_reservations_exist");
+        }
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             Course course = Ebean.find(Course.class, cid);
             Date now = new Date();
@@ -814,7 +860,9 @@ public class ExamController extends BaseController {
     public Result removeCourse(Long eid, Long cid) {
         Exam exam = Ebean.find(Exam.class, eid);
         User user = getLoggedUser();
-
+        if (!isAllowedToUpdate(exam, user)) {
+            return forbidden("sitnet_error_future_reservations_exist");
+        }
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
             exam.setCourse(null);
             exam.save();

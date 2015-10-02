@@ -682,7 +682,6 @@
   "sitnet_question_weighted_mc": "Monivalinta (monta oikein) SV",
   "sitnet_questions_new_weighted_multiplechoice": "Uusi monivalintakysymys (monta oikein) SV",
   "sitnet_question_options": "Vastausvaihtoehdot SV",
-  "sitnet_exam_participants_description": "Tenttiin osallistujat. Tentin julkistamisen jälkeen osallistujia ei voi muokata SV",
   "sitnet_exam_participants_left": "Osallistujat, joilta puuttuu suoritus SV",
   "sitnet_private_exam_trial_count_description": "Henkilökohtaiset tentit ovat kertakäyttöisluonteisia SV",
   "sitnet_year": "Vuosi SV",
@@ -705,5 +704,8 @@
   "sitnet_closed": "stängt",
   "sitnet_reservation_window": "Varausikkuna SV",
   "sitnet_info_reservation_window": "Kuinka monen päivän päähän nykyhetkestä opiskelija voi tehdä tenttivarauksia SV",
-  "sitnet_description_reservation_window": "Varauksen voi tehdä enintään {} päivän päähän SV"
+  "sitnet_description_reservation_window": "Varauksen voi tehdä enintään {} päivän päähän SV",
+  "sitnet_upcoming_reservations_exist": "Opiskelijoita on ilmoittautunut tähän tenttiin. Muokkausmahdollisuuksia on rajattu, jotta vaikutukset jo ilmoittautuneisiin opiskelijoihin jäisivät mahdollisimman vähäisiksi. SV",
+  "sitnet_error_future_reservations_exist": "Muokkaus ei sallittu, koska tenttiin on tulossa opiskelijoita SV",
+  "sitnet_restricting_validity_change_disallowed": "Tenttiperiodin rajoittava muokkaus estetty. SV"
 }

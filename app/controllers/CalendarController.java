@@ -111,9 +111,6 @@ public class CalendarController extends BaseController {
         JsonNode json = request().body().asJson();
         Long roomId = json.get("roomId").asLong();
         Long examId = json.get("examId").asLong();
-        if (!isAllowedToParticipate(examId)) {
-            return forbidden("sitnet_no_trials_left");
-        }
         Set<Integer> aids = new HashSet<>();
         if (json.has("aids")) {
             Iterator<JsonNode> it = json.get("aids").elements();
@@ -144,12 +141,17 @@ public class CalendarController extends BaseController {
         if (enrolment == null) {
             return forbidden("sitnet_error_enrolment_not_found");
         }
-        // no previous reservation or it's in the future
-        // Removal not permitted if reservation is in the past or if exam is already started
+        // Removal not permitted if old reservation is in the past or if exam is already started
         Reservation oldReservation = enrolment.getReservation();
         if (enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
                 (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))) {
             return forbidden("sitnet_reservation_in_effect");
+        }
+        // No previous reservation or it's in the future
+        // If no previous reservation, check if allowed to participate. This check is skipped if user already
+        // has a reservation to this exam so that change of reservation is always possible.
+        if (oldReservation == null && !isAllowedToParticipate(examId)) {
+            return forbidden("sitnet_no_trials_left");
         }
 
         ExamMachine machine = getRandomMachine(room, enrolment.getExam(), start, end, aids);
@@ -157,6 +159,7 @@ public class CalendarController extends BaseController {
             return forbidden("sitnet_no_machines_available");
         }
 
+        // We are good to go :)
         final Reservation reservation = new Reservation();
         reservation.setEndAt(end.toDate());
         reservation.setStartAt(start.toDate());
@@ -168,6 +171,7 @@ public class CalendarController extends BaseController {
         enrolment.setReservationCanceled(false);
         Ebean.save(enrolment);
 
+        // Finally nuke the old reservation if any
         if (oldReservation != null) {
             Ebean.delete(oldReservation);
         }
@@ -180,7 +184,7 @@ public class CalendarController extends BaseController {
         }
         recipients.add(user);
 
-        // Send asynchronously
+        // Send some emails asynchronously
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User recipient : recipients) {
                 try {

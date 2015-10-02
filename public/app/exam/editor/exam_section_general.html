@@ -54,6 +54,13 @@
                 </div>
             </div>
         </div>
+        <div ng-show="newExam.hasEnrolmentsInEffect" class="row">
+            <div class="col-md-12">
+                <div class="alert-warning exam-small-warning-box">
+                    <small>{{ 'sitnet_restricting_validity_change_disallowed' | translate }}</small>
+                </div>
+            </div>
+        </div>
     </form>
 
     <!-- Course -->
@@ -153,7 +160,8 @@
             </div>
             <div class="input-group">
                 <button ng-repeat="duration in examDurations" class="btn btn-default exam-duration-btn"
-                        ng-class="checkDuration(duration)" ng-click="setExamDuration(duration)">{{duration}}
+                        ng-class="checkDuration(duration)" ng-click="setExamDuration(duration)"
+                        ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect">{{duration}}
                 </button>
             </div>
         </div>

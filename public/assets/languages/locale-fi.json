@@ -704,5 +704,8 @@
   "sitnet_closed": "kiinni",
   "sitnet_reservation_window": "Varausikkuna",
   "sitnet_info_reservation_window": "Kuinka monen päivän päähän nykyhetkestä opiskelija voi tehdä tenttivarauksia",
-  "sitnet_description_reservation_window": "Varauksen voi tehdä enintään {} päivän päähän"
+  "sitnet_description_reservation_window": "Varauksen voi tehdä enintään {} päivän päähän",
+  "sitnet_upcoming_reservations_exist": "Opiskelijoita on tulossa tähän tenttiin. Muokkausmahdollisuuksia on rajattu, jotta vaikutukset näihin opiskelijoihin jäisivät mahdollisimman vähäisiksi.",
+  "sitnet_error_future_reservations_exist": "Muokkaus ei sallittu, koska tenttiin on tulossa opiskelijoita",
+  "sitnet_restricting_validity_change_disallowed": "Tenttiperiodin rajoittava muokkaus estetty."
 }
