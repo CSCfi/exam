@@ -19,6 +19,11 @@
                     $scope.accessibilities = data;
                 });
 
+                $scope.weekdayNames = dateService.getWeekdayNames();
+                $scope.$on('$localeChangeSuccess', function () {
+                    $scope.weekdayNames = dateService.getWeekdayNames();
+                });
+
                 // initialize the timeslots
                 var week = {
                     'MONDAY': Array.apply(null, new Array(48)).map(function (x, i) {

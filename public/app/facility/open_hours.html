@@ -11,14 +11,8 @@
     <table style="display:inline-block">
         <thead>
             <tr>
-                <th>{{'sitnet_week_short_monday' | translate}}</th>
-                <th>{{'sitnet_week_short_tuesday' | translate}}</th>
-                <th>{{'sitnet_week_short_wednesday' | translate}}</th>
-                <th>{{'sitnet_week_short_thursday' | translate}}</th>
-                <th>{{'sitnet_week_short_friday' | translate}}</th>
-                <th>{{'sitnet_week_short_saturday' | translate}}</th>
-                <th>{{'sitnet_week_short_sunday' | translate}}</th>
-            </tr>
+                <th ng-repeat="weekday in weekdayNames">{{weekday}}</th>
+           </tr>
         </thead>
 
         <tbody>

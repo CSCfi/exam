@@ -300,24 +300,19 @@
 
                 // Opening & exception hours display helpers ->
 
-                var getDateForWeekday = function (ordinal) {
-                    var now = new Date();
-                    var distance = ordinal - now.getDay();
-                    return new Date(now.setDate(now.getDate() + distance));
-                };
-
                 var getWeekdayNames = function () {
                     var lang = $translate.use();
                     var locale = lang.toLowerCase() + "-" + lang.toUpperCase();
                     var options = {weekday: 'short'};
+                    var weekday = dateService.getDateForWeekday;
                     return {
-                        SUNDAY: {ord: 7, name: getDateForWeekday(0).toLocaleDateString(locale, options)},
-                        MONDAY: {ord: 1, name: getDateForWeekday(1).toLocaleDateString(locale, options)},
-                        TUESDAY: {ord: 2, name: getDateForWeekday(2).toLocaleDateString(locale, options)},
-                        WEDNESDAY: {ord: 3, name: getDateForWeekday(3).toLocaleDateString(locale, options)},
-                        THURSDAY: {ord: 4, name: getDateForWeekday(4).toLocaleDateString(locale, options)},
-                        FRIDAY: {ord: 5, name: getDateForWeekday(5).toLocaleDateString(locale, options)},
-                        SATURDAY: {ord: 6, name: getDateForWeekday(6).toLocaleDateString(locale, options)}
+                        SUNDAY: {ord: 7, name: weekday(0).toLocaleDateString(locale, options)},
+                        MONDAY: {ord: 1, name: weekday(1).toLocaleDateString(locale, options)},
+                        TUESDAY: {ord: 2, name: weekday(2).toLocaleDateString(locale, options)},
+                        WEDNESDAY: {ord: 3, name: weekday(3).toLocaleDateString(locale, options)},
+                        THURSDAY: {ord: 4, name: weekday(4).toLocaleDateString(locale, options)},
+                        FRIDAY: {ord: 5, name: weekday(5).toLocaleDateString(locale, options)},
+                        SATURDAY: {ord: 6, name: weekday(6).toLocaleDateString(locale, options)}
                     };
                 };
 

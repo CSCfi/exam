@@ -174,7 +174,7 @@
                 $rootScope.$on('$translateChangeSuccess', function () {
                     $scope.currentLanguageText = currentLanguage();
                     if ($scope.previousButton.isGuide) {
-                        $scope.previousButton.text = $translate.instant('sitnet_exam_quide');
+                        $scope.previousButton.text = $translate.instant('sitnet_exam_guide');
                     }
                 });
 
@@ -249,12 +249,12 @@
                                 var name = $scope.pages[$scope.pages.indexOf(sectionName) - 1];
                                 if (name === 'guide') {
                                     $scope.previousButton.isGuide = true;
-                                    name = $translate.instant("sitnet_exam_quide");
+                                    name = $translate.instant("sitnet_exam_guide");
                                 }
                                 $scope.previousButton.text = name;
                             } else {
                                 $scope.previousButton.isGuide = true;
-                                $scope.previousButton.text = $translate.instant("sitnet_exam_quide");
+                                $scope.previousButton.text = $translate.instant("sitnet_exam_guide");
                             }
                         } else {
                             $scope.previousButton = {valid: false};

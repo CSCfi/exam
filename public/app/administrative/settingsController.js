@@ -19,7 +19,7 @@
 
                     SettingsResource.agreement.update($scope.eula,
                         function () {
-                            toastr.info($translate.instant("sitnet_user_agreament") + " " + $translate.instant("sitnet_updated"));
+                            toastr.info($translate.instant("sitnet_user_agreement") + " " + $translate.instant("sitnet_updated"));
                         }, function (error) {
                             toastr.error(error.data);
                         });

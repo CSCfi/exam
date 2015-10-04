@@ -26,7 +26,7 @@
                         <span class="text col-md-7">{{ enrolment.exam.course.name }}</span>
                     </div>
                     <div class="info-row col-md-12 info-column">
-                        <span class="header col-md-5">{{ 'sitnet_exam_time' | translate }}:</span>
+                        <span class="header col-md-5">{{ 'sitnet_exam_duration' | translate }}:</span>
                         <span class="text col-md-7">{{ printExamDuration(enrolment.exam) }}</span>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
                     </span>
                 </div>
                 <div class="info-row col-md-12 info-column">
-                    <span class="header col-md-3">{{ 'sitnet_exam_time' | translate }}:</span>
+                    <span class="header col-md-3">{{ 'sitnet_reservation_time' | translate }}:</span>
                     <span class="text col-md-9 sitnet-text-alarm">
                         <span ng-show="enrolment.reservation.startAt">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}} - {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}</span>
                     </span>
