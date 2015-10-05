@@ -250,6 +250,7 @@ GET           /settings/gradescale                                   controllers
 GET           /settings/enrolmentPermissionCheck                     controllers.SettingsController.isEnrolmentPermissionCheckActive
 GET           /settings/environment                                  controllers.SettingsController.isProd
 GET           /settings/maxfilesize                                  controllers.SettingsController.getMaxFilesize
+GET           /settings/appVersion                                   controllers.SettingsController.getAppVersion
 
 ################# Statistics interface ##################
 

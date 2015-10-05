@@ -572,5 +572,6 @@
   "sitnet_upcoming_reservations_exist": "Opiskelijoita on tulossa tähän tenttiin. Muokkausmahdollisuuksia on rajattu, jotta vaikutukset näihin opiskelijoihin jäisivät mahdollisimman vähäisiksi.",
   "sitnet_error_future_reservations_exist": "Muokkaus ei sallittu, koska tenttiin on tulossa opiskelijoita",
   "sitnet_restricting_validity_change_disallowed": "Tenttiperiodin rajoittava muokkaus estetty.",
-  "sitnet_reservation_time": "Varattu aika"
+  "sitnet_reservation_time": "Varattu aika",
+  "sitnet_user_language": "Kieli"
 }

@@ -38,6 +38,7 @@ public class Interfaces extends BaseController implements ExternalAPI  {
 
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
+    private static final String COURSE_CODE_PLACEHOLDER = "${course_code}";
 
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
 
@@ -64,6 +65,15 @@ public class Interfaces extends BaseController implements ExternalAPI  {
         }
         url = url.replace(USER_ID_PLACEHOLDER, user.getUserIdentifier()).replace(USER_LANG_PLACEHOLDER,
                 user.getLanguage().getCode());
+        return new URL(url);
+    }
+
+    private static URL parseUrl(String courseCode) throws MalformedURLException {
+        String url = ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url");
+        if (url == null || !url.contains(COURSE_CODE_PLACEHOLDER)) {
+            throw new RuntimeException("sitnet.integration.courseUnitInfo.url is malformed");
+        }
+        url = url.replace(COURSE_CODE_PLACEHOLDER, courseCode);
         return new URL(url);
     }
 
@@ -104,7 +114,6 @@ public class Interfaces extends BaseController implements ExternalAPI  {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public F.Promise<List<Course>> getCourseInfoByCode(String code) throws MalformedURLException {
-        URL url = new URL(ConfigFactory.load().getString("sitnet.integration.courseUnitInfo.url"));
         final List<Course> courses = Ebean.find(Course.class).where()
                 .ilike("code", code + "%")
                 .disjunction()
@@ -120,7 +129,12 @@ public class Interfaces extends BaseController implements ExternalAPI  {
             // we already have it or we don't want to fetch it
             return F.Promise.promise(() -> courses);
         }
-        return WS.url(url.toString()).setQueryParameter("courseUnitCode", code).get().map(wsResponse -> {
+        URL url = parseUrl(code);
+        WSRequest request = WS.url(url.toString().split("\\?")[0]);
+        if (url.getQuery() != null) {
+            request = request.setQueryString(url.getQuery());
+        }
+        return request.get().map(wsResponse -> {
             int status = wsResponse.getStatus();
             if (status == HttpServletResponse.SC_OK) {
                 return parseCourse(wsResponse.asJson());

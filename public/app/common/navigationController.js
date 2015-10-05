@@ -8,6 +8,10 @@
                     return link.href === "#" + $location.path();
                 };
 
+                $scope.canDisplayFullNavbar = function() {
+                    return window.matchMedia("(min-width: 600px)").matches;
+                };
+
                 $scope.loggedOut = false;
                 $scope.examStarted = false;
 

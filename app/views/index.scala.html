@@ -165,7 +165,7 @@
     </head>
 
     <body ng-controller="SessionCtrl">
-        <div ng-controller="NavigationCtrl">
+        <div ng-controller="NavigationCtrl" ng-init="minimizeNavigation = !canDisplayFullNavbar()">
             <div ng-hide="examStarted" id="vmenu">
                 @*Logo*@
                 <div class="logo">
@@ -174,7 +174,7 @@
                     </div>
                     <div ng-hide="!minimizeNavigation">
                         @*<img src="@routes.Assets.at("assets/images/Exam_logo_vert.png")" alt="exam" />*@
-                    <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
+                        <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
                     </div>
                 </div>
                     @*Language selection*@
@@ -186,18 +186,17 @@
                     </div>
                 </div>
                 <div ng-hide="!minimizeNavigation">
-                    <li class="dropdown locale-minimized">
-
-                        <a class="dropdown-toggle">
+                    <div class="dropdown locale-minimized" dropdown>
+                        <a target="_self" data-toggle="dropdown" dropdown-toggle class="dropdown-toggle">
                             <i class="fa fa-caret-down"></i>
                         </a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                            <li role="presentation" class="dropdown-header">Kielivalinnat</li>
+                            <li role="presentation" class="dropdown-header">{{ 'sitnet_user_language' | translate }}</li>
                             <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('fi')">FI</a></li>
                             <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('sv')">SV</a></li>
                             <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('en')">EN</a></li>
                         </ul>
-                    </li>
+                    </div>
                 </div>
                     @*User info*@
                 <div ng-hide="minimizeNavigation" >

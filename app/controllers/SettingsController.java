@@ -119,6 +119,13 @@ public class SettingsController  extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @Restrict({ @Group("ADMIN") })
+    public Result getAppVersion() {
+        ObjectNode node = Json.newObject();
+        node.put("appVersion", AppUtil.getAppVersion());
+        return ok(Json.toJson(node));
+    }
+
     public Result isProd() {
         ObjectNode node = Json.newObject();
         node.put("isProd", Play.isProd());

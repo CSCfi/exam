@@ -59,6 +59,10 @@ public class AppUtil {
         return new DateTime(timeOfSubmission).plus(period).toDate();
     }
 
+    public static String getAppVersion() {
+        return ConfigFactory.load().getString("exam.release.version");
+    }
+
     public static DateTime adjustDST(DateTime dateTime) {
         // FIXME: this method should be made unnecessary, DST adjustments should always be done based on reservation data.
         // Until we get some of the queries rephrased, we have to live with this quick-fix
