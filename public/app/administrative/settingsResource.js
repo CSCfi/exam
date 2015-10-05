@@ -11,7 +11,8 @@
                 gradeScale: $resource("/settings/gradescale"),
                 enrolmentPermissions: $resource("/settings/enrolmentPermissionCheck"),
                 environment: $resource("/settings/environment"),
-                maxFilesize: $resource("/settings/maxfilesize")
+                maxFilesize: $resource("/settings/maxfilesize"),
+                appVersion : $resource("/settings/appVersion")
             }
         }]);
 }());

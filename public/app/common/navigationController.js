@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('NavigationCtrl', ['$scope', '$rootScope', '$modal', '$location', 'sessionService', 'waitingRoomService',
-            function ($scope, $rootScope, $modal, $location, sessionService, waitingRoomService) {
+        .controller('NavigationCtrl', ['$scope', '$rootScope', '$modal', '$location', 'sessionService', 'waitingRoomService', 'SettingsResource',
+            function ($scope, $rootScope, $modal, $location, sessionService, waitingRoomService, SettingsResource) {
 
                 $scope.isActive = function (link) {
                     return link.href === "#" + $location.path();
@@ -27,6 +27,12 @@
                     var admin = user.isAdmin || false;
                     var student = user.isStudent || false;
                     var teacher = user.isTeacher || false;
+
+                    if (admin) {
+                        SettingsResource.appVersion.get(function(data) {
+                            $scope.appVersion = data.appVersion;
+                        });
+                    }
 
                     // Do not show if waiting for exam to begin
                     var hideDashboard = (waitingRoomService.getEnrolmentId() || $scope.examStarted) && student;

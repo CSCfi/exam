@@ -177,6 +177,12 @@
                         <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
                     </div>
                 </div>
+                    @*Version number*@
+                <div ng-hide="minimizeNavigation || !appVersion" >
+                    <div class="app-version">
+                        <strong>v. {{ appVersion }}</strong>
+                    </div>
+                </div>
                     @*Language selection*@
                 <div ng-hide="minimizeNavigation">
                     <div class="locale-bar">
