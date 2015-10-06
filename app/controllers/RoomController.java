@@ -162,26 +162,18 @@ public class RoomController extends BaseController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result updateExamStartingHours(Long id) {
+    public Result updateExamStartingHours() {
 
-        DynamicForm df = Form.form().bindFromRequest();
-        String args = df.get("roomIds");
-        String[] examRoomIds;
-        if (args == null || args.isEmpty()) {
-            examRoomIds = new String[]{};
-        } else {
-            examRoomIds = args.split(",");
+        JsonNode root = request().body().asJson();
+        List<Long> roomIds = new ArrayList<>();
+        for (JsonNode roomId : root.get("roomIds")) {
+            roomIds.add(roomId.asLong());
         }
 
-        // If editing one room, set parameter id to array.
-        if (examRoomIds.length == 0) {
-            examRoomIds = new String[1];
-            examRoomIds[0] = id.toString();
-        }
+        List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
 
-        for (int i = 0; i < examRoomIds.length; i++) {
+        for (ExamRoom examRoom : rooms) {
 
-            ExamRoom examRoom = Ebean.find(ExamRoom.class, examRoomIds[i]);
             if (examRoom == null) {
                 return notFound();
             }
@@ -206,7 +198,7 @@ public class RoomController extends BaseController {
     }
 
     @Restrict(@Group({"ADMIN"}))
-    public Result addRoomExceptionHour(Long id) {
+    public Result addRoomExceptionHour() {
 
         final JsonNode root = request().body().asJson();
 
@@ -224,11 +216,7 @@ public class RoomController extends BaseController {
         } else {
             examRoomIds = args.split(",");
         }
-        // If editing one room, set parameter id to array.
-        if (examRoomIds.length == 0) {
-            examRoomIds = new String[1];
-            examRoomIds[0] = id.toString();
-        }
+
         ExceptionWorkingHours hours = null;
 
         for (int i = 0; i < examRoomIds.length; i++) {

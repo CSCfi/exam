@@ -24,11 +24,7 @@
                 workingHours: $resource("/workinghours/", null, {
                     "update": {method: "PUT"}
                 }),
-                examStartingHours: $resource("/startinghours/:id",
-                    {
-                        id: "@id"
-                    }
-                    ,
+                examStartingHours: $resource("/startinghours/", null,
                     {
                         "update": {method: "PUT"}
                     }
