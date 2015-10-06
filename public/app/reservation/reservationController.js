@@ -134,21 +134,6 @@
                         });
                 };
 
-                $scope.sort = {
-                    column: 'reservation.startAt',
-                    order: false
-                };
-
-                $scope.toggleSort = function (value) {
-                    if ($scope.sort.column == value) {
-                        $scope.sort.order = !$scope.sort.order;
-                        return;
-                    }
-
-                    $scope.sort.column = value;
-                    $scope.sort.order = !$scope.sort.order;
-                };
-
             }
         ])
     ;

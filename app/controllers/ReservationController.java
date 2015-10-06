@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import models.*;
 import org.joda.time.DateTime;
+import play.Logger;
 import play.libs.F;
 import play.libs.Json;
 import play.mvc.Result;
@@ -33,10 +34,10 @@ public class ReservationController extends BaseController {
                 .select("id, name")
                 .where()
                 .isNull("parent") // only Exam prototypes
-                .eq("state", Exam.State.PUBLISHED)
-                .gt("examActiveEndDate", new Date());
+                .eq("state", Exam.State.PUBLISHED);
         if (user.hasRole("TEACHER", getSession())) {
-            el = el.disjunction()
+            el = el.gt("examActiveEndDate", new Date())
+                    .disjunction()
                     .eq("creator", user)
                     .eq("examOwners", user)
                     .eq("examInspections.user", user)
@@ -148,8 +149,7 @@ public class ReservationController extends BaseController {
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state")
                 .fetch("exam.examOwners", "id, firstName, lastName")
-                .fetch("exam.parent", "id")
-                .fetch("exam.examInspections", "id")
+                .fetch("exam.parent.examOwners", "id, firstName, lastName")
                 .fetch("exam.examInspections.user", "id, firstName, lastName")
                 .fetch("reservation", "startAt, endAt, noShow")
                 .fetch("reservation.machine", "id, name, ipAddress, otherIdentifier")
@@ -203,9 +203,15 @@ public class ReservationController extends BaseController {
         }
 
         List<ExamEnrolment> enrolments = query.orderBy("reservation.startAt").findList();
-
-        if (enrolments == null) {
-            return notFound();
+        // FIXME: This is so dumb. Ebean won't prefetch the parent exam owners even we requested it to do so. That's why
+        // FIXME: we have to loop through so they get fetched. Find a better way, sure there is one?
+        for (ExamEnrolment ee : enrolments) {
+            Exam e = ee.getExam();
+            if (e.getParent() != null) {
+                for (User u : e.getParent().getExamOwners()) {
+                    Logger.trace(String.format("parent owner is %s %s %d", u.getFirstName(), u.getLastName(), u.getId()));
+                }
+            }
         }
 
         return ok(enrolments);
