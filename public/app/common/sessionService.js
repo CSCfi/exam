@@ -66,34 +66,38 @@
                 };
 
                 var openEulaModal = function (user) {
-                    modal().open({
+                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                        $scope.ok = function () {
+                            // OK button
+                            userRes().updateAgreementAccepted.update(function () {
+                                user.userAgreementAccepted = true;
+                                setUser(user);
+                            }, function (error) {
+                                toastr.error(error.data);
+                            });
+                            $modalInstance.dismiss();
+                            if ($location.url() === '/login' || $location.url() === '/logout') {
+                                $location.path("/");
+                            }
+                            if ($location.url() === '/login' || $location.url() === '/logout') {
+                                $location.path("/");
+                            } else {
+                                route().reload();
+                            }
+                        };
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('cancel');
+                            $location.path("/logout");
+                        };
+                    }];
+                    var m = modal().open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/show_eula.html',
                         backdrop: 'static',
                         keyboard: false,
-                        controller: function ($scope, $modalInstance) {
-                            $scope.ok = function () {
-                                // OK button
-                                userRes().updateAgreementAccepted.update(function () {
-                                    user.userAgreementAccepted = true;
-                                    setUser(user);
-                                }, function (error) {
-                                    toastr.error(error.data);
-                                });
-                                $modalInstance.dismiss();
-                                if ($location.url() === '/login' || $location.url() === '/logout') {
-                                    $location.path("/");
-                                }
-                                if ($location.url() === '/login' || $location.url() === '/logout') {
-                                    $location.path("/");
-                                } else {
-                                    route().reload();
-                                }
-                            };
-                            $scope.cancel = function () {
-                                $modalInstance.dismiss('cancel');
-                                $location.path("/logout");
-                            };
-                        }
+                        controller: ctrl
+                    });
+                    m.result.then(function () {
+                        console.log("closed");
                     });
                 };
 
