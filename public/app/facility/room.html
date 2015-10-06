@@ -114,7 +114,7 @@
 
     <div ng-switch on="editingMultipleRooms()">
         <div ng-switch-when="true" massEditedRooms()>
-            <div class="detail-row-tall" ng-repeat="room in massEditedRooms | filter: massEditedRoomFilter | orderBy:'name'">
+            <div class="detail-row-tall" ng-repeat="room in rooms | filter: massEditedRoomFilter | orderBy:'name'">
                 <div class="col-md-12">
                     <b>{{room.name}}</b>
                 </div>
