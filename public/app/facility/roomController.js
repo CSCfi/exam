@@ -195,7 +195,7 @@
                 $scope.getMassEditedRooms = function () {
                     RoomResource.rooms.query(
                         function (rooms) {
-                            $scope.massEditedRooms = rooms;
+                            $scope.rooms = rooms;
                             $scope.times = times;
                         }, function (error) {
                             toastr.error(error.data);
