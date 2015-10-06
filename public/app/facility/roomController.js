@@ -84,22 +84,6 @@
                     return false;
                 };
 
-                var firstSelection = function (day) {
-                    for (var i = 0; i < week[day].length; ++i) {
-                        if (week[day][i].type) {
-                            return i;
-                        }
-                    }
-                };
-
-                var lastSelection = function (day) {
-                    for (var i = week[day].length - 1; i >= 0; --i) {
-                        if (week[day][i].type) {
-                            return i;
-                        }
-                    }
-                };
-
                 var blocksForDay = function (day) {
                     var blocks = [];
                     var tmp = [];
@@ -166,16 +150,6 @@
                     }
 
                     $scope.updateWorkingHours($scope.roomInstance, week);
-                    //
-                    //if ($scope.editingMultipleRooms()) {
-                    //    $scope.rooms;
-                    //    angular.forEach($scope.rooms, function (room) {
-                    //        $scope.roomInstance = room;
-                    //        $scope.updateWorkingHours(room, week);
-                    //    });
-                    //} else {
-                    //    $scope.updateWorkingHours($scope.roomInstance, week);
-                    //}
                 };
 
                 $scope.calculateTime = function (index) {
@@ -204,7 +178,7 @@
                     return arr;
                 };
 
-                var formatExceptionEvent = function(event) {
+                var formatExceptionEvent = function (event) {
                     var startDate = moment(event.startDate);
                     var endDate = moment(event.endDate);
                     var offset = moment().isDST() ? -1 : 0;
@@ -214,23 +188,25 @@
                     event.endDate = endDate.format();
                 };
 
-                $scope.editingMultipleRooms = function() {
+                $scope.editingMultipleRooms = function () {
                     return ($location.path() == '/rooms_edit/edit_multiple');
-                }
+                };
 
                 $scope.getMassEditedRooms = function () {
                     RoomResource.rooms.query(
                         function (rooms) {
                             $scope.massEditedRooms = rooms;
+                            $scope.times = times;
                         }, function (error) {
                             toastr.error(error.data);
                         }
                     );
-                }
+                };
 
                 if ($scope.user.isAdmin) {
                     if (!$routeParams.id) {
                         RoomResource.rooms.query(function (rooms) {
+                            $scope.times = times;
                             $scope.rooms = rooms;
                             angular.forEach($scope.rooms, function (room) {
                                 room.examMachines = room.examMachines.filter(function (machine) {
@@ -238,16 +214,10 @@
                                 });
                             });
                         });
-
-                     if ($scope.editingMultipleRooms()) {
-                         $scope.getMassEditedRooms();
-                     }
-
                     } else {
                         RoomResource.rooms.get({id: $routeParams.id},
                             function (room) {
                                 $scope.times = times;
-                                room.transitionTime = parseInt(room.transitionTime || 0); // TODO: tt should be int in db
                                 room.defaultWorkingHours.forEach(function (daySlot) {
                                     var timeSlots = slotToTimes(daySlot);
                                     setSelected(daySlot.day, timeSlots);
@@ -261,8 +231,8 @@
                                         return moment(hours.startingHour);
                                     });
                                     $scope.roomInstance.examStartingHourOffset = startingHours[0].minute();
-                                    startingHours = startingHours.map(function(hours) {
-                                       return hours.format("H:mm");
+                                    startingHours = startingHours.map(function (hours) {
+                                        return hours.format("H:mm");
                                     });
                                     $scope.setStartingHourOffset();
                                     $scope.examStartingHours.forEach(function (hours) {
@@ -379,7 +349,7 @@
                     }).map(function (hours) {
                         return formatTime(hours.startingHour);
                     });
-                    var data = {hours: selected, offset: $scope.roomInstance.examStartingHourOffset}
+                    var data = {hours: selected, offset: $scope.roomInstance.examStartingHourOffset};
 
                     if ($scope.editingMultipleRooms()) {
 
@@ -419,7 +389,7 @@
                         toastr.error($translate.instant("sitnet_dont_forget_to_add_machines") + " " + $scope.roomInstance.name);
 
                     RoomResource.rooms.update(room,
-                        function (updated_room) {
+                        function () {
                             toastr.info($translate.instant("sitnet_room_saved"));
                             $location.path("/rooms/");
                         },
@@ -430,9 +400,8 @@
                 };
 
                 $scope.updateAddress = function (address) {
-//                    RoomResource.addresses.update({id: address}, address,
                     RoomResource.addresses.update(address,
-                        function (updated_address) {
+                        function () {
                             toastr.info($translate.instant("sitnet_room_address_updated"));
                         },
                         function (error) {
@@ -536,10 +505,9 @@
 
                 $scope.disableRoom = function (room) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_room_inactivation'));
-                    dialog.result.then(function (btn) {
+                    dialog.result.then(function () {
                         RoomResource.rooms.inactivate({id: room.id},
-                            function (data) {
-                                //room = data;
+                            function () {
                                 toastr.info($translate.instant('sitnet_room_inactivated'));
                                 $route.reload();
                             },
@@ -552,8 +520,7 @@
 
                 $scope.enableRoom = function (room) {
                     RoomResource.rooms.activate({id: room.id},
-                        function (data) {
-                            //room = data;
+                        function () {
                             toastr.info($translate.instant('sitnet_room_activated'));
                             $route.reload();
                         },
@@ -617,8 +584,7 @@
                 $scope.deleteException = function (exception) {
 
                     RoomResource.exception.remove({id: exception.id},
-                        function (saveException) {
-
+                        function () {
                             if ($scope.editingMultipleRooms()) {
                                 $scope.getMassEditedRooms();
                             } else {
@@ -650,7 +616,7 @@
                             now.setMinutes(0);
                             now.setSeconds(0);
                             now.setMilliseconds(0);
-                            $scope.exception = { startDate: now, endDate: angular.copy(now), outOfService: true };
+                            $scope.exception = {startDate: now, endDate: angular.copy(now), outOfService: true};
 
                             $scope.ok = function () {
 
@@ -681,17 +647,17 @@
                                 return s.id;
                             }).join();
 
-                                $scope.roomInstance =  $scope.rooms[0];
+                            $scope.roomInstance = $scope.rooms[0];
 
-                                RoomResource.exception.update({id: roomIds[0], roomIds: roomIds}, exception,
-                                    function (data) {
-                                        toastr.info($translate.instant('sitnet_exception_time_added'));
-                                        $scope.getMassEditedRooms();
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    }
-                                );
+                            RoomResource.exception.update({id: roomIds[0], roomIds: roomIds}, exception,
+                                function () {
+                                    toastr.info($translate.instant('sitnet_exception_time_added'));
+                                    $scope.getMassEditedRooms();
+                                },
+                                function (error) {
+                                    toastr.error(error.data);
+                                }
+                            );
                         } else {
                             RoomResource.exception.update({id: $scope.roomInstance.id}, exception,
                                 function (data) {
@@ -719,19 +685,19 @@
                     return street + address.zip + " " + city;
                 };
 
-                $scope.massEditedRoomFilter = function(room) {
+                $scope.massEditedRoomFilter = function (room) {
 
                     var visible = false;
 
-                    angular.forEach(room.calendarExceptionEvents, function(exception) {
+                    angular.forEach(room.calendarExceptionEvents, function (exception) {
                         if (exception.massEdited) {
-                            visible =  true;
+                            visible = true;
                         }
                     });
                     return visible;
                 };
 
-                $scope.massEditedExceptionFilter = function(exception) {
+                $scope.massEditedExceptionFilter = function (exception) {
 
                     var visible = false;
 

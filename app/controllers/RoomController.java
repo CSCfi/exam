@@ -13,6 +13,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
+import org.springframework.beans.BeanUtils;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.Json;
@@ -144,15 +145,17 @@ public class RoomController extends BaseController {
             roomIds.add(roomId.asLong());
         }
         List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
-        List<DefaultWorkingHours> workingHours = parseWorkingHours(root);
+        List<DefaultWorkingHours> blueprints = parseWorkingHours(root);
         for (ExamRoom examRoom : rooms) {
             List<DefaultWorkingHours> previous = examRoom.getDefaultWorkingHours();
             Ebean.delete(previous);
-            for (DefaultWorkingHours dwh : workingHours) {
-                dwh.setRoom(examRoom);
-                dwh.setTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(
-                        new DateTime(dwh.getEndTime())));
-                dwh.save();
+            for (DefaultWorkingHours blueprint : blueprints) {
+                DefaultWorkingHours copy = new DefaultWorkingHours();
+                BeanUtils.copyProperties(blueprint, copy, "id", "room");
+                copy.setRoom(examRoom);
+                copy.setTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(
+                        new DateTime(blueprint.getEndTime())));
+                copy.save();
             }
         }
         return ok();
