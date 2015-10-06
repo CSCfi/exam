@@ -157,8 +157,8 @@ POST          /rooms/:id                                             controllers
 PUT           /address/:id                                           controllers.RoomController.updateExamRoomAddress(id: Long)
 
 PUT           /workinghours                                          controllers.RoomController.updateExamRoomWorkingHours
-PUT           /startinghours/:id                                     controllers.RoomController.updateExamStartingHours(id: Long)
-PUT           /exception/:id                                         controllers.RoomController.addRoomExceptionHour(id: Long)
+PUT           /startinghours                                         controllers.RoomController.updateExamStartingHours
+PUT           /exception                                             controllers.RoomController.addRoomExceptionHour
 DELETE        /exception/:id                                         controllers.RoomController.removeRoomExceptionHour(id: Long)
 
 POST          /room/:id/accessibility                                controllers.RoomController.updateExamRoomAccessibility(id: Long)

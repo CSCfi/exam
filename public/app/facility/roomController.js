@@ -166,16 +166,6 @@
                     }
 
                     $scope.updateWorkingHours($scope.roomInstance, week);
-                    //
-                    //if ($scope.editingMultipleRooms()) {
-                    //    $scope.rooms;
-                    //    angular.forEach($scope.rooms, function (room) {
-                    //        $scope.roomInstance = room;
-                    //        $scope.updateWorkingHours(room, week);
-                    //    });
-                    //} else {
-                    //    $scope.updateWorkingHours($scope.roomInstance, week);
-                    //}
                 };
 
                 $scope.calculateTime = function (index) {
@@ -385,27 +375,21 @@
 
                         var roomIds = $scope.rooms.map(function (s) {
                             return s.id;
-                        }).join();
-
-                        RoomResource.examStartingHours.update({id: roomIds[0], roomIds: roomIds}, data,
-                            function () {
-                                toastr.info($translate.instant('sitnet_exam_starting_hours_updated'));
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
-
+                        });
                     } else {
-                        RoomResource.examStartingHours.update({id: $scope.roomInstance.id}, data,
-                            function () {
-                                toastr.info($translate.instant('sitnet_exam_starting_hours_updated'));
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
+                        roomIds = [$scope.roomInstance.id];
                     }
+
+                    data.roomIds = roomIds;
+
+                    RoomResource.examStartingHours.update(data,
+                        function () {
+                            toastr.info($translate.instant('sitnet_exam_starting_hours_updated'));
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 };
 
                 $scope.saveRoom = function (room) {
@@ -675,35 +659,27 @@
                     });
 
                     modalInstance.result.then(function (exception) {
-                        if ($scope.editingMultipleRooms()) {
 
-                            var roomIds = $scope.rooms.map(function (s) {
+                        var roomIds;
+                        if ($scope.editingMultipleRooms()) {
+                            roomIds = $scope.rooms.map(function (s) {
                                 return s.id;
                             }).join();
-
-                                $scope.roomInstance =  $scope.rooms[0];
-
-                                RoomResource.exception.update({id: roomIds[0], roomIds: roomIds}, exception,
-                                    function (data) {
-                                        toastr.info($translate.instant('sitnet_exception_time_added'));
-                                        $scope.getMassEditedRooms();
-                                    },
-                                    function (error) {
-                                        toastr.error(error.data);
-                                    }
-                                );
                         } else {
-                            RoomResource.exception.update({id: $scope.roomInstance.id}, exception,
-                                function (data) {
-                                    toastr.info($translate.instant('sitnet_exception_time_added'));
-                                    formatExceptionEvent(data);
-                                    $scope.roomInstance.calendarExceptionEvents.push(data);
-                                },
-                                function (error) {
-                                    toastr.error(error.data);
-                                }
-                            );
+                            roomIds = [$scope.roomInstance.id];
                         }
+
+                        RoomResource.exception.update({roomIds: roomIds}, exception,
+                            function (data) {
+                                toastr.info($translate.instant('sitnet_exception_time_added'));
+                                if ($scope.editingMultipleRooms()) {
+                                    $scope.getMassEditedRooms();
+                                }
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
                     });
                 };
 
