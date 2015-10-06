@@ -159,7 +159,23 @@
                             return;
                         }
                     }
+
+
+                    if ($scope.editingMultipleRooms()) {
+                        $scope.roomInstance = $scope.rooms[0];
+                    }
+
                     $scope.updateWorkingHours($scope.roomInstance, week);
+                    //
+                    //if ($scope.editingMultipleRooms()) {
+                    //    $scope.rooms;
+                    //    angular.forEach($scope.rooms, function (room) {
+                    //        $scope.roomInstance = room;
+                    //        $scope.updateWorkingHours(room, week);
+                    //    });
+                    //} else {
+                    //    $scope.updateWorkingHours($scope.roomInstance, week);
+                    //}
                 };
 
                 $scope.calculateTime = function (index) {
@@ -198,6 +214,20 @@
                     event.endDate = endDate.format();
                 };
 
+                $scope.editingMultipleRooms = function() {
+                    return ($location.path() == '/rooms_edit/edit_multiple');
+                }
+
+                $scope.getMassEditedRooms = function () {
+                    RoomResource.rooms.query(
+                        function (rooms) {
+                            $scope.massEditedRooms = rooms;
+                        }, function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                }
+
                 if ($scope.user.isAdmin) {
                     if (!$routeParams.id) {
                         RoomResource.rooms.query(function (rooms) {
@@ -208,6 +238,11 @@
                                 });
                             });
                         });
+
+                     if ($scope.editingMultipleRooms()) {
+                         $scope.getMassEditedRooms();
+                     }
+
                     } else {
                         RoomResource.rooms.get({id: $routeParams.id},
                             function (room) {
@@ -292,6 +327,10 @@
                     $location.path("/softwares");
                 };
 
+                $scope.editMultipleRooms = function () {
+                    $location.path("/rooms_edit/edit_multiple");
+                };
+
                 $scope.modifyMachine = function (machine) {
                     $location.path("/machines/" + machine.id);
                 };
@@ -341,14 +380,32 @@
                         return formatTime(hours.startingHour);
                     });
                     var data = {hours: selected, offset: $scope.roomInstance.examStartingHourOffset}
-                    RoomResource.examStartingHours.update({id: $scope.roomInstance.id}, data,
-                        function () {
-                            toastr.info($translate.instant('sitnet_exam_starting_hours_updated'));
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
+
+                    if ($scope.editingMultipleRooms()) {
+
+                        var roomIds = $scope.rooms.map(function (s) {
+                            return s.id;
+                        }).join();
+
+                        RoomResource.examStartingHours.update({id: roomIds[0], roomIds: roomIds}, data,
+                            function () {
+                                toastr.info($translate.instant('sitnet_exam_starting_hours_updated'));
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+
+                    } else {
+                        RoomResource.examStartingHours.update({id: $scope.roomInstance.id}, data,
+                            function () {
+                                toastr.info($translate.instant('sitnet_exam_starting_hours_updated'));
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
                 };
 
                 $scope.saveRoom = function (room) {
@@ -531,16 +588,34 @@
                         }
                     }
 
-                    RoomResource.workinghours.update({id: $scope.roomInstance.id}, workingHours,
-                        function () {
-                            toastr.info($translate.instant('sitnet_default_opening_hours_updated'));
-                        },
-                        function (error) {
-                            toastr.error(error.data);
-                        }
-                    );
-                };
+                    if ($scope.editingMultipleRooms()) {
 
+                        var roomIds = $scope.rooms.map(function (s) {
+                            return s.id;
+                        }).join();
+
+                        angular.forEach($scope.rooms, function(room) {
+
+                        RoomResource.workinghours.update({id: room.id, roomIds: roomIds}, workingHours,
+                            function () {
+                                toastr.info($translate.instant('sitnet_default_opening_hours_updated'));
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                        });
+                    } else {
+                        RoomResource.workinghours.update({id: $scope.roomInstance.id, roomIds: roomIds}, workingHours,
+                            function () {
+                                toastr.info($translate.instant('sitnet_default_opening_hours_updated'));
+                            },
+                            function (error) {
+                                toastr.error(error.data);
+                            }
+                        );
+                    }
+                };
 
                 var remove = function (arr, item) {
                     var index = arr.indexOf(item);
@@ -549,10 +624,16 @@
 
 
                 $scope.deleteException = function (exception) {
+
                     RoomResource.exception.remove({id: exception.id},
                         function (saveException) {
+
+                            if ($scope.editingMultipleRooms()) {
+                                $scope.getMassEditedRooms();
+                            } else {
+                                remove($scope.roomInstance.calendarExceptionEvents, exception);
+                            }
                             toastr.info($translate.instant('sitnet_exception_time_removed'));
-                            remove($scope.roomInstance.calendarExceptionEvents, exception);
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -568,7 +649,6 @@
                 };
 
                 $scope.addException = function () {
-
 
                     var modalInstance = $modal.open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'facility/exception.html',
@@ -604,17 +684,35 @@
                     });
 
                     modalInstance.result.then(function (exception) {
+                        if ($scope.editingMultipleRooms()) {
 
-                        RoomResource.exception.update({id: $scope.roomInstance.id}, exception,
-                            function (data) {
-                                toastr.info($translate.instant('sitnet_exception_time_added'));
-                                formatExceptionEvent(data);
-                                $scope.roomInstance.calendarExceptionEvents.push(data);
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
+                            var roomIds = $scope.rooms.map(function (s) {
+                                return s.id;
+                            }).join();
+
+                                $scope.roomInstance =  $scope.rooms[0];
+
+                                RoomResource.exception.update({id: roomIds[0], roomIds: roomIds}, exception,
+                                    function (data) {
+                                        toastr.info($translate.instant('sitnet_exception_time_added'));
+                                        $scope.getMassEditedRooms();
+                                    },
+                                    function (error) {
+                                        toastr.error(error.data);
+                                    }
+                                );
+                        } else {
+                            RoomResource.exception.update({id: $scope.roomInstance.id}, exception,
+                                function (data) {
+                                    toastr.info($translate.instant('sitnet_exception_time_added'));
+                                    formatExceptionEvent(data);
+                                    $scope.roomInstance.calendarExceptionEvents.push(data);
+                                },
+                                function (error) {
+                                    toastr.error(error.data);
+                                }
+                            );
+                        }
                     });
                 };
 
@@ -628,6 +726,28 @@
                     var street = address.street ? address.street + ", " : "";
                     var city = (address.city || "").toUpperCase();
                     return street + address.zip + " " + city;
+                };
+
+                $scope.massEditedRoomFilter = function(room) {
+
+                    var visible = false;
+
+                    angular.forEach(room.calendarExceptionEvents, function(exception) {
+                        if (exception.massEdited) {
+                            visible =  true;
+                        }
+                    });
+                    return visible;
+                };
+
+                $scope.massEditedExceptionFilter = function(exception) {
+
+                    var visible = false;
+
+                    if (exception.massEdited == true) {
+                        visible = true;
+                    }
+                    return visible;
                 };
 
             }]);

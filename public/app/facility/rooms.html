@@ -5,21 +5,21 @@
 </div>
 <div id="dashboard">
     <div class="main-row">
-        <div class="col-md-4">
+        <div class="col-md-3">
              <span class="pull-left fa-stack fa-lg header-top-icon">
                 <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                 <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
             </span>
             <a class="header-top-link" ng-click="createExamRoom()">{{ 'sitnet_add_new_room' | translate }}</a>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
              <span class="pull-left fa-stack fa-lg header-top-icon">
                 <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
                 <i class="fa sitnet-white fa-laptop fa-stack-1x"></i>
             </span>
             <a class="header-top-link" ng-click="manageSoftwares()">{{ 'sitnet_softwares' | translate }}</a>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <a href="#/accessibility">
                  <span class="pull-left fa-stack fa-lg header-top-icon">
                     <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
@@ -27,6 +27,13 @@
                 </span>
                 <span class="header-top-link">{{ 'sitnet_room_accessibility_info' | translate }}</span>
             </a>
+        </div>
+        <div class="col-md-3">
+                 <span class="pull-left fa-stack fa-lg header-top-icon">
+                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                    <i class="fa sitnet-white fa-building-o fa-stack-1x"></i>
+                </span>
+            <a class="header-top-link" ng-click="editMultipleRooms()">{{ 'sitnet_edit_all_rooms' | translate }}</a>
         </div>
     </div>
 

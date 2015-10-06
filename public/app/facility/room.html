@@ -1,11 +1,12 @@
 <div id="sitnet-header" class="header">
     <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{'sitnet_examination_location' | translate}}</span>
+        <span class="header-text" ng-hide="editingMultipleRooms()">{{'sitnet_examination_location' | translate}}</span>
+        <span class="header-text" ng-show="editingMultipleRooms()">{{'sitnet_edit_all_rooms' | translate}}</span>
     </div>
 </div>
 <div id="dashboard">
     <div class="main-row">
-        <div class="col-md-12">
+        <div class="col-md-12" ng-hide="editingMultipleRooms()">
             <form role="form" name="roomForm" novalidate id="room">
                 <div class="row">
                     <span class="col-md-6" ng-init="showName = true">
@@ -110,18 +111,45 @@
     <div class="top-row">
         <h3 class="col-md-12 header-text">{{'sitnet_exception_datetimes' | translate}}</h3>
     </div>
-    <div class="detail-row" ng-repeat="exception in roomInstance.calendarExceptionEvents">
-        <div class="col-md-3">
-            {{formatDate(exception)}}
+
+    <div ng-switch on="editingMultipleRooms()">
+        <div ng-switch-when="true" massEditedRooms()>
+            <div class="detail-row-tall" ng-repeat="room in massEditedRooms | filter: massEditedRoomFilter | orderBy:'name'">
+                <div class="col-md-12">
+                    <b>{{room.name}}</b>
+                </div>
+                <div class="detail-row" ng-repeat="exception in room.calendarExceptionEvents | filter: massEditedExceptionFilter">
+                    <div class="col-md-3">
+                        {{formatDate(exception)}}
+                    </div>
+                    <div class="col-md-3 text-danger" ng-show="exception.outOfService">
+                        {{ 'sitnet_room_out_of_service' | translate }}
+                    </div>
+                    <div class="col-md-3 text-info" ng-hide="exception.outOfService">
+                        {{ 'sitnet_room_in_service' | translate }}
+                    </div>
+                    <div class="col-md-3">
+                        <a class="pointer" ng-click="deleteException(exception)">{{'sitnet_exam_remove' | translate}}</a>
+                    </div>
+                </div>
+                <!--<br/>-->
+            </div>
         </div>
-        <div class="col-md-3 text-danger" ng-show="exception.outOfService">
-            {{ 'sitnet_room_out_of_service' | translate }}
-        </div>
-        <div class="col-md-3 text-info" ng-hide="exception.outOfService">
-            {{ 'sitnet_room_in_service' | translate }}
-        </div>
-        <div class="col-md-6">
-            <a class="pointer" ng-click="deleteException(exception)">{{'sitnet_exam_remove' | translate}}</a>
+        <div ng-switch-default>
+            <div class="detail-row" ng-repeat="exception in roomInstance.calendarExceptionEvents">
+                <div class="col-md-3">
+                    {{formatDate(exception)}}
+                </div>
+                <div class="col-md-3 text-danger" ng-show="exception.outOfService">
+                    {{ 'sitnet_room_out_of_service' | translate }}
+                </div>
+                <div class="col-md-3 text-info" ng-hide="exception.outOfService">
+                    {{ 'sitnet_room_in_service' | translate }}
+                </div>
+                <div class="col-md-6">
+                    <a class="pointer" ng-click="deleteException(exception)">{{'sitnet_exam_remove' | translate}}</a>
+                </div>
+            </div>
         </div>
     </div>
     <div class="main-row">
@@ -132,7 +160,7 @@
         </div>
     </div>
     <!-- Accessibility information -->
-    <div class="detail-row">
+    <div class="detail-row" ng-hide="editingMultipleRooms()">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_room_accessibility_info' | translate}}</div>
                 <multiselect class="input-xlarge"
@@ -147,7 +175,7 @@
     </div>
 
     <!-- Guidance & Contact person information -->
-    <div class="detail-row">
+    <div class="detail-row" ng-hide="editingMultipleRooms()">
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_room_guidance' | translate}}</div>
             <div class="input-group">
@@ -180,7 +208,7 @@
     </div>
 
     <!-- Video recordings URL -->
-    <div class="detail-row">
+    <div class="detail-row" ng-hide="editingMultipleRooms()">
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_room_videorecordings_url' | translate}}</div>
             <div class="input-group">
@@ -194,7 +222,7 @@
     </div>
 
     <!-- Postal address-->
-    <div class="main-row">
+    <div class="main-row" ng-hide="editingMultipleRooms()">
         <div class="col-md-12">
             <!-- Address -->
             <h3>{{'sitnet_exam_room_address' | translate }}</h3>
@@ -204,16 +232,16 @@
     </div>
 
     <!-- Service status -->
-    <div class="top-row">
+    <div class="top-row" ng-hide="editingMultipleRooms()">
         <div class="col-md-12">
             <input type="checkbox" ng-model="roomInstance.outOfService" ng-change="updateRoom(roomInstance)">
             <strong>{{'sitnet_out_of_service' | translate}}</strong>
         </div>
     </div>
-    <div class="detail-row">
+    <div class="detail-row" ng-hide="editingMultipleRooms()">
         <div class="col-md-12 sitnet-info-text">{{'sitnet_reason' | translate}}</div>
     </div>
-    <div class="bottom-row">
+    <div class="bottom-row" ng-hide="editingMultipleRooms()">
         <div class="col-md-6">
             <div class="input-group">
                 <textarea ng-disabled="!roomInstance.outOfService" class="form-control ng-pristine ng-valid" ng-model="roomInstance.statusComment"

@@ -526,6 +526,7 @@
   "sitnet_no_participants": "Osallistujia ei määritelty SV",
   "sitnet_no_required_softwares": "Tenttikoneilla ei ole tarvittavaa ohjelmistoyhdistelmää SV",
   "sitnet_exam_copied": "Tentti kopioitu SV",
+<<<<<<< HEAD
   "sitnet_select_role": "Valitse käyttäjärooli, jolla haluat kirjautua SV",
   "sitnet_exam_trial_count": "Suorituskertojen määrä SV",
   "sitnet_exam_trial_count_description": "Kuinka monta kertaa tentin saa suorittaa ennen arviointia SV",
@@ -573,5 +574,6 @@
   "sitnet_error_future_reservations_exist": "Muokkaus ei sallittu, koska tenttiin on tulossa opiskelijoita SV",
   "sitnet_restricting_validity_change_disallowed": "Tenttiperiodin rajoittava muokkaus estetty. SV",
   "sitnet_reservation_time": "Bokningtid",
-  "sitnet_user_language": "Språk"
+  "sitnet_user_language": "Språk",
+  "sitnet_edit_all_rooms": "Muokkaa kaikkia tenttitiloja SV"
 }
