@@ -18,6 +18,7 @@ import play.data.Form;
 import play.libs.Json;
 import play.mvc.Result;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -116,53 +117,44 @@ public class RoomController extends BaseController {
         return ok(Json.toJson(address));
     }
 
+    private List<DefaultWorkingHours> parseWorkingHours(JsonNode root) {
+        JsonNode node = root.get("workingHours");
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
+        List<DefaultWorkingHours> result = new ArrayList<>();
+        for (JsonNode weekday : node) {
+            for (JsonNode block : weekday.get("blocks")) {
+                DefaultWorkingHours dwh = new DefaultWorkingHours();
+                dwh.setDay(weekday.get("weekday").asText());
+                // Deliberately use first of Jan to have no DST in effect
+                DateTime startTime = DateTime.parse(block.get("start").asText(), formatter).withDayOfYear(1);
+                DateTime endTime = DateTime.parse(block.get("end").asText(), formatter).withDayOfYear(1);
+                dwh.setStartTime(startTime.toDate());
+                dwh.setEndTime(endTime.toDate());
+                result.add(dwh);
+            }
+        }
+        return result;
+    }
+
     @Restrict(@Group({"ADMIN"}))
-    public Result updateExamRoomWorkingHours(Long id) {
-
-//        DynamicForm df = Form.form().bindFromRequest();
-//        String args = df.get("roomIds");
-        String[] examRoomIds;
-        examRoomIds = new String[]{}; // Remove this, if you uncomment following lines.
-//        if (args == null || args.isEmpty()) {
-//            examRoomIds = new String[]{};
-//        } else {
-//            examRoomIds = args.split(",");
-//        }
-
-        // If editing one room, set parameter id to array.
-        if (examRoomIds.length == 0) {
-            examRoomIds = new String[1];
-            examRoomIds[0] = id.toString();
+    public Result updateExamRoomWorkingHours() {
+        JsonNode root = request().body().asJson();
+        List<Long> roomIds = new ArrayList<>();
+        for (JsonNode roomId : root.get("roomIds")) {
+            roomIds.add(roomId.asLong());
         }
-
-        for (int i = 0; i < examRoomIds.length; i++) {
-
-            ExamRoom examRoom = Ebean.find(ExamRoom.class, examRoomIds[i]);
-            if (examRoom == null) {
-                return notFound();
-            }
-            List<DefaultWorkingHours> previous = Ebean.find(DefaultWorkingHours.class)
-                    .where().eq("room.id", examRoom.getId()).findList();
+        List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
+        List<DefaultWorkingHours> workingHours = parseWorkingHours(root);
+        for (ExamRoom examRoom : rooms) {
+            List<DefaultWorkingHours> previous = examRoom.getDefaultWorkingHours();
             Ebean.delete(previous);
-
-            JsonNode node = request().body().asJson();
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
-            for (JsonNode weekday : node) {
-                for (JsonNode block : weekday.get("blocks")) {
-                    DefaultWorkingHours dwh = new DefaultWorkingHours();
-                    dwh.setRoom(examRoom);
-                    dwh.setDay(weekday.get("weekday").asText());
-                    // Deliberately use first of Jan to have no DST in effect
-                    DateTime startTime = DateTime.parse(block.get("start").asText(), formatter).withDayOfYear(1);
-                    DateTime endTime = DateTime.parse(block.get("end").asText(), formatter).withDayOfYear(1);
-                    dwh.setStartTime(startTime.toDate());
-                    dwh.setEndTime(endTime.toDate());
-                    dwh.setTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endTime));
-                    dwh.save();
-                }
+            for (DefaultWorkingHours dwh : workingHours) {
+                dwh.setRoom(examRoom);
+                dwh.setTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(
+                        new DateTime(dwh.getEndTime())));
+                dwh.save();
             }
         }
-
         return ok();
     }
 
@@ -223,7 +215,7 @@ public class RoomController extends BaseController {
 
         DynamicForm df = Form.form().bindFromRequest();
         String args = df.get("roomIds");
-        String [] examRoomIds;
+        String[] examRoomIds;
         if (args == null || args.isEmpty()) {
             examRoomIds = new String[]{};
         } else {

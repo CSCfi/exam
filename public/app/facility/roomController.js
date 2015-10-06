@@ -573,6 +573,7 @@
                 };
 
                 $scope.updateWorkingHours = function (room, week) {
+                    var data = {};
                     var workingHours = [];
                     for (var day in week) {
                         if (week.hasOwnProperty(day)) {
@@ -587,34 +588,24 @@
                             workingHours.push(weekdayBlocks);
                         }
                     }
-
+                    data.workingHours = workingHours;
+                    var roomIds;
                     if ($scope.editingMultipleRooms()) {
-
-                        var roomIds = $scope.rooms.map(function (s) {
+                        roomIds = $scope.rooms.map(function (s) {
                             return s.id;
-                        }).join();
-
-                        angular.forEach($scope.rooms, function(room) {
-
-                        RoomResource.workinghours.update({id: room.id, roomIds: roomIds}, workingHours,
-                            function () {
-                                toastr.info($translate.instant('sitnet_default_opening_hours_updated'));
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
                         });
                     } else {
-                        RoomResource.workinghours.update({id: $scope.roomInstance.id, roomIds: roomIds}, workingHours,
-                            function () {
-                                toastr.info($translate.instant('sitnet_default_opening_hours_updated'));
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
+                        roomIds = [$scope.roomInstance.id];
                     }
+                    data.roomIds = roomIds;
+                    RoomResource.workingHours.update(data,
+                        function () {
+                            toastr.info($translate.instant('sitnet_default_opening_hours_updated'));
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
                 };
 
                 var remove = function (arr, item) {

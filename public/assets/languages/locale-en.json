@@ -526,7 +526,6 @@
   "sitnet_no_participants": "Osallistujia ei määritelty EN",
   "sitnet_no_required_softwares": "Tenttikoneilla ei ole tarvittavaa ohjelmistoyhdistelmää EN",
   "sitnet_exam_copied": "Tentti kopioitu EN",
-<<<<<<< HEAD
   "sitnet_select_role": "Valitse käyttäjärooli, jolla haluat kirjautua EN",
   "sitnet_exam_trial_count": "Suorituskertojen määrä EN",
   "sitnet_exam_trial_count_description": "Kuinka monta kertaa tentin saa suorittaa ennen arviointia EN",

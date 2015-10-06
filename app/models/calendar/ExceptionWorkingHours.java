@@ -30,9 +30,6 @@ public class ExceptionWorkingHours extends GeneratedIdentityModel {
     @JsonBackReference
     private ExamRoom room;
 
-    // Working hours_exception indentifier
-    private String exceptionUuid;
-
     private boolean massEdited;
 
     public Date getEndDate() {
@@ -82,10 +79,6 @@ public class ExceptionWorkingHours extends GeneratedIdentityModel {
     public void setOutOfService(boolean outOfService) {
         this.outOfService = outOfService;
     }
-
-    public void setExceptionUuid(String exceptionUuid) { this.exceptionUuid = exceptionUuid; }
-
-    public String getExceptionUuid() { return exceptionUuid; }
 
     public void setMassEdited(boolean massEdited) {this.massEdited = massEdited; }
 
