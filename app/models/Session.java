@@ -1,15 +1,11 @@
 package models;
 
 import org.joda.time.DateTime;
-import util.AppUtil;
-
-import java.util.UUID;
 
 public class Session {
     private Long userId;
     private DateTime since;
     private Boolean valid;
-    private String xsrfToken;
     private String loginRole;
 
     public Long getUserId() {
@@ -34,14 +30,6 @@ public class Session {
 
     public void setValid(Boolean valid) {
         this.valid = valid;
-    }
-
-    public void setXsrfToken() {
-        xsrfToken = AppUtil.encodeMD5(UUID.randomUUID().toString());
-    }
-
-    public String getXsrfToken() {
-        return xsrfToken;
     }
 
     public String getLoginRole() {

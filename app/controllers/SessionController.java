@@ -127,7 +127,6 @@ public class SessionController extends BaseController {
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
         session.setValid(true);
-        session.setXsrfToken();
         // If user has just one role, set it as the one used for login
         if (user.getRoles().size() == 1) {
             session.setLoginRole(user.getRoles().get(0).getName());
@@ -143,9 +142,6 @@ public class SessionController extends BaseController {
         result.set("roles", Json.toJson(user.getRoles()));
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
-
-        response().setCookie("XSRF-TOKEN", session.getXsrfToken());
-
         return ok(result);
     }
 
@@ -190,10 +186,10 @@ public class SessionController extends BaseController {
     }
 
     public Result logout() {
-        response().discardCookie("XSRF-TOKEN");
         String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
         String key = SITNET_CACHE_KEY + token;
         Session session = cache.get(key);
+        Result result = ok();
         if (session != null) {
             User user = Ebean.find(User.class, session.getUserId());
             if (LOGIN_TYPE.equals("HAKA")) {
@@ -206,10 +202,11 @@ public class SessionController extends BaseController {
             if (user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
-                return ok(Json.toJson(node));
+                result = ok(Json.toJson(node));
             }
         }
-        return ok();
+        session().clear();
+        return result;
     }
 
     public Result setLoginRole(Long uid, String roleName) {

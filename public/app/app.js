@@ -9,6 +9,7 @@
     angular.module('exam.utils', []);
     angular.module('exam', [
         'ngAnimate',
+        'ngCookies',
         'ngRoute',
         'ngResource',
         'ngStorage',

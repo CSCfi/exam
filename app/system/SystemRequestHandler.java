@@ -128,7 +128,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
         String machineIp = examMachine.getIpAddress();
         String remoteIp = request.remoteAddress();
 
-        Logger.debug("\nUser ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
+        Logger.debug("User is on IP: {} <-> Should be on IP: {}", remoteIp, machineIp);
 
         //todo: is there another way to identify/match machines?
         //todo: eg. some transparent proxy that add id header etc.

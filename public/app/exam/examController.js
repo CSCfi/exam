@@ -394,7 +394,7 @@
                     });
                 };
 
-                $scope.trustAsHtml = function(content) {
+                $scope.trustAsHtml = function (content) {
                     return $sce.trustAsHtml(content);
                 };
 
@@ -860,8 +860,10 @@
                     return $scope.newExam.trialCount == x ? "btn-primary" : "";
                 };
 
-                $scope.truncate = function(content, offset) {
-                    return $filter('truncate')(content, offset);
+                $scope.truncate = function (content, offset) {
+                    if (content) {
+                        return $filter('truncate')(content, offset);
+                    }
                 };
 
                 $scope.setTrialCount = function (x) {

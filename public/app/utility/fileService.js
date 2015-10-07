@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .factory('fileService', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
-            function ($q, $http, $translate, $timeout, SettingsResource) {
+        .factory('fileService', ['$q', '$http', '$translate', '$timeout', '$cookies', 'SettingsResource',
+            function ($q, $http, $translate, $timeout, $cookies, SettingsResource) {
                 var _supportsBlobUrls;
                 var _maxFileSize
 
@@ -68,6 +68,7 @@
                     }
                     var fd = new FormData();
                     fd.append('file', file);
+                    fd.append('csrfToken', $cookies.csrfToken);
                     for (var k in params) {
                         if (params.hasOwnProperty(k)) {
                             fd.append(k, params[k]);
