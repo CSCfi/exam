@@ -1,7 +1,7 @@
 <!-- compact -->
 <div class="detail-row" ng-hide="sectionQuestion.question.reviewExpanded" ng-repeat="option in sectionQuestion.question.answer.options">
     <div class="col-md-6 review-question-value" mathjax ng-bind-html="option.option"></div>
-    <div class="col-md-1" style="text-align: right" ng-class="option.score > 0 ? 'text-success' : 'text-danger'">&nbsp;&nbsp;{{option.score}} {{'sitnet_unit_points' | translate }}</div>
+    <div class="col-md-3" style="text-align: right" ng-class="option.score > 0 ? 'text-success' : 'text-danger'">&nbsp;&nbsp;{{option.score}} {{'sitnet_unit_points' | translate }}</div>
 </div>
 <!-- full -->
 <div class="detail-row" ng-show="sectionQuestion.question.reviewExpanded" ng-repeat="option in sectionQuestion.question.options">
