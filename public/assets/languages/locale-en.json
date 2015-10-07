@@ -173,6 +173,7 @@
   "sitnet_saved_exams": "Saved exams",
   "sitnet_saved_exams_info_main": "These exams haven't been published and thus students cannot enroll on them.",
   "sitnet_saved_exams_info_other": "These exams CAN BE modified.",
+  "sitnet_max_score": "Question maximum grade",
   "sitnet_search": "Search",
   "sitnet_section_add": "Add new section by clicking here",
   "sitnet_select": "Select",

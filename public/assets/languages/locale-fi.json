@@ -173,6 +173,7 @@
   "sitnet_saved_exams": "Tallennetut tentit",
   "sitnet_saved_exams_info_main": "Tenttejä ei ole vielä julkaistu eivätkä opiskelijat voi ilmoittautua näihin tentteihin.",
   "sitnet_saved_exams_info_other": "Tallennetun tentin voi poistaa tarvittaessa.",
+  "sitnet_max_score": "Kysymyksen maksimipisteet",
   "sitnet_search": "Hae",
   "sitnet_section_add": "Lisää aihealue tenttiin klikkaamalla tästä",
   "sitnet_select": "Valitse",
