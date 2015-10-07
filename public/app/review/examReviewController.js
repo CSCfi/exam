@@ -469,13 +469,6 @@
                     return count;
                 };
 
-                $scope.toggleFeedbackHiding = function (hidden) {
-                    if (hidden) {
-                        $scope.saveFeedback();
-                    }
-                    return !hidden;
-                };
-
                 $scope.trustAsHtml = function(content) {
                     return $sce.trustAsHtml(content);
                 };
