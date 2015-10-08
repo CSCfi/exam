@@ -307,6 +307,7 @@ public class ExamController extends BaseController {
         }
         User user = getLoggedUser();
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole("ADMIN", getSession())) {
+            exam.getExamSections().stream().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
             return ok(exam);
         } else {
             return forbidden("sitnet_error_access_forbidden");
@@ -966,6 +967,7 @@ public class ExamController extends BaseController {
             section.getSectionQuestions().add(sectionQuestion);
             AppUtil.setModifier(section, user);
             section.save();
+            section.setSectionQuestions(new TreeSet<>(section.getSectionQuestions()));
             return ok(Json.toJson(section));
         }
         return forbidden("sitnet_error_access_forbidden");
