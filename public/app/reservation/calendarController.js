@@ -39,6 +39,25 @@
 
                 var renderCount = 0;
 
+                var renderCalendarTitle = function() {
+                    // Fix date range format in title
+                    var title = $(".fc-toolbar .fc-center > h2").text();
+                    var newTitle = '';
+                    var separator = ' — ';
+                    var endPart = title.split(separator)[1];
+                    var startFragments = title.split(separator)[0].split('.');
+                    if (startFragments.length < 3) {
+                        startFragments.forEach(function(f) {
+                            newTitle += f;
+                            if (f && f[f.length-1] != '.') {
+                                newTitle += '.';
+                            }
+                        })
+                    }
+                    newTitle += separator + endPart;
+                    $(".fc-toolbar .fc-center > h2").text(newTitle);
+                };
+
                 $scope.calendarConfig = {
                     aspectRatio: 3,
                     editable: false,
@@ -66,6 +85,7 @@
                         right: 'prev, next today'
                     },
                     events: function (start) {
+                        renderCalendarTitle();
                         renderCount = 0;
                         refresh(start);
                     },
@@ -107,6 +127,7 @@
                         }
                     },
                     viewRender: function (view) {
+                        // Disable next/prev buttons if date range is off limits
                         var minDate = moment();
                         if (minDate >= view.start && minDate <= view.end) {
                             $(".fc-prev-button").prop('disabled', true);
@@ -202,7 +223,11 @@
                                     };
                                     $scope.events.push(event);
                                 });
+                                if (slots.length == 0) {
+                                    $scope.loader.loading=false;
+                                }
                             }, function (error) {
+                                $scope.loader.loading=false;
                                 if (error && error.status === 404) {
                                     toastr.error($translate.instant('sitnet_exam_not_active_now'));
                                 } else {

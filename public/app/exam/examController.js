@@ -472,6 +472,7 @@
                     ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                         function (exam) {
                             toastr.info($translate.instant("sitnet_exam_saved"));
+                            exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
                             $scope.newExam = exam;
                             $scope.newExam.examLanguages.forEach(function (language) {
                                 // Use front-end language names always to allow for i18n etc
