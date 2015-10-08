@@ -204,7 +204,7 @@ public class CalendarController extends BaseController {
         Collections.shuffle(machines);
         Interval wantedTime = new Interval(start, end);
         for (ExamMachine machine : machines) {
-            if (!isReservedDuring(machine, wantedTime, false)) {
+            if (!isReservedDuring(machine, wantedTime)) {
                 return machine;
             }
         }
@@ -304,7 +304,7 @@ public class CalendarController extends BaseController {
             }
             // Check machine availability
             int availableMachineCount = machines.stream()
-                    .filter(m -> !isReservedDuring(m, slot, true))
+                    .filter(m -> !isReservedByOthersDuring(m, slot))
                     .collect(Collectors.toList())
                     .size();
             slots.add(new TimeSlot(slot, availableMachineCount, null));
@@ -419,11 +419,17 @@ public class CalendarController extends BaseController {
         return intervals;
     }
 
-    private boolean isReservedDuring(ExamMachine machine, Interval interval, boolean excludeOwn) {
-        return machine.getReservations().stream()
-                .anyMatch(r -> interval.overlaps(r.toInterval()) &&
-                                (!excludeOwn && r.getUser().equals(getLoggedUser()))
-                );
+    private boolean isReservedDuring(ExamMachine machine, Interval interval) {
+        return machine.getReservations()
+                .stream()
+                .anyMatch(r -> interval.overlaps(r.toInterval()));
+    }
+
+    private boolean isReservedByOthersDuring(ExamMachine machine, Interval interval) {
+        return machine.getReservations()
+                .stream()
+                .filter(r -> !r.getUser().equals(getLoggedUser()))
+                .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
     private static List<Reservation> getReservationsDuring(Collection<Reservation> reservations, Interval interval) {
