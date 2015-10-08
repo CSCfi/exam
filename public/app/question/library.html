@@ -76,7 +76,7 @@
                                     data-toggle="dropdown" aria-expanded="true" ng-click="listExams()">
                                 {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
+                            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                                 aria-labelledby="dropDownMenu2">
                                 <li role="presentation" class="input-group">
                                     <input ng-model="limitations.exams" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
@@ -86,7 +86,7 @@
                                 </li>
                                 <li ng-repeat="exam in exams | filter:limitations.exams" role="presentation"
                                     ng-class="exam.filtered ? 'active': ''" ng-click="applyFilter(exam)">
-                                    <a role="menuitem" title="{{exam.name}}">{{exam.name | truncate:30}}</a>
+                                    <a role="menuitem" title="{{exam.name}}">{{exam.name | truncate:25}}</a>
                                 </li>
                             </ul>
                         </span>
@@ -96,7 +96,7 @@
                                     data-toggle="dropdown" aria-expanded="true" ng-click="listTags()">
                                 {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                            <ul class="dropdown-menu pull-right" style="padding-left: 0; min-width: 17em" role="menu"
                                 aria-labelledby="dropDownMenu3">
                                 <li role="presentation" class="input-group">
                                     <input ng-model="limitations.tags" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
@@ -139,12 +139,12 @@
                             <span class="vertical-text" ng-init="verticalText('vertical-text')">{{'sitnet_add_all' | translate}}</span>
                         </li>
                         <li class="question-list-wrapper">
-                            <div class="library-question-header-inactive" ng-repeat="question in visibleQuestions"
+                            <div class="library-question-header-inactive" ng-repeat="question in visibleQuestions" ng-show="question"
                                 draggable="question" draggable-target=".sortable">
                                 <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
                                 </div>
                                 <div class="library-row-text-wrap">
-                                    <div class="library-row-text" mathjax ng-bind-html="shortText(question.question, 55)" title="{{longTextIfNotMath(question.question)}}"></div>
+                                    <div class="library-row-text" mathjax ng-bind-html="question.question | filter: 50" title="{{longTextIfNotMath(question.question)}}"></div>
                                 </div>
                             </div>
                         </li>
