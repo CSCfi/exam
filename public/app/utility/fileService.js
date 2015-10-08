@@ -68,7 +68,7 @@
                     }
                     var fd = new FormData();
                     fd.append('file', file);
-                    fd.append('csrfToken', $cookies.csrfToken);
+                    fd.append('csrfToken', $cookies.get('csrfToken'));
                     for (var k in params) {
                         if (params.hasOwnProperty(k)) {
                             fd.append(k, params[k]);
