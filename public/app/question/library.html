@@ -144,7 +144,7 @@
                                 <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
                                 </div>
                                 <div class="library-row-text-wrap">
-                                    <div class="library-row-text" mathjax ng-bind-html="question.question | filter: 50" title="{{longTextIfNotMath(question.question)}}"></div>
+                                    <div class="library-row-text" mathjax ng-bind-html="question.question | truncate: 50" title="{{longTextIfNotMath(question.question)}}"></div>
                                 </div>
                             </div>
                         </li>
