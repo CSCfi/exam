@@ -203,8 +203,8 @@ public class ReservationController extends BaseController {
         }
 
         List<ExamEnrolment> enrolments = query.orderBy("reservation.startAt").findList();
-        // FIXME: This is so dumb. Ebean won't prefetch the parent exam owners even we requested it to do so. That's why
-        // FIXME: we have to loop through so they get fetched. Find a better way, sure there is one?
+        // FIXME: This is so dumb. Ebean won't prefetch the parent exam owners even we requested it to do so. Have to
+        // FIXME: loop through so they get fetched. Find a better way, sure there is one?
         for (ExamEnrolment ee : enrolments) {
             Exam e = ee.getExam();
             if (e.getParent() != null) {

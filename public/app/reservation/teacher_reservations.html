@@ -6,8 +6,10 @@
 
 <div id="dashboard">
     <div class="main-row">
-        <div class="col-md-2" ng-controller="DatepickerCtrl">
-            <p class="input-group">
+        <div class="col-md-3" ng-controller="DatepickerCtrl">
+            <strong>{{'sitnet_begin' | translate}}</strong>
+
+            <div class="input-group">
                 <input type="text" class="form-control" datepicker-popup="{{format}}"
                        ng-model="dateService.startDate"
                        is-open="startDateOpened" datepicker-options="dateOptions"
@@ -21,46 +23,54 @@
                         <i class="fa fa-calendar"></i>
                     </button>
                 </span>
-            </p>
+            </div>
         </div>
-        <div class="col-md-2" ng-controller="DatepickerCtrl">
-            <p class="input-group">
+        <div class="col-md-3" ng-controller="DatepickerCtrl">
+            <strong>{{'sitnet_end' | translate}}</strong>
+
+            <div class="input-group">
                 <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
                        is-open="endDateOpened" datepicker-options="dateOptions"
                        close-text="{{'sitnet_close' | translate}}"
                        current-text="{{'sitnet_today' | translate}}"
                        toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                       clear-text="{{'sitnet_clear' | translate}}" ng-change="query()" ng-init="dateService.endDate=undefined">
+                       clear-text="{{'sitnet_clear' | translate}}" ng-change="query()"
+                       ng-init="dateService.endDate=undefined">
 
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openEndDate($event)">
                         <i class="fa fa-calendar"></i>
                     </button>
                 </span>
-            </p>
+            </div>
         </div>
-        <span class="col-md-8">
-            <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
-                    ng-model="selection.state" ng-change="query()" class="spaced-column">
-                <option value="" selected> - - {{'sitnet_exam_state' | translate}} - -</option>
-                <option ng-repeat="state in examStates" value="{{state}}">{{'sitnet_exam_status_' + state |
-                    lowercase | translate}}
-                </option>
-            </select>
-            <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+        <div class="col-md-2">
+            <strong>{{'sitnet_student' | translate}}</strong>
+            <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                     ng-model="selection.studentId" ng-change="query()" class="spaced-column">
-                <option value="" selected> - - {{'sitnet_student' | translate}} - -</option>
                 <option ng-repeat="student in students" value="{{student.id}}">{{student.firstName}}
                     {{student.lastName}}
                 </option>
             </select>
-            <select ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+        </div>
+        <div class="col-md-2">
+            <strong>{{'sitnet_exam' | translate}}</strong>
+            <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                     ng-model="selection.examId" ng-change="query()" class="spaced-column">
-                <option value="" selected> - - {{'sitnet_exam' | translate}} - -</option>
                 <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.name}}</option>
             </select>
-        </span>
+        </div>
+        <div class="col-md-2">
+            <strong>{{'sitnet_exam_state' | translate}}</strong>
+            <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+                    ng-model="selection.state" ng-change="query()" class="spaced-column">
+                <option ng-repeat="state in examStates" value="{{state}}">{{'sitnet_exam_status_' + state |
+                    lowercase | translate}}
+                </option>
+            </select>
+        </div>
     </div>
+
 
     <div ng-init="query()" ng-include="reservationDetails"/>
 
