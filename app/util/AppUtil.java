@@ -91,10 +91,8 @@ public class AppUtil {
     }
 
     public static OwnedModel setCreator(OwnedModel object, User user) {
-        if (object.getCreator() == null) {
-            object.setCreator(user);
-            object.setCreated(DateTime.now().toDate());
-        }
+        object.setCreator(user);
+        object.setCreated(DateTime.now().toDate());
         return object;
     }
 
