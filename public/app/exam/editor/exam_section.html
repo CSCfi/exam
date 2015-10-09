@@ -51,15 +51,13 @@
 
 <div class="row">
     <div class="col-md-11 col-md-offset-1" ng-show="section.expanded">
-        <div droppable="section.sectionQuestions" ng-move="moveQuestion(section, from, to)"
+        <ul droppable="section.sectionQuestions" ng-move="moveQuestion(section, from, to)"
             ng-create="insertQuestion(section, object, to)" class="sortable">
-            <div ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
+            <li class="draggable" ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
-            </div>
-            <div ng-show="section.sectionQuestions.length == 0" class="create-new dropdown">
-
-            </div>
-        </div>
+            </li>
+            <div ng-show="section.sectionQuestions.length == 0" class="create-new dropdown"></div>
+        </ul>
         <div class="create-new dropdown" dropdown>
             <a class="dropdown-toggle pointer" data-toggle="dropdown" dropdown-toggle>
                 <i class="fa fa-2x fa-plus-circle"></i>

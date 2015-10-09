@@ -715,15 +715,18 @@
                 };
 
                 $scope.moveQuestion = function (section, from, to) {
-                    DragDropHandler.moveObject(section.sectionQuestions, from, to);
-                    ExamRes.reordersection.update({
-                        eid: $scope.newExam.id,
-                        sid: section.id,
-                        from: from,
-                        to: to
-                    }, function () {
-                        toastr.info($translate.instant("sitnet_questions_reordered"));
-                    });
+                    console.log("moving question #" + from + " to #" + to);
+                    if (from >= 0 && to >= 0 && from != to) {
+                        ExamRes.reordersection.update({
+                            eid: $scope.newExam.id,
+                            sid: section.id,
+                            from: from,
+                            to: to
+                        }, function () {
+                            console.log("moved");
+                            toastr.info($translate.instant("sitnet_questions_reordered"));
+                        });
+                    }
                 };
 
                 var updateSection = function (section, preserveName) {
@@ -791,6 +794,8 @@
                                 updateSection(sec, true); // needs manual update as the scope is somehow not automatically refreshed
                             }, function (error) {
                                 toastr.error(error.data);
+                                // remove broken objects
+                                section.sectionQuestions = section.sectionQuestions.filter(function(sq) { return sq; });
                             }
                         );
                     }
