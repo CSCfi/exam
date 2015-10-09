@@ -715,18 +715,21 @@
                 };
 
                 $scope.moveQuestion = function (section, from, to) {
-                    DragDropHandler.moveObject(section.sectionQuestions, from, to);
-                    ExamRes.reordersection.update({
-                        eid: $scope.newExam.id,
-                        sid: section.id,
-                        from: from,
-                        to: to
-                    }, function () {
-                        toastr.info($translate.instant("sitnet_questions_reordered"));
-                    });
+                    console.log("moving question #" + from + " to #" + to);
+                    if (from >= 0 && to >= 0 && from != to) {
+                        ExamRes.reordersection.update({
+                            eid: $scope.newExam.id,
+                            sid: section.id,
+                            from: from,
+                            to: to
+                        }, function () {
+                            console.log("moved");
+                            toastr.info($translate.instant("sitnet_questions_reordered"));
+                        });
+                    }
                 };
 
-                var updateSection = function (section) {
+                var updateSection = function (section, preserveName) {
                     var index = -1;
                     $scope.newExam.examSections.some(function (s, i) {
                         if (s.id === section.id) {
@@ -735,6 +738,16 @@
                         }
                     });
                     if (index >= 0) {
+                        // This thing is needed atm because draggable question objects swallow the DOM change event
+                        // preventing the uiChange directive from firing on section name input field.
+                        var prev = $scope.newExam.examSections[index];
+                        if (preserveName) {
+                            var newName = section.name;
+                            section.name = prev.name;
+                            if (prev.name !== newName) {
+                                $scope.renameSection({id: section.id, name: prev.name, expanded: true});
+                            }
+                        }
                         $scope.newExam.examSections[index] = section;
                     }
 
@@ -778,9 +791,11 @@
                             }, function (sec) {
                                 DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to);
                                 toastr.info($translate.instant("sitnet_question_added"));
-                                updateSection(sec); // needs manual update as the scope is somehow not automatically refreshed
+                                updateSection(sec, true); // needs manual update as the scope is somehow not automatically refreshed
                             }, function (error) {
                                 toastr.error(error.data);
+                                // remove broken objects
+                                section.sectionQuestions = section.sectionQuestions.filter(function(sq) { return sq; });
                             }
                         );
                     }

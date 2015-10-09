@@ -307,6 +307,7 @@ public class ExamController extends BaseController {
         }
         User user = getLoggedUser();
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole("ADMIN", getSession())) {
+            exam.getExamSections().stream().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
             return ok(exam);
         } else {
             return forbidden("sitnet_error_access_forbidden");
@@ -883,7 +884,10 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result reorderQuestion(Long eid, Long sid, Integer from, Integer to) {
+    public Result reorderSectionQuestions(Long eid, Long sid, Integer from, Integer to) {
+        if (from < 0 || to < 0) {
+            return badRequest();
+        }
         Exam exam = Ebean.find(Exam.class, eid);
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
@@ -891,23 +895,16 @@ public class ExamController extends BaseController {
             if (from.equals(to)) {
                 return ok();
             }
-            for (ExamSectionQuestion esq : section.getSectionQuestions()) {
-                int seq = esq.getSequenceNumber();
-                if (seq == from) {
-                    esq.setSequenceNumber(to);
-                    esq.update();
-                } else {
-                    if (from > to) {
-                        if (seq <= from && seq >= to) {
-                            esq.setSequenceNumber(seq + 1);
-                            esq.update();
-                        }
-                    } else {
-                        if (seq >= from && seq <= to) {
-                            esq.setSequenceNumber(seq - 1);
-                            esq.update();
-                        }
-                    }
+            // Reorder by sequenceNumber (TreeSet orders the collection based on it)
+            List<ExamSectionQuestion> questions = new ArrayList<>(new TreeSet<>(section.getSectionQuestions()));
+            ExamSectionQuestion prev = questions.get(from);
+            boolean removed = questions.remove(prev);
+            if (removed) {
+                questions.add(to, prev);
+                for (int i = 0; i < questions.size(); ++i) {
+                    ExamSectionQuestion question = questions.get(i);
+                    question.setSequenceNumber(i);
+                    question.update();
                 }
             }
             return ok();
@@ -966,6 +963,7 @@ public class ExamController extends BaseController {
             section.getSectionQuestions().add(sectionQuestion);
             AppUtil.setModifier(section, user);
             section.save();
+            section.setSectionQuestions(new TreeSet<>(section.getSectionQuestions()));
             return ok(Json.toJson(section));
         }
         return forbidden("sitnet_error_access_forbidden");

@@ -81,6 +81,7 @@ public class StudentExamController extends BaseController {
                 .fetch("exam", "id, state, name")
                 .fetch("exam.creator", "id")
                 .fetch("exam.course", "code")
+                .fetch("exam.parent.examOwners", "firstName, lastName, id")
                 .fetch("exam.examOwners", "firstName, lastName, id")
                 .fetch("exam.examInspectors", "firstName, lastName, id")
                 .where()
