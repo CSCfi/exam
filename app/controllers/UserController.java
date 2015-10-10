@@ -122,7 +122,9 @@ public class UserController extends BaseController {
         for (User u : users) {
             ObjectNode part = Json.newObject();
             part.put("id", u.getId());
-            part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
+            String uid = u.getUserIdentifier();
+            String uidString = uid != null && !uid.isEmpty() ? String.format(" (%s)", u.getUserIdentifier()) : "";
+            part.put("name", String.format("%s %s%s", u.getFirstName(), u.getLastName(), uidString));
             array.add(part);
         }
         return array;
