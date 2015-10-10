@@ -226,7 +226,7 @@ public class CalendarController extends BaseController {
                 isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {
             LocalDate searchDate;
             try {
-                searchDate = parseSearchDate(day, exam);
+                searchDate = parseSearchDate(day, exam, room);
             } catch (NotFoundException e) {
                 return notFound();
             }
@@ -318,14 +318,15 @@ public class CalendarController extends BaseController {
      * Search date is the current date if searching for current week or earlier,
      * If searching for upcoming weeks, day of week is one.
      */
-    private static LocalDate parseSearchDate(String day, Exam exam) throws NotFoundException {
+    private static LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException {
         String reservationWindow = SettingsController.getOrCreateSettings(
                 "reservation_window_size", null, null).getValue();
         int windowSize = 0;
         if (reservationWindow != null) {
             windowSize = Integer.parseInt(reservationWindow);
         }
-        LocalDate now = LocalDate.now();
+        int offset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now());
+        LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
         LocalDate examEndDate = new LocalDate(exam.getExamActiveEndDate());
         LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
