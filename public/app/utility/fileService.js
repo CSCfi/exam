@@ -66,6 +66,8 @@
                         toastr.error($translate.instant('sitnet_file_too_large'));
                         return;
                     }
+                    console.log('All cookies: ' + angular.toJson($cookies.getAll()));
+                    console.log('CT: ' + $cookies.get('csrfToken'));
                     var fd = new FormData();
                     fd.append('file', file);
                     fd.append('csrfToken', $cookies.get('csrfToken'));
