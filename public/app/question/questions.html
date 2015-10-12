@@ -178,7 +178,7 @@
                         </span>
                     </td>
                     <td>
-                        <span ng-if="question.modified">{{question.modified | date:'dd.MM.yyyy'}}</span>
+                        <span ng-if="question.modified" class="timestamp">{{question.modified | date:'dd.MM.yyyy HH:mm'}}</span>
                     </td>
                     <td>
                         <span ng-if="question.evaluationType === 'Points' || question.type === 'MultipleChoiceQuestion'">{{ question.maxScore }}</span>
