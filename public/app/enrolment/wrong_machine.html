@@ -54,7 +54,7 @@
         <strong class="col-md-9 text">{{enrolment.reservation.machine.name}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;{{enrolment.reservation.machine.room.name}}({{enrolment.reservation.machine.room.roomCode}})</strong>
     </div>
     <div class="detail-row">
-        <div class="col-md-3 header text">{{ 'sitnet_exam_time' | translate }}:</div>
+        <div class="col-md-3 header text">{{ 'sitnet_reservation_time' | translate }}:</div>
         <strong class="col-md-9 text">{{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}} - {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}</strong>
     </div>
     <div class="detail-row" ng-show="enrolment.exam.enrollInstruction">

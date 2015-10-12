@@ -8,7 +8,6 @@
   z-index: 331;
   padding: 0;
   position: fixed;
-  overflow: auto;
 
   i {
     vertical-align: middle;
@@ -74,6 +73,10 @@
     }
   }
 
+  .app-version {
+    padding: 0.5em 1em 1em;
+  }
+
   .user {
     width: 100%;
   }
@@ -114,6 +117,7 @@
     position: relative;
     left: 0;
     padding: 0.5em;
+    overflow: visible !important;
   }
 
   .locale-bar {

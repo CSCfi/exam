@@ -15,9 +15,7 @@
                     }),
                 examnames: $resource(
                     "/statistics/examnames", null,
-                    {
-
-                    }),
+                    {}),
                 reviewsByDate: $resource(
                     "/statistics/reviewsbydate/:from/:to",
                     {
@@ -36,7 +34,22 @@
                     },
                     {
                         "get": {method: "GET", params: {uid: "@uid", from: "@from", to: "@to"}}
-                    })
+                    }),
+                departments: $resource("/reports/departments"),
+                exams: $resource("/reports/exams"),
+                reservations: $resource("/reports/reservations"),
+                responses: $resource("/reports/responses"),
+                participations: $resource("/reports/participations", {}, {
+                    find: {
+                        method: 'GET',
+                        isArray: false,
+                        interceptor: {
+                            response: function(response) {
+                                return response.data;
+                            }
+                        }
+                    }
+                })
             };
         }]);
 }());

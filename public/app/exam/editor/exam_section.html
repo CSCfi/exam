@@ -50,16 +50,13 @@
 </div>
 
 <div class="row">
-    <div class="col-md-1"></div>
-    <div class="col-md-10" ng-show="section.expanded">
+    <div class="col-md-11 col-md-offset-1" ng-show="section.expanded">
         <ul droppable="section.sectionQuestions" ng-move="moveQuestion(section, from, to)"
             ng-create="insertQuestion(section, object, to)" class="sortable">
-            <li ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
+            <li class="draggable" ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
             </li>
-            <li ng-show="section.sectionQuestions.length == 0" class="create-new dropdown">
-
-            </li>
+            <div ng-show="section.sectionQuestions.length == 0" class="create-new dropdown"></div>
         </ul>
         <div class="create-new dropdown" dropdown>
             <a class="dropdown-toggle pointer" data-toggle="dropdown" dropdown-toggle>
@@ -70,11 +67,13 @@
                 <li role="presentation">
                     <a role="menuitem" ng-click="createQuestionFromExamView('EssayQuestion', section)">{{ 'sitnet_essay' | translate }}</a>
                 </li>
-                <li>
+                <li role="presentation">
                     <a role="menuitem" ng-click="createQuestionFromExamView('MultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_multiplechoice_question' | translate }}</a>
+                </li>
+                <li role="presentation">
+                    <a role="menuitem" ng-click="createQuestionFromExamView('WeightedMultipleChoiceQuestion', section)">{{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}</a>
                 </li>
             </ul>
         </div>
     </div>
-    <div class="col-md-1"></div>
 </div>

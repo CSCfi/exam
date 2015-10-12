@@ -10,20 +10,20 @@
   }
 
   .floating-section {
-    right:0;
-    top:0;
-    float:left;
+    right: 0;
+    top: 0;
+    float: left;
     position: fixed !important;
-    padding:0;
-    width:400px;
+    padding: 0;
+    width: 400px;
     margin-left: -400px;
 
     .floating-clock {
 
       .header-wrapper {
-        height:4em;
+        height: 4em;
         padding: 0 2em 0 0;
-        width:100%;
+        width: 100%;
         background-color: #e6e6e6
       }
 
@@ -50,74 +50,29 @@
     }
   }
 
-  .sidebutton-text {
-    padding-top:0.2em;
-
-    :hover {
-      color: $sitnet-theme;
-    }
-  }
-
   margin: 0 1em 0 1em;
-
-  li {
-    list-style: none;
-    cursor: pointer;
-  }
-
-  li:hover {
-    list-style: none;
-    cursor: pointer;
-  }
-
-  ul {
-    padding: 0;
-  }
-
-//  .base {
-//    background-color: #fff;
-//    border: solid 1px $sitnet-grey;
-//    -webkit-border-radius: 4px;
-//    -moz-border-radius: 4px;
-//    border-radius: 4px;
-//    padding: 2em;
-//  }
 
   .studentexam-header {
     padding-left: 1.2em;
     margin-top: 0.5em;
     font-size: 1.2em;
   }
-  .question-header,
-  .question-active-header,
   .question-unanswered-header,
   .question-answered-header {
     padding: 1em 1em;
     margin-top: 1em;
     background-color: $sitnet-white;
-    border:1px solid $sitnet-common-dark;
-  }
-
-  .question-header {
-  }
-
-  .question-active-header {
-    .question-icon-bg {
-      color: $sitnet-notice;
-    }
-    .question-icon {
-      color: $sitnet-text;
-    }
+    border: 1px solid $sitnet-common-dark;
   }
 
   .question-unanswered-header {
     .question-icon-bg {
-        color: $sitnet-common-medium;
+      color: $sitnet-common-medium;
     }
     .question-icon {
       color: $sitnet-white;
     }
-   }
+  }
 
   .question-answered-header {
     .question-icon-bg {
@@ -129,7 +84,7 @@
   }
 
   .question {
-    clear:both;
+    clear: both;
   }
 
   .question-text {
@@ -140,25 +95,19 @@
     font-size: 0.9em;
 
     p {
-      margin:0;
-      padding:0;
+      margin: 0;
+      padding: 0;
     }
   }
 
   .exam-navigation {
-    padding-top:1em;
-  }
-
-  .question-status {
-    font-style: normal;
-    font-size: 14px;
-    line-height: 2.5em;
+    padding-top: 1em;
   }
 
   .exam-question-container {
     background-color: $sitnet-white;
     padding-top: 0.4em;
-    clear:both;
+    clear: both;
   }
 
   .exam-question-option {
@@ -179,71 +128,13 @@
     white-space: pre-wrap;
   }
 
-  .exam-answer-options {
-    font-weight: normal;
-    padding:0.5em 0;
-    font-size: 0.9em;
-    line-height: 1.8em;
-    border-bottom:1px solid $sitnet-common-light;
-
-    input[type=radio] {
-      margin-right:0.3em;
-    }
-  }
-
-  .active-exams-list {
-    margin-bottom: 10px
-  }
-
-  .single-question {
-    background-color: $sitnet-green;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    margin: 5px;
-    padding: 5px;
-    min-height: 3em;
-
-    i {
-      float: left;
-      padding-right: 1.5em;
-    }
-    span {
-
-    }
-
-  }
-
   .section-container {
     padding-bottom: 2em;
     padding-left: 0.5em;
     background-color: $sitnet-white;
   }
 
-  .exam-name-section {
-    background-color: $sitnet-white;
-    color: black;
-    padding: 0.5em;
-    margin-bottom: 2em;
-  }
-
-  .selected {
-    background-color: $sitnet-notice;
-  }
-
-  .inactive {
-    background-color: $sitnet-white;
-  }
-
-  .pointer-hand {
-    cursor: pointer;
-  }
-
-  .section-header-icon-square {
-    background-color: $sitnet-white;
-    line-height: 0.8em;
-  }
-  .blue_button_left, .blue_button_right {
+  .blue_button {
 
     cursor: pointer;
     text-decoration: none;
@@ -251,7 +142,7 @@
     span {
       text-decoration: none;
       margin: 1em;
-      padding:0.5em 1em;
+      padding: 0.5em 1em;
       background-color: $sitnet-theme;
       color: $sitnet-white;
       font-size: 0.9em;
@@ -261,14 +152,38 @@
     }
   }
 
-/* Uncomment to disallow copy-paste
+  // to highlight ck-editor content marked with this class
+  .marker {
+    background-color: yellow;
+  }
 
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  outline-style: none;
-*/
+  .toolbar-item {
+    margin-left: 1em;
+  }
+
+  .separated-item {
+    margin-top: 4em;
+  }
+
+  .list-muted {
+    list-style: none;
+    padding: 0;
+  }
+
+  .vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+  }
+
+  /* Uncomment to disallow copy-paste
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    outline-style: none;
+  */
 }

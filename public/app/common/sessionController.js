@@ -3,13 +3,14 @@
     // automatically by the run block in app.js
     'use strict';
     angular.module("exam.controllers")
-        .controller('SessionCtrl', ['$scope', '$rootScope', '$location', '$modal', '$translate', 'sessionService', 'UserRes', 'SettingsResource', 'EXAM_CONF',
-            function ($scope, $rootScope, $location, $modal, $translate, sessionService, UserRes, SettingsResource, EXAM_CONF) {
+        .controller('SessionCtrl', ['$scope', '$rootScope', '$location', '$translate', 'sessionService',
+            'SettingsResource', 'EXAM_CONF',
+            function ($scope, $rootScope, $location, $translate, sessionService, SettingsResource, EXAM_CONF) {
 
                 $scope.credentials = {};
                 $scope.env = {};
 
-                SettingsResource.environment.get(function(env) {
+                SettingsResource.environment.get(function (env) {
                     $scope.env = env;
                     if (!env.isProd) {
                         $scope.loginTemplatePath = EXAM_CONF.TEMPLATES_PATH + "common/dev_login.html";
@@ -52,35 +53,10 @@
                             toastr.success($translate.instant("sitnet_welcome") + " " + user.firstname + " " + user.lastname);
                         };
                         setTimeout(welcome, 2000);
-
-                        if (user.isStudent && !user.hasAcceptedUserAgreament) {
-
-                            $modal.open({
-
-                                templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/show_eula.html',
-                                backdrop: 'static',
-                                keyboard: false,
-                                controller: function ($scope, $modalInstance, sessionService) {
-
-                                    $scope.ok = function () {
-                                        // OK button
-                                        UserRes.updateAgreementAccepted.update({id: user.id}, function () {
-                                            user.hasAcceptedUserAgreament = true;
-                                            sessionService.setUser(user);
-                                        }, function (error) {
-                                            toastr.error(error.data);
-                                        });
-                                        $modalInstance.dismiss();
-                                        if ($location.url() === '/login' || $location.url() === '/logout') {
-                                            $location.path("/");
-                                        }
-                                    };
-                                    $scope.cancel = function () {
-                                        $modalInstance.dismiss('cancel');
-                                        $location.path("/logout");
-                                    };
-                                }
-                            });
+                        if (!user.loginRole) {
+                            sessionService.openRoleSelectModal(user);
+                        } else if (user.isStudent && !user.userAgreementAccepted) {
+                            sessionService.openEulaModal(user);
                         } else if ($location.url() === '/login' || $location.url() === '/logout') {
                             $location.path("/");
                         }

@@ -17,7 +17,7 @@
 
                 var searching;
 
-                var updateEditOptions = function(user) {
+                var updateEditOptions = function (user) {
                     user.availableRoles = [];
                     user.removableRoles = [];
                     $scope.roles.forEach(function (role) {
@@ -55,7 +55,9 @@
                 };
 
                 $scope.hasRole = function (user, role) {
-                    return sessionService.hasRole(user, role);
+                    return user.roles.some(function (r) {
+                        return r.name === role;
+                    });
                 };
 
                 $scope.applyFilter = function (role) {
@@ -74,7 +76,7 @@
                         function (role) {
                             return role.filtered;
                         }).forEach(function (role) {
-                            if (!sessionService.hasRole(user, role.type)) {
+                            if (!$scope.hasRole(user, role.type)) {
                                 result = false;
                             }
                         });
@@ -90,7 +92,7 @@
 
                 $scope.removeRole = function (user, role) {
                     UserRes.userRoles.remove({id: user.id, role: role.type}, function () {
-                        var i = user.roles.map(function(r) {
+                        var i = user.roles.map(function (r) {
                             return r.name
                         }).indexOf(role.type);
                         user.roles.splice(i, 1);

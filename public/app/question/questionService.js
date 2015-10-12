@@ -21,15 +21,12 @@
                 );
             };
 
-            var truncate = function (content, offset) {
-                if (content && content.indexOf("math-tex") === -1) {
-                    if (offset < content.length) {
-                        return content.substring(0, offset) + " ...";
-                    } else {
-                        return content;
-                    }
-                }
-                return content;
+            var calculateMaxPoints = function (question) {
+                return (question.options.filter(function (option) {
+                    return option.score > 0;
+                }).reduce(function (a, b) {
+                    return a + b.score;
+                }, 0));
             };
 
             var decodeHtml = function(html) {
@@ -62,7 +59,7 @@
 
             return {
                 createQuestion: createQuestion,
-                truncate: truncate,
+                calculateMaxPoints: calculateMaxPoints,
                 decodeHtml: decodeHtml,
                 longTextIfNotMath: longTextIfNotMath,
                 shortText: shortText

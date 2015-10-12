@@ -3,23 +3,16 @@
     angular.module("exam.resources")
         .factory("SettingsResource", ['$resource', function ($resource) {
             return {
-                agreement: $resource(
-                    "/agreement", null,
-                    {
-                        "query":    {method: "GET", isArray: false},
-                        'update':   {method: 'PUT'}
-                    }),
-                settings: $resource(
-                    "/settings", null,
-                    {
-                        "update": { method: 'PUT'}
-                    }),
+                agreement: $resource("/settings/agreement", {}, {'update': {method: 'PUT'}}),
+                deadline: $resource("/settings/deadline", {}, {"update": {method: 'PUT'}}),
+                reservationWindow: $resource("/settings/reservationWindow", {}, {"update": {method: 'PUT'}}),
                 hostname: $resource("/settings/hostname"),
                 examDurations: $resource("/settings/durations"),
                 gradeScale: $resource("/settings/gradescale"),
                 enrolmentPermissions: $resource("/settings/enrolmentPermissionCheck"),
                 environment: $resource("/settings/environment"),
-                maxFilesize: $resource("/settings/maxfilesize")
+                maxFilesize: $resource("/settings/maxfilesize"),
+                appVersion : $resource("/settings/appVersion")
             }
         }]);
 }());

@@ -89,7 +89,7 @@
                 };
 
                 $scope.addEnrolmentInformation = function (enrolment) {
-                    var modalController = function ($scope, $modalInstance) {
+                    var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
                         $scope.enrolment = angular.copy(enrolment);
                         $scope.ok = function () {
                             $modalInstance.close("Accepted");
@@ -105,7 +105,7 @@
                         $scope.cancel = function () {
                             $modalInstance.close("Canceled");
                         }
-                    };
+                    }];
 
                     var modalInstance = $modal.open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'enrolment/add_enrolment_information.html',
@@ -146,8 +146,8 @@
                     return end.isBefore(moment());
                 };
 
-                $scope.createExam = function () {
-                    examService.createExam();
+                $scope.createExam = function (executionType) {
+                    examService.createExam(executionType);
                 };
 
                 $scope.createQuestion = function (type) {
@@ -162,7 +162,7 @@
 
                 $scope.getReservationCount = function (exam) {
                     return exam.examEnrolments.filter(function (enrolment) {
-                        return enrolment.reservation;
+                        return enrolment.reservation && enrolment.reservation.endAt > new Date().getTime();
                     }).length;
                 };
 

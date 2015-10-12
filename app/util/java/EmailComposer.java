@@ -17,11 +17,18 @@ public interface EmailComposer {
 
     void composeWeeklySummary(User teacher) throws IOException;
 
-    void composeReservationNotification(User student, Reservation reservation, Exam exam) throws IOException;
+    void composeReservationNotification(User student, Reservation reservation, Exam exam, boolean isTeacher)
+            throws IOException;
 
     void composeExamReviewRequest(User toUser, User fromUser, Exam exam, String message) throws IOException;
 
     void composeReservationCancellationNotification(User student, Reservation reservation, String message,
                                                     Boolean isStudentUser, ExamEnrolment enrolment) throws IOException;
+
+    void composePrivateExamParticipantNotification(User student, User fromUser, Exam exam) throws IOException;
+
+    void composePrivateExamEnded(User toUser, Exam exam) throws IOException;
+
+    void composeNoShowMessage(User toUser, User student, Exam exam) throws IOException;
 
 }

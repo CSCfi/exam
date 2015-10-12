@@ -11,11 +11,15 @@
                 <!--<div class="info-row col-md-12 info-column info-header-bolditalic">{{ reviewedExam.course.code }} - {{ reviewedExam.name }}</div>-->
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{ 'sitnet_course_name' | translate }}:</span>
-                    <span class="text col-md-8">{{ reviewedExam.name }}</span>
+                    <span class="text col-md-8">{{ reviewedExam.course.name }}</span>
                 </div>
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{ 'sitnet_course_code' | translate }}:</span>
                     <span class="text col-md-8">{{ reviewedExam.course.code }}</span>
+                </div>
+                <div class="info-row col-md-12 info-column">
+                    <span class="header col-md-4">{{ 'sitnet_exam_name' | translate }}:</span>
+                    <span class="text col-md-8">{{ reviewedExam.name }}</span>
                 </div>
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{'sitnet_exam_credit' | translate}}:</span>
@@ -44,9 +48,16 @@
                     <span class="header col-md-4">{{'sitnet_teachers' | translate}}:</span>
                     <span class="text col-md-8">{{ reviewedExam.teachersStr }}</span>
                 </div>
-                <div class="top-padding-2 info-row col-md-12 info-column">
-                    <span class="header col-md-4">{{'sitnet_teachers_comment' | translate}}:</span>
-                    <span class="text col-md-8" ng-bind-html="reviewedExam.examFeedback.comment"></span>
+                <div class="top-padding-2 info-row col-md-12 info-column" ng-if="reviewedExam.examFeedback.comment">
+                    <div class="header col-md-4">{{'sitnet_teachers_comment' | translate}}:</div>
+                    <div class="text col-md-8" ng-bind-html="reviewedExam.examFeedback.comment"></div>
+                </div>
+                <div class="info-row col-md-12 info-column" ng-controller="AttachmentController"
+                     ng-if="reviewedExam.examFeedback && reviewedExam.examFeedback.attachment">
+                    <div class="header col-md-4">{{'sitnet_feedback_attachment' | translate}}:</div>
+                    <a class="link-text pointer col-md-8" ng-click="downloadFeedbackAttachment(reviewedExam)">
+                        {{reviewedExam.examFeedback.attachment.fileName}}
+                    </a>
                 </div>
                 <div class="col-md-12 top-padding-2">
                     <a class="fa-stack pointer" ng-click="exitFeedback()">
@@ -57,12 +68,5 @@
                 </div>
             </div>
         </div>
-        <!--div class="col-md-5 pull-right">
-            <a class="fa-stack pointer" ng-click="exitFeedback()">
-                <i class="fa fa-stop fa-stack-2x sitnet-text-theme"></i>
-                <i class="fa fa-sign-out sitnet-white fa-stack-1x"></i>
-            </a>
-            <span class="sitnet-text-theme icon_fix pointer" ng-click="exitFeedback()">{{'sitnet_exit_feedback' | translate}}</span>
-        </div-->
     </div>
 </div>

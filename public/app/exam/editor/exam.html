@@ -1,7 +1,9 @@
 <div id="dashboard">
     <div id="sitnet-header" class="header">
         <div class="col-md-6 header-wrapper">
-            <span class="header-text">{{'sitnet_exam' | translate}}</span>
+            <span ng-if="newExam.executionType.type==='PUBLIC'"
+                  class="header-text">{{'sitnet_public_exam' | translate}}</span>
+            <span ng-if="newExam.executionType.type==='PRIVATE'" class="header-text">{{'sitnet_private_exam' | translate}}</span>
         </div>
         <div class="col-md-6 header-wrapper" ng-show="newExam.state === 'DRAFT'">
             <a ng-click="cancelNewExam(newExam)" class="pull-right btn btn-primary btn-lg active header-button">
@@ -12,6 +14,11 @@
     <div class="main-row">
         <div class="col-md-12">
             <div ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
+                <div class="row" ng-show="newExam.hasEnrolmentsInEffect">
+                    <div class="alert-warning" style="padding: 1em;">
+                        <p class="exams-list-title-text">{{'sitnet_upcoming_reservations_exist' | translate}}</p>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="sitnet-info-text">{{'sitnet_exam_name' | translate}}:</div>
                     <div class="row">
@@ -48,7 +55,8 @@
                         <button ng-hide="newExam.state === 'PUBLISHED'" ng-click="saveAndPublishExam()"
                                 class="btn btn-warning">{{'sitnet_save_and_publish' | translate}}
                         </button>
-                        <button ng-show="newExam.state === 'PUBLISHED'" ng-click="unpublishExam()"
+                        <button ng-show="newExam.state === 'PUBLISHED' && newExam.examType.type==='PUBLIC'"
+                                ng-click="unpublishExam()"
                                 class="btn btn-warning">{{'sitnet_unpublish_exam' | translate }}
                         </button>
                     </span>

@@ -14,7 +14,7 @@
         <!-- question text -->
         <div class="detail-row">
             <div class="col-md-12 review-question-value">
-                <span mathjax ng-bind-html="sectionQuestion.question.question"></span>
+                <span mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></span>
             </div>
         </div>
 
@@ -59,7 +59,7 @@
                 <span ng-show="sectionQuestion.question.reviewExpanded" mathjax
                       ng-bind-html="sectionQuestion.question.answer.answer"></span>
                 <span ng-hide="sectionQuestion.question.reviewExpanded" mathjax
-                      ng-bind-html="truncate(sectionQuestion.question.answer.answer, 360)"></span>
+                      ng-bind-html="sectionQuestion.question.answer.answer | truncate: 360"></span>
             </div>
         </div>
 

@@ -15,6 +15,14 @@ public class Reservation extends GeneratedIdentityModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date endAt;
 
+    private boolean noShow;
+
+    private boolean retrialPermitted;
+
+    @OneToOne(mappedBy = "reservation")
+    @JsonBackReference
+    ExamEnrolment enrolment;
+
     @OneToOne
     @JsonBackReference
     ExamMachine machine;
@@ -39,6 +47,22 @@ public class Reservation extends GeneratedIdentityModel {
         this.endAt = endAt;
     }
 
+    public boolean isNoShow() {
+        return noShow;
+    }
+
+    public void setNoShow(boolean noShow) {
+        this.noShow = noShow;
+    }
+
+    public boolean isRetrialPermitted() {
+        return retrialPermitted;
+    }
+
+    public void setRetrialPermitted(boolean retrialPermitted) {
+        this.retrialPermitted = retrialPermitted;
+    }
+
     public ExamMachine getMachine() {
         return machine;
     }
@@ -55,8 +79,19 @@ public class Reservation extends GeneratedIdentityModel {
         this.user = user;
     }
 
+    public ExamEnrolment getEnrolment() {
+        return enrolment;
+    }
+
+    public void setEnrolment(ExamEnrolment enrolment) {
+        this.enrolment = enrolment;
+    }
+
+
+
     @Transient
     public Interval toInterval() {
         return new Interval(startAt.getTime(), endAt.getTime());
     }
+
 }

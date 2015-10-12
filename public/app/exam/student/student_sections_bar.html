@@ -1,27 +1,28 @@
-<div>
-    <ul>
-        <li ng-if="doexam.instruction.length > 0" class="info-row col-md-12" ng-click="setActiveSection(pages[0])">
-            <a class="row fa-stack">
-                <i ng-class="guide ? 'sitnet-text-notice' : 'sitnet-text-medium'" class="fa fa-stop fa-stack-2x"></i>
-                <i ng-class="guide ? 'sitnet-text' : 'sitnet-white'" class="fa fa-info-circle fa-stack-1x"></i>
-            </a>
-            <span ng-class="guide ? 'sitnet-text' : 'sitnet-text-dark'" class="icon_fix">{{'sitnet_exam_quide' | translate}}</span>
-        </li>
-        <li ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section.name)"
-            popover-placement="left"
-            popover-popup-delay="1000"
-            popover-trigger="mouseenter"
-            popover="{{section.name}}: {{'sitnet_question_status_answered' | translate}} {{getQuestionAmount(section,'answered')}}, {{'sitnet_questions_total' | translate}} {{ getQuestionAmount(section,'total') }}">
-            <span class="fa-stack">
-                <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text-notice' : 'sitnet-text-medium'" class="fa fa-stop fa-stack-2x"></i>
-                <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-white' " class="fa-stack-1x">{{section.index}}.</i>
-            </span>
-            <span ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-dark'">{{section.name}}</span>
-            <div class="col-md-6 pull-right">
-                <span class="pull-left sitnet-text-ready bold">{{ getQuestionAmount(section,'answered') }}</span>
-                <span class="pull-left horizontal-padding-05"> / </span>
-                <span class="pull-left bold">{{ getQuestionAmount(section,'total') }}</span>
-            </div>
-        </li>
-    </ul>
-</div>
+<ul class="toolbar-item list-muted">
+    <li class="row pointer" ng-if="doexam.instruction.length > 0" ng-click="setActiveSection(pages[0])">
+        <a class="fa-stack col-md-1">
+            <i ng-class="guide ? 'sitnet-text-notice' : 'sitnet-text-medium'" class="fa fa-stop fa-stack-2x"></i>
+            <i ng-class="guide ? 'sitnet-text' : 'sitnet-white'" class="fa fa-info-circle fa-stack-1x"></i>
+        </a>
+        <div class="col-md-11 vcenter" ng-class="guide ? 'sitnet-text' : 'sitnet-text-dark'"
+              class="icon_fix">{{'sitnet_exam_guide' | translate}}</div>
+    </li>
+    <li class="row pointer" ng-repeat="section in doexam.examSections" ng-click="setActiveSection(section.name)"
+        popover-placement="left" popover-popup-delay="1000" popover-trigger="mouseenter"
+        popover="{{section.name}}: {{'sitnet_question_status_answered' | translate}}
+                 {{getQuestionAmount(section,'answered')}}, {{'sitnet_questions_total' | translate}}
+                 {{ getQuestionAmount(section,'total') }}">
+        <div class="fa-stack col-md-1">
+            <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text-notice' : 'sitnet-text-medium'"
+               class="fa fa-stop fa-stack-2x"></i>
+            <i ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-white' "
+               class="fa-stack-1x">{{section.index}}.</i>
+        </div>
+        <div class="col-md-6 vcenter" ng-class="activeSection.index == section.index && !guide ? 'sitnet-text' : 'sitnet-text-dark'">{{section.name}}</div>
+        <div class="col-md-5 pull-right vcenter">
+            <span class="pull-left sitnet-text-ready bold">{{ getQuestionAmount(section,'answered') }}</span>
+            <span class="pull-left horizontal-padding-05"> / </span>
+            <span class="pull-left bold">{{ getQuestionAmount(section,'total') }}</span>
+        </div>
+    </li>
+</ul>

@@ -1,11 +1,15 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('NavigationCtrl', ['$scope', '$rootScope', '$modal', '$location', 'sessionService', 'waitingRoomService',
-            function ($scope, $rootScope, $modal, $location, sessionService, waitingRoomService) {
+        .controller('NavigationCtrl', ['$scope', '$rootScope', '$modal', '$location', 'sessionService', 'waitingRoomService', 'SettingsResource',
+            function ($scope, $rootScope, $modal, $location, sessionService, waitingRoomService, SettingsResource) {
 
                 $scope.isActive = function (link) {
                     return link.href === "#" + $location.path();
+                };
+
+                $scope.canDisplayFullNavbar = function() {
+                    return window.matchMedia("(min-width: 600px)").matches;
                 };
 
                 $scope.loggedOut = false;
@@ -23,6 +27,12 @@
                     var admin = user.isAdmin || false;
                     var student = user.isStudent || false;
                     var teacher = user.isTeacher || false;
+
+                    if (admin) {
+                        SettingsResource.appVersion.get(function(data) {
+                            $scope.appVersion = data.appVersion;
+                        });
+                    }
 
                     // Do not show if waiting for exam to begin
                     var hideDashboard = (waitingRoomService.getEnrolmentId() || $scope.examStarted) && student;
@@ -65,6 +75,12 @@
                             name: "sitnet_reports"
                         },
                         {
+                            href: "#/statistics",
+                            visible: (admin),
+                            class: "fa-line-chart",
+                            name: "sitnet_statistics"
+                        },
+                        {
                             href: "#/settings",
                             visible: (admin),
                             class: "fa-wrench",
@@ -78,7 +94,7 @@
                         },
                         {
                             href: "#/student/exams",
-                            visible: (student && !$scope.wrongMachine),
+                            visible: (student && !$scope.wrongMachine && !$scope.upcomingExam),
                             class: "fa-search",
                             name: "sitnet_exam_search",
                             sub: []
@@ -111,6 +127,7 @@
                 });
 
                 $scope.$on('upcomingExam', function () {
+                    $scope.upcomingExam = true;
                     $scope.links = links();
                 });
 

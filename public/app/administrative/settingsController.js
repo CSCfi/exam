@@ -4,36 +4,51 @@
         .controller('SettingsController', ['$scope', '$translate', '$location', '$http', 'SettingsResource',
             function ($scope, $translate, $location, $http, SettingsResource) {
 
-                $scope.settings = SettingsResource.agreement.query();
+                $scope.eula = SettingsResource.agreement.get();
+                SettingsResource.deadline.get(function (deadline) {
+                    deadline.value = parseInt(deadline.value);
+                    $scope.deadline = deadline;
+                });
 
-                $scope.updateAgreement = function (settings) {
+                SettingsResource.reservationWindow.get(function (window) {
+                    window.value = parseInt(window.value);
+                    $scope.reservationWindow = window;
+                });
 
-                    SettingsResource.agreement.update({id: settings.id}, settings,
-                        function (responce) {
-                            toastr.info($translate.instant("sitnet_user_agreament") +" "+ $translate.instant("sitnet_updated"));
-                            $scope.settings = responce;
+                $scope.updateAgreement = function () {
+
+                    SettingsResource.agreement.update($scope.eula,
+                        function () {
+                            toastr.info($translate.instant("sitnet_user_agreement") + " " + $translate.instant("sitnet_updated"));
                         }, function (error) {
                             toastr.error(error.data);
                         });
                 };
 
-                $scope.updateGeneralSettings = function (settings) {
+                $scope.updateDeadline = function () {
 
-                    SettingsResource.settings.update(settings,
-
-                        function(response) {
-
+                    SettingsResource.deadline.update($scope.deadline,
+                        function () {
                             toastr.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
-                                $scope.settings = response;
-                            }, function (error) {
-                                toastr.error(error.data);
+                        }, function (error) {
+                            toastr.error(error.data);
                         });
                 };
 
-                $scope.showAttributes = function() {
-                  $http.get('/attributes').success(function(attributes) {
-                      $scope.attributes = attributes;
-                  })
+                $scope.updateReservationWindow = function () {
+
+                    SettingsResource.reservationWindow.update($scope.reservationWindow,
+                        function () {
+                            toastr.info($translate.instant("sitnet_settings") + " " + $translate.instant("sitnet_updated"));
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                };
+
+                $scope.showAttributes = function () {
+                    $http.get('/attributes').success(function (attributes) {
+                        $scope.attributes = attributes;
+                    })
                 }
             }]);
 }());

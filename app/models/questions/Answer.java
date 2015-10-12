@@ -1,25 +1,26 @@
 package models.questions;
 
+import com.avaje.ebean.annotation.EnumMapping;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
 import models.OwnedModel;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Answer extends OwnedModel {
 
-    public enum Type { MultipleChoiseAnswer, EssayAnswer }
+    @EnumMapping(integerType = true, nameValuePairs = "MultipleChoiceAnswer=1, EssayAnswer=2, WeightedMultipleChoiceAnswer=3")
+    public enum Type { MultipleChoiceAnswer, EssayAnswer, WeightedMultipleChoiceAnswer }
 
-    protected String type;
+    protected Type type;
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(Type type) {
         this.type = type;
     }
 
@@ -45,15 +46,16 @@ public class Answer extends OwnedModel {
         this.attachment = attachment;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private MultipleChoiseOption option;
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "answer")
+    @JsonManagedReference
+    private List<MultipleChoiceOption> options;
 
-    public MultipleChoiseOption getOption() {
-        return option;
+    public List<MultipleChoiceOption> getOptions() {
+        return options;
     }
 
-    public void setOption(MultipleChoiseOption option) {
-        this.option = option;
+    public void setOptions(List<MultipleChoiceOption> options) {
+        this.options = options;
     }
 
 

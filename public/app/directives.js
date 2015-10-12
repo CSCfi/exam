@@ -2,12 +2,12 @@
     'use strict';
     angular.module('exam.directives')
 
-        .directive('dateValidator', function() {
+        .directive('dateValidator', function () {
             return {
                 require: 'ngModel',
                 link: function (scope, elem, attr, ngModel) {
                     function validate(value) {
-                        if (value !== undefined && value != null) {
+                        if (value) {
                             ngModel.$setValidity('badDate', true);
                             ngModel.$setValidity('date', true);
                             ngModel.$setValidity('required', true);
@@ -18,7 +18,7 @@
                                     ngModel.$setValidity('badDate', false);
                                 }
                             } else {
-                                if (value !='' && !moment(value).isValid()) {
+                                if (!moment(value).isValid()) {
                                     ngModel.$setValidity('badDate', false);
                                 }
                             }

@@ -1,0 +1,121 @@
+<script>
+    $(document).ready(function () {
+        console.log('ready');
+        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
+            console.log('darn');
+            e.stopPropagation();
+        });
+
+    });
+</script>
+
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_statistics' | translate}}</span>
+    </div>
+</div>
+
+<div id="dashboard" ng-init="view = 'ROOMS'">
+    <!-- TAB NAVIGATION -->
+    <div class="main-row">
+        <ul class="nav nav-tabs">
+            <li role="presentation" ng-class="{'active' : view === 'ROOMS'}">
+                <a class="pointer" target="_self" ng-click="view='ROOMS'">{{'sitnet_exam_rooms' | translate}}</a>
+            </li>
+            <li role="presentation" ng-class="{'active' : view === 'EXAMS'}">
+                <a class="pointer" target="_self" ng-click="view='EXAMS'">{{'sitnet_exams' | translate}}</a>
+            </li>
+            <li role="presentation" ng-class="{'active' : view === 'RESERVATIONS'}">
+                <a class="pointer" target="_self" ng-click="view='RESERVATIONS'">{{'sitnet_reservations' | translate}}</a>
+            </li>
+            <li role="presentation" ng-class="{'active' : view === 'RESPONSES'}">
+                <a class="pointer" target="_self" ng-click="view='RESPONSES'">{{'sitnet_exam_responses' | translate}}</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="main-row">
+        <!-- Start & End time datepickers, department selection -->
+        <div ng-controller="DatepickerCtrl" ng-init="dateService.startDate = undefined; dateService.endDate=undefined">
+            <div class="col-md-2">
+                <h4>{{'sitnet_begin' | translate}}</h4>
+
+                <p class="input-group">
+                    <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                           is-open="startDateOpened" datepicker-options="dateOptions"
+                           close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}"
+                           toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"
+                           ui-change="updateExam()">
+
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="openStartDate($event)">
+                            <i class="fa fa-calendar"></i>
+                        </button>
+                    </span>
+                </p>
+            </div>
+
+            <div class="col-md-2">
+                <h4>{{'sitnet_end' | translate}}</h4>
+
+                <p class="input-group">
+                    <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                           is-open="endDateOpened" min="dateService.startDate" datepicker-options="dateOptions"
+                           date-disabled="disabled(date, mode)"
+                           close-text="{{'sitnet_close' | translate}}"
+                           current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                           clear-text="{{'sitnet_clear' | translate}}">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="openEndDate($event)">
+                            <i class="fa fa-calendar"></i>
+                        </button>
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <h4>{{'sitnet_department' | translate}}</h4>
+        <span class="dropdown" dropdown>
+            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                    data-toggle="dropdown" aria-expanded="true">
+                {{'sitnet_choose' | translate}}&nbsp;<span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                aria-labelledby="dropDownMenu1">
+                <li role="presentation" class="input-group">
+                    <input ng-model="limitations.department" type="text" class="form-control"
+                           placeholder="{{'sitnet_search' | translate }}">
+
+                    <div class="input-group-addon">
+                        <i class="fa fa-search fa-fw"></i>
+                    </div>
+                </li>
+                <li ng-repeat="department in departments | filter:limitations.department" role="presentation"
+                    ng-class="department.filtered ? 'active': ''"
+                    ng-click="department.filtered = !department.filtered">
+                    <a role="menuitem" title="{{department.name}}">{{department.name}}</a>
+                </li>
+            </ul>
+        </span>
+        </div>
+        <div class="col-md-5">
+            <ul class="list">
+                <li>
+                    <button ng-repeat="department in departments" ng-if="department.filtered" type='button'
+                            ng-click="department.filtered = false" class="btn btn-primary btn-xs" style="margin: 0.2em">
+                        {{department.name}}
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- TAB CONTENT -->
+    <div ng-if="view === 'ROOMS'" ng-include="templates.rooms" ng-init="listParticipations()"/>
+    <div ng-if="view === 'EXAMS'" ng-include="templates.exams" ng-init="listExams()"/>
+    <div ng-if="view === 'RESERVATIONS'" ng-include="templates.reservations" ng-init="listReservations()"/>
+    <div ng-if="view === 'RESPONSES'" ng-include="templates.responses" ng-init="listResponses()"/>
+
+</div>

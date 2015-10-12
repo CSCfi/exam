@@ -30,6 +30,8 @@ public class ExceptionWorkingHours extends GeneratedIdentityModel {
     @JsonBackReference
     private ExamRoom room;
 
+    private boolean massEdited;
+
     public Date getEndDate() {
         return endDate;
     }
@@ -77,4 +79,8 @@ public class ExceptionWorkingHours extends GeneratedIdentityModel {
     public void setOutOfService(boolean outOfService) {
         this.outOfService = outOfService;
     }
+
+    public void setMassEdited(boolean massEdited) {this.massEdited = massEdited; }
+
+    public boolean getMassEdited() {return massEdited;}
 }

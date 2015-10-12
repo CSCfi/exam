@@ -6,7 +6,7 @@ module.exports = function (grunt) {
                 separator: ';'
             },
             dist: {
-                src: ['public/app/app.js', 'public/components/language.js',
+                src: ['public/app/app.js', 'public/components/truncate.js', 'public/components/language.js',
                     'public/app/directives.js', 'public/app/filters.js',
                     'public/app/httpInterceptor.js', 'public/app/routes.js', 'public/app/administrative/**/*.js',
                     'public/app/common/**/*.js', 'public/app/enrolment/**/*.js', 'public/app/exam/**/*.js',

@@ -5,83 +5,111 @@
 </div>
 
 <div id="dashboard" ng-controller="ReservationCtrl">
-    <div class="main-row">
-        <form role="form">
-            <div class="col-md-5">
-                <div class="col-md-12 top-margin-1">&nbsp;</div>
-                <div class="col-md-12 top-margin-1">&nbsp;</div>
-                <div class="col-md-6" ng-controller="DatepickerCtrl">
-                    <p class="input-group">
-                        <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
-                               is-open="startDateOpened" datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
-                               current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                               clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()">
+    <div class="top-row">
+        <div class="col-md-12">
+            <form role="form" ng-controller="DatepickerCtrl">
+                <!-- Start & End time datepickers -->
+                <div class="row">
+                    <div class="col-md-6" ng-conroller="DatepickerCtrl">
+                        <strong>{{'sitnet_begin' | translate}}</strong>
+                        <div class="input-group">
+                            <input type="text" class="form-control" datepicker-popup="{{format}}"
+                                   ng-model="dateService.startDate"
+                                   is-open="startDateOpened" datepicker-options="dateOptions"
+                                   close-text="{{'sitnet_close' | translate}}"
+                                   current-text="{{'sitnet_today' | translate}}"
+                                   toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                                   clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()"
+                                    >
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" ng-click="openStartDate($event)">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
 
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" ng-click="openStartDate($event)">
-                            <i class="fa fa-calendar"></i>
-                        </button>
-                    </span>
-                    </p>
-                </div>
-                <div class="col-md-6" ng-controller="DatepickerCtrl">
-                    <p class="input-group">
-                        <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
-                               is-open="endDateOpened" datepicker-options="dateOptions" close-text="{{'sitnet_close' | translate}}"
-                               current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
-                               clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()" ng-init="modifyDay('end', 1)">
+                        </div>
+                    </div>
+                    <div class="col-md-6" ng-controller="DatepickerCtrl">
+                        <strong>{{'sitnet_end' | translate}}</strong>
+                        <div class="input-group">
+                            <input type="text" class="form-control" datepicker-popup="{{format}}"
+                                   ng-model="dateService.endDate"
+                                   is-open="endDateOpened" datepicker-options="dateOptions"
+                                   close-text="{{'sitnet_close' | translate}}"
+                                   current-text="{{'sitnet_today' | translate}}"
+                                   toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                                   clear-text="{{'sitnet_clear' | translate}}" required ng-change="query()"
+                                   ng-init="modifyDay('end', 1)">
 
-                    <span class="input-group-btn">
-                        <button class="btn btn-default" ng-click="openEndDate($event)">
-                            <i class="fa fa-calendar"></i>
-                        </button>
-                    </span>
-                    </p>
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" ng-click="openEndDate($event)">
+                                    <i class="fa fa-calendar"></i>
+                                </button>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-7">
-                <div class="col-md-6">
-                    <select class="col-md-8" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selection.ownerId" ng-change="query()">
-                        <option value="" selected> - - {{'sitnet_exam_owner' | translate}} - - </option>
-                        <option ng-repeat="teacher in examOwners" value="{{teacher.id}}">{{teacher.firstName}} {{teacher.lastName}}</option>
-                    </select>
+                <div class="row top-margin-1">
+                    <div class="col-md-4">
+                        <strong>{{'sitnet_exam_owner' | translate}}</strong>
+                        <select class="wide-select" ui-select2="{ dropdownAutoWidth : true}"
+                                ng-model="selection.ownerId" ng-change="query()">
+                            <option ng-repeat="teacher in examOwners" value="{{teacher.id}}">{{teacher.firstName}}
+                                {{teacher.lastName}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>{{'sitnet_exam_state' | translate}}</strong>
+                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+                                ng-model="selection.state" ng-change="query()">
+                            <option ng-repeat="state in examStates" value="{{state}}">{{'sitnet_exam_status_' + state |
+                                lowercase | translate}}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>{{'sitnet_student' | translate}}</strong>
+                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+                                ng-model="selection.studentId" ng-change="query()">
+                            <option ng-repeat="student in students" value="{{student.id}}">{{student.firstName}}
+                                {{student.lastName}}
+                            </option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <select class="col-md-8" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selection.state" ng-change="query()">
-                        <option value="" selected> - - {{'sitnet_exam_state' | translate}} - - </option>
-                        <option ng-repeat="state in examStates" value="{{state}}">{{'sitnet_exam_status_' + state | lowercase | translate}}</option>
-                    </select>
+                <div class="row top-margin-1">
+                    <div class="col-md-4">
+                        <strong>{{'sitnet_room' | translate}}</strong>
+                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+                                ng-model="selection.roomId" ng-change="query()">
+                            <option ng-repeat="examroom in examrooms" value="{{examroom.id}}">{{examroom.name}}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>{{'sitnet_exam_machine' | translate}}</strong>
+                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+                                ng-model="selection.machineId" ng-change="query()">
+                            <optgroup ng-repeat="examroom in examrooms" ng-if="examroom.examMachines.length > 0"
+                                      label="{{examroom.name}}">
+                                <option ng-repeat="machine in machines" ng-if="roomContains(examroom, machine)"
+                                        value="{{machine.id}}">{{machine.name}}
+                                </option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>{{'sitnet_exam' | translate}}</strong>
+                        <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
+                                ng-model="selection.examId" ng-change="query()">
+                            <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.name}}</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-6 top-margin-1">
-                    <select class="col-md-8" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selection.studentId" ng-change="query()">
-                        <option value="" selected> - - {{'sitnet_student' | translate}} - - </option>
-                        <option ng-repeat="student in students" value="{{student.id}}">{{student.firstName}} {{student.lastName}}</option>
-                    </select>
-                </div>
-                <div class="col-md-6 top-margin-1">
-                    <select class="col-md-8" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selection.roomId" ng-change="query()">
-                        <option value="" selected> - - {{'sitnet_room' | translate}} - - </option>
-                        <option ng-repeat="examroom in examrooms" value="{{examroom.id}}">{{examroom.name}}</option>
-                    </select>
-                </div>
-                <div class="col-md-6 top-margin-1">
-                    <select class="col-md-8" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selection.machineId" ng-change="query()">
-                        <option value="" selected> - - {{'sitnet_exam_machine' | translate}} - - </option>
-                        <optgroup ng-repeat="examroom in examrooms" ng-if="examroom.examMachines.length > 0" label="{{examroom.name}}">
-                            <option ng-repeat="machine in machines" ng-if="roomContains(examroom, machine)" value="{{machine.id}}">{{machine.name}}</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <div class="col-md-6 top-margin-1">
-                    <select class="col-md-8" ui-select2="{ allowClear: true, dropdownAutoWidth : true}" ng-model="selection.examId" ng-change="query()">
-                        <option value="" selected> - - {{'sitnet_exam' | translate}} - - </option>
-                        <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.name}}</option>
-                    </select>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 
-    <div ng-init="query()" ng-include="reservationDetails" />
+    <div class="top-margin-1" ng-init="query()" ng-include="reservationDetails"/>
 
 </div>

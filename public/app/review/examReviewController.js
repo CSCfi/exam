@@ -1,8 +1,12 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService', 'examService', 'questionService', '$sce', '$routeParams', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService',
-            function (dialogs, $document, $rootScope, $scope, sessionService, examService, questionService, $sce, $routeParams, $http, $modal, $location, $translate, $timeout, EXAM_CONF, ExamRes, LanguageRes, QuestionRes, dateService) {
+        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService',
+            'examService', 'questionService', '$routeParams', '$http', '$modal', '$location', '$translate',
+            '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService', 'fileService', '$sanitize',
+            function (dialogs, $document, $rootScope, $scope, sessionService, examService, questionService,
+                      $routeParams, $http, $modal, $location, $translate, $timeout, $sce, EXAM_CONF, ExamRes, LanguageRes,
+                      QuestionRes, dateService, fileService, $sanitize) {
 
                 $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
                 $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
@@ -10,6 +14,8 @@
                 $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_essay_question.html";
                 $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
                 $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
+                $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_multiple_choice_answer.html";
+                $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_weighted_multiple_choice_answer.html";
 
                 $scope.printExam = function () {
                     window.open("/#/print/exam/" + $scope.examToBeReviewed.id, "_blank");
@@ -24,10 +30,6 @@
                 };
 
                 $scope.user = sessionService.getUser();
-
-                if (!$scope.user || $scope.user.isStudent) {
-                    $location.path("/unauthorized");
-                }
 
                 $scope.inspections = [];
                 $scope.examGrading = [];
@@ -157,7 +159,9 @@
                             return $scope.examToBeReviewed && ($scope.user.isAdmin || isCreator() || isOwner());
                         };
 
-                        $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED" || $scope.examToBeReviewed.state === "ABORTED";
+                        $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED" ||
+                            $scope.examToBeReviewed.state === "ARCHIVED" ||
+                            $scope.examToBeReviewed.state === "ABORTED";
                         $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";
 
                         refreshGradeNames();
@@ -192,7 +196,7 @@
                         };
 
                         // get exam inspections ->
-                        ExamRes.inspections.get({id: $scope.examToBeReviewed.id},
+                        ExamRes.inspections.query({id: $scope.examToBeReviewed.id},
                             function (inspections) {
                                 $scope.inspections = inspections;
                             },
@@ -225,7 +229,7 @@
                                 toastr.error(error.data);
                             }
                         );
-                        ExamRes.reservation.get({eid: $routeParams.id},
+                        ExamRes.reservationInfo.get({eid: $routeParams.id},
                             function (reservation) {
                                 $scope.reservation = reservation;
                             }
@@ -250,6 +254,16 @@
                     return dateService.printExamDuration(exam);
                 };
 
+                $scope.scoreWeightedMultipleChoiceAnswer = function (question) {
+                    var score = question.answer.options.reduce(function (a, b) {
+                        return a + b.score;
+                    }, 0);
+                    if (score < 0) {
+                        score = 0;
+                    }
+                    return score;
+                };
+
                 $scope.scoreMultipleChoiceAnswer = function (sectionQuestion) {
                     var score = 0;
                     var question = sectionQuestion.question;
@@ -257,13 +271,13 @@
                         question.backgroundColor = 'grey';
                         return 0;
                     }
-
-                    if (question.answer.option.correctOption === true) {
+                    if (question.answer.options.length != 1) {
+                        console.error("multiple options selected for a MultiChoice answer!");
+                    }
+                    if (question.answer.options[0].correctOption === true) {
                         score = question.maxScore;
                         question.backgroundColor = 'green';
-                    }
-
-                    if (question.answer.option.correctOption === false) {
+                    } else {
                         question.backgroundColor = 'red';
                     }
 
@@ -279,6 +293,12 @@
                     return input;
                 };
 
+                $scope.isAnswer = function (option, question) {
+                    return question.answer.options.map(function (o) {
+                            return o.id
+                        }).indexOf(option.id) > -1;
+                };
+
                 $scope.getSectionTotalScore = function (section) {
                     var score = 0;
 
@@ -290,9 +310,21 @@
                                     question.backgroundColor = 'grey';
                                     return 0;
                                 }
-                                if (question.answer.option.correctOption === true) {
+                                if (question.answer.options.length != 1) {
+                                    console.error("multiple options selected for a MultiChoice answer!");
+                                }
+                                if (question.answer.options[0].correctOption === true) {
                                     score += question.maxScore;
                                 }
+                                break;
+                            case "WeightedMultipleChoiceQuestion":
+                                if (question.answer === null) {
+                                    question.backgroundColor = 'grey';
+                                    return 0;
+                                }
+                                score += question.answer.options.reduce(function (a, b) {
+                                    return a + b.score;
+                                }, 0);
                                 break;
                             case "EssayQuestion":
 
@@ -310,6 +342,10 @@
                     return score;
                 };
 
+                $scope.calculateMaxPoints = function (question) {
+                    return questionService.calculateMaxPoints(question);
+                };
+
                 $scope.getSectionMaxScore = function (section) {
                     var score = 0;
 
@@ -319,7 +355,9 @@
                             case "MultipleChoiceQuestion":
                                 score += question.maxScore;
                                 break;
-
+                            case "WeightedMultipleChoiceQuestion":
+                                score += questionService.calculateMaxPoints(question);
+                                break;
                             case "EssayQuestion":
                                 if (question.evaluationType == 'Points') {
                                     score += question.maxScore;
@@ -354,10 +392,6 @@
                         $scope.examToBeReviewed.totalScore = total;
                         return total;
                     }
-                };
-
-                $scope.truncate = function (answer, offset) {
-                    return questionService.truncate(answer, offset);
                 };
 
                 var refreshRejectedAcceptedCounts = function () {
@@ -440,6 +474,10 @@
                         $scope.saveFeedback();
                     }
                     return !hidden;
+                };
+
+                $scope.trustAsHtml = function(content) {
+                    return $sce.trustAsHtml(content);
                 };
 
                 // Called when the save feedback button is clicked
@@ -627,6 +665,37 @@
                     }
                 };
 
+                $scope.selectFile = function () {
+
+                    var exam = $scope.examToBeReviewed;
+
+                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                        $scope.exam = exam;
+                        fileService.getMaxFilesize().then(function (data) {
+                            $scope.maxFileSize = data.filesize;
+                        });
+                        $scope.submit = function () {
+                            fileService.upload("attachment/exam/" + exam.id + "/feedback", $scope.attachmentFile,
+                                {examId: $scope.exam.id}, $scope.exam.examFeedback, $modalInstance);
+                        };
+                        $scope.cancel = function () {
+                            $modalInstance.dismiss('Canceled');
+                        };
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: ctrl
+                    });
+
+                    modalInstance.result.then(function () {
+                        // OK button
+                        $modalInstance.dismiss('Closed');
+                    });
+                };
+
                 $scope.stripHtml = function (text) {
                     if (text && text.indexOf("math-tex") === -1) {
                         return String(text).replace(/<[^>]+>/gm, '');
@@ -635,12 +704,12 @@
                 };
             }
         ])
-        .controller('RecordReviewConfirmationCtrl', function($scope, $modalInstance) {
-            $scope.yes = function() {
+        .controller('RecordReviewConfirmationCtrl', function ($scope, $modalInstance) {
+            $scope.yes = function () {
                 $modalInstance.close();
             };
 
-            $scope.no = function() {
+            $scope.no = function () {
                 $modalInstance.dismiss('canceled');
             }
         });

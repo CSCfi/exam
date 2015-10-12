@@ -1,8 +1,10 @@
 package models;
 
+import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.questions.Answer;
+import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -16,18 +18,20 @@ import java.util.*;
 @Entity
 public class Exam extends OwnedModel implements Comparable<Exam> {
 
+    @EnumMapping(integerType = true, nameValuePairs = "DRAFT=1, SAVED=2, PUBLISHED=3, STUDENT_STARTED=4, REVIEW=5, " +
+            "REVIEW_STARTED=6, GRADED=7, GRADED_LOGGED=8, ARCHIVED=9, ABORTED=10, DELETED=11")
     public enum State {
         DRAFT,
         SAVED,
-        PUBLISHED,
-        REVIEW,          // OPISKELIJHA ON PALAUTTANUT TENTIN
-        REVIEW_STARTED,  // OPETTAJA ON ALOITTANUT ARVIOINNIN
-        GRADED,
-        GRADED_LOGGED,   // OPINTOSUORITUS KIRJATTU JOHONKIN JÄRJESTELMÄÄN
-        STUDENT_STARTED,
-        ABORTED,
-        ARCHIVED,
-        DELETED
+        PUBLISHED,       // EXAM PUBLISHED, VISIBLE TO STUDENTS AND READY FOR TAKING
+        STUDENT_STARTED, // EXAM STARTED BY STUDENT
+        REVIEW,          // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
+        REVIEW_STARTED,  // REVIEW STARTED BY TEACHERS
+        GRADED,          // GRADE GIVEN
+        GRADED_LOGGED,   // EXAM PROCESSED AND READY FOR REGISTRATION
+        ARCHIVED,        // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
+        ABORTED,         // EXAM ABORTED BY STUDENT WHILST TAKING
+        DELETED          // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
     }
 
     private String name;
@@ -41,7 +45,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     @ManyToMany
     @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> examOwners;
-	
+
     @ManyToMany
     @JoinTable(name = "exam_inspection", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private List<User> examInspectors;
@@ -103,16 +107,6 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     // Custom course credit - if teachers changes course credit
     private Double customCredit;
 
-    // Aggregate properties, required as fields by Ebean
-    private Double totalScore;
-    private Double maxScore;
-    private int rejectedAnswerCount;
-    private int approvedAnswerCount;
-
-
-    // Cloned - needed as field for serialization :(
-    private Boolean cloned;
-
     // Exam language
     @ManyToMany
     private List<Language> examLanguages;
@@ -120,7 +114,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     // Exam answer language
     private String answerLanguage;
 
-    private String state;
+    private State state;
 
     @ManyToOne
     private Grade grade; // TODO: make this a Grade instead of String
@@ -145,15 +139,21 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     private String additionalInfo;
 
+    // Number of times a student is allowed to take the exam before getting a grade
+    private Integer trialCount;
+
     @ManyToOne
     private ExamType creditType;
+
+    @ManyToOne
+    private ExamExecutionType executionType;
 
     // In UI, section has been expanded
     @Column(columnDefinition = "boolean default false")
     private boolean expanded;
 
     @OneToOne(cascade = CascadeType.ALL)
-    protected Attachment attachment;
+    private Attachment attachment;
 
     public User getGradedByUser() {
         return gradedByUser;
@@ -163,6 +163,15 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         this.gradedByUser = gradedByUser;
     }
 
+    // Aggregate properties, required as fields by Ebean
+    private Double totalScore;
+    private Double maxScore;
+    private int rejectedAnswerCount;
+    private int approvedAnswerCount;
+
+    // Cloned - needed as field for serialization :(
+    private Boolean cloned;
+
     @Transient
     public Double getTotalScore() {
         double total = 0;
@@ -170,13 +179,29 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 Question question = esq.getQuestion();
                 Double evaluatedScore = null;
-                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
-                    if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
-                        evaluatedScore = question.getEvaluatedScore();
-                    }
-                } else if (question.getAnswer() != null) {
-                    Answer answer = question.getAnswer();
-                    evaluatedScore = answer.getOption().isCorrectOption() ? question.getMaxScore() : 0;
+                switch (question.getType()) {
+                    case EssayQuestion:
+                        if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
+                            evaluatedScore = question.getEvaluatedScore();
+                        }
+                        break;
+                    case MultipleChoiceQuestion:
+                        if (question.getAnswer() != null) {
+                            Answer answer = question.getAnswer();
+                            evaluatedScore = answer.getOptions().get(0).isCorrectOption() ? question.getMaxScore() : 0;
+                        }
+                        break;
+                    case WeightedMultipleChoiceQuestion:
+                        if (question.getAnswer() != null) {
+                            Answer answer = question.getAnswer();
+                            evaluatedScore = answer.getOptions().stream().map(MultipleChoiceOption::getScore)
+                                    .reduce(0.0, (sum, x) -> sum += x);
+                            // ATM minimum score is zero
+                            if (evaluatedScore < 0) {
+                                evaluatedScore = 0.0;
+                            }
+                        }
+                        break;
                 }
                 if (evaluatedScore != null) {
                     total += evaluatedScore;
@@ -201,12 +226,21 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 Question question = esq.getQuestion();
                 double maxScore = 0;
-                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
-                    if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
+                switch (question.getType()) {
+                    case EssayQuestion:
+                        if (question.getEvaluationType() != null && question.getEvaluationType().equals("Points")) {
+                            maxScore = question.getMaxScore();
+                        }
+                        break;
+                    case MultipleChoiceQuestion:
                         maxScore = question.getMaxScore();
-                    }
-                } else {
-                    maxScore = question.getMaxScore();
+                        break;
+                    case WeightedMultipleChoiceQuestion:
+                        maxScore = question.getOptions().stream()
+                                .map(MultipleChoiceOption::getScore)
+                                .filter(o -> o > 0)
+                                .reduce(0.0, (sum, x) -> sum += x);
+                        break;
                 }
                 total += maxScore;
             }
@@ -220,7 +254,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         for (ExamSection section : examSections) {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 Question question = esq.getQuestion();
-                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                if (question.getType() == Question.Type.EssayQuestion) {
                     if (question.getEvaluationType() != null &&
                             question.getEvaluationType().equals("Select")
                             && question.getEvaluatedScore() != null
@@ -239,7 +273,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         for (ExamSection section : examSections) {
             for (ExamSectionQuestion esq : section.getSectionQuestions()) {
                 Question question = esq.getQuestion();
-                if (question.getType().equals(Question.Type.EssayQuestion.toString())) {
+                if (question.getType() == Question.Type.EssayQuestion) {
                     if (question.getEvaluationType() != null &&
                             question.getEvaluationType().equals("Select") &&
                             question.getEvaluatedScore() != null
@@ -420,12 +454,20 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         this.grade = grade;
     }
 
-    public String getState() {
+    public State getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(State state) {
         this.state = state;
+    }
+
+    public Integer getTrialCount() {
+        return trialCount;
+    }
+
+    public void setTrialCount(Integer trialCount) {
+        this.trialCount = trialCount;
     }
 
     public Comment getExamFeedback() {
@@ -492,10 +534,10 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         this.examInspections = examInspections;
     }
 
-    public Exam copy(User user) {
+    public Exam copy(User user, boolean produceStudentExam) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
-                "examInspections", "creator", "created", "examOwners");
+                "examInspections", "creator", "created", produceStudentExam ? "examOwners" : "none");
         clone.setParent(this);
         AppUtil.setCreator(clone, user);
         AppUtil.setModifier(clone, user);
@@ -509,20 +551,25 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
             inspection.save();
         }
         for (ExamSection es : examSections) {
-            ExamSection esCopy = es.copy(clone, true);
+            ExamSection esCopy = es.copy(clone, produceStudentExam);
+            AppUtil.setCreator(esCopy, user);
+            AppUtil.setModifier(esCopy, user);
             esCopy.save();
             for (ExamSectionQuestion esq : esCopy.getSectionQuestions()) {
-                esq.getQuestion().save();
+                Question questionCopy = esq.getQuestion();
+                AppUtil.setCreator(questionCopy, user);
+                AppUtil.setModifier(questionCopy, user);
+                questionCopy.save();
                 esq.save();
             }
             clone.getExamSections().add(esCopy);
         }
-        Collections.sort(clone.getExamSections(), new Comparator<ExamSection>() {
-            @Override
-            public int compare(ExamSection o1, ExamSection o2) {
-                return (int) (o1.getId() - o2.getId());
-            }
-        });
+        if (attachment != null) {
+            Attachment copy = new Attachment();
+            BeanUtils.copyProperties(attachment, copy, "id");
+            clone.setAttachment(copy);
+        }
+        Collections.sort(clone.getExamSections(), (o1, o2) -> (int) (o1.getId() - o2.getId()));
         return clone;
     }
 
@@ -548,6 +595,14 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     public Attachment getAttachment() {
         return attachment;
+    }
+
+    public ExamExecutionType getExecutionType() {
+        return executionType;
+    }
+
+    public void setExecutionType(ExamExecutionType executionType) {
+        this.executionType = executionType;
     }
 
     @Transient
@@ -582,6 +637,16 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         return isInspectedBy(user, applyToChildOnly) || isOwnedBy(user) || isCreatedBy(user);
     }
 
+    @Transient
+    public boolean isPrivate() {
+        return executionType.getType().equals(ExamExecutionType.Type.PRIVATE.toString());
+    }
+
+    @Transient
+    public boolean hasState(State... states) {
+        return Arrays.asList(states).contains(state);
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
@@ -603,10 +668,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
                 "course=" + course +
                 ", id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", state='" + state + '\'' +
                 ", examType=" + examType +
-                ", instruction='" + instruction + '\'' +
-                ", shared=" + shared +
                 ", hash='" + hash + '\'' +
                 ", state='" + state + '\'' +
                 '}';

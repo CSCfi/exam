@@ -7,6 +7,8 @@
                       class="header-text">{{'sitnet_questions_new_essay' | translate}}</span>
                 <span ng-show="newQuestion.type == 'MultipleChoiceQuestion'"
                       class="header-text">{{'sitnet_questions_new_multiplechoice' | translate}}</span>
+                <span ng-show="newQuestion.type == 'WeightedMultipleChoiceQuestion'"
+                      class="header-text">{{'sitnet_questions_new_weighted_multiplechoice' | translate}}</span>
             </div>
             <span ng-hide="newQuestion.state == 'NEW' ? true : false" class="header-text">{{'sitnet_questions_edit' | translate}}</span>
         </div>
@@ -19,7 +21,7 @@
     <div id="dashboard">
         <div class="main-row">
             <div class="col-md-12 top-margin-1">
-                <form role="form" name="questionForm" novalidate>
+                <form role="form" class="form-horizontal" name="questionForm" novalidate>
                     <!-- Question editor -->
                     <div class="form-group">
                         <label for="editor" ng-show="newQuestion && !newQuestion.question">
@@ -50,7 +52,8 @@
                     <!-- Max score -->
                     <div class="row">
                         <div class="form-group col-md-3"
-                             ng-show="newQuestion.type == 'MultipleChoiceQuestion' ||  newQuestion.evaluationType == 'Points'">
+                             ng-show="newQuestion.type == 'MultipleChoiceQuestion' ||
+                                      newQuestion.evaluationType == 'Points'">
                             <label class="sitnet-info-text" for="maxScore">{{'sitnet_max_score' | translate}}</label>
                             <label ng-hide="questionForm.maxScore.$valid" class="text-danger">
                                 {{ 'sitnet_positive_integer_required' | translate }}

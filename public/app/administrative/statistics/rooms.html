@@ -1,0 +1,33 @@
+<div class="detail-row">
+    <div class="col-md-12">
+        <button class="btn btn-primary" ng-click="listParticipations()">{{'sitnet_search' | translate}}</button>
+    </div>
+</div>
+<div class="main-row">
+    <div class="col-md-12" style="overflow: auto">
+        <table class="table table-condensed table-bordered ">
+            <thead>
+            <th class="warning">{{'sitnet_year' | translate}}</th>
+            <th class="warning">{{'sitnet_month' | translate}}</th>
+            <th ng-repeat="room in rooms">{{room.split(':')[1]}}</th>
+            <th class="success">{{'sitnet_total' | translate}}</th>
+            </thead>
+            <tbody>
+            <tr ng-repeat="month in months">
+                <td class="warning">{{month | date:'yyyy'}}</td>
+                <td class="warning">{{month | date:'M'}}</td>
+                <td ng-repeat="room in rooms">{{totalParticipations(month, room)}}</td>
+                <td class="success">{{totalParticipations(month)}}</td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr class="success">
+                <td colspan="2"><b>{{ 'sitnet_total' | translate }}</b></td>
+                <td ng-repeat="room in rooms">{{totalParticipations(null, room)}}</td>
+                <td><b>{{ totalParticipations() }}</b></td>
+            </tr>
+            </tfoot>
+        </table>
+
+    </div>
+</div>

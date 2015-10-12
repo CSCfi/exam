@@ -1,0 +1,26 @@
+<div class="form-horizontal question-editor-option" ng-class="option.score > 0 ? 'alert-success' : 'alert-danger'">
+    <div class="form-group">
+        <label for="optionScore" class="col-md-1 control-label">{{'sitnet_word_points' | translate}}:</label>
+        <div class="col-md-2">
+            <input id="optionScore" class="form-control" name="maxScore" type="number"
+                   class="form-control"
+                   ui-change="updateOption(option)"
+                   ng-model="option.score"
+                   required="true"/>
+        </div>
+        <div class="col-md-9 pull-right">
+            <div ng-click="removeOption(option)" class="pull-right text-danger fa-2x">
+                <i class="fa fa-times pointer" title="{{'sitnet_remove' | translate}}"></i>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="optionText" class="col-md-1 control-label"></label>
+        <div class="col-md-11">
+            <input id="optionText" type="text" focus-on="opt{{option.id}}" class="form-control"
+               ng-model="option.option" ui-blur="updateOption(option)"
+               ng-click="selectIfDefault(option.option, $event)"
+               required="true"/>
+        </div>
+    </div>
+</div>

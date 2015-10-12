@@ -13,6 +13,14 @@
     padding-right: 1em;
   }
 
+  .detail-row-tall {
+    @extend .row;
+    margin: 0;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-bottom: 1em;
+  }
+
   .bottom-row {
     @extend .detail-row;
     padding-bottom: 1em;
@@ -178,8 +186,12 @@
     vertical-align: middle;
   }
 
-  ul {
-    list-style-type: none;
+  .inline-list li {
+     list-style: none;
+  }
+
+  .wide-select {
+    width: 100%;
   }
 
   // fade in/out animations for list items

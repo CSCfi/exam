@@ -3,7 +3,6 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import com.avaje.ebean.Expr;
 import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -15,12 +14,13 @@ import play.libs.Json;
 import play.mvc.Result;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserController extends BaseController {
 
     @Restrict({@Group("ADMIN")})
     public Result getUser(Long id) {
-        User user = Ebean.find(User.class).fetch("roles", "name").fetch("userLanguage").where().idEq(id).findUnique();
+        User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where().idEq(id).findUnique();
 
         if (user == null) {
             return notFound();
@@ -117,119 +117,81 @@ public class UserController extends BaseController {
         return ok(Json.toJson(array));
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getUsersByRoleFilter(String role, String criteria) {
-
-        List<User> users = Ebean.find(User.class)
-                .where()
-                .and(
-                        Expr.eq("roles.name", role),
-                        Expr.or(
-                                Expr.icontains("lastName", criteria),
-                                Expr.icontains("firstName", criteria)
-                        )
-                )
-                .findList();
-
+    private static ArrayNode asArray(List<User> users) {
         ArrayNode array = JsonNodeFactory.instance.arrayNode();
         for (User u : users) {
             ObjectNode part = Json.newObject();
             part.put("id", u.getId());
-            part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
+            String uid = u.getUserIdentifier();
+            String uidString = uid != null && !uid.isEmpty() ? String.format(" (%s)", u.getUserIdentifier()) : "";
+            part.put("name", String.format("%s %s%s", u.getFirstName(), u.getLastName(), uidString));
             array.add(part);
         }
+        return array;
+    }
 
-        return ok(Json.toJson(array));
+    private static List<User> findUsersByRoleAndName(String role, String nameFilter) {
+        ExpressionList<User> el = Ebean.find(User.class).where().eq("roles.name", role).disjunction();
+        if (nameFilter.contains(" ")) {
+            // Possible that user provided us two names. Lets try out some combinations of first and last names
+            String name1 = nameFilter.split(" ")[0];
+            String name2 = nameFilter.split(" ")[1];
+            el = el.disjunction().conjunction()
+                    .icontains("firstName", name1)
+                    .icontains("lastName", name2)
+                    .endJunction().conjunction()
+                    .icontains("firstName", name2)
+                    .icontains("lastName", name1)
+                    .endJunction().endJunction();
+        } else {
+            el = el.icontains("firstName", nameFilter)
+                    .icontains("lastName", nameFilter);
+        }
+        return el.endJunction().findList();
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result getUsersByRoleFilter(String role, String criteria) {
+        return ok(Json.toJson(asArray(findUsersByRoleAndName(role, criteria))));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamOwnersByRoleFilter(String role, Long eid, String criteria) {
-
-        List<User> users = Ebean.find(User.class)
-                .where()
-                .and(
-                        Expr.eq("roles.name", role),
-                        Expr.or(
-                                Expr.icontains("lastName", criteria),
-                                Expr.icontains("firstName", criteria)
-                        )
-                )
-                .findList();
-
-        Exam exam = Ebean.find(Exam.class).where().eq("id", eid).findUnique();
-
+        Exam exam = Ebean.find(Exam.class, eid);
         if (exam == null) {
             return notFound();
         }
-        ArrayNode array = JsonNodeFactory.instance.arrayNode();
-        List<User> owners = exam.getExamOwners();
-        // removes all user who are already inspectors
-        for (User u : users) {
-            boolean b = true;
-            for (User owner : owners) {
-                if (u.getId().equals(owner.getId())) {
-                    b = false;
-                    break;
-                }
-            }
-            if (b) {
-                ObjectNode part = Json.newObject();
-                part.put("id", u.getId());
-                part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
-                array.add(part);
-            }
-        }
-
-        return ok(Json.toJson(array));
+        List<User> users = findUsersByRoleAndName(role, criteria);
+        users.removeAll(exam.getExamOwners());
+        return ok(Json.toJson(asArray(users)));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamInspectorsByRoleFilter(String role, Long eid, String criteria) {
-
-        List<User> users = Ebean.find(User.class)
-                .where()
-                .and(
-                        Expr.eq("roles.name", role),
-                        Expr.or(
-                                Expr.icontains("lastName", criteria),
-                                Expr.icontains("firstName", criteria)
-                        )
-                )
-                .findList();
-
         List<ExamInspection> inspections = Ebean.find(ExamInspection.class).where().eq("exam.id", eid).findList();
+        List<User> users = findUsersByRoleAndName(role, criteria);
+        users.removeAll(inspections.stream().map((ExamInspection::getUser)).collect(Collectors.toList()));
+        return ok(Json.toJson(asArray(users)));
+    }
 
-        ArrayNode array = JsonNodeFactory.instance.arrayNode();
-
-        // removes all user who are already inspectors
-        for (User u : users) {
-            boolean b = true;
-            for (ExamInspection i : inspections) {
-                if (u.getId().equals(i.getUser().getId())) {
-                    b = false;
-                    break;
-                }
-            }
-            if (b) {
-                ObjectNode part = Json.newObject();
-                part.put("id", u.getId());
-                part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
-                array.add(part);
-            }
-        }
-
-        return ok(Json.toJson(array));
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result getUnenrolledStudents(Long eid, String criteria) {
+        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).where().eq("exam.id", eid).findList();
+        List<User> users = findUsersByRoleAndName("STUDENT", criteria);
+        users.removeAll(enrolments.stream().map((ExamEnrolment::getUser)).collect(Collectors.toList()));
+        return ok(Json.toJson(asArray(users)));
     }
 
     @Restrict({@Group("STUDENT")})
-    public Result updateUserAgreementAccepted(Long id) {
-
+    public Result updateUserAgreementAccepted() {
         Result result;
-        User user = Ebean.find(User.class).fetch("roles", "name").fetch("userLanguage").where().idEq(id).findUnique();
+        User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where()
+                .idEq(getLoggedUser().getId())
+                .findUnique();
         if (user == null) {
             result = notFound();
         } else {
-            user.setHasAcceptedUserAgreament(true);
+            user.setUserAgreementAccepted(true);
             user.save();
             Ebean.update(user);
             result = ok(user);
@@ -241,12 +203,13 @@ public class UserController extends BaseController {
     public Result updateLanguage() {
         User user = getLoggedUser();
         String lang = request().body().asJson().get("lang").asText();
-        UserLanguage language = Ebean.find(UserLanguage.class).where().eq("UILanguageCode", lang).findUnique();
+        Language language = Ebean.find(Language.class, lang);
         if (language == null) {
             return badRequest("Unsupported language code");
         }
-        user.setUserLanguage(language);
+        user.setLanguage(language);
         user.update();
         return ok();
     }
+
 }

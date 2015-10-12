@@ -1,7 +1,7 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .factory('dateService', function () {
+        .factory('dateService',  ['$translate', function ($translate) {
 
             var printExamDuration = function (exam) {
 
@@ -31,9 +31,32 @@
                 return date;
             };
 
+            var getDateForWeekday = function (ordinal) {
+                var now = new Date();
+                var distance = ordinal - now.getDay();
+                return new Date(now.setDate(now.getDate() + distance));
+            };
+
+            var getWeekdayNames = function () {
+                var lang = $translate.use();
+                var locale = lang.toLowerCase() + "-" + lang.toUpperCase();
+                var options = {weekday: 'short'};
+                return [
+                    getDateForWeekday(1).toLocaleDateString(locale, options),
+                    getDateForWeekday(2).toLocaleDateString(locale, options),
+                    getDateForWeekday(3).toLocaleDateString(locale, options),
+                    getDateForWeekday(4).toLocaleDateString(locale, options),
+                    getDateForWeekday(5).toLocaleDateString(locale, options),
+                    getDateForWeekday(6).toLocaleDateString(locale, options),
+                    getDateForWeekday(0).toLocaleDateString(locale, options)
+                ];
+            };
+
             return {
                 printExamDuration: printExamDuration,
-                checkDST: checkDST
+                checkDST: checkDST,
+                getDateForWeekday: getDateForWeekday,
+                getWeekdayNames: getWeekdayNames
             };
-        });
+        }]);
 }());

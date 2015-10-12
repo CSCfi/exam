@@ -7,6 +7,15 @@
 <!-- General info section container -->
 <div class="detail-row">
     <div class="detail-row">
+
+        <!-- Exam name field -->
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{'sitnet_exam_name' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.name}}</div>
+            </div>
+        </div>
+
         <!-- Start time field -->
         <div class="col-md-2">
             <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}</div>
@@ -47,6 +56,9 @@
             </div>
         </div>
 
+    </div>
+    <div class="detail-row">
+
         <!-- Faculty name field -->
         <div class="col-md-2">
             <div class="sitnet-info-text">{{'sitnet_faculty_name' | translate}}</div>
@@ -54,8 +66,6 @@
                 <div>{{exam.course.organisation.name}}</div>
             </div>
         </div>
-    </div>
-    <div class="detail-row">
 
         <!-- Exam duration field -->
         <div class="col-md-2">
@@ -82,7 +92,7 @@
         </div>
 
         <!-- Exam type field -->
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="sitnet-info-text">{{'sitnet_exam_credit_type' | translate}}</div>
             <div class="input-group">
                 <div>{{translateExamType(exam.examType.type)}}</div>

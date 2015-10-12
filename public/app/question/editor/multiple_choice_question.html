@@ -1,5 +1,8 @@
 
     <div id="question-editor">
+        <div class="row">
+            <h4 class="sitnet-info-text">{{'sitnet_question_options' | translate}}</h4>
+        </div>
         <div ng-repeat="option in newQuestion.options" ng-include="newOptionTemplate" />
         <div class="row">
             <div class="col-md-11 col-md-offset-1 new-option" ng-click="addNewOption(newQuestion)">

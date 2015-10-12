@@ -54,68 +54,103 @@
                 </div>
             </div>
         </div>
+        <div ng-show="newExam.hasEnrolmentsInEffect" class="row">
+            <div class="col-md-12">
+                <div class="alert-warning exam-small-warning-box">
+                    <small>{{ 'sitnet_restricting_validity_change_disallowed' | translate }}</small>
+                </div>
+            </div>
+        </div>
     </form>
 
     <!-- Course -->
     <div class="row">
-        <div ng-include="templates.selectCourse" />
+        <div ng-include="templates.selectCourse"/>
     </div>
 
-    <!-- Exam inspector and exam maxScore scale input elements -->
+    <!-- Exam owners -->
     <div class="row">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_exam_owners' | translate}}:</div>
-            <div class="col-md-12 row">
-                <div class="pull-left col-md-2 row">
-                    <button class="btn btn-default" ng-click="openExamUserModal('owner')">{{'sitnet_add_exam_owner' |
-                        translate}}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <button class="btn btn-default" ng-click="openExamUserModal('owner')">{{'sitnet_add_exam_owner' |
+                translate}}
+            </button>
+        </div>
+        <div class="col-md-9">
+            <ul class="list-inline">
+                <li>
+                    <button ng-repeat="user in examOwners" class="btn btn-primary btn-xs" style="margin: 0.2em"
+                            ng-disabled="examOwners.length == 1" ng-click="removeOwner(user.id)"
+                            title="{{'sitnet_remove' | translate}}">
+                        {{user.firstName }} {{ user.lastName }}
                     </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Exam inspectors -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <button class="btn btn-default" ng-click="openExamUserModal('inspector')">
+                {{'sitnet_add_exam_examiner' | translate}}
+            </button>
+        </div>
+        <div class="col-md-9">
+            <ul class="list-inline">
+                <li>
+                    <button ng-repeat="inspection in inspectors" class="btn btn-primary btn-xs" style="margin: 0.2em"
+                            title="{{'sitnet_remove' | translate}}" ng-click="removeInspector(inspection.id)">
+                        {{inspection.user.firstName }} {{ inspection.user.lastName }}
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Exam participants -->
+    <div ng-show="newExam.executionType.type==='PRIVATE'">
+        <div class="row">
+            <div class="col-md-12">
+                <div ng-if="newExam.state !== 'PUBLISHED'" class="sitnet-info-text">{{'sitnet_exam_participants' |
+                    translate}}:
                 </div>
-                <div class="pull-left col-md-9">
-                    <ul>
-                        <li class="pull-left horizontal-padding-05" ng-repeat="user in examOwners">
-                            <h5><span ng-if="examOwners.length > 1"
-                                      title="{{'sitnet_remove' | translate}}"
-                                      ng-click="removeOwner(user.id)"
-                                      class="sitnet-badge pointer">
-                                    {{user.firstName }} {{ user.lastName }}
-                                </span>
-                                <span ng-if="examOwners.length === 1" class="sitnet-badge">
-                                    {{user.firstName }} {{ user.lastName }}
-                                </span>
-                            </h5>
-                        </li>
-                    </ul>
+                <div ng-if="newExam.state === 'PUBLISHED'" class="sitnet-info-text">{{'sitnet_exam_participants_left' |
+                    translate}}:
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <button class="btn btn-default" ng-click="openExamUserModal('student')"
+                        ng-disabled="newExam.state === 'PUBLISHED'">
+                    {{'sitnet_add_exam_participant' | translate}}
+                </button>
+            </div>
+            <div class="col-md-9">
+                <ul class="list-inline">
+                    <li>
+                        <button ng-repeat="enrolment in newExam.examEnrolments"
+                                ng-disabled="newExam.state === 'PUBLISHED'" class="btn btn-primary btn-xs"
+                                style="margin: 0.2em" ng-click="removeParticipant(enrolment.id)"
+                                title="{{'sitnet_remove' | translate}}">
+                            {{enrolment.user.firstName }} {{ enrolment.user.lastName }}
+                        </button>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
-            <div class="col-md-12 row">
-                <div class="pull-left col-md-2 row">
-                    <button class="btn btn-default" ng-click="openExamUserModal('inspector')">
-                        {{'sitnet_add_exam_examiner' | translate}}
-                    </button>
-                </div>
-                <div class="pull-left col-md-9">
-                    <ul>
-                        <li class="pull-left" style="margin-left:0.5em;" ng-repeat="inspection in inspectors">
-                            <h5>
-                                <span title="{{'sitnet_remove' | translate}}"
-                                      ng-click="removeInspector(inspection.id)"
-                                      class="sitnet-badge pointer">
-                                    {{inspection.user.firstName }} {{ inspection.user.lastName }}
-                                </span>
-                            </h5>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Exam length -->
     <div class="row">
@@ -125,7 +160,8 @@
             </div>
             <div class="input-group">
                 <button ng-repeat="duration in examDurations" class="btn btn-default exam-duration-btn"
-                        ng-class="checkDuration(duration)" ng-click="setExamDuration(duration)">{{duration}}
+                        ng-class="checkDuration(duration)" ng-click="setExamDuration(duration)"
+                        ng-disabled="!user.isAdmin && newExam.hasEnrolmentsInEffect">{{duration}}
                 </button>
             </div>
         </div>
@@ -144,7 +180,7 @@
     </div>
 
 
-    <!-- Exam grade scale and exam type input elements -->
+    <!-- Exam grade scale, type and trial count input elements -->
     <div class="row">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_grade_scale' | translate}}:</div>
@@ -156,15 +192,31 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_exam_credit_type' | translate}}:</div>
             <span ng-repeat="examType in examTypes">
                 <button class="btn btn-default" ng-class="checkType(examType.type)"
                         ng-click="setExamType(examType.type)">{{examType.name}}
-                </button>&nbsp;</span>
+                </button>&nbsp;
+            </span>
+        </div>
+        <div class="col-md-6">
+            <div class="sitnet-info-text">{{'sitnet_exam_trial_count' | translate}}:&nbsp;
+                <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
+                   popover="{{'sitnet_exam_trial_count_description' | translate}}"></i></div>
+            <span ng-show="newExam.executionType.type==='PUBLIC'" ng-repeat="x in range(1, 5)">
+                <button class="btn btn-default" ng-class="checkTrialCount(x)" ng-click="setTrialCount(x)">{{x}}
+                </button>&nbsp;
+            </span>
+            <button ng-if="newExam.executionType.type==='PUBLIC'" class="btn btn-default" ng-class="checkTrialCount()"
+                    ng-click="setTrialCount()">&infin;
+            </button>
+            <button ng-if="newExam.executionType.type==='PRIVATE'" class="btn btn-primary" ng-class="checkTrialCount()"
+                    ng-disabled="true">1
+            </button>
+            <span ng-if="newExam.executionType.type==='PRIVATE'" class="text-muted">({{'sitnet_private_exam_trial_count_description' | translate}})</span>
         </div>
     </div>
-
 
     <div class="row">
         <!-- Exam software -->
@@ -184,7 +236,7 @@
         <!--Attachment file-->
         <div class="col-md-6">
             <div class="sitnet-info-text">
-                {{'sitnet_exam_attacment' | translate}}
+                {{'sitnet_exam_attachment' | translate}}
             </div>
             <div ng-show="newExam.attachment" ng-controller="AttachmentController">
                 <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}} </a>

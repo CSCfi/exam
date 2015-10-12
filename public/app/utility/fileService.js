@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .factory('fileService', ['$q', '$http', '$translate', '$timeout', 'SettingsResource',
-            function ($q, $http, $translate, $timeout, SettingsResource) {
+        .factory('fileService', ['$q', '$http', '$translate', '$timeout', '$cookies', 'SettingsResource',
+            function ($q, $http, $translate, $timeout, $cookies, SettingsResource) {
                 var _supportsBlobUrls;
                 var _maxFileSize
 
@@ -66,8 +66,11 @@
                         toastr.error($translate.instant('sitnet_file_too_large'));
                         return;
                     }
+                    console.log('All cookies: ' + angular.toJson($cookies.getAll()));
+                    console.log('CT: ' + $cookies.get('csrfToken'));
                     var fd = new FormData();
                     fd.append('file', file);
+                    fd.append('csrfToken', $cookies.get('csrfToken'));
                     for (var k in params) {
                         if (params.hasOwnProperty(k)) {
                             fd.append(k, params[k]);

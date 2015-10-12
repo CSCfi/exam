@@ -81,8 +81,18 @@
             <div class="row" ng-show="hideEditor">
                 <textarea ck-editor rows="10" ng-model="examToBeReviewed.examFeedback.comment"></textarea>
             </div>
+            <div class="main-row pull-right" ng-show="hideEditor">
+                <span ng-controller="AttachmentController" ng-show="examToBeReviewed.examFeedback && examToBeReviewed.examFeedback.attachment">
+                    <a class="pointer" ng-click="downloadFeedbackAttachment(examToBeReviewed)">{{examToBeReviewed.examFeedback.attachment.fileName}}</a>
+                    <span class="sitnet-red pointer" ng-click="removeFeedbackAttachment(examToBeReviewed)">
+                        <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
+                    </span>
+                </span>
+                <span>
+                    <button class="btn btn-default" ng-click="selectFile()">{{'sitnet_attach_file' | translate}}</button>
+                </span>
+            </div>
         </div>
     </div>
-
 
 </div>

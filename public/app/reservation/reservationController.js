@@ -85,11 +85,7 @@
                 ];
 
                 $scope.printExamState = function (enrolment) {
-                    if (moment(enrolment.reservation.endAt).isBefore(moment()) && !enrolment.exam.parent) {
-                        return "NO_SHOW";
-                    } else {
-                        return enrolment.exam.state;
-                    }
+                    return enrolment.reservation.noShow ? 'NO_SHOW' : enrolment.exam.state;
                 };
 
                 function initQuery() {
@@ -103,8 +99,10 @@
                             }
                         }
 
+                        var tzOffset = new Date().getTimezoneOffset() * 60000;
+
                         if ($scope.dateService.startDate) {
-                            params.start = Date.parse($scope.dateService.startDate);
+                            params.start = Date.parse($scope.dateService.startDate) + tzOffset;
                         }
                         if ($scope.dateService.endDate) {
                             params.end = Date.parse($scope.dateService.endDate);
@@ -138,20 +136,6 @@
                         });
                 };
 
-                $scope.sort = {
-                    column: 'reservation.startAt',
-                    order: false
-                };
-
-                $scope.toggleSort = function (value) {
-                    if ($scope.sort.column == value) {
-                        $scope.sort.order = !$scope.sort.order;
-                        return;
-                    }
-
-                    $scope.sort.column = value;
-                    $scope.sort.order = !$scope.sort.order;
-                };
             }
         ])
     ;

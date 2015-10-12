@@ -1,5 +1,6 @@
 package models;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
@@ -10,8 +11,8 @@ public class Comment extends OwnedModel {
     @Column(columnDefinition = "TEXT")
 	private String comment;
 
-	@OneToOne
-	private Comment reply;
+	@OneToOne(cascade = CascadeType.ALL)
+	private Attachment attachment;
 
 	public String getComment() {
 		return comment;
@@ -21,12 +22,11 @@ public class Comment extends OwnedModel {
 		this.comment = comment;
 	}
 
-	public Comment getReply() {
-		return reply;
+	public Attachment getAttachment() {
+		return attachment;
 	}
 
-	public void setReply(Comment reply) {
-		this.reply = reply;
+	public void setAttachment(Attachment attachment) {
+		this.attachment = attachment;
 	}
-
 }

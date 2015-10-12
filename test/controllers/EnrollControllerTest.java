@@ -38,7 +38,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
 
         @Override
         protected void doGet(HttpServletRequest request, HttpServletResponse response) {
-            RemoteServerHelper.writeResponseFromFile(response, "test/resource/enrolments.json");
+            RemoteServerHelper.writeResponseFromFile(response, "test/resources/enrolments.json");
         }
     }
 
@@ -57,7 +57,7 @@ public class EnrollControllerTest extends IntegrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         Ebean.delete(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED.toString()).findList().get(0);
+        exam = Ebean.find(Exam.class).where().eq("state", Exam.State.PUBLISHED).findList().get(0);
         user = Ebean.find(User.class, userId);
         enrolment = new ExamEnrolment();
         enrolment.setExam(exam);

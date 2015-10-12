@@ -8,14 +8,26 @@
     <!-- toolbar -->
     <div class="main-row">
         <div class="col-md-12">
-            <a class="header-top-link" ng-click="createExam()">
-                <span class="pull-left fa-stack fa-lg header-top-icon">
-                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                    <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
-                </span>
+        <span class="pull-left fa-stack fa-lg header-top-icon">
+            <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+            <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
+        </span>
+
+            <div class="dropdown" dropdown>
+                <a class="header-top-link dropdown-toggle" data-toggle="dropdown" dropdown-toggle>
                     {{'sitnet_toolbar_new_exam' | translate}}
-            </a>
+                </a>
+                <ul class="dropdown-menu" role="menu">
+                    <li role="presentation">
+                        <a role="menuitem" ng-click="createExam('PUBLIC')" class="pointer">{{'sitnet_public_exam'
+                            | translate}}</a>
+                        <a role="menuitem" ng-click="createExam('PRIVATE')" class="pointer">{{'sitnet_private_exam'
+                            | translate}}</a>
+                    </li>
+                </ul>
+            </div>
         </div>
+
     </div>
 
     <div class="main-row">
@@ -24,7 +36,7 @@
                 <i class="fa icon-ok fa-square fa-stack-2x"></i>
                 <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
              </span>
-             <strong>{{ 'sitnet_published_exams' | translate }}</strong>
+            <strong>{{ 'sitnet_published_exams' | translate }}</strong>
              <span class="fa-stack fa-lg">
                 <i class="fa icon-notice fa-square fa-stack-2x"></i>
                 <span class="fa sitnet-white fa-stack-1x">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
@@ -42,6 +54,7 @@
                     <th>{{ 'sitnet_created_by' | translate }}</th>
                     <th>{{ 'sitnet_exam_validity' | translate }}</th>
                     <th>{{ 'sitnet_status' | translate }}</th>
+                    <th>{{ 'sitnet_copy' | translate }}</th>
                     <th>{{ 'sitnet_exam_remove' | translate }}</th>
                 </tr>
                 </thead>
@@ -50,9 +63,13 @@
                     <td class="table-column-examcode">{{exam.course.code}}</td>
                     <td><a class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
                     <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
-                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span></td>
+                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span>
+                    </td>
                     <td>
                         <span class="status_green">{{ 'sitnet_published' | translate }}</span>
+                    </td>
+                    <td class="text-center"><a class="bold-button" ng-click="copyExam(exam)"><i
+                            class="fa fa-lg fa-copy text-info"></i></a>
                     </td>
                     <td class="text-center">
                         <a>
@@ -63,13 +80,19 @@
                 <tr ng-repeat="exam in exams | filter: {state: 'SAVED'}">
                     <td class="table-column-examcode">{{exam.course.code}}</td>
                     <td>
-                        <a ng-if="exam.name && exam.name.length > 0" class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a>
-                        <a ng-if="!exam.name || exam.name.length == 0" class="exams-info-title bold-button text-danger" href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}</a>
+                        <a ng-if="exam.name && exam.name.length > 0" class="exams-info-title bold-button"
+                           href="#/exams/{{exam.id}}">{{exam.name}}</a>
+                        <a ng-if="!exam.name || exam.name.length == 0" class="exams-info-title bold-button text-danger"
+                           href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}</a>
                     </td>
                     <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
-                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span></td>
+                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span>
+                    </td>
                     <td>
                         <span class="status_orange">{{ 'sitnet_saved' | translate }}</span>
+                    </td>
+                    <td class="text-center"><a class="bold-button" ng-click="copyExam(exam)"><i
+                            class="fa fa-lg fa-copy text-info"></i></a>
                     </td>
                     <td class="text-center">
                         <a ng-click="deleteExam(exam)" class="pointer">
@@ -79,13 +102,19 @@
                 </tr>
                 <tr ng-repeat="exam in exams | filter: {state: 'DRAFT'}">
                     <td class="table-column-examcode">{{exam.course.code}}</td>
-                    <td><a ng-if="exam.name && exam.name.length > 0" class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a>
-                        <a ng-if="!exam.name || exam.name.length == 0" class="exams-info-title bold-button text-danger" href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}</a>
+                    <td><a ng-if="exam.name && exam.name.length > 0" class="exams-info-title bold-button"
+                           href="#/exams/{{exam.id}}">{{exam.name}}</a>
+                        <a ng-if="!exam.name || exam.name.length == 0" class="exams-info-title bold-button text-danger"
+                           href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}</a>
                     </td>
                     <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
-                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span></td>
+                    <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span>
+                    </td>
                     <td>
                         <span class="status_red">{{ 'sitnet_draft' | translate }}</span>
+                    </td>
+                    <td class="text-center"><a class="bold-button" ng-click="copyExam(exam)"><i
+                            class="fa fa-lg fa-copy text-info"></i></a>
                     </td>
                     <td class="text-center">
                         <a ng-click="deleteExam(exam)" class="pointer">
@@ -100,13 +129,15 @@
     <div class="detail-row">
         <div class="col-md-12">
             <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
-            <em class="sitnet-text-medium">{{ 'sitnet_published_exams_info_main' | translate }} {{ 'sitnet_published_exams_info_other' | translate }}</em>
+            <em class="sitnet-text-medium">{{ 'sitnet_published_exams_info_main' | translate }} {{
+                'sitnet_published_exams_info_other' | translate }}</em>
         </div>
     </div>
     <div class="bottom-row">
         <div class="col-md-12">
             <strong>{{ 'sitnet_saved_exams' | translate }}: </strong>
-            <em class="sitnet-text-medium">{{ 'sitnet_saved_exams_info_main' | translate }} {{ 'sitnet_saved_exams_info_other' | translate }}</em>
+            <em class="sitnet-text-medium">{{ 'sitnet_saved_exams_info_main' | translate }} {{
+                'sitnet_saved_exams_info_other' | translate }}</em>
         </div>
     </div>
 

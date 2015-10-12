@@ -1,12 +1,12 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$rootScope', '$q', '$anchorScroll', '$modal', 'sessionService', 'examService',
-                '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
-                'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService',
-            function (dialogs, $scope, $timeout, $rootScope, $q, $anchorScroll, $modal, sessionService, examService,
+        .controller('ExamController', ['dialogs', '$scope', '$timeout', '$filter', '$rootScope', '$q', '$sce', '$anchorScroll', '$modal', 'sessionService', 'examService',
+            '$routeParams', '$translate', '$http', '$location', 'EXAM_CONF', 'ExamRes', 'QuestionRes', 'UserRes', 'LanguageRes', 'RoomResource',
+            'SoftwareResource', 'DragDropHandler', 'SettingsResource', 'fileService', 'questionService', 'EnrollRes',
+            function (dialogs, $scope, $timeout, $filter, $rootScope, $q, $sce, $anchorScroll, $modal, sessionService, examService,
                       $routeParams, $translate, $http, $location, EXAM_CONF, ExamRes, QuestionRes, UserRes, LanguageRes, RoomResource,
-                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService) {
+                      SoftwareResource, DragDropHandler, SettingsResource, fileService, questionService, EnrollRes) {
 
                 $scope.newExam = {};
                 $scope.sectionTemplate = {visible: true};
@@ -72,6 +72,9 @@
                     refreshGradeScales();
                 });
 
+                var initialLanguages;
+                var initialSoftware;
+
                 var initializeExam = function () {
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
@@ -80,8 +83,8 @@
                                 // Use front-end language names always to allow for i18n etc
                                 language.name = getLanguageNativeName(language.code);
                             });
-                            $scope.softwaresUpdate = exam.softwares ? exam.softwares.length : 0;
-                            $scope.languagesUpdate = exam.examLanguages ? exam.examLanguages.length : 0;
+                            initialLanguages = exam.examLanguages.length;
+                            initialSoftware = exam.softwares.length;
                             // Set exam grade scale from course default if not specifically set for exam
                             if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
                                 $scope.newExam.gradeScale = exam.course.gradeScale;
@@ -93,6 +96,12 @@
                             $scope.reindexNumbering();
                             getInspectors();
                             getExamOwners();
+                            if (exam.examEnrolments.filter(function (ee) {
+                                    return ee.reservation && ee.reservation.endAt > new Date().getTime();
+                                }).length > 0) {
+                                // Enrolments/reservations in effect
+                                $scope.newExam.hasEnrolmentsInEffect = true;
+                            }
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -123,27 +132,26 @@
                 };
 
                 $scope.updateSoftwareInfo = function () {
-
-                    if ($scope.newExam.softwares.length !== $scope.softwaresUpdate) {
-
-                        ExamRes.softwares.reset({eid: $scope.newExam.id}, function () {
-                            var promises = [];
-                            angular.forEach($scope.newExam.softwares, function (software) {
-                                promises.push(ExamRes.software.add({eid: $scope.newExam.id, sid: software.id}));
-                            });
-                            $q.all(promises).then(function () {
-                                toastr.info($translate.instant('sitnet_exam_software_updated'));
-                                $scope.selectedSoftwares($scope.newExam);
-
-                                $scope.softwaresUpdate = $scope.newExam.softwares.length;
-                            });
+                    if ($scope.newExam.softwares.length !== initialSoftware) {
+                        var softwareIds = $scope.newExam.softwares.map(function (s) {
+                            return s.id;
+                        }).join();
+                        ExamRes.software.add({eid: $scope.newExam.id, softwareIds: softwareIds}, function () {
+                            toastr.info($translate.instant('sitnet_exam_software_updated'));
+                            $scope.selectedSoftwares($scope.newExam);
+                            initialSoftware = softwareIds.length;
+                        }, function (error) {
+                            $scope.newExam.softwares = [];
+                            $scope.selectedSoftwares($scope.newExam);
+                            initialSoftware = 0;
+                            toastr.error(error.data);
                         });
                     }
                 };
 
                 $scope.updateExamLanguages = function () {
 
-                    if ($scope.newExam.examLanguages.length !== $scope.languagesUpdate) {
+                    if ($scope.newExam.examLanguages.length !== initialLanguages) {
 
                         ExamRes.languages.reset({eid: $scope.newExam.id}, function () {
                             var promises = [];
@@ -153,7 +161,7 @@
                             $q.all(promises).then(function () {
                                 toastr.info($translate.instant('sitnet_exam_language_updated'));
                                 $scope.selectedLanguages($scope.newExam);
-                                $scope.languagesUpdate = $scope.newExam.examLanguages.length;
+                                initialLanguages = $scope.newExam.examLanguages.length;
                             });
                         });
                     }
@@ -173,12 +181,15 @@
                     var templateType = "",
                         controllerType = "";
 
-                    if (modalType && modalType === 'owner') {
+                    if (modalType === 'owner') {
                         templateType = EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_owner.html';
                         controllerType = "ExamOwnerController";
-                    } else {
+                    } else if (modalType === 'inspector') {
                         templateType = EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_inspector.html';
                         controllerType = "ExamInspectionController";
+                    } else if (modalType === 'student') {
+                        templateType = EXAM_CONF.TEMPLATES_PATH + 'exam/editor/exam_participation.html';
+                        controllerType = "ExamEnrolmentController";
                     }
 
                     var modalInstance = $modal.open({
@@ -195,10 +206,14 @@
 
                     modalInstance.result.then(function (result) {
                         // OK button clicked
-                        if (modalType && modalType === 'owner') {
+                        if (modalType === 'owner') {
                             getExamOwners();
-                        } else {
+                        }
+                        if (modalType === 'inspector') {
                             getInspectors();
+                        }
+                        if (modalType === 'student') {
+                            $scope.newExam.examEnrolments.push(result);
                         }
                     }, function () {
                         // Cancel button clicked
@@ -253,6 +268,18 @@
                         });
                 };
 
+                $scope.removeParticipant = function (id) {
+                    EnrollRes.unenrollStudent.remove({id: id}, function () {
+                        $scope.newExam.examEnrolments = $scope.newExam.examEnrolments.filter(function (ee) {
+                            return ee.id !== id;
+                        });
+                        toastr.info($translate.instant('sitnet_participant_removed'));
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+
+                };
+
                 $scope.reindexNumbering = function () {
                     // set sections and question numbering
                     angular.forEach($scope.newExam.examSections, function (section, index) {
@@ -280,8 +307,8 @@
                 };
 
                 // Called when create exam button is clicked
-                $scope.createExam = function () {
-                    examService.createExam();
+                $scope.createExam = function (executionType) {
+                    examService.createExam(executionType);
                 };
 
                 $scope.continueToExam = function () {
@@ -367,6 +394,10 @@
                     });
                 };
 
+                $scope.trustAsHtml = function (content) {
+                    return $sce.trustAsHtml(content);
+                };
+
                 $scope.expandSection = function (section) {
 
                     ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
@@ -423,7 +454,8 @@
                         "examActiveEndDate": new Date($scope.newExam.examActiveEndDate).setHours(23, 59, 59, 999),
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
-                        "expanded": $scope.newExam.expanded
+                        "expanded": $scope.newExam.expanded,
+                        "trialCount": $scope.newExam.trialCount
                     };
                     for (var k in overrides) {
                         if (overrides.hasOwnProperty(k)) {
@@ -440,6 +472,7 @@
                     ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                         function (exam) {
                             toastr.info($translate.instant("sitnet_exam_saved"));
+                            exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
                             $scope.newExam = exam;
                             $scope.newExam.examLanguages.forEach(function (language) {
                                 // Use front-end language names always to allow for i18n etc
@@ -495,6 +528,7 @@
                         });
                 };
 
+                // TODO: how should this work when it comes to private exams?
                 $scope.unpublishExam = function () {
                     ExamRes.examEnrolments.query({eid: $scope.newExam.id}, function (enrolments) {
                         if (enrolments && enrolments.length > 0) {
@@ -629,17 +663,28 @@
                         errors.examType = $translate.instant('sitnet_exam_credit_type_missing');
                     }
 
-                    var allSectionsNamed = exam.examSections.every(function(section) {
+                    var allSectionsNamed = exam.examSections.every(function (section) {
                         return section.name;
                     });
                     if (!allSectionsNamed) {
                         errors.sectionNames = $translate.instant('sitnet_exam_contains_unnamed_sections');
                     }
+                    if (exam.executionType.type === 'PRIVATE' && exam.examEnrolments.length < 1) {
+                        errors.participants = $translate.instant('sitnet_no_participants');
+                    }
 
                     return errors;
                 };
 
-                // TODO: this controller should be split on a per-view basis to avoid having this kind of duplication
+                $scope.copyExam = function (exam) {
+                    ExamRes.exams.copy({id: exam.id}, function (copy) {
+                        toastr.success($translate.instant('sitnet_exam_copied'));
+                        $scope.exams.push(copy);
+                    }, function (error) {
+                        toastr.error(error.data);
+                    });
+                };
+
                 $scope.deleteExam = function (exam) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_exam'));
                     dialog.result.then(function (btn) {
@@ -670,18 +715,21 @@
                 };
 
                 $scope.moveQuestion = function (section, from, to) {
-                    DragDropHandler.moveObject(section.sectionQuestions, from, to);
-                    ExamRes.reordersection.update({
-                        eid: $scope.newExam.id,
-                        sid: section.id,
-                        from: from,
-                        to: to
-                    }, function () {
-                        toastr.info($translate.instant("sitnet_questions_reordered"));
-                    });
+                    console.log("moving question #" + from + " to #" + to);
+                    if (from >= 0 && to >= 0 && from != to) {
+                        ExamRes.reordersection.update({
+                            eid: $scope.newExam.id,
+                            sid: section.id,
+                            from: from,
+                            to: to
+                        }, function () {
+                            console.log("moved");
+                            toastr.info($translate.instant("sitnet_questions_reordered"));
+                        });
+                    }
                 };
 
-                var updateSection = function (section) {
+                var updateSection = function (section, preserveName) {
                     var index = -1;
                     $scope.newExam.examSections.some(function (s, i) {
                         if (s.id === section.id) {
@@ -690,6 +738,16 @@
                         }
                     });
                     if (index >= 0) {
+                        // This thing is needed atm because draggable question objects swallow the DOM change event
+                        // preventing the uiChange directive from firing on section name input field.
+                        var prev = $scope.newExam.examSections[index];
+                        if (preserveName) {
+                            var newName = section.name;
+                            section.name = prev.name;
+                            if (prev.name !== newName) {
+                                $scope.renameSection({id: section.id, name: prev.name, expanded: true});
+                            }
+                        }
                         $scope.newExam.examSections[index] = section;
                     }
 
@@ -733,9 +791,11 @@
                             }, function (sec) {
                                 DragDropHandler.addObject(sectionQuestion, section.sectionQuestions, to);
                                 toastr.info($translate.instant("sitnet_question_added"));
-                                updateSection(sec); // needs manual update as the scope is somehow not automatically refreshed
+                                updateSection(sec, true); // needs manual update as the scope is somehow not automatically refreshed
                             }, function (error) {
                                 toastr.error(error.data);
+                                // remove broken objects
+                                section.sectionQuestions = section.sectionQuestions.filter(function(sq) { return sq; });
                             }
                         );
                     }
@@ -762,8 +822,6 @@
                         }, function (error) {
                             toastr.error(error.data);
                         });
-
-
                 };
 
                 $scope.examFilter = function (item, comparator) {
@@ -805,19 +863,39 @@
                     return questionService.longTextIfNotMath(text);
                 };
 
-                $scope.truncate = function(text, limit) {
-                    return questionService.truncate(text, limit);
+                $scope.range = function (min, max, step) {
+                    step |= 1;
+                    var input = [];
+                    for (var i = min; i <= max; i += step) {
+                        input.push(i);
+                    }
+                    return input;
+                };
+
+                $scope.checkTrialCount = function (x) {
+                    return $scope.newExam.trialCount == x ? "btn-primary" : "";
+                };
+
+                $scope.truncate = function (content, offset) {
+                    if (content) {
+                        return $filter('truncate')(content, offset);
+                    }
+                };
+
+                $scope.setTrialCount = function (x) {
+                    $scope.newExam.trialCount = x;
+                    $scope.updateExam();
                 };
 
                 $scope.selectFile = function () {
 
                     var exam = $scope.newExam;
 
-                    var ctrl = function ($scope, $modalInstance) {
+                    var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
 
                         $scope.newExam = exam;
                         $scope.isTeacherModal = true;
-                        fileService.getMaxFilesize().then(function(data) {
+                        fileService.getMaxFilesize().then(function (data) {
                             $scope.maxFileSize = data.filesize;
                         });
 
@@ -829,7 +907,7 @@
                             $modalInstance.dismiss("Cancelled");
                         };
 
-                    };
+                    }];
 
                     var modalInstance = $modal.open({
                         templateUrl: EXAM_CONF.TEMPLATES_PATH + 'common/dialog_attachment_selection.html',

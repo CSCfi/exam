@@ -44,7 +44,8 @@ public class SystemRequestHandler implements HttpRequestHandler {
         String token = request.getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" :
                 BaseController.SITNET_TOKEN_HEADER_KEY);
         Session session = cache.get(SITNET_CACHE_KEY + token);
-        AuditLogger.log(request, session);
+        User user = session == null ? null : Ebean.find(User.class, session.getUserId());
+        AuditLogger.log(request, user);
 
         if (session == null) {
             Logger.info("Session with token {} not found", token);
@@ -70,8 +71,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
             return doCreateAction();
         }
 
-        User user = Ebean.find(User.class, session.getUserId());
-        if (user == null || !user.hasRole("STUDENT") || request.path().equals("/logout")) {
+        if (user == null || !user.hasRole("STUDENT", session) || request.path().equals("/logout")) {
             return doCreateAction();
         }
 
@@ -128,7 +128,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
         String machineIp = examMachine.getIpAddress();
         String remoteIp = request.remoteAddress();
 
-        Logger.debug("\nUser ip: " + remoteIp + "\nreservation machine ip: " + machineIp);
+        Logger.debug("User is on IP: {} <-> Should be on IP: {}", remoteIp, machineIp);
 
         //todo: is there another way to identify/match machines?
         //todo: eg. some transparent proxy that add id header etc.
@@ -197,8 +197,8 @@ public class SystemRequestHandler implements HttpRequestHandler {
                 .where()
                 .eq("user.id", userId)
                 .disjunction()
-                .eq("exam.state", Exam.State.PUBLISHED.toString())
-                .eq("exam.state", Exam.State.STUDENT_STARTED.toString())
+                .eq("exam.state", Exam.State.PUBLISHED)
+                .eq("exam.state", Exam.State.STUDENT_STARTED)
                 .endJunction()
                 .le("reservation.startAt", future)
                 .gt("reservation.endAt", now)

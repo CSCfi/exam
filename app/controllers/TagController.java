@@ -20,7 +20,7 @@ public class TagController extends BaseController {
     public Result listTags(F.Option<String> filter, F.Option<List<Long>> examIds, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds) {
         User user = getLoggedUser();
         ExpressionList<Tag> query = Ebean.find(Tag.class).where();
-        if (!user.hasRole("ADMIN")) {
+        if (!user.hasRole("ADMIN", getSession())) {
             query = query.where().eq("creator.id", user.getId());
         }
         if (filter.isDefined()) {

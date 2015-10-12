@@ -8,6 +8,7 @@
                 	id: "@id"
                 },
                 {
+                    "copy" : {method: "POST"},
                     "update": {method: "PUT"},
                     "remove": {method: "DELETE"}
                 }),
@@ -93,6 +94,8 @@
                 examReviews: $resource("/reviews/:eid",{eid: "@eid", statuses: "@statuses"},
                     {"get": {method: "GET", params: { eid: "@eid", statuses: "@statuses" }}
                 }),
+                noShows: $resource("/noshows/:eid", {eid: "@eid"}),
+                archive: $resource("/reviews/archive", {}, {"update": {method: "PUT"}}),
                 comment: $resource("/review/:eid/comment/:cid",
                 {
                     id: "@eid", cid: "@cid"
@@ -213,25 +216,21 @@
                 }),
                 examTypes: $resource("/examtypes"),
                 gradeScales: $resource("/gradescales"),
-                software: $resource("/exam/:eid/software/:sid",
+                software: $resource("/exam/:eid/software",
                 {
-                    eid: "@eid",
-                    sid: "@sid"
+                    eid: "@eid"
                 },
                 {
                     "add": {method: "PUT"}
                 }),
-                softwares: $resource("exam/:eid/software",
+                reservation: $resource("/reservations/:id",
                 {
-                    eid: "@eid"
+                    id: "@id"
                 },
                 {
-                    "reset": {method: "DELETE"}
+                    "update": {method: "PUT"}
                 }),
-                reservation: $resource("/exams/:eid/reservation",
-                {
-                    eid: "@eid"
-                })
+                reservationInfo: $resource("/exams/:eid/reservation", {eid: "@eid"})
             };
         }]);
 }());

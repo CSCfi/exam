@@ -7,7 +7,7 @@ import com.avaje.ebean.ExpressionList;
 import com.avaje.ebean.Query;
 import models.Tag;
 import models.User;
-import models.questions.MultipleChoiseOption;
+import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import play.data.DynamicForm;
 import play.data.Form;
@@ -27,14 +27,12 @@ public class QuestionController extends BaseController {
     public Result getQuestions(List<Long> examIds, List<Long> courseIds, List<Long> tagIds, List<Long> sectionIds) {
         User user = getLoggedUser();
         ExpressionList<Question> query = createQuery()
+                .fetch("creator", "firstName, lastName, userIdentifier")
                 .where()
                 .isNull("parent")
                 .ne("state", QuestionState.DELETED.toString());
-        if (user.hasRole("TEACHER")) {
-            query = query.disjunction()
-                    .eq("creator.id", user.getId())
-                    .eq("shared", true)
-                    .endJunction();
+        if (user.hasRole("TEACHER", getSession())) {
+            query = query.eq("creator", user);
         }
         if (!examIds.isEmpty()) {
             query = query.in("children.examSectionQuestion.examSection.exam.id", examIds);
@@ -52,9 +50,10 @@ public class QuestionController extends BaseController {
         return ok(questions);
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestion(Long id) {
         Question question = Ebean.find(Question.class, id);
+        Collections.sort(question.getOptions());
         return ok(Json.toJson(question));
     }
 
@@ -64,8 +63,9 @@ public class QuestionController extends BaseController {
         Question copy = question.copy();
         copy.setParent(null);
         copy.setQuestion(String.format("<p>**COPY**</p>%s", question.getQuestion()));
-        copy.setCreated(new Date());
-        copy.setCreator(getLoggedUser());
+        User user = getLoggedUser();
+        AppUtil.setCreator(copy, user);
+        AppUtil.setModifier(copy, user);
         copy.save();
         copy.getTags().addAll(question.getTags());
         copy.update();
@@ -76,9 +76,11 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addQuestion() {
         Question question = bindForm(Question.class);
-        AppUtil.setCreator(question, getLoggedUser());
+        User user = getLoggedUser();
+        AppUtil.setCreator(question, user);
+        AppUtil.setModifier(question, user);
         question.setState(QuestionState.NEW.toString());
-        Ebean.save(question);
+        question.save();
         return ok(Json.toJson(question));
     }
 
@@ -91,7 +93,7 @@ public class QuestionController extends BaseController {
         return ok(Json.toJson(essayQuestion));
     }
 
-    private static void doUpdateQuestion(Question question, DynamicForm df) {
+    private static void doUpdateQuestion(Question question, DynamicForm df, User user) {
         if (df.get("question") != null) {
             question.setQuestion(df.get("question"));
         }
@@ -102,11 +104,12 @@ public class QuestionController extends BaseController {
         question.setEvaluationCriterias(df.get("evaluationCriterias"));
         question.setShared(Boolean.parseBoolean(df.get("shared")));
         question.setState(QuestionState.SAVED.toString());
+        AppUtil.setModifier(question, user);
         question.update();
     }
 
     private static boolean hasCorrectOption(Question question) {
-        return question.getOptions().stream().anyMatch(MultipleChoiseOption::isCorrectOption);
+        return question.getOptions().stream().anyMatch(MultipleChoiceOption::isCorrectOption);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -116,24 +119,31 @@ public class QuestionController extends BaseController {
         if (question == null) {
             return notFound("question not found");
         }
-        switch (df.get("type")) {
-            case "EssayQuestion":
+        User user = getLoggedUser();
+        switch (question.getType()) {
+            case EssayQuestion:
                 if (df.get("maxCharacters") != null) {
                     question.setMaxCharacters(Long.parseLong(df.get("maxCharacters")));
                 }
                 if (df.get("evaluationType") != null) {
                     question.setEvaluationType(df.get("evaluationType"));
                 }
-                doUpdateQuestion(question, df);
+                doUpdateQuestion(question, df, user);
                 return ok(Json.toJson(question));
-            case "MultipleChoiceQuestion":
+            case MultipleChoiceQuestion:
                 if (question.getOptions().size() < 2) {
                     return forbidden("sitnet_minimum_of_two_options_required");
                 }
                 if (!hasCorrectOption(question)) {
                     return forbidden("sitnet_correct_option_required");
                 }
-                doUpdateQuestion(question, df);
+                doUpdateQuestion(question, df, user);
+                return ok(Json.toJson(question));
+            case WeightedMultipleChoiceQuestion:
+                if (question.getOptions().size() < 2) {
+                    return forbidden("sitnet_minimum_of_two_options_required");
+                }
+                doUpdateQuestion(question, df, user);
                 return ok(Json.toJson(question));
             default:
                 return badRequest();
@@ -162,19 +172,23 @@ public class QuestionController extends BaseController {
                 .eq("creator.id", teacher.getId())
                 .findList();
 
+        User originalUser = getLoggedUser();
+
         for (String s : questionIds.split(",")) {
             final Question question = Ebean.find(Question.class, Integer.parseInt(s));
 
             if (question != null) {
 
                 handleTags(question, teacherTags, teacher); // handle question tags
-                question.setCreator(teacher);
+                AppUtil.setCreator(question, teacher);
+                AppUtil.setModifier(question, originalUser);
                 question.update();
 
                 if (question.getChildren() != null && question.getChildren().size() > 0) {
                     for (Question childQuestion : question.getChildren()) {
                         handleTags(childQuestion, teacherTags, teacher); // handle question tags
-                        childQuestion.setCreator(teacher);
+                        AppUtil.setCreator(childQuestion, teacher);
+                        AppUtil.setModifier(childQuestion, originalUser);
                         childQuestion.update();
                     }
                 }
@@ -186,8 +200,8 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateOption(Long oid) {
-        MultipleChoiseOption form = bindForm(MultipleChoiseOption.class);
-        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+        MultipleChoiceOption form = bindForm(MultipleChoiceOption.class);
+        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
         option.setOption(form.getOption());
         option.setScore(form.getScore());
         option.update();
@@ -196,13 +210,13 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result toggleCorrectOption(Long oid) {
-        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, oid);
+        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, oid);
         if (option == null) {
             return notFound();
         }
         boolean isCorrect = !option.isCorrectOption();
         Question question = option.getQuestion();
-        for (MultipleChoiseOption mco : option.getQuestion().getOptions()) {
+        for (MultipleChoiceOption mco : option.getQuestion().getOptions()) {
             if (mco.equals(option)) {
                 mco.setCorrectOption(isCorrect);
             } else {
@@ -218,13 +232,14 @@ public class QuestionController extends BaseController {
     public Result deleteQuestion(Long id) {
         Question question = Ebean.find(Question.class, id);
         question.setState(QuestionState.DELETED.toString());
+        AppUtil.setModifier(question, getLoggedUser());
         question.save();
         return ok("Question deleted from database!");
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteOption(Long oid) {
-        Ebean.delete(MultipleChoiseOption.class, oid);
+        Ebean.delete(MultipleChoiceOption.class, oid);
         return ok("Option deleted from database!");
     }
 
@@ -232,8 +247,9 @@ public class QuestionController extends BaseController {
     public Result addOption(Long qid) {
 
         Question question = Ebean.find(Question.class, qid);
-        MultipleChoiseOption option = bindForm(MultipleChoiseOption.class);
+        MultipleChoiceOption option = bindForm(MultipleChoiceOption.class);
         question.getOptions().add(option);
+        AppUtil.setModifier(question, getLoggedUser());
         question.save();
         option.save();
 
@@ -244,7 +260,7 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result createOption() {
 
-        MultipleChoiseOption option = new MultipleChoiseOption();
+        MultipleChoiceOption option = new MultipleChoiceOption();
         option.setCorrectOption(false);
         option.save();
 
@@ -254,7 +270,7 @@ public class QuestionController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result getOption(Long id) {
 
-        MultipleChoiseOption option = Ebean.find(MultipleChoiseOption.class, id);
+        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, id);
         return ok(Json.toJson(option));
     }
 
