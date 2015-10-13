@@ -53,5 +53,3 @@ email.template.noshow.message=Opiskelija {0} ei käyttänyt tenttiin {1} varaama
 ical.reservation.summary=Tenttivaraus
 ical.reservation.filename=varaus{0}
 ical.reservation.room.info=Paikkatiedot: {0}
-
-
