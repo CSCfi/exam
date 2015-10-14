@@ -16,6 +16,9 @@
                 $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
                 $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_multiple_choice_answer.html";
                 $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_weighted_multiple_choice_answer.html";
+                $scope.printSectionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/print_section.html";
+                $scope.printMultiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/print_multichoice_question.html";
+                $scope.printEssayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/print_essay_question.html";
 
                 $scope.printExam = function () {
                     window.open("/#/print/exam/" + $scope.examToBeReviewed.id, "_blank");
@@ -255,6 +258,9 @@
                 };
 
                 $scope.scoreWeightedMultipleChoiceAnswer = function (question) {
+                    if (question.type !== 'WeightedMultipleChoiceQuestion') {
+                        return 0;
+                    }
                     var score = question.answer.options.reduce(function (a, b) {
                         return a + b.score;
                     }, 0);
@@ -267,6 +273,9 @@
                 $scope.scoreMultipleChoiceAnswer = function (sectionQuestion) {
                     var score = 0;
                     var question = sectionQuestion.question;
+                    if (question.type !== 'MultipleChoiceQuestion') {
+                        return 0;
+                    }
                     if (question.answer === null) {
                         question.backgroundColor = 'grey';
                         return 0;
