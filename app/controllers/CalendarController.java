@@ -328,9 +328,9 @@ public class CalendarController extends BaseController {
         int offset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
-        LocalDate examEndDate = new LocalDate(exam.getExamActiveEndDate());
+        LocalDate examEndDate = new DateTime(exam.getExamActiveEndDate()).plusMillis(offset).toLocalDate();
         LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
-        LocalDate examStartDate = new LocalDate(exam.getExamActiveStartDate());
+        LocalDate examStartDate = new DateTime(exam.getExamActiveStartDate()).plusMillis(offset).toLocalDate();
         LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, ISODateTimeFormat.dateParser());
         searchDate = searchDate.withDayOfWeek(1);
         if (searchDate.isBefore(now)) {
