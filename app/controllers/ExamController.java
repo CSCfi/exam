@@ -1290,27 +1290,14 @@ public class ExamController extends BaseController {
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getInspections() {
-        List<ExamInspection> inspections = Ebean.find(ExamInspection.class)
-                .fetch("exam", "id, name")
-                .fetch("user", "id")
-                .findList();
-        return ok(inspections);
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertExamOwner(Long eid, Long uid) {
 
         final User owner = Ebean.find(User.class, uid);
         final Exam exam = Ebean.find(Exam.class, eid);
 
         if (owner != null && exam != null) {
-            try {
-                exam.getExamOwners().add(owner);
-                exam.update();
-            } catch (Exception e) {
-                return internalServerError("error adding exam owner. " + e.getMessage());
-            }
+            exam.getExamOwners().add(owner);
+            exam.update();
             return ok();
         }
         return notFound();
@@ -1323,14 +1310,8 @@ public class ExamController extends BaseController {
         final Exam exam = Ebean.find(Exam.class, eid);
 
         if (owner != null && exam != null) {
-            try {
-                if (exam.getExamOwners() != null && exam.getExamOwners().size() > 1) {
-                    exam.getExamOwners().remove(owner);
-                    exam.update();
-                }
-            } catch (Exception e) {
-                return internalServerError("error removing exam owner. " + e.getMessage());
-            }
+            exam.getExamOwners().remove(owner);
+            exam.update();
             return ok();
         }
         return notFound();
@@ -1338,60 +1319,52 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertInspection(Long eid, Long uid) {
-
-        final ExamInspection inspection = bindForm(ExamInspection.class);
-        final User recipient = Ebean.find(User.class, uid);
-        final Exam exam = Ebean.find(Exam.class, eid);
-        // Name required before adding inspectors
-        if (exam.getName() == null) {
+        ExamInspection inspection = bindForm(ExamInspection.class);
+        User recipient = Ebean.find(User.class, uid);
+        Exam exam = Ebean.find(Exam.class, eid);
+        if (isInspectorOf(recipient, exam)) {
+            return forbidden("already an inspector");
+        }
+        Comment comment = inspection.getComment();
+        String msg = comment.getComment();
+        // Exam name required before adding inspectors that are to receive an email notification
+        // TODO: maybe the email should be sent at a different occasion?
+        if ((exam.getName() == null || exam.getName().isEmpty()) && !msg.isEmpty()) {
             return badRequest("sitnet_exam_name_missing_or_too_short");
         }
-
-        if (exam.getParent() == null) {
-            inspection.setExam(exam);
-        } else {
-            inspection.setExam(exam.getParent());
-        }
+        inspection.setExam(exam);
         inspection.setUser(recipient);
         inspection.setAssignedBy(getLoggedUser());
-
-        if (inspection.getComment() != null) {
-            inspection.setComment((Comment) AppUtil.setCreator(inspection.getComment(), getLoggedUser()));
-            inspection.getComment().save();
-        }
-        inspection.save();
-
-        if (inspection.getComment() != null &&
-                inspection.getComment().getComment() != null &&
-                !inspection.getComment().getComment().isEmpty()) {
+        if (!msg.isEmpty()) {
+            AppUtil.setCreator(comment, getLoggedUser());
+            inspection.setComment(comment);
+            comment.save();
             try {
-                emailComposer.composeExamReviewRequest(recipient, getLoggedUser(), exam,
-                        inspection.getComment().getComment());
+                emailComposer.composeExamReviewRequest(recipient, getLoggedUser(), exam, msg);
             } catch (IOException e) {
                 Logger.error("Failure to access message template on disk", e);
                 e.printStackTrace();
             }
         }
-
-        // add to child exams
-        for (Exam child : exam.getChildren()) {
-            if (child.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED)) {
-                continue;
-            }
-            for (ExamInspection ei : child.getExamInspections()) {
-                if (ei.getUser().equals(recipient)) {
-                    break;
-                }
-            }
-
-            ExamInspection i = new ExamInspection();
-            i.setExam(child);
-            i.setUser(recipient);
-            i.setAssignedBy(getLoggedUser());
-            i.save();
-        }
+        inspection.save();
+        // Add also as inspector to ongoing child exams if not already there.
+        exam.getChildren().stream()
+                .filter(c -> c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED) &&
+                        !isInspectorOf(recipient, c))
+                .forEach(c -> {
+                    ExamInspection i = new ExamInspection();
+                    i.setExam(c);
+                    i.setUser(recipient);
+                    i.setAssignedBy(getLoggedUser());
+                    i.save();
+                });
 
         return ok(Json.toJson(inspection));
+    }
+
+    private static boolean isInspectorOf(User user, Exam exam) {
+        return exam.getExamInspections().stream()
+                .anyMatch(ei -> ei.getUser().equals(user));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -1399,17 +1372,13 @@ public class ExamController extends BaseController {
         ExamInspection inspection = Ebean.find(ExamInspection.class, id);
         User inspector = inspection.getUser();
         Exam exam = inspection.getExam();
-        for (Exam child : exam.getChildren()) {
-            if (child.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED)) {
-                continue;
-            }
-            for (ExamInspection ei : child.getExamInspections()) {
-                if (ei.getUser().equals(inspector)) {
-                    ei.delete();
-                    break;
-                }
-            }
-        }
+        exam.getChildren()
+                .stream()
+                .filter(c -> c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED))
+                .forEach(c -> c.getExamInspections()
+                        .stream()
+                        .filter(ei -> ei.getUser().equals(inspector))
+                        .forEach(Model::delete));
         inspection.delete();
         return ok();
     }

@@ -1,16 +1,21 @@
 <!-- compact -->
-<div class="detail-row" ng-hide="sectionQuestion.question.reviewExpanded" ng-repeat="option in sectionQuestion.question.answer.options">
+<div class="detail-row" ng-hide="sectionQuestion.question.reviewExpanded"
+     ng-repeat="option in sectionQuestion.question.answer.options">
     <div class="col-md-6 review-question-value" mathjax ng-bind-html="option.option"></div>
-    <div class="col-md-3" style="text-align: right" ng-class="option.score > 0 ? 'text-success' : 'text-danger'">&nbsp;&nbsp;{{option.score}} {{'sitnet_unit_points' | translate }}</div>
+    <div class="col-md-3" style="text-align: right" ng-class="option.score > 0 ? 'text-success' : 'text-danger'">&nbsp;&nbsp;{{option.score}}
+        {{'sitnet_unit_points' | translate }}
+    </div>
 </div>
 <!-- full -->
-<div class="detail-row" ng-show="sectionQuestion.question.reviewExpanded" ng-repeat="option in sectionQuestion.question.options">
+<div class="detail-row" ng-show="sectionQuestion.question.reviewExpanded"
+     ng-repeat="option in sectionQuestion.question.options">
     <div class="col-md-3 review-question-value">
-        <span class="fa-stack">
-            <i class="fa fa-stop-o fa-stack-2x"></i>
-            <i class="fa fa-stack-1x" ng-class="isAnswer(option, sectionQuestion.question) ? 'fa-check-square-o' : 'fa-square-o'"></i>
-        </span>
-        <span ng-class="option.score > 0 ? 'text-success' : 'text-danger'">&nbsp;&nbsp;{{option.score}} {{'sitnet_unit_points' | translate }}</span>
+            <span class="fa-stack">
+                <i class="fa fa-stop-o fa-stack-2x"></i>
+                <i class="fa fa-stack-1x"
+                   ng-class="isAnswer(option, sectionQuestion.question) ? 'fa-check-square-o' : 'fa-square-o'"></i>
+            </span>
+        <span class="vcenter pull-right" ng-class="option.score > 0 ? 'text-success' : 'text-danger'">{{option.score}} {{'sitnet_unit_points' | translate }}</span>
     </div>
     <div class="col-md-9 review-question-value">
         <span class="text" mathjax ng-bind-html="option.option"></span>

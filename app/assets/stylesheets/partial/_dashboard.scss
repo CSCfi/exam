@@ -194,6 +194,12 @@
     width: 100%;
   }
 
+  .vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+  }
+
   // fade in/out animations for list items
 
   .list-item.ng-enter,
