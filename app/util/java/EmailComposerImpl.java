@@ -478,7 +478,7 @@ public class EmailComposerImpl implements EmailComposer {
                 .where()
                 .disjunction()
                 .eq("exam.parent.examOwners", teacher)
-                .eq("exam.parent.examInspections.user", teacher)
+                .eq("exam.examInspections.user", teacher)
                 .endJunction()
                 .disjunction()
                 .eq("exam.state", Exam.State.REVIEW)
