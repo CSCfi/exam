@@ -61,7 +61,13 @@
                 <tbody>
                 <tr ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}">
                     <td class="table-column-examcode">{{exam.course.code}}</td>
-                    <td><a class="exams-info-title bold-button" href="#/exams/{{exam.id}}">{{exam.name}}</a></td>
+                    <td>
+                        <a ng-if="exam.name" class="exams-info-title bold-button"
+                           href="#/exams/{{exam.id}}">{{exam.name}}</a>
+                        <a ng-if="!exam.name" class="exams-info-title bold-button text-danger"
+                           href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}
+                        </a>
+                    </td>
                     <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
                     <td><span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">{{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}</span>
                     </td>
@@ -80,9 +86,9 @@
                 <tr ng-repeat="exam in exams | filter: {state: 'SAVED'}">
                     <td class="table-column-examcode">{{exam.course.code}}</td>
                     <td>
-                        <a ng-if="exam.name && exam.name.length > 0" class="exams-info-title bold-button"
+                        <a ng-if="exam.name" class="exams-info-title bold-button"
                            href="#/exams/{{exam.id}}">{{exam.name}}</a>
-                        <a ng-if="!exam.name || exam.name.length == 0" class="exams-info-title bold-button text-danger"
+                        <a ng-if="!exam.name" class="exams-info-title bold-button text-danger"
                            href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}</a>
                     </td>
                     <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>
@@ -102,9 +108,9 @@
                 </tr>
                 <tr ng-repeat="exam in exams | filter: {state: 'DRAFT'}">
                     <td class="table-column-examcode">{{exam.course.code}}</td>
-                    <td><a ng-if="exam.name && exam.name.length > 0" class="exams-info-title bold-button"
+                    <td><a ng-if="exam.name" class="exams-info-title bold-button"
                            href="#/exams/{{exam.id}}">{{exam.name}}</a>
-                        <a ng-if="!exam.name || exam.name.length == 0" class="exams-info-title bold-button text-danger"
+                        <a ng-if="!exam.name" class="exams-info-title bold-button text-danger"
                            href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}</a>
                     </td>
                     <td>{{exam.creator.firstName}} {{exam.creator.lastName}}</td>

@@ -28,8 +28,11 @@
                 <tbody>
                 <tr ng-repeat="activeExam in activeExams">
                     <td class="table-column-examcode">{{ activeExam.course.code }}</td>
-                    <td class="table-column-examname"><a href="#/exams/reviews/{{activeExam.id}}">{{
+                    <td ng-if="activeExam.name" class="table-column-examname"><a href="#/exams/reviews/{{activeExam.id}}">{{
                         activeExam.name }}</a></td>
+                    <td ng-if="!activeExam.name" class="table-column-examname">
+                        <span class="text-danger">{{'sitnet_no_name' | translate}}</span>
+                    </td>
                     <td class="table-column-open-until">{{ activeExam.examActiveStartDate | date:'dd.MM.yyyy' }} -
                         {{ activeExam.examActiveEndDate | date:'dd.MM.yyyy' }}
                     </td>

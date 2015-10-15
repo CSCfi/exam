@@ -1322,11 +1322,14 @@ public class ExamController extends BaseController {
         ExamInspection inspection = bindForm(ExamInspection.class);
         User recipient = Ebean.find(User.class, uid);
         Exam exam = Ebean.find(Exam.class, eid);
+        if (isInspectorOf(recipient, exam)) {
+            return forbidden("already an inspector");
+        }
         Comment comment = inspection.getComment();
         String msg = comment.getComment();
         // Exam name required before adding inspectors that are to receive an email notification
         // TODO: maybe the email should be sent at a different occasion?
-        if (exam.getName() == null && !msg.isEmpty()) {
+        if ((exam.getName() == null || exam.getName().isEmpty()) && !msg.isEmpty()) {
             return badRequest("sitnet_exam_name_missing_or_too_short");
         }
         inspection.setExam(exam);
