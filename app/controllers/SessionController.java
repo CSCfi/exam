@@ -205,6 +205,7 @@ public class SessionController extends BaseController {
                 result = ok(Json.toJson(node));
             }
         }
+        response().discardCookie("csrfToken");
         session().clear();
         return result;
     }
