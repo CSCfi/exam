@@ -69,19 +69,16 @@
     background-color: $sitnet-common-dark;
     color: white;
     padding: 0.5em;
-    margin-top: 1em;
     a {
       color: $sitnet-green;
     }
   }
 
   .library-name {
-    padding-bottom: 0.1em;
     color: $sitnet-common-medium;
-    font-size: 2em;
     border-bottom: 0.15em solid $sitnet-common-light;
-    margin-bottom: 1em;
   }
+
   .library-question-header-inactive {
     color: white;
     background-color: rgba(0, 0, 0, 0.3);

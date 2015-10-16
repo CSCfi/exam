@@ -26,6 +26,7 @@
                 if ($scope.user.isStudent) {
                     $location.path("/");
                 }
+                $scope.session = sessionService;
 
                 $rootScope.$on('$routeChangeSuccess', function (newRoute, oldRoute) {
                     $timeout(function () {
