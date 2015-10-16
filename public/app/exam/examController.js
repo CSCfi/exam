@@ -11,11 +11,11 @@
                 $scope.newExam = {};
                 $scope.sectionTemplate = {visible: true};
                 $scope.templates = {
+                    basicInfo: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_basic_info.html",
                     section: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section.html",
                     question: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_question.html",
-                    generalInfo: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general.html",
                     library: EXAM_CONF.TEMPLATES_PATH + "question/library.html",
-                    selectCourse: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_section_general_course_select.html",
+                    course: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_course.html",
                     sections: EXAM_CONF.TEMPLATES_PATH + "exam/editor/exam_sections.html"
                 };
 
@@ -46,6 +46,10 @@
 
                 SettingsResource.gradeScale.get(function (data) {
                     $scope.gradeScaleSetting = data;
+                });
+
+                examService.listExecutionTypes().then(function(types) {
+                    $scope.executionTypes = types;
                 });
 
                 LanguageRes.languages.query(function (languages) {
@@ -102,6 +106,11 @@
                                 }).length > 0) {
                                 // Enrolments/reservations in effect
                                 $scope.newExam.hasEnrolmentsInEffect = true;
+                            }
+                            if ($scope.newExam.executionType.type==='MATURITY') {
+                                $scope.examTypes = $scope.examTypes.filter(function(t) {
+                                    return t.type === 'FINAL';
+                                });
                             }
                         },
                         function (error) {
