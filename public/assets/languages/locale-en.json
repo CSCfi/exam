@@ -578,5 +578,6 @@
   "sitnet_edit_all_rooms": "Edit all exam facilities",
   "sitnet_user_permissions": "Käyttäjäoikeudet EN",
   "sitnet_filter_by_permission": "Suodata käyttäjäoikeuden perusteella EN",
-  "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen EN"
+  "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen EN",
+  "sitnet_maturity": "Maturiteetti EN"
 }

@@ -215,6 +215,7 @@
                     "reset": {method: "DELETE"}
                 }),
                 examTypes: $resource("/examtypes"),
+                executionTypes: $resource("/executiontypes"),
                 gradeScales: $resource("/gradescales"),
                 software: $resource("/exam/:eid/software",
                 {

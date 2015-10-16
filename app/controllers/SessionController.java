@@ -20,6 +20,8 @@ import java.net.URLDecoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SessionController extends BaseController {
 
@@ -104,8 +106,19 @@ public class SessionController extends BaseController {
         return email;
     }
 
+    private static String parseUserIdentifier(String src) {
+        if (src == null) return src;
+        Pattern p = Pattern.compile("^[^\\d]*(\\d+?)$");
+        Matcher m = p.matcher(src);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return src;
+    }
+
+
     private static void updateUser(User user) throws AddressException {
-        user.setUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode")));
+        user.setUserIdentifier(parseUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode"))));
         user.setEmail(validateEmail(toUtf8(request().getHeader("mail"))));
         user.setLastName(toUtf8(request().getHeader("sn")));
         user.setFirstName(toUtf8(request().getHeader("displayName")));

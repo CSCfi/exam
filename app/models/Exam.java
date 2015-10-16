@@ -639,7 +639,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     @Transient
     public boolean isPrivate() {
-        return executionType.getType().equals(ExamExecutionType.Type.PRIVATE.toString());
+        return !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString());
     }
 
     @Transient

@@ -86,6 +86,7 @@ DELETE        /exam/:eid/languages                                   controllers
 GET           /exam/:eid/attachments                                 controllers.ExamController.getArchivedAttachments(eid: Long, start: play.libs.F.Option[String], end: play.libs.F.Option[String])
 
 GET           /examtypes                                             controllers.ExamController.getExamTypes
+GET           /executiontypes                                        controllers.ExamController.getExamExecutionTypes
 GET           /gradescales                                           controllers.ExamController.getExamGradeScales
 
 GET           /student/exam/:eid                                     controllers.StudentExamController.getExam(eid: Long)

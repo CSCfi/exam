@@ -326,6 +326,12 @@ public class ExamController extends BaseController {
         return ok(scales);
     }
 
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public Result getExamExecutionTypes() {
+        List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class).findList();
+        return ok(types);
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamPreview(Long id) {
 
