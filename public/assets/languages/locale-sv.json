@@ -575,5 +575,8 @@
   "sitnet_restricting_validity_change_disallowed": "Förhindrad redigering som begränsar tentperioden",
   "sitnet_reservation_time": "Bokad tid",
   "sitnet_user_language": "Språk",
-  "sitnet_edit_all_rooms": "Bearbeta alla tentutrymmen"
+  "sitnet_edit_all_rooms": "Bearbeta alla tentutrymmen",
+  "sitnet_user_permissions": "Käyttäjäoikeudet SV",
+  "sitnet_filter_by_permission": "Suodata käyttäjäoikeuden perusteella SV",
+  "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen SV"
 }

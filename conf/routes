@@ -20,6 +20,9 @@ POST          /users/:id/roles/:rname                                controllers
 DELETE        /users/:id/roles/:rname                                controllers.UserController.removeRole(id: Long, rname: String)
 PUT           /users/:id/roles/:rname                                controllers.SessionController.setLoginRole(id: Long, rname: String)
 GET           /students/:eid                                         controllers.UserController.getUnenrolledStudents(eid: Long, q: String)
+GET           /permissions                                           controllers.UserController.listPermissions
+POST          /permissions                                           controllers.UserController.grantUserPermission
+DELETE        /permissions                                           controllers.UserController.revokeUserPermission
 
 ############### Exam interface ###############
 GET           /exams                                                 controllers.ExamController.getExams

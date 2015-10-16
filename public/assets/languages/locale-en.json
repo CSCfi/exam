@@ -575,5 +575,8 @@
   "sitnet_restricting_validity_change_disallowed": "Restrictive editing of exam period disabled",
   "sitnet_reservation_time": "Reservation time",
   "sitnet_user_language": "Language",
-  "sitnet_edit_all_rooms": "Edit all exam facilities"
+  "sitnet_edit_all_rooms": "Edit all exam facilities",
+  "sitnet_user_permissions": "Käyttäjäoikeudet EN",
+  "sitnet_filter_by_permission": "Suodata käyttäjäoikeuden perusteella EN",
+  "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen EN"
 }

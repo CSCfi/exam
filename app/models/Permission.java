@@ -1,20 +1,33 @@
 package models;
 
 
+import com.avaje.ebean.annotation.EnumMapping;
+
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 @Entity
 public class Permission extends GeneratedIdentityModel implements be.objectify.deadbolt.core.models.Permission {
 
-    private String value;
-
-    @Override
-    public String getValue() {
-        return value;
+    @EnumMapping(integerType = true, nameValuePairs = "CAN_INSPECT_LANGUAGE=1")
+    public enum Type {
+        CAN_INSPECT_LANGUAGE
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    private Type type;
+
+    @Override
+    @Transient
+    public String getValue() {
+        return type.toString();
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     @Override
@@ -22,12 +35,12 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
         if (this == o) return true;
         if (!(o instanceof Permission)) return false;
         Permission permission = (Permission) o;
-        return !(value != null ? !value.equals(permission.value) : permission.value != null);
+        return !(type != null ? !type.equals(permission.type) : permission.type != null);
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        return type != null ? type.hashCode() : 0;
     }
 
 }
