@@ -232,7 +232,8 @@ public class StudentExamController extends BaseController {
         examParticipation.setUser(user);
         examParticipation.setExam(studentExam);
         examParticipation.setReservation(enrolment.getReservation());
-        examParticipation.setStarted(new Date());
+        DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+        examParticipation.setStarted(now.toDate());
         examParticipation.save();
         user.getParticipations().add(examParticipation);
 
@@ -351,7 +352,8 @@ public class StudentExamController extends BaseController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(DateTime.now().toDate());
+            DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
+            p.setEnded(now.toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
@@ -383,7 +385,8 @@ public class StudentExamController extends BaseController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(DateTime.now().toDate());
+            DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
+            p.setEnded(now.toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
             p.save();
             exam.setState(Exam.State.ABORTED);

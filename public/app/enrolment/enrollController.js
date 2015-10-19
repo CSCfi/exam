@@ -21,6 +21,11 @@
                             });
                             $scope.exam = exam;
                             examService.setExamOwners(exam);
+                            EnrollRes.check.get({id: exam.id}, function () {
+                                $scope.exam.alreadyEnrolled = true;
+                            }, function () {
+                                $scope.exam.alreadyEnrolled = false;
+                            });
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -51,7 +56,7 @@
                     return examService.getScaleDisplayName(scale);
                 };
 
-                $scope.printExamDuration = function(exam) {
+                $scope.printExamDuration = function (exam) {
                     return dateService.printExamDuration(exam);
                 };
 
