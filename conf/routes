@@ -255,6 +255,7 @@ GET           /settings/enrolmentPermissionCheck                     controllers
 GET           /settings/environment                                  controllers.SettingsController.isProd
 GET           /settings/maxfilesize                                  controllers.SettingsController.getMaxFilesize
 GET           /settings/appVersion                                   controllers.SettingsController.getAppVersion
+GET           /settings/maturityInstructions                         controllers.SettingsController.getMaturityInstructions
 
 ################# Statistics interface ##################
 
