@@ -91,6 +91,10 @@
                     enrolmentService.showInstructions(enrolment);
                 };
 
+                $scope.showMaturityInstructions = function (enrolment) {
+                    enrolmentService.showMaturityInstructions(enrolment);
+                };
+
                 $scope.addEnrolmentInformation = function (enrolment) {
                     var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
                         $scope.enrolment = angular.copy(enrolment);

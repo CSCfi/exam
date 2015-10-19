@@ -6,16 +6,24 @@ import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Update;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.inject.Inject;
 import models.GeneralSettings;
 import models.User;
 import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.i18n.Lang;
+import play.i18n.Langs;
 import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
 
+import java.util.stream.Collectors;
+
 public class SettingsController  extends BaseController {
+
+    @Inject
+    protected Langs langs;
 
     public static GeneralSettings getOrCreateSettings(String name, String value, String defaultValue) {
         GeneralSettings gs = Ebean.find(GeneralSettings.class).where().eq("name", name).findUnique();
@@ -49,6 +57,16 @@ public class SettingsController  extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("STUDENT")})
     public Result getReservationWindowSize() {
         GeneralSettings gs = getOrCreateSettings("reservation_window_size", null, "30");
+        return ok(Json.toJson(gs));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT")})
+    public Result getMaturityInstructions(String lang) {
+        if (!langs.availables().stream().map(Lang::code).collect(Collectors.toList()).contains(lang)) {
+            return badRequest("Language not supported");
+        }
+        String key = String.format("maturity_instructions_%s", lang);
+        GeneralSettings gs = getOrCreateSettings(key, null, null);
         return ok(Json.toJson(gs));
     }
 

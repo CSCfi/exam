@@ -579,5 +579,6 @@
   "sitnet_user_permissions": "Käyttäjäoikeudet",
   "sitnet_filter_by_permission": "Suodata käyttäjäoikeuden perusteella",
   "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen",
-  "sitnet_maturity": "Maturiteetti"
+  "sitnet_maturity": "Maturiteetti",
+  "sitnet_maturity_instructions": "Maturiteettiohjeet"
 }

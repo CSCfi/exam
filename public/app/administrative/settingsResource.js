@@ -12,7 +12,8 @@
                 enrolmentPermissions: $resource("/settings/enrolmentPermissionCheck"),
                 environment: $resource("/settings/environment"),
                 maxFilesize: $resource("/settings/maxfilesize"),
-                appVersion : $resource("/settings/appVersion")
+                appVersion : $resource("/settings/appVersion"),
+                maturityInstructions: $resource("/settings/maturityInstructions")
             }
         }]);
 }());
