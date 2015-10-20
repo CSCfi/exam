@@ -91,8 +91,13 @@
             </div>
         </div>
 
+        <div class="col-md-2">
+            <div class="sitnet-info-text">{{ 'sitnet_teachers' | translate }}</div>
+            <div class="input-group" ng-bind-html="exam.teachersStr"></div>
+        </div>
+
         <!-- Exam type field -->
-        <div class="col-md-4">
+        <div class="col-md-2">
             <div class="sitnet-info-text">{{'sitnet_exam_credit_type' | translate}}</div>
             <div class="input-group">
                 <div>{{translateExamType(exam.examType.type)}}</div>
@@ -107,6 +112,16 @@
             <div class="sitnet-info-text">{{'sitnet_instruction' | translate}}</div>
             <div class="input-group">
                 <div>{{exam.enrollInstruction}}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-row" ng-show="exam.executionType.type === 'MATURITY'">
+        <!-- Exam information field -->
+        <div class="col-md-12">
+            <div class="sitnet-info-text">{{'sitnet_maturity_instructions' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.maturityInstructions}}</div>
             </div>
         </div>
     </div>

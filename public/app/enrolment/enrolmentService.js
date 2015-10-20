@@ -62,6 +62,9 @@
 
                 var showMaturityInstructions = function (enrolment) {
                     var modalController = ["$scope", "$modalInstance", "SettingsResource", function ($scope, $modalInstance, SettingsResource) {
+                        if (enrolment.exam.examLanguages.length !== 1) {
+                            console.warn("Exam has no exam languages or it has several!");
+                        }
                         var lang = enrolment.exam.examLanguages.length > 0 ? enrolment.exam.examLanguages[0].code : 'fi';
                         $scope.title = 'sitnet_maturity_instructions';
                         SettingsResource.maturityInstructions.get({lang: lang}, function(data) {
