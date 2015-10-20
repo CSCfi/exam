@@ -66,7 +66,7 @@ public class ExamAutoSaver implements Runnable {
                 if (exam.isPrivate()) {
                     // Notify teachers
                     Set<User> recipients = new HashSet<>();
-                    recipients.addAll(exam.getExamOwners());
+                    recipients.addAll(exam.getParent().getExamOwners());
                     recipients.addAll(exam.getExamInspections().stream().map(
                             ExamInspection::getUser).collect(Collectors.toSet()));
                     for (User r : recipients) {

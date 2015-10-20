@@ -287,6 +287,7 @@ public class StudentExamController extends BaseController {
                 .fetch("creator", "id")
                 .fetch("course", "id, code, name, level, type, credits, institutionName, department")
                 .fetch("examType", "id, type")
+                .fetch("executionType")
                 .fetch("examSections", "id, name")
                 .fetch("examSections.sectionQuestions", "sequenceNumber")
                 .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, maxCharacters, evaluationType, expanded")
@@ -500,7 +501,7 @@ public class StudentExamController extends BaseController {
 
     private void notifyTeachers(Exam exam) {
         Set<User> recipients = new HashSet<>();
-        recipients.addAll(exam.getExamOwners());
+        recipients.addAll(exam.getParent().getExamOwners());
         recipients.addAll(exam.getExamInspections().stream().map(
                 ExamInspection::getUser).collect(Collectors.toSet()));
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {

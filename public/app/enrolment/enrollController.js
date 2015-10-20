@@ -21,7 +21,6 @@
                 };
 
                 if ($routeParams.code && $routeParams.id) {
-
                     EnrollRes.enroll.get({code: $routeParams.code, id: $routeParams.id},
                         function (exam) {
                             exam.languages = exam.examLanguages.map(function (lang) {
