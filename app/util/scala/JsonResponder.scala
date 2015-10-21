@@ -7,7 +7,7 @@ import play.libs.{Json => JavaJson}
 import scala.language.implicitConversions
 
 
-trait ScalaHacks {
+trait JsonResponder {
   self: Controller =>
 
   implicit def coursesList2Response[T <: Model](c: java.util.List[T]): Result = java2Response(c)

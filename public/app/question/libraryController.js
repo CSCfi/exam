@@ -215,7 +215,6 @@
                     });
                     var deferred = $q.defer();
                     CourseRes.userCourses.query({
-                        id: sessionService.getUser().id,
                         examIds: getExamIds(),
                         tagIds: getTagIds(),
                         sectionIds: getSectionIds()
