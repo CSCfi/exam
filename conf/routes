@@ -124,7 +124,7 @@ DELETE        /clearsection/:sid                                     controllers
 
 ############### Courses interface ###############
 GET           /courses                                               controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
-GET           /courses/user/:id                                      controllers.CourseController.listUsersCourses(id: Long, examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList])
+GET           /courses/user                                          controllers.CourseController.listUsersCourses(examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList])
 GET           /courses/:id                                           controllers.CourseController.getCourse(id: Long)
 POST          /courses/insert/:code                                  controllers.CourseInfoController.insertCourseFromInterface(code: String)
 

@@ -1,6 +1,8 @@
 package controllers;
 
 import base.IntegrationTestCase;
+import base.RunAsStudent;
+import base.RunAsTeacher;
 import com.avaje.ebean.Ebean;
 import com.fasterxml.jackson.databind.JsonNode;
 import models.Course;
@@ -54,11 +56,13 @@ public class CourseInfoImportTest extends IntegrationTestCase {
         server.setStopAtShutdown(true);
         ServletHandler handler = new ServletHandler();
         handler.addServletWithMapping(CourseInfoServlet.class, "/courseUnitInfo");
+        handler.addServletWithMapping(CourseInfoServlet.class, "/courseUnitInfo/oulu");
         server.setHandler(handler);
         server.start();
     }
 
     @Test
+    @RunAsTeacher
     public void testGetCourse() throws Exception {
         CourseInfoServlet.SEND_EXPIRED_COURSE = false;
         Result result = get("/courses?filter=code&q=2121219");
@@ -76,6 +80,22 @@ public class CourseInfoImportTest extends IntegrationTestCase {
     }
 
     @Test
+    @RunAsStudent
+    public void testGetCourseUnauthorized() throws Exception {
+        CourseInfoServlet.SEND_EXPIRED_COURSE = false;
+        Result result = get("/courses?filter=code&q=2121219");
+        assertThat(result.status()).isEqualTo(401);
+    }
+
+    @Test
+    public void testGetCourseUnauthenticated() throws Exception {
+        CourseInfoServlet.SEND_EXPIRED_COURSE = false;
+        Result result = get("/courses?filter=code&q=2121219");
+        assertThat(result.status()).isEqualTo(401);
+    }
+
+    @Test
+    @RunAsTeacher
     public void testGetExpiredCourse() throws Exception {
         CourseInfoServlet.SEND_EXPIRED_COURSE = true;
         Result result = get("/courses?filter=code&q=2121219");

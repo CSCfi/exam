@@ -107,7 +107,9 @@ public class SessionController extends BaseController {
     }
 
     private static String parseUserIdentifier(String src) {
-        if (src == null) return src;
+        if (src == null) {
+            return null;
+        }
         Pattern p = Pattern.compile("^[^\\d]*(\\d+?)$");
         Matcher m = p.matcher(src);
         if (m.find()) {
@@ -116,8 +118,15 @@ public class SessionController extends BaseController {
         return src;
     }
 
+    private static Organisation findOrganisation(String attribute) {
+        if (attribute == null) {
+            return null;
+        }
+        return Ebean.find(Organisation.class).where().eq("code", attribute).findUnique();
+    }
 
     private static void updateUser(User user) throws AddressException {
+        user.setOrganisation(findOrganisation(toUtf8(request().getHeader("homeOrganisation"))));
         user.setUserIdentifier(parseUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode"))));
         user.setEmail(validateEmail(toUtf8(request().getHeader("mail"))));
         user.setLastName(toUtf8(request().getHeader("sn")));

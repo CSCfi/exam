@@ -6,7 +6,7 @@
 #   !!models.Exam  // without '-' stand for one object
 #
 #
-# To reference an Object you must have right annotaions 
+# To reference an Object you must have right annotaions
 # for example: Exam has reference to a Course (without @ManyToOne it wont work)
 #
 #
@@ -16,7 +16,7 @@
 #  // Tentti liittyy Opintojaksoon
 #  @Constraints.Required
 #  @ManyToOne
-#  private Course course;  
+#  private Course course;
 #
 ######################################################################
 
@@ -40,45 +40,7 @@ organisations:
     - &OulunYliopisto !!models.Organisation
       name: Oulun Yliopisto
       nameAbbreviation: OY
-      code:
-      vatIdNumber: FI0245895-1
-      courseUnitInfoUrl:
-      recordsWhitelistIp:
-      organisations:
-        - &Lutk !!models.Organisation
-          name: Luonnontieteellinen tiedekunta
-          nameAbbreviation: LUTK
-          code:
-          vatIdNumber: FI0245895-2
-          courseUnitInfoUrl:
-          recordsWhitelistIp:
-          organisations:
-                - &Tol !!models.Organisation
-                  name: Tietojenkäsittelytieteiden laitos
-                  nameAbbreviation: TOL
-                  code:
-                  vatIdNumber: FI0245895-3
-                  organisations:
-                  courseUnitInfoUrl:
-                  recordsWhitelistIp:
-
-    - &YFL !!models.Organisation
-      name: Yhteiskuntatieteiden ja filosofian laitos
-      nameAbbreviation: YFL
-      code:
-      vatIdNumber: FI0245895-1
-
-    - &KTL !!models.Organisation
-      name: Kasvatustieteiden laitos
-      nameAbbreviation: KTL
-      code:
-      vatIdNumber: FI0245895-1
-
-    - &TOL !!models.Organisation
-      name: Tietojenkäsittelytieteiden laitos
-      nameAbbreviation: TOL
-      code:
-      vatIdNumber: FI0245895-1
+      code: oulu.fi
 
 ################################################################
 
@@ -114,7 +76,7 @@ users:
       firstName:  Maika
       lastName:   Opettaja
       password:   1d0ebf168b86f79a0c34e81eb1fd70cd  # maikaope
-      roles:  
+      roles:
             - *role-teacher
       language: *fi
 
@@ -125,7 +87,7 @@ users:
       firstName:  Sauli
       lastName:   Student
       password:   72e6570dbfeb95d5df59e08f1fa6302f   # saulistu
-      roles:  
+      roles:
             - *role-student
       language: *fi
       organisation: *OulunYliopisto
@@ -136,7 +98,7 @@ users:
       firstName:  Arvon
       lastName:   Penaali
       password:   f9ba22fb1ff25fd8f83d48f361aea0a4  # arvo
-      roles:  
+      roles:
             - *role-teacher
       language: *fi
       organisation: *OulunYliopisto
@@ -147,18 +109,18 @@ users:
       firstName:  Höylä
       lastName:   Soikkeli
       password:   f64213ef053bffe8011e3623543ad9e9  # soikkeli
-      roles:  
+      roles:
             - *role-teacher
       language: *fi
       organisation: *OulunYliopisto
-      
+
     - &orville !!models.User
       email:      oppilas@funet.fi
       eppn:       oppilas@funet.fi
       firstName:  Orville
       lastName:   Oates
       password:   2664274e7f6f56c565470797478cb406  #oppilas
-      roles:  
+      roles:
             - *role-student
       language: *fi
       organisation: *OulunYliopisto
@@ -852,7 +814,7 @@ question_multiple_choice:
 ######################################################################
 
 courses:
-  
+
   - &alkeet !!models.Course
     institutionName: "Testing Yliopisto"
     code: 810136P
@@ -862,13 +824,13 @@ courses:
   - &tietokannat !!models.Course
     institutionName: "Testing Yliopisto"
     code: 811380A
-    name: Tietokantojen perusteet 
+    name: Tietokantojen perusteet
     credits: 7
 
   - &765104P !!models.Course
     institutionName: "Testing Yliopisto"
     code: 765104P
-    name: Astronomian perusteet 
+    name: Astronomian perusteet
     credits: 8
 
   - &811386A !!models.Course
@@ -1210,7 +1172,7 @@ exam-sections:
     name: Astronomian Monivalinnat
     exam: *astronomianPerusteet
     totalScore:
-    
+
   - &ooadessay !!models.ExamSection
     name: Essee kysymykset
     exam: *ooad
@@ -1491,7 +1453,7 @@ exam-participations:
 ################################################################
 
 exam-inspections:
-   
+
   - !!models.ExamInspection
     user: *maika
     exam: *alkeidenperusteetReview
@@ -1503,11 +1465,11 @@ exam-inspections:
   - !!models.ExamInspection
     user: *arvo
     exam: *astronomianPerusteet
-   
+
   - !!models.ExamInspection
     user: *arvo
     exam: *algoritmit
-   
+
   - !!models.ExamInspection
     user: *arvo
     exam: *ooad
@@ -1515,15 +1477,15 @@ exam-inspections:
   - !!models.ExamInspection
     user: *arvo
     exam: *tietokannat2013
-   
+
   - !!models.ExamInspection
     user: *arvo
     exam: *tietokannat2014
-   
+
   - !!models.ExamInspection
     user: *maika
     exam: *ooad
-   
+
 ############### Tilavaraus ###############
 
 mail-addresses:

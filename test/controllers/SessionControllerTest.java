@@ -21,6 +21,7 @@ public class SessionControllerTest extends IntegrationTestCase {
         user = Ebean.find(User.class).where().eq("eppn", eppn).findUnique();
         assertThat(user).isNotNull();
         assertThat(user.getRoles()).hasSize(1);
+        assertThat(user.getOrganisation()).isNotNull();
         assertThat(user.getRoles().get(0).getName()).isEqualTo(Role.Name.TEACHER.toString());
     }
 }
