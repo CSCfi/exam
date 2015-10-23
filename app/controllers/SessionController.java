@@ -17,9 +17,9 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SessionController extends BaseController {
 
@@ -104,8 +104,20 @@ public class SessionController extends BaseController {
         return email;
     }
 
+    private static String parseUserIdentifier(String src) {
+        if (src == null) {
+            return null;
+        }
+        Pattern p = Pattern.compile("^[^\\d]*(\\d+?)$");
+        Matcher m = p.matcher(src);
+        if (m.find()) {
+            return m.group(1);
+        }
+        return src;
+    }
+
     private static void updateUser(User user) throws AddressException {
-        user.setUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode")));
+        user.setUserIdentifier(parseUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode"))));
         user.setEmail(validateEmail(toUtf8(request().getHeader("mail"))));
         user.setLastName(toUtf8(request().getHeader("sn")));
         user.setFirstName(toUtf8(request().getHeader("displayName")));
@@ -260,29 +272,17 @@ public class SessionController extends BaseController {
             return ok("no_session");
         }
 
-        final long timeOut = SITNET_TIMEOUT_MINUTES * 60 * 1000;
-        final long sessionTime = session.getSince().getMillis();
-        final long end = sessionTime + timeOut;
-        final long now = DateTime.now().getMillis();
-        final long alarmTime = end - (2 * 60 * 1000); // end - 2 minutes
+        DateTime timeOut = session.getSince().plusMinutes(SITNET_TIMEOUT_MINUTES);
+        DateTime alarmTime = timeOut.minusMinutes(2);
 
-        if (Logger.isDebugEnabled()) {
-            DateFormat df = new SimpleDateFormat("HH:mm:ss");
-            Logger.debug(" - current time: " + df.format(now));
-            Logger.debug(" - session ends: " + df.format(end));
-        }
+        Logger.debug("session timeout due at: {}", timeOut);
 
-        // session has 2 minutes left
-        if (now > alarmTime && now < end) {
-            return ok("alarm");
-        }
-
-        // session ended check
-        if (now > end) {
+        if (timeOut.isBeforeNow()) {
             Logger.info("Session has expired");
             return ok("no_session");
+        } else if (alarmTime.isBeforeNow()) {
+            return ok("alarm");
         }
-
         return ok();
     }
 

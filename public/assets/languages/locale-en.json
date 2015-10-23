@@ -340,7 +340,7 @@
   "sitnet_date_time": "Date and time",
   "sitnet_view_answers": "View all responses",
   "sitnet_session_will_expire_soon": "Your session is about to end",
-  "sitnet_continue_session": "Continue your session",
+  "sitnet_continue_session": "Continue your session by clicking here",
   "sitnet_student_and_exam_info": "Student name and exam time",
   "sitnet_time_of_exam_participation": "Exam date",
   "sitnet_previous_exam_participations": "Previous exam attempts",
@@ -575,5 +575,6 @@
   "sitnet_restricting_validity_change_disallowed": "Restrictive editing of exam period disabled",
   "sitnet_reservation_time": "Reservation time",
   "sitnet_user_language": "Language",
-  "sitnet_edit_all_rooms": "Edit all exam facilities"
+  "sitnet_edit_all_rooms": "Edit all exam facilities",
+  "sitnet_session_extended": "Istuntoa jatkettu EN"
 }

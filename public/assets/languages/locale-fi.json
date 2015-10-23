@@ -340,7 +340,7 @@
   "sitnet_date_time": "Päivämäärä ja aika",
   "sitnet_view_answers": "Katso vastaukset",
   "sitnet_session_will_expire_soon": "Istuntosi on päättymässä",
-  "sitnet_continue_session": "Jatka istuntoa",
+  "sitnet_continue_session": "Jatka istuntoa klikkaamalla tästä",
   "sitnet_student_and_exam_info": "Opiskelija ja tenttiaika",
   "sitnet_time_of_exam_participation": "Tentin suoritusaika",
   "sitnet_previous_exam_participations": "Opiskelijan tenttikerrat",
@@ -575,5 +575,6 @@
   "sitnet_restricting_validity_change_disallowed": "Tenttiperiodin rajoittava muokkaus estetty.",
   "sitnet_reservation_time": "Varattu aika",
   "sitnet_user_language": "Kieli",
-  "sitnet_edit_all_rooms": "Muokkaa kaikkia tenttitiloja"
+  "sitnet_edit_all_rooms": "Muokkaa kaikkia tenttitiloja",
+  "sitnet_session_extended": "Istuntoa jatkettu"
 }

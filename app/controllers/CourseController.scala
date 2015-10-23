@@ -24,7 +24,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       case (Some("code"), Some(x)) =>
         externalApi.getCourseInfoByCode(x).wrapped.map(i => java2Response(i))
       case (Some("name"), Some(x)) if x.length >= CriteriaLengthLimiter =>
-        val courses = scala.concurrent.Future {
+        val courses = Future {
           Ebean.find(classOf[Course]).where
             .ilike("name", s"$x%")
             .orderBy("name desc")
@@ -34,7 +34,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
       case (Some("name"), Some(x)) =>
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
-        val results = scala.concurrent.Future {
+        val results = Future {
           Ebean.find(classOf[Course]).where.isNotNull("name").findList
         }
         results.map(i => java2Response(i))
@@ -69,10 +69,10 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
         case user: Any =>
           _getCourses(filterType, criteria)
         case _ =>
-          Future.successful(Unauthorized)
+          Future.successful(Unauthorized("Unauthorized"))
       }
     }.getOrElse {
-      Future.successful(Unauthorized)
+      Future.successful(Unauthorized("Unauthorized"))
     }
   }
 
@@ -83,23 +83,23 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
           val results = Ebean.find(classOf[Course], id)
           Ok(Json.toJson(results).toString).withHeaders(CONTENT_TYPE -> "application/json")
         case _ =>
-          Unauthorized
+          Unauthorized("Unauthorized")
       }
     }.getOrElse {
-      Unauthorized
+      Unauthorized("Unauthorized")
     }
   }
 
   def listUsersCourses(examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList]) = Action {
     request => request.headers.get(SITNET_TOKEN_HEADER_KEY).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
-        case user: Any => {
+        case user: Any =>
           _listUsersCourses(user, examIds, sectionIds, tagIds, token)
-        }
-        case _ => Unauthorized
+        case _ =>
+          Unauthorized("Unauthorized")
       }
     }.getOrElse {
-      Unauthorized
+      Unauthorized("Unauthorized")
     }
   }
 
