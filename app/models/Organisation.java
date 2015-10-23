@@ -13,58 +13,58 @@ public class Organisation extends GeneratedIdentityModel {
 
     private String code;
 
-	private String name;
+    private String name;
 
-	private String nameAbbreviation;
+    private String nameAbbreviation;
 
+    @OneToMany(mappedBy = "parent")
+    @JsonBackReference
     private List<Organisation> children;
 
-	private Organisation parent;
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    private Organisation parent;
 
     public String getCode() {
-		return code;
-	}
+        return code;
+    }
 
-	public void setCode(String code) {
-		this.code = code;
-	}
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public String getName() {
-		return name;
-	}
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getNameAbbreviation() {
-		return nameAbbreviation;
-	}
+    public String getNameAbbreviation() {
+        return nameAbbreviation;
+    }
 
-	public void setNameAbbreviation(String nameAbbreviation) {
-		this.nameAbbreviation = nameAbbreviation;
-	}
+    public void setNameAbbreviation(String nameAbbreviation) {
+        this.nameAbbreviation = nameAbbreviation;
+    }
 
-	public List<Organisation> getChildren() {
-		return children;
-	}
+    public List<Organisation> getChildren() {
+        return children;
+    }
 
-	@OneToMany(mappedBy = "parent")
-	@JsonBackReference
-	public void setChildren(List<Organisation> children) {
-		this.children = children;
-	}
+    public void setChildren(List<Organisation> children) {
+        this.children = children;
+    }
 
-	@ManyToOne(cascade = CascadeType.PERSIST)
-	public Organisation getParent() {
-		return parent;
-	}
+    public Organisation getParent() {
+        return parent;
+    }
 
-	public void setParent(Organisation parent) {
-		this.parent = parent;
-	}
+    public void setParent(Organisation parent) {
+        this.parent = parent;
+    }
 
-	@Override
+    @Override
     public String toString() {
         return "Organisation{" +
                 "name='" + name + '\'' +
