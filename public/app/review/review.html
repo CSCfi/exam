@@ -4,10 +4,7 @@
         setTimeout(function () {
             MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
         }, 500);
-    });
 
-    $(function() {
-        $( "#draggable" ).draggable();
     });
 
 </script>
@@ -68,33 +65,6 @@
     <div ng-include="gradingPath"></div>
 
     <!-- Floating feedback window -->
-    <div id="draggable" style="z-index: 1000; border: 1px; width: 300px; position: absolute; height: 200px; top: 50px; right: 50px;" ng-hide="(isGraded && !isCreatorOrOwnerOrAdmin()) || isReadOnly">
-        <div class="row">
-            <div ng-init="hideEditor=false" class="review-feedback">
-                <span ng-click="hideEditor =!hideEditor">
-                    <i class="fa fa-2x" ng-class="hideEditor ? 'fa-chevron-circle-right sitnet-green' : 'fa-chevron-circle-down sitnet-red'"></i>
-                </span>
-                <span class="col-sm-offset-2 review-feedback-text" ng-show="hideEditor">
-                    {{'sitnet_give_feedback' | translate}}</span>
-                <span class="col-sm-offset-2 review-feedback-text" ng-show="!hideEditor">
-                    {{'sitnet_hide' | translate}}
-                </span>
-            </div>
-            <div class="row" ng-hide="hideEditor">
-                <textarea ck-editor rows="10" ng-model="examToBeReviewed.examFeedback.comment"></textarea>
-            </div>
-            <div class="main-row pull-right" ng-hide="hideEditor">
-                <span ng-controller="AttachmentController" ng-show="examToBeReviewed.examFeedback && examToBeReviewed.examFeedback.attachment">
-                    <a class="pointer" ng-click="downloadFeedbackAttachment(examToBeReviewed)">{{examToBeReviewed.examFeedback.attachment.fileName}}</a>
-                    <span class="sitnet-red pointer" ng-click="removeFeedbackAttachment(examToBeReviewed)">
-                        <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
-                    </span>
-                </span>
-                <span>
-                    <button class="btn btn-default" ng-click="selectFile()">{{'sitnet_attach_file' | translate}}</button>
-                </span>
-            </div>
-        </div>
-    </div>
+    <div ng-include="feedbackWindowPath"></div>
 
 </div>

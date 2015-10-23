@@ -14,6 +14,7 @@
                 $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_essay_question.html";
                 $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
                 $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
+                $scope.feedbackWindowPath = EXAM_CONF.TEMPLATES_PATH + "review/feedback.html";
                 $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_multiple_choice_answer.html";
                 $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_weighted_multiple_choice_answer.html";
                 $scope.printSectionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/print_section.html";
