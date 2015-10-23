@@ -272,12 +272,12 @@ public class SessionController extends BaseController {
             return ok("no_session");
         }
 
-        DateTime timeOut = session.getSince().plusMinutes(SITNET_TIMEOUT_MINUTES);
-        DateTime alarmTime = timeOut.minusMinutes(2);
+        DateTime expirationTime = session.getSince().plusMinutes(SITNET_TIMEOUT_MINUTES);
+        DateTime alarmTime = expirationTime.minusMinutes(2);
 
-        Logger.debug("session timeout due at: {}", timeOut);
+        Logger.debug("Session expiration due at {}", expirationTime);
 
-        if (timeOut.isBeforeNow()) {
+        if (expirationTime.isBeforeNow()) {
             Logger.info("Session has expired");
             return ok("no_session");
         } else if (alarmTime.isBeforeNow()) {
