@@ -79,24 +79,16 @@
                     $http.get('/checkSession').success(function (data) {
                         if (data === "alarm") {
                             toastr.options = {
-                                "closeButton": false,
-                                "debug": false,
-                                "progressBar": false,
-                                "positionClass": "toast-top-right",
-                                "showDuration": "0",
-                                "hideDuration": "0",
-                                "timeOut": "30000",
-                                "extendedTimeOut": "1000",
-                                "tapToDismiss": false,
-                                "preventDuplicates": true
+                                timeOut: "0",
+                                preventDuplicates: true,
+                                onclick: function() {
+                                    $http.put('/extendSession', {}).success(function() {
+                                        toastr.info($translate.instant("sitnet_session_extended"));
+                                    });
+                                }
                             };
-                            toastr.warning($translate.instant("sitnet_session_will_expire_soon") +
-                                "&nbsp;<button onclick=\"" +
-                                "var request = new XMLHttpRequest();" +
-                                "request.open('PUT', '/extendSession', true); " +
-                                "request.setRequestHeader('" + EXAM_CONF.AUTH_HEADER + "', '" + user.token + "'); " +
-                                "request.send();\">" +
-                                $translate.instant("sitnet_continue_session") + "</button>");
+                            toastr.warning($translate.instant("sitnet_continue_session"),
+                                $translate.instant("sitnet_session_will_expire_soon"));
                         } else if (data === "no_session") {
                             if (scheduler) {
                                 $interval.cancel(scheduler);

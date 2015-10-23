@@ -340,7 +340,7 @@
   "sitnet_date_time": "Päivämäärä ja aika",
   "sitnet_view_answers": "Katso vastaukset",
   "sitnet_session_will_expire_soon": "Istuntosi on päättymässä",
-  "sitnet_continue_session": "Jatka istuntoa",
+  "sitnet_continue_session": "Jatka istuntoa klikkaamalla tästä",
   "sitnet_student_and_exam_info": "Opiskelija ja tenttiaika",
   "sitnet_time_of_exam_participation": "Tentin suoritusaika",
   "sitnet_previous_exam_participations": "Opiskelijan tenttikerrat",
@@ -580,5 +580,6 @@
   "sitnet_filter_by_permission": "Suodata käyttäjäoikeuden perusteella",
   "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen",
   "sitnet_maturity": "Maturiteetti",
-  "sitnet_maturity_instructions": "Maturiteettiohjeet"
+  "sitnet_maturity_instructions": "Maturiteettiohjeet",
+  "sitnet_session_extended": "Istuntoa jatkettu"
 }

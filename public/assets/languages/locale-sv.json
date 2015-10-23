@@ -340,7 +340,7 @@
   "sitnet_date_time": "Datum och tid",
   "sitnet_view_answers": "Se alla svar",
   "sitnet_session_will_expire_soon": "Din session kommer snart att ta slut",
-  "sitnet_continue_session": "Fortsätt sessionen",
+  "sitnet_continue_session": "Fortsätt sessionen genom att kilicka här",
   "sitnet_student_and_exam_info": "Studerandes namn och tenttid",
   "sitnet_time_of_exam_participation": "Tentdatum",
   "sitnet_previous_exam_participations": "Studerandes tidigare tentförsök",
@@ -580,5 +580,6 @@
   "sitnet_filter_by_permission": "Suodata käyttäjäoikeuden perusteella SV",
   "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen SV",
   "sitnet_maturity": "Maturiteetti SV",
-  "sitnet_maturity_instructions": "Maturiteettiohjeet SV"
+  "sitnet_maturity_instructions": "Maturiteettiohjeet SV",
+  "sitnet_session_extended": "Istuntoa jatkettu SV"
 }
