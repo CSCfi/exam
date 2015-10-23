@@ -259,14 +259,11 @@ public class SessionController extends BaseController {
         String token = request().getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         final String key = SITNET_CACHE_KEY + token;
         Session session = cache.get(key);
-
         if (session == null) {
             return unauthorized();
         }
-
         session.setSince(DateTime.now());
         cache.set(SITNET_CACHE_KEY + token, session);
-
         return ok();
     }
 
@@ -274,18 +271,14 @@ public class SessionController extends BaseController {
         String token = request().getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
         final String key = SITNET_CACHE_KEY + token;
         Session session = cache.get(key);
-
         if (session == null || session.getSince() == null) {
             Logger.info("Session not found");
             return ok("no_session");
         }
-
-        DateTime timeOut = session.getSince().plusMinutes(SITNET_TIMEOUT_MINUTES);
-        DateTime alarmTime = timeOut.minusMinutes(2);
-
-        Logger.debug("session timeout due at: {}", timeOut);
-
-        if (timeOut.isBeforeNow()) {
+        DateTime expirationTime = session.getSince().plusMinutes(SITNET_TIMEOUT_MINUTES);
+        DateTime alarmTime = expirationTime.minusMinutes(2);
+        Logger.debug("Session expiration due at {}", expirationTime);
+        if (expirationTime.isBeforeNow()) {
             Logger.info("Session has expired");
             return ok("no_session");
         } else if (alarmTime.isBeforeNow()) {
