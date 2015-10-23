@@ -18,6 +18,8 @@
                 $scope.filter = {};
                 $scope.moreQuestions = false;
 
+                $scope.session = sessionService;
+
                 $scope.user = sessionService.getUser();
 
                 var htmlDecode = function (text) {
@@ -213,7 +215,6 @@
                     });
                     var deferred = $q.defer();
                     CourseRes.userCourses.query({
-                        id: sessionService.getUser().id,
                         examIds: getExamIds(),
                         tagIds: getTagIds(),
                         sectionIds: getSectionIds()

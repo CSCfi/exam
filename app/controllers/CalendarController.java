@@ -204,7 +204,7 @@ public class CalendarController extends BaseController {
         Collections.shuffle(machines);
         Interval wantedTime = new Interval(start, end);
         for (ExamMachine machine : machines) {
-            if (!isReservedDuring(machine, wantedTime, false)) {
+            if (!isReservedDuring(machine, wantedTime)) {
                 return machine;
             }
         }
@@ -226,7 +226,7 @@ public class CalendarController extends BaseController {
                 isRoomAccessibilitySatisfied(room, aids) && exam.getDuration() != null) {
             LocalDate searchDate;
             try {
-                searchDate = parseSearchDate(day, exam);
+                searchDate = parseSearchDate(day, exam, room);
             } catch (NotFoundException e) {
                 return notFound();
             }
@@ -304,7 +304,7 @@ public class CalendarController extends BaseController {
             }
             // Check machine availability
             int availableMachineCount = machines.stream()
-                    .filter(m -> !isReservedDuring(m, slot, true))
+                    .filter(m -> !isReservedByOthersDuring(m, slot))
                     .collect(Collectors.toList())
                     .size();
             slots.add(new TimeSlot(slot, availableMachineCount, null));
@@ -318,18 +318,19 @@ public class CalendarController extends BaseController {
      * Search date is the current date if searching for current week or earlier,
      * If searching for upcoming weeks, day of week is one.
      */
-    private static LocalDate parseSearchDate(String day, Exam exam) throws NotFoundException {
+    private static LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException {
         String reservationWindow = SettingsController.getOrCreateSettings(
                 "reservation_window_size", null, null).getValue();
         int windowSize = 0;
         if (reservationWindow != null) {
             windowSize = Integer.parseInt(reservationWindow);
         }
-        LocalDate now = LocalDate.now();
+        int offset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now());
+        LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
-        LocalDate examEndDate = new LocalDate(exam.getExamActiveEndDate());
+        LocalDate examEndDate = new DateTime(exam.getExamActiveEndDate()).plusMillis(offset).toLocalDate();
         LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
-        LocalDate examStartDate = new LocalDate(exam.getExamActiveStartDate());
+        LocalDate examStartDate = new DateTime(exam.getExamActiveStartDate()).plusMillis(offset).toLocalDate();
         LocalDate searchDate = day.equals("") ? now : LocalDate.parse(day, ISODateTimeFormat.dateParser());
         searchDate = searchDate.withDayOfWeek(1);
         if (searchDate.isBefore(now)) {
@@ -419,11 +420,17 @@ public class CalendarController extends BaseController {
         return intervals;
     }
 
-    private boolean isReservedDuring(ExamMachine machine, Interval interval, boolean excludeOwn) {
-        return machine.getReservations().stream()
-                .anyMatch(r -> interval.overlaps(r.toInterval()) &&
-                                (!excludeOwn && r.getUser().equals(getLoggedUser()))
-                );
+    private boolean isReservedDuring(ExamMachine machine, Interval interval) {
+        return machine.getReservations()
+                .stream()
+                .anyMatch(r -> interval.overlaps(r.toInterval()));
+    }
+
+    private boolean isReservedByOthersDuring(ExamMachine machine, Interval interval) {
+        return machine.getReservations()
+                .stream()
+                .filter(r -> !r.getUser().equals(getLoggedUser()))
+                .anyMatch(r -> interval.overlaps(r.toInterval()));
     }
 
     private static List<Reservation> getReservationsDuring(Collection<Reservation> reservations, Interval interval) {

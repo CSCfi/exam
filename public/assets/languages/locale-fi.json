@@ -173,6 +173,7 @@
   "sitnet_saved_exams": "Tallennetut tentit",
   "sitnet_saved_exams_info_main": "Tenttejä ei ole vielä julkaistu eivätkä opiskelijat voi ilmoittautua näihin tentteihin.",
   "sitnet_saved_exams_info_other": "Tallennetun tentin voi poistaa tarvittaessa.",
+  "sitnet_max_score": "Kysymyksen maksimipisteet",
   "sitnet_search": "Hae",
   "sitnet_section_add": "Lisää aihealue tenttiin klikkaamalla tästä",
   "sitnet_select": "Valitse",
@@ -339,7 +340,7 @@
   "sitnet_date_time": "Päivämäärä ja aika",
   "sitnet_view_answers": "Katso vastaukset",
   "sitnet_session_will_expire_soon": "Istuntosi on päättymässä",
-  "sitnet_continue_session": "Jatka istuntoa",
+  "sitnet_continue_session": "Jatka istuntoa klikkaamalla tästä",
   "sitnet_student_and_exam_info": "Opiskelija ja tenttiaika",
   "sitnet_time_of_exam_participation": "Tentin suoritusaika",
   "sitnet_previous_exam_participations": "Opiskelijan tenttikerrat",
@@ -569,10 +570,11 @@
   "sitnet_reservation_window": "Varausikkuna",
   "sitnet_info_reservation_window": "Kuinka monen päivän päähän nykyhetkestä opiskelija voi tehdä tenttivarauksia",
   "sitnet_description_reservation_window": "Varauksen voi tehdä enintään {} päivän päähän",
-  "sitnet_upcoming_reservations_exist": "Opiskelijoita on tulossa tähän tenttiin. Muokkausmahdollisuuksia on rajattu, jotta vaikutukset näihin opiskelijoihin jäisivät mahdollisimman vähäisiksi.",
-  "sitnet_error_future_reservations_exist": "Muokkaus ei sallittu, koska tenttiin on tulossa opiskelijoita",
+  "sitnet_upcoming_reservations_exist": "Tähän tenttiin on varauksia. Muokkausmahdollisuuksia on rajattu, jotta vaikutukset tehtyihin varauksiin jäisivät mahdollisimman vähäisiksi.",
+  "sitnet_error_future_reservations_exist": "Muokkaus ei sallittu, koska tenttiin on varauksia. ",
   "sitnet_restricting_validity_change_disallowed": "Tenttiperiodin rajoittava muokkaus estetty.",
   "sitnet_reservation_time": "Varattu aika",
   "sitnet_user_language": "Kieli",
-  "sitnet_edit_all_rooms": "Muokkaa kaikkia tenttitiloja"
+  "sitnet_edit_all_rooms": "Muokkaa kaikkia tenttitiloja",
+  "sitnet_session_extended": "Istuntoa jatkettu"
 }

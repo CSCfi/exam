@@ -81,6 +81,7 @@ public class StudentExamController extends BaseController {
                 .fetch("exam", "id, state, name")
                 .fetch("exam.creator", "id")
                 .fetch("exam.course", "code")
+                .fetch("exam.parent.examOwners", "firstName, lastName, id")
                 .fetch("exam.examOwners", "firstName, lastName, id")
                 .fetch("exam.examInspectors", "firstName, lastName, id")
                 .where()
@@ -231,7 +232,8 @@ public class StudentExamController extends BaseController {
         examParticipation.setUser(user);
         examParticipation.setExam(studentExam);
         examParticipation.setReservation(enrolment.getReservation());
-        examParticipation.setStarted(new Date());
+        DateTime now = AppUtil.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+        examParticipation.setStarted(now.toDate());
         examParticipation.save();
         user.getParticipations().add(examParticipation);
 
@@ -350,7 +352,8 @@ public class StudentExamController extends BaseController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(DateTime.now().toDate());
+            DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
+            p.setEnded(now.toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
 
             GeneralSettings settings = SettingsController.getOrCreateSettings("review_deadline", null, "14");
@@ -382,7 +385,8 @@ public class StudentExamController extends BaseController {
                 .findUnique();
 
         if (p != null) {
-            p.setEnded(DateTime.now().toDate());
+            DateTime now = AppUtil.adjustDST(DateTime.now(), p.getReservation().getMachine().getRoom());
+            p.setEnded(now.toDate());
             p.setDuration(new Date(p.getEnded().getTime() - p.getStarted().getTime()));
             p.save();
             exam.setState(Exam.State.ABORTED);
@@ -496,7 +500,7 @@ public class StudentExamController extends BaseController {
 
     private void notifyTeachers(Exam exam) {
         Set<User> recipients = new HashSet<>();
-        recipients.addAll(exam.getExamOwners());
+        recipients.addAll(exam.getParent().getExamOwners());
         recipients.addAll(exam.getExamInspections().stream().map(
                 ExamInspection::getUser).collect(Collectors.toSet()));
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {

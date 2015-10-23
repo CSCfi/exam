@@ -46,6 +46,10 @@
     margin-right: 2em;
   }
 
+  .wide-column {
+    padding-right: 0;
+  }
+
   .title {
     margin-top: 2em;
     margin-left: 2em;
@@ -187,7 +191,17 @@
   }
 
   .inline-list li {
-     list-style: none;
+    list-style: none;
+  }
+
+  .wide-select {
+    width: 100%;
+  }
+
+  .vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
   }
 
   // fade in/out animations for list items

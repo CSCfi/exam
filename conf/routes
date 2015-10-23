@@ -72,7 +72,7 @@ POST          /email/inspection/:eid                                 controllers
 POST          /exams/:eid/section/:sid/:seq/question/:qid            controllers.ExamController.insertQuestion(eid: Long, sid: Long, seq: Int, qid: Long)
 POST          /exams/:eid/section/:sid/:seq/questions                controllers.ExamController.insertMultipleQuestions(eid: Long, sid: Long, seq: Int, questions: String)
 DELETE        /exams/:eid/section/:sid/question/:qid                 controllers.ExamController.removeQuestion(eid: Long, sid: Long, qid: Long)
-PUT           /exams/:eid/section/:sid/:from/:to                     controllers.ExamController.reorderQuestion(eid: Long, sid: Long, from: Int, to: Int)
+PUT           /exams/:eid/section/:sid/:from/:to                     controllers.ExamController.reorderSectionQuestions(eid: Long, sid: Long, from: Int, to: Int)
 GET           /draft                                                 controllers.ExamController.createExamDraft(executionType: String)
 
 PUT           /exam/:eid/software                                    controllers.ExamController.updateExamSoftwareInfo(eid: Long)
@@ -120,7 +120,7 @@ DELETE        /clearsection/:sid                                     controllers
 
 ############### Courses interface ###############
 GET           /courses                                               controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
-GET           /courses/user/:id                                      controllers.CourseController.listUsersCourses(id: Long, examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList])
+GET           /courses/user                                          controllers.CourseController.listUsersCourses(examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList])
 GET           /courses/:id                                           controllers.CourseController.getCourse(id: Long)
 POST          /courses/insert/:code                                  controllers.CourseInfoController.insertCourseFromInterface(code: String)
 

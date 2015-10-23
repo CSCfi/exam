@@ -11,10 +11,10 @@
         </div>
     </div>
 
-    <div class="main-row">
-        <div class="col-md-12">
-            <div ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'">
-                <div class="row" ng-show="newExam.hasEnrolmentsInEffect">
+    <div class="main-row wide-column">
+        <div class="col-md-12 wide-column">
+            <div ng-class="session.minimizeLibrary ? 'col-md-11' : 'col-md-8'" class="wide-column">
+                <div ng-show="newExam.hasEnrolmentsInEffect">
                     <div class="alert-warning" style="padding: 1em;">
                         <p class="exams-list-title-text">{{'sitnet_upcoming_reservations_exist' | translate}}</p>
                     </div>
@@ -62,7 +62,8 @@
                     </span>
                 </div>
             </div>
-            <div ng-include="templates.library" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"></div>
+            <div ng-include="templates.library" ng-class="session.minimizeLibrary ? 'col-md-1' : 'col-md-4'"
+                 class="wide-column"></div>
         </div>
     </div>
 </div>

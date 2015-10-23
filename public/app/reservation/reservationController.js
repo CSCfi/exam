@@ -99,8 +99,10 @@
                             }
                         }
 
+                        var tzOffset = new Date().getTimezoneOffset() * 60000;
+
                         if ($scope.dateService.startDate) {
-                            params.start = Date.parse($scope.dateService.startDate);
+                            params.start = Date.parse($scope.dateService.startDate) + tzOffset;
                         }
                         if ($scope.dateService.endDate) {
                             params.end = Date.parse($scope.dateService.endDate);

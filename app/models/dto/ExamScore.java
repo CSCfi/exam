@@ -3,6 +3,7 @@ package models.dto;
 import models.GeneratedIdentityModel;
 
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 
 @Entity
@@ -171,20 +172,27 @@ public class ExamScore extends GeneratedIdentityModel {
     public void setAdditionalInfo(String additionalInfo) {
         this.additionalInfo = additionalInfo;
     }
-    public String getLecturerEmployeeNumber() { return lecturerEmployeeNumber; }
 
-    public void setLecturerEmployeeNumber(String lecturerEmployeeNumber) { this.lecturerEmployeeNumber = lecturerEmployeeNumber; }
-
-    public static String[] getHeaders() {
-        return new String[]{"id", "studentId", "student", "identifier", "courseUnitCode", "examDate", "credits",
-                "creditLanguage", "studentGrade", "gradeScale", "courseUnitLevel", "courseUnitType", "creditType",
-                "lecturer", "lecturerId", "date", "courseImplementation", "additionalInfo", "lecturerEmployeeNumber"};
+    public String getLecturerEmployeeNumber() {
+        return lecturerEmployeeNumber;
     }
 
+    public void setLecturerEmployeeNumber(String lecturerEmployeeNumber) {
+        this.lecturerEmployeeNumber = lecturerEmployeeNumber;
+    }
+
+    @Transient
+    public static String[] getHeaders() {
+        return new String[]{"id", "student", "studentId", "identifier", "courseUnitCode", "examDate", "credits",
+                "creditLanguage", "studentGrade", "gradeScale", "examScore", "courseUnitLevel", "creditType",
+                "lecturer", "lecturerId", "lecturerEmployeeNumber", "date", "courseImplementation", "additionalInfo"};
+    }
+
+    @Transient
     public String[] asArray() {
-        return new String[]{Long.toString(getId()), studentId, student, identifier, courseUnitCode, examDate, credits,
-                creditLanguage, studentGrade, gradeScale, courseUnitLevel, courseUnitType, creditType, lecturer,
-                lecturerId, date, courseImplementation, additionalInfo, lecturerEmployeeNumber};
+        return new String[]{Long.toString(getId()), student, studentId, identifier, courseUnitCode, examDate, credits,
+                creditLanguage, studentGrade, gradeScale, examScore, courseUnitLevel, creditType, lecturer,
+                lecturerId, lecturerEmployeeNumber, date, courseImplementation, additionalInfo};
     }
 
 }

@@ -209,6 +209,10 @@
 
   .review-question-value {
     padding-left: 6em;
+
+    p {
+      word-wrap: break-word;
+    }
   }
 
   .review-question-option-name {
@@ -236,6 +240,10 @@
   .exam-small-warning-box {
     margin-top: 0.5em;
     text-align: center;
+  }
+
+  .draggable {
+    list-style: none;
   }
 
   //  -webkit-touch-callout: none;

@@ -2,6 +2,7 @@ package models;
 
 import be.objectify.deadbolt.core.models.Subject;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -16,16 +17,15 @@ public class User extends GeneratedIdentityModel implements Subject {
 
     private String email;
 
-    // used identify user
     private String eppn;
 
-    // schacPersonalUniqueCode
     private String userIdentifier;
 
     private String lastName;
 
     private String firstName;
 
+    @JsonIgnore
     private String password;
 
     private String employeeNumber;

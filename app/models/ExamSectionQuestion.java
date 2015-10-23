@@ -7,11 +7,12 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
+import javax.annotation.Nonnull;
 import javax.persistence.*;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"exam_section_id", "question_id"}))
-public class ExamSectionQuestion extends Model {
+public class ExamSectionQuestion extends Model implements Comparable<ExamSectionQuestion> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -28,10 +29,6 @@ public class ExamSectionQuestion extends Model {
 
     @Column
     private int sequenceNumber;
-
-    public ExamSectionQuestion() {
-
-    }
 
     public Long getId() {
         return id;
@@ -92,5 +89,10 @@ public class ExamSectionQuestion extends Model {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(getExamSection()).append(getQuestion()).build();
+    }
+
+    @Override
+    public int compareTo(@Nonnull ExamSectionQuestion o) {
+        return sequenceNumber - o.sequenceNumber;
     }
 }

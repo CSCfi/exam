@@ -257,7 +257,7 @@ public class EmailComposerImpl implements EmailComposer {
         List<Exam> exams = Ebean.find(Exam.class)
                 .where()
                 .eq("parent.id", exam.getId())
-                .eq("state", "REVIEW")
+                .eq("state", Exam.State.REVIEW)
                 .findList();
 
         int uninspectedCount = exams.size();
@@ -478,7 +478,7 @@ public class EmailComposerImpl implements EmailComposer {
                 .where()
                 .disjunction()
                 .eq("exam.parent.examOwners", teacher)
-                .eq("exam.parent.examInspections.user", teacher)
+                .eq("exam.examInspections.user", teacher)
                 .endJunction()
                 .disjunction()
                 .eq("exam.state", Exam.State.REVIEW)

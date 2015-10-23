@@ -12,17 +12,25 @@
             var elem = $(this);
             var parentPanel = elem.data('clampedwidth');
             var resizeFn = function () {
-                var affixWidth = $(parentPanel).width() - parseInt(elem.css('paddingLeft')) - parseInt(elem.css('paddingRight')) - parseInt(elem.css('marginLeft')) - parseInt(elem.css('marginRight')) - parseInt(elem.css('borderLeftWidth')) - parseInt(elem.css('borderRightWidth'));
+                var affixWidth = $(parentPanel).width() -
+                        parseInt(elem.css('paddingLeft')) -
+                        parseInt(elem.css('paddingRight')) -
+                        parseInt(elem.css('marginLeft')) -
+                        parseInt(elem.css('marginRight')) -
+                        parseInt(elem.css('borderLeftWidth')) -
+                        parseInt(elem.css('borderRightWidth'));
                 elem.css('width', affixWidth);
             };
 
-            resizeFn();
-            $(window).resize(resizeFn);
+            // add some timeout so that the UI can settle before calculating widths
+            window.setTimeout(function () {
+                resizeFn();
+                $(window).resize(resizeFn);
+            }, 200);
         });
 
 
-
-        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function(e) {
+        $('.dropdown-menu input, .dropdown-menu label, .dropdown-menu li a, .dr').click(function (e) {
             e.stopPropagation();
         });
 
@@ -31,7 +39,7 @@
 
 <div id="library">
     <div class="col-md-4">
-        <div sn-library bs-affix class="library-main" data-spy="affix" data-offset-top="150"
+        <div sn-library bs-affix class="library-main" data-spy="affix" data-offset-top="130"
              data-clampedwidth=".col-md-4">
             <div class="library-header">
                 <h4>
@@ -41,26 +49,30 @@
                     </div>
                 </h4>
             </div>
-            <div class="library" ng-controller="LibraryCtrl" style="display: inline-block;" ng-hide="session.minimizeLibrary">
+            <div class="library" ng-controller="LibraryCtrl" style="display: inline-block;"
+                 ng-hide="session.minimizeLibrary">
                 <div class="row">
                     <div class="col-md-12">
                         <div class="library-name">
-                            <div>
+                            <h4>
                                 <i class="fa fa-briefcase"></i>
                                 {{'sitnet_library' | translate}}
-                            </div>
+                            </h4>
                         </div>
                     </div>
                     <div class="col-md-12">
                         <span class="dropdown" dropdown>
-                            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu1"
+                            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button"
+                                    id="dropDownMenu1"
                                     data-toggle="dropdown" aria-expanded="true" ng-click="listCourses()">
                                 {{'sitnet_course' | translate}}&nbsp;<span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                                 aria-labelledby="dropDownMenu1">
                                 <li role="presentation" class="input-group">
-                                    <input ng-model="limitations.course" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                                    <input ng-model="limitations.course" type="text" class="form-control"
+                                           placeholder="{{'sitnet_search' | translate }}">
+
                                     <div class="input-group-addon">
                                         <i class="fa fa-search fa-fw"></i>
                                     </div>
@@ -72,34 +84,40 @@
                             </ul>
                         </span>
                         <span class="dropdown" dropdown>
-                            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu2"
+                            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button"
+                                    id="dropDownMenu2"
                                     data-toggle="dropdown" aria-expanded="true" ng-click="listExams()">
                                 {{'sitnet_exam' | translate}}&nbsp;<span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu pull-left" style="padding-left: 0; min-width: 17em" role="menu"
+                            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
                                 aria-labelledby="dropDownMenu2">
                                 <li role="presentation" class="input-group">
-                                    <input ng-model="limitations.exams" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                                    <input ng-model="limitations.exams" type="text" class="form-control"
+                                           placeholder="{{'sitnet_search' | translate }}">
+
                                     <div class="input-group-addon">
                                         <i class="fa fa-search fa-fw"></i>
                                     </div>
                                 </li>
                                 <li ng-repeat="exam in exams | filter:limitations.exams" role="presentation"
                                     ng-class="exam.filtered ? 'active': ''" ng-click="applyFilter(exam)">
-                                    <a role="menuitem" title="{{exam.name}}">{{exam.name | truncate:30}}</a>
+                                    <a role="menuitem" title="{{exam.name}}">{{exam.name | truncate:25}}</a>
                                 </li>
                             </ul>
                         </span>
 
                         <span class="dropdown" dropdown>
-                            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button" id="dropDownMenu3"
+                            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button"
+                                    id="dropDownMenu3"
                                     data-toggle="dropdown" aria-expanded="true" ng-click="listTags()">
                                 {{'sitnet_category' | translate}}&nbsp;<span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                            <ul class="dropdown-menu pull-right" style="padding-left: 0; min-width: 17em" role="menu"
                                 aria-labelledby="dropDownMenu3">
                                 <li role="presentation" class="input-group">
-                                    <input ng-model="limitations.tags" type="text" class="form-control" placeholder="{{'sitnet_search' | translate }}">
+                                    <input ng-model="limitations.tags" type="text" class="form-control"
+                                           placeholder="{{'sitnet_search' | translate }}">
+
                                     <div class="input-group-addon">
                                         <i class="fa fa-search fa-fw"></i>
                                     </div>
@@ -117,7 +135,8 @@
                         <ul class="inline-list">
                             <li>
                                 <button ng-repeat="tag in getTags()" type='button'
-                                        ng-click="applyFilter(tag)" class="btn btn-primary btn-xs" style="margin: 0.2em">
+                                        ng-click="applyFilter(tag)" class="btn btn-primary btn-xs"
+                                        style="margin: 0.2em">
                                     {{tag.name}}
                                 </button>
                             </li>
@@ -133,25 +152,33 @@
                     </div>
                 </div>
                 <div style="max-width:100%;">
-                    <div ng-if="moreQuestions" class="top-margin-1 sitnet-text-theme text-center">{{'sitnet_show_first' | translate }} {{maxVisible}} {{'sitnet_show_questions' | translate }}</div>
+                    <div ng-if="moreQuestions" class="top-margin-1 sitnet-text-theme text-center">{{'sitnet_show_first'
+                        | translate }} {{maxVisible}} {{'sitnet_show_questions' | translate }}
+                    </div>
                     <ul class="questions-wrapper"><!-- list-group results -->
-                        <li style="width:5%;" draggable="visibleQuestions" draggable-target=".sortable" class="drag-all-wrap">
+                        <li style="width:5%;" draggable="visibleQuestions" draggable-target=".sortable"
+                            class="drag-all-wrap">
                             <span class="vertical-text" ng-init="verticalText('vertical-text')">{{'sitnet_add_all' | translate}}</span>
                         </li>
                         <li class="question-list-wrapper">
                             <div class="library-question-header-inactive" ng-repeat="question in visibleQuestions"
-                                draggable="question" draggable-target=".sortable">
-                                <div class="library-row-icon"><i class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
+                                 ng-show="question"
+                                 draggable="question" draggable-target=".sortable">
+                                <div class="library-row-icon"><i
+                                        class="fa sitnet-white fa-1x fa-fw {{question.icon}}"></i>
                                 </div>
                                 <div class="library-row-text-wrap">
-                                    <div class="library-row-text" mathjax ng-bind-html="shortText(question.question, 55)" title="{{longTextIfNotMath(question.question)}}"></div>
+                                    <div class="library-row-text" mathjax
+                                         ng-bind-html="question.question | truncate: 50"
+                                         title="{{longTextIfNotMath(question.question)}}"></div>
                                 </div>
                             </div>
                         </li>
                     </ul>
                     <div ng-if="moreQuestions" class="text-center">
                         <hr style="border-top:1px solid rgba(0,0,0,0.05)"/>
-                        <a ng-click="showMore();" class="pointer sitnet-text-theme">{{'sitnet_show_more' | translate }}</a>
+                        <a ng-click="showMore();" class="pointer sitnet-text-theme">{{'sitnet_show_more' | translate
+                            }}</a>
                     </div>
                 </div>
             </div>

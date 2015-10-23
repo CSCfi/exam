@@ -18,7 +18,7 @@
         })
         .filter('truncate', function () {
             return function (text, after) {
-                return truncate(text, after, {ellipsis: '...'});
+                return !text || truncate(text, after, {ellipsis: '...'});
             };
         })
         .filter('striphtml', function () {

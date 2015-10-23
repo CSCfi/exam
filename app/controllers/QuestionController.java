@@ -63,7 +63,6 @@ public class QuestionController extends BaseController {
         Question copy = question.copy();
         copy.setParent(null);
         copy.setQuestion(String.format("<p>**COPY**</p>%s", question.getQuestion()));
-        copy.setCreated(new Date());
         User user = getLoggedUser();
         AppUtil.setCreator(copy, user);
         AppUtil.setModifier(copy, user);
