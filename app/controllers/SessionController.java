@@ -160,6 +160,7 @@ public class SessionController extends BaseController {
         result.put("lastname", user.getLastName());
         result.put("lang", user.getLanguage().getCode());
         result.set("roles", Json.toJson(user.getRoles()));
+        result.set("permissions", Json.toJson(user.getPermissions()));
         result.put("userAgreementAccepted", user.isUserAgreementAccepted());
         result.put("userIdentifier", user.getUserIdentifier());
         return ok(result);

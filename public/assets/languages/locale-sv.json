@@ -581,5 +581,6 @@
   "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen SV",
   "sitnet_maturity": "Maturiteetti SV",
   "sitnet_maturity_instructions": "Maturiteettiohjeet SV",
-  "sitnet_session_extended": "Istuntoa jatkettu SV"
+  "sitnet_session_extended": "Istuntoa jatkettu SV",
+  "sitnet_language_inspections": "Kielentarkastus SV"
 }

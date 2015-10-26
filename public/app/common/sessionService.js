@@ -46,6 +46,15 @@
                     return user.loginRole.name === role;
                 };
 
+                var hasPermission = function (user, permission) {
+                    if (!user) {
+                        return false;
+                    }
+                    return user.permissions.some(function(p) {
+                        return p.type === permission;
+                    });
+                };
+
                 var logout = function () {
                     var deferred = $q.defer();
                     http().post('/logout').success(function (data) {
@@ -110,6 +119,7 @@
                                 user.isAdmin = hasRole(user, 'ADMIN');
                                 user.isTeacher = hasRole(user, 'TEACHER');
                                 user.isStudent = hasRole(user, 'STUDENT');
+                                user.isLanguageInspector = user.isTeacher && hasPermission(user, 'CAN_INSPECT_LANGUAGE');
                                 setUser(user);
                                 $modalInstance.dismiss();
                                 $rootScope.$broadcast('userUpdated');
@@ -191,6 +201,7 @@
                             _user.isAdmin = hasRole(_user, 'ADMIN');
                             _user.isStudent = hasRole(_user, 'STUDENT');
                             _user.isTeacher = hasRole(_user, 'TEACHER');
+                            _user.isLanguageInspector = _user.isTeacher && hasPermission(user, 'CAN_INSPECT_LANGUAGE');
 
                             $sessionStorage[EXAM_CONF.AUTH_STORAGE_KEY] = _user;
                             translate(_user.lang);

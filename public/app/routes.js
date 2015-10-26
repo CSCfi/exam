@@ -67,6 +67,10 @@
             /* Print */
             $routeProvider.when('/print/exam/:id', { templateUrl: tmpl + 'review/print/fullReview.html', controller: 'ExamReviewController'});
 
+            /* Language inspectors */
+            $routeProvider.when('/inspections', { templateUrl: tmpl + 'maturity/dashboard.html', controller: 'LanguageInspectionCtrl'});
+
+
             $routeProvider.otherwise({redirectTo: '/'});
         }]);
 }());
