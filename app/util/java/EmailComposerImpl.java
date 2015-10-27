@@ -166,7 +166,7 @@ public class EmailComposerImpl implements EmailComposer {
         String teacherName;
 
         if (!exam.getExamOwners().isEmpty()) {
-            Iterator<User> it = exam.getExamOwners().listIterator();
+            Iterator<User> it = exam.getExamOwners().iterator();
             StringBuilder sb = new StringBuilder();
             while (it.hasNext()) {
                 User teacher = it.next();
@@ -310,7 +310,7 @@ public class EmailComposerImpl implements EmailComposer {
                     DTF.print(adjustDST(reservation.getEndAt(), TZ)));
             Exam source = enrolment.getExam().getParent() != null ? enrolment.getExam().getParent() : enrolment.getExam();
             StringBuilder teachers = new StringBuilder();
-            Iterator<User> it = source.getExamOwners().listIterator();
+            Iterator<User> it = source.getExamOwners().iterator();
             while (it.hasNext()) {
                 User owner = it.next();
                 teachers.append(owner.getFirstName()).append(" ").append(owner.getLastName());

@@ -1271,7 +1271,7 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamOwners(Long id) {
 
-        List<User> owners;
+        Set<User> owners;
 
         Exam exam = Ebean.find(Exam.class, id);
 

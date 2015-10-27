@@ -582,5 +582,17 @@
   "sitnet_maturity": "Maturiteetti",
   "sitnet_maturity_instructions": "Maturiteettiohjeet",
   "sitnet_session_extended": "Istuntoa jatkettu",
-  "sitnet_language_inspections": "Kielentarkastus"
+  "sitnet_language_inspections": "Kielentarkastus",
+  "sitnet_ongoing_language_inspections": "Tarkastettavat maturiteetit",
+  "sitnet_ongoing_language_inspections_detail": "({0} kpl)",
+  "sitnet_processed_language_inspections": "Tarkistetut maturiteetit",
+  "sitnet_processed_language_inspections_detail": "({0} kpl vuonna {1}, näytetään max 20 kpl)",
+  "sitnet_arrived": "Saapunut",
+  "sitnet_finished": "Tentti suoritettu",
+  "sitnet_language_inspector": "Kielentarkastaja",
+  "sitnet_assign_to_me": "Ota käsittelyyn",
+  "sitnet_inspection_finished": "Tarkastettu",
+  "sitnet_language_inspection_report_link": "Kuukausikohtainen raportti",
+  "sitnet_statement": "Lausunto"
+
 }

@@ -44,7 +44,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     @ManyToMany
     @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> examOwners;
+    private Set<User> examOwners;
 
     @ManyToMany
     @JoinTable(name = "exam_inspection", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
@@ -86,6 +86,9 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     @OneToOne(mappedBy = "exam")
     private ExamRecord examRecord;
+
+    @OneToMany
+    private LanguageInspection languageInspection;
 
     @Column(length = 32, unique = true)
     private String hash;
@@ -211,11 +214,11 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         return total;
     }
 
-    public List<User> getExamOwners() {
+    public Set<User> getExamOwners() {
         return examOwners;
     }
 
-    public void setExamOwners(List<User> examOwners) {
+    public void setExamOwners(Set<User> examOwners) {
         this.examOwners = examOwners;
     }
 

@@ -104,6 +104,9 @@ PUT           /enrolments/:eid                                       controllers
 POST          /student/exams/:hash/question/:qid/option/:oids        controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long, oids: String)
 POST          /student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
 
+############### Language inspection interface ###############
+GET           /inspections                                           controllers.LanguageInspectionController.listInspections
+
 
 ############### Enrolment interface ###############
 
