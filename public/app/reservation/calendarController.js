@@ -37,7 +37,8 @@
 
                 var renderCalendarTitle = function () {
                     // Fix date range format in title
-                    var title = $(".fc-toolbar .fc-center > h2").text();
+                    var selector = $(".fc-toolbar .fc-center > h2");
+                    var title = selector.text();
                     var newTitle = '';
                     var separator = ' — ';
                     var endPart = title.split(separator)[1];
@@ -54,85 +55,7 @@
                         })
                     }
                     newTitle += separator + endPart;
-                    $(".fc-toolbar .fc-center > h2").text(newTitle);
-                };
-
-                $scope.calendarConfig = {
-                    aspectRatio: 3,
-                    editable: false,
-                    selectable: false,
-                    selectHelper: false,
-                    defaultView: 'agendaWeek',
-                    allDaySlot: false,
-                    weekNumbers: false,
-                    firstDay: 1,
-                    timezone: 'local',
-                    timeFormat: 'H:mm',
-                    columnFormat: 'ddd D.M',
-                    titleFormat: 'D.M.YYYY',
-                    slotLabelFormat: 'H:mm',
-                    slotEventOverlap: false,
-                    buttonText: {
-                        today: $translate.instant('sitnet_today')
-                    },
-                    minTime: '00:00:00',
-                    maxTime: '24:00:00',
-                    scrollTime: '08:00:00',
-                    header: {
-                        left: '',
-                        center: 'title',
-                        right: 'prev, next today'
-                    },
-                    events: function (start, end, timezone, callback) {
-                        renderCalendarTitle();
-                        refresh(start, callback);
-                    },
-                    eventClick: function (event) {
-                        if (event.availableMachines > 0) {
-                            $scope.createReservation(event.start, event.end);
-                        }
-                    },
-                    eventMouseover: function (event, jsEvent, view) {
-                        if (event.availableMachines > 0) {
-                            $(this).css('background-color', 'paleGreen');
-                            $(this).css('border-color', 'paleGreen');
-                            $(this).css('color', '#193F19');
-                            $(this).css('cursor', 'pointer');
-                        }
-                    },
-                    eventMouseout: function (event, jsEvent, view) {
-                        if (event.availableMachines > 0) {
-                            $(this).css('color', 'white');
-                            $(this).css('border-color', '#193F19');
-                            $(this).css('background-color', '#193F19');
-                        }
-                    },
-                    eventRender: function (event, element, view) {
-                        var maxDate = moment.min($scope.reservationWindowEndDate, moment($scope.examInfo.examActiveEndDate));
-                        if (maxDate >= view.start && maxDate <= view.end) {
-                            $(".fc-next-button").prop('disabled', true);
-                            $(".fc-next-button").addClass('fc-state-disabled');
-                        } else {
-                            $(".fc-next-button").removeClass('fc-state-disabled');
-                            $(".fc-next-button").prop('disabled', false);
-                        }
-                        if (event.availableMachines > 0) {
-                            element.attr('title', $translate.instant('sitnet_new_reservation') + " " +
-                                event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
-                        }
-                    },
-                    viewRender: function (view) {
-                        // Disable next/prev buttons if date range is off limits
-                        var minDate = moment();
-                        if (minDate >= view.start && minDate <= view.end) {
-                            $(".fc-prev-button").prop('disabled', true);
-                            $(".fc-prev-button").addClass('fc-state-disabled');
-                        }
-                        else {
-                            $(".fc-prev-button").removeClass('fc-state-disabled');
-                            $(".fc-prev-button").prop('disabled', false);
-                        }
-                    }
+                    selector.text(newTitle);
                 };
 
                 $scope.selectedRoom = function () {
@@ -409,7 +332,88 @@
                         uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
                         $scope.openingHours = processOpeningHours();
                     }
-                }
+                };
+
+                $scope.calendarConfig = {
+                    aspectRatio: 3,
+                    editable: false,
+                    selectable: false,
+                    selectHelper: false,
+                    defaultView: 'agendaWeek',
+                    allDaySlot: false,
+                    weekNumbers: false,
+                    firstDay: 1,
+                    timezone: 'local',
+                    timeFormat: 'H:mm',
+                    columnFormat: 'ddd D.M',
+                    titleFormat: 'D.M.YYYY',
+                    slotLabelFormat: 'H:mm',
+                    slotEventOverlap: false,
+                    buttonText: {
+                        today: $translate.instant('sitnet_today')
+                    },
+                    minTime: '00:00:00',
+                    maxTime: '24:00:00',
+                    scrollTime: '08:00:00',
+                    header: {
+                        left: '',
+                        center: 'title',
+                        right: 'prev, next today'
+                    },
+                    events: function (start, end, timezone, callback) {
+                        renderCalendarTitle();
+                        refresh(start, callback);
+                    },
+                    eventClick: function (event) {
+                        if (event.availableMachines > 0) {
+                            $scope.createReservation(event.start, event.end);
+                        }
+                    },
+                    eventMouseover: function (event, jsEvent, view) {
+                        if (event.availableMachines > 0) {
+                            $(this).css('background-color', 'paleGreen');
+                            $(this).css('border-color', 'paleGreen');
+                            $(this).css('color', '#193F19');
+                            $(this).css('cursor', 'pointer');
+                        }
+                    },
+                    eventMouseout: function (event, jsEvent, view) {
+                        if (event.availableMachines > 0) {
+                            $(this).css('color', 'white');
+                            $(this).css('border-color', '#193F19');
+                            $(this).css('background-color', '#193F19');
+                        }
+                    },
+                    eventRender: function (event, element, view) {
+                        if (event.availableMachines > 0) {
+                            element.attr('title', $translate.instant('sitnet_new_reservation') + " " +
+                                event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
+                        }
+                    },
+                    viewRender: function (view) {
+                        // Disable next/prev buttons if date range is off limits
+                        var minDate = moment();
+                        var prevButton = $(".fc-prev-button");
+                        var nextButton = $(".fc-next-button");
+                        if (minDate >= view.start && minDate <= view.end) {
+                            prevButton.prop('disabled', true);
+                            prevButton.addClass('fc-state-disabled');
+                        }
+                        else {
+                            prevButton.removeClass('fc-state-disabled');
+                            prevButton.prop('disabled', false);
+                        }
+                        var maxDate = moment.min($scope.reservationWindowEndDate,
+                            moment($scope.examInfo.examActiveEndDate));
+                        if (maxDate >= view.start && maxDate <= view.end) {
+                            nextButton.prop('disabled', true);
+                            nextButton.addClass('fc-state-disabled');
+                        } else {
+                            nextButton.removeClass('fc-state-disabled');
+                            nextButton.prop('disabled', false);
+                        }
+                    }
+                };
             }
         ]);
 }());
