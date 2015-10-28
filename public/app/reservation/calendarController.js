@@ -14,9 +14,7 @@
                 $scope.loader = {
                     loading: false
                 };
-
-                $scope.events = [];
-                $scope.eventSources = [$scope.events];
+                $scope.eventSources = [];
 
                 $scope.examInfo = StudentExamRes.examInfo.get({eid: $routeParams.id});
                 SettingsResource.reservationWindow.get(function (setting) {
@@ -36,8 +34,6 @@
                             .replace('{}', $scope.reservationWindowSize) + ' (' +
                         $scope.reservationWindowEndDate.format('DD.MM.YYYY') + ')';
                 };
-
-                var renderCount = 0;
 
                 var renderCalendarTitle = function () {
                     // Fix date range format in title
@@ -87,10 +83,9 @@
                         center: 'title',
                         right: 'prev, next today'
                     },
-                    events: function (start) {
+                    events: function (start, end, timezone, callback) {
                         renderCalendarTitle();
-                        renderCount = 0;
-                        refresh(start);
+                        refresh(start, callback);
                     },
                     eventClick: function (event) {
                         if (event.availableMachines > 0) {
@@ -124,9 +119,6 @@
                         if (event.availableMachines > 0) {
                             element.attr('title', $translate.instant('sitnet_new_reservation') + " " +
                                 event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
-                        }
-                        if (++renderCount === $scope.events.length) {
-                            $scope.loader.loading = false;
                         }
                     },
                     viewRender: function (view) {
@@ -195,7 +187,7 @@
                     return 'grey';
                 };
 
-                var refresh = function (start) {
+                var refresh = function (start, callback) {
                     var date = start.format();
                     var room = $scope.selectedRoom();
                     var accessibility = $scope.accessibilities.filter(function (item) {
@@ -204,11 +196,7 @@
                         return item.id;
                     });
                     if (room) {
-                        $scope.loader.loading=true;
-                        // hold the reference to event array, can't replace it with []
-                        while ($scope.events.length > 0) {
-                            $scope.events.pop();
-                        }
+                        $scope.loader.loading = true;
                         CalendarRes.slots.query({
                                 eid: $routeParams.id,
                                 rid: room.id,
@@ -216,21 +204,19 @@
                                 aids: accessibility
                             },
                             function (slots) {
-                                slots.forEach(function (slot) {
-                                    var event = {
+                                var events = slots.map(function (slot) {
+                                    return {
                                         title: getTitle(slot),
                                         color: getColor(slot),
                                         start: adjust(slot.start),
                                         end: adjust(slot.end),
                                         availableMachines: slot.availableMachines
                                     };
-                                    $scope.events.push(event);
                                 });
-                                if (slots.length == 0) {
-                                    $scope.loader.loading=false;
-                                }
+                                callback(events);
+                                $scope.loader.loading = false;
                             }, function (error) {
-                                $scope.loader.loading=false;
+                                $scope.loader.loading = false;
                                 if (error && error.status === 404) {
                                     toastr.error($translate.instant('sitnet_exam_not_active_now'));
                                 } else {
