@@ -39,17 +39,20 @@
 
                 var renderCount = 0;
 
-                var renderCalendarTitle = function() {
+                var renderCalendarTitle = function () {
                     // Fix date range format in title
                     var title = $(".fc-toolbar .fc-center > h2").text();
                     var newTitle = '';
                     var separator = ' — ';
                     var endPart = title.split(separator)[1];
-                    var startFragments = title.split(separator)[0].split('.');
+                    var startFragments = title.split(separator)[0].split('.').filter(function (x) {
+                        // ignore empty fragments (introduced if title already correctly formatted)
+                        return x;
+                    });
                     if (startFragments.length < 3) {
-                        startFragments.forEach(function(f) {
+                        startFragments.forEach(function (f) {
                             newTitle += f;
-                            if (f && f[f.length-1] != '.') {
+                            if (f && f[f.length - 1] != '.') {
                                 newTitle += '.';
                             }
                         })
