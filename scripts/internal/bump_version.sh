@@ -1,5 +1,4 @@
 #! /bin/bash
-#! /bin/bash
 if [ "$#" -ne 1 ]; then
   echo "Usage: sh $0 <version_string>"
   exit 0;
