@@ -356,11 +356,11 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_exam_not_found");
         }
-        if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden("Not allowed to update grading of this exam");
         }
 
-        Integer grade = df.get("grade") == null || df.get("grade").equals("") ? null : Integer.parseInt(df.get("grade"));
+        Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
             Grade examGrade = Ebean.find(Grade.class, grade);
@@ -370,6 +370,8 @@ public class ExamController extends BaseController {
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
+        } else {
+            exam.setGrade(null);
         }
         String creditType = df.get("creditType");
         if (creditType != null) {
@@ -380,6 +382,8 @@ public class ExamController extends BaseController {
             if (eType != null) {
                 exam.setCreditType(eType);
             }
+        } else {
+            exam.setCreditType(null);
         }
         exam.setAdditionalInfo(additionalInfo);
         exam.setAnswerLanguage(df.get("answerLanguage"));

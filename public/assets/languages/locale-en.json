@@ -592,5 +592,9 @@
   "sitnet_language_inspector": "Kielentarkastaja EN",
   "sitnet_assign_to_me": "Ota käsittelyyn EN",
   "sitnet_language_inspection_report_link": "Kuukausikohtainen raportti EN",
-  "sitnet_statement": "Lausunto EN"
+  "sitnet_statement": "Lausunto EN",
+  "sitnet_reject_maturity": "Hylkää suoritus EN",
+  "sitnet_send_for_language_inspection": "Lähetä kielentarkastukseen EN",
+  "sitnet_confirm_maturity_disapproval": "Hylkää suoritus? Toimintoa ei voi perua. EN",
+  "sitnet_confirm_maturity_approval": "Lähetä suoritus kielentarkastajalle arvioitavaksi? Tämän jälkeen et voi enää hylätä suoritusta. Toimintoa ei voi perua. EN"
 }

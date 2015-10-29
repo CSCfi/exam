@@ -22,7 +22,7 @@
         </div>
         <div class="row editor" ng-hide="hideEditor">
             <div class="col-md-12">
-                <textarea ck-editor rows="10" ng-model="examToBeReviewed.examFeedback.comment"></textarea>
+                <textarea ck-editor rows="10" ng-model="exam.examFeedback.comment"></textarea>
             </div>
         </div>
         <div class="row" ng-hide="hideEditor">
@@ -32,9 +32,9 @@
             <div class="col-md-10">
                 <div class="pull-right">
                         <span ng-controller="AttachmentController"
-                              ng-show="examToBeReviewed.examFeedback && examToBeReviewed.examFeedback.attachment">
-                            <a class="pointer" ng-click="downloadFeedbackAttachment(examToBeReviewed)">{{examToBeReviewed.examFeedback.attachment.fileName}}</a>
-                            <span class="sitnet-red pointer" ng-click="removeFeedbackAttachment(examToBeReviewed)">
+                              ng-show="exam.examFeedback && exam.examFeedback.attachment">
+                            <a class="pointer" ng-click="downloadFeedbackAttachment(exam)">{{exam.examFeedback.attachment.fileName}}</a>
+                            <span class="sitnet-red pointer" ng-click="removeFeedbackAttachment(exam)">
                                 <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
                             </span>
                         </span>

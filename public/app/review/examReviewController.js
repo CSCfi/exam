@@ -3,17 +3,16 @@
     angular.module("exam.controllers")
         .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService',
             'examService', 'questionService', '$routeParams', '$http', '$modal', '$location', '$translate',
-            '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'QuestionRes', 'dateService', 'fileService', '$sanitize',
+            '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'LanguageInspectionRes', 'QuestionRes', 'dateService', 'fileService',
             function (dialogs, $document, $rootScope, $scope, sessionService, examService, questionService,
                       $routeParams, $http, $modal, $location, $translate, $timeout, $sce, EXAM_CONF, ExamRes, LanguageRes,
-                      QuestionRes, dateService, fileService, $sanitize) {
+                      LanguageInspectionRes, QuestionRes, dateService, fileService) {
 
                 $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
                 $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
                 $scope.multiplechoiceQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_multiplechoice_question.html";
                 $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_essay_question.html";
                 $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
-                $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
                 $scope.feedbackWindowPath = EXAM_CONF.TEMPLATES_PATH + "review/feedback.html";
                 $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_multiple_choice_answer.html";
                 $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_weighted_multiple_choice_answer.html";
@@ -22,7 +21,7 @@
                 $scope.printEssayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/print_essay_question.html";
 
                 $scope.printExam = function () {
-                    window.open("/#/print/exam/" + $scope.examToBeReviewed.id, "_blank");
+                    window.open("/#/print/exam/" + $scope.exam.id, "_blank");
                 };
 
                 $scope.init = function () {
@@ -49,21 +48,22 @@
 
                 $scope.setLanguage = function (lang) {
                     $scope.selections.language = lang;
-                    $scope.examToBeReviewed.answerLanguage = lang ? lang.name : lang;
+                    $scope.exam.answerLanguage = lang ? lang.name : lang;
                 };
 
-                $scope.setCreditType = function (creditType) {
-                    $scope.selections.type = creditType;
-                    $scope.examToBeReviewed.creditType = {type: creditType};
-                };
-
-                $scope.setGrade = function (grade_id, exam) {
-                    if (grade_id) {
-                        $scope.examToBeReviewed.grade = {id: grade_id};
-                        $scope.selections.grade = $scope.examToBeReviewed.grade.id;
+                $scope.setCreditType = function () {
+                    if ($scope.selections.type && $scope.selections.type.type) {
+                        $scope.exam.creditType = {type: $scope.selections.type.type};
                     } else {
-                        $scope.selections.grade = '';
-                        $scope.examToBeReviewed.grade = undefined;
+                        delete $scope.exam.creditType;
+                    }
+                };
+
+                $scope.setGrade = function () {
+                    if ($scope.selections.grade && $scope.selections.grade.id) {
+                        $scope.exam.grade = $scope.selections.grade;
+                    } else {
+                        delete $scope.exam.grade;
                     }
                 };
 
@@ -71,25 +71,19 @@
                     return creditType.type === $scope.selections.type;
                 };
 
-                var refreshExamTypes = function () {
-                    examService.refreshExamTypes().then(function (types) {
-                        $scope.examTypes = types;
-                    });
-                };
-
-                refreshExamTypes();
-
-                $scope.$on('$localeChangeSuccess', function () {
-                    refreshExamTypes();
-                });
-
-                var refreshGradeNames = function () {
-                    if (!$scope.examToBeReviewed) return;
-                    var scale = $scope.examToBeReviewed.gradeScale || $scope.examToBeReviewed.parent.gradeScale || $scope.examToBeReviewed.course.gradeScale;
+                var setGrade = function () {
+                    if (!$scope.exam.grade || !$scope.exam.grade.id) {
+                        $scope.exam.grade = {};
+                    }
+                    var scale = $scope.exam.gradeScale || $scope.exam.parent.gradeScale || $scope.exam.course.gradeScale;
                     $scope.examGrading = scale.grades.map(function (grade) {
                         grade.name = examService.getExamGradeDisplayName(grade.name);
+                        if ($scope.exam.grade && $scope.exam.grade.id === grade.id) {
+                            $scope.selections.grade = grade;
+                        }
                         return grade;
                     });
+
                 };
 
                 $scope.translateGrade = function (exam) {
@@ -103,147 +97,191 @@
                 $scope.acceptedEssays = 0;
                 $scope.rejectedEssays = 0;
 
+                var setQuestionAmounts = function () {
+                    angular.forEach($scope.exam.examSections, function (section) {
+                        angular.forEach(section.sectionQuestions, function (sectionQuestion) {
+                            var question = sectionQuestion.question;
+
+                            if (question.type === "EssayQuestion") {
+                                if (question.evaluationType === "Select") {
+                                    if (question.evaluatedScore == 1) {
+                                        $scope.acceptedEssays++;
+                                    } else if (question.evaluatedScore == 0) {
+                                        $scope.rejectedEssays++;
+                                    }
+                                }
+                                $scope.hasEssayQuestions = true;
+                            }
+                        });
+                    });
+                };
+
+                var setExamLanguage = function () {
+                    if ($scope.exam.answerLanguage) {
+                        $scope.selections.language = $scope.exam.answerLanguage;
+                    } else if ($scope.exam.examLanguages.length === 1) {
+                        // Use parent's language as default answer language if there is a single one to choose from
+                        $scope.selections.language = getLanguageNativeName($scope.exam.examLanguages[0].code);
+                    }
+                };
+
+                var setCredits = function () {
+                    examService.refreshExamTypes().then(function (types) {
+                        var examType = $scope.exam.creditType || $scope.exam.examType;
+                        $scope.examTypes = types;
+                        types.forEach(function (type) {
+                            if ($scope.exam.creditType && examType.type.toUpperCase() === type.type) {
+                                $scope.selections.type = type;
+                            }
+                        });
+                    });
+                    if ($scope.exam && !$scope.exam.customCredit) {
+                        $scope.exam.customCredit = $scope.exam.course.credits;
+                    }
+                };
+
+                $scope.$on('$localeChangeSuccess', function () {
+                    setCredits();
+                });
+
+                var setTemplates = function () {
+                    if ($scope.exam.executionType.type === 'MATURITY') {
+                        $scope.toolbarPath = EXAM_CONF.TEMPLATES_PATH + "review/maturity_toolbar.html";
+                        $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/maturity_grading.html";
+                    } else {
+                        $scope.toolbarPath = EXAM_CONF.TEMPLATES_PATH + "review/toolbar.html";
+                        $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/grading.html";
+                    }
+                };
+
+                var isOwner = function () {
+                    return $scope.exam.parent.examOwners.map(function (owner) {
+                            return owner.id;
+                        }).indexOf($scope.user.id) !== -1;
+                };
+
+                var isCreator = function () {
+                    return $scope.exam.parent.creator.id === $scope.user.id;
+                };
+
+                $scope.isCreatorOrOwnerOrAdmin = function () {
+                    return $scope.exam && ($scope.user.isAdmin || isCreator() || isOwner());
+                };
+
+                $scope.isReadOnly = function () {
+                    return !$scope.exam ||
+                        ["GRADED_LOGGED", "ARCHIVED", "ABORTED"].indexOf($scope.exam.state) > -1;
+                };
+
+                $scope.isGraded = function () {
+                    return $scope.exam && $scope.exam.state === "GRADED";
+                };
+
+
+                $scope.isUnderLanguageInspection = function () {
+                    return $scope.exam && $scope.exam.languageInspection;
+                };
+
+                $scope.reviewStatus = [
+                    {
+                        "key": true,
+                        "value": $translate.instant('sitnet_ready')
+                    },
+                    {
+                        "key": false,
+                        "value": $translate.instant('sitnet_in_progress')
+                    }
+                ];
+
+                $scope.toggleReady = function () {
+                    angular.forEach($scope.inspections, function (inspection) {
+                        if (inspection.user.id === $scope.user.id) {
+                            // toggle ready ->
+                            ExamRes.inspectionReady.update({
+                                id: inspection.id,
+                                ready: inspection.ready
+                            }, function (result) {
+                                toastr.info($translate.instant('sitnet_exam_updated'));
+                                inspection.ready = result.ready;
+                                $scope.startReview();
+                            }, function (error) {
+                                toastr.error(error.data);
+                            });
+                        }
+                    });
+                };
+
+                var getExamInspections = function () {
+                    ExamRes.inspections.query({id: $scope.exam.id},
+                        function (inspections) {
+                            $scope.inspections = inspections;
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                var getStudentInfo = function () {
+                    ExamRes.studentInfo.get({id: $routeParams.id},
+                        function (info) {
+                            $scope.userInfo = info;
+                            if (info && info.duration) {
+                                var duration = moment.utc(new Date(info.duration));
+                                if (duration.second() > 29) {
+                                    duration.add(1, 'minutes');
+                                }
+                                $scope.userInfo.duration = duration.format('HH:mm');
+                            }
+                            // get previous participations ->
+                            ExamRes.examParticipationsOfUser.query(
+                                {
+                                    eid: $scope.exam.parent.id,
+                                    uid: $scope.userInfo.user.id
+                                }, function (participations) {
+                                    $scope.previousParticipations = participations;
+                                });
+
+                        },
+                        function (error) {
+                            toastr.error(error.data);
+                        }
+                    );
+                };
+
+                var getReservationInfo = function () {
+                    ExamRes.reservationInfo.get({eid: $routeParams.id},
+                        function (reservation) {
+                            $scope.reservation = reservation;
+                        }
+                    );
+                };
+
+                var getEnrolments = function () {
+                    ExamRes.examEnrolments.query({eid: $routeParams.id}, function (enrolments) {
+                        if (enrolments.length > 1) {
+                            console.log("WARNING: found several enrolments for a student exam!");
+                        }
+                        $scope.enrolment = enrolments[0];
+                    });
+                };
+
+
                 // Get the exam that was specified in the URL
                 ExamRes.reviewerExam.get({eid: $routeParams.id},
                     function (exam) {
-                        $scope.examToBeReviewed = exam;
-                        if (!$scope.examToBeReviewed.customCredit) {
-                            $scope.examToBeReviewed.customCredit = $scope.examToBeReviewed.course.credits;
-                        }
+                        $scope.exam = exam;
 
-                        if (exam) {
-                            angular.forEach($scope.examToBeReviewed.examSections, function (section) {
-                                angular.forEach(section.sectionQuestions, function (sectionQuestion) {
-                                    var question = sectionQuestion.question;
+                        setQuestionAmounts();
+                        setExamLanguage();
+                        setCredits();
+                        setGrade();
+                        setTemplates();
 
-                                    if (question.type === "EssayQuestion") {
-                                        if (question.evaluationType === "Select") {
-                                            if (question.evaluatedScore == 1) {
-                                                $scope.acceptedEssays++;
-                                            } else if (question.evaluatedScore == 0) {
-                                                $scope.rejectedEssays++;
-                                            }
-                                        }
-                                        $scope.hasEssayQuestions = true;
-                                    }
-                                });
-                            });
-                            if (exam.answerLanguage) {
-                                $scope.selections.language = exam.answerLanguage;
-                            } else if (exam.examLanguages.length === 1) {
-                                // Use parent's language as default answer language if there is a single one to choose from
-                                $scope.selections.language = getLanguageNativeName(exam.examLanguages[0].code);
-                            }
-                            if (exam.creditType) {
-                                $scope.selections.type = exam.creditType.type.toUpperCase();
-                            } else {
-                                // default to examType
-                                $scope.selections.type = exam.examType.type.toUpperCase();
-                            }
-
-                            if (exam.grade && exam.grade.id) {
-                                $scope.selections.grade = exam.grade.id;
-                            } else {
-                                $scope.selections.grade = '';
-                                $scope.examToBeReviewed.grade = {};
-                            }
-                        }
-
-                        var isOwner = function () {
-                            return $scope.examToBeReviewed.parent.examOwners.map(function (owner) {
-                                    return owner.id;
-                                }).indexOf($scope.user.id) !== -1;
-                        };
-
-                        var isCreator = function () {
-                            return $scope.examToBeReviewed.parent.creator.id === $scope.user.id;
-                        };
-
-                        $scope.isCreatorOrOwnerOrAdmin = function () {
-                            return $scope.examToBeReviewed && ($scope.user.isAdmin || isCreator() || isOwner());
-                        };
-
-                        $scope.isReadOnly = $scope.examToBeReviewed.state === "GRADED_LOGGED" ||
-                            $scope.examToBeReviewed.state === "ARCHIVED" ||
-                            $scope.examToBeReviewed.state === "ABORTED";
-                        $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";
-
-                        refreshGradeNames();
-
-                        $scope.reviewStatus = [
-                            {
-                                "key": true,
-                                "value": $translate.instant('sitnet_ready')
-                            },
-                            {
-                                "key": false,
-                                "value": $translate.instant('sitnet_in_progress')
-                            }
-                        ];
-
-                        $scope.toggleReady = function () {
-                            angular.forEach($scope.inspections, function (inspection) {
-                                if (inspection.user.id === $scope.user.id) {
-                                    // toggle ready ->
-                                    ExamRes.inspectionReady.update({
-                                        id: inspection.id,
-                                        ready: inspection.ready
-                                    }, function (result) {
-                                        toastr.info($translate.instant('sitnet_exam_updated'));
-                                        inspection.ready = result.ready;
-                                        $scope.startReview();
-                                    }, function (error) {
-                                        toastr.error(error.data);
-                                    });
-                                }
-                            });
-                        };
-
-                        // get exam inspections ->
-                        ExamRes.inspections.query({id: $scope.examToBeReviewed.id},
-                            function (inspections) {
-                                $scope.inspections = inspections;
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
-
-                        ExamRes.studentInfo.get({id: $routeParams.id},
-                            function (info) {
-                                $scope.userInfo = info;
-                                if (info && info.duration) {
-                                    var duration = moment.utc(new Date(info.duration));
-                                    if (duration.second() > 29) {
-                                        duration.add(1, 'minutes');
-                                    }
-                                    $scope.userInfo.duration = duration.format('HH:mm');
-                                }
-                                // get previous participations ->
-                                ExamRes.examParticipationsOfUser.query(
-                                    {
-                                        eid: $scope.examToBeReviewed.parent.id,
-                                        uid: $scope.userInfo.user.id
-                                    }, function (participations) {
-                                        $scope.previousParticipations = participations;
-                                    });
-
-                            },
-                            function (error) {
-                                toastr.error(error.data);
-                            }
-                        );
-                        ExamRes.reservationInfo.get({eid: $routeParams.id},
-                            function (reservation) {
-                                $scope.reservation = reservation;
-                            }
-                        );
-                        ExamRes.examEnrolments.query({eid: $routeParams.id}, function (enrolments) {
-                            if (enrolments.length > 1) {
-                                console.log("WARNING: found several enrolments for a student exam!");
-                            }
-                            $scope.enrolment = enrolments[0];
-                        });
+                        getExamInspections();
+                        getStudentInfo();
+                        getReservationInfo();
+                        getEnrolments();
                     },
                     function (error) {
                         toastr.error(error.data);
@@ -399,7 +437,7 @@
                         angular.forEach(exam.examSections, function (section) {
                             total += $scope.getSectionTotalScore(section);
                         });
-                        $scope.examToBeReviewed.totalScore = total;
+                        $scope.exam.totalScore = total;
                         return total;
                     }
                 };
@@ -407,7 +445,7 @@
                 var refreshRejectedAcceptedCounts = function () {
                     var accepted = 0;
                     var rejected = 0;
-                    angular.forEach($scope.examToBeReviewed.examSections, function (section) {
+                    angular.forEach($scope.exam.examSections, function (section) {
                         angular.forEach(section.sectionQuestions, function (sectionQuestion) {
                             var question = sectionQuestion.question;
                             if (question.type === "EssayQuestion") {
@@ -433,10 +471,10 @@
                     return {
                         "id": exam.id,
                         "state": state || exam.state,
-                        "grade": exam.grade && exam.grade.id ? exam.grade.id : "",
+                        "grade": exam.grade && exam.grade.id ? exam.grade.id : undefined,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
-                        "creditType": $scope.selections.type,
+                        "creditType": exam.creditType && exam.creditType.type ? exam.creditType.type : undefined,
                         "answerLanguage": $scope.selections.language,
                         "additionalInfo": exam.additionalInfo
                     };
@@ -444,8 +482,8 @@
 
                 // Set review status as started if not already done so
                 $scope.startReview = function () {
-                    if ($scope.examToBeReviewed.state === 'REVIEW') {
-                        var review = getReviewUpdate($scope.examToBeReviewed, 'REVIEW_STARTED');
+                    if ($scope.exam.state === 'REVIEW') {
+                        var review = getReviewUpdate($scope.exam, 'REVIEW_STARTED');
                         ExamRes.review.update({id: review.id}, review);
                     }
                 };
@@ -465,11 +503,11 @@
 
                 $scope.getTeacherCount = function () {
                     var count = $scope.inspections.length;
-                    if ($scope.examToBeReviewed &&
-                        $scope.examToBeReviewed.parent &&
-                        $scope.examToBeReviewed.parent.examOwners) {
+                    if ($scope.exam &&
+                        $scope.exam.parent &&
+                        $scope.exam.parent.examOwners) {
                         // Do not add up if user exists in both groups
-                        var uniques = $scope.examToBeReviewed.parent.examOwners.filter(function (owner) {
+                        var uniques = $scope.exam.parent.examOwners.filter(function (owner) {
                             return $scope.inspections.map(function (inspection) {
                                     return inspection.user.id;
                                 }).indexOf(owner.id) === -1;
@@ -479,7 +517,7 @@
                     return count;
                 };
 
-                $scope.trustAsHtml = function(content) {
+                $scope.trustAsHtml = function (content) {
                     return $sce.trustAsHtml(content);
                 };
 
@@ -487,14 +525,14 @@
                 $scope.saveFeedback = function (withoutNotice) {
 
                     var examFeedback = {
-                        "comment": $scope.examToBeReviewed.examFeedback.comment
+                        "comment": $scope.exam.examFeedback.comment
                     };
 
                     // Update comment
-                    if ($scope.examToBeReviewed.examFeedback.id) {
+                    if ($scope.exam.examFeedback.id) {
                         ExamRes.comment.update({
-                            eid: $scope.examToBeReviewed.id,
-                            cid: $scope.examToBeReviewed.examFeedback.id
+                            eid: $scope.exam.id,
+                            cid: $scope.exam.examFeedback.id
                         }, examFeedback, function (exam) {
                             if (!withoutNotice) {
                                 toastr.info($translate.instant("sitnet_comment_updated"));
@@ -505,13 +543,13 @@
                         // Insert new comment
                     } else {
                         ExamRes.comment.insert({
-                            eid: $scope.examToBeReviewed.id,
+                            eid: $scope.exam.id,
                             cid: 0
                         }, examFeedback, function (comment) {
                             if (!withoutNotice) {
                                 toastr.info($translate.instant("sitnet_comment_added"));
                             }
-                            $scope.examToBeReviewed.examFeedback = comment;
+                            $scope.exam.examFeedback = comment;
                         }, function (error) {
                             toastr.error(error.data);
                         });
@@ -519,12 +557,12 @@
                 };
 
                 var checkCredit = function () {
-                    var credit = $scope.examToBeReviewed.customCredit;
+                    var credit = $scope.exam.customCredit;
                     var valid = !isNaN(credit) && credit >= 0;
                     if (!valid) {
                         toastr.error($translate.instant('sitnet_not_a_valid_custom_credit'));
                         // Reset to default
-                        $scope.examToBeReviewed.customCredit = $scope.examToBeReviewed.course.credits;
+                        $scope.exam.customCredit = $scope.exam.course.credits;
                     }
                     return valid;
                 };
@@ -552,14 +590,36 @@
                     });
                 };
 
+                var updateMaturity = function (exam, messages, state) {
+                    var review = getReviewUpdate(exam);
+                    doUpdate(state || exam.state, review, messages, exam);
+                };
+
+                var updateExam = function (exam, messages) {
+                    var oldState = exam.state;
+                    var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
+
+                    if (newState !== 'GRADED' || oldState === 'GRADED') {
+                        var review = getReviewUpdate(exam, newState);
+                        doUpdate(newState, review, messages, exam);
+                    } else {
+                        var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
+                        dialog.result.then(function (btn) {
+                            var review = getReviewUpdate(exam, newState);
+                            doUpdate(newState, review, messages, exam);
+                        });
+                    }
+                };
+
+
                 // called when Save button is clicked
-                $scope.updateExam = function (reviewed_exam) {
+                $scope.updateExam = function (exam) {
                     if (!$scope.isCreatorOrOwnerOrAdmin()) {
-                        if (reviewed_exam.state !== 'GRADED') {
+                        if (exam.state !== 'GRADED') {
                             // Just save feedback and leave
                             $scope.saveFeedback(true);
                             toastr.info($translate.instant('sitnet_saved'));
-                            $location.path("exams/reviews/" + reviewed_exam.parent.id);
+                            $location.path("exams/reviews/" + exam.parent.id);
                         }
                     }
                     else {
@@ -576,18 +636,10 @@
                         if (!$scope.selections.language) {
                             messages.push('sitnet_exam_choose_response_language');
                         }
-                        var oldState = reviewed_exam.state;
-                        var newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
-
-                        if (newState !== 'GRADED' || oldState === 'GRADED') {
-                            var review = getReviewUpdate(reviewed_exam, newState);
-                            doUpdate(newState, review, messages, reviewed_exam);
+                        if (exam.executionType.type === 'MATURITY') {
+                            updateMaturity(exam, messages);
                         } else {
-                            var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_grade_review'));
-                            dialog.result.then(function (btn) {
-                                var review = getReviewUpdate(reviewed_exam, newState);
-                                doUpdate(newState, review, messages, reviewed_exam);
-                            });
+                            updateExam(exam, messages)
                         }
                     }
                 };
@@ -599,7 +651,7 @@
                         return;
                     }
                     ExamRes.email.inspection({
-                        eid: $scope.examToBeReviewed.id,
+                        eid: $scope.exam.id,
                         msg: $scope.message
                     }, function (response) {
                         toastr.info($translate.instant("sitnet_email_sent"));
@@ -607,6 +659,10 @@
                     }, function (error) {
                         toastr.error(error.data);
                     });
+                };
+
+                $scope.isSelected = function (grade) {
+                    return grade && $scope.selections.grade && $scope.selections.grade.id === grade.id
                 };
 
                 $scope.saveExamRecord = function (reviewedExam) {
@@ -617,8 +673,8 @@
 
                     var messages = [];
                     if (!reviewedExam.grade) {
-                        if ($scope.selections.grade) {
-                            reviewedExam.grade = {id: $scope.selections.grade};
+                        if ($scope.selections.grade.id) {
+                            reviewedExam.grade = {id: $scope.selections.grade.id};
                         } else {
                             messages.push('sitnet_participation_unreviewed');
                         }
@@ -670,7 +726,7 @@
 
                 $scope.selectFile = function () {
 
-                    var exam = $scope.examToBeReviewed;
+                    var exam = $scope.exam;
 
                     var ctrl = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
                         $scope.exam = exam;
@@ -697,6 +753,68 @@
                         // OK button
                         $modalInstance.dismiss('Closed');
                     });
+                };
+
+                $scope.canProceedWithMaturity = function () {
+                    return $scope.exam.grade && $scope.exam.examFeedback && $scope.exam.examFeedback.comment;
+                };
+
+                $scope.getNextMaturityProcess = function () {
+                    var disapproved = !$scope.exam.grade || !$scope.exam.grade.name || ['REJECTED', 'I', '0'].indexOf($scope.exam.grade.name) > -1;
+                    var text = disapproved ? 'sitnet_reject_maturity' : 'sitnet_send_for_language_inspection';
+                    return {text: text, rejected: disapproved};
+                };
+
+                var rejectMaturity = function () {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_confirm_maturity_disapproval'));
+                    dialog.result.then(function () {
+                        $scope.saveFeedback(true);
+                        var params = getReviewUpdate($scope.exam, 'REJECTED');
+                        ExamRes.review.update({id: $scope.exam.id}, params, function () {
+                            toastr.info($translate.instant('suoritus hylätty'));
+                            if ($scope.user.isAdmin) {
+                                $location.path("/");
+                            } else {
+                                $location.path("exams/reviews/" + $scope.exam.parent.id);
+                            }
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    });
+                };
+
+                var sendForLanguageInspection = function () {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_confirm_maturity_approval'));
+                    dialog.result.then(function () {
+                        $scope.saveFeedback(true);
+                        var params = getReviewUpdate($scope.exam, 'GRADED');
+                        ExamRes.review.update({id: $scope.exam.id}, params, function () {
+                            LanguageInspectionRes.inspection.add({examId: $scope.exam.id}, function() {
+
+                            });
+                            toastr.info($translate.instant('Suoritus lähetetty kielentarkastukseen'));
+                            if ($scope.user.isAdmin) {
+                                $location.path("/");
+                            } else {
+                                $location.path("exams/reviews/" + $scope.exam.parent.id);
+                            }
+                        }, function (error) {
+                            toastr.error(error.data);
+                        });
+                    });
+                };
+
+                $scope.proceedWithMaturity = function () {
+                    // ask for confirmation
+                    // rejected, set state = 'REJECTED' go to list
+                    // move to lang inspection, set state = 'GRADED' create inspection object, go to list
+                    if ($scope.getNextMaturityProcess().rejected) {
+                        rejectMaturity();
+                    } else {
+                        sendForLanguageInspection();
+                    }
                 };
 
                 $scope.stripHtml = function (text) {

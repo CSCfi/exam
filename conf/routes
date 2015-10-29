@@ -106,6 +106,7 @@ POST          /student/exams/:hash/question/:questionId              controllers
 
 ############### Language inspection interface ###############
 GET           /inspections                                           controllers.LanguageInspectionController.listInspections
+POST          /inspection                                            controllers.LanguageInspectionController.createInspection
 
 
 ############### Enrolment interface ###############
