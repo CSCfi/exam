@@ -8,17 +8,17 @@
                       $routeParams, $http, $modal, $location, $translate, $timeout, $sce, EXAM_CONF, ExamRes, LanguageRes,
                       LanguageInspectionRes, QuestionRes, dateService, fileService) {
 
-                $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section_general.html";
-                $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_section.html";
-                $scope.multiplechoiceQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_multiplechoice_question.html";
-                $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_essay_question.html";
-                $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
+                $scope.generalInfoPath = EXAM_CONF.TEMPLATES_PATH + "review/exam_general_info.html";
+                $scope.reviewSectionPath = EXAM_CONF.TEMPLATES_PATH + "review/exam_section.html";
+                $scope.multiplechoiceQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/multiple_choice_question.html";
+                $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/essay_question.html";
+                $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/previous_participation.html";
                 $scope.feedbackWindowPath = EXAM_CONF.TEMPLATES_PATH + "review/feedback.html";
-                $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_multiple_choice_answer.html";
-                $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_weighted_multiple_choice_answer.html";
-                $scope.printSectionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/print_section.html";
-                $scope.printMultiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/print_multichoice_question.html";
-                $scope.printEssayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/print_essay_question.html";
+                $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/multiple_choice_answer.html";
+                $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/weighted_multiple_choice_answer.html";
+                $scope.printSectionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/exam_section.html";
+                $scope.printMultiChoiceQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/multiple_choice_question.html";
+                $scope.printEssayQuestionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/essay_question.html";
 
                 $scope.printExam = function () {
                     window.open("/#/print/exam/" + $scope.exam.id, "_blank");
