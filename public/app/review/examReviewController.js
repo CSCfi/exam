@@ -39,12 +39,17 @@
                 $scope.examTypes = [];
                 $scope.selections = {};
 
-                LanguageRes.languages.query(function (languages) {
-                    $scope.languages = languages.map(function (language) {
-                        language.name = getLanguageNativeName(language.code);
-                        return language;
-                    });
-                });
+                var pickExamLanguage = function () {
+                    var lang = $scope.exam.answerLanguage;
+                    if (lang) {
+                        return {code: lang}
+                    }
+                    else if ($scope.exam.examLanguages.length == 1) {
+                        lang = $scope.exam.examLanguages[0];
+                    }
+                    return lang;
+                };
+
 
                 $scope.setLanguage = function (lang) {
                     $scope.selections.language = lang;
@@ -116,15 +121,6 @@
                     });
                 };
 
-                var setExamLanguage = function () {
-                    if ($scope.exam.answerLanguage) {
-                        $scope.selections.language = $scope.exam.answerLanguage;
-                    } else if ($scope.exam.examLanguages.length === 1) {
-                        // Use parent's language as default answer language if there is a single one to choose from
-                        $scope.selections.language = getLanguageNativeName($scope.exam.examLanguages[0].code);
-                    }
-                };
-
                 var setCredits = function () {
                     examService.refreshExamTypes().then(function (types) {
                         var examType = $scope.exam.creditType || $scope.exam.examType;
@@ -138,6 +134,19 @@
                     if ($scope.exam && !$scope.exam.customCredit) {
                         $scope.exam.customCredit = $scope.exam.course.credits;
                     }
+                };
+
+                var setExamLanguage = function () {
+                    var lang = pickExamLanguage();
+                    LanguageRes.languages.query(function (languages) {
+                        $scope.languages = languages.map(function (language) {
+                            if (lang.code === language.code) {
+                                $scope.selections.language = language;
+                            }
+                            language.name = getLanguageNativeName(language.code);
+                            return language;
+                        });
+                    });
                 };
 
                 $scope.$on('$localeChangeSuccess', function () {
@@ -475,7 +484,7 @@
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": exam.creditType && exam.creditType.type ? exam.creditType.type : undefined,
-                        "answerLanguage": $scope.selections.language,
+                        "answerLanguage": $scope.selections.language ? $scope.selections.language.code : undefined,
                         "additionalInfo": exam.additionalInfo
                     };
                 };

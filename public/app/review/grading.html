@@ -134,11 +134,9 @@
                     <select id="answerLanguage" name="answerLanguage" class="form-control"
                             ng-disabled="isReadOnly() || !isCreatorOrOwnerOrAdmin()"
                             ng-model="selections.language"
-                            ng-change="setLanguage(selections.language)" required>
+                            ng-change="setLanguage(selections.language)" required
+                            ng-options="lang.name for lang in languages">
                         <option value="">{{'sitnet_choose' | translate}}</option>
-                        <option ng-repeat="lang in languages" value="{{lang.name}}"
-                                ng-selected="lang.name === selections.language">{{lang.name}}
-                        </option>
                     </select>
                 </div>
                 <div class="col-md-2">
