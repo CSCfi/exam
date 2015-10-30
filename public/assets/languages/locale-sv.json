@@ -576,5 +576,6 @@
   "sitnet_reservation_time": "Bokad tid",
   "sitnet_user_language": "Språk",
   "sitnet_edit_all_rooms": "Bearbeta alla tentutrymmen",
-  "sitnet_session_extended": "Istuntoa jatkettu SV"
+  "sitnet_session_extended": "Istuntoa jatkettu SV",
+  "sitnet_exam_status_archived": "Arkistoitu SV"
 }
