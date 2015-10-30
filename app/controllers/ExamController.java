@@ -1063,12 +1063,24 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result clearQuestions(Long sid) {
-        ExamSection section = Ebean.find(ExamSection.class, sid);
+        ExamSection section = Ebean.find(ExamSection.class)
+                .fetch("exam.creator")
+                .fetch("exam.examOwners")
+                .fetch("exam.parent.examOwners")
+                .where()
+                .idEq(sid)
+                .findUnique();
         User user = getLoggedUser();
         if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            section.getSectionQuestions().forEach(models.ExamSectionQuestion::delete);
+            section.getSectionQuestions().forEach(sq -> {
+                sq.getQuestion().getChildren().forEach(c -> {
+                    c.setParent(null);
+                    c.update();
+                });
+                sq.delete();
+            });
             section.getSectionQuestions().clear();
-            section.save();
+            section.update();
             return ok(Json.toJson(section));
         } else {
             return forbidden("sitnet_error_access_forbidden");
