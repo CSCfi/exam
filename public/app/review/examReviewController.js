@@ -261,7 +261,7 @@
                 };
 
                 $scope.scoreWeightedMultipleChoiceAnswer = function (question) {
-                    if (question.type !== 'WeightedMultipleChoiceQuestion') {
+                    if (question.type !== 'WeightedMultipleChoiceQuestion' || !question.answer) {
                         return 0;
                     }
                     var score = question.answer.options.reduce(function (a, b) {
@@ -306,7 +306,7 @@
                 };
 
                 $scope.isAnswer = function (option, question) {
-                    return question.answer.options.map(function (o) {
+                    return question.answer && question.answer.options.map(function (o) {
                             return o.id
                         }).indexOf(option.id) > -1;
                 };
