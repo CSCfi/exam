@@ -577,5 +577,6 @@
   "sitnet_user_language": "Språk",
   "sitnet_edit_all_rooms": "Bearbeta alla tentutrymmen",
   "sitnet_session_extended": "Istuntoa jatkettu SV",
-  "sitnet_exam_status_archived": "Arkistoitu SV"
+  "sitnet_exam_status_archived": "Arkistoitu SV",
+  "sitnet_calendar_pick_room": "Valitse tenttitila saadaksesi näkyviin vapaat tenttiajat EN"
 }

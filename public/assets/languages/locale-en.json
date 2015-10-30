@@ -577,5 +577,6 @@
   "sitnet_user_language": "Language",
   "sitnet_edit_all_rooms": "Edit all exam facilities",
   "sitnet_session_extended": "Istuntoa jatkettu EN",
-  "sitnet_exam_status_archived": "Arkistoitu EN"
+  "sitnet_exam_status_archived": "Arkistoitu EN",
+  "sitnet_calendar_pick_room": "Valitse tenttitila saadaksesi näkyviin vapaat tenttiajat EN"
 }
