@@ -29,7 +29,7 @@
                     $document.ready(function () {
                         setTimeout(function () {
                             window.print();
-                        }, 1500);
+                        }, 2000);
                     });
                 };
 
