@@ -41,4 +41,9 @@ CKEDITOR.editorConfig = function (config) {
 
     // Uncomment this in order to enable resizing in both directions, default is vertical only
     //config.resize_dir = 'both';
+
+	config.wordcount = {
+		showParagraphs: false,
+		showCharCount: true
+	}
 };
