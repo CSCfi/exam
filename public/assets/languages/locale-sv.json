@@ -581,7 +581,6 @@
   "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen SV",
   "sitnet_maturity": "Maturiteetti SV",
   "sitnet_maturity_instructions": "Maturiteettiohjeet SV",
-  "sitnet_session_extended": "Istuntoa jatkettu SV",
   "sitnet_language_inspections": "Kielentarkastus SV",
   "sitnet_ongoing_language_inspections": "Tarkastettavat maturiteetit SV",
   "sitnet_ongoing_language_inspections_detail": "({0} kpl) SV",
@@ -591,10 +590,13 @@
   "sitnet_finished": "Tentti suoritettu SV",
   "sitnet_language_inspector": "Kielentarkastaja SV",
   "sitnet_assign_to_me": "Ota käsittelyyn SV",
+  "sitnet_inspection_finished": "Tarkastettu SV",
   "sitnet_language_inspection_report_link": "Kuukausikohtainen raportti SV",
   "sitnet_statement": "Lausunto SV",
   "sitnet_reject_maturity": "Hylkää suoritus SV",
   "sitnet_send_for_language_inspection": "Lähetä kielentarkastukseen SV",
   "sitnet_confirm_maturity_disapproval": "Hylkää suoritus? Toimintoa ei voi perua. SV",
   "sitnet_confirm_maturity_approval": "Lähetä suoritus kielentarkastajalle arvioitavaksi? Tämän jälkeen et voi enää hylätä suoritusta. Toimintoa ei voi perua. SV"
+  "sitnet_session_extended": "Istuntoa jatkettu SV",
+  "sitnet_exam_status_archived": "Arkistoitu SV"
 }

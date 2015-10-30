@@ -68,6 +68,15 @@
             if (window.CKEDITOR) {
                 CKEDITOR.env.isCompatible = true;
                 CKEDITOR.cacheForceReload = Date.now();
+                CKEDITOR.on('dialogDefinition', function(ev) {
+                    <!-- links to have a default target of '_blank' -->
+                    if (ev.data.name === 'link') {
+                        var def = ev.data.definition;
+                        def.removeContents('advanced');
+                        var field = def.getContents('target').get('linkTargetType');
+                        field['default'] = '_blank';
+                    }
+                });
             }
         </script>
         <script src="@routes.Assets.at("components/vendor/multiselect-tpls.js")" type="text/javascript"></script>

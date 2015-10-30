@@ -581,7 +581,6 @@
   "sitnet_can_inspect_language": "Voi tehdä kielentarkastuksen",
   "sitnet_maturity": "Maturiteetti",
   "sitnet_maturity_instructions": "Maturiteettiohjeet",
-  "sitnet_session_extended": "Istuntoa jatkettu",
   "sitnet_language_inspections": "Kielentarkastus",
   "sitnet_ongoing_language_inspections": "Tarkastettavat maturiteetit",
   "sitnet_ongoing_language_inspections_detail": "({0} kpl)",
@@ -598,4 +597,6 @@
   "sitnet_send_for_language_inspection": "Lähetä kielentarkastukseen",
   "sitnet_confirm_maturity_disapproval": "Hylkää suoritus? Toimintoa ei voi perua.",
   "sitnet_confirm_maturity_approval": "Lähetä suoritus kielentarkastajalle arvioitavaksi? Tämän jälkeen et voi enää hylätä suoritusta. Toimintoa ei voi perua."
+  "sitnet_session_extended": "Istuntoa jatkettu",
+  "sitnet_exam_status_archived": "Arkistoitu"
 }

@@ -160,6 +160,7 @@ public class ReservationController extends BaseController {
         User user = getLoggedUser();
         if (user.hasRole("TEACHER", getSession())) {
             query = query.disjunction()
+                    .eq("exam.parent.examOwners", user)
                     .eq("exam.examOwners", user)
                     .endJunction();
         }

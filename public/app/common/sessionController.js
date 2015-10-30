@@ -8,14 +8,26 @@
             function ($scope, $rootScope, $location, $translate, sessionService, SettingsResource, EXAM_CONF) {
 
                 $scope.credentials = {};
-                $scope.env = {};
 
-                SettingsResource.environment.get(function (env) {
-                    $scope.env = env;
+                var setLoginTemplate = function(env) {
                     if (!env.isProd) {
                         $scope.loginTemplatePath = EXAM_CONF.TEMPLATES_PATH + "common/dev_login.html";
                     }
-                });
+                };
+
+                var init = function () {
+                    var env = sessionService.getEnv();
+                    if (env) {
+                        setLoginTemplate(env);
+                    } else {
+                        SettingsResource.environment.get(function (data) {
+                            sessionService.setEnv(data);
+                            setLoginTemplate(data);
+                        });
+                    }
+                };
+
+                init();
 
                 $scope.logout = function () {
                     sessionService.logout().then(function (data) {
@@ -25,7 +37,7 @@
                         if (data && data.logoutUrl) {
                             var returnUrl = window.location.protocol + "//" + window.location.host + "/Shibboleth.sso/Logout";
                             window.location.href = data.logoutUrl + "?return=" + returnUrl;
-                        } else if ($scope.env.isProd) {
+                        } else if (!sessionService.getEnv || sessionService.getEnv.isProd) {
                             $scope.loginTemplatePath = EXAM_CONF.TEMPLATES_PATH + "common/logout.html";
                         } else {
                             $location.path("/login")
