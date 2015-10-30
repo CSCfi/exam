@@ -78,6 +78,7 @@
                     'REVIEW_STARTED',
                     'GRADED',
                     'GRADED_LOGGED',
+                    'ARCHIVED',
                     'STUDENT_STARTED',
                     'PUBLISHED',
                     'ABORTED',

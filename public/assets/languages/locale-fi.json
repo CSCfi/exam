@@ -454,7 +454,7 @@
   "sitnet_exam_status_graded_logged": "Arvioitu ja rekisteröity",
   "sitnet_exam_status_student_started": "Opiskelija aloittanut",
   "sitnet_exam_status_published": "Varaus tehty",
-  "sitnet_exam_status_aborted": "Peruutettu",
+  "sitnet_exam_status_aborted": "Keskeytetty",
   "sitnet_exam_status_no_show": "No-show",
   "sitnet_select_teacher_to_move_the_questions_to": "Valitse tentaattori, jolle kysymykset siirretään",
   "sitnet_question_owner_changed": "Kysymyksen omistaja vaihdettu",
