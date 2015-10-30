@@ -598,5 +598,6 @@
   "sitnet_confirm_maturity_disapproval": "Hylkää suoritus? Toimintoa ei voi perua.",
   "sitnet_confirm_maturity_approval": "Lähetä suoritus kielentarkastajalle arvioitavaksi? Tämän jälkeen et voi enää hylätä suoritusta. Toimintoa ei voi perua."
   "sitnet_session_extended": "Istuntoa jatkettu",
-  "sitnet_exam_status_archived": "Arkistoitu"
+  "sitnet_exam_status_archived": "Arkistoitu",
+  "sitnet_calendar_pick_room": "Valitse tenttitila saadaksesi näkyviin vapaat tenttiajat"
 }
