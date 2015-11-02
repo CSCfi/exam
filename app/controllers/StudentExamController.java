@@ -400,18 +400,26 @@ public class StudentExamController extends BaseController {
         }
     }
 
+    private Result checkEnrolment(String hash) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
+                .eq("exam.hash", hash)
+                .eq("exam.creator", getLoggedUser())
+                .eq("exam.state", Exam.State.STUDENT_STARTED)
+                .findUnique();
+        return checkEnrolmentOK(enrolment);
+    }
+
     @Restrict({@Group("STUDENT")})
     public Result answerEssay(String hash, Long questionId) {
+        Result failure = checkEnrolment(hash);
+        if (failure != null) {
+            return failure;
+        }
         DynamicForm df = Form.form().bindFromRequest();
         String answer = df.get("answer");
 
         Logger.debug(answer);
-
-        Question question = Ebean.find(Question.class).where()
-                .idEq(questionId)
-                .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
-                .eq("examSectionQuestion.examSection.exam.hash", hash)
-                .findUnique();
+        Question question = Ebean.find(Question.class, questionId);
         if (question == null) {
             return forbidden();
         }
@@ -431,20 +439,19 @@ public class StudentExamController extends BaseController {
         return ok("success");
     }
 
-
     @Restrict({@Group("STUDENT")})
     public Result answerMultiChoice(String hash, Long qid, String oids) {
+        Result failure = checkEnrolment(hash);
+        if (failure != null) {
+            return failure;
+        }
         List<Long> optionIds;
         if (oids.equals("none")) { // not so elegant but will do for now
             optionIds = new ArrayList<>();
         } else {
             optionIds = Stream.of(oids.split(",")).map(Long::parseLong).collect(Collectors.toList());
         }
-        Question question = Ebean.find(Question.class).fetch("answer").where()
-                .idEq(qid)
-                .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
-                .eq("examSectionQuestion.examSection.exam.hash", hash)
-                .findUnique();
+        Question question = Ebean.find(Question.class).fetch("answer").where().idEq(qid).findUnique();
         if (question == null) {
             return forbidden();
         }
