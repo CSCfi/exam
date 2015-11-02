@@ -376,6 +376,25 @@
                 }
             };
         }])
+        .directive('lowercase', [function () {
+            return {
+                require: 'ngModel',
+                link: function (scope, element, attrs, modelCtrl) {
+                    var toLowerCase = function (input) {
+                        if (input === undefined) {
+                            input = '';
+                        }
+                        var lc = input.toLowerCase();
+                        if (lc !== input) {
+                            modelCtrl.$setViewValue(lc);
+                            modelCtrl.$render();
+                        }
+                        return lc;
+                    };
+                    modelCtrl.$parsers.push(toLowerCase);
+                }
+            }
+        }])
         .directive('sitnetHeader', [function () {
             return {
                 restrict: 'E',

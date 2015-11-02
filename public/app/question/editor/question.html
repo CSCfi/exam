@@ -72,8 +72,7 @@
                         <div class="form-group col-md-3">
                             <label class="sitnet-info-text" for="newTag">{{'sitnet_tag_question' | translate}}</label>
                             <div ng-controller="TagTypeaheadCtrl">
-                                <input id="newTag" name="newTag" type="text" maxlength="30" class="form-control"
-                                       ui-change="tagQuestion()"
+                                <input id="newTag" name="newTag" type="text" maxlength="30" lowercase class="form-control"
                                        ng-model="newQuestion.newTag"
                                        typeahead-on-select="onTagSelect($item, newQuestion)"
                                        typeahead="t as t.name for t in getTags($viewValue, newQuestion)"
