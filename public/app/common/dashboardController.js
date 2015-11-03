@@ -23,9 +23,6 @@
                         $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/student/dashboard.html";
                         StudentExamRes.enrolments.query(function (enrolments) {
                                 $scope.userEnrolments = enrolments;
-                                angular.forEach($scope.userEnrolments, function (enrolment) {
-                                    examService.setExamOwnersAndInspectors(enrolment.exam);
-                                });
                             },
                             function (error) {
                                 toastr.error(error.data);
@@ -33,13 +30,6 @@
                         );
                         StudentExamRes.finishedExams.query({uid: $scope.user.id},
                             function (participations) {
-                                participations.forEach(function (participation) {
-                                    participation.exam.examInspections = [];
-                                    participation.exam.examInspectors.forEach(function (inspector) {
-                                        participation.exam.examInspections.push({user: inspector});
-                                    });
-                                    examService.setExamOwnersAndInspectors(participation.exam);
-                                });
                                 $scope.participations = participations;
                             },
                             function (error) {
@@ -60,10 +50,6 @@
                                 return $scope.afterDate(review.examActiveEndDate);
                             });
                             var allExams = $scope.activeExams.concat($scope.finishedExams);
-
-                            angular.forEach(allExams, function (exam) {
-                                examService.setExamOwnersAndInspectors(exam, true);
-                            });
                         });
                     }
                     else if ($scope.user.isAdmin) {

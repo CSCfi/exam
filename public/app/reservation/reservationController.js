@@ -111,9 +111,6 @@
 
                         ReservationResource.reservations.query(params,
                             function (enrolments) {
-                                angular.forEach(enrolments, function (enrolment) {
-                                    examService.setExamOwnersAndInspectors(enrolment.exam, true);
-                                });
                                 $scope.enrolments = enrolments;
                             }, function (error) {
                                 toastr.error(error.data);

@@ -376,6 +376,25 @@
                 }
             };
         }])
+        .directive('lowercase', [function () {
+            return {
+                require: 'ngModel',
+                link: function (scope, element, attrs, modelCtrl) {
+                    var toLowerCase = function (input) {
+                        if (input === undefined) {
+                            input = '';
+                        }
+                        var lc = input.toLowerCase();
+                        if (lc !== input) {
+                            modelCtrl.$setViewValue(lc);
+                            modelCtrl.$render();
+                        }
+                        return lc;
+                    };
+                    modelCtrl.$parsers.push(toLowerCase);
+                }
+            }
+        }])
         .directive('sitnetHeader', [function () {
             return {
                 restrict: 'E',
@@ -385,6 +404,38 @@
                 '<span class="header-text">{{ "sitnet_welcome" | translate }}, {{getUsername()}}</span>' +
                 '</div>' +
                 '</div>'
+            };
+        }])
+        .directive('teacherList', [function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                template: '<div><strong>' +
+                '<span ng-repeat="owner in exam.examOwners">' +
+                '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
+                '</span><br /></strong>' +
+                '<span ng-repeat="inspection in exam.examInspections">' +
+                '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
+                '</span></div>',
+                scope: {
+                    exam: '=exam'
+                }
+            };
+        }])
+        .directive('assessmentTeacherList', [function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                template: '<div><strong>' +
+                '<span ng-repeat="owner in exam.parent.examOwners">' +
+                '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
+                '</span><br /></strong>' +
+                '<span ng-repeat="inspection in exam.examInspections">' +
+                '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
+                '</span></div>',
+                scope: {
+                    exam: '=exam'
+                }
             };
         }])
         .directive('paginator', function () {

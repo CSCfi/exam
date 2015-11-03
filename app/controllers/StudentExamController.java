@@ -82,14 +82,35 @@ public class StudentExamController extends BaseController {
                 .fetch("exam.creator", "id")
                 .fetch("exam.course", "code")
                 .fetch("exam.parent.examOwners", "firstName, lastName, id")
-                .fetch("exam.examOwners", "firstName, lastName, id")
-                .fetch("exam.examInspectors", "firstName, lastName, id")
+                .fetch("exam.examInspections.user", "firstName, lastName, id")
                 .where()
+                .isNotNull("exam.parent")
                 .ne("exam.state", Exam.State.STUDENT_STARTED)
                 .ne("exam.state", Exam.State.ABORTED)
                 .eq("exam.creator", user)
                 .findList();
         return ok(participations);
+    }
+
+    @Restrict({@Group("STUDENT")})
+    public Result getExamScore(Long eid) {
+        Exam exam = Ebean.find(Exam.class)
+                .where()
+                .eq("id", eid)
+                .eq("creator", getLoggedUser())
+                .disjunction()
+                .eq("state", Exam.State.GRADED_LOGGED)
+                .eq("state", Exam.State.ARCHIVED)
+                .endJunction()
+                .findUnique();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        exam.setMaxScore();
+        exam.setApprovedAnswerCount();
+        exam.setRejectedAnswerCount();
+        exam.setTotalScore();
+        return ok(exam);
     }
 
     @Restrict({@Group("STUDENT")})
@@ -103,20 +124,19 @@ public class StudentExamController extends BaseController {
                 .fetch("examFeedback")
                 .fetch("examFeedback.attachment")
                 .fetch("gradedByUser", "firstName, lastName")
+                .fetch("examInspections.user", "firstName, lastName")
                 .fetch("parent.examOwners", "firstName, lastName")
                 .where()
                 .eq("id", id)
                 .eq("creator", getLoggedUser())
+                .disjunction()
                 .eq("state", Exam.State.GRADED_LOGGED)
+                .eq("state", Exam.State.ARCHIVED)
+                .endJunction()
                 .findUnique();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        exam.setMaxScore();
-        exam.setApprovedAnswerCount();
-        exam.setRejectedAnswerCount();
-        exam.setTotalScore();
-
         return ok(exam);
     }
 
@@ -126,6 +146,7 @@ public class StudentExamController extends BaseController {
                 .fetch("exam")
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examOwners", "firstName, lastName")
+                .fetch("exam.examInspections.user", "firstName, lastName")
                 .fetch("user", "id")
                 .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "name")
@@ -152,6 +173,7 @@ public class StudentExamController extends BaseController {
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examLanguages")
                 .fetch("exam.examOwners", "firstName, lastName")
+                .fetch("exam.examInspections.user", "firstName, lastName")
                 .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "name")
                 .fetch("reservation.machine.room", "name, roomCode")
@@ -401,18 +423,26 @@ public class StudentExamController extends BaseController {
         }
     }
 
+    private Result checkEnrolment(String hash) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
+                .eq("exam.hash", hash)
+                .eq("exam.creator", getLoggedUser())
+                .eq("exam.state", Exam.State.STUDENT_STARTED)
+                .findUnique();
+        return checkEnrolmentOK(enrolment);
+    }
+
     @Restrict({@Group("STUDENT")})
     public Result answerEssay(String hash, Long questionId) {
+        Result failure = checkEnrolment(hash);
+        if (failure != null) {
+            return failure;
+        }
         DynamicForm df = Form.form().bindFromRequest();
         String answer = df.get("answer");
 
         Logger.debug(answer);
-
-        Question question = Ebean.find(Question.class).where()
-                .idEq(questionId)
-                .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
-                .eq("examSectionQuestion.examSection.exam.hash", hash)
-                .findUnique();
+        Question question = Ebean.find(Question.class, questionId);
         if (question == null) {
             return forbidden();
         }
@@ -432,20 +462,19 @@ public class StudentExamController extends BaseController {
         return ok("success");
     }
 
-
     @Restrict({@Group("STUDENT")})
     public Result answerMultiChoice(String hash, Long qid, String oids) {
+        Result failure = checkEnrolment(hash);
+        if (failure != null) {
+            return failure;
+        }
         List<Long> optionIds;
         if (oids.equals("none")) { // not so elegant but will do for now
             optionIds = new ArrayList<>();
         } else {
             optionIds = Stream.of(oids.split(",")).map(Long::parseLong).collect(Collectors.toList());
         }
-        Question question = Ebean.find(Question.class).fetch("answer").where()
-                .idEq(qid)
-                .eq("examSectionQuestion.examSection.exam.creator", getLoggedUser())
-                .eq("examSectionQuestion.examSection.exam.hash", hash)
-                .findUnique();
+        Question question = Ebean.find(Question.class).fetch("answer").where().idEq(qid).findUnique();
         if (question == null) {
             return forbidden();
         }
@@ -477,6 +506,7 @@ public class StudentExamController extends BaseController {
                 .select("id, name, examActiveStartDate, examActiveEndDate, enrollInstruction")
                 .fetch("course", "code")
                 .fetch("examOwners", "firstName, lastName")
+                .fetch("examInspections.user", "firstName, lastName")
                 .fetch("examLanguages", "code, name")
                 .fetch("creator", "firstName, lastName")
                 .where()

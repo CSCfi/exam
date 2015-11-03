@@ -9,7 +9,6 @@
                 StudentExamRes.feedback.get({eid: $routeParams.id},
                     function (exam) {
                         exam.grade.displayName = examService.getExamGradeDisplayName(exam.grade.name);
-                        examService.setExamOwnersAndInspectors(exam);
                         examService.setCredit(exam);
                         $scope.reviewedExam = exam;
                     },
@@ -18,11 +17,20 @@
                     }
                 );
 
+                StudentExamRes.scores.get({eid: $routeParams.id},
+                    function (exam) {
+                        $scope.scores = {
+                            maxScore: exam.maxScore,
+                            totalScore: exam.totalScore,
+                            approvedAnswerCount: exam.approvedAnswerCount,
+                            rejectedAnswerCount: exam.rejectedAnswerCount
+                        }
+                    });
+
                 //Go to feedback template to show teacher's comments
                 $scope.exitFeedback = function () {
                     $location.path("/");
                 };
-
 
 
             }]);

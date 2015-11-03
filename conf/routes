@@ -94,6 +94,7 @@ GET           /student/exams                                         controllers
 GET           /student/inspectors/exam/:id                           controllers.StudentExamController.getExamInspectors(id: Long)
 GET           /student/finishedexams/:uid                            controllers.StudentExamController.getFinishedExams(uid: Long)
 GET           /feedback/exams/:eid                                   controllers.StudentExamController.getExamGeneralInfo(eid: Long)
+GET           /feedback/exams/:eid/score                             controllers.StudentExamController.getExamScore(eid: Long)
 PUT           /student/exams/:hash                                   controllers.StudentExamController.saveAnswersAndExit(hash: String)
 PUT           /student/exam/abort/:hash                              controllers.StudentExamController.abortExam(hash: String)
 GET           /student/doexam/:hash                                  controllers.StudentExamController.startExam(hash: String)

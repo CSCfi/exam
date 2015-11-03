@@ -39,7 +39,7 @@
                 </span>
                 <span class="col-md-2" style="padding: 0.5em 0;" ng-show="section.lotteryOn && section.sectionQuestions.length > 1">
                     <input style="width:2.5em;padding:0.1em;border:1px solid rgba(0,0,0,0.3);" type="number" name="" min="1" value="1" max="{{section.sectionQuestions.length}}"
-                           ng-model="section.lotteryItemCount" ng-change="updateLotteryCount(section)" autofocus />
+                           ng-model="section.lotteryItemCount" ui-change="updateLotteryCount(section)" autofocus />
                 </span>
                 <span class="col-md-2" style="padding: 0.7em 0;" ng-show="section.lotteryOn && section.sectionQuestions.length > 1">
                     <span class="pull-left">/ <span class="pull-right" style="margin-left:0.5em;">{{section.sectionQuestions.length}}</span></span>

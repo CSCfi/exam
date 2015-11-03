@@ -13,6 +13,8 @@ import play.mvc.Result;
 import util.AppUtil;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TagController extends BaseController {
 
@@ -46,10 +48,14 @@ public class TagController extends BaseController {
         User user = getLoggedUser();
         AppUtil.setCreator(tag, user);
         AppUtil.setModifier(tag, user);
+        String name = tag.getName().toLowerCase();
         // Save only if not already exists
-        Tag existing = Ebean.find(Tag.class).where().eq("name", tag.getName())
-                .eq("creator.id", tag.getCreator().getId()).findUnique();
+        Tag existing = Ebean.find(Tag.class).where()
+                .eq("name", name)
+                .eq("creator.id", tag.getCreator().getId())
+                .findUnique();
         if (existing == null) {
+            tag.setName(name);
             tag.save();
             return created(Json.toJson(tag));
         } else {
@@ -77,8 +83,11 @@ public class TagController extends BaseController {
         if (question.getParent() != null) {
             return forbidden("Tagging is available only for prototype questions");
         }
-        question.getTags().add(tag);
-        question.update();
+        Set<String> names = question.getTags().stream().map(Tag::getName).collect(Collectors.toSet());
+        if (!names.contains(tag.getName())) {
+            question.getTags().add(tag);
+            question.update();
+        }
         return ok();
     }
 

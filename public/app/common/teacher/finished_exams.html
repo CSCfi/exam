@@ -37,7 +37,7 @@
                     </td>
                     <td class="table-column-enroll-participation">{{ getReviewablesCount(finishedExam) }}
                     </td>
-                    <td class="table-column-teachers" ng-bind-html="finishedExam.teachersStr"></td>
+                    <td class="table-column-teachers"><teacher-list exam="finishedExam" /></td>
                 </tr>
                 </tbody>
             </table>
