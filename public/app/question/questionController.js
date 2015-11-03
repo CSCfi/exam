@@ -170,7 +170,10 @@
                 };
 
                 $scope.deleteQuestion = function () {
-                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_question_from_library_only'));
+                    var confirmation = $scope.newQuestion.state === 'NEW' ?
+                        'sitnet_confirm_question_removal' :
+                        'sitnet_remove_question_from_library_only';
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant(confirmation));
                     dialog.result.then(function (btn) {
                         QuestionRes.questions.delete({'id': $scope.newQuestion.id}, function () {
                             toastr.info($translate.instant('sitnet_question_removed'));
