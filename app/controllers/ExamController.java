@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.*;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.Answer;
@@ -1273,19 +1274,19 @@ public class ExamController extends BaseController {
      */
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamOwners(Long id) {
-
-        Set<User> owners;
-
-        Exam exam = Ebean.find(Exam.class, id);
-
-        if (exam != null && exam.getParent() != null) {
-            owners = exam.getParent().getExamOwners();
-        } else if (exam == null) {
+        Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(id).findUnique();
+        if (exam == null) {
             return notFound();
-        } else {
-            owners = exam.getExamOwners();
         }
-        return ok(owners);
+        ArrayNode node = Json.newArray();
+        exam.getExamOwners().stream().map(u -> {
+            ObjectNode o = Json.newObject();
+            o.put("firstName", u.getFirstName());
+            o.put("id", u.getId());
+            o.put("lastName", u.getLastName());
+            return o;
+        }).forEach(node::add);
+        return ok(Json.toJson(node));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

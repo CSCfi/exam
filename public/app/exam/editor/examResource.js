@@ -115,11 +115,7 @@
                 owners: $resource("/exam/:id/owners",
                     {
                         id: "@id"
-                    },
-                    {
-                        "get": {method: "GET", isArray: true, params: { id: "@id" }}
                     }),
-
                 inspection: $resource("/exams/:eid/inspector/:uid",
                 {
                     eid: "@eid", uid: "@uid"
