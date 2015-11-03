@@ -30,7 +30,6 @@
                     return array.indexOf(search) >= 0;
                 }
 
-
                 QuestionRes.questions.get({id: qid},
                     function (question) {
                         $scope.newQuestion = question;
@@ -258,14 +257,7 @@
 
                 $scope.addNewOption = function (newQuestion) {
 
-                    var option_description = $translate.instant('sitnet_default_option_description');
-
-                    var option = {
-                        "option": option_description,
-                        "correctOption": false
-                    };
-
-                    QuestionRes.options.create({qid: newQuestion.id}, option,
+                    QuestionRes.options.create({qid: newQuestion.id},
                         function (response) {
                             newQuestion.options.push(response);
                             toastr.info($translate.instant('sitnet_option_added'));
