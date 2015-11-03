@@ -82,14 +82,35 @@ public class StudentExamController extends BaseController {
                 .fetch("exam.creator", "id")
                 .fetch("exam.course", "code")
                 .fetch("exam.parent.examOwners", "firstName, lastName, id")
-                .fetch("exam.examOwners", "firstName, lastName, id")
-                .fetch("exam.examInspectors", "firstName, lastName, id")
+                .fetch("exam.examInspections.user", "firstName, lastName, id")
                 .where()
+                .isNotNull("exam.parent")
                 .ne("exam.state", Exam.State.STUDENT_STARTED)
                 .ne("exam.state", Exam.State.ABORTED)
                 .eq("exam.creator", user)
                 .findList();
         return ok(participations);
+    }
+
+    @Restrict({@Group("STUDENT")})
+    public Result getExamScore(Long eid) {
+        Exam exam = Ebean.find(Exam.class)
+                .where()
+                .eq("id", eid)
+                .eq("creator", getLoggedUser())
+                .disjunction()
+                .eq("state", Exam.State.GRADED_LOGGED)
+                .eq("state", Exam.State.ARCHIVED)
+                .endJunction()
+                .findUnique();
+        if (exam == null) {
+            return notFound("sitnet_error_exam_not_found");
+        }
+        exam.setMaxScore();
+        exam.setApprovedAnswerCount();
+        exam.setRejectedAnswerCount();
+        exam.setTotalScore();
+        return ok(exam);
     }
 
     @Restrict({@Group("STUDENT")})
@@ -103,20 +124,19 @@ public class StudentExamController extends BaseController {
                 .fetch("examFeedback")
                 .fetch("examFeedback.attachment")
                 .fetch("gradedByUser", "firstName, lastName")
+                .fetch("examInspections.user", "firstName, lastName")
                 .fetch("parent.examOwners", "firstName, lastName")
                 .where()
                 .eq("id", id)
                 .eq("creator", getLoggedUser())
+                .disjunction()
                 .eq("state", Exam.State.GRADED_LOGGED)
+                .eq("state", Exam.State.ARCHIVED)
+                .endJunction()
                 .findUnique();
         if (exam == null) {
             return notFound("sitnet_error_exam_not_found");
         }
-        exam.setMaxScore();
-        exam.setApprovedAnswerCount();
-        exam.setRejectedAnswerCount();
-        exam.setTotalScore();
-
         return ok(exam);
     }
 
@@ -126,6 +146,7 @@ public class StudentExamController extends BaseController {
                 .fetch("exam")
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examOwners", "firstName, lastName")
+                .fetch("exam.examInspections.user", "firstName, lastName")
                 .fetch("user", "id")
                 .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "name")
@@ -152,6 +173,7 @@ public class StudentExamController extends BaseController {
                 .fetch("exam.course", "name, code")
                 .fetch("exam.examLanguages")
                 .fetch("exam.examOwners", "firstName, lastName")
+                .fetch("exam.examInspections.user", "firstName, lastName")
                 .fetch("reservation", "startAt, endAt")
                 .fetch("reservation.machine", "name")
                 .fetch("reservation.machine.room", "name, roomCode")
@@ -483,6 +505,7 @@ public class StudentExamController extends BaseController {
                 .select("id, name, examActiveStartDate, examActiveEndDate, enrollInstruction")
                 .fetch("course", "code")
                 .fetch("examOwners", "firstName, lastName")
+                .fetch("examInspections.user", "firstName, lastName")
                 .fetch("examLanguages", "code, name")
                 .fetch("creator", "firstName, lastName")
                 .where()

@@ -406,6 +406,38 @@
                 '</div>'
             };
         }])
+        .directive('teacherList', [function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                template: '<div><strong>' +
+                '<span ng-repeat="owner in exam.examOwners">' +
+                '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
+                '</span><br /></strong>' +
+                '<span ng-repeat="inspection in exam.examInspections">' +
+                '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
+                '</span></div>',
+                scope: {
+                    exam: '=exam'
+                }
+            };
+        }])
+        .directive('assessmentTeacherList', [function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                template: '<div><strong>' +
+                '<span ng-repeat="owner in exam.parent.examOwners">' +
+                '{{owner.firstName}} {{owner.lastName}}{{$last ? "" : ", ";}}' +
+                '</span><br /></strong>' +
+                '<span ng-repeat="inspection in exam.examInspections">' +
+                '{{inspection.user.firstName}} {{inspection.user.lastName}}{{$last ? "" : ", ";}}' +
+                '</span></div>',
+                scope: {
+                    exam: '=exam'
+                }
+            };
+        }])
         .directive('paginator', function () {
             return {
                 restrict: 'E',

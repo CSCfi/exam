@@ -15,7 +15,6 @@
                             exam.languages = exam.examLanguages.map(function (lang) {
                                 return getLanguageNativeName(lang.code);
                             });
-                            examService.setExamOwners(exam);
                             $scope.exam = exam;
                             EnrollRes.check.get({id: exam.id}, function () {
                                 $scope.exam.notEnrolled = false;
@@ -34,8 +33,6 @@
                                 exam.languages = exam.examLanguages.map(function (lang) {
                                     return getLanguageNativeName(lang.code);
                                 });
-                                examService.setExamOwners(exam);
-
                                 return exam;
                             });
                         },

@@ -35,6 +35,7 @@ public class EnrollController extends BaseController {
                 .fetch("creator", "firstName, lastName")
                 .fetch("examLanguages")
                 .fetch("examOwners", "firstName, lastName")
+                .fetch("examInspections.user", "firstName, lastName")
                 .fetch("course", "code, name")
                 .where()
                 .eq("course.code", code)

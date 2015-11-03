@@ -111,7 +111,9 @@
                 };
 
                 if (!$routeParams.id && !$scope.user.isStudent) {
-                    $scope.exams = ExamRes.exams.query();
+                    ExamRes.exams.query(function(exams) {
+                        $scope.exams = exams;
+                    });
                 } else {
                     initializeExam();
                 }

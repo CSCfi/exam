@@ -19,7 +19,6 @@
                             exam.languages = exam.examLanguages.map(function (lang) {
                                 return getLanguageNativeName(lang.code);
                             });
-                            examService.setExamOwnersAndInspectors(exam);
                         });
                         $scope.exams = exams;
                         searching = false;

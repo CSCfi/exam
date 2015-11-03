@@ -25,7 +25,10 @@
                     </td>
                     <td ng-if="enrolment.exam.state === 'PUBLISHED'">{{ enrolment.exam.name }}</td>
                     <td ng-if="enrolment.exam.state !== 'PUBLISHED'"><a href="#/exams/review/{{enrolment.exam.id}}">{{enrolment.exam.name}}</a></td>
-                    <td class="width15 wrap" ng-bind-html="enrolment.exam.teachersStr"></td>
+
+                    <td ng-if="enrolment.exam.parent" class="width15 wrap"><assessment-teacher-list exam="enrolment.exam" /></td>
+                    <td ng-if="!enrolment.exam.parent" class="width15 wrap"><teacher-list exam="enrolment.exam" /></td>
+
                     <td>{{enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}<br/>{{'sitnet_clock_short' | translate}} {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}}-{{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}</td>
                     <td>{{enrolment.reservation.machine.room.name}}<br/>{{enrolment.reservation.machine.name}}</td>
                     <td>{{'sitnet_exam_status_' + printExamState(enrolment) | lowercase | translate}}</td>

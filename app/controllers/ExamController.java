@@ -52,8 +52,11 @@ public class ExamController extends BaseController {
         return Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("creator")
+                .fetch("examOwners")
+                .fetch("examInspections.user")
                 .fetch("examSections")
-                .fetch("parent").where()
+                .fetch("parent")
+                .where()
                 .disjunction()
                 .eq("state", Exam.State.PUBLISHED)
                 .eq("state", Exam.State.SAVED)
@@ -87,9 +90,6 @@ public class ExamController extends BaseController {
 
     private static List<Exam> getAllExamsOfTeacher(User user, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
         ExpressionList<Exam> query = createPrototypeQuery()
-                .disjunction()
-                .eq("shared", true)
-                .eq("creator", user)
                 .eq("examOwners", user)
                 .endJunction();
         query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
@@ -98,11 +98,8 @@ public class ExamController extends BaseController {
 
     private static List<Exam> getAllExamsOfTeacher(User user) {
         return createPrototypeQuery()
-                .disjunction()
-                .eq("shared", true)
-                .eq("creator", user)
                 .eq("examOwners", user)
-                .endJunction().orderBy("created").findList();
+                .orderBy("created").findList();
     }
 
     // HELPER METHODS END
@@ -1277,7 +1274,7 @@ public class ExamController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamOwners(Long id) {
 
-        List<User> owners;
+        Set<User> owners;
 
         Exam exam = Ebean.find(Exam.class, id);
 

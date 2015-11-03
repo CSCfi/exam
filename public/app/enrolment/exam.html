@@ -24,9 +24,8 @@
             </div>
             <div class="info-row col-md-12 info-column">
                 <span class="header col-md-5">{{'sitnet_teachers' | translate}}:</span>
-                                    <span class="text col-md-7">
-                                        <span ng-if="exam.creator.organization.length > 0">{{exam.creator.organization}} - </span>
-                                        <span>{{exam.teachersStr}}</span>
+                                    <span class="light-text col-md-7">
+                                        <teacher-list exam="exam" />
                                     </span>
             </div>
         </div>

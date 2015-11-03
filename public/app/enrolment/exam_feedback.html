@@ -27,18 +27,18 @@
                 </div>
                 <div class="info-row col-md-12 info-column" ng-if="reviewedExam.maxScore != (reviewedExam.approvedAnswerCount + reviewedExam.rejectedAnswerCount)">
                     <span class="header col-md-4">{{'sitnet_total_score' | translate}}:</span>
-                    <span class="text col-md-8">{{ reviewedExam.totalScore}} / {{reviewedExam.maxScore}}</span>
+                    <span class="text col-md-8">{{ scores.totalScore}} / {{scores.maxScore}}</span>
                 </div>
                 <div class="info-row col-md-12 info-column"
                      ng-if="(reviewedExam.approvedAnswerCount && reviewedExam.approvedAnswerCount > 0) ||
                       (reviewedExam.rejectedAnswerCount && reviewedExam.rejectedAnswerCount > 0)">
                     <span class="header col-md-4">{{'sitnet_approved' | translate}}:</span>
-                    <span class="text col-md-8">{{ reviewedExam.approvedAnswerCount}}</span>
+                    <span class="text col-md-8">{{ scores.approvedAnswerCount}}</span>
                 </div>
                 <div class="info-row col-md-12 info-column" ng-if="(reviewedExam.approvedAnswerCount && reviewedExam.approvedAnswerCount > 0) ||
                       (reviewedExam.rejectedAnswerCount && reviewedExam.rejectedAnswerCount > 0)">
                     <span class="header col-md-4">{{'sitnet_rejected' | translate}}:</span>
-                    <span class="text col-md-8">{{ reviewedExam.rejectedAnswerCount}}</span>
+                    <span class="text col-md-8">{{ scores.rejectedAnswerCount}}</span>
                 </div>
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{'sitnet_exam_grade' | translate}}:</span>
@@ -46,7 +46,7 @@
                 </div>
                 <div class="info-row col-md-12 info-column">
                     <span class="header col-md-4">{{'sitnet_teachers' | translate}}:</span>
-                    <span class="text col-md-8">{{ reviewedExam.teachersStr }}</span>
+                    <span class="light-text col-md-8"><assessment-teacher-list exam="reviewedExam"/></span>
                 </div>
                 <div class="top-padding-2 info-row col-md-12 info-column" ng-if="reviewedExam.examFeedback.comment">
                     <div class="header col-md-4">{{'sitnet_teachers_comment' | translate}}:</div>
