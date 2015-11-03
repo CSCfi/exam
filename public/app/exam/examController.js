@@ -246,7 +246,7 @@
 
                 function getExamOwners() {
                     if ($scope.newExam.id) {
-                        ExamRes.owners.get({id: $scope.newExam.id},
+                        ExamRes.owners.query({id: $scope.newExam.id},
                             function (examOwners) {
                                 $scope.examOwners = examOwners;
                             },

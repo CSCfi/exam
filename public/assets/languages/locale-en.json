@@ -142,7 +142,6 @@
   "sitnet_question_mc": "Multiple choice question (single correct answer)",
   "sitnet_question_type": "Question type",
   "sitnet_question_unanswered": "Unanswered",
-  "sitnet_question_write_name": "Write the assignment here",
   "sitnet_questions": "Questions",
   "sitnet_questions_all": "All questions",
   "sitnet_questions_edit": "Edit question",
@@ -599,5 +598,6 @@
   "sitnet_confirm_maturity_approval": "Lähetä suoritus kielentarkastajalle arvioitavaksi? Tämän jälkeen et voi enää hylätä suoritusta. Toimintoa ei voi perua. EN"
   "sitnet_session_extended": "Istuntoa jatkettu EN",
   "sitnet_exam_status_archived": "Arkistoitu EN",
-  "sitnet_calendar_pick_room": "Valitse tenttitila saadaksesi näkyviin vapaat tenttiajat EN"
+  "sitnet_calendar_pick_room": "Valitse tenttitila saadaksesi näkyviin vapaat tenttiajat EN",
+  "sitnet_confirm_question_removal": "Poistetaanko kysymys? EN"
 }

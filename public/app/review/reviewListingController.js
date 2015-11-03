@@ -13,6 +13,7 @@
                 $scope.toggleReviews = false;
                 $scope.toggleGradedReviews = false;
                 $scope.view = {filter: 'IN_PROGRESS'};
+                $scope.examInfo = {};
 
                 $scope.pageSize = 10;
 
@@ -29,10 +30,11 @@
 
                 ExamRes.exams.get({id: $routeParams.id}, function (exam) {
                     if (exam.course && exam.course.code) {
-                        $scope.examInfo = exam.course.code + " " + exam.name;
+                        $scope.examInfo.title = exam.course.code + " " + exam.name;
                     } else {
-                        $scope.examInfo = exam.name;
+                        $scope.examInfo.title = exam.name;
                     }
+                    $scope.examInfo.examOwners = exam.examOwners;
                 });
 
                 $scope.selectAll = function (selectAllCssClass, checkboxesCssClass) {
@@ -166,10 +168,6 @@
                     ExamRes.inspections.get({id: review.exam.id}, function (inspections) {
                         review.inspections = inspections;
                     });
-                    ExamRes.owners.get({id: review.exam.id},
-                        function (examOwners) {
-                            review.exam.examOwners = examOwners;
-                        });
                 };
 
                 // Reviews

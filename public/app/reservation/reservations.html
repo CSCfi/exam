@@ -54,7 +54,7 @@
                         <strong>{{'sitnet_exam_owner' | translate}}</strong>
                         <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                                 ng-model="selection.ownerId" ng-change="query()">
-                            <option value="">{{ 'sitnet_choose' | translate }}</option>
+                            <option value="">&dash;</option>
                             <option ng-repeat="teacher in examOwners" value="{{teacher.id}}">{{teacher.firstName}}
                                 {{teacher.lastName}}
                             </option>
@@ -64,7 +64,7 @@
                         <strong>{{'sitnet_exam_state' | translate}}</strong>
                         <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                                 ng-model="selection.state" ng-change="query()">
-                            <option value="">{{'sitnet_choose' | translate }}</option>
+                            <option class="default-select" value="">&dash;</option>
                             <option ng-repeat="state in examStates" value="{{state}}">{{'sitnet_exam_status_' + state |
                                 lowercase | translate}}
                             </option>
@@ -74,7 +74,7 @@
                         <strong>{{'sitnet_student' | translate}}</strong>
                         <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                                 ng-model="selection.studentId" ng-change="query()">
-                            <option value="">{{'sitnet_choose' | translate }}</option>
+                            <option value="">&dash;</option>
                             <option ng-repeat="student in students" value="{{student.id}}">{{student.firstName}}
                                 {{student.lastName}}
                             </option>
@@ -86,7 +86,7 @@
                         <strong>{{'sitnet_room' | translate}}</strong>
                         <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                                 ng-model="selection.roomId" ng-change="query()">
-                            <option value="">{{'sitnet_choose' | translate }}</option>
+                            <option value="">&dash;</option>
                             <option ng-repeat="examroom in examrooms" value="{{examroom.id}}">{{examroom.name}}</option>
                         </select>
                     </div>
@@ -94,7 +94,7 @@
                         <strong>{{'sitnet_exam_machine' | translate}}</strong>
                         <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                                 ng-model="selection.machineId" ng-change="query()">
-                            <option value="">{{'sitnet_choose' | translate }}</option>
+                            <option value="">&dash;</option>
                             <optgroup ng-repeat="examroom in examrooms" ng-if="examroom.examMachines.length > 0 && (selection.roomId ? selection.roomId==examroom.id : true)"
                                       label="{{examroom.name}}">
                                 <option ng-repeat="machine in machines" ng-if="roomContains(examroom, machine)"
@@ -107,7 +107,7 @@
                         <strong>{{'sitnet_exam' | translate}}</strong>
                         <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                                 ng-model="selection.examId" ng-change="query()">
-                            <option value="">{{'sitnet_choose' | translate }}</option>
+                            <option value="">&dash;</option>
                             <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.name}}</option>
                         </select>
                     </div>
