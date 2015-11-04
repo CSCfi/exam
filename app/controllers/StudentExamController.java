@@ -512,7 +512,7 @@ public class StudentExamController extends BaseController {
                 .where()
                 .eq("state", Exam.State.PUBLISHED)
                 .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
-                .gt("examActiveEndDate", DateTime.now().plusDays(1).withTimeAtStartOfDay().toDate());
+                .gt("examActiveEndDate", DateTime.now().toDate());
         if (!courseCodes.isEmpty()) {
             query.in("course.code", courseCodes);
         }

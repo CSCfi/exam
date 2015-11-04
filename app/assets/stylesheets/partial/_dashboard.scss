@@ -13,6 +13,11 @@
     padding-right: 1em;
   }
 
+  .student-enrolment-wrapper {
+    @extend .row;
+    padding-bottom: 1em;
+  }
+
   .detail-row-tall {
     @extend .row;
     margin: 0;
