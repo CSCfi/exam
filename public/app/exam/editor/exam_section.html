@@ -51,9 +51,9 @@
 
 <div class="row">
     <div class="col-md-11 col-md-offset-1" ng-show="section.expanded">
-        <ul droppable="section.sectionQuestions" ng-move="moveQuestion(section, from, to)"
+        <ul droppable="section.sectionQuestions" identifier="section.id" ng-move="moveQuestion(section, from, to)"
             ng-create="insertQuestion(section, object, to)" class="sortable">
-            <li class="draggable" ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
+            <li class="sortable-{{section.id}}" ng-show="section.sectionQuestions" class="sectionQuestion" ng-include="templates.question"
                 ng-repeat="sectionQuestion in section.sectionQuestions | orderBy:sequenceNumber">
             </li>
             <div ng-show="section.sectionQuestions.length == 0" class="create-new dropdown"></div>

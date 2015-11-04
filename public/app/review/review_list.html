@@ -47,22 +47,13 @@
                     {{'sitnet_get_answer_attachments' | translate }}
                 </a>
             </li>
-            <li  ng-if="view.filter === 'ABORTED'">
-                <a class="header-top-link"
-                   ng-click="view.filter = 'IN_PROGRESS'">
-                    <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
-                </a>
-            </li>
-            <li ng-if="view.filter === 'ARCHIVED'">
-                <a class="header-top-link"
-                   ng-click="view.filter = 'IN_PROGRESS'">
-                    <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
-                </a>
-            </li>
-            <li ng-if="view.filter === 'NO_SHOW'">
-                <a class="header-top-link"
-                   ng-click="view.filter = 'IN_PROGRESS'">
-                    <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
+            <li ng-if="view.filter === 'ABORTED' || view.filter === 'ARCHIVED' || view.filter === 'NO_SHOW'">
+                <a class="header-top-link" ng-click="view.filter = 'IN_PROGRESS'">
+                    <span class="fa-stack fa-lg header-top-icon">
+                        <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
+                        <i class="fa fa-close fa-stack-1x sitnet-white"></i>
+                    </span>
+                    {{'sitnet_close' | translate}}
                 </a>
             </li>
         </ul>

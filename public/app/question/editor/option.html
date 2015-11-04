@@ -15,9 +15,9 @@
     </div>
     <div class="form-group">
         <div class="col-md-4">
-            <div class="checkbox">
+            <div class="radio">
                 <label>
-                    <input type="checkbox" ng-model="option.correctOption" ng-click="correctAnswerToggled(option)">{{'sitnet_correct_option' | translate }}
+                    <input type="radio" ng-model="option.correctOption" ng-value="true" ng-click="correctAnswerToggled(option)">{{'sitnet_correct_option' | translate }}
                 </label>
             </div>
         </div>
