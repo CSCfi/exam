@@ -39,14 +39,12 @@
         .directive('droppable', ['DragDropHandler', function (DragDropHandler) {
             return {
                 scope: {
+                    identifier: '=',
                     droppable: '=',
                     ngMove: '&',
                     ngCreate: '&'
                 },
                 link: function (scope, element, attrs) {
-                    element.sortable({
-                        connectWith: ['.draggable', '.sortable']
-                    });
 
                     // variables used for dnd
                     var toUpdate;
@@ -58,7 +56,7 @@
                     // use jquery to make the element sortable. This is called
                     // when the element is rendered
                     $(element[0]).sortable({
-                        items: '.draggable',
+                        items: '.sortable-' + scope.identifier,
                         start: function (event, ui) {
                             // on start we define where the item is dragged from
                             startIndex = ($(ui.item).index());
