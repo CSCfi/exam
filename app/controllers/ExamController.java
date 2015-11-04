@@ -84,7 +84,7 @@ public class ExamController extends BaseController {
     }
 
     private static List<Exam> getAllExams(F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
-        ExpressionList<Exam> query = createPrototypeQuery();
+        ExpressionList<Exam> query = createPrototypeQuery().isNotNull("name");
         query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
         return query.findList();
     }
@@ -92,7 +92,7 @@ public class ExamController extends BaseController {
     private static List<Exam> getAllExamsOfTeacher(User user, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
         ExpressionList<Exam> query = createPrototypeQuery()
                 .eq("examOwners", user)
-                .endJunction();
+                .isNotNull("name");
         query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
         return query.orderBy("created").findList();
     }
