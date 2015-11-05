@@ -96,7 +96,7 @@ public class ReservationController extends BaseController {
         return ok(Json.toJson(array));
     }
 
-    @Restrict({@Group("TEACHER")})
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result permitRetrial(Long id) {
         Reservation reservation = Ebean.find(Reservation.class, id);
         if (reservation == null) {
@@ -180,6 +180,9 @@ public class ReservationController extends BaseController {
         if (state.isDefined()) {
             if (!state.get().equals("NO_SHOW")) {
                 query = query.eq("exam.state", Exam.State.valueOf(state.get()));
+                if (state.get().equals(Exam.State.PUBLISHED.toString())) {
+                    query = query.eq("reservation.noShow", false);
+                }
             } else {
                 query = query.eq("reservation.noShow", true);
             }
