@@ -5,7 +5,6 @@
 </div>
 
 <div id="dashboard">
-
     <div class="top-row">
         <div class="col-md-12">
             <h4>{{ examInfo.title }}
@@ -18,46 +17,39 @@
             </h4>
         </div>
     </div>
-    <div class="detail-row">
-        <ul class="col-md-12 muted-list">
-            <li ng-if="view.filter === 'IN_PROGRESS'">
-                <a target="_self" class="header-top-link" ng-click="view.filter = 'ABORTED'">
-                     <span class="fa-stack fa-lg header-top-icon">
-                        <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                        <i class="fa fa-ban fa-stack-1x sitnet-white"></i>
-                    </span>
-                    {{'sitnet_aborted_exams' | translate}} ({{abortedExams.length}})
-                </a>
-            </li>
-            <li ng-if="view.filter === 'IN_PROGRESS'">
-                <a target="_self" class="header-top-link" ng-click="view.filter = 'NO_SHOW'">
-                 <span class="fa-stack fa-lg header-top-icon">
-                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                    <i class="fa fa-undo fa-stack-1x sitnet-white"></i>
-                </span>
-                    {{'sitnet_no_shows' | translate}} ({{noShows.length}})
-                </a>
-            </li>
-            <li ng-if="examReviews.length > 0 && view.filter === 'IN_PROGRESS'">
-                <a target="_self" class="header-top-link" ng-click="getAnswerAttachments()">
-                     <span class="fa-stack fa-lg header-top-icon">
-                        <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                        <i class="fa fa-file-archive-o fa-stack-1x sitnet-white"></i>
-                    </span>
-                    {{'sitnet_get_answer_attachments' | translate }}
-                </a>
-            </li>
-            <li ng-if="view.filter === 'ABORTED' || view.filter === 'ARCHIVED' || view.filter === 'NO_SHOW'">
-                <a class="header-top-link" ng-click="view.filter = 'IN_PROGRESS'">
-                    <span class="fa-stack fa-lg header-top-icon">
-                        <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                        <i class="fa fa-close fa-stack-1x sitnet-white"></i>
-                    </span>
-                    {{'sitnet_close' | translate}}
-                </a>
-            </li>
-        </ul>
+    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
+        <div class="col-md-12">
+            <i class="fa fa-ban text-danger"></i>
+            <a target="_self" class="pointer" ng-click="view.filter = 'ABORTED'">
+                {{'sitnet_aborted_exams' | translate}} ({{abortedExams.length}})
+            </a>
+        </div>
     </div>
+    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
+        <div class="col-md-12">
+            <i class="fa fa-undo text-warning"></i>
+            <a target="_self" class="pointer" ng-click="view.filter = 'NO_SHOW'">
+                {{'sitnet_no_shows' | translate}} ({{noShows.length}})
+            </a>
+        </div>
+    </div>
+    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
+        <div class="col-md-12">
+            <i class="fa fa-download text-success"></i>
+            <a target="_self" class="pointer" ng-click="getAnswerAttachments()">
+                {{'sitnet_get_answer_attachments' | translate }}
+            </a>
+        </div>
+    </div>
+    <div class="detail-row" ng-if="view.filter === 'ABORTED' || view.filter === 'ARCHIVED' || view.filter === 'NO_SHOW'">
+        <div class="col-md-12">
+            <i class="fa fa-close text-info"></i>
+            <a target="_self" class="pointer" ng-click="view.filter = 'IN_PROGRESS'">
+                {{'sitnet_close' | translate}}
+            </a>
+        </div>
+    </div>
+
 
     <div class="detail-row" ng-if="view.filter === 'ABORTED'">
         <div class="main-row">
