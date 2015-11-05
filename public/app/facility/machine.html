@@ -1,21 +1,15 @@
 <div id="sitnet-header" class="header">
-    <div class="col-md-8 header-wrapper">
+    <div class="col-md-12 header-wrapper">
         <span class="header-text">{{'sitnet_exam_machine' | translate}}</span>
     </div>
-    <div class="col-md-2 ">
-        <!--<span class="header-clock pull-right">
-            <span class="col-md-12  weekday">24. lauantai</span>
-            <span class="col-md-12  date">Toukokuuta 2014</span>
-            <span class="col-md-12  clock"></span>
-        </span>--> </div>
 </div>
-<div id="room" class="base">
-    <div class="row room-header">
-        <div class="col-md-9 " ng-init="showMachineName = true">
+<div id="dashboard">
+    <div class="main-row">
+        <div class="col-md-12" ng-init="showMachineName = true">
             <div ng-show="showMachineName">
-                <span class="pull-left room-name" ng-click="showMachineName = !showMachineName">
+                <h3 class="pull-left room-name" ng-click="showMachineName = !showMachineName">
                     {{machine.name}} <i class="fa fa-pencil"></i>
-                </span>
+                </h3>
             </div>
             <div ng-show="!showMachineName">
                 <form class="form-inline" role="form">
@@ -28,58 +22,53 @@
                 </form>
             </div>
         </div>
-        <div class="col-md-3">
-            <a ng-click="removeMachineModal()" class="header-icon pull-right fa-stack fa-lg">
-                <i class="fa sitnet-text-light fa-stop fa-stack-2x"></i>
-                <i class="sitnet-red fa fa-times fa-stack-1x"></i>
-            </a>
-            <!-- popover-placement="top" popover-trigger="mouseenter" popover="Poista tenttikone" -->
-        </div>
     </div>
 
-    <div class="row">
+    <div class="detail-row">
         <div class="col-md-12">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="machine.accessible" ui-change="updateMachine(machine)">{{'sitnet_machine_accessible' | translate}}
+                    <input type="checkbox" ng-model="machine.accessible" ui-change="updateMachine(machine)">{{'sitnet_machine_accessible'
+                    | translate}}
                 </label>
             </div>
             <div class="sitnet-info-text">
                 {{'sitnet_machine_accessibility' | translate}}
             </div>
             <div>
-                <input type="text" ng-disabled="!machine.accessible" class="form-control" ng-model="machine.accessibilityInfo" ui-change="updateMachine(machine)">
-                <!--<span class="input-group-addon" ng-click="toastr.info('Onko tilassa erityisiä esteettömyyteen vaikuttavia tekijöitä?');">-->
-                <!--<i class="fa fa-question-circle fa-fw"></i>-->
-                <!--</span>-->
+                <input type="text" ng-disabled="!machine.accessible" class="form-control"
+                       ng-model="machine.accessibilityInfo" ui-change="updateMachine(machine)">
             </div>
         </div>
     </div>
 
     <!-- Other indentifier & Surveillance camera information -->
-    <div class="row">
+    <div class="detail-row">
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_other_identifier' | translate}}</div>
             <div>
-                <input type="text" class="form-control" ng-model="machine.otherIdentifier" ui-change="updateMachine(machine)">
+                <input type="text" class="form-control" ng-model="machine.otherIdentifier"
+                       ui-change="updateMachine(machine)">
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_surveillance_camera' | translate}}</div>
             <div>
-                <input type="text" class="form-control" ng-model="machine.surveillanceCamera" ui-change="updateMachine(machine)">
+                <input type="text" class="form-control" ng-model="machine.surveillanceCamera"
+                       ui-change="updateMachine(machine)">
             </div>
         </div>
     </div>
     <!-- Video recordings & IP-address information -->
-    <div class="row">
+    <div class="detail-row">
 
         <!-- Video recordings URL -->
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_video_recordings' | translate}}</div>
             <div>
-                <input type="text" class="form-control" ng-model="machine.videoRecordings" ui-change="updateMachine(machine)">
+                <input type="text" class="form-control" ng-model="machine.videoRecordings"
+                       ui-change="updateMachine(machine)">
             </div>
         </div>
         <div class="col-md-6">
@@ -91,46 +80,40 @@
     </div>
 
     <!--Software-->
-    <div class="row">
+    <div class="detail-row">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
-            <!--<multiselect class="input-xlarge"-->
-                         <!--multiple="true"-->
-                         <!--ng-model="machine.softwareInfo"-->
-                         <!--header="{{'sitnet_select' | translate}}"-->
-                         <!--multiheader="selectedSoftwares(machine)"-->
-                         <!--options="software.name for software in softwares"-->
-                         <!--change="updateSoftwareInfo()">-->
-            <!--</multiselect>-->
             <div class="input-group">
-                <button ng-repeat="software in softwares" class="btn" ng-class="software.class " ng-click="toggleSoftware(software)">
-                    {{software.name}} </button>
+                <button ng-repeat="software in softwares" class="btn" ng-class="software.class"
+                        ng-click="toggleSoftware(software)" style="margin-right: 0.2em;">
+                    {{software.name}}
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Service status -->
-    <div class="row">
+    <div class="detail-row">
         <div class="col-md-12">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" ng-model="machine.outOfService" ui-change="updateMachine(machine)">{{'sitnet_out_of_service' | translate}}
+                    <input type="checkbox" ng-model="machine.outOfService" ui-change="updateMachine(machine)">
+                    {{'sitnet_out_of_service' | translate}}
                 </label>
             </div>
-            <div class="sitnet-info-text">{{'sitnet_reason' | translate}}</div>
-            <div class="input-group">
-                <textarea ng-disabled="!machine.outOfService" class="form-control ng-pristine ng-valid" ng-model="machine.statusComment" ui-change="updateMachine(machine)">
-                </textarea>
-                        <span class="input-group-addon">
-                            <i class="fa fa-question-circle fa-fw"></i>
-                        </span>
+            <div class="sitnet-info-text">
+                {{'sitnet_reason' | translate}}
             </div>
+            <textarea ng-disabled="!machine.outOfService" class="form-control ng-pristine ng-valid"
+                      ng-model="machine.statusComment" ui-change="updateMachine(machine)">
+            </textarea>
         </div>
     </div>
 
-    <div class="row" style="padding:2em 0;">
-        <div class="col-md-6 col-md-offset-5">
-            <button ng-click="updateMachineAndExit(machine)" class="btn btn-primary">{{'sitnet_save' | translate}}</button>
+    <div class="main-row">
+        <div class="col-md-12">
+            <button ng-click="updateMachineAndExit(machine)" class="btn btn-primary">{{'sitnet_save' | translate}}
+            </button>
         </div>
     </div>
 </div>

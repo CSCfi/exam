@@ -251,7 +251,9 @@
                         $scope.tags = union($scope.tags, data);
                         var examSections = [];
                         $scope.exams.forEach(function (exam) {
-                            examSections = examSections.concat(exam.examSections.map(function (section) {
+                            examSections = examSections.concat(exam.examSections.filter(function(es) {
+                                return es.name;
+                            }).map(function (section) {
                                 section.isSectionTag = true;
                                 return section;
                             }));

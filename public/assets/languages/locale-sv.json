@@ -599,5 +599,7 @@
   "sitnet_session_extended": "Istuntoa jatkettu SV",
   "sitnet_exam_status_archived": "Arkistoitu SV",
   "sitnet_calendar_pick_room": "Valitse tenttitila saadaksesi näkyviin vapaat tenttiajat EN",
-  "sitnet_confirm_question_removal": "Poistetaanko kysymys? SV"
+  "sitnet_confirm_question_removal": "Poistetaanko kysymys? SV",
+  "sitnet_exam_section": "Aihealue SV",
+  "sitnet_reservation_removed": "Varaus poistettu SV"
 }

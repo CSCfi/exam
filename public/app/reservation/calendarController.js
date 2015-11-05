@@ -156,6 +156,7 @@
 
                 $scope.$on('$localeChangeSuccess', function () {
                     $scope.calendarConfig.buttonText.today = $translate.instant('sitnet_today');
+                    $scope.openingHours = processOpeningHours();
                 });
 
                 var reserve = function (start, end) {

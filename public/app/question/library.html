@@ -124,7 +124,10 @@
                                 </li>
                                 <li ng-repeat="tag in tags | filter:limitations.tags" role="presentation"
                                     ng-class="tag.filtered ? 'active': ''" ng-click="applyFilter(tag)">
-                                    <a role="menuitem" title="{{tag.name}}">{{tag.name | truncate:30}}</a>
+                                    <a role="menuitem" ng-class="tag.isSectionTag ? 'text-dim' : 'text'"
+                                       title="{{tag.isSectionTag ? 'sitnet_exam_section' : 'sitnet_category' | translate; }}">
+                                        {{tag.name | truncate:30}}
+                                    </a>
                                 </li>
                             </ul>
                         </span>

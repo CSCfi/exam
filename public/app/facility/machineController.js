@@ -12,16 +12,16 @@
                         $scope.machine = machine;
 
                         SoftwareResource.softwares.query(
-                            function (soft) {
-                                $scope.softwares = soft;
+                            function (data) {
+                                $scope.softwares = data;
 
-                                for(var i = 0; i < $scope.softwares.length; i++ ) {
+                                for (var i = 0; i < $scope.softwares.length; i++) {
 
-                                    for(var j = 0; j < $scope.machine.softwareInfo.length; j++ ) {
+                                    for (var j = 0; j < $scope.machine.softwareInfo.length; j++) {
                                         $scope.softwares[i].class = "btn-default";
 
                                         if ($scope.machine.softwareInfo[j].id == $scope.softwares[i].id) {
-                                            $scope.softwares[i].class = "btn-primary";
+                                            $scope.softwares[i].class = "btn-info";
                                             break;
                                         }
                                     }
@@ -34,9 +34,9 @@
                     }
                 );
 
-                $scope.getSoftwarePresent = function(software) {
+                $scope.getSoftwarePresent = function (software) {
 
-                    for(var i = 0; i < $scope.machine.softwareInfo.length; i++ ) {
+                    for (var i = 0; i < $scope.machine.softwareInfo.length; i++) {
                         if ($scope.machine.softwareInfo[i].id == software.id)
                             return "btn-primary";
                     }
@@ -46,7 +46,7 @@
 
                 $scope.removeMachine = function (machine) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_remove_machine'));
-                    dialog.result.then(function(btn){
+                    dialog.result.then(function (btn) {
                         ExamMachineResource.remove({id: machine.id},
                             function () {
                                 $scope.roomInstance.examMachines.splice($scope.roomInstance.examMachines.indexOf(machine), 1);
@@ -65,7 +65,7 @@
                     // make the backend call remove software
                     SoftwareResource.machine.toggle({mid: $scope.machine.id, sid: software.id},
                         function (response) {
-                            software.class = (response.software ==='true' ? 'btn-primary' : 'btn-default');
+                            software.class = (response.software === 'true' ? 'btn-info' : 'btn-default');
                         },
                         function (error) {
                             toastr.error(error.data);
@@ -76,7 +76,7 @@
 
                     SoftwareResource.machines.reset({mid: $scope.machine.id},
                         function () {
-                            angular.forEach($scope.machine.softwareInfo, function(software) {
+                            angular.forEach($scope.machine.softwareInfo, function (software) {
                                 SoftwareResource.machine.add({mid: $scope.machine.id, sid: software.id});
                             });
                             toastr.info($translate.instant('sitnet_machine_updated'));
@@ -100,7 +100,7 @@
                         return item.id;
                     }).join(", ");
 
-                    $http.post('room/' + room.id + '/accessibility', {ids:ids})
+                    $http.post('room/' + room.id + '/accessibility', {ids: ids})
                         .success(function () {
                             toastr.info($translate.instant('sitnet_room_updated'));
                         });
@@ -158,5 +158,5 @@
                         // Cancel button clicked
                     });
                 };
-        }]);
+            }]);
 }());
