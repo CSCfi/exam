@@ -646,10 +646,13 @@
                         }
 
                         RoomResource.exception.update({roomIds: roomIds}, exception,
-                            function () {
+                            function (data) {
                                 toastr.info($translate.instant('sitnet_exception_time_added'));
                                 if ($scope.editingMultipleRooms()) {
                                     $scope.getMassEditedRooms();
+                                } else {
+                                    formatExceptionEvent(data);
+                                    $scope.roomInstance.calendarExceptionEvents.push(data);
                                 }
                             },
                             function (error) {

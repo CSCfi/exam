@@ -18,6 +18,8 @@
                 $scope.filter = {};
                 $scope.moreQuestions = false;
 
+                $scope.session = sessionService;
+
                 $scope.user = sessionService.getUser();
 
                 var htmlDecode = function (text) {
@@ -213,7 +215,6 @@
                     });
                     var deferred = $q.defer();
                     CourseRes.userCourses.query({
-                        id: sessionService.getUser().id,
                         examIds: getExamIds(),
                         tagIds: getTagIds(),
                         sectionIds: getSectionIds()
@@ -250,7 +251,9 @@
                         $scope.tags = union($scope.tags, data);
                         var examSections = [];
                         $scope.exams.forEach(function (exam) {
-                            examSections = examSections.concat(exam.examSections.map(function (section) {
+                            examSections = examSections.concat(exam.examSections.filter(function(es) {
+                                return es.name;
+                            }).map(function (section) {
                                 section.isSectionTag = true;
                                 return section;
                             }));

@@ -28,7 +28,7 @@
                             <span class="text-danger">{{ 'sitnet_write_question_below' | translate }}</span>
                         </label>
                         <textarea id="editor" name="editor" ck-editor rows="10" cols="80" ng-model="newQuestion.question"
-                                  ui-change="updateQuestion()" required placeholder="{{'sitnet_question_write_name' | translate}}">
+                                  ui-change="updateQuestion()" required>
                         </textarea>
                     </div>
 
@@ -72,8 +72,7 @@
                         <div class="form-group col-md-3">
                             <label class="sitnet-info-text" for="newTag">{{'sitnet_tag_question' | translate}}</label>
                             <div ng-controller="TagTypeaheadCtrl">
-                                <input id="newTag" name="newTag" type="text" maxlength="30" class="form-control"
-                                       ui-change="tagQuestion()"
+                                <input id="newTag" name="newTag" type="text" maxlength="30" lowercase class="form-control"
                                        ng-model="newQuestion.newTag"
                                        typeahead-on-select="onTagSelect($item, newQuestion)"
                                        typeahead="t as t.name for t in getTags($viewValue, newQuestion)"
@@ -160,7 +159,7 @@
                                     <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
                                 </span>
                             </div>
-                            <button ng-click="selectFile()" class="btn btn-default btn-sm">{{ 'sitnet_attach_file' |
+                            <button type="button" ng-click="selectFile()" class="btn btn-default btn-sm">{{ 'sitnet_attach_file' |
                                 translate }}
                             </button>
                         </div>

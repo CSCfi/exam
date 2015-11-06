@@ -117,40 +117,6 @@
                 });
             };
 
-            var setExamOwners = function (exam) {
-                exam.teachersStr = unique(exam.examOwners, JSON.stringify).map(function (owner) {
-                    return owner.firstName + " " + owner.lastName;
-                }).join(", ");
-            };
-
-            var setExamOwnersAndInspectors = function (exam, highlightOwners) {
-                var owners;
-                if (!exam.examOwners || exam.examOwners.length == 0) {
-                    owners = exam.parent ? exam.parent.examOwners || [] : [];
-                } else {
-                    owners = exam.examOwners || [];
-                }
-                exam.examOwners = owners;
-                exam.examInspections = exam.examInspections || [];
-                if (highlightOwners) {
-                    exam.examOwners.forEach(function (owner) {
-                        owner.isOwner = true;
-                    });
-                }
-                exam.teachersStr = unique(exam.examOwners.concat(exam.examInspections.map(
-                    function (ei) {
-                        return ei.user
-                    })), function (person) {
-                    return person.id
-                }).map(function (person) {
-                    var name = person.firstName + " " + person.lastName;
-                    if (person.isOwner) {
-                        return '<b>' + name + '</b>';
-                    }
-                    return name;
-                }).join(", ");
-            };
-
             var setCredit = function (exam) {
                 if (exam.customCredit !== undefined && exam.customCredit) {
                     exam.credit = exam.customCredit;
@@ -208,8 +174,6 @@
                 getScaleDisplayName: getScaleDisplayName,
                 getExamTypeDisplayName: getExamTypeDisplayName,
                 getExamGradeDisplayName: getExamGradeDisplayName,
-                setExamOwners: setExamOwners,
-                setExamOwnersAndInspectors: setExamOwnersAndInspectors,
                 setCredit: setCredit,
                 setQuestionColors: setQuestionColors,
                 stripHtml: stripHtml,

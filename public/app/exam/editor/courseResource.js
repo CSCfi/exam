@@ -9,7 +9,7 @@
                     }
                 ),
                 courses: $resource("/courses"),
-                userCourses: $resource("/courses/user/:id", {id: "@id"})
+                userCourses: $resource("/courses/user")
             }
         }]);
 }());

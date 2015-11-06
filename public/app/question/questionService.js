@@ -1,20 +1,11 @@
-/**
- * Created by mlupari on 20/03/15.
- */
 (function () {
     'use strict';
     angular.module('exam.services')
         .factory('questionService', ['$translate', '$location', 'QuestionRes', function ($translate, $location, QuestionRes) {
 
-            var createQuestion = function(type) {
-                var newQuestion;
-                newQuestion = {
-                    type: type,
-                    question: $translate.instant('sitnet_new_question_draft')
-                };
-
-                QuestionRes.questions.create(newQuestion,
-                    function(response) {
+            var createQuestion = function (type) {
+                QuestionRes.questions.create({type: type},
+                    function (response) {
                         toastr.info($translate.instant('sitnet_question_added'));
                         $location.path("/questions/" + response.id);
                     }
@@ -29,7 +20,7 @@
                 }, 0));
             };
 
-            var decodeHtml = function(html) {
+            var decodeHtml = function (html) {
                 var txt = document.createElement("textarea");
                 txt.innerHTML = html;
                 return txt.value;

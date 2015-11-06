@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.*;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.questions.Answer;
@@ -52,8 +53,11 @@ public class ExamController extends BaseController {
         return Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("creator")
+                .fetch("examOwners")
+                .fetch("examInspections.user")
                 .fetch("examSections")
-                .fetch("parent").where()
+                .fetch("parent")
+                .where()
                 .disjunction()
                 .eq("state", Exam.State.PUBLISHED)
                 .eq("state", Exam.State.SAVED)
@@ -80,29 +84,23 @@ public class ExamController extends BaseController {
     }
 
     private static List<Exam> getAllExams(F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
-        ExpressionList<Exam> query = createPrototypeQuery();
+        ExpressionList<Exam> query = createPrototypeQuery().isNotNull("name");
         query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
         return query.findList();
     }
 
     private static List<Exam> getAllExamsOfTeacher(User user, F.Option<List<Long>> courseIds, F.Option<List<Long>> sectionIds, F.Option<List<Long>> tagIds) {
         ExpressionList<Exam> query = createPrototypeQuery()
-                .disjunction()
-                .eq("shared", true)
-                .eq("creator", user)
                 .eq("examOwners", user)
-                .endJunction();
+                .isNotNull("name");
         query = applyOptionalFilters(query, courseIds, sectionIds, tagIds);
         return query.orderBy("created").findList();
     }
 
     private static List<Exam> getAllExamsOfTeacher(User user) {
         return createPrototypeQuery()
-                .disjunction()
-                .eq("shared", true)
-                .eq("creator", user)
                 .eq("examOwners", user)
-                .endJunction().orderBy("created").findList();
+                .orderBy("created").findList();
     }
 
     // HELPER METHODS END
@@ -1063,12 +1061,24 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result clearQuestions(Long sid) {
-        ExamSection section = Ebean.find(ExamSection.class, sid);
+        ExamSection section = Ebean.find(ExamSection.class)
+                .fetch("exam.creator")
+                .fetch("exam.examOwners")
+                .fetch("exam.parent.examOwners")
+                .where()
+                .idEq(sid)
+                .findUnique();
         User user = getLoggedUser();
         if (section.getExam().isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            section.getSectionQuestions().forEach(models.ExamSectionQuestion::delete);
+            section.getSectionQuestions().forEach(sq -> {
+                sq.getQuestion().getChildren().forEach(c -> {
+                    c.setParent(null);
+                    c.update();
+                });
+                sq.delete();
+            });
             section.getSectionQuestions().clear();
-            section.save();
+            section.update();
             return ok(Json.toJson(section));
         } else {
             return forbidden("sitnet_error_access_forbidden");
@@ -1264,19 +1274,19 @@ public class ExamController extends BaseController {
      */
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamOwners(Long id) {
-
-        List<User> owners;
-
-        Exam exam = Ebean.find(Exam.class, id);
-
-        if (exam != null && exam.getParent() != null) {
-            owners = exam.getParent().getExamOwners();
-        } else if (exam == null) {
+        Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(id).findUnique();
+        if (exam == null) {
             return notFound();
-        } else {
-            owners = exam.getExamOwners();
         }
-        return ok(owners);
+        ArrayNode node = Json.newArray();
+        exam.getExamOwners().stream().map(u -> {
+            ObjectNode o = Json.newObject();
+            o.put("firstName", u.getFirstName());
+            o.put("id", u.getId());
+            o.put("lastName", u.getLastName());
+            return o;
+        }).forEach(node::add);
+        return ok(Json.toJson(node));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

@@ -49,7 +49,7 @@
                 {
                     "get": {method: "GET", params: { eid: "@eid" }}
                 }),
-
+                scores: $resource("/feedback/exams/:eid/score", {eid: "@eid"}),
                 multipleChoiceAnswer: $resource("/student/exams/:hash/question/:qid/option/:oids",
                 {
                     hash: "@hash", qid: "@qid", oid: "@oids"

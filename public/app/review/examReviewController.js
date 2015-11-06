@@ -14,6 +14,7 @@
                 $scope.essayQuestionPath = EXAM_CONF.TEMPLATES_PATH + "review/review_essay_question.html";
                 $scope.previousParticipationPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_previous_participation.html";
                 $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/review_exam_grading.html";
+                $scope.feedbackWindowPath = EXAM_CONF.TEMPLATES_PATH + "review/feedback.html";
                 $scope.multiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_multiple_choice_answer.html";
                 $scope.weightedMultiChoiceAnswerTemplate = EXAM_CONF.TEMPLATES_PATH + "review/review_weighted_multiple_choice_answer.html";
                 $scope.printSectionTemplate = EXAM_CONF.TEMPLATES_PATH + "review/print/print_section.html";
@@ -28,7 +29,7 @@
                     $document.ready(function () {
                         setTimeout(function () {
                             window.print();
-                        }, 1500);
+                        }, 2000);
                     });
                 };
 
@@ -39,30 +40,24 @@
                 $scope.examTypes = [];
                 $scope.selections = {};
 
-                LanguageRes.languages.query(function (languages) {
-                    $scope.languages = languages.map(function (language) {
-                        language.name = getLanguageNativeName(language.code);
-                        return language;
-                    });
-                });
-
                 $scope.setLanguage = function (lang) {
                     $scope.selections.language = lang;
                     $scope.examToBeReviewed.answerLanguage = lang ? lang.name : lang;
                 };
 
-                $scope.setCreditType = function (creditType) {
-                    $scope.selections.type = creditType;
-                    $scope.examToBeReviewed.creditType = {type: creditType};
+                $scope.setCreditType = function () {
+                    if ($scope.selections.type && $scope.selections.type.type) {
+                        $scope.examToBeReviewed.creditType = {type: $scope.selections.type.type};
+                    } else {
+                        delete $scope.examToBeReviewed.creditType;
+                    }
                 };
 
-                $scope.setGrade = function (grade_id, exam) {
-                    if (grade_id) {
-                        $scope.examToBeReviewed.grade = {id: grade_id};
-                        $scope.selections.grade = $scope.examToBeReviewed.grade.id;
+                $scope.setGrade = function () {
+                    if ($scope.selections.grade && $scope.selections.grade.id) {
+                        $scope.examToBeReviewed.grade = $scope.selections.grade;
                     } else {
-                        $scope.selections.grade = '';
-                        $scope.examToBeReviewed.grade = undefined;
+                        delete $scope.examToBeReviewed.grade;
                     }
                 };
 
@@ -70,25 +65,34 @@
                     return creditType.type === $scope.selections.type;
                 };
 
-                var refreshExamTypes = function () {
-                    examService.refreshExamTypes().then(function (types) {
-                        $scope.examTypes = types;
-                    });
-                };
-
-                refreshExamTypes();
-
-                $scope.$on('$localeChangeSuccess', function () {
-                    refreshExamTypes();
-                });
-
-                var refreshGradeNames = function () {
-                    if (!$scope.examToBeReviewed) return;
+                var setGrade = function () {
+                    if (!$scope.examToBeReviewed.grade || !$scope.examToBeReviewed.grade.id) {
+                        $scope.examToBeReviewed.grade = {};
+                    }
                     var scale = $scope.examToBeReviewed.gradeScale || $scope.examToBeReviewed.parent.gradeScale || $scope.examToBeReviewed.course.gradeScale;
                     $scope.examGrading = scale.grades.map(function (grade) {
                         grade.name = examService.getExamGradeDisplayName(grade.name);
+                        if ($scope.examToBeReviewed.grade && $scope.examToBeReviewed.grade.id === grade.id) {
+                            $scope.selections.grade = grade;
+                        }
                         return grade;
                     });
+
+                };
+
+                var setCredits = function () {
+                    examService.refreshExamTypes().then(function (types) {
+                        var examType = $scope.examToBeReviewed.creditType || $scope.examToBeReviewed.examType;
+                        $scope.examTypes = types;
+                        types.forEach(function (type) {
+                            if ($scope.examToBeReviewed.creditType && examType.type.toUpperCase() === type.type) {
+                                $scope.selections.type = type;
+                            }
+                        });
+                    });
+                    if ($scope.examToBeReviewed && !$scope.examToBeReviewed.customCredit) {
+                        $scope.examToBeReviewed.customCredit = $scope.examToBeReviewed.course.credits;
+                    }
                 };
 
                 $scope.translateGrade = function (exam) {
@@ -102,13 +106,31 @@
                 $scope.acceptedEssays = 0;
                 $scope.rejectedEssays = 0;
 
+                var pickExamLanguage = function (exam) {
+                    var lang = exam.answerLanguage;
+                    if (lang) {
+                        return {code: lang}
+                    }
+                    else if (exam.examLanguages.length == 1) {
+                        lang = exam.examLanguages[0];
+                    }
+                    return lang;
+                };
+
                 // Get the exam that was specified in the URL
                 ExamRes.reviewerExam.get({eid: $routeParams.id},
                     function (exam) {
                         $scope.examToBeReviewed = exam;
-                        if (!$scope.examToBeReviewed.customCredit) {
-                            $scope.examToBeReviewed.customCredit = $scope.examToBeReviewed.course.credits;
-                        }
+                        var lang = pickExamLanguage(exam);
+                        LanguageRes.languages.query(function (languages) {
+                            $scope.languages = languages.map(function (language) {
+                                if (lang.code === language.code) {
+                                    $scope.selections.language = language;
+                                }
+                                language.name = getLanguageNativeName(language.code);
+                                return language;
+                            });
+                        });
 
                         if (exam) {
                             angular.forEach($scope.examToBeReviewed.examSections, function (section) {
@@ -127,25 +149,8 @@
                                     }
                                 });
                             });
-                            if (exam.answerLanguage) {
-                                $scope.selections.language = exam.answerLanguage;
-                            } else if (exam.examLanguages.length === 1) {
-                                // Use parent's language as default answer language if there is a single one to choose from
-                                $scope.selections.language = getLanguageNativeName(exam.examLanguages[0].code);
-                            }
-                            if (exam.creditType) {
-                                $scope.selections.type = exam.creditType.type.toUpperCase();
-                            } else {
-                                // default to examType
-                                $scope.selections.type = exam.examType.type.toUpperCase();
-                            }
-
-                            if (exam.grade && exam.grade.id) {
-                                $scope.selections.grade = exam.grade.id;
-                            } else {
-                                $scope.selections.grade = '';
-                                $scope.examToBeReviewed.grade = {};
-                            }
+                            setGrade();
+                            setCredits();
                         }
 
                         var isOwner = function () {
@@ -166,8 +171,6 @@
                             $scope.examToBeReviewed.state === "ARCHIVED" ||
                             $scope.examToBeReviewed.state === "ABORTED";
                         $scope.isGraded = $scope.examToBeReviewed.state === "GRADED";
-
-                        refreshGradeNames();
 
                         $scope.reviewStatus = [
                             {
@@ -258,7 +261,7 @@
                 };
 
                 $scope.scoreWeightedMultipleChoiceAnswer = function (question) {
-                    if (question.type !== 'WeightedMultipleChoiceQuestion') {
+                    if (question.type !== 'WeightedMultipleChoiceQuestion' || !question.answer) {
                         return 0;
                     }
                     var score = question.answer.options.reduce(function (a, b) {
@@ -303,7 +306,7 @@
                 };
 
                 $scope.isAnswer = function (option, question) {
-                    return question.answer.options.map(function (o) {
+                    return question.answer && question.answer.options.map(function (o) {
                             return o.id
                         }).indexOf(option.id) > -1;
                 };
@@ -432,11 +435,11 @@
                     return {
                         "id": exam.id,
                         "state": state || exam.state,
-                        "grade": exam.grade && exam.grade.id ? exam.grade.id : "",
+                        "grade": exam.grade && exam.grade.id ? exam.grade.id : undefined,
                         "customCredit": exam.customCredit,
                         "totalScore": exam.totalScore,
                         "creditType": $scope.selections.type,
-                        "answerLanguage": $scope.selections.language,
+                        "answerLanguage": $scope.selections.language ? $scope.selections.language.code : undefined,
                         "additionalInfo": exam.additionalInfo
                     };
                 };
@@ -478,14 +481,7 @@
                     return count;
                 };
 
-                $scope.toggleFeedbackHiding = function (hidden) {
-                    if (hidden) {
-                        $scope.saveFeedback();
-                    }
-                    return !hidden;
-                };
-
-                $scope.trustAsHtml = function(content) {
+                $scope.trustAsHtml = function (content) {
                     return $sce.trustAsHtml(content);
                 };
 
@@ -623,8 +619,8 @@
 
                     var messages = [];
                     if (!reviewedExam.grade) {
-                        if ($scope.selections.grade) {
-                            reviewedExam.grade = {id: $scope.selections.grade};
+                        if ($scope.selections.grade.id) {
+                            reviewedExam.grade = {id: $scope.selections.grade.id};
                         } else {
                             messages.push('sitnet_participation_unreviewed');
                         }

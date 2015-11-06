@@ -13,6 +13,11 @@
     padding-right: 1em;
   }
 
+  .student-enrolment-wrapper {
+    @extend .row;
+    padding-bottom: 1em;
+  }
+
   .detail-row-tall {
     @extend .row;
     margin: 0;
@@ -44,6 +49,10 @@
 
   .spaced-column {
     margin-right: 2em;
+  }
+
+  .wide-column {
+    padding-right: 0;
   }
 
   .title {
@@ -187,17 +196,27 @@
   }
 
   .inline-list li {
-     list-style: none;
+    list-style: none;
   }
 
   .wide-select {
     width: 100%;
   }
 
+  .muted-list {
+    list-style: none;
+    padding: 0;
+  }
+
   .vcenter {
     display: inline-block;
     vertical-align: middle;
     float: none;
+  }
+
+  .text-dim {
+    color: grey;
+    font-style: italic;
   }
 
   // fade in/out animations for list items

@@ -2,8 +2,9 @@
     'use strict';
     angular.module("exam.controllers")
         .controller('ReservationCtrl', ['ExamRes', '$scope', '$location', '$http', 'EXAM_CONF',
-            'ReservationResource', 'dateService', 'examService', '$timeout', '$routeParams',
-            function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, dateService, examService, $timeout, $routeParams) {
+            'ReservationResource', 'dateService', 'examService', '$timeout', '$routeParams', '$translate',
+            function (ExamRes, $scope, $location, $http, EXAM_CONF, ReservationResource, dateService, examService,
+                      $timeout, $routeParams, $translate) {
 
                 $scope.dateService = dateService;
 
@@ -78,6 +79,7 @@
                     'REVIEW_STARTED',
                     'GRADED',
                     'GRADED_LOGGED',
+                    'ARCHIVED',
                     'STUDENT_STARTED',
                     'PUBLISHED',
                     'ABORTED',
@@ -110,9 +112,6 @@
 
                         ReservationResource.reservations.query(params,
                             function (enrolments) {
-                                angular.forEach(enrolments, function (enrolment) {
-                                    examService.setExamOwnersAndInspectors(enrolment.exam, true);
-                                });
                                 $scope.enrolments = enrolments;
                             }, function (error) {
                                 toastr.error(error.data);
@@ -130,11 +129,18 @@
                     ReservationResource.reservation.remove({id: enrolment.reservation.id}, null,
                         function () {
                             $scope.enrolments.splice($scope.enrolments.indexOf(enrolment), 1);
-                            $location.path("admin/reservations/");
+                            toastr.info($translate.instant('sitnet_reservation_removed'));
                         }, function (error) {
                             toastr.error(error.data);
                         });
                 };
+
+                $scope.permitRetrial = function (reservation) {
+                    ExamRes.reservation.update({id: reservation.id}, function () {
+                        reservation.retrialPermitted = true;
+                        toastr.info($translate.instant('sitnet_retrial_permitted'));
+                    });
+                }
 
             }
         ])

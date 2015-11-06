@@ -285,9 +285,11 @@
                             var template = "";
                             switch (question.type) {
                                 case "MultipleChoiceQuestion":
+                                    setSelections(question);
                                     template = $scope.multipleChoiceOptionTemplate;
                                     break;
                                 case "WeightedMultipleChoiceQuestion":
+                                    setSelections(question);
                                     template = $scope.weightedMultipleChoiceOptionTemplate;
                                     break;
                                 case "EssayQuestion":

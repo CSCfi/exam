@@ -5,50 +5,51 @@
 </div>
 
 <div id="dashboard">
-
-    <div class="main-row">
-        <div class="col-md-6">
-            <h4>{{ examInfo }}</h4>
+    <div class="top-row">
+        <div class="col-md-12">
+            <h4>{{ examInfo.title }}
+                <small>
+                    ({{'sitnet_teachers' | translate }}:</strong>
+                    <span ng-repeat="owner in examInfo.examOwners">
+                        {{owner.firstName}} {{owner.lastName}}{{$last ? '' : ', ';}}
+                    </span>)
+                </small>
+            </h4>
         </div>
-        <span class="col-md-6">
-            <a target="_self" class="header-top-link pull-right" ng-click="getAnswerAttachments()"
-               ng-if="examReviews.length > 0 && view.filter === 'IN_PROGRESS'">
-                 <span class="fa-stack fa-lg header-top-icon">
-                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                    <i class="fa fa-file-archive-o fa-stack-1x sitnet-white"></i>
-                </span>
-                {{'sitnet_get_answer_attachments' | translate }}
-            </a>
-            <a target="_self" class="header-top-link pull-right" ng-click="view.filter = 'ABORTED'"
-               ng-if="view.filter === 'IN_PROGRESS'">
-                 <span class="fa-stack fa-lg header-top-icon">
-                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                    <i class="fa fa-ban fa-stack-1x sitnet-white"></i>
-                </span>
+    </div>
+    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
+        <div class="col-md-12">
+            <i class="fa fa-ban text-danger"></i>
+            <a target="_self" class="pointer" ng-click="view.filter = 'ABORTED'">
                 {{'sitnet_aborted_exams' | translate}} ({{abortedExams.length}})
             </a>
-            <a target="_self" class="header-top-link pull-right" ng-click="view.filter = 'NO_SHOW'"
-               ng-if="view.filter === 'IN_PROGRESS'">
-                 <span class="fa-stack fa-lg header-top-icon">
-                    <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
-                    <i class="fa fa-undo fa-stack-1x sitnet-white"></i>
-                </span>
+        </div>
+    </div>
+    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
+        <div class="col-md-12">
+            <i class="fa fa-undo text-warning"></i>
+            <a target="_self" class="pointer" ng-click="view.filter = 'NO_SHOW'">
                 {{'sitnet_no_shows' | translate}} ({{noShows.length}})
             </a>
-            <a class="header-top-link pull-right" ng-if="view.filter === 'ABORTED'"
-               ng-click="view.filter = 'IN_PROGRESS'">
-                <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
-            </a>
-            <a class="header-top-link pull-right" ng-if="view.filter === 'ARCHIVED'"
-               ng-click="view.filter = 'IN_PROGRESS'">
-                <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
-            </a>
-            <a class="header-top-link pull-right" ng-if="view.filter === 'NO_SHOW'"
-               ng-click="view.filter = 'IN_PROGRESS'">
-                <i class="fa fa-sign-out"><span class="italic">{{'sitnet_close' | translate}}</span></i>
-            </a>
-        </span>
+        </div>
     </div>
+    <div class="detail-row" ng-if="view.filter === 'IN_PROGRESS'">
+        <div class="col-md-12">
+            <i class="fa fa-download text-success"></i>
+            <a target="_self" class="pointer" ng-click="getAnswerAttachments()">
+                {{'sitnet_get_answer_attachments' | translate }}
+            </a>
+        </div>
+    </div>
+    <div class="detail-row" ng-if="view.filter === 'ABORTED' || view.filter === 'ARCHIVED' || view.filter === 'NO_SHOW'">
+        <div class="col-md-12">
+            <i class="fa fa-close text-info"></i>
+            <a target="_self" class="pointer" ng-click="view.filter = 'IN_PROGRESS'">
+                {{'sitnet_close' | translate}}
+            </a>
+        </div>
+    </div>
+
 
     <div class="detail-row" ng-if="view.filter === 'ABORTED'">
         <div class="main-row">
@@ -90,8 +91,10 @@
                     </td>
                     <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">
                         {{review.user.email}}</a></td>
-                    <td class="table-column-25">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                        translate}} {{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                    <td class="table-column-25">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                        {{'sitnet_clock_short' |
+                        translate}} {{review.started | adjustdst | date: 'HH:mm'}} - {{review.ended | adjustdst | date:
+                        'HH:mm'}}
                         ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                     </td>
                     <td class="table-column-15" class="sitnet-text-aborted">
@@ -144,10 +147,10 @@
                     </td>
                     <td class="table-column-25"><a class="pointer" href="mailto:{{review.user.email}}">
                         {{review.user.email}}</a></td>
-                    <td class="table-column-25">{{review.reservation.startAt | date: 'dd.MM.yyyy'}}
+                    <td class="table-column-25">{{review.reservation.startAt | adjustdst | date: 'dd.MM.yyyy'}}
                         {{'sitnet_clock_short' |
-                        translate}} {{review.reservation.startAt | date: 'HH:mm'}} - {{review.reservation.endAt | date:
-                        'HH:mm'}}
+                        translate}} {{review.reservation.startAt | adjustdst | date: 'HH:mm'}} -
+                        {{review.reservation.endAt | adjustdst | date:'HH:mm'}}
                     </td>
                     <td class="table-column-15" class="sitnet-text-aborted">
                         {{'sitnet_exam_status_no_show' | translate}}
@@ -217,8 +220,10 @@
                         </td>
                         <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                         </td>
-                        <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                            translate}} {{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                        <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                            {{'sitnet_clock_short' |
+                            translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                            {{review.ended | adjustdst | date: 'HH:mm'}}
                             ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                         </td>
                         <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
@@ -231,10 +236,6 @@
                                             {{inspection.user.firstName}} {{inspection.user.lastName}}
                                         </span>
                                     </span>
-                            </div>
-                            <div ng-repeat="owner in review.exam.examOwners">
-                                    <span class="bold" ng-if="isInspector(owner, review.inspections) == false">
-                                        {{owner.firstName}} {{owner.lastName}}</span>
                             </div>
                         </td>
                         <td class="table-column-15"
@@ -313,8 +314,10 @@
                         </td>
                         <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                         </td>
-                        <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                            translate}} {{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                        <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                            {{'sitnet_clock_short' |
+                            translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                            {{review.ended | adjustdst | date: 'HH:mm'}}
                             ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                         </td>
                         <td class="table-column-10">{{review.deadline | date:'dd.MM.yyyy'}} (<span
@@ -404,8 +407,10 @@
                         </td>
                         <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                         </td>
-                        <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                            translate}} {{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                        <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                            {{'sitnet_clock_short' |
+                            translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                            {{review.ended | adjustdst | date: 'HH:mm'}}
                             ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                         </td>
                         <td class="table-column-25">{{translateGrade(review.exam)}}</td>
@@ -485,8 +490,10 @@
                     </td>
                     <td class="table-column-15"><a class="pointer" href="mailto:{{review.user.email}}">{{review.user.email}}</a>
                     </td>
-                    <td class="table-column-20">{{review.started | date: 'dd.MM.yyyy'}} {{'sitnet_clock_short' |
-                        translate}} {{review.started | date: 'HH:mm'}} - {{review.ended | date: 'HH:mm'}}
+                    <td class="table-column-20">{{review.started | adjustdst | date: 'dd.MM.yyyy'}}
+                        {{'sitnet_clock_short' |
+                        translate}} {{review.started | adjustdst | date: 'HH:mm'}} -
+                        {{review.ended | adjustdst | date: 'HH:mm'}}
                         ({{review.started | diffInMinutesTo:review.ended }}&nbsp;min)
                     </td>
                     <td class="table-column-25">{{translateGrade(review.exam)}}</td>

@@ -24,8 +24,6 @@
                             function(enrolment) {
                                 $scope.enrolment = enrolment;
 
-                                setExamTeachers(enrolment.exam);
-
                                 if (!$scope.timeout) {
                                     var offset = calculateOffset();
                                     $scope.timeout = $timeout(function() {
@@ -42,32 +40,6 @@
                         );
                     }
                 };
-
-                function setExamTeachers(exam) {
-                    exam.examTeachers = [];
-                    exam.teachersStr = "";
-
-                    StudentExamRes.teachers.get({id: exam.id}, function(inspections) {
-
-                            angular.forEach(inspections, function (inspection) {
-                                if(exam.examTeachers.indexOf(inspection.user.firstName + " " + inspection.user.lastName) === -1) {
-                                    exam.examTeachers.push(inspection.user.firstName + " " + inspection.user.lastName);
-                                }
-                            });
-                            angular.forEach(exam.examOwners, function(owner){
-                                if(exam.examTeachers.indexOf(owner.firstName + " " + owner.lastName) === -1) {
-                                    exam.examTeachers.push(owner.firstName + " " + owner.lastName);
-                                }
-                            });
-                            exam.teachersStr = exam.examTeachers.map(function(teacher) {
-                                return teacher;
-                            }).join(", ");
-                        },
-                        function(error) {
-                            toastr.error(error.data);
-                        }
-                    );
-                }
 
                 $scope.$on('upcomingExam', function() {
                     if (waitingRoomService.getEnrolmentId() && !$scope.enrolment) {

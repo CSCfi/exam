@@ -256,24 +256,6 @@ public class QuestionController extends BaseController {
         return ok(Json.toJson(option));
     }
 
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result createOption() {
-
-        MultipleChoiceOption option = new MultipleChoiceOption();
-        option.setCorrectOption(false);
-        option.save();
-
-        return ok(Json.toJson(option));
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
-    public Result getOption(Long id) {
-
-        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, id);
-        return ok(Json.toJson(option));
-    }
-
     private static Query<Question> createQuery() {
         return Ebean.find(Question.class)
                 .fetch("creator", "id")
@@ -282,7 +264,6 @@ public class QuestionController extends BaseController {
                 .fetch("options")
                 .fetch("children.examSectionQuestion.examSection.exam.course", "code");
     }
-
 
     private static void handleTags(Question question, List<Tag> teacherTags, User teacher) {
         if (question != null && question.getTags() != null) {

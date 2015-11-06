@@ -3,34 +3,30 @@
 <div id="dashboard">
 
     <!-- Enrolled exams list -->
-    <div class="main-row">
+    <div class="top-row">
         <div class="col-md-12">
             <h3>{{'sitnet_user_enrolled_exams' | translate}}</h3>
         </div>
     </div>
 
-    <div class="main-row">
-        <div class="col-md-6 list-item bottom-padding-2" ng-repeat="enrolment in userEnrolments">
-            <div class="detail-row">
-                <div class="col-md-1">
-                    <span class="info-column-large-icon fa-stack fa-2x">
-                        <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
-                        <i class="fa fa-arrow-circle-right sitnet-white fa-stack-1x"></i>
-                    </span>
-                </div>
-                <div class="col-md-11">
+    <div class="top-row">
+        <div class="col-md-6 list-item" ng-repeat="enrolment in userEnrolments">
+            <div class="student-enrolment-wrapper">
+                <div class="col-md-12">
                     <div class="enrolment-row">
-                        <div class="col-md-12">
-                            <span class="info-header-bold">
-                                {{enrolment.exam.name}} - {{enrolment.exam.course.code}}
-                            </span>
+                        <span class="col-md-12 info-header-bold">
+                            {{enrolment.exam.name}} - {{enrolment.exam.course.code}}&nbsp;&nbsp;
+                            <a class="pointer"
+                               href="#/enroll/{{enrolment.exam.course.code}}/exam/{{enrolment.exam.id}}">
+                                <i class="fa fa-question text-info"></i>
+                            </a>
                             <span class="pointer" ng-hide="enrolment.exam.executionType.type === 'PRIVATE'">&nbsp;&nbsp;
                                 <i class="fa fa-times text-danger" popover-placement="top"
                                    popover-popup-delay="500" popover-trigger="mouseenter"
                                    popover="{{ 'sitnet_remove' | translate }}" ng-click="removeEnrolment(enrolment)">
                                 </i>
                             </span>
-                        </div>
+                        </span>
                     </div>
                     <div class="enrolment-row top-margin-1">
                         <div class="col-md-12 info-column">
@@ -80,8 +76,9 @@
                                 {{ 'sitnet_reservation' | translate }}:
                             </div>
                             <div class="col-md-9" ng-if="enrolment.reservation">
-                                {{enrolment.reservation.startAt | date:'dd.MM.yyyy'}} {{enrolment.reservation.startAt |
-                                adjustdst | date:'HH:mm'}} - {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}
+                                {{enrolment.reservation.startAt | adjustdst | date:'dd.MM.yyyy'}}
+                                {{enrolment.reservation.startAt | adjustdst | date:'HH:mm'}} -
+                                {{enrolment.reservation.endAt | adjustdst | date:'HH:mm'}}
                             </div>
                             <div class="col-md-9" ng-if="enrolment.reservationCanceled">
                                 {{ 'sitnet_canceled' | translate }}
@@ -125,8 +122,7 @@
                             <div class="col-md-3 header">
                                 {{ 'sitnet_teachers' | translate }}:
                             </div>
-                            <div class="col-md-9" ng-bind-html="enrolment.exam.teachersStr">
-                            </div>
+                            <div class="col-md-9"><teacher-list exam="enrolment.exam" /></div>
                         </div>
                     </div>
                     <div class="enrolment-row">
@@ -175,23 +171,22 @@
     <div class="detail-row">
         <div class="bottom-row"
              ng-repeat="participation in participations | orderBy: '-ended' | offset: currentPage*pageSize | limitTo: pageSize">
-            <div class="info-column col-md-3">
+            <div class="info-column col-md-2">
                 <span class="header col-md-12">{{ 'sitnet_exam_endtime' | translate }}:</span><br/>
-                <span class="text col-md-12">{{ participation.ended  | date:'dd.MM.yyyy HH:mm'}}</span>
+                <span class="light-text col-md-12">{{ participation.ended  | adjustdst | date:'dd.MM.yyyy HH:mm'}}</span>
             </div>
             <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_examcode_and_name' | translate }}:</span><br/>
-                <span class="text col-md-12">{{ participation.exam.course.code }} - {{ participation.exam.name }}</span>
+                <span class="light-text col-md-12">{{ participation.exam.course.code }} - {{ participation.exam.name }}</span>
             </div>
-            <div class="info-column col-md-3">
+            <div class="info-column col-md-4">
                 <span class="header col-md-12">{{ 'sitnet_exam_teachers' | translate }}:</span><br/>
-                <span class="text col-md-12">{{ participation.exam.teachersStr }}</span>
-                      <!--ng-repeat="examInspector in participation.exam.examInspectors">{{ examInspector.firstName }} {{ examInspector.lastName }}</span>-->
+                <span class="light-text col-md-12"><assessment-teacher-list exam="participation.exam" /></span>
             </div>
             <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_teachers_comment' | translate }}:</span><br/>
-                <span class="text col-md-12">
-                    <span ng-if="participation.exam.state === 'GRADED_LOGGED'" popover-placement="top"
+                <span class="light-text col-md-12">
+                    <span ng-if="participation.exam.state === 'GRADED_LOGGED' || participation.exam.state === 'ARCHIVED'" popover-placement="top"
                           popover-popup-delay="1000" popover-trigger="mouseenter"
                           popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(participation.exam.id)"
                           class="pointer text-info">{{'sitnet_comments' | translate}}</span>

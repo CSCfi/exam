@@ -66,17 +66,16 @@
                         toastr.error($translate.instant('sitnet_file_too_large'));
                         return;
                     }
-                    console.log('All cookies: ' + angular.toJson($cookies.getAll()));
-                    console.log('CT: ' + $cookies.get('csrfToken'));
                     var fd = new FormData();
                     fd.append('file', file);
-                    fd.append('csrfToken', $cookies.get('csrfToken'));
                     for (var k in params) {
                         if (params.hasOwnProperty(k)) {
                             fd.append(k, params[k]);
                         }
                     }
-                    $http.post(url, fd, {
+                    var csrfToken = $cookies.get('csrfToken');
+                    console.log('xsrf token: ' + csrfToken);
+                    $http.post(url + "?csrfToken=" + csrfToken, fd, {
                         transformRequest: angular.identity,
                         headers: {'Content-Type': undefined}
                     })

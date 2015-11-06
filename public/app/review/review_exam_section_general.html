@@ -13,8 +13,8 @@
 </div>
 <div class="detail-row">
     <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_time_of_exam_participation' | translate}}:</div>
-    <div class="col-md-4 sitnet-info-text-compact">{{userInfo.started | date:'dd.MM.yyyy HH:mm'}} -
-        {{userInfo.ended | date:'HH:mm'}}</div>
+    <div class="col-md-4 sitnet-info-text-compact">{{userInfo.started | adjustdst |date:'dd.MM.yyyy HH:mm'}} -
+        {{userInfo.ended | adjustdst | date:'HH:mm'}}</div>
     <div class="col-md-2 sitnet-info-text-compact">{{'sitnet_exam_duration' | translate}}:</div>
     <div class="col-md-4 sitnet-info-text-compact">{{userInfo.duration}}</div>
 </div>

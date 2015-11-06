@@ -5,13 +5,13 @@
 </div>
 <div id="dashboard">
 
-    <div ng-include="generalInfoPath"></div>
+    <div ng-include="detailedInfoPath"></div>
 
-    <div class="main-row">
+    <div class="main-row" ng-show="exam && exam.notEnrolled">
         <div class="main-row">
             <div class="col-md-12">
-                <button class="status_green btn" ng-click="enrollExam(exam)">{{'sitnet_enroll_to_exam' | translate}}</button>
-                <button class="status_orange btn" ng-click="enrollList()">{{'sitnet_exams' | translate}}</button>
+                <button class="btn btn-success" ng-click="enrollExam(exam)">{{'sitnet_enroll_to_exam' | translate}}</button>
+                <button class="btn btn-info" ng-click="enrollList()">{{'sitnet_course' | translate}}</button>
             </div>
         </div>
     </div>

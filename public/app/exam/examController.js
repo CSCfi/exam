@@ -26,6 +26,7 @@
                 if ($scope.user.isStudent) {
                     $location.path("/");
                 }
+                $scope.session = sessionService;
 
                 $rootScope.$on('$routeChangeSuccess', function (newRoute, oldRoute) {
                     $timeout(function () {
@@ -110,7 +111,9 @@
                 };
 
                 if (!$routeParams.id && !$scope.user.isStudent) {
-                    $scope.exams = ExamRes.exams.query();
+                    ExamRes.exams.query(function(exams) {
+                        $scope.exams = exams;
+                    });
                 } else {
                     initializeExam();
                 }
@@ -234,7 +237,7 @@
 
                 function getExamOwners() {
                     if ($scope.newExam.id) {
-                        ExamRes.owners.get({id: $scope.newExam.id},
+                        ExamRes.owners.query({id: $scope.newExam.id},
                             function (examOwners) {
                                 $scope.examOwners = examOwners;
                             },

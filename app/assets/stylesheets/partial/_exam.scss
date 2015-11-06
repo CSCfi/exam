@@ -246,6 +246,11 @@
     list-style: none;
   }
 
+  [class*="sortable-"] {
+    list-style: none;
+  }
+
+
   //  -webkit-touch-callout: none;
   //  -webkit-user-select: none;
   //  -khtml-user-select: none;

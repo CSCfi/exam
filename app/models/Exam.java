@@ -44,11 +44,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     @ManyToMany
     @JoinTable(name = "exam_owner", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> examOwners;
-
-    @ManyToMany
-    @JoinTable(name = "exam_inspection", joinColumns = @JoinColumn(name = "exam_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> examInspectors;
+    private Set<User> examOwners;
 
     // Instruction written by teacher, shown during exam
     @Column(columnDefinition = "TEXT")
@@ -211,11 +207,11 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         return total;
     }
 
-    public List<User> getExamOwners() {
+    public Set<User> getExamOwners() {
         return examOwners;
     }
 
-    public void setExamOwners(List<User> examOwners) {
+    public void setExamOwners(Set<User> examOwners) {
         this.examOwners = examOwners;
     }
 

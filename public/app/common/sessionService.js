@@ -6,6 +6,7 @@
             function ($q, $sessionStorage, $translate, $injector, $location, $rootScope, tmhDynamicLocale, EXAM_CONF) {
 
                 var _user;
+                var _env;
 
                 var getUser = function () {
                     return _user;
@@ -214,6 +215,14 @@
                     }
                 };
 
+                var setEnv = function(env) {
+                    _env = env;
+                };
+
+                var getEnv = function() {
+                    return _env;
+                };
+
                 return {
                     login: login,
                     logout: logout,
@@ -224,7 +233,9 @@
                     translate: translate,
                     hasRole: hasRole,
                     openRoleSelectModal: openRoleSelectModal,
-                    openEulaModal: openEulaModal
+                    openEulaModal: openEulaModal,
+                    setEnv: setEnv,
+                    getEnv: getEnv
                 };
 
             }]);

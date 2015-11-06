@@ -41,7 +41,7 @@
                     <td class="table-column-enroll-participation">
                         <a href="" ng-click="showReservations(activeExam.id)">{{ getReservationCount(activeExam) }}</a>
                     </td>
-                    <td class="table-column-teachers" ng-bind-html="activeExam.teachersStr"></td>
+                    <td class="table-column-teachers"><teacher-list exam="activeExam" /></td>
                 </tr>
                 </tbody>
             </table>

@@ -31,8 +31,7 @@
                         <a role="menuitem" ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question'
                             | translate}}</a>
                         <a role="menuitem" ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question'
-                            |
-                            translate}}</a>
+                            | translate}}</a>
                         <a role="menuitem" ng-click="createQuestion('WeightedMultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_weighted_multiplechoice_question'
                             | translate}}</a>
                     </li>
@@ -109,7 +108,10 @@
                         </li>
                         <li ng-repeat="tag in tags | filter:limitations.tags" ng-hide='tag.filtered' role="presentation"
                             ng-click="applyFilter(tag)">
-                            <a role="menuitem">{{tag.name | truncate:30}}</a>
+                            <a role="menuitem" ng-class="tag.isSectionTag ? 'text-dim' : 'text'"
+                               title="{{tag.isSectionTag ? 'sitnet_exam_section' : 'sitnet_category' | translate; }}">
+                                {{tag.name | truncate:30}}
+                            </a>
                         </li>
                     </ul>
                 </span>
