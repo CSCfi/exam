@@ -51,7 +51,33 @@ public class SystemRequestHandler implements HttpRequestHandler {
             Logger.info("Session with token {} not found", token);
             return doCreateAction();
         }
+        Action validationAction = validateSession(session, token);
+        if (validationAction != null) {
+            return validationAction;
+        }
 
+        updateSession(request, session, token);
+
+        if (session.getUserId() == null) {
+            return doCreateAction();
+        }
+
+        if (user == null || !user.hasRole("STUDENT", session) || request.path().equals("/logout")) {
+            // propagate further right away
+            return doCreateAction();
+        } else {
+            // requests are candidates for extra processing
+            return processAction(request, user);
+        }
+    }
+
+
+    @Override
+    public Action wrapAction(Action action) {
+        return action;
+    }
+
+    private Action validateSession(Session session, String token) {
         if (!session.isValid()) {
             Logger.warn("Session #{} is marked as invalid", token);
             return new Action.Simple() {
@@ -64,17 +90,10 @@ public class SystemRequestHandler implements HttpRequestHandler {
                 }
             };
         }
+        return null;
+    }
 
-        updateSession(request, session, token);
-
-        if (session.getUserId() == null) {
-            return doCreateAction();
-        }
-
-        if (user == null || !user.hasRole("STUDENT", session) || request.path().equals("/logout")) {
-            return doCreateAction();
-        }
-
+    private Action processAction(Http.Request request, User user) {
         ExamEnrolment ongoingEnrolment = getNextEnrolment(user.getId(), 0);
         if (ongoingEnrolment != null) {
             return handleOngoingEnrolment(ongoingEnrolment, request);
@@ -95,16 +114,15 @@ public class SystemRequestHandler implements HttpRequestHandler {
         }
     }
 
-    @Override
-    public Action wrapAction(Action action) {
-        return action;
-    }
-
     private Action doCreateAction() {
         return new Action.Simple() {
             @Override
             public F.Promise<Result> call(Http.Context ctx) throws Throwable {
-                return delegate.call(ctx);
+                F.Promise<Result> promise = delegate.call(ctx);
+                Http.Response response = ctx.response();
+                response.setHeader("Cache-Control", "no-cache;no-store");
+                response.setHeader("Pragma", "no-cache");
+                return promise;
             }
         };
     }

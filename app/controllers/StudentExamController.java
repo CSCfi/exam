@@ -118,7 +118,7 @@ public class StudentExamController extends BaseController {
 
         Exam exam = Ebean.find(Exam.class)
                 .fetch("creator", "firstName, lastName, email")
-                .fetch("course", "code, name, level, type, credits")
+                .fetch("course", "code, name, credits")
                 .fetch("grade")
                 .fetch("gradeScale")
                 .fetch("examFeedback")
@@ -307,7 +307,7 @@ public class StudentExamController extends BaseController {
         return Ebean.find(Exam.class)
                 .select("id, name, instruction, shared, hash, examActiveStartDate, examActiveEndDate, duration, answerLanguage, state, expanded, cloned")
                 .fetch("creator", "id")
-                .fetch("course", "id, code, name, level, type, credits, institutionName, department")
+                .fetch("course", "id, code, name, credits, institutionName, department")
                 .fetch("examType", "id, type")
                 .fetch("executionType")
                 .fetch("examSections", "id, name")

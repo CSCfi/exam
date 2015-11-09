@@ -4,12 +4,13 @@ import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import models.Attachment;
 import models.OwnedModel;
+import models.api.AttachmentContainer;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
-public class Answer extends OwnedModel {
+public class Answer extends OwnedModel implements AttachmentContainer {
 
     @EnumMapping(integerType = true, nameValuePairs = "MultipleChoiceAnswer=1, EssayAnswer=2, WeightedMultipleChoiceAnswer=3")
     public enum Type { MultipleChoiceAnswer, EssayAnswer, WeightedMultipleChoiceAnswer }
@@ -38,10 +39,12 @@ public class Answer extends OwnedModel {
     @OneToOne(cascade = CascadeType.ALL)
     protected Attachment attachment;
 
+    @Override
     public Attachment getAttachment() {
         return attachment;
     }
 
+    @Override
     public void setAttachment(Attachment attachment) {
         this.attachment = attachment;
     }

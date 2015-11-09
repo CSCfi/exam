@@ -8,6 +8,7 @@ import models.Attachment;
 import models.Comment;
 import models.Exam;
 import models.User;
+import models.api.AttachmentContainer;
 import models.questions.Answer;
 import models.questions.Question;
 import play.Logger;
@@ -25,6 +26,18 @@ import java.util.UUID;
 import static util.java.AttachmentUtils.setData;
 
 public class AttachmentController extends BaseController {
+
+    private static void removePrevious(AttachmentContainer container, boolean removeFromDisk) {
+        if (container.getAttachment() != null) {
+            Attachment aa = container.getAttachment();
+            container.setAttachment(null);
+            container.save();
+            if (removeFromDisk) {
+                AppUtil.removeAttachmentFile(aa.getFilePath());
+            }
+            aa.delete();
+        }
+    }
 
     @Restrict({@Group("STUDENT")})
     public Result addAttachmentToQuestionAnswer() {
@@ -78,13 +91,7 @@ public class AttachmentController extends BaseController {
         }
         // Remove existing one if found
         Answer answer = question.getAnswer();
-        if (answer.getAttachment() != null) {
-            Attachment aa = answer.getAttachment();
-            answer.setAttachment(null);
-            answer.save();
-            AppUtil.removeAttachmentFile(aa.getFilePath());
-            aa.delete();
-        }
+        removePrevious(question.getAnswer(), true);
 
         Attachment attachment = new Attachment();
         attachment.setFileName(fileName);
@@ -121,12 +128,7 @@ public class AttachmentController extends BaseController {
             return internalServerError("sitnet_error_creating_attachment");
         }
         // Remove existing one if found
-        if (question.getAttachment() != null) {
-            Attachment aa = question.getAttachment();
-            question.setAttachment(null);
-            question.save();
-            aa.delete();
-        }
+        removePrevious(question, true);
 
         Attachment attachment = new Attachment();
         attachment.setFileName(filePart.getFilename());
@@ -144,14 +146,7 @@ public class AttachmentController extends BaseController {
     public Result deleteQuestionAttachment(Long id) {
 
         Question question = Ebean.find(Question.class, id);
-        if (question != null && question.getAttachment() != null) {
-            Attachment aa = question.getAttachment();
-            question.setAttachment(null);
-            question.save();
-            aa.delete();
-            // DO NOT DELETE THE ACTUAL FILE, IT MAY BE REFERENCED FROM CHILD QUESTIONS!
-            //AppUtil.removeAttachmentFile(aa.getFilePath());
-        }
+        removePrevious(question, false);
         return redirect("/#/questions/" + String.valueOf(id));
     }
 
@@ -181,14 +176,7 @@ public class AttachmentController extends BaseController {
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result deleteExamAttachment(Long id) {
         Exam exam = Ebean.find(Exam.class, id);
-        if (exam.getAttachment() != null) {
-            Attachment aa = exam.getAttachment();
-            exam.setAttachment(null);
-            exam.save();
-            aa.delete();
-            // DO NOT DELETE THE ACTUAL FILE, IT MAY BE REFERENCED FROM CHILD EXAMS!
-            // AppUtil.removeAttachmentFile(aa.getFilePath());
-        }
+        removePrevious(exam, false);
         return redirect("/#/exams/" + String.valueOf(id));
     }
 
@@ -199,13 +187,7 @@ public class AttachmentController extends BaseController {
             return notFound("sitnet_exam_not_found");
         }
         Comment comment = exam.getExamFeedback();
-        if (comment != null && comment.getAttachment() != null) {
-            Attachment aa = comment.getAttachment();
-            comment.setAttachment(null);
-            comment.save();
-            AppUtil.removeAttachmentFile(aa.getFilePath());
-            aa.delete();
-        }
+        removePrevious(comment, true);
         return ok();
     }
 
@@ -233,12 +215,7 @@ public class AttachmentController extends BaseController {
             return internalServerError("sitnet_error_creating_attachment");
         }
         // Delete existing if exists
-        if (exam.getAttachment() != null) {
-            Attachment aa = exam.getAttachment();
-            exam.setAttachment(null);
-            exam.save();
-            aa.delete();
-        }
+        removePrevious(exam, false);
 
         Attachment attachment = new Attachment();
         attachment.setFileName(filePart.getFilename());
@@ -281,14 +258,8 @@ public class AttachmentController extends BaseController {
             return internalServerError("sitnet_error_creating_attachment");
         }
         Comment comment = exam.getExamFeedback();
-        // Delete old one if exists
-        if (comment.getAttachment() != null) {
-            Attachment aa = comment.getAttachment();
-            comment.setAttachment(null);
-            comment.save();
-            AppUtil.removeAttachmentFile(aa.getFilePath());
-            aa.delete();
-        }
+        removePrevious(comment, true);
+
         Attachment attachment = new Attachment();
         attachment.setFileName(filePart.getFilename());
         attachment.setFilePath(newFilePath);
