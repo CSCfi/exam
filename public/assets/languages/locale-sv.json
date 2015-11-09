@@ -212,7 +212,7 @@
   "sitnet_exam_graded_logged": "Registrerade prestationer",
   "sitnet_are_you_sure": "Är du säker?",
   "sitnet_confirm_turn_exam": "Du håller på att avsluta tentamen. Efter det kan du inte återgå till den. Vill du fortsätta?",
-  "sitnet_confirm_abort_exam": "Du håller på att avbryta tentamen. Det innebär att du lämnar in ett "tomt papper". Vill du fortsätta?",
+  "sitnet_confirm_abort_exam": "Du håller på att avbryta tentamen. Det innebär att du lämnar in ett \"tomt papper\". Vill du fortsätta?",
   "sitnet_unit_points": "poäng",
   "sitnet_state_started": "Påbörjad",
   "sitnet_state_ready": "Öppen för studerandena",
