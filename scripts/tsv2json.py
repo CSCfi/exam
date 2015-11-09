@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import json
 
 LANGS = ['fi', 'sv', 'en']
 TSV_FILE_PREFIX = 'Exam-kielipaketti - '
@@ -11,11 +12,9 @@ def parse_opts():
         raise Exception("usage: " + sys.argv[0] + " <input_dir> <output_dir>")
     return sys.argv[1], sys.argv[2]
 
-def filename(input_dir, prefix, lang):
-    return input_dir + "/" + prefix + lang + '.tsv'
-
 def read_file(input_dir, lang):
-    f = open(filename(input_dir, TSV_FILE_PREFIX, lang))
+    file_name = input_dir + "/" + TSV_FILE_PREFIX + lang + '.tsv'
+    f = open(file_name)
     return f.read()
 
 def tsv_to_json(input):
@@ -25,12 +24,12 @@ def tsv_to_json(input):
         key, value = line.split('\t')[:2]
         objs.append((key.strip(), value.strip()))
 
-    fields = ['"' + obj[0] + '": "' + obj[1] + '"' for obj in objs]
+    fields = ['"{0}": "{1}"'.format(obj[0], obj[1].replace('"', '\\"')) for obj in objs]
     return '{\r\n  ' + ',\n  '.join(fields) + '\r\n}\r\n'
 
 def write(content, dir, lang):
-    filename = dir + JSON_FILE_PREFIX + lang + ".json"
-    f = open(filename, 'w')
+    file_name = dir + JSON_FILE_PREFIX + lang + ".json"
+    f = open(file_name, 'w')
     f.truncate()
     f.write(content)
     f.close()
