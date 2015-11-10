@@ -9,7 +9,7 @@
 
                 $scope.credentials = {};
 
-                var setLoginTemplate = function(env) {
+                var setLoginTemplate = function (env) {
                     if (!env.isProd) {
                         $scope.loginTemplatePath = EXAM_CONF.TEMPLATES_PATH + "common/dev_login.html";
                     }
@@ -34,11 +34,12 @@
                         delete $scope.user;
                         $rootScope.$broadcast('userUpdated');
                         toastr.success($translate.instant("sitnet_logout_success"));
+                        var localLogout = window.location.protocol + "//" + window.location.host + "/Shibboleth.sso/Logout";
                         if (data && data.logoutUrl) {
-                            var returnUrl = window.location.protocol + "//" + window.location.host + "/Shibboleth.sso/Logout";
-                            window.location.href = data.logoutUrl + "?return=" + returnUrl;
+                            window.location.href = data.logoutUrl + "?return=" + localLogout;
                         } else if (!sessionService.getEnv || sessionService.getEnv.isProd) {
-                            $scope.loginTemplatePath = EXAM_CONF.TEMPLATES_PATH + "common/logout.html";
+                            // redirect to SP-logout directly
+                            window.location.href = localLogout;
                         } else {
                             $location.path("/login")
                         }

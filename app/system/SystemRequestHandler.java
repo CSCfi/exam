@@ -147,8 +147,6 @@ public class SystemRequestHandler implements HttpRequestHandler {
 
         Logger.debug("User is on IP: {} <-> Should be on IP: {}", remoteIp, machineIp);
 
-        //todo: is there another way to identify/match machines?
-        //todo: eg. some transparent proxy that add id header etc.
         if (!remoteIp.equals(machineIp)) {
             String message;
             String header;
