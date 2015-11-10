@@ -15,7 +15,9 @@ import play.libs.Json;
 import play.mvc.Result;
 import util.AppUtil;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 public class QuestionController extends BaseController {
 
@@ -52,7 +54,15 @@ public class QuestionController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getQuestion(Long id) {
-        Question question = Ebean.find(Question.class, id);
+        User user = getLoggedUser();
+        ExpressionList<Question> query = Ebean.find(Question.class).where().idEq(id);
+        if (user.hasRole("TEACHER", getSession())) {
+            query = query.eq("creator", user);
+        }
+        Question question = query.findUnique();
+        if (question == null) {
+            return forbidden("sitnet_error_access_forbidden");
+        }
         Collections.sort(question.getOptions());
         return ok(Json.toJson(question));
     }

@@ -147,7 +147,7 @@ public class IntegrationTestCase {
     }
 
     protected Result request(String method, String path, JsonNode body) {
-        return request(method, path, body, Collections.<String, String>emptyMap());
+        return request(method, path, body, HAKA_HEADERS);
     }
 
     protected Result request(String method, String path, JsonNode body, Map<String, String> headers) {
@@ -157,9 +157,6 @@ public class IntegrationTestCase {
         }
         if (body != null && !method.equals(Helpers.GET)) {
             request = request.bodyJson(body);
-        }
-        if (sessionToken != null) {
-            request.headers().put("x-exam-authentication", new String[]{sessionToken});
         }
         return Helpers.route(request);
     }

@@ -64,7 +64,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
   // Actions ->
 
   def getCourses(filterType: Option[String], criteria: Option[String]) = Action.async {
-    request => request.headers.get(SITNET_TOKEN_HEADER_KEY).map { token =>
+    request => request.headers.get(getKey).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
           _getCourses(filterType, criteria, user)
@@ -77,7 +77,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
   }
 
   def getCourse(id: Long) = Action {
-    request => request.headers.get(SITNET_TOKEN_HEADER_KEY).map { token =>
+    request => request.headers.get(getKey).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
           val results = Ebean.find(classOf[Course], id)
@@ -91,7 +91,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
   }
 
   def listUsersCourses(examIds: Option[IdList], sectionIds: Option[IdList], tagIds: Option[IdList]) = Action {
-    request => request.headers.get(SITNET_TOKEN_HEADER_KEY).map { token =>
+    request => request.headers.get(getKey).map { token =>
       getAuthorizedUser(token, Seq("ADMIN", "TEACHER")) match {
         case user: Any =>
           _listUsersCourses(user, examIds, sectionIds, tagIds, token)

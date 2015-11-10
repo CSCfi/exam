@@ -23,8 +23,6 @@ import java.util.regex.Pattern;
 
 public class SessionController extends BaseController {
 
-    private static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
-
     public Result login() {
         Result result;
         switch (LOGIN_TYPE) {
@@ -60,7 +58,7 @@ public class SessionController extends BaseController {
         }
         user.setLastLogin(new Date());
         user.save();
-        return createSession(toUtf8(request().getHeader("Shib-Session-ID")), user);
+        return createSession(user);
     }
 
     private Result devLogin() {
@@ -69,22 +67,22 @@ public class SessionController extends BaseController {
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
             return unauthorized("sitnet_error_unauthenticated");
         }
-        String md5psswd = AppUtil.encodeMD5(credentials.getPassword());
+        String pwd = AppUtil.encodeMD5(credentials.getPassword());
         User user = Ebean.find(User.class)
                 .where().eq("eppn", credentials.getUsername() + "@funet.fi")
-                .eq("password", md5psswd).findUnique();
+                .eq("password", pwd).findUnique();
 
         if (user == null) {
             return unauthorized("sitnet_error_unauthenticated");
         }
         user.setLastLogin(new Date());
         user.save();
-        return createSession(UUID.randomUUID().toString(), user);
+        return createSession(user);
     }
 
     private static Language getLanguage(String code) {
         Language language = null;
-        if (code != null && !code.isEmpty()) {
+        if (code != null) {
             // for example: en-US -> en
             code = code.split("-")[0].toLowerCase();
             language = Ebean.find(Language.class, code);
@@ -142,7 +140,7 @@ public class SessionController extends BaseController {
         return user;
     }
 
-    private Result createSession(String token, User user) {
+    private Result createSession(User user) {
         Session session = new Session();
         session.setSince(DateTime.now());
         session.setUserId(user.getId());
@@ -151,7 +149,8 @@ public class SessionController extends BaseController {
         if (user.getRoles().size() == 1) {
             session.setLoginRole(user.getRoles().get(0).getName());
         }
-        cache.set(SITNET_CACHE_KEY + token, session);
+
+        String token = createSession(session);
 
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
@@ -207,19 +206,13 @@ public class SessionController extends BaseController {
     }
 
     public Result logout() {
-        String token = request().getHeader(SITNET_TOKEN_HEADER_KEY);
-        String key = SITNET_CACHE_KEY + token;
-        Session session = cache.get(key);
+        Session session = getSession();
         Result result = ok();
         if (session != null) {
             User user = Ebean.find(User.class, session.getUserId());
-            if (LOGIN_TYPE.equals("HAKA")) {
-                session.setValid(false);
-                cache.set(key, session);
-                Logger.info("Set session as invalid {}", token);
-            } else {
-                cache.remove(key);
-            }
+            session.setValid(false);
+            updateSession(session);
+            Logger.info("Set session for user #{} as invalid", session.getUserId());
             if (user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
@@ -232,9 +225,7 @@ public class SessionController extends BaseController {
     }
 
     public Result setLoginRole(Long uid, String roleName) {
-        String token = request().getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
-        final String key = SITNET_CACHE_KEY + token;
-        Session session = cache.get(key);
+        Session session = getSession();
         if (session == null) {
             return unauthorized();
         }
@@ -250,28 +241,24 @@ public class SessionController extends BaseController {
             return forbidden();
         }
         session.setLoginRole(roleName);
-        cache.set(SITNET_CACHE_KEY + token, session);
+        updateSession(session);
         return ok();
     }
 
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
     public Result extendSession() {
-        String token = request().getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
-        final String key = SITNET_CACHE_KEY + token;
-        Session session = cache.get(key);
+        Session session = getSession();
         if (session == null) {
             return unauthorized();
         }
         session.setSince(DateTime.now());
-        cache.set(SITNET_CACHE_KEY + token, session);
+        updateSession(session);
         return ok();
     }
 
     public Result checkSession() {
-        String token = request().getHeader(LOGIN_TYPE.equals("HAKA") ? "Shib-Session-ID" : SITNET_TOKEN_HEADER_KEY);
-        final String key = SITNET_CACHE_KEY + token;
-        Session session = cache.get(key);
+        Session session = getSession();
         if (session == null || session.getSince() == null) {
             Logger.info("Session not found");
             return ok("no_session");
