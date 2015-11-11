@@ -18,8 +18,6 @@ import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SessionController extends BaseController {
 
@@ -106,12 +104,7 @@ public class SessionController extends BaseController {
         if (src == null) {
             return null;
         }
-        Pattern p = Pattern.compile("^[^\\d]*(\\d+?)$");
-        Matcher m = p.matcher(src);
-        if (m.find()) {
-            return m.group(1);
-        }
-        return src;
+        return src.substring(src.lastIndexOf(":") + 1);
     }
 
     private static void updateUser(User user) throws AddressException {
