@@ -56,6 +56,7 @@
                     // use jquery to make the element sortable. This is called
                     // when the element is rendered
                     $(element[0]).sortable({
+                        revert: true,
                         items: '.sortable-' + scope.identifier,
                         start: function (event, ui) {
                             // on start we define where the item is dragged from
