@@ -363,7 +363,7 @@ public class ExamController extends BaseController {
                 return badRequest("Invalid grade for this grade scale");
             }
         }
-        String creditType = df.get("creditType");
+        String creditType = df.get("creditType.type");
         if (creditType != null) {
             ExamType eType = Ebean.find(ExamType.class)
                     .where()

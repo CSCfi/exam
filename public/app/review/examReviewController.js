@@ -124,7 +124,7 @@
                         var lang = pickExamLanguage(exam);
                         LanguageRes.languages.query(function (languages) {
                             $scope.languages = languages.map(function (language) {
-                                if (lang.code === language.code) {
+                                if (lang && lang.code === language.code) {
                                     $scope.selections.language = language;
                                 }
                                 language.name = getLanguageNativeName(language.code);
