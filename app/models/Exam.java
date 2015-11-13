@@ -3,6 +3,7 @@ package models;
 import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.api.AttachmentContainer;
 import models.questions.Answer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
@@ -16,7 +17,7 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class Exam extends OwnedModel implements Comparable<Exam> {
+public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
 
     @EnumMapping(integerType = true, nameValuePairs = "DRAFT=1, SAVED=2, PUBLISHED=3, STUDENT_STARTED=4, REVIEW=5, " +
             "REVIEW_STARTED=6, GRADED=7, GRADED_LOGGED=8, ARCHIVED=9, ABORTED=10, DELETED=11, REJECTED=12")
