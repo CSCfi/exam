@@ -306,16 +306,15 @@
                 };
 
                 $scope.scoreWeightedMultipleChoiceAnswer = function (question) {
-                    if (question.type !== 'WeightedMultipleChoiceQuestion' || !question.answer) {
+                    if (question.type !== 'WeightedMultipleChoiceQuestion' || !question.answer) {
                         return 0;
                     }
-                    var score = question.answer.options.reduce(function (a, b) {
+                    var score = question.options.filter(function (o) {
+                        return o.answer;
+                    }).reduce(function (a, b) {
                         return a + b.score;
                     }, 0);
-                    if (score < 0) {
-                        score = 0;
-                    }
-                    return score;
+                    return Math.max(0, score)
                 };
 
                 $scope.scoreMultipleChoiceAnswer = function (sectionQuestion) {
@@ -325,7 +324,6 @@
                         return 0;
                     }
                     if (question.answer === null) {
-                        question.backgroundColor = 'grey';
                         return 0;
                     }
                     if (question.answer.options.length != 1) {
@@ -333,11 +331,7 @@
                     }
                     if (question.answer.options[0].correctOption === true) {
                         score = question.maxScore;
-                        question.backgroundColor = 'green';
-                    } else {
-                        question.backgroundColor = 'red';
                     }
-
                     return score;
                 };
 
@@ -350,12 +344,6 @@
                     return input;
                 };
 
-                $scope.isAnswer = function (option, question) {
-                    return question.answer && question.answer.options.map(function (o) {
-                            return o.id
-                        }).indexOf(option.id) > -1;
-                };
-
                 $scope.getSectionTotalScore = function (section) {
                     var score = 0;
 
@@ -364,7 +352,6 @@
                         switch (question.type) {
                             case "MultipleChoiceQuestion":
                                 if (question.answer === null) {
-                                    question.backgroundColor = 'grey';
                                     return 0;
                                 }
                                 if (question.answer.options.length != 1) {
@@ -376,7 +363,6 @@
                                 break;
                             case "WeightedMultipleChoiceQuestion":
                                 if (question.answer === null) {
-                                    question.backgroundColor = 'grey';
                                     return 0;
                                 }
                                 score += question.answer.options.reduce(function (a, b) {
@@ -384,7 +370,6 @@
                                 }, 0);
                                 break;
                             case "EssayQuestion":
-
                                 if (question.evaluatedScore && question.evaluationType === 'Points') {
                                     var number = parseFloat(question.evaluatedScore);
                                     if (angular.isNumber(number)) {
