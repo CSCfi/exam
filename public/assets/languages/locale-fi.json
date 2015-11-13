@@ -581,5 +581,6 @@
   "sitnet_confirm_question_removal": "Poistetaanko kysymys?",
   "sitnet_exam_section": "Aihealue",
   "sitnet_reservation_removed": "Varaus poistettu",
-  "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä."
+  "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä.",
+  "sitnet_choose_teacher": "Valitse opettaja"
 }

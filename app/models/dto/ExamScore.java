@@ -1,6 +1,8 @@
 package models.dto;
 
+import models.Exam;
 import models.GeneratedIdentityModel;
+import models.User;
 
 import javax.persistence.Entity;
 import javax.persistence.Transient;
@@ -183,16 +185,20 @@ public class ExamScore extends GeneratedIdentityModel {
 
     @Transient
     public static String[] getHeaders() {
-        return new String[]{"id", "student", "studentId", "identifier", "courseUnitCode", "examDate", "credits",
-                "creditLanguage", "studentGrade", "gradeScale", "examScore", "courseUnitLevel", "creditType",
-                "lecturer", "lecturerId", "lecturerEmployeeNumber", "date", "courseImplementation", "additionalInfo"};
+        return new String[]{"id", "student", "studentFirstName", "studentLastName", "studentEmail", "studentId",
+                "identifier", "courseUnitCode", "courseUnitName", "examDate", "credits", "creditLanguage",
+                "studentGrade", "gradeScale", "examScore", "courseUnitLevel", "creditType", "lecturer",
+                "lecturerFirstName", "lecturerLastName", "lecturerId", "lecturerEmployeeNumber", "date",
+                "courseImplementation", "additionalInfo"};
     }
 
     @Transient
-    public String[] asArray() {
-        return new String[]{Long.toString(getId()), student, studentId, identifier, courseUnitCode, examDate, credits,
+    public String[] asArray(User student, User teacher, Exam exam) {
+        return new String[]{Long.toString(getId()), student.getFirstName(), student.getLastName(), student.getEmail(),
+                studentId, identifier, courseUnitCode, exam.getCourse().getName(), examDate, credits,
                 creditLanguage, studentGrade, gradeScale, examScore, courseUnitLevel, creditType, lecturer,
-                lecturerId, lecturerEmployeeNumber, date, courseImplementation, additionalInfo};
+                teacher.getFirstName(), teacher.getLastName(), lecturerId, lecturerEmployeeNumber, date,
+                courseImplementation, additionalInfo};
     }
 
 }

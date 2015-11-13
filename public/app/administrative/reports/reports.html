@@ -4,31 +4,14 @@
     </div>
 </div>
 
-<div id="report" class="base">
-    <hr>
-    <div ng-include="templates.examRoomReservations" ng-controller="DatepickerCtrl">
-    </div>
-    <hr>
-    <div ng-include="templates.examReport">
-    </div>
-    <hr>
-    <div ng-include="templates.examReportJson">
-    </div>
-    <hr>
-    <div ng-include="templates.examEnrollmentsReport" ng-controller="DatepickerCtrl">
-    </div>
-    <hr>
-    <div ng-include="templates.examAnswers" ng-controller="DatepickerCtrl">
-     </div>
-    <hr>
-    <div ng-include="templates.reviewedExams" ng-controller="DatepickerCtrl">
-    </div>
-    <div ng-include="templates.examRecordsCsv" ng-controller="DatepickerCtrl">
-    </div>
-    <hr>
-    <div ng-include="templates.teacherExamsReport" ng-controller="DatepickerCtrl">
-    </div>
-    <hr>
-    <div ng-include="templates.studentReport" ng-controller="DatepickerCtrl">
-    </div>
+<div id="dashboard">
+    <div class="report-category" ng-include="templates.examRoomReservations"></div>
+    <div class="report-category" ng-include="templates.examReport"></div>
+    <div class="report-category" ng-include="templates.examReportJson"></div>
+    <div class="report-category" ng-include="templates.examEnrollmentsReport"></div>
+    <div class="report-category" ng-include="templates.examAnswers"></div>
+    <div class="report-category" ng-include="templates.reviewedExams"></div>
+    <div class="report-category" ng-include="templates.examRecordsCsv"></div>
+    <div class="report-category" ng-include="templates.teacherExamsReport"></div>
+    <div class="report-category" ng-include="templates.studentReport"></div>
 </div>

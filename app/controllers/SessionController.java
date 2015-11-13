@@ -37,8 +37,8 @@ public class SessionController extends BaseController {
     }
 
     private Result hakaLogin() {
-        String eppn = toUtf8(request().getHeader("eppn"));
-        if (eppn == null || eppn.isEmpty()) {
+        String eppn = parse(request().getHeader("eppn"));
+        if (eppn == null) {
             return badRequest("No credentials!");
         }
         User user = Ebean.find(User.class)
@@ -108,18 +108,18 @@ public class SessionController extends BaseController {
     }
 
     private static void updateUser(User user) throws AddressException {
-        user.setUserIdentifier(parseUserIdentifier(toUtf8(request().getHeader("schacPersonalUniqueCode"))));
-        user.setEmail(validateEmail(toUtf8(request().getHeader("mail"))));
-        user.setLastName(toUtf8(request().getHeader("sn")));
-        user.setFirstName(toUtf8(request().getHeader("displayName")));
-        user.setEmployeeNumber(toUtf8(request().getHeader("employeeNumber")));
-        user.setLogoutUrl(toUtf8(request().getHeader("logouturl")));
+        user.setUserIdentifier(parseUserIdentifier(parse(request().getHeader("schacPersonalUniqueCode"))));
+        user.setEmail(validateEmail(parse(request().getHeader("mail"))));
+        user.setLastName(parse(request().getHeader("sn")));
+        user.setFirstName(parse(request().getHeader("displayName")));
+        user.setEmployeeNumber(parse(request().getHeader("employeeNumber")));
+        user.setLogoutUrl(parse(request().getHeader("logouturl")));
     }
 
     private static User createNewUser(String eppn) throws NotFoundException, AddressException {
         User user = new User();
-        user.getRoles().addAll(parseRoles(toUtf8(request().getHeader("unscoped-affiliation"))));
-        user.setLanguage(getLanguage(toUtf8(request().getHeader("preferredLanguage"))));
+        user.getRoles().addAll(parseRoles(parse(request().getHeader("unscoped-affiliation"))));
+        user.setLanguage(getLanguage(parse(request().getHeader("preferredLanguage"))));
         user.setEppn(eppn);
         updateUser(user);
         return user;
@@ -261,8 +261,8 @@ public class SessionController extends BaseController {
         return ok();
     }
 
-    private static String toUtf8(String src) {
-        if (src == null) {
+    private static String parse(String src) {
+        if (src == null || src.isEmpty()) {
             return null;
         }
         try {

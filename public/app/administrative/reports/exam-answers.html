@@ -1,48 +1,59 @@
-<div class="row">
-    <div class="col-md-12 sitnet-info-text">
+<div class="top-row">
+    <h4 class="col-md-12">
         {{'sitnet_get_all_exam_answers' | translate}}
-    </div>
+    </h4>
 </div>
-<div class="row">
+<div class="bottom-row">
 
     <!-- Start & End time datepickers -->
-    <div class="col-md-5">
-        <h4>{{'sitnet_start_time' | translate}}</h4>
-        <p class="input-group">
-            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
-                   is-open="startDateOpened"
-                   max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
-                       
+    <div ng-controller="DatepickerCtrl">
+        <div class="col-md-5">
+            <label for="startAt">{{'sitnet_start_time' | translate}}</label>
+
+            <div id="startAt" class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                       is-open="startDateOpened" datepicker-options="dateOptions" ng-required="true"
+                       close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}"
+                       toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}"
+                       ui-change="updateExam()">
+
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
                         <i class="fa fa-calendar"></i>
                     </button>
                 </span>
-        </p>
-    </div>
+            </div>
+        </div>
 
-    <div class="col-md-5">
-        <h4>{{'sitnet_end_time' | translate}}</h4>
-        <p class="input-group">
-            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
-                   is-open="endDateOpened" min="dateService.startDate"
-                   max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
-                   ng-required="true" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
+        <div class="col-md-5">
+            <label for="endAt">{{'sitnet_end_time' | translate}}</label>
+
+            <div id="endAt" class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                       is-open="endDateOpened" min="dateService.startDate" datepicker-options="dateOptions"
+                       date-disabled="disabled(date, mode)"
+                       ng-required="true" close-text="{{'sitnet_close' | translate}}"
+                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                       clear-text="{{'sitnet_clear' | translate}}">
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openEndDate($event)">
                         <i class="fa fa-calendar"></i>
                     </button>
                 </span>
-        </p>
+            </div>
+        </div>
     </div>
 
-    <div class="col-md-2 load-link">
-        <h2>
+    <div class="col-md-2">
+        <label for="link">&nbsp;</label>
+
+        <div id="link">
             <a ng-click="getExamAnswerReport(dateService.startTimestamp, dateService.endTimestamp)"
-               class="fa-stack fa-lg" download popover-trigger="mouseenter"  popover="{{'sitnet_download' | translate}}">
+               class="fa-stack fa-lg pull-right" download popover-trigger="mouseenter"
+               popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                 <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
             </a>
-        </h2>
+        </div>
     </div>
 </div>
