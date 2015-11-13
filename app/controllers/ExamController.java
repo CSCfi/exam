@@ -789,6 +789,7 @@ public class ExamController extends BaseController {
         exam.save();
 
         exam.getExamOwners().add(getLoggedUser());
+        exam.setTrialCount(1);
 
         exam.setExpanded(true);
         exam.save();
