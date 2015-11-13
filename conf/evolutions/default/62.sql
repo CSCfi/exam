@@ -1,12 +1,8 @@
 # --- !Ups
-DELETE FROM permission;
-ALTER TABLE permission drop value;
-ALTER TABLE permission ADD type INTEGER NOT NULL;
-ALTER TABLE permission ADD description VARCHAR(32);
-INSERT INTO permission (id, type, description, object_version) VALUES (1, 1, 'can inspect language', 1);
+ALTER TABLE exam_section ALTER lottery_item_count SET DEFAULT 1;
+ALTER TABLE exam_section ALTER lottery_item_count SET NOT NULL;
+UPDATE exam_section SET lottery_item_count = 1 where lottery_item_count = 0;
 
 # --- !Downs
-DELETE FROM permission;
-ALTER TABLE permission DROP description;
-ALTER TABLE permission DROP type;
-ALTER TABLE permission ADD value VARCHAR(32);
+ALTER TABLE exam_section ALTER lottery_item_count DROP NOT NULL;
+ALTER TABLE exam_section ALTER lottery_item_count DROP DEFAULT;

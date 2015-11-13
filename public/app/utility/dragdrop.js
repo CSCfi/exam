@@ -36,7 +36,7 @@
             };
         }])
 
-        .directive('droppable', ['DragDropHandler', function (DragDropHandler) {
+        .directive('droppable', ['DragDropHandler', '$translate', function (DragDropHandler, $translate) {
             return {
                 scope: {
                     identifier: '=',
@@ -53,9 +53,17 @@
                         toUpdate = value;
                     }, true);
 
+                    element.droppable({
+                        drop: function (event, ui) {
+                            if (!ui.draggable.hasClass('draggable') && !ui.draggable.hasClass('sortable-' + scope.identifier)) {
+                                toastr.warning($translate.instant('sitnet_move_between_sections_disabled'));
+                            }
+                        }
+                    });
+
                     // use jquery to make the element sortable. This is called
                     // when the element is rendered
-                    $(element[0]).sortable({
+                    element.sortable({
                         items: '.sortable-' + scope.identifier,
                         start: function (event, ui) {
                             // on start we define where the item is dragged from

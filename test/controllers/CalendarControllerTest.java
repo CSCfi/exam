@@ -71,8 +71,6 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
         assertThat(result.status()).isEqualTo(200);
 
-        //boolean.dateTime()SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
-
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation()).isNotNull();

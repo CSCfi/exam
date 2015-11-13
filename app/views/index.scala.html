@@ -183,75 +183,76 @@
 
     <body ng-controller="SessionCtrl">
         <div ng-controller="NavigationCtrl" ng-init="minimizeNavigation = !canDisplayFullNavbar()">
-            <div ng-hide="examStarted" id="vmenu">
-                @*Logo*@
-                <div class="logo">
-                    <div ng-hide="minimizeNavigation">
-                        <img src="@routes.Assets.at("assets/images/exam-logo-black-small.png")" alt="exam" />
-                    </div>
-                    <div ng-hide="!minimizeNavigation">
-                        @*<img src="@routes.Assets.at("assets/images/Exam_logo_vert.png")" alt="exam" />*@
-                        <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
-                    </div>
-                </div>
-                    @*Version number*@
-                <div ng-hide="minimizeNavigation || !appVersion" >
-                    <div class="app-version">
-                        <strong>v. {{ appVersion }}</strong>
-                    </div>
-                </div>
-                    @*Language selection*@
-                <div ng-hide="minimizeNavigation">
-                    <div class="locale-bar">
-                        <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
-                        <span class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></span>
-                        <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
-                    </div>
-                </div>
-                <div ng-hide="!minimizeNavigation">
-                    <div class="dropdown locale-minimized" dropdown>
-                        <a target="_self" data-toggle="dropdown" dropdown-toggle class="dropdown-toggle">
-                            <i class="fa fa-caret-down"></i>
-                        </a>
-                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                            <li role="presentation" class="dropdown-header">{{ 'sitnet_user_language' | translate }}</li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('fi')">FI</a></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('sv')">SV</a></li>
-                            <li role="presentation"><a role="menuitem" tabindex="-1" ng-click="switchLanguage('en')">EN</a></li>
-                        </ul>
-                    </div>
-                </div>
-                    @*User info*@
-                <div ng-hide="minimizeNavigation" >
-                    <div class="user">
-                        <div class="user-name">
-                            <p>{{user.firstname}}<br>{{user.lastname}}&nbsp;</p>
-                        </div>
-                    </div>
-
-                </div>
-                    @*Menu items*@
-                <div>
-                    <nav ng-class="minimizeNavigation ? 'minimize' : ''">
-                        <ul>
-                            <li ng-class="{selected: isActive(link)}" ng-repeat="link in links" ng-show="{{link.visible}}">
-                                <a href="{{link.href}}">
-                                    <i class="fa fa-2x fa-fw {{link.class}}"></i>
-                                    <span class="menu-item">{{ link.name | translate }}</span>
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="row">
-                            <div ng-click="minimizeNavigation = !minimizeNavigation" class="minify">
-                                <div ng-hide="minimizeNavigation">
-                                    <i class="fa fa-3x fa-chevron-left hit"></i>
-                                </div>
-                                <div ng-hide="!minimizeNavigation">
-                                    <i class="fa fa-3x fa-chevron-right hit"></i>
-                                </div>
+            <div ng-hide="examStarted" id="vmenu" >
+                <div ng-class="minimizeNavigation ? 'minimize' : ''">
+                    <div class="nav-header">
+                        @*Logo*@
+                        <div class="logo">
+                            <div ng-hide="minimizeNavigation">
+                                <img src="@routes.Assets.at("assets/images/exam-logo-black-small.png")" alt="exam" />
+                            </div>
+                            <div ng-hide="!minimizeNavigation">
+                                @*<img src="@routes.Assets.at("assets/images/Exam_logo_vert.png")" alt="exam" />*@
+                                <img width="50" height="90" src="@routes.Assets.at("assets/images/exam-logo-black-small-v.png")" alt="exam" />
                             </div>
                         </div>
-                    </nav>
+                            @*Version number*@
+                        <div ng-hide="minimizeNavigation || !appVersion" >
+                            <div class="app-version">
+                                <strong>v. {{ appVersion }}</strong>
+                            </div>
+                        </div>
+                            @*Language selection*@
+                        <div ng-hide="minimizeNavigation">
+                            <div class="locale-bar">
+                                <span class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></span>
+                                <span class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></span>
+                                <span class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></span>
+                            </div>
+                        </div>
+                        <div ng-hide="!minimizeNavigation">
+                            <div class="locale-item"> <a ng-click="switchLanguage('fi')">FI</a></div>
+                            <div class="locale-item"> <a ng-click="switchLanguage('sv')">SV</a></div>
+                            <div class="locale-item"> <a ng-click="switchLanguage('en')">EN</a></div>
+                        </div>
+                            @*User info*@
+                        <div ng-hide="minimizeNavigation" >
+                            <div class="user">
+                                <div class="user-name">
+                                    <p>{{user.firstname}}<br>{{user.lastname}}&nbsp;</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                    @*Menu items*@
+                <div ng-class="minimizeNavigation ? 'minimize' : ''">
+                    <div class="nav-body">
+                        <nav ng-class="minimizeNavigation ? 'minimize' : ''">
+                            <ul class="links">
+                                <li ng-class="{selected: isActive(link)}" ng-repeat="link in links" ng-show="{{link.visible}}">
+                                    <a href="{{link.href}}">
+                                        <i class="fa fa-2x fa-fw {{link.class}}"></i>
+                                        <span class="menu-item">{{ link.name | translate }}</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+                <div ng-class="minimizeNavigation ? 'minimize' : ''">
+                    <div class="nav-footer">
+                        <div ng-click="minimizeNavigation = !minimizeNavigation" class="minify">
+                            <div ng-hide="minimizeNavigation">
+                                <i class="fa fa-3x fa-chevron-left hit"></i>
+                            </div>
+                            <div ng-hide="!minimizeNavigation">
+                                <i class="fa fa-3x fa-chevron-right hit"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             @*App content*@

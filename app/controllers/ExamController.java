@@ -371,7 +371,7 @@ public class ExamController extends BaseController {
         } else {
             exam.setGrade(null);
         }
-        String creditType = df.get("creditType");
+        String creditType = df.get("creditType.type");
         if (creditType != null) {
             ExamType eType = Ebean.find(ExamType.class)
                     .where()
@@ -813,15 +813,15 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertSection(Long id) {
-
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return notFound();
         }
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            ExamSection section = bindForm(ExamSection.class);
-            section.setExam(Ebean.find(Exam.class, id));
+            ExamSection section = new ExamSection();
+            section.setLotteryItemCount(1);
+            section.setExam(exam);
             AppUtil.setCreator(section, user);
             section.save();
             return ok(Json.toJson(section));
@@ -1121,8 +1121,6 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateSection(Long eid, Long sid) {
-
-        // TODO: should check is user is owner ?
         ExamSection section = Form.form(ExamSection.class).bindFromRequest(
                 "id",
                 "name",
@@ -1135,7 +1133,7 @@ public class ExamController extends BaseController {
         sectionToUpdate.setName(section.getName());
         sectionToUpdate.setExpanded(section.getExpanded());
         sectionToUpdate.setLotteryOn(section.getLotteryOn());
-        sectionToUpdate.setLotteryItemCount(section.getLotteryItemCount());
+        sectionToUpdate.setLotteryItemCount(Math.max(1, section.getLotteryItemCount()));
         sectionToUpdate.update();
 
         return ok(Json.toJson(sectionToUpdate));
