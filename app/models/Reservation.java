@@ -3,11 +3,12 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.joda.time.Interval;
 
+import javax.annotation.Nonnull;
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-public class Reservation extends GeneratedIdentityModel {
+public class Reservation extends GeneratedIdentityModel implements Comparable<Reservation> {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date startAt;
@@ -94,4 +95,8 @@ public class Reservation extends GeneratedIdentityModel {
         return new Interval(startAt.getTime(), endAt.getTime());
     }
 
+    @Override
+    public int compareTo(@Nonnull Reservation o) {
+        return startAt.compareTo(o.startAt);
+    }
 }
