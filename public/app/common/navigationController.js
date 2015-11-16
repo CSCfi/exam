@@ -20,6 +20,7 @@
 
                     if (!$scope.user || $scope.user.isLoggedOut) {
                         $scope.loggedOut = true;
+                        delete $scope.appVersion;
                         return [];
                     }
 
