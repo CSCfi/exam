@@ -440,6 +440,7 @@ public class EmailComposerImpl implements EmailComposer {
                 .fetch("examEnrolments.reservation")
                 .where()
                 .disjunction()
+                .isNotNull("course")
                 .eq("examOwners", teacher)
                 .eq("examInspections.user", teacher)
                 .endJunction()

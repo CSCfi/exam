@@ -27,7 +27,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
         val courses = Future {
           Ebean.find(classOf[Course]).where
             .ilike("name", s"$x%")
-            .orderBy("name desc")
+            .orderBy("code")
             .findList
         }
         courses.map(i => java2Response(i))
@@ -35,7 +35,7 @@ class CourseController @Inject()(externalApi: ExternalAPI, cache: CacheApi) exte
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
         val results = Future {
-          Ebean.find(classOf[Course]).where.isNotNull("name").findList
+          Ebean.find(classOf[Course]).where.isNotNull("name").orderBy("code").findList
         }
         results.map(i => java2Response(i))
     }

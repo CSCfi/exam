@@ -142,7 +142,7 @@ public class Interfaces extends BaseController implements ExternalAPI {
                 .isNull("startDate")
                 .lt("startDate", new Date())
                 .endJunction()
-                .orderBy("name desc").findList();
+                .orderBy("code").findList();
         if (!courses.isEmpty() || !isCourseSearchActive()) {
             // we already have it or we don't want to fetch it
             return F.Promise.promise(() -> courses);

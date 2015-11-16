@@ -24,9 +24,9 @@
                         if(!courses || !courses.hasOwnProperty("length") || courses.length === 0) {
                             toastr.error($translate.instant('sitnet_course_not_found') + ' ( ' + tmp + ' )');
                         }
-                        return limitToFilter(courses, 15);
+                        return courses;
                     },
-                    function (error) {
+                    function () {
                         toggleLoadingIcon(filter, false);
                         $scope.newExam.course = undefined;
                         toastr.error($translate.instant('sitnet_course_not_found') + ' ( ' + tmp + ' )');
