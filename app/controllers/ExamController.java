@@ -364,6 +364,9 @@ public class ExamController extends BaseController {
             }
         }
         String creditType = df.get("creditType.type");
+        if (creditType == null) {
+            creditType = df.get("creditType");
+        }
         if (creditType != null) {
             ExamType eType = Ebean.find(ExamType.class)
                     .where()
