@@ -251,4 +251,18 @@
     border-radius: 4pt;
   }
 
+  .library-question-header-inactive {
+    color: white;
+    background-color: rgba(0, 0, 0, 0.3);
+    min-height: 2em;
+    margin: 0.3em 0;
+    font-size: 0.9em;
+    padding: 0.3em;
+  }
+
+  .library-question-header-inactive:hover {
+    background-color: $sitnet-theme;
+    cursor: move;
+  }
+
 }
