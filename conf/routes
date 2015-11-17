@@ -44,7 +44,6 @@ PUT           /exams/:eid/section/:sid                               controllers
 PUT           /exams/:eid/course/:cid                                controllers.ExamController.updateCourse(eid: Long, cid: Long)
 DELETE        /exams/:eid/course/:cid                                controllers.ExamController.removeCourse(eid: Long, cid: Long)
 GET           /exams/:eid/reservation                                controllers.ExamController.getReservationInformationForExam(eid: Long)
-GET           /finishedexams                                         controllers.ExamController.getFinishedExams
 GET           /reviewerexams                                         controllers.ExamController.getTeachersExams
 GET           /reviewerexams/:eid                                    controllers.ExamController.getExamReview(eid: Long)
 
@@ -108,7 +107,7 @@ POST          /student/exams/:hash/question/:questionId              controllers
 ############### Language inspection interface ###############
 GET           /inspections                                           controllers.LanguageInspectionController.listInspections
 POST          /inspection                                            controllers.LanguageInspectionController.createInspection
-
+PUT           /inspection/:id                                        controllers.LanguageInspectionController.assignInspection(id: Long)
 
 ############### Enrolment interface ###############
 
@@ -234,7 +233,7 @@ DELETE        /calendar/reservation/:id                              controllers
 ################# Language interface ##################
 GET           /languages                                             controllers.LanguageController.getSupportedLanguages
 
-################# Language interface ##################
+################# Tag interface ##################
 GET           /tags                                                  controllers.TagController.listTags(filter: play.libs.F.Option[String], examIds: play.libs.F.Option[LongList], courseIds: play.libs.F.Option[LongList], sectionIds: play.libs.F.Option[LongList])
 POST          /tags                                                  controllers.TagController.createTag
 DELETE        /tags/:tid                                             controllers.TagController.deleteTag(tid: Long)
