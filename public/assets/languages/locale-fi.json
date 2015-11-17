@@ -595,7 +595,7 @@
   "sitnet_reject_maturity": "Hylkää suoritus",
   "sitnet_send_for_language_inspection": "Lähetä kielentarkastukseen",
   "sitnet_confirm_maturity_disapproval": "Hylkää suoritus? Toimintoa ei voi perua.",
-  "sitnet_confirm_maturity_approval": "Lähetä suoritus kielentarkastajalle arvioitavaksi? Tämän jälkeen et voi enää hylätä suoritusta. Toimintoa ei voi perua."
+  "sitnet_confirm_maturity_approval": "Lähetä suoritus kielentarkastajalle arvioitavaksi? Tämän jälkeen et voi enää hylätä suoritusta. Toimintoa ei voi perua.",
   "sitnet_session_extended": "Istuntoa jatkettu",
   "sitnet_exam_status_archived": "Arkistoitu",
   "sitnet_calendar_pick_room": "Valitse tenttitila saadaksesi näkyviin vapaat tenttiajat",
@@ -603,5 +603,7 @@
   "sitnet_exam_section": "Aihealue",
   "sitnet_reservation_removed": "Varaus poistettu",
   "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä.",
-  "sitnet_choose_teacher": "Valitse opettaja"
+  "sitnet_choose_teacher": "Valitse opettaja",
+  "sitnet_confirm_assign_inspection": "Ota suoritus arvioitavaksesi? Toimenpide ei estä muita tarkastajia arvioimasta suoritusta.",
+  "sitnet_undefined": "Ei määritelty"
 }

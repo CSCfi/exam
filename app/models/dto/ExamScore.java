@@ -1,5 +1,6 @@
 package models.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import models.Exam;
 import models.GeneratedIdentityModel;
 import models.User;
@@ -26,7 +27,7 @@ public class ExamScore extends GeneratedIdentityModel {
     private String creditType;
     private String lecturer;
     private String lecturerId;
-    private String date;
+    private String registrationDate;
     private String courseImplementation;
     private String additionalInfo;
     private String lecturerEmployeeNumber;
@@ -87,12 +88,13 @@ public class ExamScore extends GeneratedIdentityModel {
         this.creditType = creditType;
     }
 
-    public String getDate() {
-        return date;
+    @JsonProperty("date")
+    public String getRegistrationDate() {
+        return registrationDate;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setRegistrationDate(String registrationDate) {
+        this.registrationDate = registrationDate;
     }
 
     public String getExamDate() {
@@ -197,7 +199,7 @@ public class ExamScore extends GeneratedIdentityModel {
         return new String[]{Long.toString(getId()), student.getFirstName(), student.getLastName(), student.getEmail(),
                 studentId, identifier, courseUnitCode, exam.getCourse().getName(), examDate, credits,
                 creditLanguage, studentGrade, gradeScale, examScore, courseUnitLevel, creditType, lecturer,
-                teacher.getFirstName(), teacher.getLastName(), lecturerId, lecturerEmployeeNumber, date,
+                teacher.getFirstName(), teacher.getLastName(), lecturerId, lecturerEmployeeNumber, registrationDate,
                 courseImplementation, additionalInfo};
     }
 

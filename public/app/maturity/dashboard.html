@@ -21,6 +21,7 @@
                     <th>{{ 'sitnet_student' | translate }}</th>
                     <th>{{ 'sitnet_finished' | translate }}</th>
                     <th>{{ 'sitnet_language_inspector' | translate }}</th>
+                    <th>{{ 'sitnet_language_inspections' | translate }}</th>
                 </tr>
                 </thead>
 
@@ -41,11 +42,17 @@
                     </td>
                     <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
                     <td ng-if="inspection.assignee">
-                        <span>{{ inspection.user.firstName }} {{ inspection.user.lastName }} </span>
-                        <span><br /><a href="mailto:{{ inspection.user.email }}">{{ inspection.user.email }}</a></span>
+                        <span>{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }} </span>
+                        <span><br /><a href="mailto:{{ inspection.assignee.email }}">{{ inspection.assignee.email }}</a></span>
                     </td>
                     <td ng-if="!inspection.assignee">
-                        <a class="pointer" ng-click="assignInspection(inspection.id)">{{ 'sitnet_assign_to_me' | translate }}</a>
+                        <span class="text-danger">{{'sitnet_undefined' | translate }}</span>
+                    </td>
+                    <td ng-if="inspection.assignee">
+                        <a class="pointer" href="#/exams/review/{{inspection.exam.id}}">{{ 'sitnet_view' | translate }}</a>
+                    </td>
+                    <td ng-if="!inspection.assignee">
+                        <a class="pointer" ng-click="assignInspection(inspection)">{{ 'sitnet_assign_to_me' | translate }}</a>
                     </td>
                 </tr>
                 </tbody>

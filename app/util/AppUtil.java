@@ -1,15 +1,13 @@
 package util;
 
 import com.typesafe.config.ConfigFactory;
-import models.ExamRoom;
-import models.OwnedModel;
-import models.Reservation;
-import models.User;
+import models.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Period;
 import play.Logger;
+import util.java.EmailComposer;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -122,5 +121,17 @@ public class AppUtil {
         Files.copy(sourceFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING,
                 StandardCopyOption.COPY_ATTRIBUTES);
     }
+
+    public static void notifyPrivateExamEnded(Collection<User> recipients, Exam exam, EmailComposer composer) {
+        for (User r : recipients) {
+            try {
+                composer.composePrivateExamEnded(r, exam);
+                Logger.info("Email sent to {}", r.getEmail());
+            } catch (IOException e) {
+                Logger.error("Failed to send email", e);
+            }
+        }
+    }
+
 
 }

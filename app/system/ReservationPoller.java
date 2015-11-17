@@ -24,7 +24,7 @@ public class ReservationPoller implements Runnable {
 
     @Override
     public void run() {
-        Logger.info("Running no-show check ...");
+        Logger.debug("Running no-show check ...");
         List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class)
                 .fetch("exam")
                 .where()
@@ -34,7 +34,7 @@ public class ReservationPoller implements Runnable {
                 .findList();
 
         if (enrolments.isEmpty()) {
-            Logger.info(" -> none found.");
+            Logger.debug("... none found.");
         } else {
             handleNoShows(enrolments, emailComposer);
         }
@@ -78,7 +78,7 @@ public class ReservationPoller implements Runnable {
     public static void handleNoShows(List<ExamEnrolment> noShows, EmailComposer composer) {
         for (ExamEnrolment enrolment : noShows) {
             handleNoShow(enrolment, composer);
-            Logger.info(" -> marked reservation {} as no-show", enrolment.getReservation().getId());
+            Logger.info("... marked reservation {} as no-show", enrolment.getReservation().getId());
         }
     }
 

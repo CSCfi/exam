@@ -125,7 +125,7 @@ public class RoomController extends BaseController {
         for (JsonNode weekday : node) {
             for (JsonNode block : weekday.get("blocks")) {
                 DefaultWorkingHours dwh = new DefaultWorkingHours();
-                dwh.setDay(weekday.get("weekday").asText());
+                dwh.setWeekday(weekday.get("weekday").asText());
                 // Deliberately use first of Jan to have no DST in effect
                 DateTime startTime = DateTime.parse(block.get("start").asText(), formatter).withDayOfYear(1);
                 DateTime endTime = DateTime.parse(block.get("end").asText(), formatter).withDayOfYear(1);

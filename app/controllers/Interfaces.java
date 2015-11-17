@@ -245,7 +245,7 @@ public class Interfaces extends BaseController implements ExternalAPI {
     private static List<ExamScore> getScores(String startDate) {
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
         List<ExamRecord> examRecords = Ebean.find(ExamRecord.class)
-                .select("exam_score")
+                .fetch("examScore")
                 .where()
                 .gt("time_stamp", start.toDate())
                 .findList();

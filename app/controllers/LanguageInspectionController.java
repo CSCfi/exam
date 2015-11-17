@@ -55,4 +55,20 @@ public class LanguageInspectionController extends BaseController {
         inspection.save();
         return ok();
     }
+
+    @Pattern(value = "CAN_INSPECT_LANGUAGE")
+    public Result assignInspection(Long id) {
+        LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
+        if (inspection == null) {
+            return notFound("Inspection not found");
+        }
+        if (inspection.getAssignee() != null) {
+            return forbidden("Inspection already taken");
+        }
+        inspection.setAssignee(getLoggedUser());
+        inspection.setStartedAt(new Date());
+        inspection.update();
+        return ok();
+    }
+
 }

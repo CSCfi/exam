@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$modal', 'EXAM_CONF', 'LanguageInspectionRes',
-            function ($scope, $translate, $modal, EXAM_CONF, LanguageInspectionRes) {
+        .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$modal', '$location', 'dialogs', 'EXAM_CONF', 'LanguageInspectionRes',
+            function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes) {
 
                 $scope.ongoingInspections = [];
                 $scope.processedInspections = [];
@@ -15,6 +15,18 @@
                         return i.finishedAt;
                     });
                 });
+
+                $scope.assignInspection = function(inspection) {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_confirm_assign_inspection'));
+                    dialog.result.then(function () {
+                        LanguageInspectionRes.assignment.update({id : inspection.id}, function() {
+                            $location.path('exams/review/' + inspection.exam.id);
+                        }, function(err) {
+                            toastr.error(err);
+                        })
+                    });
+                };
 
                 $scope.showStatement = function (statement) {
                     var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {

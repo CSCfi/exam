@@ -186,7 +186,7 @@ public class ExamRecordController extends BaseController {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         // Record transfer timestamp (date)
-        score.setDate(sdf.format(new Date()));
+        score.setRegistrationDate(sdf.format(new Date()));
         score.setExamDate(sdf.format(examDate));
 
         score.setCourseImplementation(exam.getCourse().getCourseImplementation());

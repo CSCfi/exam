@@ -24,7 +24,6 @@ import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -535,14 +534,7 @@ public class StudentExamController extends BaseController {
         recipients.addAll(exam.getExamInspections().stream().map(
                 ExamInspection::getUser).collect(Collectors.toSet()));
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User r : recipients) {
-                try {
-                    emailComposer.composePrivateExamEnded(r, exam);
-                    Logger.info("Email sent to {}", r.getEmail());
-                } catch (IOException e) {
-                    Logger.error("Failed to send email", e);
-                }
-            }
+            AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer);
         }, actor.dispatcher());
     }
 

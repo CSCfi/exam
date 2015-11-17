@@ -7,7 +7,7 @@ import java.util.Date;
 @Entity
 public class LanguageInspection extends GeneratedIdentityModel {
 
-    @ManyToOne
+    @OneToOne
     private Exam exam;
 
     @ManyToOne
@@ -16,7 +16,7 @@ public class LanguageInspection extends GeneratedIdentityModel {
     @ManyToOne
     private User creator;
 
-    @ManyToOne
+    @OneToOne
     private Comment statement;
 
     @Temporal(TemporalType.TIMESTAMP)

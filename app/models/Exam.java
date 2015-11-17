@@ -86,7 +86,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @OneToOne(mappedBy = "exam")
     private ExamRecord examRecord;
 
-    @OneToMany
+    @OneToOne(mappedBy = "exam")
     private LanguageInspection languageInspection;
 
     @Column(length = 32, unique = true)

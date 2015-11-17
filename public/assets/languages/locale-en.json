@@ -603,5 +603,7 @@
   "sitnet_exam_section": "Exam section",
   "sitnet_reservation_removed": "Reservation removed",
   "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä. EN",
-  "sitnet_choose_teacher": "Valitse opettaja EN"
+  "sitnet_choose_teacher": "Valitse opettaja EN",
+  "sitnet_confirm_assign_inspection": "Ota suoritus arvioitavaksesi? Toimenpide ei estä muita tarkastajia arvioimasta suoritusta. EN",
+  "sitnet_undefined": "Ei määritelty EN"
 }
