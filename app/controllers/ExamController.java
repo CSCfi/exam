@@ -129,40 +129,47 @@ public class ExamController extends BaseController {
         return ok(exams);
     }
 
+    private Set<Exam> filterByViewability(User user, Collection<Exam> src) {
+        Set<Exam> dst = new LinkedHashSet<>();
+        for (Exam e : src) {
+            if (e.isOwnedBy(user)) {
+                dst.add(e);
+                continue;
+            }
+            for (Exam c : e.getChildren()) {
+                boolean matchFound = false;
+                for (ExamInspection ei : c.getExamInspections()) {
+                    if (ei.getUser().equals(user)) {
+                        dst.add(e);
+                        matchFound = true;
+                        break;
+                    }
+                }
+                if (matchFound) {
+                    break;
+                }
+            }
+        }
+        return dst;
+    }
+
     @Restrict(@Group("TEACHER"))
     public Result getTeachersExams() {
-
-        User user = getLoggedUser();
-
         // Get list of exams that user is assigned to inspect or is creator of
         List<Exam> exams = Ebean.find(Exam.class)
                 .fetch("children", "id, state")
                 .fetch("examOwners")
+                .fetch("children.examInspections.user", "id")
                 .fetch("examInspections.user", "id, firstName, lastName")
                 .fetch("examEnrolments.user", "id")
                 .fetch("examEnrolments.reservation", "id, endAt")
                 .fetch("course")
                 .where()
                 .eq("state", Exam.State.PUBLISHED)
-                .disjunction()
-                .eq("examInspections.user", user)
-                .eq("creator", user)
-                .eq("examOwners", user)
-                .endJunction()
                 .isNull("parent")
                 .orderBy("created").findList();
-
-        return ok(exams);
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getFinishedExams() {
-        List<Exam> finishedExams = Ebean.find(Exam.class)
-                .where()
-                .lt("examActiveEndDate", new Date())
-                .findList();
-
-        return ok(Json.toJson(finishedExams));
+        // This ad-hoc handling is for optimization. Using a query for this takes 5 times longer.
+        return ok(filterByViewability(getLoggedUser(), exams));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

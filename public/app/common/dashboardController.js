@@ -49,7 +49,6 @@
                             $scope.finishedExams = reviewerExams.filter(function (review) {
                                 return $scope.afterDate(review.examActiveEndDate);
                             });
-                            var allExams = $scope.activeExams.concat($scope.finishedExams);
                         });
                     }
                     else if ($scope.user.isAdmin) {

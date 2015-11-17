@@ -88,7 +88,6 @@
                 }),
                 reviewerExams: $resource("/reviewerexams"),
                 reviewerExam: $resource("/reviewerexams/:eid", {eid: "@eid"}),
-                finishedExams: $resource("/finishedexams"),
                 draft: $resource("/draft"),
                 review: $resource("/review/:id", {id: "@id"}, {"update": {method: "PUT"}}),
                 examReviews: $resource("/reviews/:eid",{eid: "@eid", statuses: "@statuses"},
