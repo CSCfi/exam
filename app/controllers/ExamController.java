@@ -254,6 +254,10 @@ public class ExamController extends BaseController {
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
+                .fetch("languageInspection")
+                .fetch("languageInspection.assignee", "firstName, lastName, email")
+                .fetch("languageInspection.statement")
+                .fetch("languageInspection.statement.attachment")
                 .fetch("examEnrolments.reservation", "startAt, endAt, noShow")
                 .fetch("examEnrolments.user")
                 .fetch("examFeedback")
@@ -298,7 +302,8 @@ public class ExamController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = getLoggedUser();
-        if (!exam.isInspectedOrCreatedOrOwnedBy(user, true) && !user.hasRole("ADMIN", getSession())) {
+        if (!exam.isInspectedOrCreatedOrOwnedBy(user, true) && !user.hasRole("ADMIN", getSession()) &&
+                !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         return ok(exam);

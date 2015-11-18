@@ -8,7 +8,9 @@
                         "add": {method: "POST"}
                     }
                 ),
-                assignment: $resource("/inspection/:id", {id: "@id"}, {"update": {method: "PUT"}})
+                assignment: $resource("/inspection/:id", {id: "@id"}, {"update": {method: "PUT"}}),
+                approval: $resource("/inspection/:id/approval", {id: "@id"}, {"update": {method: "PUT"}}),
+                statement: $resource("/inspection/:id/statement", {id: "@id"}, {"update": {method: "PUT"}})
             };
         }]);
 }());

@@ -1,8 +1,8 @@
 <!-- Bottom toolbar -->
 <div class="detail-row bottom-padding-2">
-    <div class="col-md-1">
+    <div class="col-md-1" ng-hide="isUnderLanguageInspection()">
         <span ng-show="!isReadOnly()">
-            <button ng-click="updateExam(exam)" class="btn btn-primary">
+            <button ng-click="updateExam(exam)" ng-disabled="!examForm.$valid" class="btn btn-primary">
                 {{'sitnet_save' | translate}}
             </button>
         </span>
@@ -14,8 +14,10 @@
     </div>
     <div class="col-md-2">
         <span ng-show="!isReadOnly()">
-            <button class="btn btn-primary" ng-disabled="!canProceedWithMaturity()"
-                    ng-click="proceedWithMaturity()">{{ getNextMaturityProcess().text | translate}}
+            <button class="btn"
+                    ng-class="getNextMaturityState().warn ? 'btn-danger' : 'btn-primary'"
+                    ng-disabled="!getNextMaturityState().canProceed || !examForm.$valid"
+                    ng-click="proceedWithMaturity()">{{ getNextMaturityState().text | translate}}
             </button>
         </span>
     </div>

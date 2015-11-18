@@ -2,12 +2,11 @@ package controllers;
 
 
 import be.objectify.deadbolt.java.actions.Group;
+import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
-import models.Attachment;
-import models.Comment;
-import models.Exam;
-import models.User;
+import com.avaje.ebean.ExpressionList;
+import models.*;
 import models.api.AttachmentContainer;
 import models.questions.Answer;
 import models.questions.Question;
@@ -39,6 +38,15 @@ public class AttachmentController extends BaseController {
         }
     }
 
+    private static Attachment createNew(FilePart file, String path) {
+        Attachment attachment = new Attachment();
+        attachment.setFileName(file.getFilename());
+        attachment.setFilePath(path);
+        attachment.setMimeType(file.getContentType());
+        attachment.save();
+        return attachment;
+    }
+
     @Restrict({@Group("STUDENT")})
     public Result addAttachmentToQuestionAnswer() {
 
@@ -53,9 +61,6 @@ public class AttachmentController extends BaseController {
         }
         Map<String, String[]> m = body.asFormUrlEncoded();
         Long qid = Long.parseLong(m.get("questionId")[0]);
-
-        String fileName = filePart.getFilename();
-        String contentType = filePart.getContentType();
 
         // first check if answer already exist
         Question question = Ebean.find(Question.class).fetch("answer")
@@ -93,11 +98,7 @@ public class AttachmentController extends BaseController {
         Answer answer = question.getAnswer();
         removePrevious(question.getAnswer(), true);
 
-        Attachment attachment = new Attachment();
-        attachment.setFileName(fileName);
-        attachment.setFilePath(newFilePath);
-        attachment.setMimeType(contentType);
-        attachment.save();
+        Attachment attachment = createNew(filePart, newFilePath);
         answer.setAttachment(attachment);
         answer.save();
         return ok(attachment);
@@ -130,11 +131,7 @@ public class AttachmentController extends BaseController {
         // Remove existing one if found
         removePrevious(question, true);
 
-        Attachment attachment = new Attachment();
-        attachment.setFileName(filePart.getFilename());
-        attachment.setFilePath(newFilePath);
-        attachment.setMimeType(filePart.getContentType());
-        attachment.save();
+        Attachment attachment = createNew(filePart, newFilePath);
 
         question.setAttachment(attachment);
         question.save();
@@ -191,6 +188,17 @@ public class AttachmentController extends BaseController {
         return ok();
     }
 
+    @Pattern(value = "CAN_INSPECT_LANGUAGE")
+    public Result deleteStatementAttachment(Long id) {
+        LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findUnique();
+        if (inspection == null || inspection.getStatement() == null) {
+            return notFound("sitnet_exam_not_found");
+        }
+        Comment comment = inspection.getStatement();
+        removePrevious(comment, true);
+        return ok();
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result addAttachmentToExam() {
         MultipartFormData body = request().body().asMultipartFormData();
@@ -217,15 +225,9 @@ public class AttachmentController extends BaseController {
         // Delete existing if exists
         removePrevious(exam, false);
 
-        Attachment attachment = new Attachment();
-        attachment.setFileName(filePart.getFilename());
-        attachment.setFilePath(newFilePath);
-        attachment.setMimeType(filePart.getContentType());
-        attachment.save();
-
+        Attachment attachment = createNew(filePart, newFilePath);
         exam.setAttachment(attachment);
         exam.save();
-
         return ok(attachment);
     }
 
@@ -260,15 +262,46 @@ public class AttachmentController extends BaseController {
         Comment comment = exam.getExamFeedback();
         removePrevious(comment, true);
 
-        Attachment attachment = new Attachment();
-        attachment.setFileName(filePart.getFilename());
-        attachment.setFilePath(newFilePath);
-        attachment.setMimeType(filePart.getContentType());
-        attachment.save();
-
+        Attachment attachment = createNew(filePart, newFilePath);
         comment.setAttachment(attachment);
         comment.save();
+        return ok(attachment);
+    }
 
+    @Pattern(value = "CAN_INSPECT_LANGUAGE")
+    public Result addStatementAttachment(Long id) {
+        MultipartFormData body = request().body().asMultipartFormData();
+        FilePart filePart = body.getFile("file");
+        if (filePart == null) {
+            return notFound();
+        }
+        File file = filePart.getFile();
+        if (file.length() > AppUtil.getMaxFileSize()) {
+            return forbidden("sitnet_file_too_large");
+        }
+        LanguageInspection inspection = Ebean.find(LanguageInspection.class).where().eq("exam.id", id).findUnique();
+        if (inspection == null) {
+            return notFound();
+        }
+        if (inspection.getStatement() == null) {
+            Comment comment = new Comment();
+            AppUtil.setCreator(comment, getLoggedUser());
+            comment.save();
+            inspection.setStatement(comment);
+            inspection.update();
+        }
+        String newFilePath;
+        try {
+            newFilePath = copyFile(file, "exam", id.toString(), "inspectionstatement");
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_attachment");
+        }
+        Comment comment = inspection.getStatement();
+        removePrevious(comment, true);
+
+        Attachment attachment = createNew(filePart, newFilePath);
+        comment.setAttachment(attachment);
+        comment.save();
         return ok(attachment);
     }
 
@@ -325,7 +358,6 @@ public class AttachmentController extends BaseController {
         }
         Attachment aa = exam.getAttachment();
         File file = new File(aa.getFilePath());
-
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
         return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
     }
@@ -344,7 +376,24 @@ public class AttachmentController extends BaseController {
         }
         Attachment aa = exam.getExamFeedback().getAttachment();
         File file = new File(aa.getFilePath());
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
+        return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
+    }
 
+    @Restrict({@Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT")})
+    public Result downloadStatementAttachment(Long id) {
+        User user = getLoggedUser();
+        ExpressionList<Exam> query = Ebean.find(Exam.class).where().idEq(id)
+                .isNotNull("languageInspection.statement.attachment");
+        if (user.hasRole("STUDENT", getSession())) {
+            query = query.eq("creator", user);
+        }
+        Exam exam = query.findUnique();
+        if (exam == null) {
+            return notFound();
+        }
+        Attachment aa = exam.getLanguageInspection().getStatement().getAttachment();
+        File file = new File(aa.getFilePath());
         response().setHeader("Content-Disposition", "attachment; filename=\"" + aa.getFileName() + "\"");
         return ok(com.ning.http.util.Base64.encode(setData(file).toByteArray()));
     }

@@ -1,9 +1,36 @@
-<div class="main-row" ng-show="isReadOnly()">
+<div class="top-row" ng-show="isUnderLanguageInspection() || hasGoneThroughLanguageInspection()">
+    <strong class="col-md-12">{{'sitnet_language_inspections' | translate}}:</strong>
+</div>
+<div class="detail-row" ng-show="isUnderLanguageInspection()">
+    <div class="col-md-12">
+        <div class="checkbox">
+            <input type="checkbox" ng-disabled="hasGoneThroughLanguageInspection()"
+                   ng-model="exam.languageInspection.approved">
+            {{'sitnet_approved' | translate}}
+        </div>
+    </div>
+</div>
+<div class="detail-row" ng-show="hasGoneThroughLanguageInspection()">
+    <div class="col-md-12" ng-class="exam.languageInspection.approved ? 'text-success' : 'text-danger'">
+        <strong>
+            {{ exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected' | translate | uppercase }}
+        </strong>
+    </div>
+</div>
+<div class="main-row" ng-show="isReadOnly() || isUnderLanguageInspection()">
     <strong class="col-md-12">{{'sitnet_teachers_comment' | translate}}:</strong>
 </div>
 
-<div class="detail-row" ng-show="isReadOnly()">
+<div class="detail-row" ng-show="isReadOnly() || isUnderLanguageInspection()">
     <div class="col-md-12" mathjax ng-bind-html="exam.examFeedback.comment"></div>
+</div>
+
+<div class="main-row" ng-show="hasGoneThroughLanguageInspection()">
+    <strong class="col-md-12">{{'sitnet_inspector_statement' | translate}}:</strong>
+</div>
+
+<div class="detail-row" ng-show="hasGoneThroughLanguageInspection()">
+    <div class="col-md-12" mathjax ng-bind-html="exam.languageInspection.statement.comment"></div>
 </div>
 
 <div class="top-row">
@@ -20,7 +47,7 @@
                             name="examGrade"
                             class="form-control"
                             ng-model="selections.grade"
-                            ng-disabled="isReadOnly() || isGraded() || !isCreatorOrOwnerOrAdmin()"
+                            ng-disabled="isReadOnly() || !isOwnerOrAdmin()"
                             ng-change="setGrade()"
                             required
                             ng-options="grade.name for grade in examGrading">
@@ -35,7 +62,7 @@
                     <select id="creditType" name="creditType" class="form-control"
                             ng-model="selections.type"
                             ng-change="setCreditType()"
-                            ng-disabled="isReadOnly() || !isCreatorOrOwnerOrAdmin()" required
+                            ng-disabled="isReadOnly() || !isOwnerOrAdmin()" required
                             ng-options="type.name for type in examTypes">
                         <option value="">{{'sitnet_choose' | translate}}</option>
                     </select>
@@ -44,7 +71,7 @@
                 <div class="col-md-2">
                     <label for="answerLanguage">{{'sitnet_exam_record_language' | translate}}:</label>
                     <select id="answerLanguage" name="answerLanguage" class="form-control"
-                            ng-disabled="isReadOnly() || !isCreatorOrOwnerOrAdmin()"
+                            ng-disabled="isReadOnly() || !isOwnerOrAdmin()"
                             ng-model="selections.language"
                             ng-change="setLanguage(selections.language)" required
                             ng-options="lang.name for lang in languages">
@@ -53,7 +80,7 @@
                 </div>
                 <div class="col-md-2">
                     <label for="customCredit">{{'sitnet_exam_credit' | translate}} (op):</label>
-                    <input id="customCredit" type="number" ng-disabled="isReadOnly() || !isCreatorOrOwnerOrAdmin()"
+                    <input id="customCredit" type="number" ng-disabled="isReadOnly() || !isOwnerOrAdmin()"
                            required min="0"
                            class="form-control" maxlength="3" ng-model="exam.customCredit"/>
                 </div>
@@ -61,7 +88,7 @@
                     <label for="infoForRegistry">{{'sitnet_additional_info_for_registry' | translate}}:</label>
                     <textarea id="infoForRegistry" class="form-control" ng-model="exam.additionalInfo"
                               rows="3"
-                              ng-disabled="isReadOnly() || !isCreatorOrOwnerOrAdmin()">
+                              ng-disabled="isReadOnly() || !isOwnerOrAdmin()">
                     </textarea>
                 </div>
             </div>

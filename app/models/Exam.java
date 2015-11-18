@@ -648,6 +648,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     @Transient
+    public boolean isViewableForLanguageInspector(User user) {
+        return executionType.getType().equals(ExamExecutionType.Type.MATURITY.toString()) &&
+                user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE) && languageInspection != null &&
+                languageInspection.getAssignee() != null;
+    }
+
+    @Transient
     public boolean isPrivate() {
         return !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString());
     }

@@ -605,5 +605,14 @@
   "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä. SV",
   "sitnet_choose_teacher": "Valitse opettaja SV",
   "sitnet_confirm_assign_inspection": "Ota suoritus arvioitavaksesi? Toimenpide ei estä muita tarkastajia arvioimasta suoritusta. SV",
-  "sitnet_undefined": "Ei määritelty SV"
+  "sitnet_undefined": "Ei määritelty SV",
+  "sitnet_await_inspection": "Odottaa kielentarkastusta SV",
+  "sitnet_approve_language_content": "Lähetä eteenpäin hyväksyttynä SV",
+  "sitnet_reject_language_content": "Lähetä eteenpäin hylättynä SV",
+  "sitnet_sent_for_language_inspection": "Lähetetty kielentarkastukseen SV",
+  "sitnet_maturity_rejected": "Suoritus hylätty SV",
+  "sitnet_confirm_language_inspection_approval": "Vie kielentarkastus loppuun? Toimintoa ei voi perua. SV",
+  "sitnet_give_statement": "Anna kielentarkastuslausunto SV",
+  "sitnet_inspector_statement": "Kielentarkastajan lausunto SV",
+  "sitnet_statement_updated": "Lausunto päivitetty SV"
 }

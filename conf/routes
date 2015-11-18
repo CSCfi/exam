@@ -108,6 +108,8 @@ POST          /student/exams/:hash/question/:questionId              controllers
 GET           /inspections                                           controllers.LanguageInspectionController.listInspections
 POST          /inspection                                            controllers.LanguageInspectionController.createInspection
 PUT           /inspection/:id                                        controllers.LanguageInspectionController.assignInspection(id: Long)
+PUT           /inspection/:id/approval                               controllers.LanguageInspectionController.setApproval(id: Long)
+PUT           /inspection/:id/statement                              controllers.LanguageInspectionController.setStatement(id: Long)
 
 ############### Enrolment interface ###############
 
@@ -215,6 +217,10 @@ GET           /attachment/exam/:id                                   controllers
 POST          /attachment/exam/:id/feedback                          controllers.AttachmentController.addFeedbackAttachment(id: Long)
 DELETE        /attachment/exam/:id/feedback                          controllers.AttachmentController.deleteFeedbackAttachment(id: Long)
 GET           /attachment/exam/:id/feedback                          controllers.AttachmentController.downloadFeedbackAttachment(id: Long)
+
+POST          /attachment/exam/:id/statement                         controllers.AttachmentController.addStatementAttachment(id: Long)
+DELETE        /attachment/exam/:id/statement                         controllers.AttachmentController.deleteStatementAttachment(id: Long)
+GET           /attachment/exam/:id/statement                         controllers.AttachmentController.downloadStatementAttachment(id: Long)
 
 
 #### integration ####

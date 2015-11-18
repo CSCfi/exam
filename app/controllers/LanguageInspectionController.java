@@ -4,12 +4,14 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import models.Comment;
 import models.Exam;
 import models.LanguageInspection;
 import org.joda.time.DateTime;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Result;
+import util.AppUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -68,6 +70,60 @@ public class LanguageInspectionController extends BaseController {
         inspection.setAssignee(getLoggedUser());
         inspection.setStartedAt(new Date());
         inspection.update();
+        return ok();
+    }
+
+    @Pattern(value = "CAN_INSPECT_LANGUAGE")
+    public Result setApproval(Long id) {
+        DynamicForm df = Form.form().bindFromRequest();
+        String verdict = df.get("approved");
+        if (verdict == null) {
+            return badRequest();
+        }
+        boolean isApproved = Boolean.parseBoolean(verdict);
+        LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
+        if (inspection == null) {
+            return notFound("Inspection not found");
+        }
+        if (inspection.getStartedAt() == null) {
+            return forbidden("Inspection not assigned");
+        }
+        if (inspection.getFinishedAt() != null) {
+            return forbidden("Inspection already finalized");
+        }
+        inspection.setFinishedAt(new Date());
+        inspection.setApproved(isApproved);
+        inspection.update();
+        return ok();
+    }
+
+    @Pattern(value = "CAN_INSPECT_LANGUAGE")
+    public Result setStatement(Long id) {
+        DynamicForm df = Form.form().bindFromRequest();
+        String text = df.get("comment");
+        if (text == null) {
+            return badRequest();
+        }
+        LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
+        if (inspection == null) {
+            return notFound("Inspection not found");
+        }
+        if (inspection.getStartedAt() == null) {
+            return forbidden("Inspection not assigned");
+        }
+        if (inspection.getFinishedAt() != null) {
+            return forbidden("Inspection already finalized");
+        }
+        Comment statement = inspection.getStatement();
+        if (statement == null) {
+            statement = new Comment();
+            AppUtil.setCreator(statement, getLoggedUser());
+            statement.save();
+            inspection.setStatement(statement);
+            inspection.update();
+        }
+        statement.setComment(text);
+        statement.update();
         return ok();
     }
 

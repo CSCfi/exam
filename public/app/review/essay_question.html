@@ -104,7 +104,7 @@
                 <span ng-show="sectionQuestion.question.evaluationType === 'Points'">
                     <select class="form-control" ng-model="sectionQuestion.question.evaluatedScore"
                             ng-change="insertEssayScore(sectionQuestion)"
-                            ng-disabled="(isGraded() && !isCreatorOrOwnerOrAdmin()) || isReadOnly()"
+                            ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
                             ng-options="x for x in range(0, sectionQuestion.question.maxScore, 1)">
                             {{ x }} / {{sectionQuestion.question.maxScore}}
                     </select>
@@ -112,7 +112,7 @@
                 <span ng-show="sectionQuestion.question.evaluationType === 'Select'">
                     <select class="form-control" ng-model="sectionQuestion.question.evaluatedScore"
                             ng-change="insertEssayScore(sectionQuestion)"
-                            ng-disabled="(isGraded() && !isCreatorOrOwnerOrAdmin()) || isReadOnly()">
+                            ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()">
                         <option value="1" ng-selected="sectionQuestion.question.evaluatedScore == 1">{{ 'sitnet_approved' |
                             translate }}
                         </option>
