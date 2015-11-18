@@ -164,31 +164,23 @@
                 };
 
                 var isOwner = function () {
-                    return $scope.exam.parent.examOwners.map(function (owner) {
-                            return owner.id;
-                        }).indexOf($scope.user.id) !== -1;
+                    return $scope.exam.parent.examOwners.filter(function (o) {
+                            return o.id === $scope.user.id;
+                        }).length > 0;
                 };
 
-                var isCreator = function () {
-                    return $scope.exam.parent.creator.id === $scope.user.id;
+                $scope.isOwnerOrAdmin = function () {
+                    return $scope.exam && ($scope.user.isAdmin || isOwner());
                 };
 
-                $scope.isCreatorOrOwnerOrAdmin = function () {
-                    return $scope.exam && ($scope.user.isAdmin || isCreator() || isOwner());
-                };
 
                 $scope.isReadOnly = function () {
                     return !$scope.exam ||
-                        ["GRADED_LOGGED", "ARCHIVED", "ABORTED"].indexOf($scope.exam.state) > -1;
+                        ["GRADED_LOGGED", "ARCHIVED", "ABORTED", "REJECTED"].indexOf($scope.exam.state) > -1;
                 };
 
                 $scope.isGraded = function () {
                     return $scope.exam && $scope.exam.state === "GRADED";
-                };
-
-
-                $scope.isUnderLanguageInspection = function () {
-                    return $scope.exam && $scope.exam.languageInspection;
                 };
 
                 $scope.reviewStatus = [
@@ -608,13 +600,15 @@
 
                 // called when Save button is clicked
                 $scope.updateExam = function (exam) {
-                    if (!$scope.isCreatorOrOwnerOrAdmin()) {
+                    if (!$scope.isOwnerOrAdmin()) {
                         if (exam.state !== 'GRADED') {
                             // Just save feedback and leave
                             $scope.saveFeedback(true);
                             toastr.info($translate.instant('sitnet_saved'));
                             $location.path("exams/reviews/" + exam.parent.id);
                         }
+                    } else if ($scope.isUnderLanguageInspection()) {
+                        saveFeedback();
                     }
                     else {
                         if (!checkCredit()) {
@@ -749,14 +743,53 @@
                     });
                 };
 
-                $scope.canProceedWithMaturity = function () {
-                    return $scope.exam.grade && $scope.exam.examFeedback && $scope.exam.examFeedback.comment;
+                // MATURITY RELATED ->
+
+                $scope.isUnderLanguageInspection = function () {
+                    return $scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
                 };
 
-                $scope.getNextMaturityProcess = function () {
-                    var disapproved = !$scope.exam.grade || !$scope.exam.grade.name || ['REJECTED', 'I', '0'].indexOf($scope.exam.grade.name) > -1;
-                    var text = disapproved ? 'sitnet_reject_maturity' : 'sitnet_send_for_language_inspection';
-                    return {text: text, rejected: disapproved};
+                $scope.hasGoneThroughLanguageInspection = function () {
+                    return $scope.exam && $scope.exam.languageInspection && $scope.exam.languageInspection.finishedAt;
+                };
+
+                var isAwaitingInspection = function () {
+                    return !$scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
+                };
+
+                var MATURITY_STATES = {
+                    NOT_REVIEWED: {id: 1, text: 'sitnet_not_reviewed'},
+                    REJECT_RESPONSE: {id: 2, text: 'sitnet_reject_maturity', canProceed: true, warn: true},
+                    LANGUAGE_INSPECT: {id: 3, text: 'sitnet_send_for_language_inspection', canProceed: true},
+                    AWAIT_INSPECTION: {id: 4, text: 'sitnet_await_inspection'},
+                    REJECT_LANGUAGE: {id: 5, text: 'sitnet_reject_language_content', canProceed: true, warn: true},
+                    APPROVE_LANGUAGE: {id: 6, text: 'sitnet_approve_language_content', canProceed: true},
+                    SEND_TO_REGISTRY: {id: 7, text: 'sitnet_send_result_to_registry', canProceed: true}
+                };
+
+                var isMaturityReviewed = function () {
+                    return $scope.exam.grade &&
+                        $scope.exam.examFeedback &&
+                        $scope.exam.examFeedback.comment && !$scope.isUnderLanguageInspection();
+                };
+
+                $scope.getNextMaturityState = function () {
+                    if (isAwaitingInspection()) {
+                        return MATURITY_STATES.AWAIT_INSPECTION;
+                    }
+                    if ($scope.isUnderLanguageInspection()) {
+                        return $scope.exam.languageInspection.approved ? MATURITY_STATES.APPROVE_LANGUAGE :
+                            MATURITY_STATES.REJECT_LANGUAGE;
+                    }
+                    if (!isMaturityReviewed()) {
+                        return MATURITY_STATES.NOT_REVIEWED;
+                    }
+                    if ($scope.hasGoneThroughLanguageInspection()) {
+                        return MATURITY_STATES.SEND_TO_REGISTRY;
+                    }
+                    var disapproved = !$scope.exam.grade || !$scope.exam.grade.name ||
+                        ['REJECTED', 'I', '0'].indexOf($scope.exam.grade.name) > -1;
+                    return disapproved ? MATURITY_STATES.REJECT_RESPONSE : MATURITY_STATES.LANGUAGE_INSPECT;
                 };
 
                 var rejectMaturity = function () {
@@ -766,7 +799,7 @@
                         $scope.saveFeedback(true);
                         var params = getReviewUpdate($scope.exam, 'REJECTED');
                         ExamRes.review.update({id: $scope.exam.id}, params, function () {
-                            toastr.info($translate.instant('suoritus hylätty'));
+                            toastr.info($translate.instant('sitnet_maturity_rejected'));
                             if ($scope.user.isAdmin) {
                                 $location.path("/");
                             } else {
@@ -785,29 +818,53 @@
                         $scope.saveFeedback(true);
                         var params = getReviewUpdate($scope.exam, 'GRADED');
                         ExamRes.review.update({id: $scope.exam.id}, params, function () {
-                            LanguageInspectionRes.inspection.add({examId: $scope.exam.id}, function() {
-
+                            LanguageInspectionRes.inspection.add({examId: $scope.exam.id}, function () {
+                                toastr.info($translate.instant('sitnet_sent_for_language_inspection'));
+                                if ($scope.user.isAdmin) {
+                                    $location.path("/");
+                                } else {
+                                    $location.path("exams/reviews/" + $scope.exam.parent.id);
+                                }
                             });
-                            toastr.info($translate.instant('Suoritus lähetetty kielentarkastukseen'));
-                            if ($scope.user.isAdmin) {
-                                $location.path("/");
-                            } else {
-                                $location.path("exams/reviews/" + $scope.exam.parent.id);
-                            }
                         }, function (error) {
                             toastr.error(error.data);
                         });
                     });
                 };
 
+                var finalizeLanguageInspection = function () {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
+                        $translate.instant('sitnet_confirm_language_inspection_approval'));
+                    dialog.result.then(function () {
+                        //TBD: $scope.saveStatement(true);
+                        LanguageInspectionRes.approval.update(
+                            {id: $scope.exam.languageInspection.id, approved: $scope.exam.languageInspection.approved},
+                            function () {
+                                toastr.info("sitnet_language_inspection_finished");
+                                $location.path("inspections")
+                            });
+                    });
+                };
+
                 $scope.proceedWithMaturity = function () {
-                    // ask for confirmation
-                    // rejected, set state = 'REJECTED' go to list
-                    // move to lang inspection, set state = 'GRADED' create inspection object, go to list
-                    if ($scope.getNextMaturityProcess().rejected) {
-                        rejectMaturity();
-                    } else {
-                        sendForLanguageInspection();
+                    switch ($scope.getNextMaturityState().id) {
+                        case MATURITY_STATES.REJECT_RESPONSE.id:
+                            rejectMaturity();
+                            break;
+                        case MATURITY_STATES.LANGUAGE_INSPECT.id:
+                            sendForLanguageInspection();
+                            break;
+                        case MATURITY_STATES.REJECT_LANGUAGE.id:
+                        case MATURITY_STATES.APPROVE_LANGUAGE.id:
+                            finalizeLanguageInspection();
+                            break;
+                        case MATURITY_STATES.SEND_TO_REGISTRY.id:
+                            $scope.saveExamRecord($scope.exam);
+                            break;
+                        case MATURITY_STATES.AWAIT_INSPECTION.id:
+                        default:
+                            // Nothing to do
+                            break;
                     }
                 };
 
