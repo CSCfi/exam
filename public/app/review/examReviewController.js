@@ -360,11 +360,9 @@
                                 if (question.answer === null) {
                                     return 0;
                                 }
-                                var answerScore = question.answer.options.reduce(function (a, b) {
+                                score += Math.max(0, question.answer.options.reduce(function (a, b) {
                                     return a + b.score;
-                                }, 0);
-                                answerScore = Math.max(0, answerScore);
-                                score += answerScore;
+                                }, 0));
                                 break;
                             case "EssayQuestion":
                                 if (question.evaluatedScore && question.evaluationType === 'Points') {
