@@ -424,6 +424,9 @@
 
 
                 $scope.selectedAccessibilities = function () {
+                    if (!$scope.roomInstance) {
+                        return;
+                    }
                     return $scope.roomInstance.accessibility.map(function (software) {
                         return software.name;
                     }).join(", ");
