@@ -320,9 +320,9 @@
                                 if (question.answer === null) {
                                     return 0;
                                 }
-                                score += question.answer.options.reduce(function (a, b) {
+                                score += Math.max(0, question.answer.options.reduce(function (a, b) {
                                     return a + b.score;
-                                }, 0);
+                                }, 0));
                                 break;
                             case "EssayQuestion":
                                 if (question.evaluatedScore && question.evaluationType === 'Points') {
