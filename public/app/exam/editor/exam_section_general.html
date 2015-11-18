@@ -168,13 +168,13 @@
 
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}</div>
-            <multiselect class="input-xlarge"
-                         multiple="true"
+            <multiselect data-multiple="true"
                          ng-model="newExam.examLanguages"
-                         header="{{'sitnet_select' | translate}}"
-                         multiheader="selectedLanguages(newExam)"
-                         options="language.code as language.name for language in examLanguages"
-                         change="updateExamLanguages(newExam)">
+                         ms-header="{{'sitnet_select' | translate}}"
+                         ms-selected="{{selectedLanguages(newExam)}}"
+                         options="language.name for language in examLanguages"
+                         change="updateExamLanguages(newExam)"
+                         data-compare-by="code">
             </multiselect>
         </div>
     </div>
@@ -222,14 +222,13 @@
         <!-- Exam software -->
         <div class="col-md-6">
             <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
-            <multiselect class="input-xlarge"
-                         multiple="true"
+            <multiselect data-multiple="true"
                          ng-model="newExam.softwares"
-                         header="{{'sitnet_select' | translate}}"
-                         multiheader="selectedSoftwares(newExam)"
-                         options="software.id as software.name for software in softwares"
-                         change="updateSoftwareInfo(newExam)">
-
+                         ms-header="{{'sitnet_select' | translate}}"
+                         ms-selected="{{selectedSoftwares(newExam)}}"
+                         options="software.name for software in softwares"
+                         change="updateSoftwareInfo(newExam)"
+                         data-compare-by="id">
             </multiselect>
         </div>
 

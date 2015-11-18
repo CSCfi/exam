@@ -85,7 +85,7 @@
                         var examType = $scope.examToBeReviewed.creditType || $scope.examToBeReviewed.examType;
                         $scope.examTypes = types;
                         types.forEach(function (type) {
-                            if ($scope.examToBeReviewed.creditType && examType.type.toUpperCase() === type.type) {
+                            if (examType.id === type.id) {
                                 $scope.selections.type = type;
                             }
                         });
