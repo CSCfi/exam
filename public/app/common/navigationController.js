@@ -79,7 +79,7 @@
                         {
                             href: "#/reports",
                             visible: (admin),
-                            class: "fa-file-word-o",
+                            class: "fa-files-o",
                             name: "sitnet_reports"
                         },
                         {

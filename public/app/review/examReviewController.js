@@ -126,7 +126,7 @@
                         var examType = $scope.exam.creditType || $scope.exam.examType;
                         $scope.examTypes = types;
                         types.forEach(function (type) {
-                            if ($scope.exam.creditType && examType.type.toUpperCase() === type.type) {
+                            if (examType.id === type.id) {
                                 $scope.selections.type = type;
                             }
                         });
@@ -160,6 +160,9 @@
                     } else {
                         $scope.toolbarPath = EXAM_CONF.TEMPLATES_PATH + "review/toolbar.html";
                         $scope.gradingPath = EXAM_CONF.TEMPLATES_PATH + "review/grading.html";
+                    }
+                    if ($scope.isUnderLanguageInspection()) {
+                        $scope.feedbackWindowPath = EXAM_CONF.TEMPLATES_PATH + "review/language_feedback.html";
                     }
                 };
 
@@ -357,9 +360,11 @@
                                 if (question.answer === null) {
                                     return 0;
                                 }
-                                score += question.answer.options.reduce(function (a, b) {
+                                var answerScore = question.answer.options.reduce(function (a, b) {
                                     return a + b.score;
                                 }, 0);
+                                answerScore = Math.max(0, answerScore);
+                                score += answerScore;
                                 break;
                             case "EssayQuestion":
                                 if (question.evaluatedScore && question.evaluationType === 'Points') {

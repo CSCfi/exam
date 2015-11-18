@@ -187,20 +187,22 @@ public class ExamScore extends GeneratedIdentityModel {
 
     @Transient
     public static String[] getHeaders() {
-        return new String[]{"id", "student", "studentFirstName", "studentLastName", "studentEmail", "studentId",
-                "identifier", "courseUnitCode", "courseUnitName", "examDate", "credits", "creditLanguage",
-                "studentGrade", "gradeScale", "examScore", "courseUnitLevel", "creditType", "lecturer",
-                "lecturerFirstName", "lecturerLastName", "lecturerId", "lecturerEmployeeNumber", "date",
-                "courseImplementation", "additionalInfo"};
+        return new String[]{"id",
+                "student", "studentFirstName", "studentLastName", "studentEmail", "studentId", "identifier",
+                "courseUnitCode", "courseUnitName", "courseImplementation", "courseUnitLevel",
+                "examDate", "creditType", "credits", "creditLanguage", "studentGrade", "gradeScale", "examScore",
+                "lecturer", "lecturerFirstName", "lecturerLastName", "lecturerId", "lecturerEmployeeNumber",
+                "date", "additionalInfo"};
     }
 
     @Transient
     public String[] asArray(User student, User teacher, Exam exam) {
-        return new String[]{Long.toString(getId()), student.getFirstName(), student.getLastName(), student.getEmail(),
-                studentId, identifier, courseUnitCode, exam.getCourse().getName(), examDate, credits,
-                creditLanguage, studentGrade, gradeScale, examScore, courseUnitLevel, creditType, lecturer,
-                teacher.getFirstName(), teacher.getLastName(), lecturerId, lecturerEmployeeNumber, registrationDate,
-                courseImplementation, additionalInfo};
+        return new String[]{Long.toString(getId()),
+                this.student, student.getFirstName(), student.getLastName(), student.getEmail(), studentId, identifier,
+                courseUnitCode, exam.getCourse().getName(), courseImplementation, courseUnitLevel,
+                examDate, creditType, credits, creditLanguage, studentGrade, gradeScale, examScore,
+                lecturer, teacher.getFirstName(), teacher.getLastName(), lecturerId, lecturerEmployeeNumber,
+                registrationDate, additionalInfo};
     }
 
 }
