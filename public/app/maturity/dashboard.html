@@ -86,7 +86,7 @@
                 </thead>
 
                 <tbody>
-                <tr ng-repeat="inspection in processedInspections">
+                <tr ng-repeat="inspection in processedInspections | limitTo: 20">
                     <td>{{ inspection.exam.course.code }}</td>
                     <td>{{ inspection.exam.name }}</td>
                     <td>

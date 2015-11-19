@@ -105,7 +105,7 @@ POST          /student/exams/:hash/question/:qid/option/:oids        controllers
 POST          /student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
 
 ############### Language inspection interface ###############
-GET           /inspections                                           controllers.LanguageInspectionController.listInspections
+GET           /inspections                                           controllers.LanguageInspectionController.listInspections(month: play.libs.F.Option[String])
 POST          /inspection                                            controllers.LanguageInspectionController.createInspection
 PUT           /inspection/:id                                        controllers.LanguageInspectionController.assignInspection(id: Long)
 PUT           /inspection/:id/approval                               controllers.LanguageInspectionController.setApproval(id: Long)

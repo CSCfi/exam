@@ -616,5 +616,6 @@
   "sitnet_inspector_statement": "Kielentarkastajan lausunto SV",
   "sitnet_statement_updated": "Lausunto päivitetty SV",
   "sitnet_language_inspection_finished": "Kielentarkistus loppuunviety SV",
-  "sitnet_statement_attachment": "Lausunnon liitetiedosto SV"
+  "sitnet_statement_attachment": "Lausunnon liitetiedosto SV",
+  "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti SV"
 }

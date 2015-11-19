@@ -583,7 +583,7 @@
   "sitnet_language_inspections": "Kielentarkastus",
   "sitnet_ongoing_language_inspections": "Tarkastettavat maturiteetit",
   "sitnet_ongoing_language_inspections_detail": "({0} kpl)",
-  "sitnet_processed_language_inspections": "Tarkistetut maturiteetit",
+  "sitnet_processed_language_inspections": "Tarkastetut maturiteetit",
   "sitnet_processed_language_inspections_detail": "({0} kpl vuonna {1}, näytetään max 20 kpl)",
   "sitnet_arrived": "Saapunut",
   "sitnet_finished": "Tentti suoritettu",
@@ -616,5 +616,6 @@
   "sitnet_inspector_statement": "Kielentarkastajan lausunto",
   "sitnet_statement_updated": "Lausunto päivitetty",
   "sitnet_language_inspection_finished": "Kielentarkistus loppuunviety",
-  "sitnet_statement_attachment": "Lausunnon liitetiedosto"
+  "sitnet_statement_attachment": "Lausunnon liitetiedosto",
+  "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti"
 }

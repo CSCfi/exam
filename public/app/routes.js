@@ -69,7 +69,7 @@
 
             /* Language inspectors */
             $routeProvider.when('/inspections', { templateUrl: tmpl + 'maturity/dashboard.html', controller: 'LanguageInspectionCtrl'});
-
+            $routeProvider.when('/inspections/reports', { templateUrl: tmpl + 'maturity/monthly_report.html', controller: 'LanguageInspectionCtrl'});
 
             $routeProvider.otherwise({redirectTo: '/'});
         }]);

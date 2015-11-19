@@ -1,28 +1,46 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$modal', '$location', 'dialogs', 'EXAM_CONF', 'LanguageInspectionRes',
+        .controller('LanguageInspectionCtrl', ['$scope', '$translate', '$modal', '$location', 'dialogs',
+            'EXAM_CONF', 'LanguageInspectionRes',
             function ($scope, $translate, $modal, $location, dialogs, EXAM_CONF, LanguageInspectionRes) {
 
                 $scope.ongoingInspections = [];
                 $scope.processedInspections = [];
+                $scope.selection = { opened: false, month: new Date()};
 
-                LanguageInspectionRes.inspections.query(function (inspections) {
-                    $scope.ongoingInspections = inspections.filter(function (i) {
-                        return !i.finishedAt;
-                    });
-                    $scope.processedInspections = inspections.filter(function (i) {
-                        return i.finishedAt;
-                    });
-                });
+                $scope.open = function($event) {
+                    $event.preventDefault();
+                    $event.stopPropagation();
+                    $scope.selection.opened = true;
+                };
 
-                $scope.assignInspection = function(inspection) {
+
+                $scope.query = function(byMonth) {
+                    var params = byMonth ? {month: $scope.selection.month} : undefined;
+                    LanguageInspectionRes.inspections.query(params, function (inspections) {
+                        $scope.ongoingInspections = inspections.filter(function (i) {
+                            return !i.finishedAt;
+                        });
+                        $scope.processedInspections = inspections.filter(function (i) {
+                            return i.finishedAt;
+                        });
+                    });
+                };
+
+                if ($location.path() === '/inspections') {
+                    $scope.query();
+                } else {
+                    $scope.query(true);
+                }
+
+                $scope.assignInspection = function (inspection) {
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                         $translate.instant('sitnet_confirm_assign_inspection'));
                     dialog.result.then(function () {
-                        LanguageInspectionRes.assignment.update({id : inspection.id}, function() {
+                        LanguageInspectionRes.assignment.update({id: inspection.id}, function () {
                             $location.path('exams/review/' + inspection.exam.id);
-                        }, function(err) {
+                        }, function (err) {
                             toastr.error(err);
                         })
                     });
@@ -64,7 +82,6 @@
                     return $translate.instant('sitnet_processed_language_inspections_detail').replace('{0}', amount)
                         .replace('{1}', year);
                 };
-
 
 
             }]);

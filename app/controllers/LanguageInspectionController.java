@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import models.Comment;
 import models.Exam;
 import models.LanguageInspection;
@@ -13,6 +14,7 @@ import org.joda.time.DateTime;
 import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.libs.F;
 import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
@@ -34,9 +36,8 @@ public class LanguageInspectionController extends BaseController {
     protected ActorSystem actor;
 
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
-    public Result listInspections() {
-        DateTime beginningOfYear = DateTime.now().withDayOfYear(1);
-        List<LanguageInspection> inspections = Ebean.find(LanguageInspection.class)
+    public Result listInspections(F.Option<String> month) {
+        ExpressionList<LanguageInspection> query = Ebean.find(LanguageInspection.class)
                 .fetch("exam")
                 .fetch("exam.course")
                 .fetch("exam.creator", "firstName, lastName, email, userIdentifier")
@@ -44,12 +45,20 @@ public class LanguageInspectionController extends BaseController {
                 .fetch("statement")
                 .fetch("creator", "firstName, lastName, email, userIdentifier")
                 .fetch("assignee", "firstName, lastName, email, userIdentifier")
-                .where()
-                .disjunction()
-                .isNull("finishedAt")
-                .gt("finishedAt", beginningOfYear.toDate())
-                .endJunction()
-                .findList();
+                .where();
+        if (month.isDefined()) {
+            DateTime start = DateTime.parse(month.get()).withDayOfMonth(1).withMillisOfDay(0);
+            DateTime end = start.plusMonths(1);
+            query = query.between("finishedAt", start.toDate(), end.toDate());
+        } else {
+            DateTime beginningOfYear = DateTime.now().withDayOfYear(1);
+            query = query
+                    .disjunction()
+                    .isNull("finishedAt")
+                    .gt("finishedAt", beginningOfYear.toDate())
+                    .endJunction();
+        }
+        List<LanguageInspection> inspections = query.findList();
         return ok(inspections);
     }
 
@@ -112,8 +121,8 @@ public class LanguageInspectionController extends BaseController {
         User sender = getLoggedUser();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User recipient : recipients) {
-                    emailComposer.composeLanguageInspectionFinishedMessage(recipient, sender, inspection);
-                    Logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
+                emailComposer.composeLanguageInspectionFinishedMessage(recipient, sender, inspection);
+                Logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
             }
         }, actor.dispatcher());
 
