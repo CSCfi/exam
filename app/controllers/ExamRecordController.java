@@ -60,12 +60,8 @@ public class ExamRecordController extends BaseController {
         record.save();
         final User user = getLoggedUser();
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            try {
-                emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
-                Logger.info("Inspection ready notification email sent");
-            } catch (IOException e) {
-                Logger.error("Failed to send inspection ready notification email", e);
-            }
+            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+            Logger.info("Inspection ready notification email sent");
         }, actor.dispatcher());
         return ok();
     }

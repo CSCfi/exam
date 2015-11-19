@@ -524,14 +524,10 @@ public class ExamController extends BaseController {
         users.remove(sender);
 
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User u : users)
-                try {
-                    emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
-                    Logger.info("Exam participation notification email sent to {}",
-                            u.getEmail());
-                } catch (IOException e) {
-                    Logger.error("Failed to send participation notification email", e);
-                }
+            for (User u : users) {
+                emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
+                Logger.info("Exam participation notification email sent to {}", u.getEmail());
+            }
         }, actor.dispatcher());
     }
 
@@ -1373,12 +1369,9 @@ public class ExamController extends BaseController {
             AppUtil.setCreator(comment, getLoggedUser());
             inspection.setComment(comment);
             comment.save();
-            try {
+            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
                 emailComposer.composeExamReviewRequest(recipient, getLoggedUser(), exam, msg);
-            } catch (IOException e) {
-                Logger.error("Failure to access message template on disk", e);
-                e.printStackTrace();
-            }
+            }, actor.dispatcher());
         }
         inspection.save();
         // Add also as inspector to ongoing child exams if not already there.
@@ -1462,14 +1455,11 @@ public class ExamController extends BaseController {
                 recipients.add(owner);
             }
         }
-        try {
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User user : recipients) {
                 emailComposer.composeInspectionMessage(user, loggedUser, exam, body.get("msg").asText());
             }
-        } catch (IOException e) {
-            Logger.error("Failure to access message template on disk", e);
-            return internalServerError("sitnet_internal_error");
-        }
+        }, actor.dispatcher());
         return ok();
     }
 

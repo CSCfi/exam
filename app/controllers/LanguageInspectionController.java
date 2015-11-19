@@ -1,5 +1,6 @@
 package controllers;
 
+import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
@@ -7,17 +8,30 @@ import com.avaje.ebean.Ebean;
 import models.Comment;
 import models.Exam;
 import models.LanguageInspection;
+import models.User;
 import org.joda.time.DateTime;
+import play.Logger;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Result;
+import scala.concurrent.duration.Duration;
 import util.AppUtil;
+import util.java.EmailComposer;
 
+import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 
 public class LanguageInspectionController extends BaseController {
+
+    @Inject
+    protected EmailComposer emailComposer;
+
+    @Inject
+    protected ActorSystem actor;
 
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result listInspections() {
@@ -91,9 +105,23 @@ public class LanguageInspectionController extends BaseController {
         if (inspection.getFinishedAt() != null) {
             return forbidden("Inspection already finalized");
         }
+        if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
+            return forbidden("No statement given");
+        }
         inspection.setFinishedAt(new Date());
         inspection.setApproved(isApproved);
         inspection.update();
+
+        Set<User> recipients = inspection.getExam().getParent().getExamOwners();
+        User sender = getLoggedUser();
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            for (User recipient : recipients) {
+                    emailComposer.composeLanguageInspectionFinishedMessage(recipient, sender, inspection);
+                    Logger.info("Language inspection finalization email sent to {}", recipient.getEmail());
+            }
+        }, actor.dispatcher());
+
+
         return ok();
     }
 

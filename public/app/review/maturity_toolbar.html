@@ -16,7 +16,8 @@
         <span ng-show="!isReadOnly()">
             <button class="btn"
                     ng-class="getNextMaturityState().warn ? 'btn-danger' : 'btn-primary'"
-                    ng-disabled="!getNextMaturityState().canProceed || !examForm.$valid"
+                    ng-disabled="!getNextMaturityState().canProceed || !examForm.$valid ||
+                        (getNextMaturityState().validate && !getNextMaturityState().validate())"
                     ng-click="proceedWithMaturity()">{{ getNextMaturityState().text | translate}}
             </button>
         </span>

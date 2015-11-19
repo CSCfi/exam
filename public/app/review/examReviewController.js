@@ -778,13 +778,19 @@
                     return !$scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
                 };
 
+                $scope.canFinalizeInspection = function() {
+                    return $scope.exam.languageInspection.statement && $scope.exam.languageInspection.statement.comment;
+                };
+
                 var MATURITY_STATES = {
                     NOT_REVIEWED: {id: 1, text: 'sitnet_not_reviewed'},
                     REJECT_RESPONSE: {id: 2, text: 'sitnet_reject_maturity', canProceed: true, warn: true},
                     LANGUAGE_INSPECT: {id: 3, text: 'sitnet_send_for_language_inspection', canProceed: true},
                     AWAIT_INSPECTION: {id: 4, text: 'sitnet_await_inspection'},
-                    REJECT_LANGUAGE: {id: 5, text: 'sitnet_reject_language_content', canProceed: true, warn: true},
-                    APPROVE_LANGUAGE: {id: 6, text: 'sitnet_approve_language_content', canProceed: true},
+                    REJECT_LANGUAGE: {id: 5, text: 'sitnet_reject_language_content', canProceed: true, warn: true,
+                        validate: $scope.canFinalizeInspection},
+                    APPROVE_LANGUAGE: {id: 6, text: 'sitnet_approve_language_content', canProceed: true,
+                        validate: $scope.canFinalizeInspection},
                     SEND_TO_REGISTRY: {id: 7, text: 'sitnet_send_result_to_registry', canProceed: true},
                     REJECT_ALTOGETHER: {id: 8, text: 'sitnet_reject_maturity', canProceed: true, warn: true}
                 };

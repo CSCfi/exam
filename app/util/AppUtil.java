@@ -124,12 +124,8 @@ public class AppUtil {
 
     public static void notifyPrivateExamEnded(Collection<User> recipients, Exam exam, EmailComposer composer) {
         for (User r : recipients) {
-            try {
-                composer.composePrivateExamEnded(r, exam);
-                Logger.info("Email sent to {}", r.getEmail());
-            } catch (IOException e) {
-                Logger.error("Failed to send email", e);
-            }
+            composer.composePrivateExamEnded(r, exam);
+            Logger.info("Email sent to {}", r.getEmail());
         }
     }
 

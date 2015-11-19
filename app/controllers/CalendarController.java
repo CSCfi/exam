@@ -21,7 +21,6 @@ import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -64,12 +63,8 @@ public class CalendarController extends BaseController {
         // send email asynchronously
         final boolean isStudentUser = user.equals(enrolment.getUser());
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            try {
-                emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
-                Logger.info("Reservation cancellation confirmation email sent");
-            } catch (IOException e) {
-                Logger.error("Failed to send reservation confirmation email", e);
-            }
+            emailComposer.composeReservationCancellationNotification(enrolment.getUser(), reservation, "", isStudentUser, enrolment);
+            Logger.info("Reservation cancellation confirmation email sent");
         }, actor.dispatcher());
         return ok("removed");
     }
@@ -191,12 +186,8 @@ public class CalendarController extends BaseController {
         // Send some emails asynchronously
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User recipient : recipients) {
-                try {
-                    emailComposer.composeReservationNotification(recipient, reservation, exam, !recipient.equals(user));
-                    Logger.info("Reservation confirmation email sent");
-                } catch (IOException e) {
-                    Logger.error("Failed to send reservation confirmation email", e);
-                }
+                emailComposer.composeReservationNotification(recipient, reservation, exam, !recipient.equals(user));
+                Logger.info("Reservation confirmation email sent to {}", recipient.getEmail());
             }
         }, actor.dispatcher());
 

@@ -614,5 +614,6 @@
   "sitnet_confirm_language_inspection_approval": "Vie kielentarkastus loppuun? Toimintoa ei voi perua.",
   "sitnet_give_statement": "Anna kielentarkastuslausunto",
   "sitnet_inspector_statement": "Kielentarkastajan lausunto",
-  "sitnet_statement_updated": "Lausunto päivitetty"
+  "sitnet_statement_updated": "Lausunto päivitetty",
+  "sitnet_language_inspection_finished": "Kielentarkistus loppuunviety"
 }

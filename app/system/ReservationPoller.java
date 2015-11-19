@@ -6,7 +6,6 @@ import play.Logger;
 import util.java.EmailComposer;
 
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -65,12 +64,8 @@ public class ReservationPoller implements Runnable {
             recipients.addAll(exam.getExamInspections().stream().map(
                     ExamInspection::getUser).collect(Collectors.toSet()));
             for (User r : recipients) {
-                try {
-                    composer.composeNoShowMessage(r, enrolment.getUser(), exam);
-                    Logger.info("Email sent to {}", r.getEmail());
-                } catch (IOException e) {
-                    Logger.error("Failed to send email", e);
-                }
+                composer.composeNoShowMessage(r, enrolment.getUser(), exam);
+                Logger.info("Email sent to {}", r.getEmail());
             }
         }
     }
