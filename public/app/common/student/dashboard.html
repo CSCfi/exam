@@ -197,7 +197,8 @@
             <div class="info-column col-md-3">
                 <span class="header col-md-12">{{ 'sitnet_teachers_comment' | translate }}:</span><br/>
                 <span class="light-text col-md-12">
-                    <span ng-if="participation.exam.state === 'GRADED_LOGGED' || participation.exam.state === 'ARCHIVED'" popover-placement="top"
+                    <span ng-if="participation.exam.state === 'GRADED_LOGGED' || participation.exam.state === 'REJECTED'
+                            || participation.exam.state === 'ARCHIVED'" popover-placement="top"
                           popover-popup-delay="1000" popover-trigger="mouseenter"
                           popover="{{ 'sitnet_show' | translate }}" ng-click="showFeedback(participation.exam.id)"
                           class="pointer text-info">{{'sitnet_comments' | translate}}</span>

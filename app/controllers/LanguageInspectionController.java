@@ -90,11 +90,7 @@ public class LanguageInspectionController extends BaseController {
     @Pattern(value = "CAN_INSPECT_LANGUAGE")
     public Result setApproval(Long id) {
         DynamicForm df = Form.form().bindFromRequest();
-        String verdict = df.get("approved");
-        if (verdict == null) {
-            return badRequest();
-        }
-        boolean isApproved = Boolean.parseBoolean(verdict);
+        boolean isApproved = Boolean.parseBoolean(df.get("approved"));
         LanguageInspection inspection = Ebean.find(LanguageInspection.class, id);
         if (inspection == null) {
             return notFound("Inspection not found");

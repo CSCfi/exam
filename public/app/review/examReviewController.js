@@ -878,7 +878,7 @@
                         LanguageInspectionRes.approval.update(
                             {id: $scope.exam.languageInspection.id, approved: $scope.exam.languageInspection.approved},
                             function () {
-                                toastr.info("sitnet_language_inspection_finished");
+                                toastr.info($translate.instant('sitnet_language_inspection_finished'));
                                 $location.path("inspections")
                             });
                     });

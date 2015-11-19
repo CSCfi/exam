@@ -615,5 +615,6 @@
   "sitnet_give_statement": "Anna kielentarkastuslausunto",
   "sitnet_inspector_statement": "Kielentarkastajan lausunto",
   "sitnet_statement_updated": "Lausunto päivitetty",
-  "sitnet_language_inspection_finished": "Kielentarkistus loppuunviety"
+  "sitnet_language_inspection_finished": "Kielentarkistus loppuunviety",
+  "sitnet_statement_attachment": "Lausunnon liitetiedosto"
 }
