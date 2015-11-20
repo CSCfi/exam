@@ -426,7 +426,7 @@
   "sitnet_person_to_contact_if_need_info": "Please contact this person in the need for additional information",
   "sitnet_address_for_camera_footage_from_this_room": "Address for exam monitoring video files",
   "sitnet_room_accessibility_features": "Accessibility information of the exam room",
-  "sitnet_remove_software": "Remove software /resourse",
+  "sitnet_remove_software": "Remove software resource",
   "sitnet_average_word_length_finnish": "Average word length in English is 5 characters",
   "sitnet_course_unique_code": "Course code",
   "sitnet_show_http_headers": "Show the HTTP headers sent to Exam",
@@ -462,7 +462,7 @@
   "sitnet_show_first": "Show the first",
   "sitnet_show_questions": "questions",
   "sitnet_show_more": "Show more",
-  "sitnet_exam_search_description": "You can search exams by exam name or code or by examiner name",
+  "sitnet_exam_search_description": "You can search exams by course code, exam name or by examiner name",
   "sitnet_print": "Print",
   "sitnet_remove_room_accessibility_info": "Remove accessibility information",
   "sitnet_accessibility_added": "The accessibility information has been added",
@@ -581,6 +581,7 @@
   "sitnet_confirm_question_removal": "Do you want to delete the exam question?",
   "sitnet_exam_section": "Exam section",
   "sitnet_reservation_removed": "Reservation removed",
-  "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä. EN",
-  "sitnet_choose_teacher": "Valitse opettaja EN"
+  "sitnet_exams_for_course": "Course exams",
+  "sitnet_move_between_sections_disabled": "Questions can be arranged only within the section area. It is not possible to move questions into another section.",
+  "sitnet_choose_teacher": "Choose an examiner."
 }
