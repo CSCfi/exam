@@ -21,7 +21,6 @@ import util.java.EmailComposer;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.IOException;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -128,17 +127,9 @@ public class SystemInitializer {
                     .where()
                     .eq("roles.name", "TEACHER")
                     .findList();
-            try {
-                for (User teacher : teachers) {
-                    composer.composeWeeklySummary(teacher);
-                }
-            } catch (IOException e) {
-                Logger.error("Failed to read email template from disk!", e);
-                e.printStackTrace();
-            } finally {
-                // Reschedule
-                scheduleWeeklyReport();
-            }
+            teachers.stream().forEach(t -> composer.composeWeeklySummary(t));
+            // Reschedule
+            scheduleWeeklyReport();
         }, actor.dispatcher());
     }
 

@@ -57,7 +57,7 @@ public class EmailComposerImpl implements EmailComposer {
     /**
      * This notification is sent to student, when teacher has reviewed the exam
      */
-    public void composeInspectionReady(User student, User reviewer, Exam exam) throws IOException {
+    public void composeInspectionReady(User student, User reviewer, Exam exam) {
         String templatePath = getTemplatesRoot() + "reviewReady.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
@@ -82,7 +82,7 @@ public class EmailComposerImpl implements EmailComposer {
     /**
      * This notification is sent to the creator of exam when assigned inspector has finished inspection
      */
-    public void composeInspectionMessage(User inspector, User sender, Exam exam, String msg) throws IOException {
+    public void composeInspectionMessage(User inspector, User sender, Exam exam, String msg) {
 
         String templatePath = getTemplatesRoot() + "inspectionReady.html";
         String template = readFile(templatePath, ENCODING);
@@ -108,7 +108,7 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(inspector.getEmail(), sender.getEmail(), subject, template);
     }
 
-    public void composeWeeklySummary(User teacher) throws IOException {
+    public void composeWeeklySummary(User teacher){
 
         Lang lang = getLang(teacher);
         String enrolmentBlock = createEnrolmentBlock(teacher, lang);
@@ -156,7 +156,7 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(teacher.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
-    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, boolean isTeacher) throws IOException {
+    public void composeReservationNotification(User recipient, Reservation reservation, Exam exam, boolean isTeacher) {
         String templatePath = getTemplatesRoot() + "reservationConfirmed.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(recipient);
@@ -217,8 +217,14 @@ public class EmailComposerImpl implements EmailComposer {
         String addressString = address == null ? null :
                 String.format("%s, %s  %s", address.getStreet(), address.getZip(), address.getCity());
         ICalendar iCal = createReservationEvent(lang, startDate, endDate, addressString, buildingInfo, roomName, machineName);
-        File file = File.createTempFile("reservation", ".ics");
-        Biweekly.write(iCal).go(file);
+        File file;
+        try {
+            file = File.createTempFile("reservation", ".ics");
+            Biweekly.write(iCal).go(file);
+        } catch (IOException e) {
+            Logger.error("Failed to create a temporary iCal file on disk!");
+            throw new RuntimeException(e);
+        }
         Attachment attachment = new Attachment(Messages.get(lang, "ical.reservation.filename", ".ics"), file);
         emailSender.send(recipient.getEmail(), SYSTEM_ACCOUNT, subject, content, attachment);
     }
@@ -240,8 +246,7 @@ public class EmailComposerImpl implements EmailComposer {
         return iCal;
     }
 
-    public void composeExamReviewRequest(User toUser, User fromUser, Exam exam, String message)
-            throws IOException {
+    public void composeExamReviewRequest(User toUser, User fromUser, Exam exam, String message) {
 
         String templatePath = getTemplatesRoot() + "reviewRequest.html";
         String template = readFile(templatePath, ENCODING);
@@ -285,8 +290,8 @@ public class EmailComposerImpl implements EmailComposer {
         emailSender.send(toUser.getEmail(), fromUser.getEmail(), subject, template);
     }
 
-    public void composeReservationCancellationNotification(User student, Reservation reservation, String message, Boolean isStudentUser, ExamEnrolment enrolment)
-            throws IOException {
+    public void composeReservationCancellationNotification(User student, Reservation reservation, String message,
+                                                           Boolean isStudentUser, ExamEnrolment enrolment) {
 
         String templatePath;
         if (isStudentUser) {
@@ -347,7 +352,7 @@ public class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
-    public void composePrivateExamParticipantNotification(User student, User fromUser, Exam exam) throws IOException {
+    public void composePrivateExamParticipantNotification(User student, User fromUser, Exam exam) {
         String templatePath = getTemplatesRoot() + "participationNotification.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(student);
@@ -376,7 +381,7 @@ public class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
-    public void composePrivateExamEnded(User toUser, Exam exam) throws IOException {
+    public void composePrivateExamEnded(User toUser, Exam exam) {
         String templatePath = getTemplatesRoot() + "examEnded.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(toUser);
@@ -385,12 +390,12 @@ public class EmailComposerImpl implements EmailComposer {
         if (exam.getState() == Exam.State.ABORTED) {
             subject = Messages.get(lang, "email.template.exam.aborted.subject");
             message = Messages.get(lang, "email.template.exam.aborted.message", String.format("%s %s <%s>",
-                            student.getFirstName(), student.getLastName(), student.getEmail()),
+                    student.getFirstName(), student.getLastName(), student.getEmail()),
                     String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         } else {
             subject = Messages.get(lang, "email.template.exam.returned.subject");
             message = Messages.get(lang, "email.template.exam.returned.message", String.format("%s %s <%s>",
-                            student.getFirstName(), student.getLastName(), student.getEmail()),
+                    student.getFirstName(), student.getLastName(), student.getEmail()),
                     String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         }
         Map<String, String> stringValues = new HashMap<>();
@@ -400,18 +405,53 @@ public class EmailComposerImpl implements EmailComposer {
     }
 
     @Override
-    public void composeNoShowMessage(User toUser, User student, Exam exam) throws IOException {
+    public void composeNoShowMessage(User toUser, User student, Exam exam)  {
         String templatePath = getTemplatesRoot() + "noShow.html";
         String template = readFile(templatePath, ENCODING);
         Lang lang = getLang(toUser);
         String subject = Messages.get(lang, "email.template.noshow.subject");
         String message = Messages.get(lang, "email.template.noshow.message", String.format("%s %s <%s>",
-                        student.getFirstName(), student.getLastName(), student.getEmail()),
+                student.getFirstName(), student.getLastName(), student.getEmail()),
                 String.format("%s (%s)", exam.getName(), exam.getCourse().getCode()));
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("message", message);
         String content = replaceAll(template, stringValues);
         emailSender.send(toUser.getEmail(), SYSTEM_ACCOUNT, subject, content);
+    }
+
+    @Override
+    public void composeLanguageInspectionFinishedMessage(User toUser, User inspector, LanguageInspection inspection) {
+        String templatePath = getTemplatesRoot() + "languageInspectionReady.html";
+        String template = readFile(templatePath, ENCODING);
+        Lang lang = getLang(inspector);
+
+        Exam exam = inspection.getExam();
+        String subject = Messages.get(lang, "email.template.language.inspection.subject");
+        String inspectorName = String.format("%s %s <%s>", inspector.getFirstName(), inspector.getLastName(),
+                inspector.getEmail());
+        String studentName = String.format("%s %s <%s>", exam.getCreator().getFirstName(),
+                exam.getCreator().getLastName(), exam.getCreator().getEmail());
+        String verdict = Messages.get(lang, inspection.getApproved()
+                ? "email.template.language.inspection.approved" : "email.template.language.inspection.rejected");
+        String examInfo = String.format("%s, %s", exam.getName(), exam.getCourse().getCode());
+
+        String linkToInspection = String.format("%s/#exams/review/%d", HOSTNAME, inspection.getExam().getId());
+
+        Map<String, String> stringValues = new HashMap<>();
+        stringValues.put("exam_info", Messages.get(lang, "email.template.reservation.exam", examInfo));
+        stringValues.put("inspector_name", Messages.get(lang, "email.template.reservation.teacher", inspectorName));
+        stringValues.put("student_name", Messages.get(lang, "email.template.language.inspection.student", studentName));
+        stringValues.put("inspection_done", Messages.get(lang, "email.template.language.inspection.done"));
+        stringValues.put("statement_title", Messages.get(lang, "email.template.language.inspection.statement.title"));
+        stringValues.put("inspection_link_text", Messages.get(lang, "email.template.link.to.review"));
+        stringValues.put("inspection_info", Messages.get(lang, "email.template.language.inspection.result", verdict));
+        stringValues.put("inspection_link", linkToInspection);
+        stringValues.put("inspection_statement", inspection.getStatement().getComment());
+        //Replace template strings
+        template = replaceAll(template, stringValues);
+
+        //Send notification
+        emailSender.send(toUser.getEmail(), inspector.getEmail(), subject, template);
     }
 
     private static List<ExamEnrolment> getEnrolments(Exam exam) {
@@ -429,7 +469,7 @@ public class EmailComposerImpl implements EmailComposer {
         return enrolments;
     }
 
-    private String createEnrolmentBlock(User teacher, Lang lang) throws IOException {
+    private String createEnrolmentBlock(User teacher, Lang lang) {
         String enrolmentTemplatePath = getTemplatesRoot() + "weeklySummary/enrollmentInfo.html";
         String enrolmentTemplate = readFile(enrolmentTemplatePath, ENCODING);
         StringBuilder enrolmentBlock = new StringBuilder();
@@ -499,9 +539,14 @@ public class EmailComposerImpl implements EmailComposer {
         return original;
     }
 
-    static String readFile(String path, Charset encoding)
-            throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
+    static String readFile(String path, Charset encoding) {
+        byte[] encoded;
+        try {
+            encoded = Files.readAllBytes(Paths.get(path));
+        } catch (IOException e) {
+            Logger.error("Failed to read email template from disk!");
+            throw new RuntimeException(e);
+        }
         return new String(encoded, encoding);
     }
 

@@ -41,23 +41,23 @@
      <p ng-hide="previousParticipations" class="col-md-1 col-md-offset-1 sitnet-info-text-compact">N/A</p>
      <div ng-include="previousParticipationPath" ng-repeat="participation in previousParticipations"></div>
 </div>
-<div class="top-row" ng-show="examToBeReviewed.instruction">
+<div class="top-row" ng-show="exam.instruction">
     <div class="col-md-12">
         <strong>{{'sitnet_exam_instruction' | translate}}:</strong>
     </div>
 </div>
-<div class="detail-row" ng-show="examToBeReviewed.instruction">
+<div class="detail-row" ng-show="exam.instruction">
     <div class="col-md-12 sitnet-info-text-compact">
-        <p mathjax ng-bind-html="examToBeReviewed.instruction"></p>
+        <p mathjax ng-bind-html="exam.instruction"></p>
     </div>
 </div>
-<div class="top-row" ng-show="examToBeReviewed.attachment">
+<div class="top-row" ng-show="exam.attachment">
     <div class="col-md-12">
         <strong>{{'sitnet_exam_attachment' | translate}}:</strong>
     </div>
 </div>
-<div class="detail-row" ng-show="examToBeReviewed.attachment" ng-controller="AttachmentController">
+<div class="detail-row" ng-show="exam.attachment" ng-controller="AttachmentController">
     <div class="col-md-12 sitnet-info-text-compact">
-        <a class="pointer" ng-click="downloadExamAttachment(examToBeReviewed)">{{examToBeReviewed.attachment.fileName}}</a>
+        <a class="pointer" ng-click="downloadExamAttachment(exam)">{{exam.attachment.fileName}}</a>
     </div>
 </div>

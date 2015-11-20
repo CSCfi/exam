@@ -74,6 +74,7 @@ public class EnrollController extends BaseController {
                 .fetch("examInspections")
                 .fetch("examInspections.user")
                 .fetch("examType")
+                .fetch("executionType")
                 .where()
                 .eq("state", Exam.State.PUBLISHED)
                 .eq("course.code", code)
@@ -133,7 +134,7 @@ public class EnrollController extends BaseController {
         if (enrolment.getExam().isPrivate()) {
             return forbidden();
         }
-        if (enrolment.getReservation() != null ) {
+        if (enrolment.getReservation() != null) {
             return forbidden("sitnet_cancel_reservation_first");
         }
         enrolment.delete();
@@ -163,7 +164,7 @@ public class EnrollController extends BaseController {
                 .eq("id", eid)
                 .disjunction()
                 .eq("state", Exam.State.PUBLISHED)
-                .eq("executionType.type", ExamExecutionType.Type.PRIVATE.toString())
+                .ne("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
                 .endJunction()
                 .eq("executionType.type", type.toString())
                 .findUnique();
@@ -231,7 +232,8 @@ public class EnrollController extends BaseController {
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
     public Result createStudentEnrolment(Long eid, Long uid) {
-        return doCreateEnrolment(eid, uid, ExamExecutionType.Type.PRIVATE);
+        Exam exam = Ebean.find(Exam.class, eid);
+        return doCreateEnrolment(eid, uid, ExamExecutionType.Type.valueOf(exam.getExecutionType().getType()));
     }
 
     @Restrict({@Group("ADMIN"), @Group("TEACHER")})
@@ -239,7 +241,7 @@ public class EnrollController extends BaseController {
         User user = getLoggedUser();
         ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where()
                 .idEq(id)
-                .eq("exam.executionType.type", ExamExecutionType.Type.PRIVATE.toString())
+                .ne("exam.executionType.type", ExamExecutionType.Type.PUBLIC.toString())
                 .isNull("reservation")
                 .disjunction()
                 .eq("exam.state", Exam.State.DRAFT)

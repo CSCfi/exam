@@ -254,6 +254,10 @@ public class ExamController extends BaseController {
                 .fetch("gradeScale")
                 .fetch("gradeScale.grades")
                 .fetch("grade")
+                .fetch("languageInspection")
+                .fetch("languageInspection.assignee", "firstName, lastName, email")
+                .fetch("languageInspection.statement")
+                .fetch("languageInspection.statement.attachment")
                 .fetch("examEnrolments.reservation", "startAt, endAt, noShow")
                 .fetch("examEnrolments.user")
                 .fetch("examFeedback")
@@ -298,7 +302,8 @@ public class ExamController extends BaseController {
             return notFound("sitnet_error_exam_not_found");
         }
         User user = getLoggedUser();
-        if (!exam.isInspectedOrCreatedOrOwnedBy(user, true) && !user.hasRole("ADMIN", getSession())) {
+        if (!exam.isInspectedOrCreatedOrOwnedBy(user, true) && !user.hasRole("ADMIN", getSession()) &&
+                !exam.isViewableForLanguageInspector(user)) {
             return forbidden("sitnet_error_access_forbidden");
         }
         return ok(exam);
@@ -331,6 +336,12 @@ public class ExamController extends BaseController {
         return ok(scales);
     }
 
+    @Restrict({@Group("ADMIN"), @Group("TEACHER")})
+    public Result getExamExecutionTypes() {
+        List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class).findList();
+        return ok(types);
+    }
+
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result getExamPreview(Long id) {
 
@@ -355,11 +366,11 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("sitnet_exam_not_found");
         }
-        if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
+        if (exam.hasState(Exam.State.ABORTED, Exam.State.REJECTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden("Not allowed to update grading of this exam");
         }
 
-        Integer grade = df.get("grade") == null || df.get("grade").equals("") ? null : Integer.parseInt(df.get("grade"));
+        Integer grade = df.get("grade") == null ? null : Integer.parseInt(df.get("grade"));
         String additionalInfo = df.get("additionalInfo") == null ? null : df.get("additionalInfo");
         if (grade != null) {
             Grade examGrade = Ebean.find(Grade.class, grade);
@@ -369,6 +380,8 @@ public class ExamController extends BaseController {
             } else {
                 return badRequest("Invalid grade for this grade scale");
             }
+        } else {
+            exam.setGrade(null);
         }
         String creditType = df.get("creditType.type");
         if (creditType == null) {
@@ -382,6 +395,8 @@ public class ExamController extends BaseController {
             if (eType != null) {
                 exam.setCreditType(eType);
             }
+        } else {
+            exam.setCreditType(null);
         }
         exam.setAdditionalInfo(additionalInfo);
         exam.setAnswerLanguage(df.get("answerLanguage"));
@@ -509,14 +524,10 @@ public class ExamController extends BaseController {
         users.remove(sender);
 
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User u : users)
-                try {
-                    emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
-                    Logger.info("Exam participation notification email sent to {}",
-                            u.getEmail());
-                } catch (IOException e) {
-                    Logger.error("Failed to send participation notification email", e);
-                }
+            for (User u : users) {
+                emailComposer.composePrivateExamParticipantNotification(u, sender, exam);
+                Logger.info("Exam participation notification email sent to {}", u.getEmail());
+            }
         }, actor.dispatcher());
     }
 
@@ -1358,12 +1369,9 @@ public class ExamController extends BaseController {
             AppUtil.setCreator(comment, getLoggedUser());
             inspection.setComment(comment);
             comment.save();
-            try {
+            actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
                 emailComposer.composeExamReviewRequest(recipient, getLoggedUser(), exam, msg);
-            } catch (IOException e) {
-                Logger.error("Failure to access message template on disk", e);
-                e.printStackTrace();
-            }
+            }, actor.dispatcher());
         }
         inspection.save();
         // Add also as inspector to ongoing child exams if not already there.
@@ -1447,14 +1455,11 @@ public class ExamController extends BaseController {
                 recipients.add(owner);
             }
         }
-        try {
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
             for (User user : recipients) {
                 emailComposer.composeInspectionMessage(user, loggedUser, exam, body.get("msg").asText());
             }
-        } catch (IOException e) {
-            Logger.error("Failure to access message template on disk", e);
-            return internalServerError("sitnet_internal_error");
-        }
+        }, actor.dispatcher());
         return ok();
     }
 

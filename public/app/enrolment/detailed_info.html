@@ -116,4 +116,14 @@
         </div>
     </div>
 
+    <div class="detail-row" ng-show="exam.executionType.type === 'MATURITY'">
+        <!-- Exam information field -->
+        <div class="col-md-12">
+            <div class="sitnet-info-text">{{'sitnet_maturity_instructions' | translate}}</div>
+            <div class="input-group">
+                <div>{{exam.maturityInstructions}}</div>
+            </div>
+        </div>
+    </div>
+
 </div>

@@ -24,7 +24,6 @@ import util.AppUtil;
 import util.java.EmailComposer;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -87,6 +86,7 @@ public class StudentExamController extends BaseController {
                 .isNotNull("exam.parent")
                 .ne("exam.state", Exam.State.STUDENT_STARTED)
                 .ne("exam.state", Exam.State.ABORTED)
+                .ne("exam.state", Exam.State.DELETED)
                 .eq("exam.creator", user)
                 .findList();
         return ok(participations);
@@ -121,15 +121,19 @@ public class StudentExamController extends BaseController {
                 .fetch("course", "code, name, credits")
                 .fetch("grade")
                 .fetch("gradeScale")
+                .fetch("executionType")
                 .fetch("examFeedback")
                 .fetch("examFeedback.attachment")
                 .fetch("gradedByUser", "firstName, lastName")
                 .fetch("examInspections.user", "firstName, lastName")
                 .fetch("parent.examOwners", "firstName, lastName")
+                .fetch("languageInspection.statement")
+                .fetch("languageInspection.statement.attachment")
                 .where()
                 .eq("id", id)
                 .eq("creator", getLoggedUser())
                 .disjunction()
+                .eq("state", Exam.State.REJECTED)
                 .eq("state", Exam.State.GRADED_LOGGED)
                 .eq("state", Exam.State.ARCHIVED)
                 .endJunction()
@@ -309,6 +313,7 @@ public class StudentExamController extends BaseController {
                 .fetch("creator", "id")
                 .fetch("course", "id, code, name, credits, institutionName, department")
                 .fetch("examType", "id, type")
+                .fetch("executionType")
                 .fetch("examSections", "id, name")
                 .fetch("examSections.sectionQuestions", "sequenceNumber")
                 .fetch("examSections.sectionQuestions.question", "id, type, question, instruction, maxScore, maxCharacters, evaluationType, expanded")
@@ -534,14 +539,7 @@ public class StudentExamController extends BaseController {
         recipients.addAll(exam.getExamInspections().stream().map(
                 ExamInspection::getUser).collect(Collectors.toSet()));
         actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
-            for (User r : recipients) {
-                try {
-                    emailComposer.composePrivateExamEnded(r, exam);
-                    Logger.info("Email sent to {}", r.getEmail());
-                } catch (IOException e) {
-                    Logger.error("Failed to send email", e);
-                }
-            }
+            AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer);
         }, actor.dispatcher());
     }
 

@@ -125,7 +125,11 @@
                         } else if (user.isStudent && !user.userAgreementAccepted) {
                             sessionService.openEulaModal(user);
                         } else if ($location.url() === '/login' || $location.url() === '/logout') {
-                            $location.path("/");
+                            if (user.isLanguageInspector) {
+                                $location.path("/inspections");
+                            } else {
+                                $location.path("/");
+                            }
                         } else {
                             $route.reload();
                         }

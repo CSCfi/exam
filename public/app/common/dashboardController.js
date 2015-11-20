@@ -38,6 +38,9 @@
 
                     } else if ($scope.user.isTeacher) {
                         $scope.templates.dashboardTemplate = EXAM_CONF.TEMPLATES_PATH + "common/teacher/dashboard.html";
+                        examService.listExecutionTypes().then(function(types) {
+                            $scope.executionTypes = types;
+                        });
 
                         ExamRes.reviewerExams.query(function (reviewerExams) {
                             $scope.activeExams = reviewerExams.filter(function (review) {
@@ -71,6 +74,10 @@
 
                 $scope.showInstructions = function (enrolment) {
                     enrolmentService.showInstructions(enrolment);
+                };
+
+                $scope.showMaturityInstructions = function (enrolment) {
+                    enrolmentService.showMaturityInstructions(enrolment);
                 };
 
                 $scope.addEnrolmentInformation = function (enrolment) {

@@ -265,4 +265,16 @@
     cursor: move;
   }
 
+  @media print {
+
+    a[href]:after {
+      content: none !important;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+
+  }
+
 }

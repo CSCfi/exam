@@ -28,6 +28,7 @@
                     var admin = user.isAdmin || false;
                     var student = user.isStudent || false;
                     var teacher = user.isTeacher || false;
+                    var languageInspector = user.isTeacher && user.isLanguageInspector;
 
                     if (admin) {
                         SettingsResource.appVersion.get(function(data) {
@@ -44,6 +45,12 @@
                             visible: !hideDashboard,
                             class: "fa-home",
                             name: "sitnet_dashboard"
+                        },
+                        {
+                            href: "#/inspections",
+                            visible: (languageInspector),
+                            class: 'fa-language',
+                            name: "sitnet_language_inspections"
                         },
                         {
                             href: "#/questions",

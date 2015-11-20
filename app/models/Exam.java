@@ -3,6 +3,7 @@ package models;
 import com.avaje.ebean.annotation.EnumMapping;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import models.api.AttachmentContainer;
 import models.questions.Answer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
@@ -16,10 +17,10 @@ import javax.persistence.*;
 import java.util.*;
 
 @Entity
-public class Exam extends OwnedModel implements Comparable<Exam> {
+public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentContainer {
 
     @EnumMapping(integerType = true, nameValuePairs = "DRAFT=1, SAVED=2, PUBLISHED=3, STUDENT_STARTED=4, REVIEW=5, " +
-            "REVIEW_STARTED=6, GRADED=7, GRADED_LOGGED=8, ARCHIVED=9, ABORTED=10, DELETED=11")
+            "REVIEW_STARTED=6, GRADED=7, GRADED_LOGGED=8, ARCHIVED=9, ABORTED=10, DELETED=11, REJECTED=12")
     public enum State {
         DRAFT,
         SAVED,
@@ -28,10 +29,12 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         REVIEW,          // EXAM RETURNED BY STUDENT AND READY FOR REVIEW
         REVIEW_STARTED,  // REVIEW STARTED BY TEACHERS
         GRADED,          // GRADE GIVEN
+        /* FINAL STATES */
         GRADED_LOGGED,   // EXAM PROCESSED AND READY FOR REGISTRATION
         ARCHIVED,        // EXAM ARCHIVED FOR CERTAIN PERIOD AFTER WHICH IT GETS DELETED
         ABORTED,         // EXAM ABORTED BY STUDENT WHILST TAKING
-        DELETED          // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
+        DELETED,         // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
+        REJECTED         // EXAM NOT QUALIFIED FOR REGISTRATION
     }
 
     private String name;
@@ -82,6 +85,9 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
 
     @OneToOne(mappedBy = "exam")
     private ExamRecord examRecord;
+
+    @OneToOne(mappedBy = "exam")
+    private LanguageInspection languageInspection;
 
     @Column(length = 32, unique = true)
     private String hash;
@@ -530,6 +536,14 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
         this.examInspections = examInspections;
     }
 
+    public LanguageInspection getLanguageInspection() {
+        return languageInspection;
+    }
+
+    public void setLanguageInspection(LanguageInspection languageInspection) {
+        this.languageInspection = languageInspection;
+    }
+
     public Exam copy(User user, boolean produceStudentExam) {
         Exam clone = new Exam();
         BeanUtils.copyProperties(this, clone, "id", "examSections", "examEnrolments", "examParticipations",
@@ -634,8 +648,15 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     }
 
     @Transient
+    public boolean isViewableForLanguageInspector(User user) {
+        return executionType.getType().equals(ExamExecutionType.Type.MATURITY.toString()) &&
+                user.hasPermission(Permission.Type.CAN_INSPECT_LANGUAGE) && languageInspection != null &&
+                languageInspection.getAssignee() != null;
+    }
+
+    @Transient
     public boolean isPrivate() {
-        return executionType.getType().equals(ExamExecutionType.Type.PRIVATE.toString());
+        return !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString());
     }
 
     @Transient

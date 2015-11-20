@@ -20,6 +20,9 @@ POST          /users/:id/roles/:rname                                controllers
 DELETE        /users/:id/roles/:rname                                controllers.UserController.removeRole(id: Long, rname: String)
 PUT           /users/:id/roles/:rname                                controllers.SessionController.setLoginRole(id: Long, rname: String)
 GET           /students/:eid                                         controllers.UserController.getUnenrolledStudents(eid: Long, q: String)
+GET           /permissions                                           controllers.UserController.listPermissions
+POST          /permissions                                           controllers.UserController.grantUserPermission
+DELETE        /permissions                                           controllers.UserController.revokeUserPermission
 
 ############### Exam interface ###############
 GET           /exams                                                 controllers.ExamController.getExams
@@ -82,6 +85,7 @@ DELETE        /exam/:eid/languages                                   controllers
 GET           /exam/:eid/attachments                                 controllers.ExamController.getArchivedAttachments(eid: Long, start: play.libs.F.Option[String], end: play.libs.F.Option[String])
 
 GET           /examtypes                                             controllers.ExamController.getExamTypes
+GET           /executiontypes                                        controllers.ExamController.getExamExecutionTypes
 GET           /gradescales                                           controllers.ExamController.getExamGradeScales
 
 GET           /student/exam/:eid                                     controllers.StudentExamController.getExam(eid: Long)
@@ -100,6 +104,12 @@ PUT           /enrolments/:eid                                       controllers
 POST          /student/exams/:hash/question/:qid/option/:oids        controllers.StudentExamController.answerMultiChoice(hash: String, qid: Long, oids: String)
 POST          /student/exams/:hash/question/:questionId              controllers.StudentExamController.answerEssay(hash: String, questionId: Long)
 
+############### Language inspection interface ###############
+GET           /inspections                                           controllers.LanguageInspectionController.listInspections(month: play.libs.F.Option[String])
+POST          /inspection                                            controllers.LanguageInspectionController.createInspection
+PUT           /inspection/:id                                        controllers.LanguageInspectionController.assignInspection(id: Long)
+PUT           /inspection/:id/approval                               controllers.LanguageInspectionController.setApproval(id: Long)
+PUT           /inspection/:id/statement                              controllers.LanguageInspectionController.setStatement(id: Long)
 
 ############### Enrolment interface ###############
 
@@ -208,6 +218,10 @@ POST          /attachment/exam/:id/feedback                          controllers
 DELETE        /attachment/exam/:id/feedback                          controllers.AttachmentController.deleteFeedbackAttachment(id: Long)
 GET           /attachment/exam/:id/feedback                          controllers.AttachmentController.downloadFeedbackAttachment(id: Long)
 
+POST          /attachment/exam/:id/statement                         controllers.AttachmentController.addStatementAttachment(id: Long)
+DELETE        /attachment/exam/:id/statement                         controllers.AttachmentController.deleteStatementAttachment(id: Long)
+GET           /attachment/exam/:id/statement                         controllers.AttachmentController.downloadStatementAttachment(id: Long)
+
 
 #### integration ####
 GET           /integration/record/:startDate                         controllers.Interfaces.getNewRecords(startDate: String)
@@ -225,7 +239,7 @@ DELETE        /calendar/reservation/:id                              controllers
 ################# Language interface ##################
 GET           /languages                                             controllers.LanguageController.getSupportedLanguages
 
-################# Language interface ##################
+################# Tag interface ##################
 GET           /tags                                                  controllers.TagController.listTags(filter: play.libs.F.Option[String], examIds: play.libs.F.Option[LongList], courseIds: play.libs.F.Option[LongList], sectionIds: play.libs.F.Option[LongList])
 POST          /tags                                                  controllers.TagController.createTag
 DELETE        /tags/:tid                                             controllers.TagController.deleteTag(tid: Long)
@@ -247,6 +261,7 @@ GET           /settings/enrolmentPermissionCheck                     controllers
 GET           /settings/environment                                  controllers.SettingsController.isProd
 GET           /settings/maxfilesize                                  controllers.SettingsController.getMaxFilesize
 GET           /settings/appVersion                                   controllers.SettingsController.getAppVersion
+GET           /settings/maturityInstructions                         controllers.SettingsController.getMaturityInstructions(lang: String)
 
 ################# Statistics interface ##################
 

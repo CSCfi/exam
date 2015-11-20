@@ -69,7 +69,7 @@
             <strong class="col-md-4 review-question"> {{ 'sitnet_answer_attachment' | translate }}:</strong>
             <div class="col-md-8">
                 <a class="pointer"
-                   ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, examToBeReviewed.hash)">
+                   ng-click="downloadQuestionAnswerAttachment(sectionQuestion.question, exam.hash)">
                     {{sectionQuestion.question.answer.attachment.fileName}}
                 </a>
             </div>
@@ -91,7 +91,7 @@
         </div>
 
         <!-- grade -->
-        <div class="main-row">
+        <div class="main-row" ng-show="exam.executionType.type !== 'MATURITY'">
             <strong class="col-md-4 review-question"
                  ng-show="sectionQuestion.question.evaluationType === 'Points'">{{
                 'sitnet_word_points' | translate}}:
@@ -104,7 +104,7 @@
                 <span ng-show="sectionQuestion.question.evaluationType === 'Points'">
                     <select class="form-control" ng-model="sectionQuestion.question.evaluatedScore"
                             ng-change="insertEssayScore(sectionQuestion)"
-                            ng-disabled="(isGraded && !isCreatorOrOwnerOrAdmin()) || isReadOnly"
+                            ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
                             ng-options="x for x in range(0, sectionQuestion.question.maxScore, 1)">
                             {{ x }} / {{sectionQuestion.question.maxScore}}
                     </select>
@@ -112,7 +112,7 @@
                 <span ng-show="sectionQuestion.question.evaluationType === 'Select'">
                     <select class="form-control" ng-model="sectionQuestion.question.evaluatedScore"
                             ng-change="insertEssayScore(sectionQuestion)"
-                            ng-disabled="(isGraded && !isCreatorOrOwnerOrAdmin()) || isReadOnly">
+                            ng-disabled="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()">
                         <option value="1" ng-selected="sectionQuestion.question.evaluatedScore == 1">{{ 'sitnet_approved' |
                             translate }}
                         </option>

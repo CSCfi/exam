@@ -1,9 +1,15 @@
 <div id="dashboard">
     <div id="sitnet-header" class="header">
         <div class="col-md-6 header-wrapper">
-            <span ng-if="newExam.executionType.type==='PUBLIC'"
-                  class="header-text">{{'sitnet_public_exam' | translate}}</span>
-            <span ng-if="newExam.executionType.type==='PRIVATE'" class="header-text">{{'sitnet_private_exam' | translate}}</span>
+            <span ng-if="newExam.executionType.type==='PUBLIC'" class="header-text">
+                {{'sitnet_public_exam' | translate}}
+            </span>
+            <span ng-if="newExam.executionType.type==='PRIVATE'" class="header-text">
+                {{'sitnet_private_exam' | translate}}
+            </span>
+            <span ng-if="newExam.executionType.type==='MATURITY'" class="header-text">
+                {{'sitnet_maturity' | translate}}
+            </span>
         </div>
         <div class="col-md-6 header-wrapper" ng-show="newExam.state === 'DRAFT'">
             <a ng-click="cancelNewExam(newExam)" class="pull-right btn btn-primary btn-lg active header-button">
@@ -37,7 +43,7 @@
                 <div id="exam">
                     <div class="row top-margin-1">
                         <!-- General Information -->
-                        <div class="bottom-padding-2" ng-include="templates.generalInfo"></div>
+                        <div class="bottom-padding-2" ng-include="templates.basicInfo"></div>
                         <!-- Sections & Questions -->
                         <div class="bottom-padding-2" ng-include="templates.sections"></div>
                     </div>

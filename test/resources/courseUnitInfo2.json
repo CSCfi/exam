@@ -1,0 +1,85 @@
+{
+  "CourseUnitInfo" : {
+    "identifier" : 28587861,
+    "courseUnitCode" : "2121220",
+    "courseUnitTitle" : "Lähisukukielet",
+    "courseUnitLevel" : 2,
+    "courseUnitType" : 1,
+    "credits" : 3,
+    "creditsLanguage" : [
+      {
+        "name" : "fi"
+      }
+    ],
+    "gradeScale" : [
+      {
+        "name" : "0-5",
+        "type" : "OTHER",
+        "code" : 9,
+        "grades" : {
+          "10540031" : {
+            "grade" : 10540031,
+            "description" : "2\/5",
+            "scale" : 2
+          },
+          "10540029" : {
+            "grade" : 10540029,
+            "description" : "1\/5",
+            "scale" : 1
+          },
+          "10540032" : {
+            "grade" : 10540032,
+            "description" : "3\/5",
+            "scale" : 3
+          },
+          "10540033" : {
+            "grade" : 10540033,
+            "description" : "4\/5",
+            "scale" : 4
+          },
+          "10540034" : {
+            "grade" : 10540034,
+            "description" : "5\/5",
+            "scale" : 5
+          },
+          "10540035" : {
+            "grade" : 10540035,
+            "description" : "0\/5",
+            "scale" : 0
+          },
+          "10540036" : {
+            "grade" : 10540036,
+            "description" : "Hyv",
+            "scale" : 0
+          }
+        }
+      }
+    ],
+    "lecturer" : [
+      {
+        "name" : "Eskelinen-Leppänen Elisa Tuulikki"
+      }
+    ],
+    "institutionName" : "Itä-Suomen yliopisto",
+    "department" : [
+      {
+        "name" : "Suomen kieli ja kulttuuritieteet (J)"
+      },
+      {
+        "name" : "Suomen kieli ja kulttuuritieteet (J)"
+      }
+    ],
+    "campus" : [
+      {
+        "name" : "Joensuu"
+      },
+      {
+        "name" : "Joensuu"
+      }
+    ],
+    "startDate" : "20110101",
+    "endDate" : "20991228"
+  },
+  "status" : "OK",
+  "description" : ""
+}

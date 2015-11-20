@@ -19,10 +19,9 @@
                 </a>
                 <ul class="dropdown-menu" role="menu">
                     <li role="presentation">
-                        <a role="menuitem" ng-click="createExam('PUBLIC')" class="pointer">{{'sitnet_public_exam'
-                            | translate}}</a>
-                        <a role="menuitem" ng-click="createExam('PRIVATE')" class="pointer">{{'sitnet_private_exam'
-                            | translate}}</a>
+                        <a ng-repeat="type in executionTypes" role="menuitem" ng-click="createExam(type.type)" class="pointer">
+                            {{type.name | translate}}
+                        </a>
                     </li>
                 </ul>
             </div>

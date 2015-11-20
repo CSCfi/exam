@@ -1,14 +1,15 @@
 <!-- Refresh MathJax syntax some time after page was rendered -->
 <script type="text/javascript">
     $('#vmenu').hide();
-    $('#mainView').css("margin", "0 15px");
-    $('#mainView').css("max-width", "1000px");
+    var mainView = $('#mainView');
+    mainView.css("margin", "0 15px");
+    mainView.css("max-width", "1000px");
 </script>
 <div id="exam-print" ng-init="init();">
     <div class="row">
         <div class="col-md-12">
-            <h3>{{examToBeReviewed.course.code}} - {{examToBeReviewed.name}},
-                <small>{{examToBeReviewed.course.credits}} op</small>
+            <h3>{{exam.course.code}} - {{exam.name}},
+                <small>{{exam.course.credits}} op</small>
             </h3>
         </div>
     </div>
@@ -78,9 +79,9 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12" ng-hide="examToBeReviewed.instruction">N/A</div>
-        <div class="col-md-12" ng-show="examToBeReviewed.instruction">
-            <div ng-hide="examToBeReviewed.instruction" mathjax ng-bind-html="examToBeReviewed.instruction"></div>
+        <div class="col-md-12" ng-hide="exam.instruction">N/A</div>
+        <div class="col-md-12" ng-show="exam.instruction">
+            <div ng-hide="exam.instruction" mathjax ng-bind-html="exam.instruction"></div>
         </div>
     </div>
 
@@ -92,9 +93,9 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12" ng-hide="examToBeReviewed.attachment">N/A</div>
-        <div class="col-md-12" ng-show="examToBeReviewed.attachment">
-            {{examToBeReviewed.attachment.fileName}}
+        <div class="col-md-12" ng-hide="exam.attachment">N/A</div>
+        <div class="col-md-12" ng-show="exam.attachment">
+            {{exam.attachment.fileName}}
         </div>
     </div>
 
@@ -107,7 +108,7 @@
     </div>
 
     <!-- Sections -->
-    <div class="top-margin-1 col-md-12" ng-repeat="section in examToBeReviewed.examSections"
+    <div class="top-margin-1 col-md-12" ng-repeat="section in exam.examSections"
          ng-include="printSectionTemplate">
     </div>
 
@@ -121,10 +122,10 @@
         </div>
     </div>
     <!-- Total score -->
-    <div class="row" ng-show="getExamMaxPossibleScore(examToBeReviewed) > 0">
+    <div class="row" ng-show="getExamMaxPossibleScore(exam) > 0">
         <div class="col-md-3"><strong>{{'sitnet_total_score' | translate}}:</strong></div>
         <div class="col-md-9">
-            {{getExamTotalScore(examToBeReviewed)}} / {{getExamMaxPossibleScore(examToBeReviewed) }}
+            {{getExamTotalScore(exam)}} / {{getExamMaxPossibleScore(exam) }}
         </div>
     </div>
 
@@ -141,15 +142,15 @@
 
     <div class="row">
         <div class="col-md-3"><strong>{{'sitnet_teachers_comment' | translate}}:</strong></div>
-        <div class="col-md-9" mathjax ng-bind-html="examToBeReviewed.examFeedback.comment"></div>
+        <div class="col-md-9" mathjax ng-bind-html="exam.examFeedback.comment"></div>
     </div>
 
-    <div ng-show="getTeacherCount() > 1 && !isReadOnly">
+    <div ng-show="getTeacherCount() > 1 && !isReadOnly()">
         <div class="row">
             <div class="col-md-3"><strong>{{ 'sitnet_exam_owners' | translate }}:</strong></div>
             <div class="col-md-9">
-                    <span ng-if="examToBeReviewed.parent.examOwners.length > 0"
-                          ng-repeat="teacher in examToBeReviewed.parent.examOwners">
+                    <span ng-if="exam.parent.examOwners.length > 0"
+                          ng-repeat="teacher in exam.parent.examOwners">
                         {{teacher.firstName}} {{teacher.lastName}} {{ $last ? '' : ', ';}}
                     </span>
             </div>
@@ -191,7 +192,7 @@
     <div class="row">
         <div class="col-md-3"><strong>{{'sitnet_exam_credit' | translate}} (op):</strong></div>
         <div class="col-md-9">
-            {{examToBeReviewed.customCredit}}
+            {{exam.customCredit}}
         </div>
     </div>
 

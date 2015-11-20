@@ -65,6 +65,20 @@
                     });
                 };
 
+                $scope.removeStatementAttachment = function (exam) {
+
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant("sitnet_are_you_sure"));
+                    dialog.result.then(function (btn) {
+                        AttachmentRes.statementAttachment.remove({id: exam.id},
+                            function () {
+                                toastr.info($translate.instant("sitnet_attachment_removed"));
+                                delete exam.languageInspection.statement.attachment;
+                            }, function (error) {
+                                toastr.error(error.data);
+                            });
+                    });
+                };
+
                 $scope.downloadQuestionAttachment = function (question) {
                     fileService.download('/attachment/question/' + question.id, question.attachment.fileName);
                 };
@@ -80,6 +94,10 @@
 
                 $scope.downloadFeedbackAttachment = function (exam) {
                     fileService.download('/attachment/exam/' + exam.id + '/feedback', exam.examFeedback.attachment.fileName);
+                };
+
+                $scope.downloadStatementAttachment = function (exam) {
+                    fileService.download('/attachment/exam/' + exam.id + '/statement', exam.languageInspection.statement.attachment.fileName);
                 };
 
             }]);

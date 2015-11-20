@@ -1,0 +1,47 @@
+<script type="text/javascript">
+
+    $(function () {
+        $("#draggable").draggable();
+    });
+
+</script>
+<div id="feedback" ng-hide="hasGoneThroughLanguageInspection()">
+    <div id="draggable" data-spy="affix" data-offset-top="50" class="wrapper">
+        <div class="row" ng-init="hideEditor=false">
+            <div class="col-md-1" popover-placement="right" popover-popup-delay="500" popover-trigger="mouseenter"
+                 popover="{{hideEditor ? 'sitnet_show' : 'sitnet_hide' | translate}}">
+                <i ng-click="hideEditor = !hideEditor" class="pointer fa fa-2x vcenter"
+                   ng-class="hideEditor ? 'fa-chevron-circle-right sitnet-green' : 'fa-chevron-circle-down sitnet-red'">
+                </i>
+            </div>
+            <div class="col-md-11">
+                <div class="vcenter">
+                    {{'sitnet_give_statement' | translate}}
+                </div>
+            </div>
+        </div>
+        <div class="row editor" ng-hide="hideEditor">
+            <div class="col-md-12">
+                <textarea ck-editor rows="10" ng-model="exam.languageInspection.statement.comment"></textarea>
+            </div>
+        </div>
+        <div class="row" ng-hide="hideEditor">
+            <div class="col-md-2">
+                <button class="btn btn-default" ng-click="saveInspectionStatement()">{{'sitnet_save' | translate}}</button>
+            </div>
+            <div class="col-md-10">
+                <div class="pull-right">
+                        <span ng-controller="AttachmentController"
+                              ng-show="exam.languageInspection.statement && exam.languageInspection.statement.attachment">
+                            <a class="pointer" ng-click="downloadStatementAttachment(exam)">{{exam.languageInspection.statement.attachment.fileName}}</a>
+                            <span class="sitnet-red pointer" ng-click="removeStatementAttachment(exam)">
+                                <i class="fa fa-times" title="{{'sitnet_remove_attachment' | translate }}"></i>
+                            </span>
+                        </span>
+                    <button type="button" class="btn btn-default" ng-click="selectFile(true)">{{'sitnet_attach_file' | translate}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

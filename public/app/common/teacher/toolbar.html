@@ -6,13 +6,15 @@
             <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
             <i class="fa sitnet-white fa-list-ol fa-stack-1x"></i>
         </span>
+
         <div class="dropdown" dropdown>
             <a class="header-top-link dropdown-toggle" data-toggle="dropdown" dropdown-toggle>
                 {{'sitnet_toolbar_new_question' | translate}}
             </a>
             <ul class="dropdown-menu" role="menu">
                 <li role="presentation">
-                    <a role="menuitem" ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question' |
+                    <a role="menuitem" ng-click="createQuestion('EssayQuestion')" class="pointer">{{'sitnet_toolbar_essay_question'
+                        |
                         translate}}</a>
                     <a role="menuitem" ng-click="createQuestion('MultipleChoiceQuestion')" class="pointer">{{'sitnet_toolbar_multiplechoice_question'
                         | translate}}</a>
@@ -28,16 +30,16 @@
             <i class="fa sitnet-text-theme fa-stop fa-stack-2x"></i>
             <i class="fa sitnet-white fa-files-o fa-stack-1x"></i>
         </span>
+
         <div class="dropdown" dropdown>
             <a class="header-top-link dropdown-toggle" data-toggle="dropdown" dropdown-toggle>
                 {{'sitnet_toolbar_new_exam' | translate}}
             </a>
             <ul class="dropdown-menu" role="menu">
                 <li role="presentation">
-                    <a role="menuitem" ng-click="createExam('PUBLIC')" class="pointer">{{'sitnet_public_exam'
-                        | translate}}</a>
-                    <a role="menuitem" ng-click="createExam('PRIVATE')" class="pointer">{{'sitnet_private_exam' |
-                        translate}}</a>
+                    <a ng-repeat="type in executionTypes" role="menuitem" ng-click="createExam(type.type)" class="pointer">
+                        {{type.name | translate}}
+                    </a>
                 </li>
             </ul>
         </div>

@@ -1,0 +1,95 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{'sitnet_monthly_language_inspection_report' | translate}}</span>
+        <span class="print-only compact-header-text">{{selection.month | date:'MM/yyyy'}}</span>
+        <span class="header-text no-print">
+            <a ng-click="printReport()" class="btn btn-primary btn-xs" aria-label="Left Align">
+                {{'sitnet_print' | translate}}&nbsp;&nbsp;
+                <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+            </a>
+        </span>
+
+    </div>
+</div>
+<div id="dashboard">
+    <div class="top-row no-print">
+        <!-- Datepicker -->
+        <div class="col-md-2">
+            <label for="month">{{'sitnet_month' | translate}}:</label>
+
+            <p id="month" class="input-group">
+                <input type="text" class="form-control" datepicker-popup="MM/yyyy" ng-model="selection.month"
+                       is-open="selection.opened" datepicker-options="{minMode: 'month'}" datepicker-mode="'month'"
+                       close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}"
+                       clear-text="{{'sitnet_clear' | translate}}"
+                       ng-change="query(true)">
+
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" ng-click="open($event)">
+                            <i class="fa fa-calendar"></i>
+                        </button>
+                    </span>
+            </p>
+        </div>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12">
+            <h4>{{'sitnet_processed_language_inspections' | translate }}
+            </h4>
+        </div>
+    </div>
+
+    <div class="detail-row">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>{{ 'sitnet_course_code' | translate }}</th>
+                    <th>{{ 'sitnet_exam_name' | translate }}</th>
+                    <th>{{ 'sitnet_teachers' | translate }}</th>
+                    <th>{{ 'sitnet_arrived' | translate }}</th>
+                    <th>{{ 'sitnet_student' | translate }}</th>
+                    <th>{{ 'sitnet_finished' | translate }}</th>
+                    <th>{{ 'sitnet_language_inspector' | translate }}</th>
+                    <th>{{ 'sitnet_inspection_finished' | translate }}</th>
+                    <th>{{ 'sitnet_language_inspections' | translate }}</th>
+                    <th>{{ 'sitnet_feedback' | translate }}</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr ng-repeat="inspection in processedInspections | orderBy: 'finishedAt'">
+                    <td>{{ inspection.exam.course.code }}</td>
+                    <td>{{ inspection.exam.name }}</td>
+                    <td>
+                        <span ng-repeat="owner in inspection.exam.parent.examOwners">
+                            {{ owner.firstName }} {{ owner.lastName}} {{ $last ? '' : ', ' }}
+                        </span>
+                    </td>
+                    <td>{{ inspection.created | date:'dd.MM.yyyy' }}</td>
+                    <td>
+                        <span>{{ inspection.exam.creator.firstName }} {{ inspection.exam.creator.lastName }}</span>
+                        <span ng-if="inspection.exam.creator.userIdentifier">&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                            <span><br/><a href="mailto:{{ inspection.exam.creator.email }}">{{
+                                inspection.exam.creator.email }}</a></span>
+                    </td>
+                    <td>{{ inspection.exam.created | date:'dd.MM.yyyy' }}</td>
+                    <td ng-if="inspection.assignee">
+                        <span>{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }} </span>
+                            <span><br/><a href="mailto:{{ inspection.assignee.email }}">{{ inspection.assignee.email
+                                }}</a></span>
+                    </td>
+                    <td>{{ inspection.finishedAt | date:'dd.MM.yyyy' }}</td>
+                    <td ng-class="inspection.approved ? 'text-success' : 'text-danger'">
+                        <strong>{{ inspection.approved ? 'sitnet_approved' : 'sitnet_rejected' | translate
+                            }}</strong></td>
+                    <td><a class="pointer" ng-click="showStatement(inspection.statement)">{{ 'sitnet_view' |
+                        translate }}</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+

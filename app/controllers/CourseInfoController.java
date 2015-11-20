@@ -34,7 +34,7 @@ public class CourseInfoController extends BaseController {
         }
 
         // get it through remote interface
-        return externalAPI.getCourseInfoByCode(code)
+        return externalAPI.getCourseInfoByCode(getLoggedUser(), code)
                 .map(courses -> {
                     if (courses.isEmpty()) {
                         return null;

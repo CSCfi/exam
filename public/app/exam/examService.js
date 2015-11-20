@@ -167,6 +167,25 @@
                     + feedback + '<br/><strong>' + $translate.instant('sitnet_confirm_record_review') + '</strong>';
             };
 
+            var listExecutionTypes = function() {
+                var deferred = $q.defer();
+                ExamRes.executionTypes.query(function(types) {
+                    types.forEach(function(t) {
+                        if (t.type === 'PUBLIC') {
+                            t.name = 'sitnet_public_exam';
+                        }
+                        if (t.type === 'PRIVATE') {
+                            t.name = 'sitnet_private_exam';
+                        }
+                        if (t.type === 'MATURITY') {
+                            t.name = 'sitnet_maturity';
+                        }
+                    });
+                    return deferred.resolve(types);
+                });
+                return deferred.promise;
+            };
+
             return {
                 createExam: createExam,
                 refreshExamTypes: refreshExamTypes,
@@ -177,7 +196,8 @@
                 setCredit: setCredit,
                 setQuestionColors: setQuestionColors,
                 stripHtml: stripHtml,
-                getRecordReviewConfirmationDialogContent: getRecordReviewConfirmationDialogContent
+                getRecordReviewConfirmationDialogContent: getRecordReviewConfirmationDialogContent,
+                listExecutionTypes: listExecutionTypes
             };
 
         }]);

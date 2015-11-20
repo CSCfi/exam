@@ -15,7 +15,7 @@ public class ExamExpiryPoller implements Runnable {
 
     @Override
     public void run() {
-        Logger.info("Running exam expiration check ...");
+        Logger.debug("Running exam expiration check ...");
         List<Exam> exams = Ebean.find(Exam.class)
                 .where()
                 .disjunction()
@@ -34,7 +34,7 @@ public class ExamExpiryPoller implements Runnable {
                 Logger.info("... Marked exam {} as expired", exam.getId());
             }
         }
-        Logger.info("... Done");
+        Logger.debug("... Done");
     }
 
     /**

@@ -36,6 +36,7 @@
 
                 var showInstructions = function (enrolment) {
                     var modalController = ["$scope", "$modalInstance", function ($scope, $modalInstance) {
+                        $scope.title = 'sitnet_instruction';
                         $scope.instructions = enrolment.exam.enrollInstruction;
                         $scope.ok = function () {
                             $modalInstance.close("Accepted");
@@ -43,7 +44,39 @@
                     }];
 
                     var modalInstance = $modal.open({
-                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/show_reservation_instructions.html',
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/show_instructions.html',
+                        backdrop: 'static',
+                        keyboard: true,
+                        controller: modalController,
+                        resolve: {
+                            instructions: function () {
+                                return enrolment.exam.enrollInstruction;
+                            }
+                        }
+                    });
+
+                    modalInstance.result.then(function () {
+                        console.log("closed");
+                    });
+                };
+
+                var showMaturityInstructions = function (enrolment) {
+                    var modalController = ["$scope", "$modalInstance", "SettingsResource", function ($scope, $modalInstance, SettingsResource) {
+                        if (enrolment.exam.examLanguages.length !== 1) {
+                            console.warn("Exam has no exam languages or it has several!");
+                        }
+                        var lang = enrolment.exam.examLanguages.length > 0 ? enrolment.exam.examLanguages[0].code : 'fi';
+                        $scope.title = 'sitnet_maturity_instructions';
+                        SettingsResource.maturityInstructions.get({lang: lang}, function(data) {
+                            $scope.instructions = data.value;
+                        });
+                        $scope.ok = function () {
+                            $modalInstance.close("Accepted");
+                        };
+                    }];
+
+                    var modalInstance = $modal.open({
+                        templateUrl: EXAM_CONF.TEMPLATES_PATH + 'reservation/show_instructions.html',
                         backdrop: 'static',
                         keyboard: true,
                         controller: modalController,
@@ -62,7 +95,8 @@
                 return {
                     enroll: enroll,
                     enrollStudent: enrollStudent,
-                    showInstructions: showInstructions
+                    showInstructions: showInstructions,
+                    showMaturityInstructions: showMaturityInstructions
                 };
 
             }]);

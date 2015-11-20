@@ -1,10 +1,13 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$filter', '$q', '$interval', '$routeParams', '$sce', '$http', '$modal', '$location', '$translate', '$timeout',
-            'EXAM_CONF', 'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService', 'sessionService',
-            function (dialogs, $rootScope, $scope, $filter, $q, $interval, $routeParams, $sce, $http, $modal, $location, $translate, $timeout,
-                      EXAM_CONF, StudentExamRes, dateService, examService, questionService, fileService, sessionService) {
+        .controller('StudentExamController', ['dialogs', '$rootScope', '$scope', '$filter', '$q', '$interval',
+            '$routeParams', '$sce', '$http', '$modal', '$location', '$translate', '$timeout', 'EXAM_CONF',
+            'StudentExamRes', 'dateService', 'examService', 'questionService', 'fileService', 'sessionService',
+            'enrolmentService',
+            function (dialogs, $rootScope, $scope, $filter, $q, $interval, $routeParams, $sce, $http, $modal, $location,
+                      $translate, $timeout, EXAM_CONF, StudentExamRes, dateService, examService, questionService,
+                      fileService, sessionService, enrolmentService) {
 
                 $scope.sectionsBar = EXAM_CONF.TEMPLATES_PATH + "exam/student/student_sections_bar.html";
                 $scope.multipleChoiceOptionTemplate = EXAM_CONF.TEMPLATES_PATH + "question/student/multiple_choice_option.html";
@@ -354,6 +357,10 @@
                 // Called when the exit button is clicked
                 $scope.exitPreview = function () {
                     $location.path("/exams/" + $routeParams.id);
+                };
+
+                $scope.showMaturityInstructions = function (exam) {
+                    enrolmentService.showMaturityInstructions({exam: exam});
                 };
 
                 // Called when the save and exit button is clicked

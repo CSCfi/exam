@@ -1,94 +1,74 @@
 package models;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import java.util.List;
 
 @Entity
 public class Organisation extends GeneratedIdentityModel {
 
     private String code;
-	
-	private String name;
 
-	private String nameAbbreviation;
+    private String name;
 
+    private String nameAbbreviation;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name="organisation_organisation",
-    	      joinColumns=@JoinColumn(name="parent_id"),
-    	      inverseJoinColumns=@JoinColumn(name="child_id"))
-	private List<Organisation> organisations;
-		
-    private String courseUnitInfoUrl;
+    @OneToMany(mappedBy = "parent")
+    @JsonBackReference
+    private List<Organisation> children;
 
-    private String recordsWhitelistIp;
-
-	private String vatIdNumber;
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    private Organisation parent;
 
     public String getCode() {
-		return code;
-	}
+        return code;
+    }
 
-    public String getCourseUnitInfoUrl() {
-        return courseUnitInfoUrl;
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getNameAbbreviation() {
-		return nameAbbreviation;
-	}
-
-	public List<Organisation> getOrganisations() {
-		return organisations;
-	}
-
-	public String getRecordsWhitelistIp() {
-        return recordsWhitelistIp;
+        return name;
     }
 
-	public String getVatIdNumber() {
-		return vatIdNumber;
-	}
-
-	public void setCode(String code) {
-		this.code = code;
-	}
-
-	public void setCourseUnitInfoUrl(String courseUnitInfoUrl) {
-        this.courseUnitInfoUrl = courseUnitInfoUrl;
+    public void setName(String name) {
+        this.name = name;
     }
 
-
-	public void setNameAbbreviation(String nameAbbreviation) {
-		this.nameAbbreviation = nameAbbreviation;
-	}
-
-	public void setOrganisations(List<Organisation> organisations) {
-		this.organisations = organisations;
-	}
-
-	public void setRecordsWhitelistIp(String recordsWhitelistIp) {
-        this.recordsWhitelistIp = recordsWhitelistIp;
+    public String getNameAbbreviation() {
+        return nameAbbreviation;
     }
 
-	public void setVatIdNumber(String vatIdNumber) {
-		this.vatIdNumber = vatIdNumber;
-	}
+    public void setNameAbbreviation(String nameAbbreviation) {
+        this.nameAbbreviation = nameAbbreviation;
+    }
 
-	@Override
+    public List<Organisation> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Organisation> children) {
+        this.children = children;
+    }
+
+    public Organisation getParent() {
+        return parent;
+    }
+
+    public void setParent(Organisation parent) {
+        this.parent = parent;
+    }
+
+    @Override
     public String toString() {
         return "Organisation{" +
                 "name='" + name + '\'' +
                 ", nameAbbreviation='" + nameAbbreviation + '\'' +
-                ", code='" + code + '\'' +
-                ", vatIdNumber='" + vatIdNumber + '\'' +
-                ", organisations=" + organisations +
-                '}';
+                ", code='" + code + '}';
     }
 }
