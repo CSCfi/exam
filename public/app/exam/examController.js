@@ -138,6 +138,9 @@
                 };
 
                 $scope.selectedLanguages = function (exam) {
+                    if (!exam || !exam.examLanguages) {
+                        return;
+                    }
                     return exam.examLanguages.map(function (language) {
                         return getLanguageNativeName(language.code);
                     }).join(", ");

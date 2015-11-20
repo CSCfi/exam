@@ -462,7 +462,7 @@
   "sitnet_show_first": "Näytetään ensimmäiset",
   "sitnet_show_questions": "kysymystä",
   "sitnet_show_more": "Näytä lisää",
-  "sitnet_exam_search_description": "Voit hakea tenttejä opintojakson nimen tai koodin mukaan tai tentaattorin nimen mukaan",
+  "sitnet_exam_search_description": "Voit hakea tenttejä opintojakson koodin, tentin nimen tai tentaattorin nimen mukaan",
   "sitnet_print": "Tulosta",
   "sitnet_remove_room_accessibility_info": "Poista esteettömyystieto",
   "sitnet_accessibility_added": "Esteettömyystieto lisätty",
@@ -602,8 +602,6 @@
   "sitnet_confirm_question_removal": "Poistetaanko kysymys?",
   "sitnet_exam_section": "Aihealue",
   "sitnet_reservation_removed": "Varaus poistettu",
-  "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä.",
-  "sitnet_choose_teacher": "Valitse opettaja",
   "sitnet_confirm_assign_inspection": "Ota suoritus arvioitavaksesi? Toimenpide ei estä muita tarkastajia arvioimasta suoritusta.",
   "sitnet_undefined": "Ei määritelty",
   "sitnet_await_inspection": "Odottaa kielentarkastusta",
@@ -617,5 +615,8 @@
   "sitnet_statement_updated": "Lausunto päivitetty",
   "sitnet_language_inspection_finished": "Kielentarkistus loppuunviety",
   "sitnet_statement_attachment": "Lausunnon liitetiedosto",
-  "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti"
+  "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti",
+  "sitnet_exams_for_course": "Opintojakson tentit",
+  "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä. Kysymyksiä ei voi siirtää toiseen aihealueeseen.",
+  "sitnet_choose_teacher": "Valitse opettaja"
 }
