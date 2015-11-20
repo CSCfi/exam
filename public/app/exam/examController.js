@@ -836,7 +836,6 @@
                         ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section,
                             function (sec) {
                                 section = sec;
-
                                 if (section.lotteryItemCount === undefined) {
                                     section.lotteryItemCount = 1;
                                 }
@@ -851,11 +850,12 @@
 
                     if (!section.lotteryItemCount) {
                         toastr.warning($translate.instant("sitnet_warn_lottery_count"));
-                        section.lotteryItemCount = section.lotteryItemCount === undefined || section.lotteryItemCount == 0 ? 1 : section.sectionQuestions.length;
+                        section.lotteryItemCount = 1;
                     }
                     else {
                         ExamRes.sections.update({eid: $scope.newExam.id, sid: section.id}, section, function (sec) {
                             section = sec;
+                            toastr.info($translate.instant('sitnet_section_updated'))
                         }, function (error) {
                             toastr.error(error.data);
                         });

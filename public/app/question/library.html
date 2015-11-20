@@ -160,11 +160,11 @@
                     </div>
                     <ul class="questions-wrapper"><!-- list-group results -->
                         <li style="width:5%;" draggable="visibleQuestions" draggable-target=".sortable"
-                            class="drag-all-wrap">
+                            class="drag-all-wrap draggable">
                             <span class="vertical-text" ng-init="verticalText('vertical-text')">{{'sitnet_add_all' | translate}}</span>
                         </li>
                         <li class="question-list-wrapper">
-                            <div class="library-question-header-inactive" ng-repeat="question in visibleQuestions"
+                            <div id="dashboard" class="library-question-header-inactive draggable" ng-repeat="question in visibleQuestions"
                                  ng-show="question"
                                  draggable="question" draggable-target=".sortable">
                                 <div class="library-row-icon"><i

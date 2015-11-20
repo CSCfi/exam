@@ -41,7 +41,6 @@ PUT           /exams/:eid/section/:sid                               controllers
 PUT           /exams/:eid/course/:cid                                controllers.ExamController.updateCourse(eid: Long, cid: Long)
 DELETE        /exams/:eid/course/:cid                                controllers.ExamController.removeCourse(eid: Long, cid: Long)
 GET           /exams/:eid/reservation                                controllers.ExamController.getReservationInformationForExam(eid: Long)
-GET           /finishedexams                                         controllers.ExamController.getFinishedExams
 GET           /reviewerexams                                         controllers.ExamController.getTeachersExams
 GET           /reviewerexams/:eid                                    controllers.ExamController.getExamReview(eid: Long)
 

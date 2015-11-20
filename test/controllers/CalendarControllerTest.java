@@ -71,8 +71,6 @@ public class CalendarControllerTest extends IntegrationTestCase {
                         .put("end", ISODateTimeFormat.dateTime().print(end.getTime())));
         assertThat(result.status()).isEqualTo(200);
 
-        //boolean.dateTime()SimpleDateFormat("dd.MM.yyyy HH:mmZZ").format(start))
-
         // Verify
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());
         assertThat(ee.getReservation()).isNotNull();
@@ -102,6 +100,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         reservation.setStartAt(DateTime.now().plusHours(2).toDate());
         reservation.setEndAt(DateTime.now().plusHours(3).toDate());
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
@@ -143,6 +142,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         reservation.setStartAt(DateTime.now().minusMinutes(30).toDate());
         reservation.setEndAt(DateTime.now().minusMinutes(5).toDate());
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();
@@ -231,6 +231,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
         reservation.setStartAt(DateTime.now().minusMinutes(10).toDate());
         reservation.setEndAt(DateTime.now().plusMinutes(10).toDate());
+        reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.update();

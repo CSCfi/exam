@@ -79,7 +79,16 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     @Override
     public int compareTo(@Nonnull ExamEnrolment other) {
-        return enrolledOn.compareTo(other.enrolledOn);
+        if (reservation == null && other.reservation == null) {
+            return 0;
+        }
+        if (reservation == null) {
+            return -1;
+        }
+        if (other.reservation == null) {
+            return 1;
+        }
+        return reservation.compareTo(other.reservation);
     }
 
     @Override

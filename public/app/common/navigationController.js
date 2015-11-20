@@ -20,6 +20,7 @@
 
                     if (!$scope.user || $scope.user.isLoggedOut) {
                         $scope.loggedOut = true;
+                        delete $scope.appVersion;
                         return [];
                     }
 
@@ -71,7 +72,7 @@
                         {
                             href: "#/reports",
                             visible: (admin),
-                            class: "fa-file-word-o",
+                            class: "fa-files-o",
                             name: "sitnet_reports"
                         },
                         {

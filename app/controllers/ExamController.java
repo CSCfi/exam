@@ -129,40 +129,47 @@ public class ExamController extends BaseController {
         return ok(exams);
     }
 
+    private Set<Exam> filterByViewability(User user, Collection<Exam> src) {
+        Set<Exam> dst = new LinkedHashSet<>();
+        for (Exam e : src) {
+            if (e.isOwnedBy(user)) {
+                dst.add(e);
+                continue;
+            }
+            for (Exam c : e.getChildren()) {
+                boolean matchFound = false;
+                for (ExamInspection ei : c.getExamInspections()) {
+                    if (ei.getUser().equals(user)) {
+                        dst.add(e);
+                        matchFound = true;
+                        break;
+                    }
+                }
+                if (matchFound) {
+                    break;
+                }
+            }
+        }
+        return dst;
+    }
+
     @Restrict(@Group("TEACHER"))
     public Result getTeachersExams() {
-
-        User user = getLoggedUser();
-
         // Get list of exams that user is assigned to inspect or is creator of
         List<Exam> exams = Ebean.find(Exam.class)
                 .fetch("children", "id, state")
                 .fetch("examOwners")
+                .fetch("children.examInspections.user", "id")
                 .fetch("examInspections.user", "id, firstName, lastName")
                 .fetch("examEnrolments.user", "id")
                 .fetch("examEnrolments.reservation", "id, endAt")
                 .fetch("course")
                 .where()
                 .eq("state", Exam.State.PUBLISHED)
-                .disjunction()
-                .eq("examInspections.user", user)
-                .eq("creator", user)
-                .eq("examOwners", user)
-                .endJunction()
                 .isNull("parent")
                 .orderBy("created").findList();
-
-        return ok(exams);
-    }
-
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getFinishedExams() {
-        List<Exam> finishedExams = Ebean.find(Exam.class)
-                .where()
-                .lt("examActiveEndDate", new Date())
-                .findList();
-
-        return ok(Json.toJson(finishedExams));
+        // This ad-hoc handling is for optimization. Using a query for this takes 5 times longer.
+        return ok(filterByViewability(getLoggedUser(), exams));
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
@@ -363,7 +370,10 @@ public class ExamController extends BaseController {
                 return badRequest("Invalid grade for this grade scale");
             }
         }
-        String creditType = df.get("creditType");
+        String creditType = df.get("creditType.type");
+        if (creditType == null) {
+            creditType = df.get("creditType");
+        }
         if (creditType != null) {
             ExamType eType = Ebean.find(ExamType.class)
                     .where()
@@ -789,6 +799,7 @@ public class ExamController extends BaseController {
         exam.save();
 
         exam.getExamOwners().add(getLoggedUser());
+        exam.setTrialCount(1);
 
         exam.setExpanded(true);
         exam.save();
@@ -803,15 +814,15 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result insertSection(Long id) {
-
         Exam exam = Ebean.find(Exam.class, id);
         if (exam == null) {
             return notFound();
         }
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole("ADMIN", getSession())) {
-            ExamSection section = bindForm(ExamSection.class);
-            section.setExam(Ebean.find(Exam.class, id));
+            ExamSection section = new ExamSection();
+            section.setLotteryItemCount(1);
+            section.setExam(exam);
             AppUtil.setCreator(section, user);
             section.save();
             return ok(Json.toJson(section));
@@ -1111,8 +1122,6 @@ public class ExamController extends BaseController {
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result updateSection(Long eid, Long sid) {
-
-        // TODO: should check is user is owner ?
         ExamSection section = Form.form(ExamSection.class).bindFromRequest(
                 "id",
                 "name",
@@ -1125,7 +1134,7 @@ public class ExamController extends BaseController {
         sectionToUpdate.setName(section.getName());
         sectionToUpdate.setExpanded(section.getExpanded());
         sectionToUpdate.setLotteryOn(section.getLotteryOn());
-        sectionToUpdate.setLotteryItemCount(section.getLotteryItemCount());
+        sectionToUpdate.setLotteryItemCount(Math.max(1, section.getLotteryItemCount()));
         sectionToUpdate.update();
 
         return ok(Json.toJson(sectionToUpdate));

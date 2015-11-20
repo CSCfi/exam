@@ -113,7 +113,7 @@ public class Exam extends OwnedModel implements Comparable<Exam> {
     private State state;
 
     @ManyToOne
-    private Grade grade; // TODO: make this a Grade instead of String
+    private Grade grade;
 
     // Ohjelmistot
     @ManyToMany(cascade = CascadeType.ALL)

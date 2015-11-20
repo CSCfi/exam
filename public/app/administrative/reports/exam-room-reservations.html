@@ -1,61 +1,71 @@
-<div class="row">
-    <div class="col-md-12 sitnet-info-text">
+<div class="top-row">
+    <h4 class="col-md-12">
         {{'sitnet_get_all_reservations_from_room' | translate }}
-    </div>
+    </h4>
 </div>
-<div class="row">
-
-    <div class="col-md-2">
-        <h4>{{'sitnet_select_room' | translate}}</h4>
-        <div class="btn-group" dropdown >
-            <button type="button" class="btn btn-primary dropdown-toggle" dropdown-toggle>
-                {{selectedFields.room.name}}
-                <span class="caret"></span>
+<div class="bottom-row">
+    <div class="col-md-4">
+        <label for="roomPick">{{'sitnet_select_room' | translate}}</label>
+        <div id="roomPick" class="dropdown" dropdown>
+            <button dropdown-toggle class="btn btn-default dropdown-toggle" type="button"
+                    id="dropDownMenu1"
+                    data-toggle="dropdown" aria-expanded="true" ng-click="listCourses()">
+                {{ selectedFields.room.name | truncate: 100 }}&nbsp;<span class="caret"></span>
             </button>
-            <ul class="dropdown-menu">
-                <li ng-repeat="room in rooms" ng-click="setRoom(room)"><a class="pointer-hand">{{room.name}}</a></li>
+            <ul class="dropdown-menu" style="padding-left: 0; min-width: 17em" role="menu"
+                aria-labelledby="dropDownMenu1">
+                <li ng-repeat="room in rooms" role="presentation" ng-click="setRoom(room)">
+                    <a role="menuitem">{{ room.name }}</a>
+                </li>
             </ul>
         </div>
     </div>
 
     <!-- Start & End time datepickers -->
-    <div class="col-md-4">
-        <h4>{{'sitnet_start_time' | translate}}</h4>
-        <p class="input-group">
-            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
-                   is-open="startDateOpened"
-                   max="'2015-06-22'" datepicker-options="dateOptions" ng-required="true" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}" ui-change="updateExam()">
-                       
+    <div ng-controller="DatepickerCtrl">
+        <div class="col-md-3">
+            <label for="startAt">{{'sitnet_start_time' | translate}}</label>
+            <div id="startAt" class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.startDate"
+                       is-open="startDateOpened" datepicker-options="dateOptions" ng-required="true"
+                       close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}"
+                       toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
+
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openStartDate($event)">
                         <i class="fa fa-calendar"></i>
                     </button>
                 </span>
-        </p>
-    </div>
+            </div>
+        </div>
 
-    <div class="col-md-4">
-        <h4>{{'sitnet_end_time' | translate}}</h4>
-        <p class="input-group">
-            <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
-                   is-open="endDateOpened" min="dateService.startDate"
-                   max="'2015-06-22'" datepicker-options="dateOptions" date-disabled="disabled(date, mode)"
-                   ng-required="true" close-text="{{'sitnet_close' | translate}}" current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}" clear-text="{{'sitnet_clear' | translate}}">
+        <div class="col-md-3">
+            <label for="endAt">{{'sitnet_end_time' | translate}}</label>
+            <div id="endAt" class="input-group">
+                <input type="text" class="form-control" datepicker-popup="{{format}}" ng-model="dateService.endDate"
+                       is-open="endDateOpened" min="dateService.startDate" datepicker-options="dateOptions"
+                       date-disabled="disabled(date, mode)" ng-required="true" close-text="{{'sitnet_close' | translate}}"
+                       current-text="{{'sitnet_today' | translate}}" toggle-weeks-text="{{'sitnet_weeks' | translate}}"
+                       clear-text="{{'sitnet_clear' | translate}}">
                 <span class="input-group-btn">
                     <button class="btn btn-default" ng-click="openEndDate($event)">
                         <i class="fa fa-calendar"></i>
                     </button>
                 </span>
-        </p>
+            </div>
+        </div>
     </div>
 
-    <div class="col-md-2 load-link">
-        <h2>
+    <div class="col-md-2">
+        <label for="link">&nbsp;</label>
+        <div id="link">
             <a ng-click="getRoomReservationsByDate(selectedFields.room.id, dateService.startDate, dateService.endDate)"
-               class="fa-stack fa-lg" download popover-trigger="mouseenter"  popover="{{'sitnet_download' | translate}}">
+               class="fa-stack fa-lg pull-right" download popover-trigger="mouseenter"
+               popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                 <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
             </a>
-        </h2>
+        </div>
     </div>
+
 </div>

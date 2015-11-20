@@ -81,13 +81,17 @@ public class CalendarController extends BaseController {
         if (trialCount == null) {
             return true;
         }
-        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class).where()
+        List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
+                .fetch("exam")
+                .where()
                 .eq("user", user)
                 .eq("exam.parent.id", examId)
                 .ne("exam.state", Exam.State.DELETED)
                 .ne("reservation.retrialPermitted", true)
                 .findList();
-        List<ExamEnrolment> noShows = Ebean.find(ExamEnrolment.class).where()
+        List<ExamEnrolment> noShows = Ebean.find(ExamEnrolment.class)
+                .fetch("reservation")
+                .where()
                 .eq("user", user)
                 .eq("exam.id", examId)
                 .eq("reservation.noShow", true)

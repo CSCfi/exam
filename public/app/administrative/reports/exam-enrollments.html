@@ -1,25 +1,32 @@
-<div class="row">
-    <div class="col-md-12 sitnet-info-text">
+<div class="top-row">
+    <h4 class="col-md-12">
         {{'sitnet_get_all_enrolments_reservations_and_cancelations' | translate}}
-    </div>
+    </h4>
 </div>
-<div class="row">
-
+<div class="bottom-row">
     <div class="col-md-10">
-        <h4>{{'sitnet_select_exam' | translate}}</h4>
-        <select ui-select2 ng-model="examEnrollment" data-placeholder="{{'sitnet_enrolment' | translate}}" style="min-width:50%;">
-            <option value=""></option>
-            <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.course.code}} - {{exam.name}}</option>
-        </select>
+        <label for="enrolment">{{'sitnet_select_exam' | translate}}</label>
+
+        <div id="enrolment">
+            <select ui-select2 ng-model="examEnrollment" data-placeholder="{{'sitnet_enrolment' | translate}}"
+                    style="min-width:50%;">
+                <option value=""></option>
+                <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.course.code}} - {{exam.name}}</option>
+            </select>
+        </div>
     </div>
 
-    <div class="col-md-2 load-link">
-        <h2>
-            <a ng-click="getExamEnrollments(examEnrollment)"
-               class="fa-stack fa-lg" download popover-trigger="mouseenter"  popover="{{'sitnet_download' | translate}}">
+    <div class="col-md-2">
+        <label for="link"></label>
+
+        <div id="link">
+            <a ng-click="getExamEnrollments(examEnrollment)" class="fa-stack fa-lg pull-right"
+               download popover-trigger="mouseenter"
+               popover="{{'sitnet_download' | translate}}">
                 <i class="fa fa-stop fa-stack-2x sitnet-text-ready"></i>
                 <i class="fa fa-file-word-o sitnet-white fa-stack-1x"></i>
             </a>
-        </h2>
+        </div>
     </div>
+
 </div>
