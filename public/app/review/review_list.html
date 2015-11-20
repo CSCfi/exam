@@ -190,20 +190,25 @@
         <div class="detail-row" ng-show="toggleReviews">
             <div class="col-md-12">
                 <table class="table table-bordered table-striped exams-table">
-                    <thead>
+                    <thead ng-init="reviewPredicate = 'deadline'">
                     <tr>
                         <th colspan="2">
                             <span class="pointer" ng-click="reviewPredicate = 'user.lastName'; reverse=!reverse">
                                 {{'sitnet_student' | translate }}
+                                <i class="fa fa-sort"></i>
                             </span>
                         </th>
                         <th>
                             <span class="pointer" ng-click="reviewPredicate = 'started'; reverse=!reverse">
                                 {{'sitnet_exam_duration' | translate}}
+                                    <i class="fa fa-sort"></i>
                             </span>
                         </th>
-                        <th><span class="pointer" ng-click="reviewPredicate = 'deadline'; reverse=!reverse">
-                            {{'sitnet_review_deadline' | translate }}</span>
+                        <th>
+                            <span class="pointer" ng-click="reviewPredicate = 'deadline'; reverse=!reverse">
+                                {{'sitnet_review_deadline' | translate }}
+                                    <i class="fa fa-sort"></i>
+                            </span>
                         </th>
                         <th>{{'sitnet_inspection_status' | translate}}</th>
                         <th>{{'sitnet_exam_state' | translate}}</th>
@@ -303,7 +308,7 @@
                     </thead>
 
                     <tbody>
-                    <tr ng-repeat="review in gradedReviews | offset: currentPageGraded*pageSize | limitTo: pageSize">
+                    <tr ng-repeat="review in gradedReviews | orderBy:'deadline' | offset: currentPageGraded*pageSize | limitTo: pageSize">
                         <td class="table-column-checkbox"><input type="checkbox" class="gradedReviewsBox"
                                                                  value="{{review.exam.id}}"/></td>
                         <td class="table-column-13 table-column-bold">
