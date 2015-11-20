@@ -1,13 +1,22 @@
 <div id="sitnet-header" class="header">
     <div class="col-md-12 header-wrapper">
         <span class="header-text">{{'sitnet_monthly_language_inspection_report' | translate}}</span>
+        <span class="print-only compact-header-text">{{selection.month | date:'MM/yyyy'}}</span>
+        <span class="header-text no-print">
+            <a ng-click="printReport()" class="btn btn-primary btn-xs" aria-label="Left Align">
+                {{'sitnet_print' | translate}}&nbsp;&nbsp;
+                <span class="glyphicon glyphicon-print" aria-hidden="true"></span>
+            </a>
+        </span>
+
     </div>
 </div>
 <div id="dashboard">
-    <div class="top-row">
+    <div class="top-row no-print">
         <!-- Datepicker -->
         <div class="col-md-2">
             <label for="month">{{'sitnet_month' | translate}}:</label>
+
             <p id="month" class="input-group">
                 <input type="text" class="form-control" datepicker-popup="MM/yyyy" ng-model="selection.month"
                        is-open="selection.opened" datepicker-options="{minMode: 'month'}" datepicker-mode="'month'"
@@ -22,7 +31,6 @@
                     </span>
             </p>
         </div>
-
     </div>
     <div class="detail-row">
         <div class="col-md-12">

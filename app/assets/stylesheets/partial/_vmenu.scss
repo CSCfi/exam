@@ -174,4 +174,10 @@
       color: $sitnet-blue-highlight;
     }
   }
+
+  @media print {
+    .nav-container {
+      display: none !important;
+    }
+  }
 }

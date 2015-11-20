@@ -15,6 +15,11 @@
                     $scope.selection.opened = true;
                 };
 
+                $scope.printReport = function() {
+                    setTimeout(function () {
+                        window.print();
+                    }, 500);
+                };
 
                 $scope.query = function(byMonth) {
                     var params = byMonth ? {month: $scope.selection.month} : undefined;
