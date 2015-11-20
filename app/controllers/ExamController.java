@@ -407,6 +407,7 @@ public class ExamController extends BaseController {
     public Result getExamReviews(Long eid, List<String> statuses) {
         // Assure that ongoing exams will not be returned
         statuses.remove(Exam.State.STUDENT_STARTED.toString());
+        User user = getLoggedUser();
         List<Exam.State> states = statuses.stream().map(Exam.State::valueOf).collect(Collectors.toList());
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
@@ -417,13 +418,12 @@ public class ExamController extends BaseController {
                 .where()
                 .eq("exam.parent.id", eid)
                 .in("exam.state", states)
+                .disjunction()
+                .eq("exam.parent.examOwners", user)
+                .eq("exam.examInspections.user", user)
+                .endJunction()
                 .findList();
-
-        if (participations == null) {
-            return notFound();
-        } else {
-            return ok(participations);
-        }
+        return ok(participations);
     }
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})

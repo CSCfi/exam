@@ -462,7 +462,7 @@
   "sitnet_show_first": "De första visas",
   "sitnet_show_questions": "frågor",
   "sitnet_show_more": "Visa mera",
-  "sitnet_exam_search_description": "Du kan söka tentamina med kursens namn eller kod eller med ansvarslärarens/tentatorns namn",
+  "sitnet_exam_search_description": "Du kan söka tentamina med tentamens namn, med kurskod eller med ansvarslärarens/tentators namn",
   "sitnet_print": "Skriv ut",
   "sitnet_remove_room_accessibility_info": "Radera tillgänglighetsinformationen",
   "sitnet_accessibility_added": "Tillgänglighetsinformationen har lagts till",
@@ -581,6 +581,7 @@
   "sitnet_confirm_question_removal": "Ska frågan raderas?",
   "sitnet_exam_section": "Sektion",
   "sitnet_reservation_removed": "Bokningen annullerad",
-  "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä. SV",
-  "sitnet_choose_teacher": "Valitse opettaja SV"
+  "sitnet_exams_for_course": "Kursens tentamina",
+  "sitnet_move_between_sections_disabled": "Frågorna kan ordnas endast inom sektionen. Frågan kan inte flyttas till en annan sektion.",
+  "sitnet_choose_teacher": "Välj lärare"
 }

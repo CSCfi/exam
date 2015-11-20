@@ -59,7 +59,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="exam in exams | filter: {state: 'PUBLISHED'}">
+                <tr ng-repeat="exam in exams | filter: {state: 'PUBLISHED'} | orderBy: '-examActiveEndDate'">
                     <td class="table-column-examcode">{{exam.course.code}}</td>
                     <td>
                         <a ng-if="exam.name" class="exams-info-title bold-button"
