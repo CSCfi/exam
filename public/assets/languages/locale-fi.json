@@ -618,5 +618,6 @@
   "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti",
   "sitnet_exams_for_course": "Opintojakson tentit",
   "sitnet_move_between_sections_disabled": "Kysymysten järjestely toimii ainoastaan aihealueen sisällä. Kysymyksiä ei voi siirtää toiseen aihealueeseen.",
-  "sitnet_choose_teacher": "Valitse opettaja"
+  "sitnet_choose_teacher": "Valitse opettaja",
+  "sitnet_not_reviewed": "Arvioimatta"
 }

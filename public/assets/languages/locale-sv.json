@@ -618,5 +618,6 @@
   "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti SV",
   "sitnet_exams_for_course": "Kursens tentamina",
   "sitnet_move_between_sections_disabled": "Frågorna kan ordnas endast inom sektionen. Frågan kan inte flyttas till en annan sektion.",
-  "sitnet_choose_teacher": "Välj lärare"
+  "sitnet_choose_teacher": "Välj lärare",
+  "sitnet_not_reviewed": "Arvioimatta SV"
 }

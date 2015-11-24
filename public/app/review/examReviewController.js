@@ -1,10 +1,10 @@
 (function () {
     'use strict';
     angular.module("exam.controllers")
-        .controller('ExamReviewController', ['dialogs', '$document', '$rootScope', '$scope', 'sessionService',
+        .controller('ExamReviewController', ['dialogs', '$document', '$q', '$scope', 'sessionService',
             'examService', 'questionService', '$routeParams', '$http', '$modal', '$location', '$translate',
             '$timeout', '$sce', 'EXAM_CONF', 'ExamRes', 'LanguageRes', 'LanguageInspectionRes', 'QuestionRes', 'dateService', 'fileService',
-            function (dialogs, $document, $rootScope, $scope, sessionService, examService, questionService,
+            function (dialogs, $document, $q, $scope, sessionService, examService, questionService,
                       $routeParams, $http, $modal, $location, $translate, $timeout, $sce, EXAM_CONF, ExamRes, LanguageRes,
                       LanguageInspectionRes, QuestionRes, dateService, fileService) {
 
@@ -83,7 +83,9 @@
                     }
                     var scale = $scope.exam.gradeScale || $scope.exam.parent.gradeScale || $scope.exam.course.gradeScale;
                     $scope.examGrading = scale.grades.map(function (grade) {
+                        grade.type = grade.name;
                         grade.name = examService.getExamGradeDisplayName(grade.name);
+
                         if ($scope.exam.grade && $scope.exam.grade.id === grade.id) {
                             $scope.selections.grade = grade;
                         }
@@ -549,6 +551,7 @@
                 };
 
                 $scope.saveInspectionStatement = function () {
+                    var deferred = $q.defer();
                     var statement = {
                         "id": $scope.exam.languageInspection.id,
                         "comment": $scope.exam.languageInspection.statement.comment
@@ -557,9 +560,12 @@
                     LanguageInspectionRes.statement.update(statement,
                         function () {
                             toastr.info($translate.instant("sitnet_statement_updated"));
+                            deferred.resolve();
                         }, function (error) {
                             toastr.error(error.data);
+                            deferred.reject(error.data);
                         });
+                    return deferred.promise;
                 };
 
                 var checkCredit = function () {
@@ -778,7 +784,7 @@
                     return !$scope.user.isLanguageInspector && $scope.exam && $scope.exam.languageInspection && !$scope.exam.languageInspection.finishedAt;
                 };
 
-                $scope.canFinalizeInspection = function() {
+                $scope.canFinalizeInspection = function () {
                     return $scope.exam.languageInspection.statement && $scope.exam.languageInspection.statement.comment;
                 };
 
@@ -787,10 +793,14 @@
                     REJECT_RESPONSE: {id: 2, text: 'sitnet_reject_maturity', canProceed: true, warn: true},
                     LANGUAGE_INSPECT: {id: 3, text: 'sitnet_send_for_language_inspection', canProceed: true},
                     AWAIT_INSPECTION: {id: 4, text: 'sitnet_await_inspection'},
-                    REJECT_LANGUAGE: {id: 5, text: 'sitnet_reject_language_content', canProceed: true, warn: true,
-                        validate: $scope.canFinalizeInspection},
-                    APPROVE_LANGUAGE: {id: 6, text: 'sitnet_approve_language_content', canProceed: true,
-                        validate: $scope.canFinalizeInspection},
+                    REJECT_LANGUAGE: {
+                        id: 5, text: 'sitnet_reject_language_content', canProceed: true, warn: true,
+                        validate: $scope.canFinalizeInspection
+                    },
+                    APPROVE_LANGUAGE: {
+                        id: 6, text: 'sitnet_approve_language_content', canProceed: true,
+                        validate: $scope.canFinalizeInspection
+                    },
                     SEND_TO_REGISTRY: {id: 7, text: 'sitnet_send_result_to_registry', canProceed: true},
                     REJECT_ALTOGETHER: {id: 8, text: 'sitnet_reject_maturity', canProceed: true, warn: true}
                 };
@@ -817,12 +827,12 @@
                             MATURITY_STATES.SEND_TO_REGISTRY :
                             MATURITY_STATES.REJECT_ALTOGETHER;
                     }
-                    var disapproved = !$scope.exam.grade || !$scope.exam.grade.name ||
-                        ['REJECTED', 'I', '0'].indexOf($scope.exam.grade.name) > -1;
+                    var disapproved = !$scope.exam.grade || !$scope.exam.grade.type ||
+                        ['REJECTED', 'I', '0'].indexOf($scope.exam.grade.type) > -1;
                     return disapproved ? MATURITY_STATES.REJECT_RESPONSE : MATURITY_STATES.LANGUAGE_INSPECT;
                 };
 
-                var doRejectMaturity = function() {
+                var doRejectMaturity = function () {
                     $scope.saveFeedback(true);
                     var params = getReviewUpdate($scope.exam, 'REJECTED');
                     ExamRes.review.update({id: $scope.exam.id}, params, function () {
@@ -874,13 +884,17 @@
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'),
                         $translate.instant('sitnet_confirm_language_inspection_approval'));
                     dialog.result.then(function () {
-                        //TBD: $scope.saveStatement(true);
-                        LanguageInspectionRes.approval.update(
-                            {id: $scope.exam.languageInspection.id, approved: $scope.exam.languageInspection.approved},
-                            function () {
-                                toastr.info($translate.instant('sitnet_language_inspection_finished'));
-                                $location.path("inspections")
-                            });
+                        $scope.saveInspectionStatement().then(function () {
+                            LanguageInspectionRes.approval.update(
+                                {
+                                    id: $scope.exam.languageInspection.id,
+                                    approved: $scope.exam.languageInspection.approved
+                                },
+                                function () {
+                                    toastr.info($translate.instant('sitnet_language_inspection_finished'));
+                                    $location.path("inspections")
+                                });
+                        });
                     });
                 };
 
