@@ -34,7 +34,6 @@ public class SystemRequestHandler implements HttpRequestHandler {
     @Inject
     public SystemRequestHandler(CacheApi cache) {
         this.cache = cache;
-
     }
 
     @Override
@@ -43,7 +42,6 @@ public class SystemRequestHandler implements HttpRequestHandler {
         Session session = cache.get(BaseController.SITNET_CACHE_KEY + token);
         User user = session == null ? null : Ebean.find(User.class, session.getUserId());
         AuditLogger.log(request, user);
-
         if (session == null) {
             Logger.info("Session with token {} not found", token);
             return propagateAction();
@@ -137,8 +135,12 @@ public class SystemRequestHandler implements HttpRequestHandler {
         return Ebean.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findUnique() != null;
     }
 
-    private boolean machineOk(ExamEnrolment enrolment, Http.Request request, Map<String,
+    private boolean isMachineOk(ExamEnrolment enrolment, Http.Request request, Map<String,
             String> headers) {
+        // Loose the checks for dev usage to facilitate for easier testing
+        if (Play.isDev()) {
+            return true;
+        }
         ExamMachine examMachine = enrolment.getReservation().getMachine();
         ExamRoom room = examMachine.getRoom();
 
@@ -181,7 +183,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
 
     private Action handleOngoingEnrolment(ExamEnrolment enrolment, Http.Request request) {
         Map<String, String> headers = new HashMap<>();
-        if (!Play.isDev() && !machineOk(enrolment, request, headers)) {
+        if (!isMachineOk(enrolment, request, headers)) {
             return propagateAction(headers);
         }
         String hash = enrolment.getExam().getHash();
@@ -191,7 +193,7 @@ public class SystemRequestHandler implements HttpRequestHandler {
 
     private Action handleUpcomingEnrolment(ExamEnrolment enrolment, Http.Request request) {
         Map<String, String> headers = new HashMap<>();
-        if (!Play.isDev() && !machineOk(enrolment, request, headers)) {
+        if (!isMachineOk(enrolment, request, headers)) {
             return propagateAction(headers);
         }
         String hash = enrolment.getExam().getHash();

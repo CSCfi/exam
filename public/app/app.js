@@ -10,10 +10,10 @@
     angular.module('exam', [
         'ngAnimate',
         'ngCookies',
-        'ngRoute',
         'ngResource',
-        'ngStorage',
+        'ngRoute',
         'ngSanitize',
+        'ngStorage',
         'http-auth-interceptor',
         'ui.bootstrap',
         'ui.calendar',
