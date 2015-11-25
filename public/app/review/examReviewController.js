@@ -87,6 +87,7 @@
                         grade.name = examService.getExamGradeDisplayName(grade.name);
 
                         if ($scope.exam.grade && $scope.exam.grade.id === grade.id) {
+                            $scope.exam.grade.type = grade.type;
                             $scope.selections.grade = grade;
                         }
                         return grade;
@@ -804,6 +805,7 @@
                     SEND_TO_REGISTRY: {id: 7, text: 'sitnet_send_result_to_registry', canProceed: true},
                     REJECT_ALTOGETHER: {id: 8, text: 'sitnet_reject_maturity', canProceed: true, warn: true}
                 };
+                MATURITY_STATES.LANGUAGE_INSPECT.alternateState = MATURITY_STATES.SEND_TO_REGISTRY;
 
                 var isMaturityReviewed = function () {
                     return $scope.exam.grade &&
@@ -822,14 +824,17 @@
                     if (!isMaturityReviewed()) {
                         return MATURITY_STATES.NOT_REVIEWED;
                     }
-                    if ($scope.hasGoneThroughLanguageInspection()) {
-                        return $scope.exam.languageInspection.approved ?
-                            MATURITY_STATES.SEND_TO_REGISTRY :
-                            MATURITY_STATES.REJECT_ALTOGETHER;
-                    }
                     var disapproved = !$scope.exam.grade || !$scope.exam.grade.type ||
                         ['REJECTED', 'I', '0'].indexOf($scope.exam.grade.type) > -1;
-                    return disapproved ? MATURITY_STATES.REJECT_RESPONSE : MATURITY_STATES.LANGUAGE_INSPECT;
+
+                    if ($scope.hasGoneThroughLanguageInspection()) {
+                        if ($scope.exam.languageInspection.approved) {
+                            return disapproved ? MATURITY_STATES.REJECT_ALTOGETHER : MATURITY_STATES.SEND_TO_REGISTRY;
+                        }
+                        return MATURITY_STATES.REJECT_ALTOGETHER;
+                    }
+                    return disapproved ? MATURITY_STATES.REJECT_RESPONSE :
+                        MATURITY_STATES.LANGUAGE_INSPECT;
                 };
 
                 var doRejectMaturity = function () {
@@ -898,8 +903,12 @@
                     });
                 };
 
-                $scope.proceedWithMaturity = function () {
-                    switch ($scope.getNextMaturityState().id) {
+                $scope.proceedWithMaturity = function (alternate) {
+                    var state = $scope.getNextMaturityState();
+                    if (state.alternateState && alternate) {
+                        state = state.alternateState;
+                    }
+                    switch (state.id) {
                         case MATURITY_STATES.REJECT_RESPONSE.id:
                             rejectMaturity(true);
                             break;

@@ -22,4 +22,14 @@
             </button>
         </span>
     </div>
+    <div class="col-md-2">
+        <span ng-show="!isReadOnly() && getNextMaturityState().alternateState">
+            <button class="btn"
+                    ng-class="getNextMaturityState().alternateState.warn ? 'btn-danger' : 'btn-primary'"
+                    ng-disabled="!getNextMaturityState().alternateState.canProceed || !examForm.$valid ||
+                        (getNextMaturityState().alternateState.validate && !getNextMaturityState().alternateState.validate())"
+                    ng-click="proceedWithMaturity(true)">{{ getNextMaturityState().alternateState.text | translate}}
+            </button>
+        </span>
+    </div>
 </div>
