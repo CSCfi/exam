@@ -16,7 +16,11 @@
                 };
                 $scope.eventSources = [];
 
-                $scope.examInfo = StudentExamRes.examInfo.get({eid: $routeParams.id});
+                StudentExamRes.examInfo.get({eid: $routeParams.id}, function(info) {
+                    $scope.examInfo = info;
+                    uiCalendarConfig.calendars.myCalendar.fullCalendar('gotoDate', moment.max(moment(),
+                        moment($scope.examInfo.examActiveStartDate)));
+                });
                 SettingsResource.reservationWindow.get(function (setting) {
                     $scope.reservationWindowSize = setting.value;
                     $scope.reservationWindowEndDate = moment().add(setting.value, 'days');
@@ -391,11 +395,18 @@
                                 event.start.format("HH:mm") + " - " + event.end.format("HH:mm"));
                         }
                     },
-                    viewRender: function (view) {
+                    eventAfterAllRender: function (view) {
                         // Disable next/prev buttons if date range is off limits
-                        var minDate = moment();
                         var prevButton = $(".fc-prev-button");
                         var nextButton = $(".fc-next-button");
+                        var todayButton = $(".fc-today-button");
+
+                        var minDate = !$scope.examInfo ? moment() : moment.max(moment(),
+                            moment($scope.examInfo.examActiveStartDate));
+                        var maxDate = !$scope.examInfo ? moment() : moment.min($scope.reservationWindowEndDate,
+                            moment($scope.examInfo.examActiveEndDate));
+                        var today = moment();
+
                         if (minDate >= view.start && minDate <= view.end) {
                             prevButton.prop('disabled', true);
                             prevButton.addClass('fc-state-disabled');
@@ -404,14 +415,19 @@
                             prevButton.removeClass('fc-state-disabled');
                             prevButton.prop('disabled', false);
                         }
-                        var maxDate = moment.min($scope.reservationWindowEndDate,
-                            moment($scope.examInfo.examActiveEndDate));
                         if (maxDate >= view.start && maxDate <= view.end) {
                             nextButton.prop('disabled', true);
                             nextButton.addClass('fc-state-disabled');
                         } else {
                             nextButton.removeClass('fc-state-disabled');
                             nextButton.prop('disabled', false);
+                        }
+                        if (today < minDate) {
+                            todayButton.prop('disabled', true);
+                            todayButton.addClass('fc-state-disabled');
+                        } else {
+                            todayButton.removeClass('fc-state-disabled');
+                            todayButton.prop('disabled', false);
                         }
                     }
                 };
