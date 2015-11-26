@@ -123,6 +123,9 @@
                 $scope.softwares = SoftwareResource.softwares.query();
 
                 $scope.selectedSoftwares = function (exam) {
+                    if (!exam || !exam.softwares) {
+                        return;
+                    }
                     return exam.softwares.map(function (software) {
                         return software.name;
                     }).join(", ");
