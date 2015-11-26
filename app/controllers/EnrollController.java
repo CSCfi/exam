@@ -67,6 +67,7 @@ public class EnrollController extends BaseController {
         Exam exam = Ebean.find(Exam.class)
                 .fetch("course")
                 .fetch("course.organisation")
+                .fetch("course.gradeScale")
                 .fetch("gradeScale")
                 .fetch("creator", "firstName, lastName, email")
                 .fetch("examLanguages")
