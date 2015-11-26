@@ -429,6 +429,7 @@ public class ExamController extends BaseController {
                 .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount")
                 .fetch("exam.course", "code, credits")
                 .fetch("exam.grade", "id, name")
+                .fetch("exam.languageInspection")
                 .fetch("reservation", "retrialPermitted")
                 .where()
                 .eq("exam.parent.id", eid)

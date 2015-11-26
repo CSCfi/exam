@@ -178,6 +178,9 @@
                     function (reviews) {
                         reviews.forEach(function (r) {
                             r.duration = moment.utc(Date.parse(r.duration)).format('HH:mm');
+                            if (r.exam.languageInspection && !r.exam.languageInspection.finishedAt) {
+                                r.isUnderLanguageInspection = true;
+                            }
                         });
                         $scope.abortedExams = reviews.filter(function (r) {
                             return r.exam.state === 'ABORTED';
@@ -187,10 +190,17 @@
                         });
                         $scope.examReviews.forEach(handleOngoingReviews);
                         $scope.toggleReviews = $scope.examReviews.length > 0;
+
                         $scope.gradedReviews = reviews.filter(function (r) {
-                            return r.exam.state === 'GRADED';
+                            return r.exam.state === 'GRADED' && (!r.exam.languageInspection || r.exam.languageInspection.finishedAt);
                         });
+                        $scope.reviewsInLanguageInspection = reviews.filter(function (r) {
+                            return r.exam.state === 'GRADED' && r.exam.languageInspection && !r.exam.languageInspection.finishedAt;
+                        });
+
                         $scope.toggleGradedReviews = $scope.gradedReviews.length > 0;
+                        $scope.toggleReviewsInLanguageInspection = $scope.reviewsInLanguageInspection.length > 0;
+
                         $scope.gradedLoggedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'GRADED_LOGGED';
                         });
@@ -257,6 +267,11 @@
                 $scope.toggleGraded = function () {
                     if ($scope.gradedReviews && $scope.gradedReviews.length > 0) {
                         $scope.toggleGradedReviews = !$scope.toggleGradedReviews;
+                    }
+                };
+                $scope.toggleInLanguageInspection = function () {
+                    if ($scope.reviewsInLanguageInspection && $scope.reviewsInLanguageInspection.length > 0) {
+                        $scope.toggleReviewsInLanguageInspection = !$scope.toggleReviewsInLanguageInspection;
                     }
                 };
 
