@@ -16,7 +16,7 @@
                 };
                 $scope.eventSources = [];
 
-                StudentExamRes.examInfo.get({eid: $routeParams.id}, function(info) {
+                StudentExamRes.examInfo.get({eid: $routeParams.id}, function (info) {
                     $scope.examInfo = info;
                     uiCalendarConfig.calendars.myCalendar.fullCalendar('gotoDate', moment.max(moment(),
                         moment($scope.examInfo.examActiveStartDate)));
@@ -173,8 +173,8 @@
                         function (item) {
                             return item.filtered;
                         }).map(function (item) {
-                            return item.id;
-                        });
+                        return item.id;
+                    });
                     $http.post('calendar/reservation', slot).then(function () {
                         $location.path('#/home');
                     }, function (error) {
@@ -326,6 +326,36 @@
                     return events;
                 };
 
+                var getEarliestOpening = function (room) {
+                    var openings = room.defaultWorkingHours.map(function (dwh) {
+                        var offset = moment().isDST() ? -1 : 0;
+                        var start = moment(dwh.startTime);
+                        start.add(offset, 'hour');
+                        return start;
+                    });
+                    return moment.min(openings);
+                };
+
+                var getLatestClosing = function (room) {
+                    var closings = room.defaultWorkingHours.map(function (dwh) {
+                        var offset = moment().isDST() ? -1 : 0;
+                        var end = moment(dwh.endTime);
+                        end.add(offset, 'hour');
+                        return end;
+                    });
+                    return moment.max(closings);
+                };
+
+                var getClosedWeekdays = function (room) {
+                    var weekdays = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+                    var openedDays = room.defaultWorkingHours.map(function (dwh) {
+                        return weekdays.indexOf(dwh.weekday);
+                    });
+                    return [0, 1, 2, 3, 4, 5, 6].filter(function (x) {
+                        return openedDays.indexOf(x) === -1
+                    });
+                };
+
                 // <--
 
                 $scope.selectRoom = function (room) {
@@ -336,11 +366,23 @@
                         room.filtered = true;
                         uiCalendarConfig.calendars.myCalendar.fullCalendar('refetchEvents');
                         $scope.openingHours = processOpeningHours();
+                        var minTime = getEarliestOpening(room);
+                        var maxTime = getLatestClosing(room);
+                        var hiddenDays = getClosedWeekdays(room);
+                        var cal = $("#calendar");
+                        cal.fullCalendar('destroy');
+                        cal.fullCalendar(
+                            $.extend($scope.calendarConfig, {
+                                minTime: minTime,
+                                maxTime: maxTime,
+                                scrollTime: minTime,
+                                hiddenDays: hiddenDays
+                            })
+                        );
                     }
                 };
 
                 $scope.calendarConfig = {
-                    aspectRatio: 3,
                     editable: false,
                     selectable: false,
                     selectHelper: false,
@@ -357,9 +399,6 @@
                     buttonText: {
                         today: $translate.instant('sitnet_today')
                     },
-                    minTime: '00:00:00',
-                    maxTime: '24:00:00',
-                    scrollTime: '08:00:00',
                     header: {
                         left: '',
                         center: 'title',
