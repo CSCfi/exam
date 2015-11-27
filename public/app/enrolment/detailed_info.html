@@ -79,8 +79,8 @@
         <div class="col-md-2">
             <div class="sitnet-info-text">{{'sitnet_grade_scale' | translate}}</div>
             <div class="input-group">
-                <div ng-if="exam.gradeScale">{{translateGradeScale(exam.gradeScale.description)}}</div>
-                <div ng-if="!exam.gradeScale && exam.course.gradeScale">{{translateGradeScale(exam.course.gradeScale.description)}}</div>
+                <div ng-if="exam.gradeScale">{{translateGradeScale(exam.gradeScale)}}</div>
+                <div ng-if="!exam.gradeScale && exam.course.gradeScale">{{translateGradeScale(exam.course.gradeScale)}}</div>
             </div>
         </div>
 
