@@ -608,7 +608,11 @@ public class ExamController extends BaseController {
         }
         User user = getLoggedUser();
         if (exam.isOwnedOrCreatedBy(user) || getLoggedUser().hasRole("ADMIN", getSession())) {
-            Result result = updateStateAndValidate(exam, df);
+            Result result = updateTemporalFieldsAndValidate(exam, df, user);
+            if (result != null) {
+                return result;
+            }
+            result = updateStateAndValidate(exam, df);
             if (result != null) {
                 return result;
             }
@@ -624,10 +628,6 @@ public class ExamController extends BaseController {
                 exam.setName(examName);
             }
             exam.setShared(shared);
-            result = updateTemporalFieldsAndValidate(exam, df, user);
-            if (result != null) {
-                return result;
-            }
 
             if (grading != null) {
                 updateGrading(exam, grading);

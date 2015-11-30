@@ -33,6 +33,13 @@
     <div class="col-md-12" mathjax ng-bind-html="exam.languageInspection.statement.comment"></div>
 </div>
 
+<div class="detail-row" ng-show="hasGoneThroughLanguageInspection() && exam.languageInspection.statement.attachment"
+    ng-controller="AttachmentController">
+    <a class="col-md-12 pointer" ng-click="downloadStatementAttachment(exam)">
+        {{exam.languageInspection.statement.attachment.fileName}}
+    </a>
+</div>
+
 <div class="top-row">
     <strong class="col-md-12">{{'sitnet_grading_info' | translate}}:</strong>
 </div>
