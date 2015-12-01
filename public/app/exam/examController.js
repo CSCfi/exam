@@ -40,6 +40,11 @@
                     }, 1000);
                 });
 
+                // Clear the question type filter when moving away
+                $scope.$on('$locationChangeStart', function(event) {
+                    questionService.setFilter(null);
+                });
+
                 SettingsResource.examDurations.get(function (data) {
                     $scope.examDurations = data.examDurations;
                 });
@@ -108,6 +113,9 @@
                                 $scope.newExam.hasEnrolmentsInEffect = true;
                             }
                             if ($scope.newExam.executionType.type==='MATURITY') {
+                                // Show only essay questions in the question library
+                                questionService.setFilter('EssayQuestion');
+
                                 $scope.examTypes = $scope.examTypes.filter(function(t) {
                                     return t.type === 'FINAL';
                                 });

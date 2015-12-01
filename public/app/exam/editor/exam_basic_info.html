@@ -223,7 +223,7 @@
 
     <div class="row">
         <!-- Exam software -->
-        <div class="col-md-6">
+        <div class="col-md-6" ng-hide="newExam.executionType.type==='MATURITY'">
             <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
             <multiselect data-multiple="true"
                          ng-model="newExam.softwares"

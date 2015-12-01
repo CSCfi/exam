@@ -194,7 +194,7 @@
                             item.icon = icon;
                             return item;
                         });
-                        $scope.questions = $scope.filteredQuestions = data;
+                        $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
                         $scope.currentPage = 0;
                         limitQuestions();
                     });
