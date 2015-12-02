@@ -15,7 +15,7 @@
         <!-- Start & End time datepickers -->
         <div class="row">
             <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}</div>
+                <div class="sitnet-info-text">{{'sitnet_start_time' | translate}}:</div>
                 <div class="input-group">
                     <input type="text" class="form-control" datepicker-popup="{{format}}"
                            date-fix="{{format}}" ng-model="newExam.examActiveStartDate"
@@ -36,7 +36,7 @@
             </div>
 
             <div class="col-md-6">
-                <div class="sitnet-info-text">{{'sitnet_end_time' | translate}}</div>
+                <div class="sitnet-info-text">{{'sitnet_end_time' | translate}}:</div>
                 <div class="input-group">
                     <input type="text" class="form-control" datepicker-popup="{{format}}"
                            date-fix="{{format}}" ng-model="newExam.examActiveEndDate"
@@ -170,7 +170,7 @@
         </div>
 
         <div class="col-md-6">
-            <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_language' | translate}}:</div>
             <multiselect data-multiple="true"
                          ng-model="newExam.examLanguages"
                          ms-header="{{'sitnet_select' | translate}}"
@@ -238,43 +238,50 @@
         <!--Attachment file-->
         <div class="col-md-6">
             <div class="sitnet-info-text">
-                {{'sitnet_exam_attachment' | translate}}
+                {{'sitnet_exam_attachment' | translate}}:
             </div>
             <div ng-show="newExam.attachment" ng-controller="AttachmentController">
                 <a class="pointer" ng-click="downloadExamAttachment(newExam)">{{newExam.attachment.fileName}} </a>
                 <span class="sitnet-red pointer" ng-click="removeExamAttachment(newExam)"> <i class="fa fa-times"
                                                                                               title="{{'sitnet_remove_attachment' | translate }}"></i></span>
             </div>
-            <button type="button" class="btn btn-default" ng-click="selectFile()">{{'sitnet_attach_file' | translate}}</button>
+            <button type="button" class="btn btn-default" ng-click="selectFile()">{{'sitnet_attach_file' | translate}}
+            </button>
         </div>
     </div>
 
-    <!-- Exam instruction -->
-    <div class="row top-margin-1">
-        <div class="col-md-12">
-            <h4>
-                {{'sitnet_instruction' | translate}}
-            </h4>
+    <!-- INSTRUCTIONS -->
+    <div ng-hide="newExam.executionType.type==='MATURITY'">
 
-            <div class="sitnet-info-text">
-                {{'sitnet_exam_instruction' | translate}}
+
+        <div class="row top-margin-1">
+            <h4 class="col-md-12">{{'sitnet_instruction' | translate}}</h4>
+        </div>
+
+        <!-- Exam instruction -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">
+                    {{'sitnet_exam_instruction' | translate}}:
+                </div>
+            <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction"
+                      ui-change="updateExam()"
+                      placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
+            </textarea>
             </div>
-            <div class="input-group exam-info">
-                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.instruction"
-                          ui-change="updateExam()"
-                          placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-                </textarea>
-            </div>
-            <!--Enrolment info-->
-            <div class="sitnet-info-text">
-                {{'sitnet_enroll_instruction' | translate}}
-            </div>
-            <div class="input-group exam-info">
-                <textarea class="form-control" rows="4" cols="150" ng-model="newExam.enrollInstruction"
-                          ui-change="updateExam()"
-                          placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
-                </textarea>
+        </div>
+        <!--Enrolment info-->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="sitnet-info-text">
+                    {{'sitnet_enroll_instruction' | translate}}:
+                </div>
+            <textarea class="form-control" rows="4" cols="150" ng-model="newExam.enrollInstruction"
+                      ui-change="updateExam()"
+                      placeholder="{{'sitnet_placeholder_write_instruction' | translate}}">
+            </textarea>
             </div>
         </div>
     </div>
+
 </div>
