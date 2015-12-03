@@ -99,7 +99,7 @@
         <!-- Exam information field -->
         <div class="col-md-12">
             <div class="sitnet-info-text">{{'sitnet_maturity_instructions' | translate}}</div>
-            <div>{{exam.maturityInstructions}}</div>
+            <div ng-bind-html="exam.maturityInstructions"></div>
         </div>
     </div>
 

@@ -14,14 +14,7 @@
                         params: { hash: "@hash" }}
                 }),
 
-                finishedExams: $resource("/student/finishedexams/:uid",
-                {
-                    uid: "@uid"
-                },
-                {
-                    "get": {method: "GET", params: { uid: "@uid" }}
-                }),
-
+                finishedExams: $resource("/student/finishedexams"),
                 enrolments: $resource("/enrolments"),
                 enrolment: $resource("/enrolments/:eid",
                 {

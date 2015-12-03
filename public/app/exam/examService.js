@@ -1,9 +1,21 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .factory('examService', ['$translate', '$q', '$location', 'ExamRes', function ($translate, $q, $location, ExamRes) {
+        .service('examService', ['$translate', '$q', '$location', 'ExamRes', function ($translate, $q, $location, ExamRes) {
 
-            var createExam = function (executionType) {
+            var self = this;
+
+            self.getReviewablesCount = function (exam) {
+                return exam.children.filter(function (child) {
+                    return child.state === 'REVIEW' || child.state === 'REVIEW_STARTED'
+                }).length;
+            };
+
+            self.showFeedback = function (examId) {
+                $location.path("/feedback/exams/" + examId);
+            };
+
+            self.createExam = function (executionType) {
                 ExamRes.draft.get({executionType: executionType},
                     function (response) {
                         toastr.info($translate.instant("sitnet_exam_added"));
@@ -13,7 +25,7 @@
                     });
             };
 
-            var getExamTypeDisplayName = function (type) {
+            self.getExamTypeDisplayName = function (type) {
                 var name;
                 switch (type) {
                     case 'PARTIAL':
@@ -28,7 +40,7 @@
                 return name;
             };
 
-            var getExamGradeDisplayName = function (grade) {
+            self.getExamGradeDisplayName = function (grade) {
                 var name;
                 switch (grade) {
                     case 'I':
@@ -68,7 +80,7 @@
                 return name;
             };
 
-            var refreshExamTypes = function () {
+            self.refreshExamTypes = function () {
                 var deferred = $q.defer();
                 ExamRes.examTypes.query(function (examTypes) {
                     return deferred.resolve(examTypes.map(function (examType) {
@@ -79,7 +91,7 @@
                 return deferred.promise;
             };
 
-            var getScaleDisplayName = function (type) {
+            self.getScaleDisplayName = function (type) {
                 var name;
                 var description = type.description || type;
                 switch (description) {
@@ -98,7 +110,7 @@
                 return name;
             };
 
-            var refreshGradeScales = function () {
+            self.refreshGradeScales = function () {
                 var deferred = $q.defer();
                 ExamRes.gradeScales.query(function (scales) {
                     return deferred.resolve(scales.map(function (scale) {
@@ -117,7 +129,7 @@
                 });
             };
 
-            var setCredit = function (exam) {
+            self.setCredit = function (exam) {
                 if (exam.customCredit !== undefined && exam.customCredit) {
                     exam.credit = exam.customCredit;
                 } else {
@@ -125,7 +137,7 @@
                 }
             };
 
-            var setQuestionColors = function (question) {
+            self.setQuestionColors = function (question) {
                 var isAnswered;
                 switch (question.type) {
                     case 'EssayQuestion':
@@ -153,7 +165,7 @@
                 }
             };
 
-            var stripHtml = function (text) {
+            self.stripHtml = function (text) {
                 if (text && text.indexOf("math-tex") === -1) {
                     return String(text).replace(/<[^>]+>/gm, '');
                 }
@@ -162,15 +174,15 @@
 
             // Defining markup outside templates is not advisable, but creating a working custom dialog template for this
             // proved to be a bit too much of a hassle. Lets live with this.
-            var getRecordReviewConfirmationDialogContent = function (feedback) {
+            self.getRecordReviewConfirmationDialogContent = function (feedback) {
                 return '<h4>' + $translate.instant('sitnet_teachers_comment') + '</h4>'
                     + feedback + '<br/><strong>' + $translate.instant('sitnet_confirm_record_review') + '</strong>';
             };
 
-            var listExecutionTypes = function() {
+            self.listExecutionTypes = function () {
                 var deferred = $q.defer();
-                ExamRes.executionTypes.query(function(types) {
-                    types.forEach(function(t) {
+                ExamRes.executionTypes.query(function (types) {
+                    types.forEach(function (t) {
                         if (t.type === 'PUBLIC') {
                             t.name = 'sitnet_public_exam';
                         }
@@ -184,20 +196,6 @@
                     return deferred.resolve(types);
                 });
                 return deferred.promise;
-            };
-
-            return {
-                createExam: createExam,
-                refreshExamTypes: refreshExamTypes,
-                refreshGradeScales: refreshGradeScales,
-                getScaleDisplayName: getScaleDisplayName,
-                getExamTypeDisplayName: getExamTypeDisplayName,
-                getExamGradeDisplayName: getExamGradeDisplayName,
-                setCredit: setCredit,
-                setQuestionColors: setQuestionColors,
-                stripHtml: stripHtml,
-                getRecordReviewConfirmationDialogContent: getRecordReviewConfirmationDialogContent,
-                listExecutionTypes: listExecutionTypes
             };
 
         }]);

@@ -73,7 +73,7 @@ public class StudentExamController extends BaseController {
 
 
     @Restrict({@Group("STUDENT")})
-    public Result getFinishedExams(Long uid) {
+    public Result getFinishedExams() {
         User user = getLoggedUser();
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .select("ended")
