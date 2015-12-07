@@ -54,6 +54,18 @@
                     limitQuestions();
                 };
 
+
+                $scope.applyOwnerSearchFilter = function () {
+                    if ($scope.filter.owner) {
+                        $scope.filteredQuestions = $scope.questions.filter(function (question) {
+                            var re = new RegExp($scope.filter.owner, 'i');
+                            var owner = question.creator.firstName + " " + question.creator.lastName;
+                            return owner.match(re);
+                        });
+                    }
+                };
+
+
                 $scope.showMore = function () {
                     $scope.maxVisible = $scope.maxVisible + step;
                     limitQuestions();
@@ -251,7 +263,7 @@
                         $scope.tags = union($scope.tags, data);
                         var examSections = [];
                         $scope.exams.forEach(function (exam) {
-                            examSections = examSections.concat(exam.examSections.filter(function(es) {
+                            examSections = examSections.concat(exam.examSections.filter(function (es) {
                                 return es.name;
                             }).map(function (section) {
                                 section.isSectionTag = true;
@@ -362,5 +374,6 @@
 
                 query();
 
-            }]);
+            }
+        ]);
 }());

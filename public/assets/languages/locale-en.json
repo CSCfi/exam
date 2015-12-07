@@ -619,5 +619,7 @@
   "sitnet_language_inspection_finished": "Kielentarkistus loppuunviety EN",
   "sitnet_statement_attachment": "Lausunnon liitetiedosto EN",
   "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti EN",
-  "sitnet_not_reviewed": "Arvioimatta EN"
+  "sitnet_not_reviewed": "Arvioimatta EN",
+  "sitnet_search_by_question_text": "Hae kysymystekstin mukaan EN",
+  "sitnet_search_by_owner": "Hae omistajan nimen mukaan EN"
 }

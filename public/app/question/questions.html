@@ -118,8 +118,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <label for="freesearch">&nbsp;</label>
-
+            <label for="freesearch">{{'sitnet_search_by_question_text' | translate }}</label>
             <div id="freesearch" class="form-group input-group">
                 <input ng-change="applyFreeSearchFilter()" ng-model="filter.text" type="text" class="form-control"
                        placeholder="{{'sitnet_search' | translate }}">
@@ -129,7 +128,17 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4"/>
+        <div class="col-md-4" ng-if="user.isAdmin">
+            <label for="ownerSearch">{{'sitnet_search_by_owner' | translate }}</label>
+            <div id="ownerSearch" class="form-group input-group">
+                <input ng-change="applyOwnerSearchFilter()" ng-model="filter.owner" type="text" class="form-control"
+                       placeholder="{{'sitnet_search' | translate }}">
+
+                <div class="input-group-addon">
+                    <i class="fa fa-search fa-fw"></i>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="detail-row content-group">
         <div class="col-md-12 row">
