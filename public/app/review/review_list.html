@@ -365,12 +365,22 @@
                 <table class="table table-bordered table-striped exams-table">
                     <thead>
                     <tr>
-                        <th class="table-column-checkbox"><input type="checkbox" name="select_all"
-                                                                 class="gradedReviewAll"
-                                                                 ng-click="selectAll('gradedReviewAll', 'gradedReviewsBox')"
-                                                                 popover-placement="right"
-                                                                 popover-trigger="mouseenter"
-                                                                 popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
+                        <th class="dropdown" dropdown>
+                            <button class="btn btn-xs btn-default" data-toggle="dropdown" dropdown-toggle>
+                                <i class="fa fa-square-o"></i>&nbsp;<i class="fa fa-angle-down"></i>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li role="presentation" ng-class="checkboxSelection.filter === 'PAGE' ? 'active': ''">
+                                    <a role="menuitem" class="pointer" ng-click="selectPage('gradedReviewsBox')">
+                                        {{'Valitse näkyvät suoritukset' | translate}}
+                                    </a>
+                                 </li>
+                                <li role="presentation" ng-class="checkboxSelection.filter === 'ALL' ? 'active': ''">
+                                    <a role="menuitem" class="pointer" ng-click="selectAll('gradedReviewsBox')">
+                                        {{'Valitse kaikki' | translate}}
+                                    </a>
+                                </li>
+                            </ul>
                         </th>
                         <th colspan="2">{{'sitnet_student' | translate }}</th>
                         <th>{{'sitnet_exam_duration' | translate}}</th>
@@ -383,7 +393,7 @@
 
                     <tbody>
                     <tr ng-repeat="review in gradedReviews | orderBy:'deadline' | offset: currentPageGraded*pageSize | limitTo: pageSize">
-                        <td class="table-column-checkbox"><input type="checkbox" class="gradedReviewsBox"
+                        <td class="table-column-checkbox"><input type="checkbox" ng-checked="checkboxSelection.filter === 'ALL'" class="gradedReviewsBox"
                                                                  value="{{review.exam.id}}"/></td>
                         <td class="table-column-13 table-column-bold">
                             <a class="pointer" ng-click="go(review.exam)">
@@ -461,10 +471,22 @@
                 <table class="table table-bordered table-striped exams-table">
                     <thead>
                     <tr>
-                        <th class="table-column-checkbox">
-                            <input type="checkbox" name="select_all" class="gradedLoggedAll"
-                                   ng-click="selectAll('gradedLoggedAll', 'gradedLoggedBox')" popover-placement="right"
-                                   popover-trigger="mouseenter" popover="{{ 'sitnet_check_uncheck_all' | translate }}"/>
+                        <th class="dropdown" dropdown>
+                            <button class="btn btn-xs btn-default" data-toggle="dropdown" dropdown-toggle>
+                                <i class="fa fa-square-o"></i>&nbsp;<i class="fa fa-angle-down"></i>
+                            </button>
+                            <ul class="dropdown-menu" role="menu">
+                                <li role="presentation" ng-class="archiveSelection.filter === 'PAGE' ? 'active': ''">
+                                    <a role="menuitem" class="pointer" ng-click="selectArchivePage('gradedLoggedBox')">
+                                        {{'Valitse näkyvät suoritukset' | translate}}
+                                    </a>
+                                </li>
+                                <li role="presentation" ng-class="archiveSelection.filter === 'ALL' ? 'active': ''">
+                                    <a role="menuitem" class="pointer" ng-click="selectArchiveAll('gradedLoggedBox')">
+                                        {{'Valitse kaikki' | translate}}
+                                    </a>
+                                </li>
+                            </ul>
                         </th>
                         <th colspan="2">{{'sitnet_student' | translate }}</th>
                         <th>{{'sitnet_exam_duration' | translate}}</th>
@@ -476,7 +498,7 @@
 
                     <tbody>
                     <tr ng-repeat="review in gradedLoggedReviews | offset: currentPageGradedLogged*pageSize | limitTo: pageSize">
-                        <td class="table-column-checkbox"><input type="checkbox" class="gradedLoggedBox"
+                        <td class="table-column-checkbox"><input type="checkbox"  ng-checked="archiveSelection.filter === 'ALL'" class="gradedLoggedBox"
                                                                  value="{{review.exam.id}}"/></td>
                         <td class="table-column-13 table-column-bold">
                             <a class="pointer" ng-click="go(review.exam)">

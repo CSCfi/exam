@@ -84,7 +84,7 @@
                 var deferred = $q.defer();
                 ExamRes.examTypes.query(function (examTypes) {
                     return deferred.resolve(examTypes.map(function (examType) {
-                        examType.name = getExamTypeDisplayName(examType.type);
+                        examType.name = self.getExamTypeDisplayName(examType.type);
                         return examType;
                     }));
                 });
@@ -114,7 +114,7 @@
                 var deferred = $q.defer();
                 ExamRes.gradeScales.query(function (scales) {
                     return deferred.resolve(scales.map(function (scale) {
-                        scale.name = getScaleDisplayName(scale);
+                        scale.name = self.getScaleDisplayName(scale);
                         return scale;
                     }));
                 });
@@ -141,7 +141,7 @@
                 var isAnswered;
                 switch (question.type) {
                     case 'EssayQuestion':
-                        if (question.answer && question.answer.answer && stripHtml(question.answer.answer).length > 0) {
+                        if (question.answer && question.answer.answer && self.stripHtml(question.answer.answer).length > 0) {
                             isAnswered = true;
                         }
                         break;

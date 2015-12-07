@@ -1,9 +1,10 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('sessionService', ['$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location', '$rootScope',
-            'tmhDynamicLocale', 'EXAM_CONF',
-            function ($q, $interval, $sessionStorage, $translate, $injector, $location, $rootScope, tmhDynamicLocale, EXAM_CONF) {
+        .service('sessionService', ['$q', '$interval', '$sessionStorage', '$translate', '$injector', '$location',
+            '$rootScope', '$timeout', 'tmhDynamicLocale', 'EXAM_CONF',
+            function ($q, $interval, $sessionStorage, $translate, $injector, $location, $rootScope, $timeout,
+                      tmhDynamicLocale, EXAM_CONF) {
 
                 var self = this;
 
@@ -98,6 +99,7 @@
                     } else {
                         $location.path("/login")
                     }
+                    $timeout(toastr.clear, 300);
                 };
 
                 self.logout = function () {

@@ -15,6 +15,9 @@
                 $scope.view = {filter: 'IN_PROGRESS'};
                 $scope.examInfo = {};
 
+                $scope.checkboxSelection = {filter: 'NONE'};
+                $scope.archiveSelection = {filter: 'NONE'};
+
                 $scope.pageSize = 10;
 
                 $scope.go = function (exam) {
@@ -37,17 +40,64 @@
                     $scope.examInfo.examOwners = exam.examOwners;
                 });
 
-                $scope.selectAll = function (selectAllCssClass, checkboxesCssClass) {
+                $scope.selectPage = function (boxClass) {
 
-                    var isSelected = angular.element("." + selectAllCssClass).prop("checked");
+                    var isSelected = $scope.checkboxSelection.filter === 'PAGE';
+                    if (!isSelected) {
+                        $scope.checkboxSelection.filter = 'PAGE';
+                    } else {
+                        $scope.checkboxSelection.filter = 'NONE';
+                    }
 
-                    angular.forEach(angular.element("." + checkboxesCssClass), function (input) {
-                        angular.element(input).prop("checked", isSelected);
+                    angular.forEach(angular.element("." + boxClass), function (input) {
+                        angular.element(input).prop("checked", !isSelected);
                     });
                 };
 
+                $scope.selectAll = function (boxClass) {
+
+                    var isSelected = $scope.checkboxSelection.filter === 'ALL';
+                    if (!isSelected) {
+                        $scope.checkboxSelection.filter = 'ALL';
+                    } else {
+                        $scope.checkboxSelection.filter = 'NONE';
+                    }
+                    angular.forEach(angular.element("." + boxClass), function (input) {
+                        angular.element(input).prop("checked", !isSelected);
+                    });
+                };
+
+
+                $scope.selectArchivePage = function (boxClass) {
+
+                    var isSelected = $scope.archiveSelection.filter === 'PAGE';
+                    if (!isSelected) {
+                        $scope.archiveSelection.filter = 'PAGE';
+                    } else {
+                        $scope.archiveSelection.filter = 'NONE';
+                    }
+
+                    angular.forEach(angular.element("." + boxClass), function (input) {
+                        angular.element(input).prop("checked", !isSelected);
+                    });
+                };
+
+                $scope.selectArchiveAll = function (boxClass) {
+
+                    var isSelected = $scope.archiveSelection.filter === 'ALL';
+                    if (!isSelected) {
+                        $scope.archiveSelection.filter = 'ALL';
+                    } else {
+                        $scope.archiveSelection.filter = 'NONE';
+                    }
+                    angular.forEach(angular.element("." + boxClass), function (input) {
+                        angular.element(input).prop("checked", !isSelected);
+                    });
+                };
+
+
                 var getSelectedIds = function () {
-                    // check that atleast one has been selected
+                    // check that at least one has been selected
                     var isEmpty = true,
                         boxes = angular.element(".gradedLoggedBox"),
                         ids = [];
@@ -72,7 +122,14 @@
 
                 $scope.archiveSelected = function () {
 
-                    var selection = getSelectedIds().childIds.join();
+                    var selection;
+                    if ($scope.archiveSelection.filter === 'ALL') {
+                        selection = $scope.gradedLoggedReviews.map(function (r) {
+                            return r.exam.id;
+                        }).join();
+                    } else {
+                        selection = getSelectedIds().childIds.join();
+                    }
                     ExamRes.archive.update({ids: selection}, function () {
                         $scope.gradedLoggedReviews = $scope.gradedLoggedReviews.filter(function (r) {
                             if (selection.indexOf(r.exam.id) !== -1) {
@@ -88,13 +145,56 @@
                 $scope.printSelected = function () {
 
                     var selection = getSelectedIds();
+                    if ($scope.archiveSelection.filter === 'ALL') {
+                        selection.childIds = $scope.gradedLoggedReviews.map(function (r) {
+                            return r.exam.id;
+                        });
+                    }
 
                     fileService.download('/exam/record/export/' + selection.id,
                         $translate.instant("sitnet_grading_info") + '_' + $filter('date')(Date.now(), "dd-MM-yyyy") + '.csv',
                         {'childIds': selection.childIds});
                 };
 
+                var send = function (review) {
+                    ExamRes.reviewerExam.get({eid: review.exam.id}, function (exam) {
+
+                        if ((exam.grade != undefined || exam.grade != "") || (exam.creditType != undefined || exam.creditType != "")) {
+
+                            var examToRecord = {
+                                "id": exam.id,
+                                "state": "GRADED_LOGGED",
+                                "grade": exam.grade,
+                                "customCredit": exam.customCredit,
+                                "totalScore": exam.totalScore,
+                                "creditType": exam.creditType,
+                                "sendFeedback": true,
+                                "answerLanguage": exam.answerLanguage,
+                                "additionalInfo": ""
+                            };
+
+                            ExamRes.saveRecord.add(examToRecord, function () {
+                                $route.reload();
+                            });
+                        }
+                    });
+                };
+
+                var sendAllToRegistry = function () {
+                    var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
+                    dialog.result.then(function (btn) {
+                        angular.forEach($scope.gradedReviews, function (review) {
+                            send(review);
+                        });
+                        toastr.info($translate.instant('sitnet_results_send_ok'));
+                    });
+                };
+
                 $scope.sendSelectedToRegistry = function () {
+                    if ($scope.checkboxSelection.filter === 'ALL') {
+                        sendAllToRegistry();
+                        return;
+                    }
 
                     var isEmpty = true,
                         boxes = angular.element(".gradedReviewsBox");
@@ -112,45 +212,17 @@
 
                     var dialog = dialogs.confirm($translate.instant('sitnet_confirm'), $translate.instant('sitnet_confirm_record_review'));
                     dialog.result.then(function (btn) {
-
                         angular.forEach(boxes, function (input) {
-
                             var isSelected = angular.element(input).prop("checked");
-
                             if (isSelected) {
-
                                 angular.forEach($scope.gradedReviews, function (review) {
-
                                     if (parseInt(angular.element(input).val()) === review.exam.id) {
-
-                                        ExamRes.reviewerExam.get({eid: review.exam.id}, function (exam) {
-
-                                            if ((exam.grade != undefined || exam.grade != "") || (exam.creditType != undefined || exam.creditType != "")) {
-
-                                                var examToRecord = {
-                                                    "id": exam.id,
-                                                    "state": "GRADED_LOGGED",
-                                                    "grade": exam.grade,
-                                                    "customCredit": exam.customCredit,
-                                                    "totalScore": exam.totalScore,
-                                                    "creditType": exam.creditType,
-                                                    "sendFeedback": true,
-                                                    "answerLanguage": exam.answerLanguage,
-                                                    "additionalInfo": ""
-                                                };
-
-                                                ExamRes.saveRecord.add(examToRecord, function () {
-                                                    $route.reload();
-                                                });
-                                            }
-                                        });
+                                        send(review);
                                     }
                                 });
                             }
                         });
-
                         toastr.info($translate.instant('sitnet_results_send_ok'));
-
                     });
                 };
 
