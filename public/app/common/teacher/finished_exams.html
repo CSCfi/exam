@@ -14,18 +14,18 @@
     <div class="detail-row" ng-show="toggleFinishedExams">
         <div class="col-md-12">
             <table class="table table-bordered table-striped exams-table">
-                <thead>
+                <thead ng-init="finishedPredicate='unassessedCount'; reverse=true;">
                 <tr>
-                    <th>{{ 'sitnet_examcode' | translate }}</th>
-                    <th>{{ 'sitnet_exam_name' | translate }}</th>
-                    <th>{{ 'sitnet_exam_validity' | translate }}</th>
-                    <th>{{ 'sitnet_participation_unreviewed' | translate }}</th>
-                    <th>{{ 'sitnet_teachers' | translate}}</th>
+                    <th sort by="course.code" title="sitnet_examcode" predicate="finishedPredicate" reverse="reverse"></th>
+                    <th sort by="name" title="sitnet_exam_name" predicate="finishedPredicate" reverse="reverse"></th>
+                    <th sort by="examActiveEndDate" title="sitnet_exam_validity" predicate="finishedPredicate" reverse="reverse"></th>
+                    <th sort by="unassessedCount" title="sitnet_participation_unreviewed" predicate="finishedPredicate" reverse="reverse"></th>
+                    <th sort by="ownerAggregate" title="sitnet_teachers" predicate="finishedPredicate" reverse="reverse"></th>
                 </tr>
                 </thead>
 
                 <tbody>
-                <tr ng-repeat="finishedExam in finishedExams">
+                <tr ng-repeat="finishedExam in finishedExams | orderBy:finishedPredicate:reverse">
                     <td class="table-column-examcode">{{ finishedExam.course.code }}</td>
                     <td ng-if="finishedExam.name" class="table-column-examname"><a href="#/exams/reviews/{{finishedExam.id}}">{{
                         finishedExam.name }}</a></td>
@@ -35,7 +35,7 @@
                     <td class="table-column-open-until">{{ finishedExam.examActiveStartDate | date:'dd.MM.yyyy' }} -
                         {{ finishedExam.examActiveEndDate | date:'dd.MM.yyyy' }}
                     </td>
-                    <td class="table-column-enroll-participation">{{ getReviewablesCount(finishedExam) }}
+                    <td class="table-column-enroll-participation">{{ finishedExam.unassessedCount }}
                     </td>
                     <td class="table-column-teachers"><teacher-list exam="finishedExam" /></td>
                 </tr>

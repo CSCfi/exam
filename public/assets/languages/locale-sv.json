@@ -621,5 +621,7 @@
   "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti SV",
   "sitnet_not_reviewed": "Arvioimatta SV",
   "sitnet_search_by_question_text": "Hae kysymystekstin mukaan SV",
-  "sitnet_search_by_owner": "Hae omistajan nimen mukaan SV"
+  "sitnet_search_by_owner": "Hae omistajan nimen mukaan SV",
+  "sitnet_choose_visible": "Valitse näkyvät suoritukset SV",
+  "sitnet_choose_all": "Valitse kaikki SV"
 }

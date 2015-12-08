@@ -263,6 +263,13 @@
     cursor: move;
   }
 
+  .sorted-column {
+
+    i {
+      color: black;
+    }
+  }
+
   @media print {
 
     a[href]:after {

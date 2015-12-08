@@ -621,5 +621,7 @@
   "sitnet_monthly_language_inspection_report": "Kielentarkastuksen kuukausiraportti EN",
   "sitnet_not_reviewed": "Arvioimatta EN",
   "sitnet_search_by_question_text": "Hae kysymystekstin mukaan EN",
-  "sitnet_search_by_owner": "Hae omistajan nimen mukaan EN"
+  "sitnet_search_by_owner": "Hae omistajan nimen mukaan EN",
+  "sitnet_choose_visible": "Valitse näkyvät suoritukset EN",
+  "sitnet_choose_all": "Valitse kaikki suoritukset EN"
 }

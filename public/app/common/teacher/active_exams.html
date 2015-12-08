@@ -14,19 +14,18 @@
     <div class="detail-row" ng-show="toggleActiveExams">
         <div class="col-md-12">
             <table class="table table-bordered table-striped exams-table">
-                <thead>
+                <thead ng-init="activePredicate = 'examActiveEndDate'">
                 <tr>
-                    <th>{{ 'sitnet_examcode' | translate }}</th>
-                    <th>{{ 'sitnet_exam_name' | translate }}</th>
-                    <th>{{ 'sitnet_exam_validity' | translate }}</th>
-                    <th>{{ 'sitnet_participation_unreviewed' | translate }}</th>
-                    <th>{{ 'sitnet_participation_enrolled' | translate }}</th>
-                    <th>{{'sitnet_teachers' | translate}}</th>
+                    <th sort by="course.code" title="sitnet_examcode" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort by="name" title="sitnet_exam_name" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort by="examActiveEndDate" title="sitnet_exam_validity" predicate="activePredicate" reverse="reverse" ></th>
+                    <th sort by="unassessedCount" title="sitnet_participation_unreviewed" predicate="activePredicate" reverse="reverse"></th>
+                    <th sort by="reservationCount" title="sitnet_participation_enrolled" predicate="activePredicate" reverse="reverse" ></th>
+                    <th sort by="ownerAggregate" title="sitnet_teachers" predicate="activePredicate" reverse="reverse" ></th>
                 </tr>
                 </thead>
-
                 <tbody>
-                <tr ng-repeat="activeExam in activeExams">
+                <tr ng-repeat="activeExam in activeExams | orderBy:activePredicate:reverse">
                     <td class="table-column-examcode">{{ activeExam.course.code }}</td>
                     <td ng-if="activeExam.name" class="table-column-examname"><a href="#/exams/reviews/{{activeExam.id}}">{{
                         activeExam.name }}</a></td>
@@ -36,12 +35,14 @@
                     <td class="table-column-open-until">{{ activeExam.examActiveStartDate | date:'dd.MM.yyyy' }} -
                         {{ activeExam.examActiveEndDate | date:'dd.MM.yyyy' }}
                     </td>
-                    <td class="table-column-enroll-participation">{{getReviewablesCount(activeExam)}}
+                    <td class="table-column-enroll-participation">{{activeExam.unassessedCount}}
                     </td>
                     <td class="table-column-enroll-participation">
-                        <a href="" ng-click="showReservations(activeExam.id)">{{ getReservationCount(activeExam) }}</a>
+                        <a href="" ng-click="showReservations(activeExam.id)">{{ activeExam.reservationCount }}</a>
                     </td>
-                    <td class="table-column-teachers"><teacher-list exam="activeExam" /></td>
+                    <td class="table-column-teachers">
+                        <teacher-list exam="activeExam" />
+                    </td>
                 </tr>
                 </tbody>
             </table>

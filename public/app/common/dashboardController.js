@@ -47,14 +47,6 @@
                     questionService.createQuestion(type);
                 };
 
-                $scope.getReviewablesCount = function (exam) {
-                    return examService.getReviewablesCount(exam);
-                };
-
-                $scope.getReservationCount = function (exam) {
-                    return reservationService.getReservationCount(exam);
-                };
-
                 $scope.removeEnrolment = function (enrolment, enrolments) {
                     enrolmentService.removeEnrolment(enrolment, enrolments);
                 };

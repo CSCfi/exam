@@ -1,9 +1,9 @@
 (function () {
     'use strict';
     angular.module('exam.services')
-        .service('dashboardService', ['$q', '$location', '$modal', 'sessionService', 'examService',
+        .service('dashboardService', ['$q', '$location', '$modal', 'sessionService', 'examService', 'reservationService',
             'StudentExamRes', 'ExamRes', 'EXAM_CONF',
-            function ($q, $location, $modal, sessionService, examService, StudentExamRes, ExamRes, EXAM_CONF) {
+            function ($q, $location, $modal, sessionService, examService, reservationService, StudentExamRes, ExamRes, EXAM_CONF) {
 
                 var self = this;
 
@@ -62,8 +62,21 @@
                             scope.activeExams = reviewerExams.filter(function (review) {
                                 return Date.now() <= new Date(review.examActiveEndDate);
                             });
+                            scope.activeExams.forEach(function (ae) {
+                                ae.unassessedCount = examService.getReviewablesCount(ae);
+                                ae.reservationCount = reservationService.getReservationCount(ae);
+                                ae.ownerAggregate = ae.examOwners.map(function (o) {
+                                    return o.firstName + " " + o.lastName;
+                                }).join();
+                            });
                             scope.finishedExams = reviewerExams.filter(function (review) {
                                 return Date.now() > new Date(review.examActiveEndDate);
+                            });
+                            scope.finishedExams.forEach(function (fe) {
+                                fe.unassessedCount = examService.getReviewablesCount(fe);
+                                fe.ownerAggregate = fe.examOwners.map(function (o) {
+                                    return o.firstName + " " + o.lastName;
+                                }).join();
                             });
                             return deferred.resolve(scope);
                         }, function (error) {
