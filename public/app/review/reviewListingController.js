@@ -288,8 +288,16 @@
                         $scope.gradedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'GRADED' && (!r.exam.languageInspection || r.exam.languageInspection.finishedAt);
                         });
+                        $scope.gradedReviews.forEach(function(r) {
+                            r.displayedGrade = $scope.translateGrade(r.exam);
+                            r.displayedCredit = $scope.printExamCredit(r.exam.course.credits, r.exam.customCredit);
+                        });
                         $scope.reviewsInLanguageInspection = reviews.filter(function (r) {
                             return r.exam.state === 'GRADED' && r.exam.languageInspection && !r.exam.languageInspection.finishedAt;
+                        });
+                        $scope.reviewsInLanguageInspection.forEach(function(r) {
+                            r.displayedGrade = $scope.translateGrade(r.exam);
+                            r.displayedCredit = $scope.printExamCredit(r.exam.course.credits, r.exam.customCredit);
                         });
 
                         $scope.toggleGradedReviews = $scope.gradedReviews.length > 0;
@@ -301,6 +309,10 @@
                         $scope.toggleLoggedReviews = $scope.gradedLoggedReviews.length > 0;
                         $scope.archivedReviews = reviews.filter(function (r) {
                             return r.exam.state === 'ARCHIVED';
+                        });
+                        $scope.archivedReviews.forEach(function(r) {
+                            r.displayedGrade = $scope.translateGrade(r.exam);
+                            r.displayedCredit = $scope.printExamCredit(r.exam.course.credits, r.exam.customCredit);
                         });
                     },
                     function (error) {

@@ -11,25 +11,18 @@
 </div>
 <div class="col-md-12" ng-show="abortedExams.length > 0">
     <table class="table table-bordered table-striped exams-table">
-        <thead>
+        <thead ng-init="abortedPredicate = 'started'">
         <tr>
-            <th colspan="2">
-                        <span class="pointer" ng-click="abortedPredicate = 'user.lastName'; reverse=!reverse">
-                            {{'sitnet_student' | translate }}
-                        </span>
-            </th>
-            <th>
-                        <span class="pointer" ng-click="abortedPredicate = 'started'; reverse=!reverse">
-                            {{'sitnet_exam_duration' | translate}}
-                        </span>
-            </th>
+            <th sort by="user.lastName" title="sitnet_student" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="user.email" title="sitnet_email" predicate="abortedPredicate" reverse="reverse"></th>
+            <th sort by="started" title="sitnet_exam_duration" predicate="abortedPredicate" reverse="reverse"></th>
             <th>{{'sitnet_exam_state' | translate}}</th>
             <th>{{'sitnet_trial' | translate}}</th>
         </tr>
         </thead>
 
         <tbody>
-        <tr ng-repeat="review in abortedExams | orderBy:abortedPredicate:reverse | offset: currentPage*pageSize | limitTo: pageSize">
+        <tr ng-repeat="review in abortedExams | orderBy:abortedPredicate:reverse">
             <td class="table-column-examname">
                 <a ng-click="go(review.exam)">
                     {{review.user.firstName}}&nbsp;{{review.user.lastName}}

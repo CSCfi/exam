@@ -14,19 +14,19 @@
 <div class="detail-row" ng-show="toggleReviewsInLanguageInspection">
     <div class="col-md-12">
         <table class="table table-bordered table-striped exams-table">
-            <thead>
+            <thead ng-init="inspectionPredicate = 'deadline'">
             <tr>
-                <th colspan="2">{{'sitnet_student' | translate }}</th>
-                <th>{{'sitnet_exam_duration' | translate}}</th>
-                <th>{{'sitnet_review_deadline' | translate }}</th>
-                <th>{{'sitnet_grade' | translate }}</th>
-                <th>{{'sitnet_exam_credit' | translate}}</th>
-                <th>{{'sitnet_graded' | translate }}</th>
+                <th sort by="user.lastName" title="sitnet_student" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="user.email" title="sitnet_email" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="started" title="sitnet_exam_duration" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="deadline" title="sitnet_review_deadline" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="displayedGrade" title="sitnet_grade" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="displayedCredit" title="sitnet_exam_credit" predicate="inspectionPredicate" reverse="reverse"></th>
+                <th sort by="exam.gradedTime" title="sitnet_graded" predicate="inspectionPredicate" reverse="reverse"></th>
             </tr>
             </thead>
-
             <tbody>
-            <tr ng-repeat="review in reviewsInLanguageInspection | orderBy:'deadline' | offset: currentPageInspected*pageSize | limitTo: pageSize">
+            <tr ng-repeat="review in reviewsInLanguageInspection | orderBy:inspectionPredicate:reverse | offset: currentPageInspected*pageSize | limitTo: pageSize">
                 <td class="table-column-13 table-column-bold">
                     <a class="pointer" ng-click="go(review.exam)">
                         {{review.user.firstName}} {{review.user.lastName}}

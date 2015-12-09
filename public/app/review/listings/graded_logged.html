@@ -1,14 +1,14 @@
 <div class="main-row">
-            <span class="col-md-12">
-                <a ng-click="toggleLogged()" class="header-icon fa-stack fa-lg">
-                    <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
-                    <i ng-show="!toggleLoggedReviews" class="fa fa-chevron-right fa-stack-1x"></i>
-                    <i ng-show="toggleLoggedReviews" class="fa fa-chevron-down fa-stack-1x"></i>
-                </a>
-                <span class="exams-list-title-text pointer">
-                    {{ 'sitnet_exam_graded_logged' | translate }}
-                </span>
-            </span>
+    <span class="col-md-12">
+        <a ng-click="toggleLogged()" class="header-icon fa-stack fa-lg">
+            <i class="fa sitnet-white fa-stop fa-stack-2x"></i>
+            <i ng-show="!toggleLoggedReviews" class="fa fa-chevron-right fa-stack-1x"></i>
+            <i ng-show="toggleLoggedReviews" class="fa fa-chevron-down fa-stack-1x"></i>
+        </a>
+        <span class="exams-list-title-text pointer">
+            {{ 'sitnet_exam_graded_logged' | translate }}
+        </span>
+    </span>
 </div>
 
 <div class="indented-row" ng-show="gradedLoggedReviews.length === 0">
@@ -18,7 +18,7 @@
 <div class="detail-row" ng-show="toggleLoggedReviews">
     <div class="col-md-12">
         <table class="table table-bordered table-striped exams-table">
-            <thead>
+            <thead ng-init="gradedLoggedPredicate = 'exam.gradedTime'">
             <tr>
                 <th class="dropdown" dropdown>
                     <button class="btn btn-xs btn-default" data-toggle="dropdown" dropdown-toggle>
@@ -37,16 +37,17 @@
                         </li>
                     </ul>
                 </th>
-                <th colspan="2">{{'sitnet_student' | translate }}</th>
-                <th>{{'sitnet_exam_duration' | translate}}</th>
-                <th>{{'sitnet_grade' | translate }}</th>
-                <th>{{'sitnet_exam_credit' | translate}}</th>
-                <th>{{'sitnet_graded' | translate }}</th>
+                <th sort by="user.lastName" title="sitnet_student" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="user.email" title="sitnet_email" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="started" title="sitnet_exam_duration" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="displayedGrade" title="sitnet_grade" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="displayedCredit" title="sitnet_exam_credit" predicate="gradedLoggedPredicate" reverse="reverse"></th>
+                <th sort by="exam.gradedTime" title="sitnet_graded" predicate="gradedLoggedPredicate" reverse="reverse"></th
             </tr>
             </thead>
 
             <tbody>
-            <tr ng-repeat="review in gradedLoggedReviews | offset: currentPageGradedLogged*pageSize | limitTo: pageSize">
+            <tr ng-repeat="review in gradedLoggedReviews | orderBy:gradedLoggedPredicate:reverse | offset: currentPageGradedLogged*pageSize | limitTo: pageSize">
                 <td class="table-column-checkbox"><input type="checkbox" ng-checked="archiveSelection.filter === 'ALL'" class="gradedLoggedBox"
                                                          value="{{review.exam.id}}"/></td>
                 <td class="table-column-13 table-column-bold">

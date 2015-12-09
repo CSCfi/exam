@@ -10,21 +10,18 @@
 </div>
 <div class="col-md-12" ng-show="noShows.length > 0">
     <table class="table table-bordered table-striped exams-table">
-        <thead>
+        <thead ng-init="noShowPredicate = 'reservation.startAt'">
         <tr>
-            <th colspan="2">
-                {{'sitnet_student' | translate }}
-            </th>
-            <th>
-                {{'sitnet_reservation' | translate}}
-            </th>
+            <th sort by="user.lastName" title="sitnet_student" predicate="noShowPredicate" reverse="reverse"></th>
+            <th sort by="user.email" title="sitnet_email" predicate="noShowPredicate" reverse="reverse"></th>
+            <th sort by="reservation.startAt" title="sitnet_reservation" predicate="noShowPredicate" reverse="reverse"></th>
             <th>{{'sitnet_exam_state' | translate}}</th>
             <th>{{'sitnet_trial' | translate}}</th>
         </tr>
         </thead>
 
         <tbody>
-        <tr ng-repeat="review in noShows | offset: currentPage*pageSize | limitTo: pageSize">
+        <tr ng-repeat="review in noShows | orderBy:noShowPredicate:reverse">
             <td class="table-column-examname">
                 {{review.user.firstName}}&nbsp;{{review.user.lastName}}
                 <span ng-if="review.user.userIdentifier"><br/>({{review.user.userIdentifier}})</span>

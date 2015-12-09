@@ -20,24 +20,10 @@
         <table class="table table-bordered table-striped exams-table">
             <thead ng-init="reviewPredicate = 'deadline'">
             <tr>
-                <th colspan="2">
-                            <span class="pointer" ng-click="reviewPredicate = 'user.lastName'; reverse=!reverse">
-                                {{'sitnet_student' | translate }}
-                                <i class="fa fa-sort"></i>
-                            </span>
-                </th>
-                <th>
-                            <span class="pointer" ng-click="reviewPredicate = 'started'; reverse=!reverse">
-                                {{'sitnet_exam_duration' | translate}}
-                                    <i class="fa fa-sort"></i>
-                            </span>
-                </th>
-                <th>
-                            <span class="pointer" ng-click="reviewPredicate = 'deadline'; reverse=!reverse">
-                                {{'sitnet_review_deadline' | translate }}
-                                    <i class="fa fa-sort"></i>
-                            </span>
-                </th>
+                <th sort by="user.lastName" title="sitnet_student" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="user.email" title="sitnet_email" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="started" title="sitnet_exam_duration" predicate="reviewPredicate" reverse="reverse"></th>
+                <th sort by="deadline" title="sitnet_review_deadline" predicate="reviewPredicate" reverse="reverse"></th>
                 <th>{{'sitnet_inspection_status' | translate}}</th>
                 <th>{{'sitnet_exam_state' | translate}}</th>
             </tr>
