@@ -91,8 +91,6 @@
                     });
                 };
 
-                //$scope.newTeacher = {};
-
                 $scope.onTeacherSelect = function ($item, $model, $label) {
                     $scope.newTeacher = $item;
                 };
@@ -207,6 +205,20 @@
                             return item;
                         });
                         $scope.questions = $scope.filteredQuestions = questionService.applyFilter(data);
+
+                        $scope.questions.forEach(function(q) {
+                            if (q.evaluationType ==="Points" || q.type === 'MultipleChoiceQuestion') {
+                                q.displayedMaxScore = q.maxScore;
+                            } else if (q.evaluationType ==="Select") {
+                                q.displayedMaxScore = 'sitnet_evaluation_select';
+                            } else if (q.type ==="WeightedMultipleChoiceQuestion") {
+                                q.displayedMaxScore = $scope.calculateMaxPoints(q);
+                            }
+                            q.typeOrd = ['EssayQuestion',
+                                'MultipleChoiceQuestion',
+                                'WeightedMultipleChoiceQuestion'].indexOf(q.type);
+                            q.ownerAggregate = q.creator.lastName + q.creator.firstName;
+                        });
                         $scope.currentPage = 0;
                         limitQuestions();
                     });
