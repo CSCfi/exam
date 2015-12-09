@@ -54,6 +54,7 @@ GET           /examparticipations/:eid/:uid                          controllers
 POST          /exam/record                                           controllers.ExamRecordController.addExamRecord
 GET           /exam/record                                           controllers.ExamRecordController.exportExamRecordsAsCsv(startDate: Long, endDate: Long)
 GET           /exam/record/export/:id                                controllers.ExamRecordController.exportSelectedExamRecordsAsCsv(id: Long)
+GET           /exam/record/export/report/:id                         controllers.ExamRecordController.exportSelectedExamRecordsAsExcel(id: Long)
 
 GET           /examsearch                                            controllers.ExamController.listExams(courseIds: play.libs.F.Option[LongList], sectionIds: play.libs.F.Option[LongList], tagIds: play.libs.F.Option[LongList])
 

@@ -15,6 +15,16 @@
                 $scope.view = {filter: 'IN_PROGRESS'};
                 $scope.examInfo = {};
 
+                $scope.templates = {
+                    noShowPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/no_show.html",
+                    abortedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/aborted.html",
+                    reviewStartedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/review_started.html",
+                    languageInspectionPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/language_inspection.html",
+                    gradedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/graded.html",
+                    gradedLoggedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/graded_logged.html",
+                    archivedPath: EXAM_CONF.TEMPLATES_PATH + "review/listings/archived.html"
+                };
+
                 $scope.checkboxSelection = {filter: 'NONE'};
                 $scope.archiveSelection = {filter: 'NONE'};
 
@@ -128,7 +138,11 @@
                             return r.exam.id;
                         }).join();
                     } else {
-                        selection = getSelectedIds().childIds.join();
+                        var ids = getSelectedIds();
+                        if (!ids) {
+                            return;
+                        }
+                        selection = ids.childIds.join();
                     }
                     ExamRes.archive.update({ids: selection}, function () {
                         $scope.gradedLoggedReviews = $scope.gradedLoggedReviews.filter(function (r) {
@@ -142,17 +156,25 @@
                     });
                 };
 
-                $scope.printSelected = function () {
+                $scope.printSelected = function (asReport) {
 
                     var selection = getSelectedIds();
+                    if (!selection) {
+                        return;
+                    }
                     if ($scope.archiveSelection.filter === 'ALL') {
                         selection.childIds = $scope.gradedLoggedReviews.map(function (r) {
                             return r.exam.id;
                         });
                     }
+                    var url = '/exam/record/export/';
+                    if (asReport) {
+                        url += "report/";
+                    }
+                    var fileType = asReport ? '.xlsx' : '.csv';
 
-                    fileService.download('/exam/record/export/' + selection.id,
-                        $translate.instant("sitnet_grading_info") + '_' + $filter('date')(Date.now(), "dd-MM-yyyy") + '.csv',
+                    fileService.download(url + selection.id,
+                        $translate.instant("sitnet_grading_info") + '_' + $filter('date')(Date.now(), "dd-MM-yyyy") + fileType,
                         {'childIds': selection.childIds});
                 };
 

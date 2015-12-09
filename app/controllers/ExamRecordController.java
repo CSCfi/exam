@@ -4,6 +4,7 @@ import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.avaje.ebean.Ebean;
+import com.ning.http.util.Base64;
 import models.*;
 import models.dto.ExamScore;
 import play.Logger;
@@ -13,8 +14,10 @@ import play.mvc.Result;
 import scala.concurrent.duration.Duration;
 import util.java.CsvBuilder;
 import util.java.EmailComposer;
+import util.java.ExcelBuilder;
 
 import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -82,9 +85,7 @@ public class ExamRecordController extends BaseController {
         return ok(content);
     }
 
-    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result exportSelectedExamRecordsAsCsv(Long examId) {
-
+    private static List<Long> getChildIds() {
         String[] ids = request().queryString().get("childIds");
         List<Long> childIds = new ArrayList<>();
         if (ids != null) {
@@ -92,19 +93,41 @@ public class ExamRecordController extends BaseController {
                 childIds.add(Long.parseLong(s));
             }
         }
+        return childIds;
+    }
 
+    private static Result sendFile(File file) {
+        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+        String content = Base64.encode(setData(file).toByteArray());
+        if (!file.delete()) {
+            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
+        }
+        return ok(content);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result exportSelectedExamRecordsAsCsv(Long examId) {
+        List<Long> childIds = getChildIds();
         File file;
         try {
             file = CsvBuilder.build(examId, childIds);
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }
-        response().setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
-        String content = com.ning.http.util.Base64.encode(setData(file).toByteArray());
-        if (!file.delete()) {
-            Logger.warn("Failed to delete temporary file {}", file.getAbsolutePath());
+        return sendFile(file);
+    }
+
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
+    public Result exportSelectedExamRecordsAsExcel(Long examId) {
+        List<Long> childIds = getChildIds();
+        ByteArrayOutputStream bos;
+        try {
+            bos = ExcelBuilder.build(examId, childIds);
+        } catch (IOException e) {
+            return internalServerError("sitnet_error_creating_csv_file");
         }
-        return ok(content);
+        response().setHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"");
+        return ok(Base64.encode(bos.toByteArray()));
     }
 
     private Result validateExamState(Exam exam) {
