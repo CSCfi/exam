@@ -198,5 +198,19 @@
                 return deferred.promise;
             };
 
+            self.getExecutionTypeTranslation = function (type) {
+                var translation;
+                if (type === 'PUBLIC') {
+                    translation = 'sitnet_public_exam';
+                }
+                if (type === 'PRIVATE') {
+                    translation = 'sitnet_private_exam';
+                }
+                if (type === 'MATURITY') {
+                    translation = 'sitnet_maturity';
+                }
+                return translation;
+            }
+
         }]);
 }());

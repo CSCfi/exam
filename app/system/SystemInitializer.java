@@ -127,7 +127,13 @@ public class SystemInitializer {
                     .where()
                     .eq("roles.name", "TEACHER")
                     .findList();
-            teachers.stream().forEach(t -> composer.composeWeeklySummary(t));
+            teachers.stream().forEach(t -> {
+                try {
+                    composer.composeWeeklySummary(t);
+                } catch (RuntimeException e) {
+                    Logger.error("Failed to send email for {}", t.getEmail());
+                }
+            });
             // Reschedule
             scheduleWeeklyReport();
         }, actor.dispatcher());

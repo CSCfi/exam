@@ -624,5 +624,6 @@
   "sitnet_search_by_owner": "Hae omistajan nimen mukaan SV",
   "sitnet_choose_visible": "Valitse näkyvät suoritukset SV",
   "sitnet_choose_all": "Valitse kaikki SV",
-  "sitnet_print_selected_to_excel": "Luo valituista suoritustiedoista raportti SV"
+  "sitnet_print_selected_to_excel": "Luo valituista suoritustiedoista raportti SV",
+  "sitnet_draft_exams": "Tenttiluonnokset SV"
 }

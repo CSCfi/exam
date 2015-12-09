@@ -26,6 +26,13 @@
                 if ($scope.user.isStudent) {
                     $location.path("/");
                 }
+                if ($scope.user.isTeacher) {
+                    $scope.templates.listing = EXAM_CONF.TEMPLATES_PATH + "exam/teacher/exams.html";
+                }
+                if ($scope.user.isAdmin) {
+                    $scope.templates.listing = EXAM_CONF.TEMPLATES_PATH + "exam/administrative/exams.html";
+                }
+
                 $scope.session = sessionService;
 
                 $rootScope.$on('$routeChangeSuccess', function (newRoute, oldRoute) {
@@ -41,7 +48,7 @@
                 });
 
                 // Clear the question type filter when moving away
-                $scope.$on('$locationChangeStart', function(event) {
+                $scope.$on('$locationChangeStart', function (event) {
                     questionService.setFilter(null);
                 });
 
@@ -53,9 +60,13 @@
                     $scope.gradeScaleSetting = data;
                 });
 
-                examService.listExecutionTypes().then(function(types) {
+                examService.listExecutionTypes().then(function (types) {
                     $scope.executionTypes = types;
                 });
+
+                $scope.getExecutionTypeTranslation = function (exam) {
+                    return examService.getExecutionTypeTranslation(exam.executionType.type);
+                };
 
                 LanguageRes.languages.query(function (languages) {
                     $scope.examLanguages = languages.map(function (language) {
@@ -112,11 +123,11 @@
                                 // Enrolments/reservations in effect
                                 $scope.newExam.hasEnrolmentsInEffect = true;
                             }
-                            if ($scope.newExam.executionType.type==='MATURITY') {
+                            if ($scope.newExam.executionType.type === 'MATURITY') {
                                 // Show only essay questions in the question library
                                 questionService.setFilter('EssayQuestion');
 
-                                $scope.examTypes = $scope.examTypes.filter(function(t) {
+                                $scope.examTypes = $scope.examTypes.filter(function (t) {
                                     return t.type === 'FINAL';
                                 });
                             }
@@ -128,7 +139,13 @@
                 };
 
                 if (!$routeParams.id && !$scope.user.isStudent) {
-                    ExamRes.exams.query(function(exams) {
+                    ExamRes.exams.query(function (exams) {
+                        exams.forEach(function (e) {
+                            e.ownerAggregate = e.examOwners.map(function (o) {
+                                return o.firstName + " " + o.lastName;
+                            }).join();
+                            e.stateOrd = ['PUBLIC', 'SAVED', 'DRAFT'].indexOf(e.state);
+                        });
                         $scope.exams = exams;
                     });
                 } else {
@@ -821,7 +838,9 @@
                             }, function (error) {
                                 toastr.error(error.data);
                                 // remove broken objects
-                                section.sectionQuestions = section.sectionQuestions.filter(function(sq) { return sq; });
+                                section.sectionQuestions = section.sectionQuestions.filter(function (sq) {
+                                    return sq;
+                                });
                             }
                         );
                     }

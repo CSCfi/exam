@@ -56,6 +56,7 @@ public class ExamController extends BaseController {
                 .fetch("examOwners")
                 .fetch("examInspections.user")
                 .fetch("examSections")
+                .fetch("executionType")
                 .fetch("parent")
                 .where()
                 .disjunction()
