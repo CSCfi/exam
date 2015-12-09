@@ -144,7 +144,13 @@
                             e.ownerAggregate = e.examOwners.map(function (o) {
                                 return o.firstName + " " + o.lastName;
                             }).join();
-                            e.stateOrd = ['PUBLIC', 'SAVED', 'DRAFT'].indexOf(e.state);
+                            e.stateOrd = ['PUBLISHED', 'SAVED', 'DRAFT'].indexOf(e.state);
+                            if (e.stateOrd === 0 && Date.now() <= new Date(e.examActiveEndDate)) {
+                                // There's a bug with bootstrap tables, contextual classes wont work together with
+                                // striped-table. Therefore overriding the style with this (RBG taken from .success)
+                                // https://github.com/twbs/bootstrap/issues/11728
+                                e.activityStyle = {'background-color': '#dff0d8 !important'};
+                            }
                         });
                         $scope.exams = exams;
                     });

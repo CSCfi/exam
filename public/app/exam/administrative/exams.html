@@ -14,32 +14,32 @@
     </thead>
     <tbody>
     <tr ng-repeat="exam in exams | orderBy:examsPredicate:reverse">
-        <td>{{exam.course.code}}</td>
-        <td>
+        <td ng-style="exam.activityStyle">{{exam.course.code}}</td>
+        <td ng-style="exam.activityStyle">
             <a ng-if="exam.name" class="exams-info-title bold-button"
                href="#/exams/{{exam.id}}">{{exam.name}}</a>
             <a ng-if="!exam.name" class="exams-info-title bold-button text-danger"
                href="#/exams/{{exam.id}}">{{'sitnet_no_name' | translate}}
             </a>
         </td>
-        <td>{{ getExecutionTypeTranslation(exam) | translate | uppercase }}</td>
-        <td>
+        <td ng-style="exam.activityStyle">{{ getExecutionTypeTranslation(exam) | translate | uppercase }}</td>
+        <td ng-style="exam.activityStyle">
             <teacher-list exam="exam"/>
         </td>
-        <td>
+        <td ng-style="exam.activityStyle">
             <span ng-if="exam.examActiveStartDate && exam.examActiveEndDate">
                 {{exam.examActiveStartDate | date:'dd.MM.yyyy'}} - {{exam.examActiveEndDate | date:'dd.MM.yyyy'}}
             </span>
         </td>
-        <td>
+        <td ng-style="exam.activityStyle">
             <span ng-if="exam.state === 'PUBLISHED'" class="text-success">{{ 'sitnet_published' | translate }}</span>
             <span ng-if="exam.state === 'SAVED'" class="text-warning">{{ 'sitnet_saved' | translate }}</span>
             <span ng-if="exam.state === 'DRAFT'" class="text-danger">{{ 'sitnet_draft' | translate }}</span>
         </td>
-        <td class="text-center">
+        <td ng-style="exam.activityStyle" class="text-center">
             <a class="bold-button" ng-click="copyExam(exam)"><i class="fa fa-lg fa-copy text-info"></i></a>
         </td>
-        <td class="text-center">
+        <td class="text-center" ng-style="exam.activityStyle">
             <a ng-if="exam.state !== 'PUBLISHED'" ng-click="deleteExam(exam)" class="pointer">
                 <i class="fa fa-times fa-lg sitnet-red"></i>
             </a>
