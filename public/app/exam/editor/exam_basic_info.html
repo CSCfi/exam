@@ -71,7 +71,11 @@
     <!-- Exam owners -->
     <div class="row">
         <div class="col-md-12">
-            <div class="sitnet-info-text">{{'sitnet_exam_owners' | translate}}:</div>
+            <div class="sitnet-info-text">{{'sitnet_exam_owners' | translate}}:
+                &nbsp;
+                <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
+                   popover="{{'sitnet_exam_owner_description' | translate}}"></i>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -97,7 +101,11 @@
     <div ng-hide="newExam.executionType.type==='MATURITY'">
         <div class="row">
             <div class="col-md-12">
-                <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:</div>
+                <div class="sitnet-info-text">{{'sitnet_exam_instructor' | translate}}:
+                    &nbsp;
+                    <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
+                       popover="{{'sitnet_exam_instructor_description' | translate}}"></i>
+                </div>
             </div>
         </div>
         <div class="row">
@@ -224,7 +232,11 @@
     <div class="row">
         <!-- Exam software -->
         <div class="col-md-6" ng-hide="newExam.executionType.type==='MATURITY'">
-            <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}</div>
+            <div class="sitnet-info-text">{{'sitnet_machine_softwares' | translate}}:
+                &nbsp;
+                <i class="fa fa-question-circle fa-fw text-info" popover-placement="left" popover-trigger="mouseenter"
+                   popover="{{'sitnet_exam_software_description' | translate}}"></i>
+            </div>
             <multiselect data-multiple="true"
                          ng-model="newExam.softwares"
                          ms-header="{{'sitnet_select' | translate}}"

@@ -626,5 +626,8 @@
   "sitnet_choose_all": "Valitse kaikki SV",
   "sitnet_print_selected_to_excel": "Luo valituista suoritustiedoista raportti SV",
   "sitnet_draft_exams": "Tenttiluonnokset SV",
-  "sitnet_failed_to_record_review": "Virhe rekisteröitäessä suoritusta johtuen puutteellisista tiedoista SV"
+  "sitnet_failed_to_record_review": "Virhe rekisteröitäessä suoritusta johtuen puutteellisista tiedoista SV",
+  "sitnet_exam_owner_description": "Tentaattorilla on täydet oikeudet tenttiin ja tenttisuorituksiin liittyviin toimenpiteisiin SV",
+  "sitnet_exam_instructor_description": "Arvioijalla on oikeus arvioida tenttivastauksia SV",
+  "sitnet_exam_software_description": "Valitsemalla ohjelmistoja ja resursseja tästä valikosta, ohjaat opiskelijat tietyille tenttikoneille SV"
 }
