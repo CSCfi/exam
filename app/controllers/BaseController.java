@@ -1,6 +1,7 @@
 package controllers;
 
 import com.avaje.ebean.Ebean;
+import com.avaje.ebean.ExpressionList;
 import com.google.inject.Inject;
 import com.typesafe.config.ConfigFactory;
 import exceptions.MalformedDataException;
@@ -111,6 +112,29 @@ public class BaseController extends Controller {
             array = args.split(",");
         }
         return Arrays.asList(array);
+    }
+
+    protected <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
+        String rawFilter = filter.replaceAll(" +", " ").trim();
+        String condition = String.format("%%%s%%", rawFilter);
+        String fnField = prefix == null ? "firstName" : String.format("%s.firstName", prefix);
+        String lnField = prefix == null ? "lastName" : String.format("%s.lastName", prefix);
+        if (rawFilter.contains(" ")) {
+            // Possible that user provided us two names. Lets try out some combinations of first and last names
+            String name1 = rawFilter.split(" ")[0];
+            String name2 = rawFilter.split(" ")[1];
+            query = query.disjunction().conjunction()
+                    .ilike(fnField, String.format("%%%s%%", name1))
+                    .ilike(lnField, String.format("%%%s%%", name2))
+                    .endJunction().conjunction()
+                    .ilike(fnField, String.format("%%%s%%", name2))
+                    .ilike(lnField, String.format("%%%s%%", name1))
+                    .endJunction().endJunction();
+        } else {
+            query = query.ilike(fnField, condition)
+                    .ilike(lnField, condition);
+        }
+        return query;
     }
 
     protected F.Promise<Result> wrapAsPromise(final Result result) {

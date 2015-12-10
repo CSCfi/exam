@@ -25,7 +25,7 @@ POST          /permissions                                           controllers
 DELETE        /permissions                                           controllers.UserController.revokeUserPermission
 
 ############### Exam interface ###############
-GET           /exams                                                 controllers.ExamController.getExams
+GET           /exams                                                 controllers.ExamController.getExams(filter: play.libs.F.Option[java.lang.String])
 GET           /exams/:id                                             controllers.ExamController.getExam(id: Long)
 GET           /exampreview/:id                                       controllers.ExamController.getExamPreview(id: Long)
 DELETE        /exams/:id                                             controllers.ExamController.deleteExam(id: Long)

@@ -73,24 +73,9 @@ public class UserController extends BaseController {
         Query<User> query = Ebean.find(User.class).fetch("roles").fetch("permissions");
         List<User> results;
         if (filter.isDefined() && !filter.get().isEmpty()) {
-            String rawFilter = filter.get().replaceAll(" +", " ").trim();
-            String condition = String.format("%%%s%%", rawFilter);
             ExpressionList<User> el = query.where().disjunction();
-            if (rawFilter.contains(" ")) {
-                // Possible that user provided us two names. Lets try out some combinations of first and last names
-                String name1 = rawFilter.split(" ")[0];
-                String name2 = rawFilter.split(" ")[1];
-                el = el.disjunction().conjunction()
-                        .ilike("firstName", String.format("%%%s%%", name1))
-                        .ilike("lastName", String.format("%%%s%%", name2))
-                        .endJunction().conjunction()
-                        .ilike("firstName", String.format("%%%s%%", name2))
-                        .ilike("lastName", String.format("%%%s%%", name1))
-                        .endJunction().endJunction();
-            } else {
-                el = el.ilike("firstName", condition)
-                        .ilike("lastName", condition);
-            }
+            el = applyUserFilter(null, el, filter.get());
+            String condition = String.format("%%%s%%", filter.get());
             results = el.ilike("email", condition)
                     .ilike("userIdentifier", condition)
                     .ilike("employeeNumber", condition)
@@ -170,23 +155,9 @@ public class UserController extends BaseController {
         return array;
     }
 
-    private static List<User> findUsersByRoleAndName(String role, String nameFilter) {
+    private List<User> findUsersByRoleAndName(String role, String nameFilter) {
         ExpressionList<User> el = Ebean.find(User.class).where().eq("roles.name", role).disjunction();
-        if (nameFilter.contains(" ")) {
-            // Possible that user provided us two names. Lets try out some combinations of first and last names
-            String name1 = nameFilter.split(" ")[0];
-            String name2 = nameFilter.split(" ")[1];
-            el = el.disjunction().conjunction()
-                    .icontains("firstName", name1)
-                    .icontains("lastName", name2)
-                    .endJunction().conjunction()
-                    .icontains("firstName", name2)
-                    .icontains("lastName", name1)
-                    .endJunction().endJunction();
-        } else {
-            el = el.icontains("firstName", nameFilter)
-                    .icontains("lastName", nameFilter);
-        }
+        el = applyUserFilter(null, el, nameFilter);
         return el.endJunction().findList();
     }
 

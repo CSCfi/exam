@@ -29,33 +29,55 @@
         </div>
     </div>
 
-    <div class="main-row">
-        <h3 class="col-md-12">
-            {{ 'sitnet_published_exams' | translate }}
-            <span class="label label-success">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
-            {{ 'sitnet_saved_exams' | translate }}
-            <span class="label label-warning">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
-            {{ 'sitnet_draft_exams' | translate }}
-            <span class="label label-danger">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
-        </h3>
-    </div>
-    <div class="detail-row">
-        <div class="col-md-12">
-            <div ng-include="templates.listing" />
+    <div class="detail-row" ng-show="user.isAdmin">
+        <div class="col-md-4">
+            <div class="form-group input-group">
+                <input ng-change="search()" ng-model="filter.text" type="text" class="form-control"
+                       placeholder="{{'sitnet_search' | translate }}" popover-placement="top" popover-popup-delay="500"
+                       popover-trigger="mouseenter" popover="{{ 'sitnet_exam_search_description' | translate }}">
+
+                <div class="input-group-addon">
+                    <i class="fa fa-search fa-fw"></i>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="detail-row">
+    <div class="main-row" ng-show="loader.loading">
         <div class="col-md-12">
-            <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
-            <em class="sitnet-text-medium">{{ 'sitnet_published_exams_info_main' | translate }} {{
-                'sitnet_published_exams_info_other' | translate }}</em>
+            <button class="btn btn-success">{{'sitnet_searching' | translate }}...
+                <i class="fa fa-spinner fa-spin"></i>
+            </button>
         </div>
     </div>
-    <div class="bottom-row">
-        <div class="col-md-12">
-            <strong>{{ 'sitnet_saved_exams' | translate }}: </strong>
-            <em class="sitnet-text-medium">{{ 'sitnet_saved_exams_info_main' | translate }} {{
-                'sitnet_saved_exams_info_other' | translate }}</em>
+    <div ng-hide="!exams || loader.loading">
+        <div class="detail-row">
+            <h3 class="col-md-12">
+                {{ 'sitnet_published_exams' | translate }}
+                <span class="label label-success">{{ (exams | filter: {state: 'PUBLISHED'}).length }}</span>
+                {{ 'sitnet_saved_exams' | translate }}
+                <span class="label label-warning">{{ (exams | filter: {state: 'SAVED'}).length }}</span>
+                {{ 'sitnet_draft_exams' | translate }}
+                <span class="label label-danger">{{ (exams | filter: {state: 'DRAFT'}).length }}</span>
+            </h3>
+        </div>
+        <div class="detail-row">
+            <div class="col-md-12">
+                <div ng-include="templates.listing"/>
+            </div>
+        </div>
+        <div class="detail-row">
+            <div class="col-md-12">
+                <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
+                <em class="sitnet-text-medium">{{ 'sitnet_published_exams_info_main' | translate }} {{
+                    'sitnet_published_exams_info_other' | translate }}</em>
+            </div>
+        </div>
+        <div class="bottom-row">
+            <div class="col-md-12">
+                <strong>{{ 'sitnet_saved_exams' | translate }}: </strong>
+                <em class="sitnet-text-medium">{{ 'sitnet_saved_exams_info_main' | translate }} {{
+                    'sitnet_saved_exams_info_other' | translate }}</em>
+            </div>
         </div>
     </div>
 </div>

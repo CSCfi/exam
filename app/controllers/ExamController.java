@@ -66,8 +66,18 @@ public class ExamController extends BaseController {
                 .endJunction();
     }
 
-    private static List<Exam> getAllExams() {
-        return createPrototypeQuery().findList();
+    private List<Exam> getAllExams(F.Option<String> filter) {
+        ExpressionList<Exam> query = createPrototypeQuery();
+        if (filter.isDefined() && !filter.get().isEmpty()) {
+            query = query.disjunction();
+            query = applyUserFilter("examOwners", query, filter.get());
+            String condition = String.format("%%%s%%", filter.get());
+            query = query
+                    .ilike("name", condition)
+                    .ilike("course.code", condition)
+                    .endJunction();
+        }
+        return query.findList();
     }
 
     private static ExpressionList<Exam> applyOptionalFilters(ExpressionList<Exam> query, F.Option<List<Long>> courseIds,
@@ -107,11 +117,11 @@ public class ExamController extends BaseController {
     // HELPER METHODS END
 
     @Restrict({@Group("TEACHER"), @Group("ADMIN")})
-    public Result getExams() {
+    public Result getExams(F.Option<String> filter) {
         User user = getLoggedUser();
         List<Exam> exams;
         if (user.hasRole("ADMIN", getSession())) {
-            exams = getAllExams();
+            exams = getAllExams(filter);
         } else {
             exams = getAllExamsOfTeacher(user);
         }

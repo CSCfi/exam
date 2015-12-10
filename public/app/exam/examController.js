@@ -21,6 +21,10 @@
 
                 $scope.examTypes = [];
                 $scope.gradeScaleSetting = {};
+                $scope.filter = {};
+                $scope.loader = {
+                    loading: false
+                };
 
                 $scope.user = sessionService.getUser();
                 if ($scope.user.isStudent) {
@@ -51,6 +55,32 @@
                 $scope.$on('$locationChangeStart', function (event) {
                     questionService.setFilter(null);
                 });
+
+                var searching;
+
+                var doSearch = function () {
+                    $scope.loader.loading = true;
+                    ExamRes.exams.query({filter: $scope.filter.text}, function (exams) {
+                        exams.forEach(function (e) {
+                            e.ownerAggregate = e.examOwners.map(function (o) {
+                                return o.firstName + " " + o.lastName;
+                            }).join();
+                            e.stateOrd = ['PUBLISHED', 'SAVED', 'DRAFT'].indexOf(e.state);
+                            if (e.stateOrd === 0 && Date.now() <= new Date(e.examActiveEndDate)) {
+                                // There's a bug with bootstrap tables, contextual classes wont work together with
+                                // striped-table. Therefore overriding the style with this (RBG taken from .success)
+                                // https://github.com/twbs/bootstrap/issues/11728
+                                e.activityStyle = {'background-color': '#dff0d8 !important'};
+                            }
+                        });
+                        $scope.exams = exams;
+                        searching = false;
+                        $scope.loader.loading = false;
+                    }, function(err) {
+                        $scope.loader.loading = false;
+                        toastr.error($translate.instant(err.data));
+                    });
+                };
 
                 SettingsResource.examDurations.get(function (data) {
                     $scope.examDurations = data.examDurations;
@@ -85,8 +115,6 @@
                         $scope.examGradings = scales;
                     });
                 };
-                refreshExamTypes();
-                refreshGradeScales();
 
                 $scope.$on('$localeChangeSuccess', function () {
                     refreshExamTypes();
@@ -138,25 +166,22 @@
                     );
                 };
 
-                if (!$routeParams.id && !$scope.user.isStudent) {
-                    ExamRes.exams.query(function (exams) {
-                        exams.forEach(function (e) {
-                            e.ownerAggregate = e.examOwners.map(function (o) {
-                                return o.firstName + " " + o.lastName;
-                            }).join();
-                            e.stateOrd = ['PUBLISHED', 'SAVED', 'DRAFT'].indexOf(e.state);
-                            if (e.stateOrd === 0 && Date.now() <= new Date(e.examActiveEndDate)) {
-                                // There's a bug with bootstrap tables, contextual classes wont work together with
-                                // striped-table. Therefore overriding the style with this (RBG taken from .success)
-                                // https://github.com/twbs/bootstrap/issues/11728
-                                e.activityStyle = {'background-color': '#dff0d8 !important'};
-                            }
-                        });
-                        $scope.exams = exams;
-                    });
+                // Here's the party
+                refreshExamTypes();
+                refreshGradeScales();
+                if (!$routeParams.id && $scope.user.isTeacher) {
+                    doSearch();
                 } else {
                     initializeExam();
                 }
+
+                $scope.search = function () {
+                    // add a bit of delay so we don't hit the server that often
+                    if (!searching && $scope.filter) {
+                        $timeout(doSearch, 200);
+                        searching = true;
+                    }
+                };
 
                 $scope.hostname = SettingsResource.hostname.get();
 
