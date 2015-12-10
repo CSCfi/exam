@@ -36,6 +36,20 @@
     padding-top: 1em;
   }
 
+  .top-row-narrow {
+    @extend .top-row;
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0 -15px 0 -15px;
+  }
+
+  .bottom-row-narrow {
+    @extend .bottom-row;
+    padding-left: 0;
+    padding-right: 0;
+    margin: 0 -15px 0 -15px;
+  }
+
   .main-row {
     @extend .detail-row;
     padding-top: 1em;

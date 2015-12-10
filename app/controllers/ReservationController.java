@@ -148,6 +148,7 @@ public class ReservationController extends BaseController {
         ExpressionList<ExamEnrolment> query = Ebean.find(ExamEnrolment.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
                 .fetch("exam", "id, name, state")
+                .fetch("exam.course", "code")
                 .fetch("exam.examOwners", "id, firstName, lastName")
                 .fetch("exam.parent.examOwners", "id, firstName, lastName")
                 .fetch("exam.examInspections.user", "id, firstName, lastName")

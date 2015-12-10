@@ -18,7 +18,8 @@
         })
         .filter('truncate', function () {
             return function (text, after) {
-                return !text || truncate(text, after, {ellipsis: '...'});
+                if (!text) return "";
+                return truncate(text, after, {ellipsis: '...'});
             };
         })
         .filter('striphtml', function () {
