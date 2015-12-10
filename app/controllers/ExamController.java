@@ -769,7 +769,7 @@ public class ExamController extends BaseController {
                 .findUnique();
     }
 
-    @Restrict({@Group("TEACHER")})
+    @Restrict({@Group("TEACHER"), @Group("ADMIN")})
     public Result copyExam(Long id) {
         User user = getLoggedUser();
         Exam prototype = getPrototype(id);
