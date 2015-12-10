@@ -15,7 +15,7 @@
     <div class="col-md-12 text">N/A</div>
 </div>
 
-<div class="detail-row" ng-show="toggleLoggedReviews">
+<div class="detail-row" ng-show="toggleLoggedReviews && gradedLoggedReviews.length > 0">
     <div class="col-md-12">
         <table class="table table-bordered table-striped exams-table">
             <thead ng-init="gradedLoggedPredicate = 'exam.gradedTime'">
@@ -25,13 +25,14 @@
                         <i class="fa fa-square-o"></i>&nbsp;<i class="fa fa-angle-down"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li role="presentation" ng-class="archiveSelection.filter === 'PAGE' ? 'active': ''">
-                            <a role="menuitem" class="pointer" ng-click="selectArchivePage('gradedLoggedBox')">
+                        <li role="presentation" ng-class="selections.gradedLogged.page ? 'active': ''">
+                            <a role="menuitem" class="pointer"
+                               ng-click="selectPage('gradedLogged', gradedLoggedReviews, 'gradedLoggedBox')">
                                 {{'sitnet_choose_visible' | translate}}
                             </a>
                         </li>
-                        <li role="presentation" ng-class="archiveSelection.filter === 'ALL' ? 'active': ''">
-                            <a role="menuitem" class="pointer" ng-click="selectArchiveAll('gradedLoggedBox')">
+                        <li role="presentation" ng-class="selections.gradedLogged.all ? 'active': ''">
+                            <a role="menuitem" class="pointer" ng-click="selectAll('gradedLogged', gradedLoggedReviews)">
                                 {{'sitnet_choose_all' | translate}}
                             </a>
                         </li>
@@ -48,8 +49,9 @@
 
             <tbody>
             <tr ng-repeat="review in gradedLoggedReviews | orderBy:gradedLoggedPredicate:reverse | offset: currentPageGradedLogged*pageSize | limitTo: pageSize">
-                <td class="table-column-checkbox"><input type="checkbox" ng-checked="archiveSelection.filter === 'ALL'" class="gradedLoggedBox"
-                                                         value="{{review.exam.id}}"/></td>
+                <td class="table-column-checkbox">
+                    <input type="checkbox" ng-model="review.selected" class="gradedLoggedBox" value="{{review.exam.id}}"/>
+                </td>
                 <td class="table-column-13 table-column-bold">
                     <a class="pointer" ng-click="go(review.exam)">
                         {{review.user.firstName}} {{review.user.lastName}}
@@ -91,7 +93,7 @@
     </div>
 </div>
 
-<div class="main-row" ng-show="toggleLoggedReviews">
+<div class="main-row" ng-show="toggleLoggedReviews && gradedLoggedReviews.length > 0">
     <span class="col-md-12">
         <a class="btn btn-primary" ng-click="printSelected()">{{'sitnet_print_selected_to_file' |
             translate}}</a>

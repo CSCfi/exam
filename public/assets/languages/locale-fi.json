@@ -625,5 +625,6 @@
   "sitnet_choose_visible": "Valitse näkyvät suoritukset",
   "sitnet_choose_all": "Valitse kaikki",
   "sitnet_print_selected_to_excel": "Luo valituista suoritustiedoista raportti",
-  "sitnet_draft_exams": "Tenttiluonnokset"
+  "sitnet_draft_exams": "Tenttiluonnokset",
+  "sitnet_failed_to_record_review": "Virhe rekisteröitäessä suoritusta johtuen puutteellisista tiedoista"
 }

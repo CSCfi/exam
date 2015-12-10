@@ -15,7 +15,7 @@
     <div class="col-md-12 text">N/A</div>
 </div>
 
-<div class="detail-row" ng-show="toggleGradedReviews">
+<div class="detail-row" ng-show="toggleGradedReviews && gradedReviews.length > 0">
     <div class="col-md-12">
         <table class="table table-bordered table-striped exams-table">
             <thead ng-init="gradedPredicate='deadline'">
@@ -25,13 +25,13 @@
                         <i class="fa fa-square-o"></i>&nbsp;<i class="fa fa-angle-down"></i>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li role="presentation" ng-class="checkboxSelection.filter === 'PAGE' ? 'active': ''">
-                            <a role="menuitem" class="pointer" ng-click="selectPage('gradedReviewsBox')">
+                        <li role="presentation" ng-class="selections.graded.page ? 'active': ''">
+                            <a role="menuitem" class="pointer" ng-click="selectPage('graded', gradedReviews, 'gradedReviewsBox')">
                                 {{'sitnet_choose_visible' | translate}}
                             </a>
                         </li>
-                        <li role="presentation" ng-class="checkboxSelection.filter === 'ALL' ? 'active': ''">
-                            <a role="menuitem" class="pointer" ng-click="selectAll('gradedReviewsBox')">
+                        <li role="presentation" ng-class="selections.graded.all ? 'active': ''">
+                            <a role="menuitem" class="pointer" ng-click="selectAll('graded', gradedReviews)">
                                 {{'sitnet_choose_all' | translate}}
                             </a>
                         </li>
@@ -49,8 +49,9 @@
 
             <tbody>
             <tr ng-repeat="review in gradedReviews | orderBy:gradedPredicate:reverse | offset: currentPageGraded*pageSize | limitTo: pageSize">
-                <td class="table-column-checkbox"><input type="checkbox" ng-checked="checkboxSelection.filter === 'ALL'" class="gradedReviewsBox"
-                                                         value="{{review.exam.id}}"/></td>
+                <td class="table-column-checkbox">
+                    <input type="checkbox" ng-model="review.selected" class="gradedReviewsBox" value="{{review.exam.id}}"/>
+                </td>
                 <td class="table-column-13 table-column-bold">
                     <a class="pointer" ng-click="go(review.exam)">
                         {{review.user.firstName}} {{review.user.lastName}}
@@ -96,7 +97,7 @@
     </div>
 </div>
 
-<div class="main-row" ng-show="toggleGradedReviews">
+<div class="main-row" ng-show="toggleGradedReviews && gradedReviews.length > 0">
     <div class="col-md-12">
         <button class="btn btn-primary" ng-click="sendSelectedToRegistry()">
             {{'sitnet_send_results_to_registry' | translate}}

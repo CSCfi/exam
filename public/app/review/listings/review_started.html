@@ -15,7 +15,7 @@
     <div class="col-md-12 text">N/A</div>
 </div>
 
-<div class="detail-row" ng-show="toggleReviews">
+<div class="detail-row" ng-show="toggleReviews && examReviews.length > 0">
     <div class="col-md-12">
         <table class="table table-bordered table-striped exams-table">
             <thead ng-init="reviewPredicate = 'deadline'">

@@ -427,9 +427,10 @@ public class ExamController extends BaseController {
         List<Exam.State> states = statuses.stream().map(Exam.State::valueOf).collect(Collectors.toList());
         List<ExamParticipation> participations = Ebean.find(ExamParticipation.class)
                 .fetch("user", "id, firstName, lastName, email, userIdentifier")
-                .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount")
+                .fetch("exam", "id, name, state, gradedTime, customCredit, answerLanguage, trialCount")
                 .fetch("exam.course", "code, credits")
                 .fetch("exam.grade", "id, name")
+                .fetch("exam.creditType")
                 .fetch("exam.languageInspection")
                 .fetch("reservation", "retrialPermitted")
                 .where()
