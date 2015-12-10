@@ -160,6 +160,7 @@ public class ExamController extends BaseController {
         List<Exam> exams = Ebean.find(Exam.class)
                 .fetch("children", "id, state")
                 .fetch("examOwners")
+                .fetch("executionType")
                 .fetch("children.examInspections.user", "id")
                 .fetch("examInspections.user", "id, firstName, lastName")
                 .fetch("examEnrolments.user", "id")

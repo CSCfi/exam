@@ -55,6 +55,10 @@
                     reservationService.viewReservations(examId);
                 };
 
+                $scope.getExecutionTypeTranslation = function (exam) {
+                    return examService.getExecutionTypeTranslation(exam.executionType.type);
+                };
+
 
                 dashboardService.showDashboard().then(function (data) {
                     for (var k in data) {

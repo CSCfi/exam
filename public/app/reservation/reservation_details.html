@@ -1,21 +1,14 @@
 <div class="detail-row">
     <div class="col-md-12">
-        <table class="table table-bordered" ng-init="predicate='reservation.startAt'; reverse=false">
-            <thead>
+        <table class="table table-bordered table-condensed" ng-init="predicate='reservation.startAt'; reverse=false">
+            <thead ng-init="predicate='reservation.startAt'">
             <tr>
-                <th class="pointer" ng-click="predicate = 'user.lastName'; reverse=!reverse">
-                    {{'sitnet_student' | translate}}
-                </th>
-                <th class="pointer" ng-click="predicate = 'exam.name'; reverse=!reverse">{{'sitnet_exam' | translate}}
-                </th>
-                <th>{{'sitnet_teachers' | translate}}</th>
-                <th class="pointer" ng-click="predicate = 'reservation.startAt'; reverse=!reverse">{{'sitnet_date_time'
-                    | translate}}
-                </th>
-                <th class="pointer" ng-click="predicate = 'reservation.machine.room.name'; reverse=!reverse">
-                    {{'sitnet_room' | translate}}<br/>{{'sitnet_exam_machine' | translate}}
-                </th>
-                <th>{{'sitnet_exam_state' | translate}}</th>
+                <th sort by="userAggregate" title="sitnet_student" predicate="predicate" reverse="reverse"></th>
+                <th sort by="exam.name" title="sitnet_exam" predicate="predicate" reverse="reverse"></th>
+                <th sort by="teacherAggregate" title="sitnet_teachers" predicate="predicate" reverse="reverse"></th>
+                <th sort by="reservation.startAt" title="sitnet_date_time" predicate="predicate" reverse="reverse"></th>
+                <th sort by="reservation.machine.room.name" title="sitnet_exam_machine" predicate="predicate" reverse="reverse"></th>
+                <th sort by="stateOrd" title="sitnet_exam_state" predicate="predicate" reverse="reverse"></th>
                 <th ng-if="isAdminView()">{{'sitnet_remove_reservation' | translate}}</th>
             </tr>
             </thead>
