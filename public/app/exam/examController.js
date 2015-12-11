@@ -30,12 +30,6 @@
                 if ($scope.user.isStudent) {
                     $location.path("/");
                 }
-                if ($scope.user.isTeacher) {
-                    $scope.templates.listing = EXAM_CONF.TEMPLATES_PATH + "exam/teacher/exams.html";
-                }
-                if ($scope.user.isAdmin) {
-                    $scope.templates.listing = EXAM_CONF.TEMPLATES_PATH + "exam/administrative/exams.html";
-                }
 
                 $scope.session = sessionService;
 

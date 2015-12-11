@@ -49,9 +49,7 @@
             <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                     ng-model="selection.studentId" ng-change="query()" class="spaced-column">
                 <option value="">&dash;</option>
-                <option ng-repeat="student in students" value="{{student.id}}">{{student.firstName}}
-                    {{student.lastName}}
-                </option>
+                <option ng-repeat="student in students | orderBy: '[lastName, firstName]'" value="{{student.id}}">{{student.name}}</option>
             </select>
         </div>
         <div class="col-md-2">
@@ -59,7 +57,7 @@
             <select class="wide-select" ui-select2="{ allowClear: true, dropdownAutoWidth : true}"
                     ng-model="selection.examId" ng-change="query()" class="spaced-column">
                 <option class="default-select" value="">&dash;</option>
-                <option ng-repeat="exam in examnames" value="{{exam.id}}">{{exam.name}}</option>
+                <option ng-repeat="exam in examnames | orderBy: 'name'" value="{{exam.id}}">{{exam.name}}</option>
             </select>
         </div>
         <div class="col-md-2">
