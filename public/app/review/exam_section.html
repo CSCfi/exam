@@ -1,8 +1,8 @@
 <div class="detail-row">
     <div class="detail-row">
-        <strong class="col-md-12">
-            <span class="btn btn-info">{{$index + 1}}.</span>&nbsp; &nbsp;{{section.name}}
-        </strong>
+        <h4 class="col-md-12">
+            <span class="label label-info">{{$index + 1}}.</span>&nbsp; &nbsp;{{section.name}}
+        </h4>
         <div class="detail-row">
             <div class="col-md-12" ng-repeat="sectionQuestion in section.sectionQuestions">
                 <div ng-if="sectionQuestion.question.type === 'MultipleChoiceQuestion'"

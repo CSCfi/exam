@@ -14,7 +14,7 @@
                 <div class="row">
                     <h4>{{ 'sitnet_question' | translate }}:</h4>
                 </div>
-                <div class="row">
+                <div class="row review-html-container">
                     <span mathjax ng-bind-html="trustAsHtml(sectionQuestion.question.question)"></span>
                 </div>
                 <!-- question attachment -->
@@ -44,7 +44,7 @@
                 <div class="row">
                     <h4>{{ 'sitnet_exam_answer' | translate}}:</h4>
                 </div>
-                <div class="row">
+                <div class="row review-html-container">
                     <span ng-show="sectionQuestion.question.reviewExpanded" mathjax
                           ng-bind-html="sectionQuestion.question.answer.answer"></span>
                     <span ng-hide="sectionQuestion.question.reviewExpanded" mathjax
