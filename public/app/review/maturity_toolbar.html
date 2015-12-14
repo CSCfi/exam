@@ -1,5 +1,5 @@
 <!-- Bottom toolbar -->
-<div class="detail-row bottom-padding-2">
+<div class="detail-row bottom-padding-2" ng-show="isOwnerOrAdmin() || isUnderLanguageInspection()">
     <span class="col-md-12">
         <span ng-hide="isUnderLanguageInspection()">
             <span ng-show="!isReadOnly()">
