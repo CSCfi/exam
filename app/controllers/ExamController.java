@@ -681,6 +681,7 @@ public class ExamController extends BaseController {
             if (df.get("expanded") != null) {
                 exam.setExpanded(expanded);
             }
+            exam.setObjectVersion(Long.parseLong(df.get("objectVersion")));
 
             exam.save();
             return ok(exam);

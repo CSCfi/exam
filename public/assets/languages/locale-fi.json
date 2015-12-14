@@ -630,5 +630,7 @@
   "sitnet_exam_owner_description": "Tentaattorilla on täydet oikeudet tenttiin ja tenttisuorituksiin liittyviin toimenpiteisiin",
   "sitnet_exam_instructor_description": "Arvioijalla on oikeus arvioida tenttivastauksia",
   "sitnet_exam_software_description": "Valitsemalla ohjelmistoja ja resursseja tästä valikosta, ohjaat opiskelijat tietyille tenttikoneille",
-  "sitnet_missing_statement": "Lausunto puuttuu"
+  "sitnet_missing_statement": "Lausunto puuttuu",
+  "sitnet_error_data_has_changed": "Tallentamasi tieto ei ole ajan tasalla. Tieto on päivittynyt palvelimella sen jälkeen kun se on haettu selaimeen. Ota talteen tieto jota olet muokkaamassa esimerkiksi leikepöydälle, päivitä selainikkuna ja yritä uudelleen."
+
 }

@@ -528,7 +528,8 @@
                         "duration": $scope.newExam.duration,
                         "grading": $scope.newExam.gradeScale ? $scope.newExam.gradeScale.id : undefined,
                         "expanded": $scope.newExam.expanded,
-                        "trialCount": $scope.newExam.trialCount
+                        "trialCount": $scope.newExam.trialCount,
+                        "objectVersion": $scope.newExam.objectVersion
                     };
                     for (var k in overrides) {
                         if (overrides.hasOwnProperty(k)) {
@@ -538,6 +539,16 @@
                     return update;
                 };
 
+                var onUpdate = function (exam) {
+                    exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
+                    $scope.newExam = exam;
+                    resetGradeScale(exam);
+                    $scope.newExam.examLanguages.forEach(function (language) {
+                        // Use front-end language names always to allow for i18n etc
+                        language.name = getLanguageNativeName(language.code);
+                    });
+                };
+
                 $scope.updateExam = function (newExam) {
 
                     var examToSave = getUpdate();
@@ -545,18 +556,11 @@
                     ExamRes.exams.update({id: $scope.newExam.id}, examToSave,
                         function (exam) {
                             toastr.info($translate.instant("sitnet_exam_saved"));
-                            exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
-                            $scope.newExam = exam;
-                            resetGradeScale(exam);
-                            $scope.newExam.examLanguages.forEach(function (language) {
-                                // Use front-end language names always to allow for i18n etc
-                                language.name = getLanguageNativeName(language.code);
-                            });
+                            onUpdate(exam);
                         }, function (error) {
-                            if (error.data && error.data.indexOf("exam.error_") > 0) {
-                                toastr.error($translate.instant(error.data));
-                            } else if (error.data) {
-                                toastr.error(error.data);
+                            if (error.data) {
+                                var msg = error.data.message || error.data;
+                                toastr.error($translate.instant(msg));
                             }
                         });
                 };
@@ -576,7 +580,6 @@
                         });
                     $location.url($location.path());
                     $location.path("/exams/preview/" + examId);
-
                 };
 
                 // Called when Save button is clicked
@@ -596,7 +599,7 @@
                     ExamRes.exams.update({id: examToSave.id}, examToSave,
                         function (exam) {
                             toastr.info($translate.instant("sitnet_exam_saved"));
-                            $scope.newExam.state = newState;
+                            onUpdate(exam);
                         }, function (error) {
                             toastr.error(error.data);
                         });
