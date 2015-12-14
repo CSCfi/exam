@@ -106,8 +106,11 @@
                         <span><br /><a href="mailto:{{ inspection.assignee.email }}">{{ inspection.assignee.email }}</a></span>
                     </td>
                     <td>{{ inspection.finishedAt | date:'dd.MM.yyyy' }}</td>
-                    <td ng-class="inspection.approved ? 'text-success' : 'text-danger'">
-                        <strong>{{ inspection.approved ? 'sitnet_approved' : 'sitnet_rejected' | translate }}</strong></td>
+                    <td>
+                        <a  ng-class="inspection.approved ? 'text-success' : 'text-danger'" href="#/exams/review/{{inspection.exam.id}}">
+                            <strong>{{ inspection.approved ? 'sitnet_approved' : 'sitnet_rejected' | translate }}</strong>
+                        </a>
+                    </td>
                     <td><a class="pointer" ng-click="showStatement(inspection.statement)">{{ 'sitnet_view' | translate }}</a></td>
                 </tr>
                 </tbody>
