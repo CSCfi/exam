@@ -629,5 +629,6 @@
   "sitnet_failed_to_record_review": "Virhe rekisteröitäessä suoritusta johtuen puutteellisista tiedoista",
   "sitnet_exam_owner_description": "Tentaattorilla on täydet oikeudet tenttiin ja tenttisuorituksiin liittyviin toimenpiteisiin",
   "sitnet_exam_instructor_description": "Arvioijalla on oikeus arvioida tenttivastauksia",
-  "sitnet_exam_software_description": "Valitsemalla ohjelmistoja ja resursseja tästä valikosta, ohjaat opiskelijat tietyille tenttikoneille"
+  "sitnet_exam_software_description": "Valitsemalla ohjelmistoja ja resursseja tästä valikosta, ohjaat opiskelijat tietyille tenttikoneille",
+  "sitnet_missing_statement": "Lausunto puuttuu"
 }

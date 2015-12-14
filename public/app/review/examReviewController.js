@@ -82,6 +82,7 @@
                         $scope.exam.grade = {};
                     }
                     var scale = $scope.exam.gradeScale || $scope.exam.parent.gradeScale || $scope.exam.course.gradeScale;
+                    scale.grades = scale.grades || [];
                     $scope.examGrading = scale.grades.map(function (grade) {
                         grade.type = grade.name;
                         grade.name = examService.getExamGradeDisplayName(grade.name);
@@ -803,14 +804,19 @@
                         validate: $scope.canFinalizeInspection
                     },
                     SEND_TO_REGISTRY: {id: 7, text: 'sitnet_send_result_to_registry', canProceed: true},
-                    REJECT_ALTOGETHER: {id: 8, text: 'sitnet_reject_maturity', canProceed: true, warn: true}
+                    REJECT_ALTOGETHER: {id: 8, text: 'sitnet_reject_maturity', canProceed: true, warn: true},
+                    MISSING_STATEMENT: {id: 9, text: 'sitnet_missing_statement'}
                 };
                 MATURITY_STATES.LANGUAGE_INSPECT.alternateState = MATURITY_STATES.SEND_TO_REGISTRY;
 
                 var isMaturityReviewed = function () {
                     return $scope.exam.grade &&
-                        $scope.exam.examFeedback &&
-                        $scope.exam.examFeedback.comment && !$scope.isUnderLanguageInspection();
+                        !$scope.isUnderLanguageInspection();
+                };
+
+                var isMissingStatement = function () {
+                    return $scope.exam.examFeedback && $scope.exam.examFeedback.comment &&
+                        !$scope.isUnderLanguageInspection();
                 };
 
                 $scope.getNextMaturityState = function () {
@@ -823,6 +829,9 @@
                     }
                     if (!isMaturityReviewed()) {
                         return MATURITY_STATES.NOT_REVIEWED;
+                    }
+                    if (!isMissingStatement()) {
+                        return MATURITY_STATES.MISSING_STATEMENT;
                     }
                     var disapproved = !$scope.exam.grade || !$scope.exam.grade.type ||
                         ['REJECTED', 'I', '0'].indexOf($scope.exam.grade.type) > -1;

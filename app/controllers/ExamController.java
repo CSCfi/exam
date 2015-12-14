@@ -420,12 +420,14 @@ public class ExamController extends BaseController {
             exam.setCustomCredit(null);
         }
         // set user only if exam is really graded, not just modified
-        if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED)) {
+        if (exam.hasState(Exam.State.GRADED, Exam.State.GRADED_LOGGED, Exam.State.REJECTED)) {
             exam.setGradedTime(new Date());
             exam.setGradedByUser(getLoggedUser());
         }
         exam.generateHash();
         exam.update();
+
+        notifyPartiesAboutPrivateExamRejection(exam);
 
         return ok();
     }
@@ -527,6 +529,14 @@ public class ExamController extends BaseController {
             exam.save();
         }
         return ok(comment);
+    }
+
+    private void notifyPartiesAboutPrivateExamRejection(Exam exam) {
+        User user = getLoggedUser();
+        actor.scheduler().scheduleOnce(Duration.create(1, TimeUnit.SECONDS), () -> {
+            emailComposer.composeInspectionReady(exam.getCreator(), user, exam);
+            Logger.info("Inspection rejection notification email sent");
+        }, actor.dispatcher());
     }
 
     private void notifyPartiesAboutPrivateExamPublication(Exam exam) {

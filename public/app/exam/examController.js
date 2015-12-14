@@ -70,7 +70,7 @@
                         $scope.exams = exams;
                         searching = false;
                         $scope.loader.loading = false;
-                    }, function(err) {
+                    }, function (err) {
                         $scope.loader.loading = false;
                         toastr.error($translate.instant(err.data));
                     });
@@ -118,6 +118,18 @@
                 var initialLanguages;
                 var initialSoftware;
 
+                var resetGradeScale = function (exam) {
+                    // Set exam grade scale from course default if not specifically set for exam
+                    if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
+                        $scope.newExam.gradeScale = exam.course.gradeScale;
+                        $scope.newExam.gradeScale.name = examService.getScaleDisplayName(
+                            $scope.newExam.course.gradeScale);
+                    } else if (exam.gradeScale) {
+                        $scope.newExam.gradeScale.name = examService.getScaleDisplayName(exam.gradeScale);
+                    }
+
+                };
+
                 var initializeExam = function () {
                     ExamRes.exams.get({id: $routeParams.id},
                         function (exam) {
@@ -128,14 +140,7 @@
                             });
                             initialLanguages = exam.examLanguages.length;
                             initialSoftware = exam.softwares.length;
-                            // Set exam grade scale from course default if not specifically set for exam
-                            if (!exam.gradeScale && exam.course && exam.course.gradeScale) {
-                                $scope.newExam.gradeScale = exam.course.gradeScale;
-                                $scope.newExam.gradeScale.name = examService.getScaleDisplayName(
-                                    $scope.newExam.course.gradeScale);
-                            } else if (exam.gradeScale) {
-                                $scope.newExam.gradeScale.name = examService.getScaleDisplayName(exam.gradeScale);
-                            }
+                            resetGradeScale(exam);
                             $scope.reindexNumbering();
                             getInspectors();
                             getExamOwners();
@@ -542,6 +547,7 @@
                             toastr.info($translate.instant("sitnet_exam_saved"));
                             exam.hasEnrolmentsInEffect = $scope.newExam.hasEnrolmentsInEffect;
                             $scope.newExam = exam;
+                            resetGradeScale(exam);
                             $scope.newExam.examLanguages.forEach(function (language) {
                                 // Use front-end language names always to allow for i18n etc
                                 language.name = getLanguageNativeName(language.code);
